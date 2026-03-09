@@ -1,0 +1,11 @@
+{
+  "name": "APIbase",
+  "protocol": "MCP",
+  "version": "1.0",
+  "mcp_endpoint": "https://apibase.pro/mcp",
+  "tools_endpoint": "https://apibase.pro/api/tools",
+  "capabilities_endpoint": "https://apibase.pro/.well-known/ai-capabilities.json",
+  "authentication": "x402",
+  "documentation": "https://apibase.pro/ai.txt",
+  "status": "active"
+}

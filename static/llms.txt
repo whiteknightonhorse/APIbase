@@ -1,0 +1,24 @@
+# APIbase — Universal API Hub for AI Agents
+# https://apibase.pro
+
+> APIbase aggregates, normalizes, and provides APIs from thousands of businesses
+> in a unified format optimized for AI agent consumption. Supports MCP, A2A, x402.
+
+## Quick Start for Agents
+- Register: POST https://apibase.pro/api/v1/agents/register
+- Discover APIs: POST https://apibase.pro/api/v1/discover {"query": "your task"}
+- Get MCP tools: GET https://apibase.pro/.well-known/mcp.json
+- Full docs: https://apibase.pro/api/v1/docs
+
+## Available Categories
+- travel (flights, hotels, car rental)
+- food (delivery, groceries, restaurants)
+- finance (banking, insurance, trading)
+- services (legal, medical, repairs)
+- compute (GPU rental, rendering, ML training)
+- data (analytics, databases, news archives)
+
+## Payment
+- Protocol: x402 (HTTP 402 Payment Required)
+- Accepted: USDC, USDT on Base/Polygon/Solana
+- Details: https://apibase.pro/.well-known/x402-payment.json

@@ -1,0 +1,38 @@
+# APIbase.pro — robots.txt
+# This site is designed FOR AI agents. Full access granted.
+
+User-agent: *
+Allow: /
+
+# AI Agent Crawlers
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
+# AI-specific: https://apibase.pro/ai.txt
+# LLM instructions: https://apibase.pro/llms.txt
+# Agent Card (A2A): https://apibase.pro/.well-known/agent.json
+# MCP Server: https://apibase.pro/.well-known/mcp.json
+# OpenAPI Spec: https://apibase.pro/.well-known/openapi.json
+
+Sitemap: https://apibase.pro/sitemap.xml

@@ -1,0 +1,253 @@
+# APIbase.pro — Docker Compose Base (§12.194)
+# 6 base containers. Production overlay adds 10 more (docker-compose.prod.yml).
+
+services:
+  # ---------------------------------------------------------------------------
+  # postgres — PostgreSQL 16.2 (§12.194, §12.245 port 5432)
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: postgres:16.2-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-apibase}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD required}
+      POSTGRES_DB: ${POSTGRES_DB:-apibase}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-apibase}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+          cpus: "2.0"
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+      - FOWNER
+      - DAC_OVERRIDE
+    security_opt:
+      - no-new-privileges:true
+    stop_grace_period: 30s
+
+  # ---------------------------------------------------------------------------
+  # redis — Redis 7.2 (§12.194, §12.245 port 6379)
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:7.2-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    networks:
+      - app
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: "1.0"
+    cap_drop:
+      - ALL
+    cap_add:
+      - SETUID
+      - SETGID
+    security_opt:
+      - no-new-privileges:true
+    stop_grace_period: 10s
+
+  # ---------------------------------------------------------------------------
+  # api — API server (§12.194, §12.245 port 3000)
+  # ---------------------------------------------------------------------------
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: ghcr.io/apibase/apibase:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    command: ["node", "dist/api/server.js"]
+    env_file:
+      - .env
+    environment:
+      - SERVICE_NAME=api
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - app
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:3000/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: "2.0"
+    read_only: true
+    cap_drop:
+      - ALL
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    user: "1001:1001"
+    stop_grace_period: 20s
+
+  # ---------------------------------------------------------------------------
+  # worker — Background job processor (§12.194, §12.245 port 3001)
+  # ---------------------------------------------------------------------------
+  worker:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: ghcr.io/apibase/apibase:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    command: ["node", "dist/worker/server.js"]
+    env_file:
+      - .env
+    environment:
+      - SERVICE_NAME=worker
+      - DATABASE_URL=${DATABASE_URL_WORKER}
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - app
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:3001/worker/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: "1.0"
+    read_only: true
+    cap_drop:
+      - ALL
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    user: "1001:1001"
+    stop_grace_period: 60s
+
+  # ---------------------------------------------------------------------------
+  # outbox-worker — Outbox event processor (§12.194, §12.245 port 3002)
+  # ---------------------------------------------------------------------------
+  outbox-worker:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: ghcr.io/apibase/apibase:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    command: ["node", "dist/outbox/server.js"]
+    env_file:
+      - .env
+    environment:
+      - SERVICE_NAME=outbox
+      - DATABASE_URL=${DATABASE_URL_OUTBOX}
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - app
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:3002/outbox/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "0.5"
+    read_only: true
+    cap_drop:
+      - ALL
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    user: "1001:1001"
+    stop_grace_period: 30s
+
+  # ---------------------------------------------------------------------------
+  # nginx — Reverse proxy (§12.194, §12.239, §12.245 ports 80,443)
+  # ---------------------------------------------------------------------------
+  nginx:
+    image: nginx:1.25-alpine
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8880:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./static:/var/www/static:ro
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - app
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://127.0.0.1:8080/stub_status || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.5"
+    read_only: true
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+      - CHOWN
+      - SETUID
+      - SETGID
+      - DAC_OVERRIDE
+    tmpfs:
+      - /tmp
+      - /var/cache/nginx
+      - /var/run
+    security_opt:
+      - no-new-privileges:true
+    stop_grace_period: 10s
+
+# ---------------------------------------------------------------------------
+# Volumes — named only, no host paths (§12.203)
+# ---------------------------------------------------------------------------
+volumes:
+  postgres_data:
+  redis_data:
+
+# ---------------------------------------------------------------------------
+# Network — single bridge network (§12.200)
+# ---------------------------------------------------------------------------
+networks:
+  app:
+    driver: bridge

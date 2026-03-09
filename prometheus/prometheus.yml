@@ -1,0 +1,74 @@
+# APIbase.pro — Prometheus Configuration (§12.197)
+# Scrape interval: 15s, evaluation interval: 15s, retention: 15d (set via CLI flag).
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - /etc/prometheus/rules/*.yml
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ['alertmanager:9093']
+
+scrape_configs:
+  # ---------------------------------------------------------------------------
+  # Self-monitoring
+  # ---------------------------------------------------------------------------
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # ---------------------------------------------------------------------------
+  # Application services
+  # ---------------------------------------------------------------------------
+  - job_name: 'api'
+    static_configs:
+      - targets: ['api:3000']
+    metrics_path: /metrics
+    metric_relabel_configs:
+      - regex: 'agent_id'
+        action: labeldrop
+      - regex: 'request_id'
+        action: labeldrop
+
+  - job_name: 'worker'
+    static_configs:
+      - targets: ['worker:3001']
+    metrics_path: /metrics
+    metric_relabel_configs:
+      - regex: 'agent_id'
+        action: labeldrop
+      - regex: 'request_id'
+        action: labeldrop
+
+  - job_name: 'outbox-worker'
+    static_configs:
+      - targets: ['outbox-worker:3002']
+    metrics_path: /metrics
+    metric_relabel_configs:
+      - regex: 'agent_id'
+        action: labeldrop
+      - regex: 'request_id'
+        action: labeldrop
+
+  # ---------------------------------------------------------------------------
+  # Infrastructure exporters
+  # ---------------------------------------------------------------------------
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['nginx_exporter:9113']
+
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres_exporter:9187']
+
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis_exporter:9121']
+
+  - job_name: 'node'
+    static_configs:
+      - targets: ['node_exporter:9100']

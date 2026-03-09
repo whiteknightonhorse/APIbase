@@ -1,0 +1,8 @@
+{
+  "platform": "APIbase",
+  "version": "1.0",
+  "auto_registration": true,
+  "verification_levels": ["basic", "verified", "enterprise"],
+  "registration_endpoint": "https://apibase.pro/api/v1/agents/register",
+  "documentation": "https://apibase.pro/ai.txt"
+}

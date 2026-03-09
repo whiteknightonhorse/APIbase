@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment (never commit actual .env)
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs/
+
+# Test coverage
+coverage/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Docker data volumes
+postgres_data/
+redis_data/
+
+# Prisma
+prisma/*.db
+prisma/*.db-journal
+
+# TypeScript incremental
+*.tsbuildinfo
+
+# Backups
+backups/
+
+# Encrypted env
+.env.enc

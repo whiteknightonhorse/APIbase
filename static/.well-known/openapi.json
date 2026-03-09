@@ -1,0 +1,85 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "APIbase — Universal API Hub for AI Agents",
+    "version": "1.0.0",
+    "description": "APIbase aggregates, normalizes, and provides APIs from hundreds of businesses in a unified format optimized for AI agent consumption.",
+    "contact": {
+      "name": "APIbase",
+      "url": "https://apibase.pro"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://apibase.pro",
+      "description": "Production"
+    }
+  ],
+  "paths": {
+    "/api/tools": {
+      "get": {
+        "operationId": "listTools",
+        "summary": "List all available tools",
+        "description": "Returns the full catalog of tools available on the platform with pricing and metadata.",
+        "responses": {
+          "200": {
+            "description": "Tool catalog"
+          }
+        }
+      }
+    },
+    "/api/v1/tools/{toolId}": {
+      "post": {
+        "operationId": "invokeTool",
+        "summary": "Invoke a tool",
+        "description": "Execute a tool invocation. Returns 402 Payment Required with x402 payment details if payment is needed.",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          }
+        }
+      }
+    },
+    "/api/v1/agents/register": {
+      "post": {
+        "operationId": "registerAgent",
+        "summary": "Register an AI agent",
+        "description": "Register a new agent and receive API credentials.",
+        "responses": {
+          "201": {
+            "description": "Agent registered successfully"
+          }
+        }
+      }
+    },
+    "/mcp": {
+      "get": {
+        "operationId": "mcpEndpoint",
+        "summary": "MCP Server endpoint",
+        "description": "Model Context Protocol server endpoint for AI agent tool discovery and invocation via SSE.",
+        "responses": {
+          "200": {
+            "description": "SSE stream"
+          }
+        }
+      }
+    }
+  },
+  "externalDocs": {
+    "description": "MCP Server Manifest",
+    "url": "https://apibase.pro/.well-known/mcp.json"
+  }
+}

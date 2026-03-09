@@ -1,0 +1,13 @@
+{
+  "protocol": "x402",
+  "version": "1.0",
+  "network": "base-sepolia",
+  "token": "USDC",
+  "payment_endpoint": "https://apibase.pro/api/v1/tools/{toolId}",
+  "price_range": {
+    "min_usd": "0.001",
+    "max_usd": "0.05"
+  },
+  "testnet": true,
+  "documentation": "https://apibase.pro/ai.txt"
+}

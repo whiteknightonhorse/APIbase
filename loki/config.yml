@@ -1,0 +1,40 @@
+# APIbase.pro — Loki Configuration (§12.198)
+# Log aggregation with 14-day retention. Single-instance mode.
+
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+
+common:
+  ring:
+    instance_addr: 127.0.0.1
+    kvstore:
+      store: inmemory
+  replication_factor: 1
+  path_prefix: /loki
+
+schema_config:
+  configs:
+    - from: 2026-01-01
+      store: tsdb
+      object_store: filesystem
+      schema: v13
+      index:
+        prefix: index_
+        period: 24h
+
+storage_config:
+  filesystem:
+    directory: /loki/chunks
+  tsdb_shipper:
+    active_index_directory: /loki/tsdb-index
+    cache_location: /loki/tsdb-cache
+
+limits_config:
+  retention_period: 336h  # 14 days
+
+compactor:
+  working_directory: /loki/compactor
+  retention_enabled: true
+  delete_request_cancel_period: 10m

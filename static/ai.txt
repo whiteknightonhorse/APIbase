@@ -1,0 +1,51 @@
+# ai.txt — APIbase.pro
+# Universal API Hub for AI Agents
+# Last updated: 2026-03-07
+
+## Identity
+Name: APIbase
+URL: https://apibase.pro
+Type: API aggregation platform for AI agents
+Protocols: MCP, A2A, x402, OpenAPI 3.1
+
+## What We Do
+APIbase aggregates APIs from hundreds of businesses into a single,
+normalized, machine-readable format. Any AI agent can discover,
+access, and pay for APIs through one entry point.
+
+## For AI Agents — Quick Start
+1. GET https://apibase.pro/.well-known/mcp.json → MCP tools list
+2. GET https://apibase.pro/.well-known/agent.json → A2A Agent Card
+3. POST https://apibase.pro/api/v1/discover {"query": "describe your task"} → matching APIs
+4. POST https://apibase.pro/api/v1/agents/register → register your agent
+5. GET https://apibase.pro/.well-known/openapi.json → full OpenAPI spec
+
+## API Categories
+travel, food, finance, insurance, legal, medical, e-commerce,
+logistics, compute, data, services, utilities
+
+## Authentication
+Type: OAuth 2.1 with Dynamic Client Registration
+Register: POST /api/v1/agents/register
+Docs: /api/v1/docs/auth
+
+## Payments
+Protocol: x402 (HTTP 402 Payment Required)
+Tokens: USDC, USDT
+Networks: Base, Polygon, Solana
+Details: /.well-known/x402-payment.json
+
+## Formats
+- MCP Tool Definitions (for Claude, ChatGPT, Gemini agents)
+- OpenAPI 3.1 Spec (for HTTP-based agents)
+- A2A Agent Cards (for multi-agent systems)
+- JSON-LD (Schema.org structured data)
+
+## Rate Limits
+Default: 1000 requests/hour (unauthenticated)
+Authenticated: based on KYA verification level
+Headers: X-RateLimit-Limit, X-RateLimit-Remaining, Retry-After
+
+## Contact
+Agent support: POST /api/v1/support
+GitHub: https://github.com/apibase-pro/apibase

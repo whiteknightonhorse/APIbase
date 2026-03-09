@@ -1,0 +1,188 @@
+# APIbase.pro — Tool Provider Configuration (§12.127, §12.196)
+# Source of truth for seed script. tool_id = internal DB key.
+# MCP-facing names use hyphenated format (mapped in adapter layer).
+
+tools:
+  # --- UC-005: OpenWeatherMap ---
+  - tool_id: weather.get_current
+    name: Current Weather
+    provider: openweathermap
+    price_usd: "0.002"
+    cache_ttl: 300
+
+  - tool_id: weather.get_forecast
+    name: Weather Forecast
+    provider: openweathermap
+    price_usd: "0.003"
+    cache_ttl: 600
+
+  - tool_id: weather.get_alerts
+    name: Weather Alerts
+    provider: openweathermap
+    price_usd: "0.001"
+    cache_ttl: 300
+
+  - tool_id: weather.get_history
+    name: Weather History
+    provider: openweathermap
+    price_usd: "0.005"
+    cache_ttl: 3600
+
+  - tool_id: weather.air_quality
+    name: Air Quality
+    provider: openweathermap
+    price_usd: "0.002"
+    cache_ttl: 300
+
+  - tool_id: weather.geocode
+    name: Weather Geocode
+    provider: openweathermap
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: weather.compare
+    name: Weather Compare
+    provider: openweathermap
+    price_usd: "0.005"
+    cache_ttl: 300
+
+  # --- UC-004: CoinGecko ---
+  - tool_id: crypto.get_price
+    name: Crypto Price
+    provider: coingecko
+    price_usd: "0.001"
+    cache_ttl: 5
+
+  - tool_id: coingecko.get_market
+    name: Crypto Market Overview
+    provider: coingecko
+    price_usd: "0.001"
+    cache_ttl: 30
+
+  - tool_id: crypto.coin_detail
+    name: Crypto Coin Detail
+    provider: coingecko
+    price_usd: "0.001"
+    cache_ttl: 30
+
+  - tool_id: crypto.price_history
+    name: Crypto Price History
+    provider: coingecko
+    price_usd: "0.002"
+    cache_ttl: 60
+
+  - tool_id: crypto.trending
+    name: Crypto Trending
+    provider: coingecko
+    price_usd: "0.001"
+    cache_ttl: 60
+
+  - tool_id: crypto.global
+    name: Crypto Global Stats
+    provider: coingecko
+    price_usd: "0.001"
+    cache_ttl: 30
+
+  - tool_id: crypto.dex_pools
+    name: DEX Pools
+    provider: coingecko
+    price_usd: "0.001"
+    cache_ttl: 10
+
+  - tool_id: crypto.token_by_address
+    name: Token by Address
+    provider: coingecko
+    price_usd: "0.001"
+    cache_ttl: 30
+
+  - tool_id: crypto.search
+    name: Crypto Search
+    provider: coingecko
+    price_usd: "0.001"
+    cache_ttl: 60
+
+  # --- UC-001: Polymarket ---
+  - tool_id: polymarket.search
+    name: Polymarket Search
+    provider: polymarket
+    price_usd: "0.0005"
+    cache_ttl: 30
+
+  - tool_id: polymarket.market_detail
+    name: Polymarket Market Detail
+    provider: polymarket
+    price_usd: "0.0005"
+    cache_ttl: 10
+
+  - tool_id: polymarket.prices
+    name: Polymarket Prices
+    provider: polymarket
+    price_usd: "0.0005"
+    cache_ttl: 5
+
+  - tool_id: polymarket.price_history
+    name: Polymarket Price History
+    provider: polymarket
+    price_usd: "0.0005"
+    cache_ttl: 30
+
+  - tool_id: polymarket.get_orderbook
+    name: Polymarket Orderbook
+    provider: polymarket
+    price_usd: "0.0005"
+    cache_ttl: 0
+
+  - tool_id: polymarket.trending
+    name: Polymarket Trending
+    provider: polymarket
+    price_usd: "0.0005"
+    cache_ttl: 30
+
+  - tool_id: polymarket.leaderboard
+    name: Polymarket Leaderboard
+    provider: polymarket
+    price_usd: "0.0005"
+    cache_ttl: 60
+
+  # --- UC-002: Aviasales ---
+  - tool_id: aviasales.search_flights
+    name: Flight Search
+    provider: aviasales
+    price_usd: "0.005"
+    cache_ttl: 60
+
+  - tool_id: aviasales.price_calendar
+    name: Price Calendar
+    provider: aviasales
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: aviasales.cheap_flights
+    name: Cheap Flights
+    provider: aviasales
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: aviasales.popular_routes
+    name: Popular Routes
+    provider: aviasales
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: aviasales.hotel_search
+    name: Hotel Search
+    provider: aviasales
+    price_usd: "0.003"
+    cache_ttl: 60
+
+  - tool_id: aviasales.nearby_destinations
+    name: Nearby Destinations
+    provider: aviasales
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: aviasales.airport_lookup
+    name: Airport Lookup
+    provider: aviasales
+    price_usd: "0.000"
+    cache_ttl: 86400

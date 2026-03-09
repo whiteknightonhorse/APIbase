@@ -1,0 +1,146 @@
+// APIbase.pro — Prisma Schema (§12.241)
+// 6 core tables. 3 partitioned (daily). Partition DDL in migration SQL.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// agents — Registered AI agents (§12.241, §12.60, §12.175)
+// ---------------------------------------------------------------------------
+model Agent {
+  agent_id            String   @id @default(uuid()) @db.Uuid
+  api_key_hash        String   @unique @db.Char(64)
+  tier                String   @default("free") // free | paid | enterprise
+  status              String   @default("active") // active | suspended | deleted
+  rate_limit_override Json?    @db.JsonB
+  deleted_at          DateTime? @db.Timestamptz()
+  created_at          DateTime @default(now()) @db.Timestamptz()
+  updated_at          DateTime @updatedAt @db.Timestamptz()
+
+  account             Account?
+  executions          ExecutionLedger[]
+
+  @@map("agents")
+}
+
+// ---------------------------------------------------------------------------
+// accounts — Agent financial balances (§12.241, §12.149)
+// ---------------------------------------------------------------------------
+model Account {
+  agent_id        String   @id @db.Uuid
+  balance_usd     Decimal  @default(0) @db.Decimal(18, 8)
+  is_test_account Boolean  @default(false)
+  created_at      DateTime @default(now()) @db.Timestamptz()
+  updated_at      DateTime @updatedAt @db.Timestamptz()
+
+  agent           Agent    @relation(fields: [agent_id], references: [agent_id])
+
+  @@map("accounts")
+}
+
+// ---------------------------------------------------------------------------
+// execution_ledger — Financial audit trail, append-only (§12.241, §12.155)
+// Partitioned daily by created_at. Retention: 365 days.
+// Composite PK required for PostgreSQL partitioning.
+// ---------------------------------------------------------------------------
+model ExecutionLedger {
+  execution_id       String    @default(uuid()) @db.Uuid
+  agent_id           String    @db.Uuid
+  tool_id            String
+  status             String    // pending|running|provider_success|success|failed|timeout|shared_success|error
+  billing_status     String    // RESERVED|PAID|REFUNDED|FREE
+  cost_usd           Decimal   @default(0) @db.Decimal(18, 8)
+  latency_ms         Int?
+  provider_called    Boolean   @default(false)
+  cache_status       String?   // HIT|MISS|SHARED
+  provider_latency_ms Int?
+  idempotency_key    String?
+  payload_url        String?
+  payload_status     String?   // OK|FAILED|TIMEOUT
+  created_at         DateTime  @default(now()) @db.Timestamptz()
+  updated_at         DateTime? @db.Timestamptz()
+
+  agent              Agent     @relation(fields: [agent_id], references: [agent_id])
+  tool               Tool      @relation(fields: [tool_id], references: [tool_id])
+
+  @@id([execution_id, created_at])
+  @@index([agent_id, created_at])
+  @@index([status, created_at])
+  @@index([idempotency_key, created_at])
+  @@map("execution_ledger")
+}
+
+// ---------------------------------------------------------------------------
+// outbox — Async event queue (§12.241, §12.153, §9.240)
+// Partitioned daily by created_at. Retention: 7 days.
+// ---------------------------------------------------------------------------
+model Outbox {
+  id          BigInt   @default(autoincrement())
+  event_type  String
+  payload     Json     @db.JsonB
+  processed   Boolean  @default(false)
+  created_at  DateTime @default(now()) @db.Timestamptz()
+
+  @@id([id, created_at])
+  @@index([processed, created_at])
+  @@map("outbox")
+}
+
+// ---------------------------------------------------------------------------
+// request_metrics — Usage analytics (§12.241)
+// Partitioned daily by created_at. Retention: 90 days.
+// ---------------------------------------------------------------------------
+model RequestMetric {
+  id          BigInt   @default(autoincrement())
+  agent_id    String   @db.Uuid
+  tool_id     String
+  status_code Int      @db.SmallInt
+  duration_ms Int
+  created_at  DateTime @default(now()) @db.Timestamptz()
+
+  @@id([id, created_at])
+  @@index([agent_id, created_at])
+  @@map("request_metrics")
+}
+
+// ---------------------------------------------------------------------------
+// tools — Tool catalog (§12.241, §12.114)
+// ---------------------------------------------------------------------------
+model Tool {
+  tool_id   String  @id
+  name      String
+  provider  String
+  status    String  @default("healthy") // healthy | degraded | unavailable
+  price_usd Decimal @default(0) @db.Decimal(18, 8)
+  cache_ttl Int     @default(300)
+
+  executions ExecutionLedger[]
+
+  @@map("tools")
+}
+
+// ---------------------------------------------------------------------------
+// onboarding_submissions — Smart Onboarding Form (§6.12, §AP-10)
+// ---------------------------------------------------------------------------
+model OnboardingSubmission {
+  submission_id      String   @id
+  company_name       String
+  api_url            String
+  contact_email      String
+  category           String
+  description        String
+  affiliate_program  String?
+  monthly_volume     String?
+  ip_address         String
+  status             String   @default("pending")
+  moderation_result  Json?    @db.JsonB
+  created_at         DateTime @default(now()) @db.Timestamptz()
+
+  @@map("onboarding_submissions")
+}

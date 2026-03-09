@@ -1,0 +1,16 @@
+# APIbase.pro — Grafana Datasource Provisioning (§12.197)
+# Auto-configured on startup. Zero manual UI steps.
+
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://loki:3100

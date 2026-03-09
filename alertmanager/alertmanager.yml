@@ -1,0 +1,16 @@
+# APIbase.pro — Alertmanager Configuration (§12.207)
+# Telegram disabled until bot_token and chat_id are configured.
+# To enable: replace blackhole with telegram receiver and set real values.
+
+global:
+  resolve_timeout: 5m
+
+route:
+  receiver: blackhole
+  group_by: ['alertname', 'severity']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+
+receivers:
+  - name: blackhole

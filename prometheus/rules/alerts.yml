@@ -1,0 +1,298 @@
+# APIbase.pro — Prometheus Alert Rules (§12.240)
+# 27 alerts. All have severity label. Telegram delivery via Alertmanager.
+# Critical = 1h repeat, Warning = 4h repeat.
+
+groups:
+  - name: apibase_alerts
+    rules:
+      # -----------------------------------------------------------------------
+      # 1. EscrowLeak (§12.178) — critical
+      # -----------------------------------------------------------------------
+      - alert: EscrowLeak
+        expr: count(escrow_age_seconds > 60) > 5
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Stale escrows (age > 60s) detected — potential leak. Normal escrow lifetime < 30s."
+
+      # -----------------------------------------------------------------------
+      # 2. ContainerRestartLoop (§12.202) — critical
+      # -----------------------------------------------------------------------
+      - alert: ContainerRestartLoop
+        expr: increase(container_restart_count[5m]) > 3
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Container {{ $labels.container }} restarting > 3 times in 5 min"
+
+      # -----------------------------------------------------------------------
+      # 3. OutboxLagHigh (§12.201) — warning
+      # -----------------------------------------------------------------------
+      - alert: OutboxLagHigh
+        expr: outbox_worker_lag_ms > 5000
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Outbox worker lag > 5s"
+
+      # -----------------------------------------------------------------------
+      # 4. OutboxBacklogHigh (§12.226) — warning
+      # -----------------------------------------------------------------------
+      - alert: OutboxBacklogHigh
+        expr: outbox_backlog_size > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Outbox backlog > 1000 events for 5 minutes"
+
+      # -----------------------------------------------------------------------
+      # 5. OutboxBacklogCritical (§12.226) — critical
+      # -----------------------------------------------------------------------
+      - alert: OutboxBacklogCritical
+        expr: outbox_backlog_size > 10000
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Outbox backlog > 10000 — possible worker failure"
+
+      # -----------------------------------------------------------------------
+      # 6. DiskUsageWarning (§12.220) — warning
+      # -----------------------------------------------------------------------
+      - alert: DiskUsageWarning
+        expr: (1 - node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) > 0.80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Disk usage > 80% on {{ $labels.instance }}"
+
+      # -----------------------------------------------------------------------
+      # 7. DiskUsageCritical (§12.220) — critical
+      # -----------------------------------------------------------------------
+      - alert: DiskUsageCritical
+        expr: (1 - node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) > 0.90
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Disk usage > 90% on {{ $labels.instance }} — immediate action required"
+
+      # -----------------------------------------------------------------------
+      # 8. PrometheusHighCardinality (§12.225) — warning
+      # -----------------------------------------------------------------------
+      - alert: PrometheusHighCardinality
+        expr: prometheus_tsdb_head_series > 500000
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Prometheus TSDB has > 500k series — investigate high-cardinality labels"
+
+      # -----------------------------------------------------------------------
+      # 9. ProviderErrorRateHigh (§12.227) — warning
+      # -----------------------------------------------------------------------
+      - alert: ProviderErrorRateHigh
+        expr: rate(provider_errors_total[10m]) / rate(provider_requests_total[10m]) > 0.20
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Provider {{ $labels.provider }} error rate > 20% — possible quota exhaustion"
+
+      # -----------------------------------------------------------------------
+      # 10. ToolUnavailable (§12.227) — critical
+      # -----------------------------------------------------------------------
+      - alert: ToolUnavailable
+        expr: tool_status{status="unavailable"} == 1
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Tool {{ $labels.tool }} is unavailable"
+
+      # -----------------------------------------------------------------------
+      # 11. ClockDriftHigh (§12.229) — warning
+      # -----------------------------------------------------------------------
+      - alert: ClockDriftHigh
+        expr: abs(node_timex_offset_seconds) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "System clock drift > 100ms — NTP may be failing"
+
+      # -----------------------------------------------------------------------
+      # 12. BackupMissing (§12.212) — critical
+      # -----------------------------------------------------------------------
+      - alert: BackupMissing
+        expr: time() - pg_backup_last_success_timestamp > 90000
+        labels:
+          severity: critical
+        annotations:
+          summary: "PostgreSQL backup not completed in 25 hours"
+
+      # -----------------------------------------------------------------------
+      # 13. PartitionCleanupFailed (§12.237) — warning
+      # -----------------------------------------------------------------------
+      - alert: PartitionCleanupFailed
+        expr: pg_partition_count{table="execution_ledger"} > 400
+        for: 24h
+        labels:
+          severity: warning
+        annotations:
+          summary: "execution_ledger has > 400 partitions — cleanup may have failed"
+
+      # -----------------------------------------------------------------------
+      # 14. HighErrorRate (§12.20) — warning
+      # -----------------------------------------------------------------------
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "HTTP error rate > 5% for 5 minutes"
+
+      # -----------------------------------------------------------------------
+      # 15. HighLatency (§12.20) — warning
+      # -----------------------------------------------------------------------
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "p95 latency > 500ms for 5 minutes"
+
+      # -----------------------------------------------------------------------
+      # 16. PGDiskUsageHigh (§12.187) — warning
+      # -----------------------------------------------------------------------
+      - alert: PGDiskUsageHigh
+        expr: pg_disk_usage_percent > 85
+        labels:
+          severity: warning
+        annotations:
+          summary: "PostgreSQL disk usage > 85% — expand soon"
+
+      # -----------------------------------------------------------------------
+      # 17. RedisMemoryHigh (§12.143) — warning
+      # -----------------------------------------------------------------------
+      - alert: RedisMemoryHigh
+        expr: redis_memory_used_bytes > 1932735283
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis memory usage > 1.8GB (of 2GB max)"
+
+      # -----------------------------------------------------------------------
+      # 18. RedisFragmentation (§12.143) — warning
+      # -----------------------------------------------------------------------
+      - alert: RedisFragmentation
+        expr: redis_mem_fragmentation_ratio > 1.5
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis memory fragmentation ratio {{ $value }}"
+
+      # -----------------------------------------------------------------------
+      # 19. WorkerStuck (§12.141) — critical
+      # -----------------------------------------------------------------------
+      - alert: WorkerStuck
+        expr: worker_heartbeat_age_seconds > 15
+        labels:
+          severity: critical
+        annotations:
+          summary: "Worker heartbeat stale — worker stuck"
+
+      # -----------------------------------------------------------------------
+      # 20. DLQSizeHigh (§12.140) — warning
+      # -----------------------------------------------------------------------
+      - alert: DLQSizeHigh
+        expr: redis_zcard{key="queue:dead_letter"} > 100
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Dead letter queue size > 100"
+
+      # -----------------------------------------------------------------------
+      # 21. LogVolumeHigh (§12.246) — warning
+      # -----------------------------------------------------------------------
+      - alert: LogVolumeHigh
+        expr: rate(loki_ingester_bytes_received_total[1h]) > 100000000
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Log ingestion > 100MB/hour — check for debug logging in production"
+
+      # -----------------------------------------------------------------------
+      # 22. RunawayAgentDetected (§12.247) — critical
+      # -----------------------------------------------------------------------
+      - alert: RunawayAgentDetected
+        expr: increase(agent_budget_suspended_total[10m]) > 0
+        labels:
+          severity: critical
+        annotations:
+          summary: "Agent suspended due to budget exceeded — possible runaway loop"
+
+      # -----------------------------------------------------------------------
+      # 23. HighMemoryUsage (§12.248) — warning
+      # -----------------------------------------------------------------------
+      - alert: HighMemoryUsage
+        expr: process_resident_memory_bytes{job="api"} / 4294967296 > 0.80
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "API memory usage > 80% of 4GB limit"
+
+      # -----------------------------------------------------------------------
+      # 24. MemoryGrowthAnomaly (§12.248) — warning
+      # -----------------------------------------------------------------------
+      - alert: MemoryGrowthAnomaly
+        expr: deriv(process_resident_memory_bytes{job="api"}[1h]) > 52428800
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "API memory growing > 50MB/hour — possible memory leak"
+
+      # -----------------------------------------------------------------------
+      # 25. SlowQueryAlert (§12.249) — warning
+      # -----------------------------------------------------------------------
+      - alert: SlowQueryAlert
+        expr: pg_stat_statements_mean_exec_time_ms{quantile="0.95"} > 500
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "PostgreSQL p95 query latency > 500ms"
+
+      # -----------------------------------------------------------------------
+      # 26. PGConnectionsHigh (§12.249) — warning
+      # -----------------------------------------------------------------------
+      - alert: PGConnectionsHigh
+        expr: pg_stat_activity_count > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "PostgreSQL connections > 80/100"
+
+      # -----------------------------------------------------------------------
+      # 27. PGDeadTuplesHigh (§12.249) — warning
+      # -----------------------------------------------------------------------
+      - alert: PGDeadTuplesHigh
+        expr: pg_stat_user_tables_n_dead_tup{relname="execution_ledger"} > 1000000
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "execution_ledger has > 1M dead tuples — VACUUM may be lagging"

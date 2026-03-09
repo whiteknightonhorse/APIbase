@@ -1,0 +1,187 @@
+{
+  "platform": "APIbase",
+  "version": "1.0",
+  "updated_at": "2026-03-08T00:00:00Z",
+  "capabilities": [
+    {
+      "id": "current_weather",
+      "description": "Retrieve real-time weather conditions for any location worldwide",
+      "category": "environment",
+      "tools": ["weather.get_current"]
+    },
+    {
+      "id": "weather_forecast",
+      "description": "Get multi-day weather forecasts for any location",
+      "category": "environment",
+      "tools": ["weather.get_forecast"]
+    },
+    {
+      "id": "weather_alerts",
+      "description": "Get active severe weather alerts and warnings for a location",
+      "category": "environment",
+      "tools": ["weather.get_alerts"]
+    },
+    {
+      "id": "weather_history",
+      "description": "Access historical weather data for any location and date",
+      "category": "environment",
+      "tools": ["weather.get_history"]
+    },
+    {
+      "id": "air_quality",
+      "description": "Get air quality index and pollution data for any location",
+      "category": "environment",
+      "tools": ["weather.air_quality"]
+    },
+    {
+      "id": "location_geocoding",
+      "description": "Convert location names to geographic coordinates",
+      "category": "environment",
+      "tools": ["weather.geocode"]
+    },
+    {
+      "id": "weather_comparison",
+      "description": "Compare weather conditions across multiple locations simultaneously",
+      "category": "environment",
+      "tools": ["weather.compare"]
+    },
+    {
+      "id": "crypto_pricing",
+      "description": "Fetch real-time cryptocurrency prices and market data",
+      "category": "finance",
+      "tools": ["crypto.get_price"]
+    },
+    {
+      "id": "crypto_market_overview",
+      "description": "Get cryptocurrency market data by category with rankings",
+      "category": "finance",
+      "tools": ["coingecko.get_market"]
+    },
+    {
+      "id": "crypto_coin_analysis",
+      "description": "Get detailed information about a specific cryptocurrency including description, links, and stats",
+      "category": "finance",
+      "tools": ["crypto.coin_detail"]
+    },
+    {
+      "id": "crypto_price_history",
+      "description": "Access historical price data and charts for cryptocurrencies",
+      "category": "finance",
+      "tools": ["crypto.price_history"]
+    },
+    {
+      "id": "crypto_trending",
+      "description": "Discover trending and popular cryptocurrencies",
+      "category": "finance",
+      "tools": ["crypto.trending"]
+    },
+    {
+      "id": "crypto_global_stats",
+      "description": "Get global cryptocurrency market statistics and dominance data",
+      "category": "finance",
+      "tools": ["crypto.global"]
+    },
+    {
+      "id": "dex_liquidity",
+      "description": "Access decentralized exchange liquidity pool data and analytics",
+      "category": "finance",
+      "tools": ["crypto.dex_pools"]
+    },
+    {
+      "id": "token_lookup",
+      "description": "Look up token information by smart contract address on any supported chain",
+      "category": "finance",
+      "tools": ["crypto.token_by_address"]
+    },
+    {
+      "id": "crypto_search",
+      "description": "Search for cryptocurrencies by name, symbol, or keyword",
+      "category": "finance",
+      "tools": ["crypto.search"]
+    },
+    {
+      "id": "prediction_market_search",
+      "description": "Search and discover prediction markets on Polymarket",
+      "category": "markets",
+      "tools": ["polymarket.search"]
+    },
+    {
+      "id": "prediction_market_detail",
+      "description": "Get detailed information about a specific prediction market including outcomes and volumes",
+      "category": "markets",
+      "tools": ["polymarket.market_detail"]
+    },
+    {
+      "id": "prediction_market_prices",
+      "description": "Get current outcome prices for prediction markets",
+      "category": "markets",
+      "tools": ["polymarket.prices"]
+    },
+    {
+      "id": "prediction_market_history",
+      "description": "Access historical price data for prediction market outcomes",
+      "category": "markets",
+      "tools": ["polymarket.price_history"]
+    },
+    {
+      "id": "prediction_market_orderbook",
+      "description": "Get real-time order book depth for prediction markets",
+      "category": "markets",
+      "tools": ["polymarket.get_orderbook"]
+    },
+    {
+      "id": "prediction_market_trending",
+      "description": "Discover trending and high-volume prediction markets",
+      "category": "markets",
+      "tools": ["polymarket.trending"]
+    },
+    {
+      "id": "prediction_market_leaderboard",
+      "description": "Get top trader rankings and performance on Polymarket",
+      "category": "markets",
+      "tools": ["polymarket.leaderboard"]
+    },
+    {
+      "id": "flight_search",
+      "description": "Search for flights between airports with pricing and schedule data",
+      "category": "travel",
+      "tools": ["aviasales.search_flights"]
+    },
+    {
+      "id": "flight_price_calendar",
+      "description": "View flight price calendar to find cheapest travel dates for a route",
+      "category": "travel",
+      "tools": ["aviasales.price_calendar"]
+    },
+    {
+      "id": "cheap_flights",
+      "description": "Find the cheapest available flights from any origin airport",
+      "category": "travel",
+      "tools": ["aviasales.cheap_flights"]
+    },
+    {
+      "id": "popular_routes",
+      "description": "Discover popular flight routes and destinations from any origin",
+      "category": "travel",
+      "tools": ["aviasales.popular_routes"]
+    },
+    {
+      "id": "hotel_search",
+      "description": "Search for hotels in any city with pricing and availability",
+      "category": "travel",
+      "tools": ["aviasales.hotel_search"]
+    },
+    {
+      "id": "nearby_destinations",
+      "description": "Find nearby travel destinations reachable by air from any location",
+      "category": "travel",
+      "tools": ["aviasales.nearby_destinations"]
+    },
+    {
+      "id": "airport_lookup",
+      "description": "Look up airport information by name, city, or IATA code",
+      "category": "travel",
+      "tools": ["aviasales.airport_lookup"]
+    }
+  ]
+}

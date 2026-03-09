@@ -1,0 +1,17 @@
+node_modules
+dist
+.git
+.env
+.env.local
+.env.*.local
+coverage
+tests
+*.md
+!README.md
+.vscode
+.idea
+*.log
+.DS_Store
+postgres_data
+redis_data
+.tsbuildinfo

@@ -1,0 +1,15 @@
+# APIbase.pro — Grafana Dashboard Provisioning (§12.242)
+# Auto-loads JSON dashboards from the json/ directory on startup.
+
+apiVersion: 1
+
+providers:
+  - name: APIbase
+    orgId: 1
+    folder: APIbase
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    options:
+      path: /etc/grafana/provisioning/dashboards/json
+      foldersFromFilesStructure: false
