@@ -49,21 +49,49 @@ Accept: application/json
 
 ## Available Tools
 
-| Provider | Tools | Category | Auth Required |
-|----------|-------|----------|---------------|
-| Polymarket | `polymarket.search`, `polymarket.market_detail`, `polymarket.prices`, `polymarket.price_history`, `polymarket.get_orderbook`, `polymarket.trending`, `polymarket.leaderboard` | Predictions | No (read-only) |
-| Hyperliquid | `hyperliquid.market_data`, `hyperliquid.order_book`, `hyperliquid.klines`, `hyperliquid.positions`, `hyperliquid.account`, `hyperliquid.vault` | DeFi/Perps | No (read-only) |
-| AsterDEX | `aster.exchange_info`, `aster.market_data`, `aster.order_book`, `aster.klines` | DeFi/Perps | No (read-only) |
-| OpenWeatherMap | `weather.get_current`, `weather.get_forecast`, `weather.get_alerts`, `weather.get_history`, `weather.air_quality`, `weather.geocode`, `weather.compare` | Weather | API key |
-| CoinGecko | `crypto.get_price`, `crypto.coin_detail`, `crypto.price_history`, `crypto.trending`, `crypto.global`, `crypto.dex_pools`, `crypto.search` | Crypto | API key |
+### Polymarket — Prediction Markets (12 tools)
+
+| Tool | Description | Price |
+|------|-------------|-------|
+| `polymarket.search` | Search prediction markets | $0.0005 |
+| `polymarket.market_detail` | Market details with probabilities | $0.0005 |
+| `polymarket.prices` | Midpoint price for a token | $0.0005 |
+| `polymarket.price_history` | Historical price data | $0.0005 |
+| `polymarket.get_orderbook` | Order book depth | $0.0005 |
+| `polymarket.trending` | Trending markets by volume | $0.0005 |
+| `polymarket.place_order` | Place a limit order (GTC/GTD/FOK) | $0.001 |
+| `polymarket.cancel_order` | Cancel an open order | $0.001 |
+| `polymarket.open_orders` | Get open orders | $0.0005 |
+| `polymarket.trade_history` | Trade history | $0.0005 |
+| `polymarket.balance` | Balance and allowance | $0.0005 |
+
+Trading tools use the `@polymarket/clob-client` SDK with Builder attribution for revenue.
+
+### Hyperliquid — DeFi Perpetuals (6 tools)
+
+| Tool | Description | Price |
+|------|-------------|-------|
+| `hyperliquid.market_data` | Market data and funding rates | $0.002 |
+| `hyperliquid.order_book` | Order book depth | $0.003 |
+| `hyperliquid.klines` | Candlestick / OHLCV data | $0.003 |
+| `hyperliquid.positions` | User positions | $0.005 |
+| `hyperliquid.account` | Account summary | $0.005 |
+| `hyperliquid.vault` | Vault details | $0.005 |
+
+### AsterDEX — DeFi Perpetuals (4 tools)
+
+| Tool | Description | Price |
+|------|-------------|-------|
+| `aster.exchange_info` | Exchange info and trading pairs | $0.001 |
+| `aster.market_data` | Market data and 24h stats | $0.002 |
+| `aster.order_book` | Order book depth | $0.003 |
+| `aster.klines` | Candlestick / OHLCV data | $0.003 |
 
 ## Payment
 
 Protocol: **x402** (HTTP 402 Payment Required)
 Token: USDC on Base
 Address: `0x50EbDa9dA5dC19c302Ca059d7B9E06e264936480`
-
-Free-tier tools (Polymarket, Hyperliquid, AsterDEX public endpoints) do not require payment.
 
 ## Authentication
 
