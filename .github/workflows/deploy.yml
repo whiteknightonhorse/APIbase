@@ -4,7 +4,7 @@
 # Deploy strategy (Phase 1): 5-10s downtime acceptable.
 # Rollback: automatic on smoke test failure via scripts/deploy.sh.
 #
-# Required GitHub Secrets (for build + deploy stages):
+# Required GitHub Secrets:
 #   SSH_KEY          — Private key for SSH to Hetzner server
 #   SERVER_HOST      — Hetzner server IP address
 #   DEPLOY_USER      — SSH username (not root)
@@ -60,14 +60,12 @@ jobs:
 
   # -------------------------------------------------------------------------
   # Stage 2: Build Docker image + push to GHCR
-  # Skipped if SERVER_HOST secret is not configured.
   # -------------------------------------------------------------------------
   build:
     name: Build & Push Image
     needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    if: ${{ secrets.SERVER_HOST != '' }}
 
     steps:
       - name: Checkout
@@ -97,20 +95,15 @@ jobs:
 
   # -------------------------------------------------------------------------
   # Stage 3: Deploy to Hetzner via SSH
-  # Skipped if SERVER_HOST secret is not configured.
   # -------------------------------------------------------------------------
   deploy:
     name: Deploy to Production
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    if: ${{ secrets.SERVER_HOST != '' }}
     environment: production
 
     steps:
-      - name: Checkout (for deploy script)
-        uses: actions/checkout@v4
-
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
@@ -119,16 +112,10 @@ jobs:
           ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
 
       - name: Deploy via SSH
-        env:
-          SSH_CMD: ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ${{ secrets.DEPLOY_USER }}@${{ secrets.SERVER_HOST }}
         run: |
-          # Copy deploy script to server
-          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
-            scripts/deploy.sh \
-            ${{ secrets.DEPLOY_USER }}@${{ secrets.SERVER_HOST }}:/tmp/deploy.sh
-
-          # Execute deploy with commit SHA
-          $SSH_CMD "chmod +x /tmp/deploy.sh && /tmp/deploy.sh ${{ github.sha }}"
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            ${{ secrets.DEPLOY_USER }}@${{ secrets.SERVER_HOST }} \
+            "cd /home/apibase/apibase && bash scripts/deploy.sh ${{ github.sha }}"
 
       - name: Cleanup SSH key
         if: always()
