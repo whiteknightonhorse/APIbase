@@ -79,7 +79,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    image: ghcr.io/apibase/apibase:${IMAGE_TAG:-latest}
+    image: ghcr.io/whiteknightonhorse/apibase:${IMAGE_TAG:-latest}
     restart: unless-stopped
     command: ["node", "dist/api/server.js"]
     env_file:
@@ -121,7 +121,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    image: ghcr.io/apibase/apibase:${IMAGE_TAG:-latest}
+    image: ghcr.io/whiteknightonhorse/apibase:${IMAGE_TAG:-latest}
     restart: unless-stopped
     command: ["node", "dist/worker/server.js"]
     env_file:
@@ -162,7 +162,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    image: ghcr.io/apibase/apibase:${IMAGE_TAG:-latest}
+    image: ghcr.io/whiteknightonhorse/apibase:${IMAGE_TAG:-latest}
     restart: unless-stopped
     command: ["node", "dist/outbox/server.js"]
     env_file:

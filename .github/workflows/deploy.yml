@@ -22,7 +22,7 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ghcr.io/apibase/apibase
+  IMAGE_NAME: ghcr.io/whiteknightonhorse/apibase
   IMAGE_TAG: sha-${{ github.sha }}
 
 jobs:

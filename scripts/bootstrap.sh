@@ -12,7 +12,7 @@
 #   - Fresh Ubuntu 22.04+ server
 #   - Root SSH access
 #   - .env.enc in repo (or manual .env placement)
-#   - GHCR access configured (ghcr.io/apibase/apibase)
+#   - GHCR access configured (ghcr.io/whiteknightonhorse/apibase)
 #
 # What this script does:
 #   1.  Update system packages

@@ -186,3 +186,65 @@ tools:
     provider: aviasales
     price_usd: "0.000"
     cache_ttl: 86400
+
+  # --- UC-021: Hyperliquid ---
+  - tool_id: hyperliquid.market_data
+    name: Hyperliquid Market Data
+    provider: hyperliquid
+    price_usd: "0.002"
+    cache_ttl: 5
+
+  - tool_id: hyperliquid.order_book
+    name: Hyperliquid Order Book
+    provider: hyperliquid
+    price_usd: "0.003"
+    cache_ttl: 3
+
+  - tool_id: hyperliquid.klines
+    name: Hyperliquid Klines
+    provider: hyperliquid
+    price_usd: "0.003"
+    cache_ttl: 15
+
+  - tool_id: hyperliquid.positions
+    name: Hyperliquid Positions
+    provider: hyperliquid
+    price_usd: "0.005"
+    cache_ttl: 5
+
+  - tool_id: hyperliquid.account
+    name: Hyperliquid Account
+    provider: hyperliquid
+    price_usd: "0.005"
+    cache_ttl: 10
+
+  - tool_id: hyperliquid.vault
+    name: Hyperliquid Vault
+    provider: hyperliquid
+    price_usd: "0.005"
+    cache_ttl: 60
+
+  # --- UC-020: AsterDEX ---
+  - tool_id: aster.exchange_info
+    name: AsterDEX Exchange Info
+    provider: asterdex
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: aster.market_data
+    name: AsterDEX Market Data
+    provider: asterdex
+    price_usd: "0.002"
+    cache_ttl: 10
+
+  - tool_id: aster.order_book
+    name: AsterDEX Order Book
+    provider: asterdex
+    price_usd: "0.003"
+    cache_ttl: 5
+
+  - tool_id: aster.klines
+    name: AsterDEX Klines
+    provider: asterdex
+    price_usd: "0.003"
+    cache_ttl: 30

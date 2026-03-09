@@ -42,3 +42,7 @@ backups/
 
 # Encrypted env
 .env.enc
+
+# Internal files (not for public repo)
+CLAUDE.md
+plan.md
