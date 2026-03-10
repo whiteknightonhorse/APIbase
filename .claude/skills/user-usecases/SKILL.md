@@ -43,6 +43,8 @@ Use these examples as reference patterns when:
 | UC-019 | Shippo + Geocodio + USITC HTS + GeoNames + UN Comtrade | Logistics / Shipping / Tracking / Delivery Intelligence | Reference | Shippo (Platform Partner, $0.05/label) + Geocodio (free-$200/mo) + USITC HTS (US Gov, free) + GeoNames (CC-BY 4.0, free) + UN Comtrade (Premium Pro, ~$50/mo) | `usecases/UC-019-logistics.md` |
 | UC-020 | AsterDex (Aster) | DeFi / Decentralized Trading / Perpetual Futures | Reference | Aster Code Builder Program (100 ASTER deposit) + Referral (tlRYkq, 5-10%) + API Key (HMAC SHA256) | `usecases/UC-020-asterdex.md` |
 | UC-021 | Hyperliquid (#1 DEX) | DeFi / Decentralized Trading / Perpetual Futures | Reference | Builder Codes (100 USDC, permissionless) + Referral (CRYPTOREFERENCE, 10%) + API Wallet (0xc98d...eAbB) | `usecases/UC-021-hyperliquid.md` |
+| UC-022 | Amadeus | Travel / Flights / Hotels / Airports | Draft | API Key + Secret (OAuth2, Self-Service) | `usecases/UC-022-amadeus.md` |
+| UC-023 | Sabre GDS | Travel / Flights / Airlines / Destinations | Live | Client ID + Secret (OAuth2 double base64, cert env) | `usecases/UC-023-sabre.md` |
 
 ## How to Use
 
