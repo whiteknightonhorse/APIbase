@@ -214,6 +214,31 @@ tools:
     price_usd: "0.000"
     cache_ttl: 86400
 
+  # --- UC-023: Sabre GDS ---
+  - tool_id: sabre.search_flights
+    name: Sabre Flight Search
+    provider: sabre
+    price_usd: "0.010"
+    cache_ttl: 300
+
+  - tool_id: sabre.destination_finder
+    name: Sabre Destination Finder
+    provider: sabre
+    price_usd: "0.005"
+    cache_ttl: 3600
+
+  - tool_id: sabre.airline_lookup
+    name: Sabre Airline Lookup
+    provider: sabre
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: sabre.travel_themes
+    name: Sabre Travel Themes
+    provider: sabre
+    price_usd: "0.002"
+    cache_ttl: 86400
+
   # --- UC-021: Hyperliquid ---
   - tool_id: hyperliquid.market_data
     name: Hyperliquid Market Data

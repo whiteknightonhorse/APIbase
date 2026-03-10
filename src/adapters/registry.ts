@@ -3,6 +3,7 @@ import { PolymarketAdapter } from './polymarket';
 import { HyperliquidAdapter } from './hyperliquid';
 import { AsterDexAdapter } from './asterdex';
 import { OpenWeatherMapAdapter } from './openweathermap';
+import { SabreAdapter } from './sabre';
 import { config } from '../config';
 
 /**
@@ -50,6 +51,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'aviasales':
       // Aviasales adapter not yet implemented — return undefined
       return undefined;
+    case 'sabre': {
+      const clientId = (config as Record<string, unknown>).SABRE_CLIENT_ID as string | undefined;
+      const clientSecret = (config as Record<string, unknown>).SABRE_CLIENT_SECRET as string | undefined;
+      if (!clientId || !clientSecret) return undefined;
+      return getOrCreate('sabre', () => new SabreAdapter(clientId, clientSecret));
+    }
     default:
       return undefined;
   }

@@ -1,7 +1,7 @@
 /**
  * MCP tool adapter (§12.42, §6.14).
  *
- * Maps all 30 platform tools to MCP server tool registrations.
+ * Maps all 34 platform tools to MCP server tool registrations.
  * Each tool call routes through the full 13-stage pipeline.
  */
 
@@ -55,6 +55,12 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   { toolId: 'polymarket.open_orders', description: 'Get open orders on Polymarket' },
   { toolId: 'polymarket.trade_history', description: 'Get trade history on Polymarket' },
   { toolId: 'polymarket.balance', description: 'Get balance/allowance on Polymarket' },
+
+  // Sabre GDS (4)
+  { toolId: 'sabre.search_flights', description: 'Search for real-time flight offers with prices between airports (Sabre GDS)' },
+  { toolId: 'sabre.destination_finder', description: 'Find cheapest flight destinations from an origin airport' },
+  { toolId: 'sabre.airline_lookup', description: 'Look up airline details by IATA or ICAO code' },
+  { toolId: 'sabre.travel_themes', description: 'Get travel theme categories (beach, skiing, romantic, etc.)' },
 
   // Aviasales (7)
   { toolId: 'aviasales.search_flights', description: 'Search for flights between airports' },

@@ -49,6 +49,15 @@ Accept: application/json
 
 ## Available Tools
 
+### Sabre GDS — Flight Search & Travel Data (4 tools)
+
+| Tool | Description | Price |
+|------|-------------|-------|
+| `sabre.search_flights` | Real-time flight offers with prices between airports | $0.010 |
+| `sabre.destination_finder` | Cheapest flight destinations from an origin airport | $0.005 |
+| `sabre.airline_lookup` | Airline details by IATA or ICAO code | $0.002 |
+| `sabre.travel_themes` | Travel theme categories (beach, skiing, romantic, etc.) | $0.002 |
+
 ### Polymarket — Prediction Markets (12 tools)
 
 | Tool | Description | Price |

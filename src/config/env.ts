@@ -42,6 +42,10 @@ export const appEnvSchema = z.object({
   PROVIDER_KEY_POLYMARKET: z.string().optional().default(''),
   PROVIDER_KEY_AVIASALES: z.string().optional().default(''),
 
+  // Sabre GDS (UC-023) — OAuth2 client credentials
+  SABRE_CLIENT_ID: z.string().optional().default(''),
+  SABRE_CLIENT_SECRET: z.string().optional().default(''),
+
   // Polymarket trading — Phase 2 (UC-001 §3-§8)
   POLYMARKET_WALLET_ADDRESS: z.string().startsWith('0x').optional().default(''),
   POLYMARKET_PRIVATE_KEY: z.string().optional().default(''),
