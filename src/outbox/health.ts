@@ -1,10 +1,12 @@
 import http from 'node:http';
 import { logger } from '../config/logger';
+import { register } from '../services/metrics.service';
 
 /**
- * Outbox-worker health endpoint (§12.201).
+ * Outbox-worker health + metrics endpoint (§12.201, §12.169).
  *
  * GET /outbox/health — returns status, lag_ms, processed_total, backlog_size.
+ * GET /metrics       — Prometheus scrape endpoint.
  * Internal only (port 3002, not exposed via Nginx).
  */
 
@@ -26,7 +28,7 @@ export function updateLag(lagMs: number, backlogSize: number): void {
 }
 
 export function createHealthServer(port: number): http.Server {
-  const server = http.createServer((req, res) => {
+  const server = http.createServer(async (req, res) => {
     if (req.url === '/outbox/health' && req.method === 'GET') {
       const body = JSON.stringify({
         status: 'ok',
@@ -38,6 +40,12 @@ export function createHealthServer(port: number): http.Server {
 
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(body);
+      return;
+    }
+
+    if (req.url === '/metrics' && req.method === 'GET') {
+      res.writeHead(200, { 'Content-Type': register.contentType });
+      res.end(await register.metrics());
       return;
     }
 
