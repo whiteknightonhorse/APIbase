@@ -1,10 +1,12 @@
 import http from 'node:http';
 import { logger } from '../config/logger';
+import { register } from '../services/metrics.service';
 
 /**
- * Worker health endpoint (§12.136, §12.201).
+ * Worker health + metrics endpoint (§12.136, §12.201, §12.169).
  *
  * GET /worker/health — returns worker status, uptime, heartbeat age.
+ * GET /metrics       — Prometheus scrape endpoint.
  * Internal only (port 3001, not exposed via Nginx).
  */
 
@@ -18,7 +20,7 @@ export function updateHeartbeatTimestamp(): void {
 export function createHealthServer(port: number): http.Server {
   startTime = Date.now();
 
-  const server = http.createServer((req, res) => {
+  const server = http.createServer(async (req, res) => {
     if (req.url === '/worker/health' && req.method === 'GET') {
       const uptimeSeconds = Math.floor((Date.now() - startTime) / 1000);
 
@@ -30,6 +32,12 @@ export function createHealthServer(port: number): http.Server {
 
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(body);
+      return;
+    }
+
+    if (req.url === '/metrics' && req.method === 'GET') {
+      res.writeHead(200, { 'Content-Type': register.contentType });
+      res.end(await register.metrics());
       return;
     }
 
