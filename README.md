@@ -14,7 +14,7 @@ APIbase is a production MCP server that gives AI agents instant access to real-w
 **Built for AI agents, not humans.** Every tool is designed for autonomous discovery, authentication, and invocation via the [Model Context Protocol](https://modelcontextprotocol.io).
 
 <a href="https://glama.ai/mcp/servers/whiteknightonhorse/APIbase">
-  <img width="380" height="200" src="https://glama.ai/mcp/servers/whiteknightonhorse/APIbase/badge" alt="APIbase MCP server" />
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/whiteknightonhorse/APIbase/badge?v=2" alt="APIbase MCP server" />
 </a>
 
 ### Why agents use APIbase
