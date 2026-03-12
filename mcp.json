@@ -1,0 +1,83 @@
+{
+  "name": "APIbase",
+  "description": "The API Hub for AI Agents — 50+ tools across weather, crypto, prediction markets, flights, travel, and DeFi. One MCP endpoint, pay-per-call via x402.",
+  "protocol": "MCP",
+  "protocol_version": "2025-03-26",
+  "transport": "streamable-http",
+  "server_version": "1.0.0",
+  "mcp_endpoint": "https://apibase.pro/mcp",
+  "smithery": "https://smithery.ai/servers/apibase-pro/api-hub",
+  "tools_catalog": "https://apibase.pro/api/v1/tools",
+  "documentation": "https://apibase.pro/ai.txt",
+  "discovery": "https://apibase.pro/.well-known/mcp.json",
+  "health": "https://apibase.pro/health/ready",
+  "status": "active",
+  "authentication": {
+    "type": "bearer",
+    "header": "Authorization",
+    "format": "Bearer ak_live_<key>",
+    "auto_registration": true,
+    "payment": "x402 (USDC on Base)"
+  },
+  "capabilities": {
+    "tools": true,
+    "resources": false,
+    "prompts": false
+  },
+  "providers": [
+    {
+      "name": "OpenWeatherMap",
+      "category": "weather",
+      "tools": 7,
+      "prefix": "weather.*"
+    },
+    {
+      "name": "CoinGecko",
+      "category": "crypto",
+      "tools": 9,
+      "prefix": "crypto.*, coingecko.*"
+    },
+    {
+      "name": "Polymarket",
+      "category": "prediction-markets",
+      "tools": 12,
+      "prefix": "polymarket.*"
+    },
+    {
+      "name": "Amadeus",
+      "category": "travel",
+      "tools": 7,
+      "prefix": "amadeus.*"
+    },
+    {
+      "name": "Sabre GDS",
+      "category": "travel",
+      "tools": 4,
+      "prefix": "sabre.*"
+    },
+    {
+      "name": "Aviasales",
+      "category": "travel",
+      "tools": 7,
+      "prefix": "aviasales.*"
+    },
+    {
+      "name": "Hyperliquid",
+      "category": "defi",
+      "tools": 6,
+      "prefix": "hyperliquid.*"
+    },
+    {
+      "name": "AsterDEX",
+      "category": "defi",
+      "tools": 4,
+      "prefix": "aster.*"
+    }
+  ],
+  "quick_start": {
+    "1_connect": "POST https://apibase.pro/mcp with JSON-RPC initialize",
+    "2_authenticate": "Set Authorization: Bearer <your_api_key>",
+    "3_discover": "Call tools/list to see all 50+ available tools",
+    "4_use": "Call tools/call with tool name and arguments"
+  }
+}
