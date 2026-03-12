@@ -43,6 +43,9 @@ backups/
 # Encrypted env
 .env.enc
 
+# Awesome-list PR state tracking
+.awesome-list-state.json
+
 # Internal files (not for public repo)
 CLAUDE.md
 plan.md

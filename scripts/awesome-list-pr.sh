@@ -1,0 +1,465 @@
+#!/usr/bin/env bash
+#
+# awesome-list-pr.sh — Submit PRs to awesome-lists for APIbase visibility.
+#
+# Picks one random unsubmitted repo per run, forks, adds entry, creates PR.
+# Designed for daily cron: randomized text + tracked state to avoid duplicates.
+#
+# Usage:
+#   ./scripts/awesome-list-pr.sh          — auto-pick random repo
+#   ./scripts/awesome-list-pr.sh list     — show all targets and status
+#   ./scripts/awesome-list-pr.sh <index>  — submit to specific target (0-based)
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+STATE_FILE="$PROJECT_DIR/.awesome-list-state.json"
+LOG_FILE="$PROJECT_DIR/logs/awesome-list-pr.log"
+
+# Load token
+if [[ -f "$PROJECT_DIR/.env" ]]; then
+  GITHUB_TOKEN=$(grep '^GITHUB_AWESOME_TOKEN=' "$PROJECT_DIR/.env" | cut -d= -f2)
+fi
+
+if [[ -z "${GITHUB_TOKEN:-}" ]]; then
+  echo "ERROR: GITHUB_AWESOME_TOKEN not found in .env"
+  exit 1
+fi
+
+GH_USER="whiteknightonhorse"
+APIBASE_REPO="https://github.com/$GH_USER/APIbase"
+APIBASE_URL="https://apibase.pro"
+
+mkdir -p "$(dirname "$LOG_FILE")"
+
+log() {
+  local msg="[$(date -u +%Y-%m-%dT%H:%M:%SZ)] $1"
+  echo "$msg" | tee -a "$LOG_FILE"
+}
+
+gh_api() {
+  curl -sf -H "Authorization: Bearer $GITHUB_TOKEN" \
+       -H "Accept: application/vnd.github+json" \
+       -H "X-GitHub-Api-Version: 2022-11-28" \
+       "$@"
+}
+
+gh_api_post() {
+  local url="$1"; shift
+  curl -sf -X POST -H "Authorization: Bearer $GITHUB_TOKEN" \
+       -H "Accept: application/vnd.github+json" \
+       -H "X-GitHub-Api-Version: 2022-11-28" \
+       -H "Content-Type: application/json" \
+       "$url" "$@"
+}
+
+gh_api_put() {
+  local url="$1"; shift
+  curl -sf -X PUT -H "Authorization: Bearer $GITHUB_TOKEN" \
+       -H "Accept: application/vnd.github+json" \
+       -H "X-GitHub-Api-Version: 2022-11-28" \
+       -H "Content-Type: application/json" \
+       "$url" "$@"
+}
+
+# ─── Target Repos ───────────────────────────────────────────────────────────
+
+# Each target: repo|section_marker|format|pr_title_template
+# format: punkpeye | appcypher | wong2 | jaw9c_table | travel_table
+TARGETS=(
+  "punkpeye/awesome-mcp-servers|Aggregators|punkpeye_agg|Add APIbase to Aggregators"
+  "punkpeye/awesome-mcp-servers|Travel & Transportation|punkpeye_travel|Add APIbase to Travel & Transportation"
+  "appcypher/awesome-mcp-servers|Aggregators|appcypher|Add APIbase to Aggregators"
+  "wong2/awesome-mcp-servers|Community Servers|wong2|Add APIbase to Community Servers"
+  "jaw9c/awesome-remote-mcp-servers|Remote MCP Server List|jaw9c_table|Add APIbase remote MCP server"
+  "unseen1980/awesome-travel|### Flights|travel_table|Add APIbase — AI-ready flight API hub"
+)
+
+# ─── Randomized Descriptions ────────────────────────────────────────────────
+
+random_choice() {
+  local -a arr=("$@")
+  echo "${arr[$((RANDOM % ${#arr[@]}))]}"
+}
+
+gen_punkpeye_agg() {
+  local descs=(
+    "Unified API hub for AI agents with 56+ tools across travel (Amadeus, Sabre), prediction markets (Polymarket), crypto, and weather. Pay-per-call via x402 micropayments in USDC."
+    "MCP gateway aggregating 56+ real-time APIs: flight search (Amadeus, Sabre GDS), prediction markets (Polymarket), crypto data, weather. x402 pay-per-call, no subscriptions."
+    "API hub serving 56+ tools to AI agents — flights (Amadeus, Sabre), prediction markets (Polymarket), crypto, weather, and more. x402 micropayments on Base, auto-registration."
+  )
+  local desc
+  desc=$(random_choice "${descs[@]}")
+  echo "- [$GH_USER/APIbase]($APIBASE_REPO) 📇 ☁️ - $desc"
+}
+
+gen_punkpeye_travel() {
+  local descs=(
+    "Real-time flight search and pricing via Amadeus and Sabre GDS — 11 aviation tools for AI agents via MCP. Airport search, route discovery, flight status, price confirmation."
+    "Flight search API hub for AI agents: Amadeus + Sabre GDS with 11 tools — search flights, confirm prices, check status, find airports, discover routes. MCP native."
+    "Aviation API gateway with 11 MCP tools: flight search, price confirmation, flight status (Amadeus), destination finder, airline lookup (Sabre GDS). Built for AI agents."
+  )
+  local desc
+  desc=$(random_choice "${descs[@]}")
+  echo "- [$GH_USER/APIbase]($APIBASE_REPO) 📇 ☁️ - $desc"
+}
+
+gen_appcypher() {
+  local descs=(
+    "Unified MCP gateway to 56+ tools: flight search (Amadeus, Sabre), prediction markets (Polymarket), crypto, weather. Pay-per-call via x402 micropayments."
+    "API hub for AI agents — 56+ tools including travel (Amadeus, Sabre GDS), prediction markets, crypto data, weather. x402 USDC micropayments, auto-registration."
+    "Multi-provider MCP server: 56+ real-time API tools across travel, finance, crypto, and weather. x402 pay-per-call in USDC on Base."
+  )
+  local desc
+  desc=$(random_choice "${descs[@]}")
+  echo "- [APIbase]($APIBASE_REPO) - $desc"
+}
+
+gen_wong2() {
+  local descs=(
+    "Unified API hub for AI agents with 56+ tools — flight search (Amadeus, Sabre), prediction markets (Polymarket), crypto, weather. x402 pay-per-call."
+    "MCP gateway aggregating 56+ real-time APIs across travel, prediction markets, crypto, and weather. Pay-per-call via x402 micropayments."
+    "API hub serving 56+ tools to AI agents: flights, prediction markets, crypto, weather, and more. x402 USDC micropayments, auto-registration."
+  )
+  local desc
+  desc=$(random_choice "${descs[@]}")
+  echo "- **[APIbase]($APIBASE_REPO)** - $desc"
+}
+
+gen_jaw9c_table() {
+  local descs=(
+    "56+ API tools: flights, prediction markets, crypto, weather"
+    "Unified API hub: flight search, prediction markets, crypto data"
+    "Multi-provider API gateway: travel, finance, crypto, weather tools"
+  )
+  local desc
+  desc=$(random_choice "${descs[@]}")
+  echo "| [APIbase]($APIBASE_URL) | Aggregator | \`$APIBASE_URL/mcp\` | API Key / x402 | [$GH_USER]($APIBASE_REPO) | $desc |"
+}
+
+gen_travel_table() {
+  local descs=(
+    "AI-ready API hub wrapping Amadeus + Sabre GDS for flight search, pricing, status. MCP native, x402 micropayments."
+    "MCP gateway for flight search via Amadeus and Sabre GDS — 11 aviation tools for AI agents."
+    "Unified flight API for AI agents: Amadeus + Sabre GDS wrapped in MCP. Search, price, status, routes."
+  )
+  local desc
+  desc=$(random_choice "${descs[@]}")
+  echo "| APIbase | $desc | [Go!]($APIBASE_URL) |"
+}
+
+# ─── State Management ───────────────────────────────────────────────────────
+
+init_state() {
+  if [[ ! -f "$STATE_FILE" ]]; then
+    echo '{}' > "$STATE_FILE"
+  fi
+}
+
+get_state() {
+  local key="$1"
+  STATE_KEY="$key" python3 -c "
+import json, os
+with open('$STATE_FILE') as f:
+    state = json.load(f)
+print(state.get(os.environ['STATE_KEY'], ''))
+" 2>/dev/null || echo ""
+}
+
+set_state() {
+  local key="$1" value="$2"
+  STATE_KEY="$key" STATE_VAL="$value" python3 -c "
+import json, os
+with open('$STATE_FILE') as f:
+    state = json.load(f)
+state[os.environ['STATE_KEY']] = os.environ['STATE_VAL']
+with open('$STATE_FILE', 'w') as f:
+    json.dump(state, f, indent=2)
+"
+}
+
+# ─── Core Logic ─────────────────────────────────────────────────────────────
+
+list_targets() {
+  init_state
+  echo "=== Awesome-List PR Targets ==="
+  echo ""
+  for i in "${!TARGETS[@]}"; do
+    IFS='|' read -r repo section format title <<< "${TARGETS[$i]}"
+    local state_key="${repo//\//_}_${format}"
+    local status
+    status=$(get_state "$state_key")
+    local marker="[ ]"
+    [[ -n "$status" ]] && marker="[x] ($status)"
+    printf "  %d. %s %s — %s\n     Section: %s\n\n" "$i" "$marker" "$repo" "$title" "$section"
+  done
+}
+
+pick_random_target() {
+  init_state
+  local available=()
+  for i in "${!TARGETS[@]}"; do
+    IFS='|' read -r repo section format title <<< "${TARGETS[$i]}"
+    local state_key="${repo//\//_}_${format}"
+    local status
+    status=$(get_state "$state_key")
+    if [[ -z "$status" ]]; then
+      available+=("$i")
+    fi
+  done
+
+  if [[ ${#available[@]} -eq 0 ]]; then
+    log "All targets already submitted. Nothing to do."
+    exit 0
+  fi
+
+  echo "${available[$((RANDOM % ${#available[@]}))]}"
+}
+
+submit_pr() {
+  local idx="$1"
+  IFS='|' read -r repo section format title <<< "${TARGETS[$idx]}"
+  local state_key="${repo//\//_}_${format}"
+  local owner="${repo%%/*}"
+  local reponame="${repo##*/}"
+
+  log "=== Submitting PR to $repo (format: $format) ==="
+
+  # 1. Check if already submitted
+  local existing
+  existing=$(get_state "$state_key")
+  if [[ -n "$existing" ]]; then
+    log "Already submitted: $existing. Skipping."
+    return 0
+  fi
+
+  # 2. Check for existing open PRs from us
+  local existing_prs
+  existing_prs=$(gh_api "https://api.github.com/repos/$repo/pulls?state=open&head=$GH_USER:" 2>/dev/null | python3 -c "
+import json, sys
+prs = json.load(sys.stdin)
+for pr in prs:
+    if 'apibase' in pr.get('title','').lower() or 'APIbase' in pr.get('body',''):
+        print(pr['html_url'])
+" 2>/dev/null || echo "")
+
+  if [[ -n "$existing_prs" ]]; then
+    log "Open PR already exists: $existing_prs"
+    set_state "$state_key" "pr_exists:$existing_prs"
+    return 0
+  fi
+
+  # 3. Fork the repo (idempotent — returns existing fork if already forked)
+  log "Forking $repo..."
+  local fork_result
+  fork_result=$(gh_api_post "https://api.github.com/repos/$repo/forks" -d '{}' 2>&1) || {
+    log "ERROR: Fork failed: $fork_result"
+    return 1
+  }
+  local fork_full
+  fork_full=$(echo "$fork_result" | python3 -c "import json,sys; print(json.load(sys.stdin)['full_name'])" 2>/dev/null)
+  log "Fork: $fork_full"
+
+  # Wait for fork to be ready
+  sleep 5
+
+  # 4. Get default branch
+  local default_branch
+  default_branch=$(gh_api "https://api.github.com/repos/$repo" | python3 -c "import json,sys; print(json.load(sys.stdin)['default_branch'])" 2>/dev/null)
+  log "Default branch: $default_branch"
+
+  # 5. Get latest commit SHA of default branch
+  local base_sha
+  base_sha=$(gh_api "https://api.github.com/repos/$fork_full/git/refs/heads/$default_branch" | python3 -c "import json,sys; print(json.load(sys.stdin)['object']['sha'])" 2>/dev/null)
+  log "Base SHA: $base_sha"
+
+  # 6. Create new branch
+  local branch_name="add-apibase-$(date +%Y%m%d)-$RANDOM"
+  log "Creating branch: $branch_name"
+  gh_api_post "https://api.github.com/repos/$fork_full/git/refs" \
+    -d "{\"ref\":\"refs/heads/$branch_name\",\"sha\":\"$base_sha\"}" > /dev/null
+
+  # 7. Get README content
+  local readme_path="README.md"
+  local readme_data
+  readme_data=$(gh_api "https://api.github.com/repos/$fork_full/contents/$readme_path?ref=$branch_name")
+  local readme_sha
+  readme_sha=$(echo "$readme_data" | python3 -c "import json,sys; print(json.load(sys.stdin)['sha'])")
+  local readme_content
+  readme_content=$(echo "$readme_data" | python3 -c "
+import json, sys, base64
+data = json.load(sys.stdin)
+print(base64.b64decode(data['content']).decode('utf-8'))
+")
+
+  # 8. Generate entry based on format
+  local new_entry
+  case "$format" in
+    punkpeye_agg)    new_entry=$(gen_punkpeye_agg) ;;
+    punkpeye_travel) new_entry=$(gen_punkpeye_travel) ;;
+    appcypher)       new_entry=$(gen_appcypher) ;;
+    wong2)           new_entry=$(gen_wong2) ;;
+    jaw9c_table)     new_entry=$(gen_jaw9c_table) ;;
+    travel_table)    new_entry=$(gen_travel_table) ;;
+    *)
+      log "ERROR: Unknown format: $format"
+      return 1
+      ;;
+  esac
+
+  log "Entry: $new_entry"
+
+  # 9. Insert entry into README
+  local updated_content
+  updated_content=$(SECTION_MARKER="$section" NEW_ENTRY="$new_entry" python3 -c "
+import os, sys
+
+section = os.environ['SECTION_MARKER']
+entry = os.environ['NEW_ENTRY']
+readme = sys.stdin.read()
+
+lines = readme.split('\n')
+insert_idx = None
+
+for i, line in enumerate(lines):
+    stripped = line.strip()
+    if section in line and (stripped.startswith('#') or section.startswith('###')):
+        # Find insertion point: first list item or first data row in table
+        in_table_header = False
+        for j in range(i+1, min(i+30, len(lines))):
+            s = lines[j].strip()
+            if s.startswith('- ') or s.startswith('* '):
+                insert_idx = j
+                break
+            elif s.startswith('|') and '---' in s:
+                # Table separator row — next line is first data row
+                in_table_header = True
+                continue
+            elif s.startswith('|') and in_table_header:
+                # First data row after separator
+                insert_idx = j
+                break
+            elif s.startswith('|') and not in_table_header:
+                # Table header row (| Name | Category | ...)
+                in_table_header = True
+                continue
+            elif s.startswith('#') and j > i+1:
+                insert_idx = j
+                break
+        if insert_idx is None:
+            insert_idx = i + 2
+        break
+
+if insert_idx is None:
+    print('SECTION_NOT_FOUND: ' + section, file=sys.stderr)
+    sys.exit(1)
+
+lines.insert(insert_idx, entry)
+print('\n'.join(lines), end='')
+" <<< "$readme_content" 2>/tmp/awesome_pr_err)
+
+  if [[ $? -ne 0 ]]; then
+    log "ERROR: Could not find section '$section' in README"
+    cat /tmp/awesome_pr_err >> "$LOG_FILE" 2>/dev/null
+    return 1
+  fi
+
+  # 10. Commit the change
+  local tmp_content
+  tmp_content=$(mktemp)
+  echo -n "$updated_content" | base64 -w 0 > "$tmp_content"
+
+  local commit_msg="Add APIbase to ${section//\"/}"
+  log "Committing: $commit_msg"
+
+  local tmp_payload
+  tmp_payload=$(mktemp)
+  COMMIT_MSG="$commit_msg" FILE_SHA="$readme_sha" BRANCH="$branch_name" B64_FILE="$tmp_content" python3 -c "
+import json, os
+with open(os.environ['B64_FILE']) as f:
+    encoded = f.read()
+print(json.dumps({
+    'message': os.environ['COMMIT_MSG'],
+    'content': encoded,
+    'sha': os.environ['FILE_SHA'],
+    'branch': os.environ['BRANCH']
+}))" > "$tmp_payload"
+
+  gh_api_put "https://api.github.com/repos/$fork_full/contents/$readme_path" \
+    -d @"$tmp_payload" > /dev/null
+
+  rm -f "$tmp_content" "$tmp_payload"
+
+  # 11. Create PR
+  local -a pr_bodies=(
+    "Adding [APIbase](https://apibase.pro) — a unified MCP gateway that serves 56+ real-time API tools to AI agents across travel, prediction markets, crypto, and weather.
+
+APIbase is an open-source, production MCP server with x402 micropayments, auto-registration, and Streamable HTTP transport."
+    "Hi! Adding [APIbase](https://apibase.pro) to the list. It's an MCP server that aggregates 56+ API tools (Amadeus, Sabre, Polymarket, crypto, weather) into a single endpoint for AI agents. Pay-per-call via x402 USDC micropayments.
+
+GitHub: https://github.com/$GH_USER/APIbase
+Smithery: https://smithery.ai/servers/apibase-pro/api-hub (100/100 quality score)"
+    "Submitting [APIbase](https://apibase.pro) — an MCP server providing AI agents access to 56+ tools across multiple domains (flights, prediction markets, crypto, weather). Uses x402 protocol for pay-per-call micropayments in USDC.
+
+- MCP endpoint: https://apibase.pro/mcp
+- Smithery listing: https://smithery.ai/servers/apibase-pro/api-hub
+- Source: https://github.com/$GH_USER/APIbase"
+  )
+  local pr_body="${pr_bodies[$((RANDOM % ${#pr_bodies[@]}))]}"
+
+  log "Creating PR: $title"
+  local pr_payload
+  pr_payload=$(PR_TITLE="$title" PR_BODY="$pr_body" HEAD="$GH_USER:$branch_name" BASE="$default_branch" python3 -c "
+import json, os
+print(json.dumps({
+    'title': os.environ['PR_TITLE'],
+    'body': os.environ['PR_BODY'],
+    'head': os.environ['HEAD'],
+    'base': os.environ['BASE']
+}))
+")
+
+  local pr_result
+  pr_result=$(gh_api_post "https://api.github.com/repos/$repo/pulls" \
+    -d "$pr_payload" 2>&1)
+
+  local pr_url
+  pr_url=$(echo "$pr_result" | python3 -c "import json,sys; print(json.load(sys.stdin).get('html_url','ERROR'))" 2>/dev/null)
+
+  if [[ "$pr_url" == "ERROR" || -z "$pr_url" ]]; then
+    log "ERROR: PR creation failed"
+    log "$pr_result"
+    return 1
+  fi
+
+  log "PR created: $pr_url"
+  set_state "$state_key" "$pr_url"
+
+  echo ""
+  echo "=== SUCCESS ==="
+  echo "PR: $pr_url"
+  echo "Repo: $repo"
+  echo "Section: $section"
+}
+
+# ─── Main ───────────────────────────────────────────────────────────────────
+
+init_state
+
+case "${1:-auto}" in
+  list)
+    list_targets
+    ;;
+  auto)
+    idx=$(pick_random_target)
+    submit_pr "$idx"
+    ;;
+  [0-9]*)
+    submit_pr "$1"
+    ;;
+  *)
+    echo "Usage: $0 [list | auto | <index>]"
+    exit 1
+    ;;
+esac
