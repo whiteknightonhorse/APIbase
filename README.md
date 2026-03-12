@@ -85,9 +85,11 @@ All tool calls follow the MCP `tools/call` method.
 ### Call tools via REST
 
 ```http
-GET /api/v1/tools/{tool_id}?param1=value1&param2=value2
+POST /api/v1/tools/{tool_id}/call
 Authorization: Bearer ak_live_...
-Accept: application/json
+Content-Type: application/json
+
+{"param1": "value1", "param2": "value2"}
 ```
 
 ---
@@ -245,6 +247,95 @@ GET /.well-known/mcp.json
   "authentication": "x402"
 }
 ```
+
+## Integrations
+
+Connect APIbase to any AI platform:
+
+| Platform | Config location | Setup |
+|----------|----------------|-------|
+| **Claude Desktop** | `claude_desktop_config.json` | `"url": "https://apibase.pro/mcp"` |
+| **Cursor** | `.cursor/mcp.json` | `"url": "https://apibase.pro/mcp"` |
+| **Windsurf** | `~/.codeium/windsurf/mcp_config.json` | `"serverUrl": "https://apibase.pro/mcp"` |
+| **VS Code** | `.vscode/settings.json` | `"url": "https://apibase.pro/mcp"` |
+| **Continue.dev** | `~/.continue/config.json` | Streamable HTTP transport |
+| **OpenAI GPT** | GPT Editor > Actions | Import `https://apibase.pro/.well-known/openapi.json` |
+
+<details>
+<summary>Claude Desktop / Cursor</summary>
+
+```json
+{
+  "mcpServers": {
+    "apibase": {
+      "url": "https://apibase.pro/mcp"
+    }
+  }
+}
+```
+</details>
+
+<details>
+<summary>Windsurf</summary>
+
+```json
+{
+  "mcpServers": {
+    "apibase": {
+      "serverUrl": "https://apibase.pro/mcp"
+    }
+  }
+}
+```
+</details>
+
+<details>
+<summary>VS Code (Copilot)</summary>
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "apibase": {
+        "type": "http",
+        "url": "https://apibase.pro/mcp"
+      }
+    }
+  }
+}
+```
+</details>
+
+<details>
+<summary>Continue.dev</summary>
+
+```json
+{
+  "experimental": {
+    "modelContextProtocolServers": [
+      {
+        "transport": {
+          "type": "streamable-http",
+          "url": "https://apibase.pro/mcp"
+        }
+      }
+    ]
+  }
+}
+```
+</details>
+
+<details>
+<summary>OpenAI GPT Actions</summary>
+
+1. Go to GPT Editor > Actions tab
+2. Click "Import from URL"
+3. Enter: `https://apibase.pro/.well-known/openapi.json`
+4. Set Authentication: API Key, Header `Authorization`, prefix `Bearer`
+5. Save — all tools auto-discovered from spec
+</details>
+
+---
 
 ## Architecture
 

@@ -3,7 +3,7 @@
   "info": {
     "title": "APIbase — Universal API Hub for AI Agents",
     "version": "1.0.0",
-    "description": "APIbase aggregates, normalizes, and provides APIs from hundreds of businesses in a unified format optimized for AI agent consumption.",
+    "description": "APIbase aggregates, normalizes, and provides APIs from hundreds of businesses in a unified format optimized for AI agent consumption. Search flights, trade prediction markets, check weather, and more — all via a single REST API or MCP endpoint.",
     "contact": {
       "name": "APIbase",
       "url": "https://apibase.pro"
@@ -15,6 +15,15 @@
       "description": "Production"
     }
   ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "API key (ak_live_...) obtained from /api/v1/agents/register"
+      }
+    }
+  },
   "paths": {
     "/api/tools": {
       "get": {
@@ -28,53 +37,3860 @@
         }
       }
     },
-    "/api/v1/tools/{toolId}": {
+    "/api/v1/agents/register": {
       "post": {
-        "operationId": "invokeTool",
-        "summary": "Invoke a tool",
-        "description": "Execute a tool invocation. Returns 402 Payment Required with x402 payment details if payment is needed.",
+        "operationId": "registerAgent",
+        "summary": "Register an AI agent",
+        "description": "Register a new agent and receive API credentials (api_key and agent_id).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "agent_name": {
+                    "type": "string",
+                    "description": "Name of the AI agent"
+                  },
+                  "agent_version": {
+                    "type": "string",
+                    "description": "Version string (e.g. 1.0.0)"
+                  }
+                },
+                "required": [
+                  "agent_name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Agent registered successfully"
+          },
+          "400": {
+            "description": "Invalid request"
+          }
+        }
+      }
+    },
+    "/api/v1/tools/weather.get_current/call": {
+      "post": {
+        "operationId": "weather_get_current",
+        "summary": "Get Current Weather",
+        "description": "Get current weather conditions for a location",
         "parameters": [
           {
             "name": "toolId",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "enum": [
+                "weather.get_current"
+              ]
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "location": {
+                    "type": "string",
+                    "description": "City name, coordinates (lat,lon), or zip code"
+                  },
+                  "units": {
+                    "type": "string",
+                    "enum": [
+                      "metric",
+                      "imperial"
+                    ],
+                    "description": "Temperature units system"
+                  }
+                },
+                "required": [
+                  "location"
+                ]
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Tool execution result"
           },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
           "402": {
             "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
           }
-        }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
       }
     },
-    "/api/v1/agents/register": {
+    "/api/v1/tools/weather.get_forecast/call": {
       "post": {
-        "operationId": "registerAgent",
-        "summary": "Register an AI agent",
-        "description": "Register a new agent and receive API credentials.",
-        "responses": {
-          "201": {
-            "description": "Agent registered successfully"
+        "operationId": "weather_get_forecast",
+        "summary": "Get Weather Forecast",
+        "description": "Get weather forecast for a location",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "weather.get_forecast"
+              ]
+            }
           }
-        }
-      }
-    },
-    "/mcp": {
-      "get": {
-        "operationId": "mcpEndpoint",
-        "summary": "MCP Server endpoint",
-        "description": "Model Context Protocol server endpoint for AI agent tool discovery and invocation via SSE.",
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "location": {
+                    "type": "string",
+                    "description": "City name, coordinates (lat,lon), or zip code"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "hourly",
+                      "daily",
+                      "both"
+                    ],
+                    "description": "Forecast granularity"
+                  },
+                  "units": {
+                    "type": "string",
+                    "enum": [
+                      "metric",
+                      "imperial"
+                    ],
+                    "description": "Temperature units system"
+                  }
+                },
+                "required": [
+                  "location"
+                ]
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": "SSE stream"
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
           }
-        }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/weather.get_alerts/call": {
+      "post": {
+        "operationId": "weather_get_alerts",
+        "summary": "Get Weather Alerts",
+        "description": "Get active weather alerts for a location",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "weather.get_alerts"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "location": {
+                    "type": "string",
+                    "description": "City name, coordinates (lat,lon), or zip code"
+                  }
+                },
+                "required": [
+                  "location"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/weather.get_history/call": {
+      "post": {
+        "operationId": "weather_get_history",
+        "summary": "Get Historical Weather",
+        "description": "Get historical weather data for a location and date",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "weather.get_history"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "location": {
+                    "type": "string",
+                    "description": "City name, coordinates (lat,lon), or zip code"
+                  },
+                  "date": {
+                    "type": "string",
+                    "description": "Historical date in YYYY-MM-DD format"
+                  },
+                  "units": {
+                    "type": "string",
+                    "enum": [
+                      "metric",
+                      "imperial"
+                    ],
+                    "description": "Temperature units system"
+                  }
+                },
+                "required": [
+                  "location",
+                  "date"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/weather.air_quality/call": {
+      "post": {
+        "operationId": "weather_air_quality",
+        "summary": "Get Air Quality",
+        "description": "Get air quality index for a location",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "weather.air_quality"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "location": {
+                    "type": "string",
+                    "description": "City name, coordinates (lat,lon), or zip code"
+                  },
+                  "include_forecast": {
+                    "type": "boolean",
+                    "description": "Include air quality forecast for next 24h"
+                  }
+                },
+                "required": [
+                  "location"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/weather.geocode/call": {
+      "post": {
+        "operationId": "weather_geocode",
+        "summary": "Geocode Location",
+        "description": "Geocode a location query to coordinates",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "weather.geocode"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Location name or coordinates to geocode"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "forward",
+                      "reverse"
+                    ],
+                    "description": "Geocoding direction"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "maximum": 5,
+                    "description": "Max number of results (1-5)"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/weather.compare/call": {
+      "post": {
+        "operationId": "weather_compare",
+        "summary": "Compare Weather",
+        "description": "Compare weather across multiple locations",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "weather.compare"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "locations": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "description": "City name or coordinates"
+                    },
+                    "description": "List of 2-5 locations to compare",
+                    "minItems": 2,
+                    "maxItems": 5
+                  },
+                  "units": {
+                    "type": "string",
+                    "enum": [
+                      "metric",
+                      "imperial"
+                    ],
+                    "description": "Temperature units system"
+                  }
+                },
+                "required": [
+                  "locations"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/crypto.get_price/call": {
+      "post": {
+        "operationId": "crypto_get_price",
+        "summary": "Get Crypto Prices",
+        "description": "Get current prices for cryptocurrencies",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "crypto.get_price"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "coins": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "description": "CoinGecko coin ID (e.g. bitcoin, ethereum)"
+                    },
+                    "description": "List of coin IDs to get prices for",
+                    "maxItems": 50
+                  },
+                  "vs_currencies": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "description": "Currency code (e.g. usd, eur, btc)"
+                    },
+                    "description": "Target currencies for price conversion"
+                  },
+                  "include_24h_change": {
+                    "type": "boolean",
+                    "description": "Include 24-hour price change percentage"
+                  },
+                  "include_market_cap": {
+                    "type": "boolean",
+                    "description": "Include market capitalization"
+                  },
+                  "include_volume": {
+                    "type": "boolean",
+                    "description": "Include 24-hour trading volume"
+                  }
+                },
+                "required": [
+                  "coins"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/coingecko.get_market/call": {
+      "post": {
+        "operationId": "coingecko_get_market",
+        "summary": "Get Crypto Market Data",
+        "description": "Get cryptocurrency market data by category",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "coingecko.get_market"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "category": {
+                    "type": "string",
+                    "enum": [
+                      "defi",
+                      "layer-1",
+                      "layer-2",
+                      "gaming",
+                      "ai-big-data",
+                      "meme-token",
+                      "stablecoins",
+                      "nft",
+                      "exchange-based-tokens",
+                      "real-world-assets"
+                    ],
+                    "description": "Filter by market category"
+                  },
+                  "sort_by": {
+                    "type": "string",
+                    "enum": [
+                      "market_cap_desc",
+                      "market_cap_asc",
+                      "volume_desc",
+                      "price_desc",
+                      "price_change_24h_desc"
+                    ],
+                    "description": "Sort order for results"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "maximum": 250,
+                    "description": "Max number of results (1-250)"
+                  },
+                  "include_sparkline": {
+                    "type": "boolean",
+                    "description": "Include 7-day sparkline price data"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/crypto.coin_detail/call": {
+      "post": {
+        "operationId": "crypto_coin_detail",
+        "summary": "Get Coin Details",
+        "description": "Get detailed information about a cryptocurrency",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "crypto.coin_detail"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "coin_id": {
+                    "type": "string",
+                    "description": "CoinGecko coin ID (e.g. bitcoin, ethereum)"
+                  },
+                  "include_description": {
+                    "type": "boolean",
+                    "description": "Include coin description text"
+                  },
+                  "include_developer": {
+                    "type": "boolean",
+                    "description": "Include developer/GitHub stats"
+                  },
+                  "include_community": {
+                    "type": "boolean",
+                    "description": "Include community/social stats"
+                  }
+                },
+                "required": [
+                  "coin_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/crypto.price_history/call": {
+      "post": {
+        "operationId": "crypto_price_history",
+        "summary": "Get Crypto Price History",
+        "description": "Get price history for a cryptocurrency",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "crypto.price_history"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "coin_id": {
+                    "type": "string",
+                    "description": "CoinGecko coin ID (e.g. bitcoin, ethereum)"
+                  },
+                  "days": {
+                    "type": "integer",
+                    "maximum": 365,
+                    "description": "Number of days of history (1-365)"
+                  },
+                  "interval": {
+                    "type": "string",
+                    "enum": [
+                      "5m",
+                      "hourly",
+                      "daily"
+                    ],
+                    "description": "Data point interval"
+                  },
+                  "format": {
+                    "type": "string",
+                    "enum": [
+                      "timeseries",
+                      "ohlcv"
+                    ],
+                    "description": "Response format"
+                  }
+                },
+                "required": [
+                  "coin_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/crypto.trending/call": {
+      "post": {
+        "operationId": "crypto_trending",
+        "summary": "Get Trending Coins",
+        "description": "Get trending cryptocurrencies",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "crypto.trending"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "include_nfts": {
+                    "type": "boolean",
+                    "description": "Include trending NFT collections"
+                  },
+                  "include_categories": {
+                    "type": "boolean",
+                    "description": "Include trending categories"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/crypto.global/call": {
+      "post": {
+        "operationId": "crypto_global",
+        "summary": "Get Global Crypto Stats",
+        "description": "Get global cryptocurrency market statistics",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "crypto.global"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "include_defi": {
+                    "type": "boolean",
+                    "description": "Include DeFi-specific global stats"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/crypto.dex_pools/call": {
+      "post": {
+        "operationId": "crypto_dex_pools",
+        "summary": "Get DEX Pools",
+        "description": "Get DEX liquidity pool data",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "crypto.dex_pools"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search query for pool name or token"
+                  },
+                  "network": {
+                    "type": "string",
+                    "enum": [
+                      "ethereum",
+                      "bsc",
+                      "polygon",
+                      "arbitrum",
+                      "solana",
+                      "base",
+                      "avalanche",
+                      "optimism"
+                    ],
+                    "description": "Blockchain network"
+                  },
+                  "sort_by": {
+                    "type": "string",
+                    "enum": [
+                      "volume_24h",
+                      "liquidity",
+                      "price_change_24h",
+                      "transactions_24h"
+                    ],
+                    "description": "Sort order for pool results"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "maximum": 50,
+                    "description": "Max number of results (1-50)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/crypto.token_by_address/call": {
+      "post": {
+        "operationId": "crypto_token_by_address",
+        "summary": "Get Token by Address",
+        "description": "Get token info by contract address",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "crypto.token_by_address"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "contract_address": {
+                    "type": "string",
+                    "description": "Token contract address (e.g. 0x...)"
+                  },
+                  "network": {
+                    "type": "string",
+                    "enum": [
+                      "ethereum",
+                      "bsc",
+                      "polygon",
+                      "arbitrum",
+                      "solana",
+                      "base",
+                      "avalanche",
+                      "optimism"
+                    ],
+                    "description": "Blockchain network"
+                  }
+                },
+                "required": [
+                  "contract_address"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/crypto.search/call": {
+      "post": {
+        "operationId": "crypto_search",
+        "summary": "Search Cryptocurrencies",
+        "description": "Search for cryptocurrencies by name or symbol",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "crypto.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search query for coin name, symbol, or ID"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/polymarket.search/call": {
+      "post": {
+        "operationId": "polymarket_search",
+        "summary": "Search Prediction Markets",
+        "description": "Search prediction markets on Polymarket",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "polymarket.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search query for prediction markets"
+                  },
+                  "category": {
+                    "type": "string",
+                    "enum": [
+                      "politics",
+                      "crypto",
+                      "sports",
+                      "finance",
+                      "science",
+                      "culture",
+                      "geopolitics",
+                      "iran",
+                      "economics"
+                    ],
+                    "description": "Filter by market category"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "active",
+                      "resolved",
+                      "all"
+                    ],
+                    "description": "Filter by market status"
+                  },
+                  "sort_by": {
+                    "type": "string",
+                    "enum": [
+                      "volume",
+                      "newest",
+                      "ending_soon",
+                      "probability_high",
+                      "probability_low"
+                    ],
+                    "description": "Sort order for results"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "maximum": 100,
+                    "description": "Max number of results (1-100)"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/polymarket.market_detail/call": {
+      "post": {
+        "operationId": "polymarket_market_detail",
+        "summary": "Get Market Details",
+        "description": "Get detailed info about a prediction market",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "polymarket.market_detail"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "market_id": {
+                    "type": "string",
+                    "description": "Polymarket condition ID or slug"
+                  },
+                  "include_orderbook": {
+                    "type": "boolean",
+                    "description": "Include current order book snapshot"
+                  },
+                  "include_history": {
+                    "type": "boolean",
+                    "description": "Include recent price history"
+                  }
+                },
+                "required": [
+                  "market_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/polymarket.prices/call": {
+      "post": {
+        "operationId": "polymarket_prices",
+        "summary": "Get Market Price",
+        "description": "Get midpoint price for a prediction market token",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "polymarket.prices"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "token_id": {
+                    "type": "string",
+                    "description": "Polymarket CLOB token ID"
+                  }
+                },
+                "required": [
+                  "token_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/polymarket.price_history/call": {
+      "post": {
+        "operationId": "polymarket_price_history",
+        "summary": "Get Market Price History",
+        "description": "Get price history for a prediction market",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "polymarket.price_history"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "market_id": {
+                    "type": "string",
+                    "description": "Polymarket condition ID"
+                  },
+                  "interval": {
+                    "type": "string",
+                    "enum": [
+                      "1h",
+                      "4h",
+                      "1d",
+                      "1w"
+                    ],
+                    "description": "Price data interval"
+                  },
+                  "days": {
+                    "type": "integer",
+                    "maximum": 365,
+                    "description": "Number of days of history (1-365)"
+                  }
+                },
+                "required": [
+                  "market_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/polymarket.get_orderbook/call": {
+      "post": {
+        "operationId": "polymarket_get_orderbook",
+        "summary": "Get Order Book",
+        "description": "Get order book for a prediction market",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "polymarket.get_orderbook"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "market_id": {
+                    "type": "string",
+                    "description": "Polymarket condition ID"
+                  },
+                  "depth": {
+                    "type": "integer",
+                    "maximum": 50,
+                    "description": "Number of price levels per side (1-50)"
+                  }
+                },
+                "required": [
+                  "market_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/polymarket.trending/call": {
+      "post": {
+        "operationId": "polymarket_trending",
+        "summary": "Get Trending Markets",
+        "description": "Get trending prediction markets",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "polymarket.trending"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sort_by": {
+                    "type": "string",
+                    "enum": [
+                      "volume_24h",
+                      "newest",
+                      "biggest_move",
+                      "ending_soon"
+                    ],
+                    "description": "Sort order for trending markets"
+                  },
+                  "category": {
+                    "type": "string",
+                    "enum": [
+                      "politics",
+                      "crypto",
+                      "sports",
+                      "finance",
+                      "science",
+                      "culture",
+                      "geopolitics"
+                    ],
+                    "description": "Filter by market category"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "maximum": 50,
+                    "description": "Max number of results (1-50)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/polymarket.place_order/call": {
+      "post": {
+        "operationId": "polymarket_place_order",
+        "summary": "Place Order",
+        "description": "Place a limit order on Polymarket",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "polymarket.place_order"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "token_id": {
+                    "type": "string",
+                    "description": "Polymarket CLOB token ID to trade"
+                  },
+                  "price": {
+                    "type": "number",
+                    "description": "Limit price between 0.01 and 0.99",
+                    "minimum": 0.01,
+                    "maximum": 0.99
+                  },
+                  "side": {
+                    "type": "string",
+                    "enum": [
+                      "buy",
+                      "sell"
+                    ],
+                    "description": "Order side: buy or sell"
+                  },
+                  "size": {
+                    "type": "number",
+                    "description": "Order size in USDC units",
+                    "minimum": 1
+                  },
+                  "order_type": {
+                    "type": "string",
+                    "enum": [
+                      "GTC",
+                      "GTD",
+                      "FOK"
+                    ],
+                    "description": "Order type: Good-Til-Cancelled, Good-Til-Date, Fill-Or-Kill"
+                  },
+                  "tick_size": {
+                    "type": "string",
+                    "description": "Minimum price increment (e.g. 0.01, 0.001)"
+                  },
+                  "neg_risk": {
+                    "type": "boolean",
+                    "description": "Whether this is a negative risk market"
+                  }
+                },
+                "required": [
+                  "token_id",
+                  "price",
+                  "side",
+                  "size"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/polymarket.cancel_order/call": {
+      "post": {
+        "operationId": "polymarket_cancel_order",
+        "summary": "Cancel Order",
+        "description": "Cancel an open order on Polymarket",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "polymarket.cancel_order"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "order_id": {
+                    "type": "string",
+                    "description": "Order ID to cancel"
+                  }
+                },
+                "required": [
+                  "order_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/polymarket.open_orders/call": {
+      "post": {
+        "operationId": "polymarket_open_orders",
+        "summary": "Get Open Orders",
+        "description": "Get open orders on Polymarket",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "polymarket.open_orders"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "market_id": {
+                    "type": "string",
+                    "description": "Filter orders by market condition ID"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/polymarket.trade_history/call": {
+      "post": {
+        "operationId": "polymarket_trade_history",
+        "summary": "Get Trade History",
+        "description": "Get trade history on Polymarket",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "polymarket.trade_history"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "market_id": {
+                    "type": "string",
+                    "description": "Filter trades by market condition ID"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "maximum": 100,
+                    "description": "Max number of results (1-100)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/polymarket.balance/call": {
+      "post": {
+        "operationId": "polymarket_balance",
+        "summary": "Get Balance",
+        "description": "Get balance/allowance on Polymarket",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "polymarket.balance"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "asset_type": {
+                    "type": "string",
+                    "enum": [
+                      "COLLATERAL",
+                      "CONDITIONAL"
+                    ],
+                    "description": "Asset type: COLLATERAL (USDC) or CONDITIONAL (outcome tokens)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/sabre.search_flights/call": {
+      "post": {
+        "operationId": "sabre_search_flights",
+        "summary": "Search Flights (Sabre)",
+        "description": "Search for real-time flight offers with prices between airports (Sabre GDS)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "sabre.search_flights"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "origin": {
+                    "type": "string",
+                    "description": "Origin airport IATA code (e.g. JFK, LAX)",
+                    "minLength": 3,
+                    "maxLength": 3
+                  },
+                  "destination": {
+                    "type": "string",
+                    "description": "Destination airport IATA code (e.g. CDG, LHR)",
+                    "minLength": 3,
+                    "maxLength": 3
+                  },
+                  "departure_date": {
+                    "type": "string",
+                    "description": "Departure date in YYYY-MM-DD format"
+                  },
+                  "return_date": {
+                    "type": "string",
+                    "description": "Return date in YYYY-MM-DD format for round trips"
+                  },
+                  "point_of_sale": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2,
+                    "description": "2-letter country code for pricing (e.g. US, GB)",
+                    "default": "US"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Max number of flight offers (1-50)"
+                  }
+                },
+                "required": [
+                  "origin",
+                  "destination",
+                  "departure_date"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/sabre.destination_finder/call": {
+      "post": {
+        "operationId": "sabre_destination_finder",
+        "summary": "Find Cheap Destinations",
+        "description": "Find cheapest flight destinations from an origin airport",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "sabre.destination_finder"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "origin": {
+                    "type": "string",
+                    "description": "Origin airport IATA code (e.g. JFK, LAX)",
+                    "minLength": 3,
+                    "maxLength": 3
+                  },
+                  "departure_date": {
+                    "type": "string",
+                    "description": "Departure date in YYYY-MM-DD format"
+                  },
+                  "return_date": {
+                    "type": "string",
+                    "description": "Return date in YYYY-MM-DD format"
+                  },
+                  "point_of_sale": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2,
+                    "description": "2-letter country code for pricing (e.g. US, GB)",
+                    "default": "US"
+                  },
+                  "max_fare": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Maximum fare in USD to filter results"
+                  }
+                },
+                "required": [
+                  "origin",
+                  "departure_date",
+                  "return_date"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/sabre.airline_lookup/call": {
+      "post": {
+        "operationId": "sabre_airline_lookup",
+        "summary": "Airline Lookup (Sabre)",
+        "description": "Look up airline details by IATA or ICAO code",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "sabre.airline_lookup"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "airline_code": {
+                    "type": "string",
+                    "description": "Airline IATA (2-char) or ICAO (3-char) code",
+                    "minLength": 2,
+                    "maxLength": 3
+                  }
+                },
+                "required": [
+                  "airline_code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/sabre.travel_themes/call": {
+      "post": {
+        "operationId": "sabre_travel_themes",
+        "summary": "Get Travel Themes",
+        "description": "Get travel theme categories (beach, skiing, romantic, etc.)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "sabre.travel_themes"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "locale": {
+                    "type": "string",
+                    "description": "Response locale (e.g. en-US, de-DE)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/amadeus.flight_search/call": {
+      "post": {
+        "operationId": "amadeus_flight_search",
+        "summary": "Search Flights (Amadeus)",
+        "description": "Search for real-time flight offers between airports with prices, airlines, stops, and duration (Amadeus)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "amadeus.flight_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "origin": {
+                    "type": "string",
+                    "description": "Origin airport IATA code (e.g. JFK, LAX)",
+                    "minLength": 3,
+                    "maxLength": 3
+                  },
+                  "destination": {
+                    "type": "string",
+                    "description": "Destination airport IATA code (e.g. CDG, LHR)",
+                    "minLength": 3,
+                    "maxLength": 3
+                  },
+                  "departure_date": {
+                    "type": "string",
+                    "description": "Departure date in YYYY-MM-DD format"
+                  },
+                  "return_date": {
+                    "type": "string",
+                    "description": "Return date in YYYY-MM-DD format for round trips"
+                  },
+                  "adults": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 9,
+                    "description": "Number of adult passengers (1-9)",
+                    "default": 1
+                  },
+                  "travel_class": {
+                    "type": "string",
+                    "enum": [
+                      "ECONOMY",
+                      "PREMIUM_ECONOMY",
+                      "BUSINESS",
+                      "FIRST"
+                    ],
+                    "description": "Cabin class",
+                    "default": "ECONOMY"
+                  },
+                  "nonstop": {
+                    "type": "boolean",
+                    "description": "Only return non-stop flights",
+                    "default": false
+                  },
+                  "max_results": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Max number of flight offers (1-50)",
+                    "default": 10
+                  },
+                  "currency": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 3,
+                    "description": "Price currency ISO code (e.g. USD, EUR)",
+                    "default": "USD"
+                  }
+                },
+                "required": [
+                  "origin",
+                  "destination",
+                  "departure_date"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/amadeus.flight_price/call": {
+      "post": {
+        "operationId": "amadeus_flight_price",
+        "summary": "Confirm Flight Price",
+        "description": "Confirm and get final pricing for a flight offer from Amadeus flight search",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "amadeus.flight_price"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "flight_offer": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "object"
+                    },
+                    "description": "Flight offer object from flight_search results"
+                  }
+                },
+                "required": [
+                  "flight_offer"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/amadeus.flight_status/call": {
+      "post": {
+        "operationId": "amadeus_flight_status",
+        "summary": "Get Flight Status",
+        "description": "Get real-time status of a specific flight — delays, cancellations, gate info (Amadeus)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "amadeus.flight_status"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "carrier_code": {
+                    "type": "string",
+                    "description": "Airline IATA or ICAO code (e.g. AA, UAL)",
+                    "minLength": 2,
+                    "maxLength": 3
+                  },
+                  "flight_number": {
+                    "type": "string",
+                    "description": "Flight number (e.g. 100, 1234)",
+                    "minLength": 1,
+                    "maxLength": 5
+                  },
+                  "date": {
+                    "type": "string",
+                    "description": "Flight date in YYYY-MM-DD format"
+                  }
+                },
+                "required": [
+                  "carrier_code",
+                  "flight_number",
+                  "date"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/amadeus.airport_search/call": {
+      "post": {
+        "operationId": "amadeus_airport_search",
+        "summary": "Search Airports",
+        "description": "Search airports and cities by keyword or IATA code with autocomplete (Amadeus)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "amadeus.airport_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "keyword": {
+                    "type": "string",
+                    "description": "Airport or city name to search (e.g. London, JFK)",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "subType": {
+                    "type": "string",
+                    "enum": [
+                      "AIRPORT",
+                      "CITY"
+                    ],
+                    "description": "Filter by location type"
+                  }
+                },
+                "required": [
+                  "keyword"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/amadeus.airport_nearest/call": {
+      "post": {
+        "operationId": "amadeus_airport_nearest",
+        "summary": "Find Nearest Airports",
+        "description": "Find nearest airports by geographic coordinates (Amadeus)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "amadeus.airport_nearest"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "latitude": {
+                    "type": "number",
+                    "description": "Latitude in decimal degrees (-90 to 90)",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "longitude": {
+                    "type": "number",
+                    "description": "Longitude in decimal degrees (-180 to 180)",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  "radius": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 500,
+                    "description": "Search radius in km (1-500)",
+                    "default": 500
+                  }
+                },
+                "required": [
+                  "latitude",
+                  "longitude"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/amadeus.airport_routes/call": {
+      "post": {
+        "operationId": "amadeus_airport_routes",
+        "summary": "Get Airport Routes",
+        "description": "Get all direct flight destinations from an airport (Amadeus)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "amadeus.airport_routes"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "airport_code": {
+                    "type": "string",
+                    "description": "Airport IATA code (e.g. JFK, LAX)",
+                    "minLength": 3,
+                    "maxLength": 3
+                  }
+                },
+                "required": [
+                  "airport_code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/amadeus.airline_lookup/call": {
+      "post": {
+        "operationId": "amadeus_airline_lookup",
+        "summary": "Airline Lookup (Amadeus)",
+        "description": "Look up airline details by IATA or ICAO code (Amadeus)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "amadeus.airline_lookup"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "airline_code": {
+                    "type": "string",
+                    "description": "Airline IATA (2-char) or ICAO (3-char) code",
+                    "minLength": 2,
+                    "maxLength": 3
+                  }
+                },
+                "required": [
+                  "airline_code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/aviasales.search_flights/call": {
+      "post": {
+        "operationId": "aviasales_search_flights",
+        "summary": "Search Flights (Aviasales)",
+        "description": "Search for flights between airports",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "aviasales.search_flights"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "origin": {
+                    "type": "string",
+                    "description": "Origin airport IATA code (e.g. JFK, LAX)"
+                  },
+                  "destination": {
+                    "type": "string",
+                    "description": "Destination airport IATA code (e.g. CDG, LHR)"
+                  },
+                  "departure_date": {
+                    "type": "string",
+                    "description": "Departure date in YYYY-MM-DD format"
+                  },
+                  "return_date": {
+                    "type": "string",
+                    "description": "Return date in YYYY-MM-DD format for round trips"
+                  },
+                  "passengers": {
+                    "type": "object",
+                    "properties": {
+                      "adults": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 9,
+                        "description": "Number of adult passengers (1-9)"
+                      },
+                      "children": {
+                        "type": "integer",
+                        "maximum": 9,
+                        "description": "Number of child passengers (0-9)"
+                      },
+                      "infants": {
+                        "type": "integer",
+                        "maximum": 9,
+                        "description": "Number of infant passengers (0-9)"
+                      }
+                    },
+                    "description": "Passenger counts by type"
+                  },
+                  "cabin_class": {
+                    "type": "string",
+                    "enum": [
+                      "economy",
+                      "business"
+                    ],
+                    "description": "Cabin class"
+                  },
+                  "direct_only": {
+                    "type": "boolean",
+                    "description": "Only return direct (non-stop) flights"
+                  },
+                  "currency": {
+                    "type": "string",
+                    "description": "Price currency ISO code (e.g. USD, EUR)"
+                  },
+                  "sort_by": {
+                    "type": "string",
+                    "enum": [
+                      "price",
+                      "duration",
+                      "departure_time"
+                    ],
+                    "description": "Sort order for results"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "maximum": 50,
+                    "description": "Max number of results (1-50)"
+                  }
+                },
+                "required": [
+                  "origin",
+                  "destination",
+                  "departure_date"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/aviasales.price_calendar/call": {
+      "post": {
+        "operationId": "aviasales_price_calendar",
+        "summary": "Flight Price Calendar",
+        "description": "Get flight price calendar for a route",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "aviasales.price_calendar"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "origin": {
+                    "type": "string",
+                    "description": "Origin airport IATA code (e.g. JFK, LAX)"
+                  },
+                  "destination": {
+                    "type": "string",
+                    "description": "Destination airport IATA code (e.g. CDG, LHR)"
+                  },
+                  "month": {
+                    "type": "string",
+                    "description": "Month in YYYY-MM format"
+                  },
+                  "currency": {
+                    "type": "string",
+                    "description": "Price currency ISO code (e.g. USD, EUR)"
+                  }
+                },
+                "required": [
+                  "origin",
+                  "destination",
+                  "month"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/aviasales.cheap_flights/call": {
+      "post": {
+        "operationId": "aviasales_cheap_flights",
+        "summary": "Find Cheap Flights",
+        "description": "Find cheapest flights from an origin",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "aviasales.cheap_flights"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "origin": {
+                    "type": "string",
+                    "description": "Origin airport IATA code (e.g. JFK, LAX)"
+                  },
+                  "destination": {
+                    "type": "string",
+                    "description": "Destination airport IATA code (optional, searches all destinations if omitted)"
+                  },
+                  "departure_month": {
+                    "type": "string",
+                    "description": "Filter by departure month in YYYY-MM format"
+                  },
+                  "direct_only": {
+                    "type": "boolean",
+                    "description": "Only return direct flights"
+                  },
+                  "currency": {
+                    "type": "string",
+                    "description": "Price currency ISO code (e.g. USD, EUR)"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "maximum": 30,
+                    "description": "Max number of results (1-30)"
+                  }
+                },
+                "required": [
+                  "origin"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/aviasales.popular_routes/call": {
+      "post": {
+        "operationId": "aviasales_popular_routes",
+        "summary": "Popular Flight Routes",
+        "description": "Get popular flight routes from an origin",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "aviasales.popular_routes"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "origin": {
+                    "type": "string",
+                    "description": "Origin airport IATA code (e.g. JFK, LAX)"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "maximum": 30,
+                    "description": "Max number of results (1-30)"
+                  }
+                },
+                "required": [
+                  "origin"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/aviasales.hotel_search/call": {
+      "post": {
+        "operationId": "aviasales_hotel_search",
+        "summary": "Search Hotels",
+        "description": "Search for hotels in a city",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "aviasales.hotel_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "city": {
+                    "type": "string",
+                    "description": "City name or IATA code for hotel search"
+                  },
+                  "check_in": {
+                    "type": "string",
+                    "description": "Check-in date in YYYY-MM-DD format"
+                  },
+                  "check_out": {
+                    "type": "string",
+                    "description": "Check-out date in YYYY-MM-DD format"
+                  },
+                  "guests": {
+                    "type": "object",
+                    "properties": {
+                      "adults": {
+                        "type": "integer",
+                        "description": "Number of adult guests"
+                      },
+                      "children": {
+                        "type": "integer",
+                        "description": "Number of child guests"
+                      }
+                    },
+                    "description": "Guest counts by type"
+                  },
+                  "stars": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "description": "Star rating (1-5)",
+                      "minimum": 1,
+                      "maximum": 5
+                    },
+                    "description": "Filter by hotel star ratings"
+                  },
+                  "sort_by": {
+                    "type": "string",
+                    "enum": [
+                      "price",
+                      "rating",
+                      "stars",
+                      "popularity"
+                    ],
+                    "description": "Sort order for results"
+                  },
+                  "price_max_usd": {
+                    "type": "number",
+                    "description": "Maximum price per night in USD"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "maximum": 50,
+                    "description": "Max number of results (1-50)"
+                  }
+                },
+                "required": [
+                  "city",
+                  "check_in",
+                  "check_out"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/aviasales.nearby_destinations/call": {
+      "post": {
+        "operationId": "aviasales_nearby_destinations",
+        "summary": "Nearby Destinations",
+        "description": "Find nearby flight destinations",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "aviasales.nearby_destinations"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "origin": {
+                    "type": "string",
+                    "description": "Origin airport IATA code (e.g. JFK, LAX)"
+                  },
+                  "destination": {
+                    "type": "string",
+                    "description": "Destination airport IATA code (e.g. CDG, LHR)"
+                  },
+                  "departure_date": {
+                    "type": "string",
+                    "description": "Departure date in YYYY-MM-DD format"
+                  },
+                  "return_date": {
+                    "type": "string",
+                    "description": "Return date in YYYY-MM-DD format"
+                  },
+                  "flexibility_days": {
+                    "type": "integer",
+                    "description": "Date flexibility in days (+/-)"
+                  },
+                  "distance_km": {
+                    "type": "integer",
+                    "description": "Max distance from destination in km"
+                  },
+                  "currency": {
+                    "type": "string",
+                    "description": "Price currency ISO code (e.g. USD, EUR)"
+                  }
+                },
+                "required": [
+                  "origin",
+                  "destination",
+                  "departure_date"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/aviasales.airport_lookup/call": {
+      "post": {
+        "operationId": "aviasales_airport_lookup",
+        "summary": "Airport Lookup",
+        "description": "Look up airport by name or code",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "aviasales.airport_lookup"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Airport name, city, or IATA code to search"
+                  },
+                  "locale": {
+                    "type": "string",
+                    "description": "Response locale (e.g. en, de, fr)"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
       }
     }
   },
