@@ -46,3 +46,4 @@ backups/
 # Internal files (not for public repo)
 CLAUDE.md
 plan.md
+.claude/skills/

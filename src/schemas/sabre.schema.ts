@@ -27,7 +27,11 @@ const sabreAirlineLookup = z
   })
   .strip();
 
-const sabreTravelThemes = z.object({}).strip();
+const sabreTravelThemes = z
+  .object({
+    locale: z.string().optional().describe('Response locale (e.g. en-US, de-DE)'),
+  })
+  .strip();
 
 export const sabreSchemas: Record<string, ZodSchema> = {
   'sabre.search_flights': sabreSearchFlights,

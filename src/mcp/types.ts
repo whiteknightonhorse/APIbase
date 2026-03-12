@@ -6,6 +6,7 @@ import type { ToolAnnotations } from '@modelcontextprotocol/sdk/types.js';
 
 export interface McpToolDefinition {
   toolId: string;
+  mcpName?: string;
   description: string;
   title?: string;
   annotations?: ToolAnnotations;
