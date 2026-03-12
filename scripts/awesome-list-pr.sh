@@ -30,6 +30,7 @@ fi
 GH_USER="whiteknightonhorse"
 APIBASE_REPO="https://github.com/$GH_USER/APIbase"
 APIBASE_URL="https://apibase.pro"
+GLAMA_URL="https://glama.ai/mcp/servers/$GH_USER/APIbase"
 
 mkdir -p "$(dirname "$LOG_FILE")"
 
@@ -91,7 +92,7 @@ gen_punkpeye_agg() {
   )
   local desc
   desc=$(random_choice "${descs[@]}")
-  echo "- [$GH_USER/APIbase]($APIBASE_REPO) 📇 ☁️ - $desc"
+  echo "- [$GH_USER/APIbase]($APIBASE_REPO) [glama]($GLAMA_URL) 📇 ☁️ - $desc"
 }
 
 gen_punkpeye_travel() {
@@ -102,7 +103,7 @@ gen_punkpeye_travel() {
   )
   local desc
   desc=$(random_choice "${descs[@]}")
-  echo "- [$GH_USER/APIbase]($APIBASE_REPO) 📇 ☁️ - $desc"
+  echo "- [$GH_USER/APIbase]($APIBASE_REPO) [glama]($GLAMA_URL) 📇 ☁️ - $desc"
 }
 
 gen_appcypher() {
@@ -313,7 +314,7 @@ print(base64.b64decode(data['content']).decode('utf-8'))
   # 9. Insert entry into README
   local updated_content
   updated_content=$(SECTION_MARKER="$section" NEW_ENTRY="$new_entry" python3 -c "
-import os, sys
+import os, sys, re
 
 section = os.environ['SECTION_MARKER']
 entry = os.environ['NEW_ENTRY']
@@ -322,32 +323,70 @@ readme = sys.stdin.read()
 lines = readme.split('\n')
 insert_idx = None
 
+def extract_sort_key(line):
+    \"\"\"Extract alphabetical sort key from a list entry.\"\"\"
+    m = re.search(r'\[([^\]]+)\]', line)
+    if m:
+        return m.group(1).lower()
+    return line.lower()
+
+entry_sort_key = extract_sort_key(entry)
+
 for i, line in enumerate(lines):
     stripped = line.strip()
     if section in line and (stripped.startswith('#') or section.startswith('###')):
-        # Find insertion point: first list item or first data row in table
+        # Find section entries and insert alphabetically
         in_table_header = False
-        for j in range(i+1, min(i+30, len(lines))):
+        first_entry = None
+        for j in range(i+1, min(i+2000, len(lines))):
             s = lines[j].strip()
+
+            # List format (- [Name]...)
             if s.startswith('- ') or s.startswith('* '):
-                insert_idx = j
-                break
+                if first_entry is None:
+                    first_entry = j
+                line_key = extract_sort_key(s)
+                if line_key > entry_sort_key:
+                    insert_idx = j
+                    break
+                continue
+
+            # Table format
             elif s.startswith('|') and '---' in s:
-                # Table separator row — next line is first data row
                 in_table_header = True
                 continue
             elif s.startswith('|') and in_table_header:
-                # First data row after separator
-                insert_idx = j
-                break
-            elif s.startswith('|') and not in_table_header:
-                # Table header row (| Name | Category | ...)
-                in_table_header = True
+                if first_entry is None:
+                    first_entry = j
+                in_table_header = False
+                line_key = extract_sort_key(s)
+                if line_key > entry_sort_key:
+                    insert_idx = j
+                    break
                 continue
+            elif s.startswith('|') and not in_table_header and first_entry is not None:
+                line_key = extract_sort_key(s)
+                if line_key > entry_sort_key:
+                    insert_idx = j
+                    break
+                continue
+
+            # Empty line between entries — skip
+            elif s == '' and first_entry is not None:
+                continue
+
+            # Next section or end of list
             elif s.startswith('#') and j > i+1:
                 insert_idx = j
                 break
-        if insert_idx is None:
+            elif first_entry is not None and not s.startswith('-') and not s.startswith('|') and s != '':
+                insert_idx = j
+                break
+
+        # If we scanned all entries and didn't find one > our key, insert at end
+        if insert_idx is None and first_entry is not None:
+            insert_idx = j
+        elif insert_idx is None:
             insert_idx = i + 2
         break
 
@@ -356,7 +395,11 @@ if insert_idx is None:
     sys.exit(1)
 
 lines.insert(insert_idx, entry)
-print('\n'.join(lines), end='')
+# Ensure trailing newline
+result = '\n'.join(lines)
+if not result.endswith('\n'):
+    result += '\n'
+print(result, end='')
 " <<< "$readme_content" 2>/tmp/awesome_pr_err)
 
   if [[ $? -ne 0 ]]; then
