@@ -366,4 +366,82 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description: 'Look up airport by name or code',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // Hyperliquid — DeFi Perpetuals (UC-021, Phase 1 read-only)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'hyperliquid.market_data',
+    mcpName: 'hyperliquid.markets.data',
+    title: 'Hyperliquid Market Data',
+    description: 'Get market metadata and mid prices for all perpetual pairs on Hyperliquid',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'hyperliquid.order_book',
+    mcpName: 'hyperliquid.markets.orderbook',
+    title: 'Hyperliquid Order Book',
+    description: 'Get L2 order book depth for a perpetual pair on Hyperliquid',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'hyperliquid.klines',
+    mcpName: 'hyperliquid.markets.klines',
+    title: 'Hyperliquid Klines',
+    description: 'Get candlestick (OHLCV) data for a perpetual pair on Hyperliquid',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'hyperliquid.positions',
+    mcpName: 'hyperliquid.account.positions',
+    title: 'Hyperliquid Positions',
+    description: 'Get open positions for a user wallet on Hyperliquid',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'hyperliquid.account',
+    mcpName: 'hyperliquid.account.summary',
+    title: 'Hyperliquid Account',
+    description: 'Get account summary and margin details for a user wallet on Hyperliquid',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'hyperliquid.vault',
+    mcpName: 'hyperliquid.vaults.details',
+    title: 'Hyperliquid Vault',
+    description: 'Get vault details including performance and TVL on Hyperliquid',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
+  // AsterDEX — DeFi Perpetuals (UC-020, Phase 1 read-only)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'aster.exchange_info',
+    mcpName: 'aster.exchange.info',
+    title: 'AsterDEX Exchange Info',
+    description: 'Get exchange information and available trading pairs on AsterDEX',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'aster.market_data',
+    mcpName: 'aster.markets.ticker',
+    title: 'AsterDEX Market Data',
+    description: 'Get 24-hour ticker statistics for trading pairs on AsterDEX',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'aster.order_book',
+    mcpName: 'aster.markets.orderbook',
+    title: 'AsterDEX Order Book',
+    description: 'Get order book depth for a trading pair on AsterDEX',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'aster.klines',
+    mcpName: 'aster.markets.klines',
+    title: 'AsterDEX Klines',
+    description: 'Get candlestick (OHLCV) data for a trading pair on AsterDEX',
+    annotations: READ_ONLY,
+  },
 ];

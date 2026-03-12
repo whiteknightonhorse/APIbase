@@ -5,6 +5,8 @@ import { polymarketSchemas } from './polymarket.schema';
 import { aviasalesSchemas } from './aviasales.schema';
 import { sabreSchemas } from './sabre.schema';
 import { amadeusSchemas } from './amadeus.schema';
+import { hyperliquidSchemas } from './hyperliquid.schema';
+import { asterdexSchemas } from './asterdex.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -13,4 +15,6 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...aviasalesSchemas,
   ...sabreSchemas,
   ...amadeusSchemas,
+  ...hyperliquidSchemas,
+  ...asterdexSchemas,
 };

@@ -38,6 +38,18 @@ export function errorHandlerMiddleware(
     return;
   }
 
+  // JSON body parse error — 400 (malformed request body)
+  if (err instanceof SyntaxError && 'body' in err) {
+    (req.log ?? logger).warn({ status: 400, code: ErrorCode.BAD_REQUEST }, 'Malformed JSON body');
+    const parseBody: ApiErrorResponse = {
+      error: ErrorCode.BAD_REQUEST,
+      message: 'Malformed JSON in request body',
+      request_id: requestId,
+    };
+    res.status(400).json(parseBody);
+    return;
+  }
+
   // Unexpected error — 500 (§12.166)
   (req.log ?? logger).error({ err }, 'Unhandled error');
 
