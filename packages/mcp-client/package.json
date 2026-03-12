@@ -1,0 +1,41 @@
+{
+  "name": "@apibase11/mcp-client",
+  "version": "1.0.1",
+  "description": "MCP client for APIbase.pro — connect Claude Desktop, Cursor, Windsurf, and other AI agents to 56+ tools (flights, markets, weather) via one command",
+  "type": "module",
+  "bin": {
+    "apibase-mcp": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "apibase",
+    "ai-agents",
+    "model-context-protocol",
+    "travel-api",
+    "flight-search",
+    "x402",
+    "claude-desktop",
+    "cursor",
+    "windsurf"
+  ],
+  "author": "APIbase.pro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/whiteknightonhorse/APIbase"
+  },
+  "homepage": "https://apibase.pro",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.10.0"
+  }
+}
