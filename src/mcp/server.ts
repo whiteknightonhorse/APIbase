@@ -25,11 +25,17 @@ const sessions = new Map<string, SSEServerTransport | StreamableHTTPServerTransp
  * Extract Bearer API key from Authorization header.
  */
 function extractApiKey(req: express.Request): string | null {
+  // Standard: Authorization: Bearer <key>
   const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return null;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    return authHeader.slice(7);
   }
-  return authHeader.slice(7);
+  // Smithery gateway forwards key as apiKey header
+  const smitheryKey = req.headers['apikey'] as string | undefined;
+  if (smitheryKey) {
+    return smitheryKey;
+  }
+  return null;
 }
 
 /**
