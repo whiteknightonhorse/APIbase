@@ -16,7 +16,8 @@
     "format": "prettier --write src/",
     "migrate": "prisma migrate deploy",
     "generate": "prisma generate",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "tsx scripts/seed.ts",
+    "openapi": "tsx scripts/generate-openapi.ts"
   },
   "prisma": {
     "seed": "tsx scripts/seed.ts"

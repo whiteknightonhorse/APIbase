@@ -12,6 +12,7 @@ import { createMcpRouter } from '../mcp/server';
 import { x402Middleware } from '../middleware/x402.middleware';
 import { x402Router } from '../routes/x402.router';
 import { onboardRouter } from '../routes/onboard.router';
+import { executeRouter } from '../routes/execute.router';
 
 /**
  * Express application configuration (§6.1, §12.243).
@@ -62,6 +63,7 @@ export function createApp(): express.Express {
   // --- API routes ---
   app.use(agentsRouter);
   app.use(toolsRouter);
+  app.use(executeRouter);
 
   // --- 404 catch-all (must be after all routes) ---
   app.use((req: express.Request, _res: express.Response, next: express.NextFunction) => {
