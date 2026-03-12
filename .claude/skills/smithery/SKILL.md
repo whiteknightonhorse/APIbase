@@ -22,6 +22,26 @@ Manages the APIbase listing on Smithery.ai — the main MCP server catalog.
 | Listing URL | `https://smithery.ai/servers/apibase-pro/api-hub` |
 | Gateway URL | `api-hub--apibase-pro.run.tools` |
 
+## Quality Score
+
+Target: 100/100. Score components:
+
+| Category | Max | What earns points |
+|----------|-----|-------------------|
+| **Tool Quality** | 35 | Tool descriptions, parameter `.describe()`, `annotations`, `title` on all tools |
+| **Server Capabilities** | 10 | Prompts (3 registered), Resources (via MCP scan) |
+| **Server Metadata** | 30 | Description, Homepage, Icon, Display name |
+| **Configuration UX** | 25 | Optional config (`required: []`), Config schema |
+
+Key files for quality score:
+- `src/schemas/*.schema.ts` — `.describe()` on every Zod field → Parameter descriptions
+- `src/mcp/tool-adapter.ts` — `title` + `annotations` on every TOOL_DEFINITIONS entry → Tool names + Annotations
+- `src/mcp/prompt-adapter.ts` — 3 workflow prompts → Server Capabilities / Prompts
+- `src/mcp/server.ts` — `SERVER_INFO` (title, description, websiteUrl, icons) + `SERVER_OPTIONS` (instructions, capabilities with prompts) → Server Metadata
+- `static/icon.png` — served via nginx at `/icon.png` → Icon
+- `smithery.yaml` — config schema with `required: []` → Configuration UX / Optional config
+- Smithery Settings UI — Display name, Description (markdown), Homepage, Server Icon upload
+
 ## Authentication
 
 Smithery API key required for CLI publish. Stored in `.env`:
@@ -38,19 +58,21 @@ Our server accepts API key via two methods:
 - `Authorization: Bearer <key>` (standard, direct connections)
 - `apiKey: <key>` header (Smithery gateway forwards this way)
 
-Config schema for Smithery:
+Config schema for Smithery (API key is OPTIONAL — auto-registration supported):
 ```json
 {
   "type": "object",
   "properties": {
     "apiKey": {
       "type": "string",
-      "description": "APIbase API key (format: ak_live_...)"
+      "description": "APIbase API key (ak_live_...). Leave empty for auto-registration."
     }
   },
-  "required": ["apiKey"]
+  "required": []
 }
 ```
+
+IMPORTANT: `required` MUST be `[]` (empty). This is what gives the "Optional config" 15pt in the quality score. APIbase supports auto-registration, so API key is truly optional.
 
 ## Publish / Update Workflow
 
@@ -59,8 +81,10 @@ Config schema for Smithery:
 Republish to Smithery after ANY of these changes:
 - New provider adapter added (new tools)
 - Tools removed or renamed
-- Tool schemas changed
+- Tool schemas changed (including `.describe()` additions)
 - Server version bumped
+- Prompts added or changed
+- Server metadata updated
 
 ### How to republish (CLI)
 
@@ -72,7 +96,7 @@ source .env
 SMITHERY_API_KEY="$SMITHERY_API_KEY" npx @smithery/cli mcp publish \
   "https://apibase.pro/mcp" \
   -n "apibase-pro/api-hub" \
-  --config-schema '{"type":"object","properties":{"apiKey":{"type":"string","description":"APIbase API key"}},"required":["apiKey"]}'
+  --config-schema '{"type":"object","properties":{"apiKey":{"type":"string","description":"APIbase API key (ak_live_...). Leave empty for auto-registration."}},"required":[]}'
 ```
 
 ### How to republish (Web UI fallback)
@@ -90,10 +114,10 @@ SMITHERY_API_KEY="$SMITHERY_API_KEY" npx @smithery/cli mcp publish \
 2. Verify MCP endpoint responds: `curl -s -X POST https://apibase.pro/mcp ...`
 3. Count current tools from MCP response
 4. Check `.env` for `SMITHERY_API_KEY`
-5. If key exists: run CLI publish command
+5. If key exists: run CLI publish command (with `"required":[]`)
 6. If key missing: instruct user to create at smithery.ai/account/api-keys or use web UI
 7. Verify publish succeeded
-8. Report: tools count, publish status, listing URL
+8. Report: tools count, prompts count, publish status, listing URL
 
 ### /smithery status
 
@@ -128,4 +152,6 @@ This key was auto-registered when first connecting to Smithery. Keep it stable �
 | Smithery scan fails 401 | Check `apiKey` header support in `src/mcp/server.ts` `extractApiKey()` |
 | Tool count mismatch | Some tools may lack schemas — check `tool-adapter.ts` registration warnings |
 | Publish auth fails | Regenerate API key at smithery.ai/account/api-keys, update `.env` |
-| "Method not found" warnings | Expected — we don't serve MCP resources or prompts, only tools |
+| "Method not found" warnings | Expected for resources — we serve tools + prompts but not MCP resources |
+| Quality score < 100 | Check: all schemas have `.describe()`, all tools have `title` + `annotations`, publish with `required:[]` |
+| Optional config 0pt | Ensure publish uses `"required":[]` not `"required":["apiKey"]` |

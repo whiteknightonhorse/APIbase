@@ -28,7 +28,7 @@ const SERVER_INFO = {
   version: '1.0.0',
   title: 'APIbase — The API Hub for AI Agents',
   description:
-    'Unified MCP gateway to 56+ tools: flights (Amadeus, Sabre, Aviasales), crypto (CoinGecko), prediction markets (Polymarket), weather, and more. Pay-per-call via x402 micropayments.',
+    'Unified MCP gateway to 56+ tools: flights (Amadeus, Sabre), prediction markets (Polymarket), weather, and more. New providers added regularly. Pay-per-call via x402 micropayments.',
   websiteUrl: 'https://apibase.pro',
   icons: [
     {
