@@ -143,10 +143,14 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 7. Auth rejection — GET /mcp without Authorization → 401
+# 7. Auth rejection — POST /mcp initialize without Authorization → 401
 # ---------------------------------------------------------------------------
 echo -n "7/8 Auth rejection..."
 AUTH_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -d '{"jsonrpc":"2.0","method":"initialize","id":1,"params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"test","version":"1.0.0"}}}' \
   "$API_URL/mcp" 2>/dev/null || echo "000")
 if [ "$AUTH_CODE" = "401" ]; then
   pass

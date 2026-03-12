@@ -1,36 +1,213 @@
 /**
  * MCP server factory and Express route handlers (§12.42, §6.14, §12.1).
  *
- * SSE transport only (Phase 1 — no WebSocket per §12.42, §16).
- * One McpServer + SSEServerTransport per SSE connection (SDK 1:1 design).
- * All tool calls route through the full 13-stage pipeline.
+ * Dual transport:
+ *   - Streamable HTTP (primary, protocol 2025-11-25) — /mcp
+ *   - SSE (deprecated, backward compat, protocol 2024-11-05) — /sse + /messages
+ *
+ * One McpServer + Transport per session. All tool calls route through the
+ * full 13-stage pipeline.
  */
 
 import express from 'express';
 import { randomUUID } from 'node:crypto';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 import { logger } from '../config/logger';
 import { registerTools } from './tool-adapter';
 
-/** Active SSE sessions: sessionId → transport */
-const sessions = new Map<string, SSEServerTransport>();
+/** Active sessions: sessionId → transport (both transport types) */
+const sessions = new Map<string, SSEServerTransport | StreamableHTTPServerTransport>();
 
 /**
- * Create Express router for MCP endpoint.
+ * Extract Bearer API key from Authorization header.
+ */
+function extractApiKey(req: express.Request): string | null {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return null;
+  }
+  return authHeader.slice(7);
+}
+
+/**
+ * Create Express router for MCP endpoints.
  *
- * GET  /mcp              — SSE stream (sends endpoint event with sessionId)
- * POST /mcp?sessionId=x  — JSON-RPC messages routed to the correct transport
+ * Streamable HTTP (primary):
+ *   POST   /mcp — JSON-RPC messages (initialize creates session)
+ *   GET    /mcp — SSE subscription for server-initiated notifications
+ *   DELETE /mcp — close session
+ *
+ * SSE (deprecated, backward compat):
+ *   GET  /sse      — SSE stream
+ *   POST /messages — JSON-RPC messages
  */
 export function createMcpRouter(): express.Router {
   const router = express.Router();
 
-  // -------------------------------------------------------------------------
-  // GET /mcp — SSE stream
-  // -------------------------------------------------------------------------
-  router.get('/mcp', (req: express.Request, res: express.Response) => {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  // =========================================================================
+  // Streamable HTTP transport — /mcp (primary, protocol 2025-11-25)
+  // =========================================================================
+
+  // --- POST /mcp: JSON-RPC messages ---
+  router.post('/mcp', async (req: express.Request, res: express.Response) => {
+    try {
+      const sessionId = req.headers['mcp-session-id'] as string | undefined;
+
+      // Existing session: route to stored transport
+      if (sessionId) {
+        const transport = sessions.get(sessionId);
+        if (!transport || !(transport instanceof StreamableHTTPServerTransport)) {
+          res.status(404).json({
+            jsonrpc: '2.0',
+            error: { code: -32000, message: 'Session not found' },
+            id: null,
+          });
+          return;
+        }
+        await transport.handleRequest(req, res, req.body);
+        return;
+      }
+
+      // New session: must be an initialize request
+      if (!isInitializeRequest(req.body)) {
+        res.status(400).json({
+          jsonrpc: '2.0',
+          error: {
+            code: -32600,
+            message: 'Bad Request: first request must be an initialize request',
+          },
+          id: null,
+        });
+        return;
+      }
+
+      const apiKey = extractApiKey(req);
+      if (!apiKey) {
+        res.status(401).json({
+          error: 'unauthorized',
+          message: 'Missing or invalid Authorization header. Expected: Bearer <api_key>',
+        });
+        return;
+      }
+
+      const requestId = (req.headers['x-request-id'] as string) || randomUUID();
+
+      const transport = new StreamableHTTPServerTransport({
+        sessionIdGenerator: () => randomUUID(),
+        onsessioninitialized: (sid: string) => {
+          sessions.set(sid, transport);
+          logger.info(
+            { request_id: requestId, session_id: sid },
+            'MCP Streamable HTTP session created',
+          );
+        },
+        onsessionclosed: (sid: string) => {
+          sessions.delete(sid);
+          logger.info(
+            { request_id: requestId, session_id: sid },
+            'MCP Streamable HTTP session closed',
+          );
+        },
+      });
+
+      transport.onerror = (error: Error) => {
+        logger.error(
+          { request_id: requestId, err: error },
+          'MCP Streamable HTTP transport error',
+        );
+      };
+
+      const mcpServer = new McpServer(
+        { name: 'APIbase', version: '1.0.0' },
+        { capabilities: { tools: {} } },
+      );
+
+      registerTools(mcpServer, apiKey, requestId);
+      await mcpServer.connect(transport);
+
+      await transport.handleRequest(req, res, req.body);
+    } catch (error) {
+      logger.error({ err: error }, 'MCP Streamable HTTP POST error');
+      if (!res.headersSent) {
+        res.status(500).json({ error: 'internal_error', message: 'MCP request handling failed' });
+      }
+    }
+  });
+
+  // --- GET /mcp: SSE subscription for server-initiated notifications ---
+  router.get('/mcp', async (req: express.Request, res: express.Response) => {
+    try {
+      const sessionId = req.headers['mcp-session-id'] as string | undefined;
+      if (!sessionId) {
+        res.status(400).json({
+          error: 'bad_request',
+          message: 'Missing mcp-session-id header',
+        });
+        return;
+      }
+
+      const transport = sessions.get(sessionId);
+      if (!transport || !(transport instanceof StreamableHTTPServerTransport)) {
+        res.status(404).json({
+          jsonrpc: '2.0',
+          error: { code: -32000, message: 'Session not found' },
+          id: null,
+        });
+        return;
+      }
+
+      await transport.handleRequest(req, res);
+    } catch (error) {
+      logger.error({ err: error }, 'MCP Streamable HTTP GET error');
+      if (!res.headersSent) {
+        res.status(500).json({ error: 'internal_error', message: 'MCP SSE subscription failed' });
+      }
+    }
+  });
+
+  // --- DELETE /mcp: close session ---
+  router.delete('/mcp', async (req: express.Request, res: express.Response) => {
+    try {
+      const sessionId = req.headers['mcp-session-id'] as string | undefined;
+      if (!sessionId) {
+        res.status(400).json({
+          error: 'bad_request',
+          message: 'Missing mcp-session-id header',
+        });
+        return;
+      }
+
+      const transport = sessions.get(sessionId);
+      if (!transport || !(transport instanceof StreamableHTTPServerTransport)) {
+        res.status(404).json({
+          jsonrpc: '2.0',
+          error: { code: -32000, message: 'Session not found' },
+          id: null,
+        });
+        return;
+      }
+
+      await transport.handleRequest(req, res);
+      sessions.delete(sessionId);
+    } catch (error) {
+      logger.error({ err: error }, 'MCP Streamable HTTP DELETE error');
+      if (!res.headersSent) {
+        res.status(500).json({ error: 'internal_error', message: 'MCP session close failed' });
+      }
+    }
+  });
+
+  // =========================================================================
+  // SSE transport — /sse + /messages (deprecated, backward compat)
+  // =========================================================================
+
+  // --- GET /sse: establish SSE stream ---
+  router.get('/sse', (req: express.Request, res: express.Response) => {
+    const apiKey = extractApiKey(req);
+    if (!apiKey) {
       res.status(401).json({
         error: 'unauthorized',
         message: 'Missing or invalid Authorization header. Expected: Bearer <api_key>',
@@ -38,10 +215,9 @@ export function createMcpRouter(): express.Router {
       return;
     }
 
-    const apiKey = authHeader.slice(7);
     const requestId = (req.headers['x-request-id'] as string) || randomUUID();
 
-    const transport = new SSEServerTransport('/mcp', res);
+    const transport = new SSEServerTransport('/messages', res);
     const sessionId = transport.sessionId;
 
     const mcpServer = new McpServer(
@@ -54,7 +230,6 @@ export function createMcpRouter(): express.Router {
     sessions.set(sessionId, transport);
     logger.info({ request_id: requestId, session_id: sessionId }, 'MCP SSE session created');
 
-    // Cleanup on connection close
     const cleanup = (): void => {
       sessions.delete(sessionId);
       logger.info({ request_id: requestId, session_id: sessionId }, 'MCP SSE session closed');
@@ -82,10 +257,8 @@ export function createMcpRouter(): express.Router {
     });
   });
 
-  // -------------------------------------------------------------------------
-  // POST /mcp — JSON-RPC messages
-  // -------------------------------------------------------------------------
-  router.post('/mcp', (req: express.Request, res: express.Response) => {
+  // --- POST /messages: JSON-RPC messages for SSE transport ---
+  router.post('/messages', (req: express.Request, res: express.Response) => {
     const sessionId = req.query.sessionId as string | undefined;
     if (!sessionId) {
       res.status(400).json({
@@ -96,7 +269,7 @@ export function createMcpRouter(): express.Router {
     }
 
     const transport = sessions.get(sessionId);
-    if (!transport) {
+    if (!transport || !(transport instanceof SSEServerTransport)) {
       res.status(400).json({
         error: 'bad_request',
         message: 'Unknown or expired sessionId',
