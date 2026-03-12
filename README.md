@@ -9,7 +9,7 @@
 
 ## What is APIbase?
 
-APIbase is a production MCP server that gives AI agents instant access to real-world APIs — flight search, prediction markets, DeFi trading, and more. No SDK installation, no API key juggling, no rate limit management. Connect once, use 33 tools.
+Production MCP server — universal API hub for AI agents. 45+ tools across travel, finance, e-commerce, weather, and more. Search flights (Amadeus, Sabre GDS), trade prediction markets (Polymarket), track crypto, check weather — with more providers shipping regularly. One endpoint, pay per call via x402 USDC micropayments. Auto-registration, zero setup. Covers the most popular API categories agents actually need: travel, financial data, local services, e-commerce, and marketing.
 
 **Built for AI agents, not humans.** Every tool is designed for autonomous discovery, authentication, and invocation via the [Model Context Protocol](https://modelcontextprotocol.io).
 
