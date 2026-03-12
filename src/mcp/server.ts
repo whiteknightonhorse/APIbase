@@ -17,9 +17,46 @@ import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 import { logger } from '../config/logger';
 import { registerTools } from './tool-adapter';
+import { registerPrompts } from './prompt-adapter';
 
 /** Active sessions: sessionId → transport (both transport types) */
 const sessions = new Map<string, SSEServerTransport | StreamableHTTPServerTransport>();
+
+/** Server metadata passed to McpServer constructor */
+const SERVER_INFO = {
+  name: 'APIbase',
+  version: '1.0.0',
+  title: 'APIbase — The API Hub for AI Agents',
+  description:
+    'Unified MCP gateway to 56+ tools: flights (Amadeus, Sabre, Aviasales), crypto (CoinGecko), prediction markets (Polymarket), weather, and more. Pay-per-call via x402 micropayments.',
+  websiteUrl: 'https://apibase.pro',
+  icons: [
+    {
+      src: 'https://apibase.pro/icon.png',
+      mimeType: 'image/png',
+      sizes: ['256x256'],
+    },
+  ],
+};
+
+/** Server options with capabilities and instructions */
+const SERVER_OPTIONS = {
+  capabilities: { tools: {}, prompts: {} },
+  instructions:
+    'APIbase is an MCP gateway for AI agents. Authenticate with Bearer <api_key> header. ' +
+    'All tools are pay-per-call via x402 micropayments (USDC). ' +
+    'Use tools/list to discover available tools. Use prompts/list for workflow templates.',
+} as const;
+
+/**
+ * Create a fully configured McpServer instance with all tools and prompts registered.
+ */
+function createMcpServer(apiKey: string, requestId: string): McpServer {
+  const mcpServer = new McpServer(SERVER_INFO, SERVER_OPTIONS);
+  registerTools(mcpServer, apiKey, requestId);
+  registerPrompts(mcpServer);
+  return mcpServer;
+}
 
 /**
  * Extract Bearer API key from Authorization header.
@@ -126,12 +163,7 @@ export function createMcpRouter(): express.Router {
         );
       };
 
-      const mcpServer = new McpServer(
-        { name: 'APIbase', version: '1.0.0' },
-        { capabilities: { tools: {} } },
-      );
-
-      registerTools(mcpServer, apiKey, requestId);
+      const mcpServer = createMcpServer(apiKey, requestId);
       await mcpServer.connect(transport);
 
       await transport.handleRequest(req, res, req.body);
@@ -226,12 +258,7 @@ export function createMcpRouter(): express.Router {
     const transport = new SSEServerTransport('/messages', res);
     const sessionId = transport.sessionId;
 
-    const mcpServer = new McpServer(
-      { name: 'APIbase', version: '1.0.0' },
-      { capabilities: { tools: {} } },
-    );
-
-    registerTools(mcpServer, apiKey, requestId);
+    const mcpServer = createMcpServer(apiKey, requestId);
 
     sessions.set(sessionId, transport);
     logger.info({ request_id: requestId, session_id: sessionId }, 'MCP SSE session created');

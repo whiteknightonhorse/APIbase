@@ -9,15 +9,15 @@ const networkEnum = z.enum([
   'base',
   'avalanche',
   'optimism',
-]);
+]).describe('Blockchain network');
 
 const cryptoGetPrice = z
   .object({
-    coins: z.array(z.string()).max(50),
-    vs_currencies: z.array(z.string()).optional(),
-    include_24h_change: z.boolean().optional(),
-    include_market_cap: z.boolean().optional(),
-    include_volume: z.boolean().optional(),
+    coins: z.array(z.string().describe('CoinGecko coin ID (e.g. bitcoin, ethereum)')).max(50).describe('List of coin IDs to get prices for'),
+    vs_currencies: z.array(z.string().describe('Currency code (e.g. usd, eur, btc)')).optional().describe('Target currencies for price conversion'),
+    include_24h_change: z.boolean().optional().describe('Include 24-hour price change percentage'),
+    include_market_cap: z.boolean().optional().describe('Include market capitalization'),
+    include_volume: z.boolean().optional().describe('Include 24-hour trading volume'),
   })
   .strip();
 
@@ -36,7 +36,8 @@ const coingeckoGetMarket = z
         'exchange-based-tokens',
         'real-world-assets',
       ])
-      .optional(),
+      .optional()
+      .describe('Filter by market category'),
     sort_by: z
       .enum([
         'market_cap_desc',
@@ -45,62 +46,63 @@ const coingeckoGetMarket = z
         'price_desc',
         'price_change_24h_desc',
       ])
-      .optional(),
-    limit: z.number().int().max(250).optional(),
-    include_sparkline: z.boolean().optional(),
+      .optional()
+      .describe('Sort order for results'),
+    limit: z.number().int().max(250).optional().describe('Max number of results (1-250)'),
+    include_sparkline: z.boolean().optional().describe('Include 7-day sparkline price data'),
   })
   .strip();
 
 const cryptoCoinDetail = z
   .object({
-    coin_id: z.string(),
-    include_description: z.boolean().optional(),
-    include_developer: z.boolean().optional(),
-    include_community: z.boolean().optional(),
+    coin_id: z.string().describe('CoinGecko coin ID (e.g. bitcoin, ethereum)'),
+    include_description: z.boolean().optional().describe('Include coin description text'),
+    include_developer: z.boolean().optional().describe('Include developer/GitHub stats'),
+    include_community: z.boolean().optional().describe('Include community/social stats'),
   })
   .strip();
 
 const cryptoPriceHistory = z
   .object({
-    coin_id: z.string(),
-    days: z.number().int().max(365).optional(),
-    interval: z.enum(['5m', 'hourly', 'daily']).optional(),
-    format: z.enum(['timeseries', 'ohlcv']).optional(),
+    coin_id: z.string().describe('CoinGecko coin ID (e.g. bitcoin, ethereum)'),
+    days: z.number().int().max(365).optional().describe('Number of days of history (1-365)'),
+    interval: z.enum(['5m', 'hourly', 'daily']).optional().describe('Data point interval'),
+    format: z.enum(['timeseries', 'ohlcv']).optional().describe('Response format'),
   })
   .strip();
 
 const cryptoTrending = z
   .object({
-    include_nfts: z.boolean().optional(),
-    include_categories: z.boolean().optional(),
+    include_nfts: z.boolean().optional().describe('Include trending NFT collections'),
+    include_categories: z.boolean().optional().describe('Include trending categories'),
   })
   .strip();
 
 const cryptoGlobal = z
   .object({
-    include_defi: z.boolean().optional(),
+    include_defi: z.boolean().optional().describe('Include DeFi-specific global stats'),
   })
   .strip();
 
 const cryptoDexPools = z
   .object({
-    query: z.string().optional(),
+    query: z.string().optional().describe('Search query for pool name or token'),
     network: networkEnum.optional(),
-    sort_by: z.enum(['volume_24h', 'liquidity', 'price_change_24h', 'transactions_24h']).optional(),
-    limit: z.number().int().max(50).optional(),
+    sort_by: z.enum(['volume_24h', 'liquidity', 'price_change_24h', 'transactions_24h']).optional().describe('Sort order for pool results'),
+    limit: z.number().int().max(50).optional().describe('Max number of results (1-50)'),
   })
   .strip();
 
 const cryptoTokenByAddress = z
   .object({
-    contract_address: z.string(),
+    contract_address: z.string().describe('Token contract address (e.g. 0x...)'),
     network: networkEnum.optional(),
   })
   .strip();
 
 const cryptoSearch = z
   .object({
-    query: z.string(),
+    query: z.string().describe('Search query for coin name, symbol, or ID'),
   })
   .strip();
 
