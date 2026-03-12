@@ -31,13 +31,26 @@ APIbase is a production MCP server that gives AI agents instant access to real-w
 
 ### For Claude Desktop / Cursor / Windsurf
 
-Add to your MCP config:
+**Option A** — Direct connection (Streamable HTTP):
 
 ```json
 {
   "mcpServers": {
     "apibase": {
       "url": "https://apibase.pro/mcp"
+    }
+  }
+}
+```
+
+**Option B** — Via npm package (stdio bridge):
+
+```json
+{
+  "mcpServers": {
+    "apibase": {
+      "command": "npx",
+      "args": ["-y", "apibase-mcp-client"]
     }
   }
 }
@@ -254,4 +267,4 @@ Requires: Docker, PostgreSQL 16, Redis 7.2, Node.js 20.
 
 ## License
 
-Proprietary. All rights reserved.
+[MIT](LICENSE)
