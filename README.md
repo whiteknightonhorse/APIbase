@@ -1,7 +1,7 @@
 # APIbase.pro — The API Hub for AI Agents
 
-> Search flights, compare prices, track status, trade crypto — all via MCP.
-> One endpoint. 56 tools. 7 providers. Pay per call.
+> Search flights, compare prices, track status, trade prediction markets — all via MCP.
+> One endpoint. 33 tools. 5 providers. Pay per call.
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Health](https://apibase.pro/health/ready)**
 
@@ -9,13 +9,13 @@
 
 ## What is APIbase?
 
-APIbase is a production MCP server that gives AI agents instant access to real-world APIs — flight search, prediction markets, DeFi trading, weather, and more. No SDK installation, no API key juggling, no rate limit management. Connect once, use 56 tools.
+APIbase is a production MCP server that gives AI agents instant access to real-world APIs — flight search, prediction markets, DeFi trading, and more. No SDK installation, no API key juggling, no rate limit management. Connect once, use 33 tools.
 
 **Built for AI agents, not humans.** Every tool is designed for autonomous discovery, authentication, and invocation via the [Model Context Protocol](https://modelcontextprotocol.io).
 
 ### Why agents use APIbase
 
-- **One MCP endpoint** — `https://apibase.pro/mcp` connects to 7 providers
+- **One MCP endpoint** — `https://apibase.pro/mcp` connects to 5 providers
 - **Real-time flight search** — Amadeus + Sabre GDS, 500+ airlines, real prices
 - **Pay per call** — x402 micropayments (USDC), no subscriptions, no minimums
 - **Auto-registration** — agents get API keys instantly, zero human setup
@@ -60,7 +60,7 @@ Returns `api_key` (`ak_live_...`) and `agent_id`. Store the key securely — it 
 
 ### Call tools via MCP
 
-Connect to `https://apibase.pro/mcp` using the MCP protocol (SSE transport).
+Connect to `https://apibase.pro/mcp` using the MCP protocol (Streamable HTTP transport).
 Authenticate with `Authorization: Bearer ak_live_...`.
 
 All tool calls follow the MCP `tools/call` method.
@@ -99,7 +99,7 @@ Returns itineraries with prices, airlines, stops, duration, baggage info — rea
 
 ---
 
-## Available Tools (56)
+## Available Tools (33)
 
 ### Amadeus — Flight Search & Travel Data (7 tools)
 
@@ -167,50 +167,6 @@ Decentralized perpetual exchange on Asterism. Market data, order books, and cand
 | `aster.market_data` | Market data and 24h stats | $0.002 |
 | `aster.order_book` | Order book depth | $0.003 |
 | `aster.klines` | Candlestick / OHLCV data | $0.003 |
-
-### OpenWeatherMap — Weather Data (7 tools)
-
-Current conditions, forecasts, air quality, alerts, and geocoding.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `weather.get_current` | Current weather conditions | $0.002 |
-| `weather.get_forecast` | Weather forecast | $0.003 |
-| `weather.get_alerts` | Active weather alerts | $0.001 |
-| `weather.get_history` | Historical weather data | $0.005 |
-| `weather.air_quality` | Air quality index | $0.002 |
-| `weather.geocode` | Geocode location to coordinates | $0.001 |
-| `weather.compare` | Compare weather across locations | $0.005 |
-
-### CoinGecko — Crypto Market Data (9 tools)
-
-Comprehensive cryptocurrency data. Prices, market caps, trending coins, DEX pools.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `crypto.get_price` | Current crypto prices | $0.001 |
-| `coingecko.get_market` | Market data by category | $0.001 |
-| `crypto.coin_detail` | Detailed coin info | $0.001 |
-| `crypto.price_history` | Price history | $0.002 |
-| `crypto.trending` | Trending cryptocurrencies | $0.001 |
-| `crypto.global` | Global market statistics | $0.001 |
-| `crypto.dex_pools` | DEX liquidity pools | $0.001 |
-| `crypto.token_by_address` | Token by contract address | $0.001 |
-| `crypto.search` | Search by name or symbol | $0.001 |
-
-### Aviasales — Flight Search (7 tools)
-
-Flight search, price calendars, and hotel search via Aviasales.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `aviasales.search_flights` | Search flights | $0.005 |
-| `aviasales.price_calendar` | Price calendar for a route | $0.001 |
-| `aviasales.cheap_flights` | Cheapest flights from origin | $0.001 |
-| `aviasales.popular_routes` | Popular routes from origin | $0.001 |
-| `aviasales.hotel_search` | Hotel search | $0.003 |
-| `aviasales.nearby_destinations` | Nearby destinations | $0.001 |
-| `aviasales.airport_lookup` | Airport lookup | Free |
 
 ---
 

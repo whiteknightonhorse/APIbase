@@ -1,6 +1,6 @@
 {
   "name": "APIbase",
-  "description": "The API Hub for AI Agents — 50+ tools across weather, crypto, prediction markets, flights, travel, and DeFi. One MCP endpoint, pay-per-call via x402.",
+  "description": "The API Hub for AI Agents — 33 tools across prediction markets, flights, travel, and DeFi. One MCP endpoint, pay-per-call via x402.",
   "protocol": "MCP",
   "protocol_version": "2025-03-26",
   "transport": "streamable-http",
@@ -26,18 +26,6 @@
   },
   "providers": [
     {
-      "name": "OpenWeatherMap",
-      "category": "weather",
-      "tools": 7,
-      "prefix": "weather.*"
-    },
-    {
-      "name": "CoinGecko",
-      "category": "crypto",
-      "tools": 9,
-      "prefix": "crypto.*, coingecko.*"
-    },
-    {
       "name": "Polymarket",
       "category": "prediction-markets",
       "tools": 12,
@@ -56,12 +44,6 @@
       "prefix": "sabre.*"
     },
     {
-      "name": "Aviasales",
-      "category": "travel",
-      "tools": 7,
-      "prefix": "aviasales.*"
-    },
-    {
       "name": "Hyperliquid",
       "category": "defi",
       "tools": 6,
@@ -77,7 +59,7 @@
   "quick_start": {
     "1_connect": "POST https://apibase.pro/mcp with JSON-RPC initialize",
     "2_authenticate": "Set Authorization: Bearer <your_api_key>",
-    "3_discover": "Call tools/list to see all 50+ available tools",
+    "3_discover": "Call tools/list to see all 33 available tools",
     "4_use": "Call tools/call with tool name and arguments"
   }
 }
