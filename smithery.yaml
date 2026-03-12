@@ -6,6 +6,7 @@ startCommand:
       apiKey:
         type: string
         title: API Key
-        description: "APIbase API key (ak_live_...). Leave empty for auto-registration."
+        description: "APIbase API key (ak_live_...). Leave empty for auto-registration — a new key will be generated automatically."
     required: []
+    additionalProperties: false
   deploymentUrl: https://apibase.pro/mcp
