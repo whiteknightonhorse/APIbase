@@ -1,45 +1,71 @@
-# APIbase.pro
+# APIbase.pro — The API Hub for AI Agents
 
-The API Hub for AI Agents. One endpoint, all tools.
+> Search flights, compare prices, track status, trade crypto — all via MCP.
+> One endpoint. 56 tools. 7 providers. Pay per call.
 
-## Agent Quick Start
+**[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Health](https://apibase.pro/health/ready)**
+
+---
+
+## What is APIbase?
+
+APIbase is a production MCP server that gives AI agents instant access to real-world APIs — flight search, prediction markets, DeFi trading, weather, and more. No SDK installation, no API key juggling, no rate limit management. Connect once, use 56 tools.
+
+**Built for AI agents, not humans.** Every tool is designed for autonomous discovery, authentication, and invocation via the [Model Context Protocol](https://modelcontextprotocol.io).
+
+### Why agents use APIbase
+
+- **One MCP endpoint** — `https://apibase.pro/mcp` connects to 7 providers
+- **Real-time flight search** — Amadeus + Sabre GDS, 500+ airlines, real prices
+- **Pay per call** — x402 micropayments (USDC), no subscriptions, no minimums
+- **Auto-registration** — agents get API keys instantly, zero human setup
+- **Production-grade** — 13-stage pipeline, escrow payments, idempotent operations
+
+---
+
+## Quick Start (30 seconds)
+
+### For Claude Desktop / Cursor / Windsurf
+
+Add to your MCP config:
+
+```json
+{
+  "mcpServers": {
+    "apibase": {
+      "url": "https://apibase.pro/mcp"
+    }
+  }
+}
+```
+
+### For any MCP-compatible agent
 
 ```
 MCP Endpoint:   https://apibase.pro/mcp
 Tool Catalog:   https://apibase.pro/api/v1/tools
-Health:         https://apibase.pro/health/ready
 Discovery:      https://apibase.pro/.well-known/mcp.json
 ```
 
-### 1. Discover Tools
-
-```http
-GET /api/v1/tools
-Accept: application/json
-```
-
-Returns all available tools with IDs, parameters, pricing, and cache TTLs.
-
-### 2. Register Agent
+### Register and get your API key
 
 ```http
 POST /api/v1/agents/register
 Content-Type: application/json
-Accept: application/json
 
 {"agent_name": "my-agent", "agent_version": "1.0.0"}
 ```
 
 Returns `api_key` (`ak_live_...`) and `agent_id`. Store the key securely — it is shown once.
 
-### 3. Call Tools via MCP
+### Call tools via MCP
 
 Connect to `https://apibase.pro/mcp` using the MCP protocol (SSE transport).
 Authenticate with `Authorization: Bearer ak_live_...`.
 
 All tool calls follow the MCP `tools/call` method.
 
-### 4. Call Tools via REST
+### Call tools via REST
 
 ```http
 GET /api/v1/tools/{tool_id}?param1=value1&param2=value2
@@ -47,9 +73,37 @@ Authorization: Bearer ak_live_...
 Accept: application/json
 ```
 
-## Available Tools
+---
+
+## Flight Search Example
+
+Ask your AI agent:
+
+> "Find the cheapest flights from New York to London next week"
+
+The agent calls `amadeus.flight_search` and gets real-time prices from 500+ airlines:
+
+```json
+{
+  "origin": "JFK",
+  "destination": "LHR",
+  "departure_date": "2026-03-20",
+  "adults": 1,
+  "travel_class": "ECONOMY",
+  "max_results": 5,
+  "currency": "USD"
+}
+```
+
+Returns itineraries with prices, airlines, stops, duration, baggage info — ready for the agent to compare and present.
+
+---
+
+## Available Tools (56)
 
 ### Amadeus — Flight Search & Travel Data (7 tools)
+
+Real-time flight data from the world's largest GDS. Search flights across 500+ airlines, check live status, find airports.
 
 | Tool | Description | Price |
 |------|-------------|-------|
@@ -63,6 +117,8 @@ Accept: application/json
 
 ### Sabre GDS — Flight Search & Travel Data (4 tools)
 
+Alternative flight search via Sabre Global Distribution System. Cross-reference prices with Amadeus for best deals.
+
 | Tool | Description | Price |
 |------|-------------|-------|
 | `sabre.search_flights` | Real-time flight offers with prices between airports | $0.010 |
@@ -70,7 +126,9 @@ Accept: application/json
 | `sabre.airline_lookup` | Airline details by IATA or ICAO code | $0.002 |
 | `sabre.travel_themes` | Travel theme categories (beach, skiing, romantic, etc.) | $0.002 |
 
-### Polymarket — Prediction Markets (12 tools)
+### Polymarket — Prediction Markets (11 tools)
+
+Search, analyze, and trade on prediction markets. Real-time odds, order books, and trading via CLOB.
 
 | Tool | Description | Price |
 |------|-------------|-------|
@@ -86,9 +144,9 @@ Accept: application/json
 | `polymarket.trade_history` | Trade history | $0.0005 |
 | `polymarket.balance` | Balance and allowance | $0.0005 |
 
-Trading tools use the `@polymarket/clob-client` SDK with Builder attribution for revenue.
-
 ### Hyperliquid — DeFi Perpetuals (6 tools)
+
+On-chain perpetual futures exchange. Market data, order books, positions, and account info.
 
 | Tool | Description | Price |
 |------|-------------|-------|
@@ -101,6 +159,8 @@ Trading tools use the `@polymarket/clob-client` SDK with Builder attribution for
 
 ### AsterDEX — DeFi Perpetuals (4 tools)
 
+Decentralized perpetual exchange on Asterism. Market data, order books, and candlestick charts.
+
 | Tool | Description | Price |
 |------|-------------|-------|
 | `aster.exchange_info` | Exchange info and trading pairs | $0.001 |
@@ -108,11 +168,61 @@ Trading tools use the `@polymarket/clob-client` SDK with Builder attribution for
 | `aster.order_book` | Order book depth | $0.003 |
 | `aster.klines` | Candlestick / OHLCV data | $0.003 |
 
+### OpenWeatherMap — Weather Data (7 tools)
+
+Current conditions, forecasts, air quality, alerts, and geocoding.
+
+| Tool | Description | Price |
+|------|-------------|-------|
+| `weather.get_current` | Current weather conditions | $0.002 |
+| `weather.get_forecast` | Weather forecast | $0.003 |
+| `weather.get_alerts` | Active weather alerts | $0.001 |
+| `weather.get_history` | Historical weather data | $0.005 |
+| `weather.air_quality` | Air quality index | $0.002 |
+| `weather.geocode` | Geocode location to coordinates | $0.001 |
+| `weather.compare` | Compare weather across locations | $0.005 |
+
+### CoinGecko — Crypto Market Data (9 tools)
+
+Comprehensive cryptocurrency data. Prices, market caps, trending coins, DEX pools.
+
+| Tool | Description | Price |
+|------|-------------|-------|
+| `crypto.get_price` | Current crypto prices | $0.001 |
+| `coingecko.get_market` | Market data by category | $0.001 |
+| `crypto.coin_detail` | Detailed coin info | $0.001 |
+| `crypto.price_history` | Price history | $0.002 |
+| `crypto.trending` | Trending cryptocurrencies | $0.001 |
+| `crypto.global` | Global market statistics | $0.001 |
+| `crypto.dex_pools` | DEX liquidity pools | $0.001 |
+| `crypto.token_by_address` | Token by contract address | $0.001 |
+| `crypto.search` | Search by name or symbol | $0.001 |
+
+### Aviasales — Flight Search (7 tools)
+
+Flight search, price calendars, and hotel search via Aviasales.
+
+| Tool | Description | Price |
+|------|-------------|-------|
+| `aviasales.search_flights` | Search flights | $0.005 |
+| `aviasales.price_calendar` | Price calendar for a route | $0.001 |
+| `aviasales.cheap_flights` | Cheapest flights from origin | $0.001 |
+| `aviasales.popular_routes` | Popular routes from origin | $0.001 |
+| `aviasales.hotel_search` | Hotel search | $0.003 |
+| `aviasales.nearby_destinations` | Nearby destinations | $0.001 |
+| `aviasales.airport_lookup` | Airport lookup | Free |
+
+---
+
 ## Payment
 
-Protocol: **x402** (HTTP 402 Payment Required)
-Token: USDC on Base
-Address: `0x50EbDa9dA5dC19c302Ca059d7B9E06e264936480`
+| Field | Value |
+|-------|-------|
+| Protocol | **x402** (HTTP 402 Payment Required) |
+| Token | USDC on Base |
+| Address | `0x50EbDa9dA5dC19c302Ca059d7B9E06e264936480` |
+
+No subscriptions. No minimums. Pay only for what you use.
 
 ## Authentication
 
@@ -120,8 +230,6 @@ Address: `0x50EbDa9dA5dC19c302Ca059d7B9E06e264936480`
 |--------|--------|--------|
 | API Key | `Authorization` | `Bearer ak_live_<32hex>` |
 | x402 Payment | `X-Payment` | Base64-encoded payment receipt |
-
-Unauthenticated requests to `/mcp` return `401`.
 
 ## Response Format
 
@@ -165,6 +273,13 @@ GET /.well-known/mcp.json
 }
 ```
 
+## Architecture
+
+- **13-stage pipeline**: AUTH → IDEMPOTENCY → SCHEMA_VALIDATION → CACHE → RATE_LIMIT → ESCROW → PROVIDER_CALL → LEDGER → RESPONSE
+- **Fail-closed**: Redis down = reject all requests, no silent degradation
+- **Idempotent**: same request + same key = same result, no double charges
+- **Observable**: Prometheus metrics, Grafana dashboards, structured logging
+
 ## Self-Hosting
 
 ```bash
@@ -174,6 +289,8 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
 
 Requires: Docker, PostgreSQL 16, Redis 7.2, Node.js 20.
+
+16 containers: API, Worker, Outbox, PostgreSQL, Redis, Nginx, Prometheus, Grafana, Loki, Promtail, Alertmanager, and exporters.
 
 ## License
 
