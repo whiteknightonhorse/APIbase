@@ -261,6 +261,7 @@ Connect APIbase to any AI platform:
 | **Continue.dev** | `~/.continue/config.json` | Streamable HTTP transport |
 | **OpenAI GPT** | GPT Editor > Actions | Import `https://apibase.pro/.well-known/openapi.json` |
 | **OpenClaw** | `~/.openclaw/openclaw.json` | `"url": "https://apibase.pro/mcp"` |
+| **MCP.so** | [mcp.so/server/apibase](https://mcp.so/server/apibase----universal-api-hub-for-ai-agents/whiteknightonhorse) | Listed in directory |
 
 <details>
 <summary>Claude Desktop / Cursor</summary>
