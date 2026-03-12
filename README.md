@@ -260,6 +260,7 @@ Connect APIbase to any AI platform:
 | **VS Code** | `.vscode/settings.json` | `"url": "https://apibase.pro/mcp"` |
 | **Continue.dev** | `~/.continue/config.json` | Streamable HTTP transport |
 | **OpenAI GPT** | GPT Editor > Actions | Import `https://apibase.pro/.well-known/openapi.json` |
+| **OpenClaw** | `~/.openclaw/openclaw.json` | `"url": "https://apibase.pro/mcp"` |
 
 <details>
 <summary>Claude Desktop / Cursor</summary>
@@ -333,6 +334,29 @@ Connect APIbase to any AI platform:
 3. Enter: `https://apibase.pro/.well-known/openapi.json`
 4. Set Authentication: API Key, Header `Authorization`, prefix `Bearer`
 5. Save — all tools auto-discovered from spec
+</details>
+
+<details>
+<summary>OpenClaw</summary>
+
+Add to `~/.openclaw/openclaw.json`:
+
+```json
+{
+  "provider": {
+    "mcpServers": {
+      "apibase": {
+        "url": "https://apibase.pro/mcp"
+      }
+    }
+  }
+}
+```
+
+Or via CLI:
+```bash
+openclaw config set provider.mcpServers.apibase.url "https://apibase.pro/mcp"
+```
 </details>
 
 ---
