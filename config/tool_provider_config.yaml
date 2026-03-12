@@ -239,6 +239,49 @@ tools:
     price_usd: "0.002"
     cache_ttl: 86400
 
+  # --- UC-022: Amadeus Travel APIs ---
+  - tool_id: amadeus.flight_search
+    name: Amadeus Flight Search
+    provider: amadeus
+    price_usd: "0.035"
+    cache_ttl: 300
+
+  - tool_id: amadeus.flight_price
+    name: Amadeus Flight Price
+    provider: amadeus
+    price_usd: "0.020"
+    cache_ttl: 60
+
+  - tool_id: amadeus.flight_status
+    name: Amadeus Flight Status
+    provider: amadeus
+    price_usd: "0.005"
+    cache_ttl: 60
+
+  - tool_id: amadeus.airport_search
+    name: Amadeus Airport Search
+    provider: amadeus
+    price_usd: "0.003"
+    cache_ttl: 3600
+
+  - tool_id: amadeus.airport_nearest
+    name: Amadeus Airport Nearest
+    provider: amadeus
+    price_usd: "0.003"
+    cache_ttl: 3600
+
+  - tool_id: amadeus.airport_routes
+    name: Amadeus Airport Routes
+    provider: amadeus
+    price_usd: "0.003"
+    cache_ttl: 3600
+
+  - tool_id: amadeus.airline_lookup
+    name: Amadeus Airline Lookup
+    provider: amadeus
+    price_usd: "0.002"
+    cache_ttl: 86400
+
   # --- UC-021: Hyperliquid ---
   - tool_id: hyperliquid.market_data
     name: Hyperliquid Market Data

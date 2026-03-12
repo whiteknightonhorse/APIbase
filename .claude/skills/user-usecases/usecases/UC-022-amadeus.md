@@ -8,7 +8,7 @@
 | **Provider** | Amadeus for Developers (developers.amadeus.com) |
 | **Category** | Travel / Flights / Hotels / Airports |
 | **Date Added** | 2026-03-10 |
-| **Status** | Draft |
+| **Status** | Live |
 | **Client** | APIbase (Self-Service) |
 
 ---

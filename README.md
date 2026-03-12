@@ -49,6 +49,18 @@ Accept: application/json
 
 ## Available Tools
 
+### Amadeus — Flight Search & Travel Data (7 tools)
+
+| Tool | Description | Price |
+|------|-------------|-------|
+| `amadeus.flight_search` | Real-time flight offers with prices, airlines, stops, duration | $0.035 |
+| `amadeus.flight_price` | Confirm final pricing for a flight offer | $0.020 |
+| `amadeus.flight_status` | Real-time flight status — delays, cancellations, gates | $0.005 |
+| `amadeus.airport_search` | Airport/city search by keyword or IATA code | $0.003 |
+| `amadeus.airport_nearest` | Nearest airports by geographic coordinates | $0.003 |
+| `amadeus.airport_routes` | All direct destinations from an airport | $0.003 |
+| `amadeus.airline_lookup` | Airline details by IATA or ICAO code | $0.002 |
+
 ### Sabre GDS — Flight Search & Travel Data (4 tools)
 
 | Tool | Description | Price |

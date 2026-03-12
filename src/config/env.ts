@@ -46,6 +46,10 @@ export const appEnvSchema = z.object({
   SABRE_CLIENT_ID: z.string().optional().default(''),
   SABRE_CLIENT_SECRET: z.string().optional().default(''),
 
+  // Amadeus Travel APIs (UC-022) — OAuth2 client credentials
+  AMADEUS_API_KEY: z.string().optional().default(''),
+  AMADEUS_API_SECRET: z.string().optional().default(''),
+
   // Polymarket trading — Phase 2 (UC-001 §3-§8)
   POLYMARKET_WALLET_ADDRESS: z.string().startsWith('0x').optional().default(''),
   POLYMARKET_PRIVATE_KEY: z.string().optional().default(''),

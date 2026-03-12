@@ -4,6 +4,7 @@ import { cryptoSchemas } from './crypto.schema';
 import { polymarketSchemas } from './polymarket.schema';
 import { aviasalesSchemas } from './aviasales.schema';
 import { sabreSchemas } from './sabre.schema';
+import { amadeusSchemas } from './amadeus.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -11,4 +12,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...polymarketSchemas,
   ...aviasalesSchemas,
   ...sabreSchemas,
+  ...amadeusSchemas,
 };

@@ -62,6 +62,15 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   { toolId: 'sabre.airline_lookup', description: 'Look up airline details by IATA or ICAO code' },
   { toolId: 'sabre.travel_themes', description: 'Get travel theme categories (beach, skiing, romantic, etc.)' },
 
+  // Amadeus Travel APIs (7)
+  { toolId: 'amadeus.flight_search', description: 'Search for real-time flight offers between airports with prices, airlines, stops, and duration (Amadeus)' },
+  { toolId: 'amadeus.flight_price', description: 'Confirm and get final pricing for a flight offer from Amadeus flight search' },
+  { toolId: 'amadeus.flight_status', description: 'Get real-time status of a specific flight — delays, cancellations, gate info (Amadeus)' },
+  { toolId: 'amadeus.airport_search', description: 'Search airports and cities by keyword or IATA code with autocomplete (Amadeus)' },
+  { toolId: 'amadeus.airport_nearest', description: 'Find nearest airports by geographic coordinates (Amadeus)' },
+  { toolId: 'amadeus.airport_routes', description: 'Get all direct flight destinations from an airport (Amadeus)' },
+  { toolId: 'amadeus.airline_lookup', description: 'Look up airline details by IATA or ICAO code (Amadeus)' },
+
   // Aviasales (7)
   { toolId: 'aviasales.search_flights', description: 'Search for flights between airports' },
   { toolId: 'aviasales.price_calendar', description: 'Get flight price calendar for a route' },
