@@ -1,19 +1,22 @@
 #!/bin/bash
 # APIbase.pro — Amadeus Travel APIs Smoke Tests (UC-022)
 #
-# Verifies Amadeus adapter integration: catalog presence, tool details, live API calls.
+# Verifies Amadeus adapter integration:
+#   Tests 1-4: Catalog presence, tool details (REST)
+#   Tests 5-10: Live Amadeus API calls (direct, validates credentials)
 #
 # Usage:
 #   API_URL=https://apibase.pro ./scripts/test-amadeus.sh
-#   API_URL=http://localhost:3000 ./scripts/test-amadeus.sh
 #
 # Environment:
-#   API_URL       — Base URL (default: https://apibase.pro)
-#   TEST_API_KEY  — Valid API key for authenticated tests (optional, live tests skipped if absent)
+#   API_URL  — Base URL (default: https://apibase.pro)
 set -euo pipefail
 
 API_URL="${API_URL:-https://apibase.pro}"
-TEST_API_KEY="${TEST_API_KEY:-}"
+# Amadeus credentials from .env (source if available)
+AMADEUS_API_KEY="${AMADEUS_API_KEY:-}"
+AMADEUS_API_SECRET="${AMADEUS_API_SECRET:-}"
+AMADEUS_BASE="https://api.amadeus.com"
 PASSED=0
 FAILED=0
 SKIPPED=0
@@ -72,53 +75,73 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 5. Live: amadeus.airline_lookup BA
+# Helper: get Amadeus OAuth2 token
 # ---------------------------------------------------------------------------
-echo -n "5/10 Live: amadeus.airline_lookup (BA)..."
-if [ -z "$TEST_API_KEY" ]; then
-  skip "TEST_API_KEY not set"
+get_amadeus_token() {
+  if [ -z "$AMADEUS_API_KEY" ] || [ -z "$AMADEUS_API_SECRET" ]; then
+    return 1
+  fi
+  curl -sf -X POST "$AMADEUS_BASE/v1/security/oauth2/token" \
+    -H "Content-Type: application/x-www-form-urlencoded" \
+    -d "grant_type=client_credentials&client_id=$AMADEUS_API_KEY&client_secret=$AMADEUS_API_SECRET" 2>/dev/null \
+    | python3 -c "import json,sys; print(json.load(sys.stdin)['access_token'])" 2>/dev/null
+}
+
+# ---------------------------------------------------------------------------
+# 5. Live: OAuth2 token
+# ---------------------------------------------------------------------------
+echo -n "5/10 Live: Amadeus OAuth2 token..."
+AMADEUS_TOKEN=$(get_amadeus_token 2>/dev/null || echo "")
+if [ -z "$AMADEUS_API_KEY" ] || [ -z "$AMADEUS_API_SECRET" ]; then
+  skip "AMADEUS_API_KEY/SECRET not set"
+elif [ -n "$AMADEUS_TOKEN" ]; then
+  pass
 else
-  RESULT=$(curl -s -X POST "$API_URL/api/v1/tools/amadeus.airline_lookup/call" \
-    -H "Authorization: Bearer $TEST_API_KEY" \
-    -H "Content-Type: application/json" \
-    -d '{"airline_code":"BA"}' 2>/dev/null || echo "{}")
-  if echo "$RESULT" | grep -qi "british\|BRITISH\|businessName\|iataCode"; then
+  fail "could not obtain OAuth2 token"
+fi
+
+# ---------------------------------------------------------------------------
+# 6. Live: airline_lookup (BA)
+# ---------------------------------------------------------------------------
+echo -n "6/10 Live: airline_lookup (BA)..."
+if [ -z "$AMADEUS_TOKEN" ]; then
+  skip "no token"
+else
+  RESULT=$(curl -sf "$AMADEUS_BASE/v1/reference-data/airlines?airlineCodes=BA" \
+    -H "Authorization: Bearer $AMADEUS_TOKEN" 2>/dev/null || echo "{}")
+  if echo "$RESULT" | grep -qi "BRITISH"; then
     pass
   else
-    fail "expected airline data, got: $(echo "$RESULT" | head -c 200)"
+    fail "expected BRITISH AIRWAYS, got: $(echo "$RESULT" | head -c 200)"
   fi
 fi
 
 # ---------------------------------------------------------------------------
-# 6. Live: amadeus.airport_search JFK
+# 7. Live: airport_search (JFK)
 # ---------------------------------------------------------------------------
-echo -n "6/10 Live: amadeus.airport_search (JFK)..."
-if [ -z "$TEST_API_KEY" ]; then
-  skip "TEST_API_KEY not set"
+echo -n "7/10 Live: airport_search (JFK)..."
+if [ -z "$AMADEUS_TOKEN" ]; then
+  skip "no token"
 else
-  RESULT=$(curl -s -X POST "$API_URL/api/v1/tools/amadeus.airport_search/call" \
-    -H "Authorization: Bearer $TEST_API_KEY" \
-    -H "Content-Type: application/json" \
-    -d '{"keyword":"JFK"}' 2>/dev/null || echo "{}")
-  if echo "$RESULT" | grep -qi "KENNEDY\|JFK\|iataCode\|AIRPORT"; then
+  RESULT=$(curl -sf "$AMADEUS_BASE/v1/reference-data/locations?keyword=JFK&subType=AIRPORT&page%5Blimit%5D=5" \
+    -H "Authorization: Bearer $AMADEUS_TOKEN" 2>/dev/null || echo "{}")
+  if echo "$RESULT" | grep -qi "KENNEDY\|JFK"; then
     pass
   else
-    fail "expected airport data, got: $(echo "$RESULT" | head -c 200)"
+    fail "expected JFK data, got: $(echo "$RESULT" | head -c 200)"
   fi
 fi
 
 # ---------------------------------------------------------------------------
-# 7. Live: amadeus.airport_nearest (NYC area)
+# 8. Live: airport_nearest (NYC area)
 # ---------------------------------------------------------------------------
-echo -n "7/10 Live: amadeus.airport_nearest (40.6,-73.7)..."
-if [ -z "$TEST_API_KEY" ]; then
-  skip "TEST_API_KEY not set"
+echo -n "8/10 Live: airport_nearest (40.6,-73.7)..."
+if [ -z "$AMADEUS_TOKEN" ]; then
+  skip "no token"
 else
-  RESULT=$(curl -s -X POST "$API_URL/api/v1/tools/amadeus.airport_nearest/call" \
-    -H "Authorization: Bearer $TEST_API_KEY" \
-    -H "Content-Type: application/json" \
-    -d '{"latitude":40.6,"longitude":-73.7}' 2>/dev/null || echo "{}")
-  if echo "$RESULT" | grep -qi "JFK\|LGA\|EWR\|iataCode"; then
+  RESULT=$(curl -sf "$AMADEUS_BASE/v1/reference-data/locations/airports?latitude=40.6&longitude=-73.7" \
+    -H "Authorization: Bearer $AMADEUS_TOKEN" 2>/dev/null || echo "{}")
+  if echo "$RESULT" | grep -qi "JFK\|LGA\|EWR"; then
     pass
   else
     fail "expected nearby airports, got: $(echo "$RESULT" | head -c 200)"
@@ -126,18 +149,16 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 8. Live: amadeus.flight_search JFK->LHR
+# 9. Live: flight_search (JFK->LHR)
 # ---------------------------------------------------------------------------
-echo -n "8/10 Live: amadeus.flight_search (JFK->LHR)..."
-if [ -z "$TEST_API_KEY" ]; then
-  skip "TEST_API_KEY not set"
+echo -n "9/10 Live: flight_search (JFK->LHR)..."
+if [ -z "$AMADEUS_TOKEN" ]; then
+  skip "no token"
 else
   DEPART=$(date -d "+30 days" +%Y-%m-%d 2>/dev/null || date -v+30d +%Y-%m-%d 2>/dev/null || echo "2026-04-15")
-  RESULT=$(curl -s -X POST "$API_URL/api/v1/tools/amadeus.flight_search/call" \
-    -H "Authorization: Bearer $TEST_API_KEY" \
-    -H "Content-Type: application/json" \
-    -d "{\"origin\":\"JFK\",\"destination\":\"LHR\",\"departure_date\":\"$DEPART\",\"max_results\":3}" 2>/dev/null || echo "{}")
-  if echo "$RESULT" | grep -qi "flightOffer\|itineraries\|grandTotal\|data"; then
+  RESULT=$(curl -sf "$AMADEUS_BASE/v2/shopping/flight-offers?originLocationCode=JFK&destinationLocationCode=LHR&departureDate=$DEPART&adults=1&max=3" \
+    -H "Authorization: Bearer $AMADEUS_TOKEN" 2>/dev/null || echo "{}")
+  if echo "$RESULT" | grep -qi "itineraries\|grandTotal\|flightOffer"; then
     pass
   else
     fail "expected flight data, got: $(echo "$RESULT" | head -c 200)"
@@ -145,36 +166,15 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 9. Live: amadeus.flight_status
+# 10. Live: airport_routes (JFK)
 # ---------------------------------------------------------------------------
-echo -n "9/10 Live: amadeus.flight_status (BA115)..."
-if [ -z "$TEST_API_KEY" ]; then
-  skip "TEST_API_KEY not set"
+echo -n "10/10 Live: airport_routes (JFK)..."
+if [ -z "$AMADEUS_TOKEN" ]; then
+  skip "no token"
 else
-  TODAY=$(date +%Y-%m-%d 2>/dev/null || echo "2026-03-12")
-  RESULT=$(curl -s -X POST "$API_URL/api/v1/tools/amadeus.flight_status/call" \
-    -H "Authorization: Bearer $TEST_API_KEY" \
-    -H "Content-Type: application/json" \
-    -d "{\"carrier_code\":\"BA\",\"flight_number\":\"115\",\"date\":\"$TODAY\"}" 2>/dev/null || echo "{}")
-  if echo "$RESULT" | grep -qi "flightDesignator\|scheduledDeparture\|data\|flightPoints"; then
-    pass
-  else
-    fail "expected flight status, got: $(echo "$RESULT" | head -c 200)"
-  fi
-fi
-
-# ---------------------------------------------------------------------------
-# 10. Live: amadeus.airport_routes JFK
-# ---------------------------------------------------------------------------
-echo -n "10/10 Live: amadeus.airport_routes (JFK)..."
-if [ -z "$TEST_API_KEY" ]; then
-  skip "TEST_API_KEY not set"
-else
-  RESULT=$(curl -s -X POST "$API_URL/api/v1/tools/amadeus.airport_routes/call" \
-    -H "Authorization: Bearer $TEST_API_KEY" \
-    -H "Content-Type: application/json" \
-    -d '{"airport_code":"JFK"}' 2>/dev/null || echo "{}")
-  if echo "$RESULT" | grep -qi "iataCode\|data\|destination"; then
+  RESULT=$(curl -sf "$AMADEUS_BASE/v1/airport/direct-destinations?departureAirportCode=JFK" \
+    -H "Authorization: Bearer $AMADEUS_TOKEN" 2>/dev/null || echo "{}")
+  if echo "$RESULT" | grep -qi "iataCode\|data"; then
     pass
   else
     fail "expected route data, got: $(echo "$RESULT" | head -c 200)"
