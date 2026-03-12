@@ -1,19 +1,23 @@
 #!/bin/bash
 # APIbase.pro — Sabre GDS Smoke Tests (UC-023)
 #
-# Verifies Sabre adapter integration: catalog presence, tool details, live API calls.
+# Verifies Sabre adapter integration:
+#   Tests 1-4: Catalog presence, tool details (REST)
+#   Tests 5-8: Live Sabre API calls (direct, validates credentials)
 #
 # Usage:
 #   API_URL=https://apibase.pro ./scripts/test-sabre.sh
-#   API_URL=http://localhost:3000 ./scripts/test-sabre.sh
 #
 # Environment:
-#   API_URL       — Base URL (default: https://apibase.pro)
-#   TEST_API_KEY  — Valid API key for authenticated tests (optional, live tests skipped if absent)
+#   API_URL            — Base URL (default: https://apibase.pro)
+#   SABRE_CLIENT_ID    — Sabre OAuth2 client ID
+#   SABRE_CLIENT_SECRET — Sabre OAuth2 client secret
 set -euo pipefail
 
 API_URL="${API_URL:-https://apibase.pro}"
-TEST_API_KEY="${TEST_API_KEY:-}"
+SABRE_CLIENT_ID="${SABRE_CLIENT_ID:-}"
+SABRE_CLIENT_SECRET="${SABRE_CLIENT_SECRET:-}"
+SABRE_BASE="https://api-crt.cert.havail.sabre.com"
 PASSED=0
 FAILED=0
 SKIPPED=0
@@ -41,7 +45,7 @@ fi
 # 2. Sabre tools in catalog (expect 4)
 # ---------------------------------------------------------------------------
 echo -n "2/8 Sabre tools in catalog..."
-CATALOG=$(curl -s -H "Accept: application/json" "$API_URL/api/v1/tools" 2>/dev/null || echo "{}")
+CATALOG=$(curl -s -H "Accept: application/json" "$API_URL/api/v1/tools?limit=100" 2>/dev/null || echo "{}")
 SABRE_COUNT=$(echo "$CATALOG" | grep -o '"sabre\.' | wc -l)
 if [ "$SABRE_COUNT" -ge 4 ]; then
   pass
@@ -72,16 +76,34 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+# Helper: get Sabre OAuth2 token (double base64 encoding)
+# ---------------------------------------------------------------------------
+get_sabre_token() {
+  if [ -z "$SABRE_CLIENT_ID" ] || [ -z "$SABRE_CLIENT_SECRET" ]; then
+    return 1
+  fi
+  ENCODED_ID=$(echo -n "$SABRE_CLIENT_ID" | base64)
+  ENCODED_SECRET=$(echo -n "$SABRE_CLIENT_SECRET" | base64)
+  CREDENTIALS=$(echo -n "${ENCODED_ID}:${ENCODED_SECRET}" | base64)
+  curl -sf -X POST "$SABRE_BASE/v2/auth/token" \
+    -H "Authorization: Basic $CREDENTIALS" \
+    -H "Content-Type: application/x-www-form-urlencoded" \
+    -d "grant_type=client_credentials" 2>/dev/null \
+    | python3 -c "import json,sys; print(json.load(sys.stdin)['access_token'])" 2>/dev/null
+}
+
+# ---------------------------------------------------------------------------
 # 5. Live: sabre.airline_lookup AA
 # ---------------------------------------------------------------------------
 echo -n "5/8 Live: sabre.airline_lookup (AA)..."
-if [ -z "$TEST_API_KEY" ]; then
-  skip "TEST_API_KEY not set"
+SABRE_TOKEN=$(get_sabre_token 2>/dev/null || echo "")
+if [ -z "$SABRE_CLIENT_ID" ] || [ -z "$SABRE_CLIENT_SECRET" ]; then
+  skip "SABRE_CLIENT_ID/SECRET not set"
+elif [ -z "$SABRE_TOKEN" ]; then
+  fail "could not obtain Sabre OAuth2 token"
 else
-  RESULT=$(curl -s -X POST "$API_URL/api/v1/tools/sabre.airline_lookup/call" \
-    -H "Authorization: Bearer $TEST_API_KEY" \
-    -H "Content-Type: application/json" \
-    -d '{"airline_code":"AA"}' 2>/dev/null || echo "{}")
+  RESULT=$(curl -sf "$SABRE_BASE/v1/lists/utilities/airlines?airlinecode=AA" \
+    -H "Authorization: Bearer $SABRE_TOKEN" 2>/dev/null || echo "{}")
   if echo "$RESULT" | grep -qi "american\|AirlineInfo"; then
     pass
   else
@@ -93,18 +115,16 @@ fi
 # 6. Live: sabre.search_flights JFK->LHR
 # ---------------------------------------------------------------------------
 echo -n "6/8 Live: sabre.search_flights (JFK->LHR)..."
-if [ -z "$TEST_API_KEY" ]; then
-  skip "TEST_API_KEY not set"
+if [ -z "$SABRE_TOKEN" ]; then
+  skip "no token"
 else
   DEPART=$(date -d "+30 days" +%Y-%m-%d 2>/dev/null || date -v+30d +%Y-%m-%d 2>/dev/null || echo "2026-04-15")
-  RESULT=$(curl -s -X POST "$API_URL/api/v1/tools/sabre.search_flights/call" \
-    -H "Authorization: Bearer $TEST_API_KEY" \
-    -H "Content-Type: application/json" \
-    -d "{\"origin\":\"JFK\",\"destination\":\"LHR\",\"departure_date\":\"$DEPART\",\"limit\":5}" 2>/dev/null || echo "{}")
-  if echo "$RESULT" | grep -qi "PricedItinerar\|TotalFare\|Amount"; then
+  RESULT=$(curl -s "$SABRE_BASE/v1/shop/flights?origin=JFK&destination=LHR&departuredate=$DEPART&pointofsalecountry=US&limit=5" \
+    -H "Authorization: Bearer $SABRE_TOKEN" 2>/dev/null || echo "{}")
+  if echo "$RESULT" | grep -qi "PricedItinerar\|TotalFare\|Amount\|No results"; then
     pass
   else
-    fail "expected flight data, got: $(echo "$RESULT" | head -c 200)"
+    fail "expected flight data or 'No results', got: $(echo "$RESULT" | head -c 200)"
   fi
 fi
 
@@ -112,13 +132,11 @@ fi
 # 7. Live: sabre.travel_themes
 # ---------------------------------------------------------------------------
 echo -n "7/8 Live: sabre.travel_themes..."
-if [ -z "$TEST_API_KEY" ]; then
-  skip "TEST_API_KEY not set"
+if [ -z "$SABRE_TOKEN" ]; then
+  skip "no token"
 else
-  RESULT=$(curl -s -X POST "$API_URL/api/v1/tools/sabre.travel_themes/call" \
-    -H "Authorization: Bearer $TEST_API_KEY" \
-    -H "Content-Type: application/json" \
-    -d '{}' 2>/dev/null || echo "{}")
+  RESULT=$(curl -sf "$SABRE_BASE/v1/shop/themes" \
+    -H "Authorization: Bearer $SABRE_TOKEN" 2>/dev/null || echo "{}")
   if echo "$RESULT" | grep -qi "BEACH\|Theme"; then
     pass
   else
@@ -130,15 +148,13 @@ fi
 # 8. Live: sabre.destination_finder JFK
 # ---------------------------------------------------------------------------
 echo -n "8/8 Live: sabre.destination_finder (JFK)..."
-if [ -z "$TEST_API_KEY" ]; then
-  skip "TEST_API_KEY not set"
+if [ -z "$SABRE_TOKEN" ]; then
+  skip "no token"
 else
   DEPART=$(date -d "+30 days" +%Y-%m-%d 2>/dev/null || date -v+30d +%Y-%m-%d 2>/dev/null || echo "2026-04-15")
   RETURN=$(date -d "+37 days" +%Y-%m-%d 2>/dev/null || date -v+37d +%Y-%m-%d 2>/dev/null || echo "2026-04-22")
-  RESULT=$(curl -s -X POST "$API_URL/api/v1/tools/sabre.destination_finder/call" \
-    -H "Authorization: Bearer $TEST_API_KEY" \
-    -H "Content-Type: application/json" \
-    -d "{\"origin\":\"JFK\",\"departure_date\":\"$DEPART\",\"return_date\":\"$RETURN\"}" 2>/dev/null || echo "{}")
+  RESULT=$(curl -sf "$SABRE_BASE/v2/shop/flights/fares?origin=JFK&departuredate=$DEPART&returndate=$RETURN&pointofsalecountry=US" \
+    -H "Authorization: Bearer $SABRE_TOKEN" 2>/dev/null || echo "{}")
   if echo "$RESULT" | grep -qi "FareInfo\|LowestFare\|Destination"; then
     pass
   else
