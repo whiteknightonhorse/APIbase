@@ -559,6 +559,59 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   },
 
   // ---------------------------------------------------------------------------
+  // Health & Nutrition — Government Data APIs (UC-011, 7 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'health.food_search',
+    mcpName: 'health.nutrition.food_search',
+    title: 'Search Foods (USDA)',
+    description: 'Search 350K+ foods in the USDA FoodData Central database — nutrition facts, ingredients, branded products, and reference foods',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'health.food_details',
+    mcpName: 'health.nutrition.food_details',
+    title: 'Get Food Nutrition Details',
+    description: 'Get detailed nutrition data for a food item — up to 150 nutrients, portions, serving sizes, ingredients (USDA)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'health.drug_events',
+    mcpName: 'health.safety.drug_events',
+    title: 'Search Drug Adverse Events',
+    description: 'Search FDA FAERS database for drug adverse event reports — side effects, reactions, patient demographics (OpenFDA)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'health.food_recalls',
+    mcpName: 'health.safety.food_recalls',
+    title: 'Search Food Recalls',
+    description: 'Search FDA food enforcement and recall reports — contamination, mislabeling, safety alerts (OpenFDA)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'health.drug_labels',
+    mcpName: 'health.safety.drug_labels',
+    title: 'Search Drug Labels',
+    description: 'Search drug labeling data — indications, dosage, warnings, interactions, contraindications (OpenFDA)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'health.supplement_search',
+    mcpName: 'health.supplements.search',
+    title: 'Search Dietary Supplements',
+    description: 'Search 200K+ dietary supplement labels in the NIH DSLD database — vitamins, minerals, herbal products',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'health.supplement_details',
+    mcpName: 'health.supplements.details',
+    title: 'Get Supplement Label Details',
+    description: 'Get full supplement label data — ingredients, amounts per serving, daily values, target groups (NIH DSLD)',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
   // AsterDEX — DeFi Perpetuals (UC-020, Phase 1 read-only)
   // ---------------------------------------------------------------------------
   {

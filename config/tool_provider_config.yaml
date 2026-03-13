@@ -436,6 +436,49 @@ tools:
     price_usd: "0.003"
     cache_ttl: 86400
 
+  # --- UC-011: Health & Nutrition (USDA + OpenFDA + NIH DSLD) ---
+  - tool_id: health.food_search
+    name: USDA Food Search
+    provider: health
+    price_usd: "0.002"
+    cache_ttl: 21600
+
+  - tool_id: health.food_details
+    name: USDA Food Nutrition Details
+    provider: health
+    price_usd: "0.003"
+    cache_ttl: 86400
+
+  - tool_id: health.drug_events
+    name: FDA Drug Adverse Events
+    provider: health
+    price_usd: "0.003"
+    cache_ttl: 86400
+
+  - tool_id: health.food_recalls
+    name: FDA Food Recalls
+    provider: health
+    price_usd: "0.002"
+    cache_ttl: 21600
+
+  - tool_id: health.drug_labels
+    name: FDA Drug Labels
+    provider: health
+    price_usd: "0.003"
+    cache_ttl: 86400
+
+  - tool_id: health.supplement_search
+    name: NIH Supplement Search
+    provider: health
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: health.supplement_details
+    name: NIH Supplement Details
+    provider: health
+    price_usd: "0.003"
+    cache_ttl: 86400
+
   # --- UC-020: AsterDEX ---
   - tool_id: aster.exchange_info
     name: AsterDEX Exchange Info

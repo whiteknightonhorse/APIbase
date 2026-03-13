@@ -10,6 +10,7 @@ import { asterdexSchemas } from './asterdex.schema';
 import { foursquareSchemas } from './foursquare.schema';
 import { ticketmasterSchemas } from './ticketmaster.schema';
 import { tmdbSchemas } from './tmdb.schema';
+import { healthSchemas } from './health.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -23,4 +24,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...foursquareSchemas,
   ...ticketmasterSchemas,
   ...tmdbSchemas,
+  ...healthSchemas,
 };

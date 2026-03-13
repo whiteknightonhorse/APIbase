@@ -1,7 +1,7 @@
 # APIbase.pro — The API Hub for AI Agents
 
 > Search flights, find restaurants, discover events, browse movies, compare prices, track status, trade prediction markets — all via MCP.
-> One endpoint. 75 tools. 12 providers. Pay per call.
+> One endpoint. 82 tools. 13 providers. Pay per call.
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Health](https://apibase.pro/health/ready)**
 
@@ -9,7 +9,7 @@
 
 ## What is APIbase?
 
-Production MCP server — universal API hub for AI agents. 75 tools across travel, places, events, entertainment, finance, weather, and more. Search flights (Amadeus, Sabre GDS), find restaurants and places (Foursquare), discover events and concerts (Ticketmaster), browse movies and TV shows (TMDB), trade prediction markets (Polymarket), track crypto, check weather — with more providers shipping regularly. One endpoint, pay per call via x402 USDC micropayments. Auto-registration, zero setup. Covers the most popular API categories agents actually need: travel, local services, events, entertainment, financial data, e-commerce, and marketing.
+Production MCP server — universal API hub for AI agents. 82 tools across travel, places, events, entertainment, health, finance, weather, and more. Search flights (Amadeus, Sabre GDS), find restaurants and places (Foursquare), discover events and concerts (Ticketmaster), browse movies and TV shows (TMDB), look up nutrition data and drug safety (USDA, OpenFDA, NIH), trade prediction markets (Polymarket), track crypto, check weather — with more providers shipping regularly. One endpoint, pay per call via x402 USDC micropayments. Auto-registration, zero setup. Covers the most popular API categories agents actually need: travel, local services, events, entertainment, health, financial data, e-commerce, and marketing.
 
 **Built for AI agents, not humans.** Every tool is designed for autonomous discovery, authentication, and invocation via the [Model Context Protocol](https://modelcontextprotocol.io).
 
@@ -139,7 +139,21 @@ Returns places with names, ratings, categories, distance, hours, price tier, and
 
 ---
 
-## Available Tools (75)
+## Available Tools (82)
+
+### Health & Nutrition — Government Data APIs (7 tools)
+
+Free government health databases: USDA FoodData Central (350K+ foods, 150 nutrients), OpenFDA (drug adverse events, food recalls, drug labels), and NIH DSLD (200K+ supplement labels). All CC0/public domain.
+
+| Tool | Description | Price |
+|------|-------------|-------|
+| `health.food_search` | Search 350K+ foods in the USDA database | $0.002 |
+| `health.food_details` | Detailed nutrition data — up to 150 nutrients per food | $0.003 |
+| `health.drug_events` | FDA FAERS drug adverse event reports | $0.003 |
+| `health.food_recalls` | FDA food enforcement and recall reports | $0.002 |
+| `health.drug_labels` | Drug labeling: indications, dosage, warnings, interactions | $0.003 |
+| `health.supplement_search` | Search 200K+ dietary supplement labels (NIH DSLD) | $0.002 |
+| `health.supplement_details` | Full supplement label: ingredients, amounts, daily values | $0.003 |
 
 ### Ticketmaster — Events & Entertainment (7 tools)
 

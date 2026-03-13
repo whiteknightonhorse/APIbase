@@ -9,6 +9,7 @@ import { FoursquareAdapter } from './foursquare';
 import { TicketmasterAdapter } from './ticketmaster';
 import { CoinGeckoAdapter } from './coingecko';
 import { TmdbAdapter } from './tmdb';
+import { HealthAdapter } from './health';
 import { config } from '../config';
 
 /**
@@ -84,6 +85,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const token = (config as Record<string, unknown>).TMDB_ACCESS_TOKEN as string | undefined;
       if (!token) return undefined;
       return getOrCreate('tmdb', () => new TmdbAdapter(token));
+    }
+    case 'health': {
+      const usdaKey = (config as Record<string, unknown>).PROVIDER_KEY_USDA as string | undefined;
+      if (!usdaKey) return undefined;
+      const openFdaKey = (config as Record<string, unknown>).PROVIDER_KEY_OPENFDA as string | undefined;
+      return getOrCreate('health', () => new HealthAdapter(usdaKey, openFdaKey || undefined));
     }
     default:
       return undefined;
