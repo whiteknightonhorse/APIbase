@@ -453,6 +453,59 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   },
 
   // ---------------------------------------------------------------------------
+  // Ticketmaster — Events & Entertainment (UC-008, 7 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'ticketmaster.events_search',
+    mcpName: 'ticketmaster.events.search',
+    title: 'Search Events',
+    description: 'Search for events (concerts, sports, theatre, festivals) by keyword, city, date, or category across 26+ countries (Ticketmaster)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ticketmaster.event_details',
+    mcpName: 'ticketmaster.events.details',
+    title: 'Get Event Details',
+    description: 'Get full details for an event — dates, venues, prices, images, classifications, seat map (Ticketmaster)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ticketmaster.events_nearby',
+    mcpName: 'ticketmaster.events.nearby',
+    title: 'Find Nearby Events',
+    description: 'Find events near geographic coordinates with radius filter (Ticketmaster)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ticketmaster.artist_events',
+    mcpName: 'ticketmaster.events.by_artist',
+    title: 'Get Artist Events',
+    description: 'Find events by artist or performer name with optional country and date filters (Ticketmaster)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ticketmaster.venue_events',
+    mcpName: 'ticketmaster.events.by_venue',
+    title: 'Get Venue Events',
+    description: 'Get upcoming events at a specific venue by venue ID (Ticketmaster)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ticketmaster.events_trending',
+    mcpName: 'ticketmaster.events.trending',
+    title: 'Get Trending Events',
+    description: 'Get trending and popular events sorted by relevance (Ticketmaster)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ticketmaster.events_categories',
+    mcpName: 'ticketmaster.events.categories',
+    title: 'Get Event Categories',
+    description: 'Get all event classification categories — segments, genres, sub-genres (Ticketmaster)',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
   // AsterDEX — DeFi Perpetuals (UC-020, Phase 1 read-only)
   // ---------------------------------------------------------------------------
   {

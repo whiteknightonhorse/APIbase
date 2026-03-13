@@ -1,7 +1,7 @@
 # APIbase.pro — The API Hub for AI Agents
 
-> Search flights, find restaurants, compare prices, track status, trade prediction markets — all via MCP.
-> One endpoint. 60 tools. 10 providers. Pay per call.
+> Search flights, find restaurants, discover events, compare prices, track status, trade prediction markets — all via MCP.
+> One endpoint. 68 tools. 11 providers. Pay per call.
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Health](https://apibase.pro/health/ready)**
 
@@ -9,7 +9,7 @@
 
 ## What is APIbase?
 
-Production MCP server — universal API hub for AI agents. 60 tools across travel, places, finance, weather, and more. Search flights (Amadeus, Sabre GDS), find restaurants and places (Foursquare), trade prediction markets (Polymarket), track crypto, check weather — with more providers shipping regularly. One endpoint, pay per call via x402 USDC micropayments. Auto-registration, zero setup. Covers the most popular API categories agents actually need: travel, local services, financial data, e-commerce, and marketing.
+Production MCP server — universal API hub for AI agents. 68 tools across travel, places, events, finance, weather, and more. Search flights (Amadeus, Sabre GDS), find restaurants and places (Foursquare), discover events and concerts (Ticketmaster), trade prediction markets (Polymarket), track crypto, check weather — with more providers shipping regularly. One endpoint, pay per call via x402 USDC micropayments. Auto-registration, zero setup. Covers the most popular API categories agents actually need: travel, local services, events, financial data, e-commerce, and marketing.
 
 **Built for AI agents, not humans.** Every tool is designed for autonomous discovery, authentication, and invocation via the [Model Context Protocol](https://modelcontextprotocol.io).
 
@@ -19,7 +19,7 @@ Production MCP server — universal API hub for AI agents. 60 tools across trave
 
 ### Why agents use APIbase
 
-- **One MCP endpoint** — `https://apibase.pro/mcp` connects to 10 providers
+- **One MCP endpoint** — `https://apibase.pro/mcp` connects to 11 providers
 - **Real-time flight search** — Amadeus + Sabre GDS, 500+ airlines, real prices
 - **Places & restaurants** — Foursquare Places API, 100M+ places in 190+ countries
 - **Pay per call** — x402 micropayments (USDC), no subscriptions, no minimums
@@ -139,7 +139,21 @@ Returns places with names, ratings, categories, distance, hours, price tier, and
 
 ---
 
-## Available Tools (60)
+## Available Tools (68)
+
+### Ticketmaster — Events & Entertainment (7 tools)
+
+Discover concerts, sports, theatre, and festivals across 26+ countries. Real-time event data with pricing, venues, and ticket availability.
+
+| Tool | Description | Price |
+|------|-------------|-------|
+| `ticketmaster.events_search` | Search events by keyword, city, date, or category | $0.003 |
+| `ticketmaster.event_details` | Full event details: dates, venues, prices, images | $0.005 |
+| `ticketmaster.events_nearby` | Find events near geographic coordinates | $0.003 |
+| `ticketmaster.artist_events` | Find events by artist or performer name | $0.005 |
+| `ticketmaster.venue_events` | Get upcoming events at a specific venue | $0.003 |
+| `ticketmaster.events_trending` | Get trending and popular events | $0.003 |
+| `ticketmaster.events_categories` | Get all event classification categories | $0.001 |
 
 ### Foursquare — Places & Restaurant Discovery (5 tools)
 

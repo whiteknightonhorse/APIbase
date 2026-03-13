@@ -6,6 +6,7 @@ import { OpenWeatherMapAdapter } from './openweathermap';
 import { SabreAdapter } from './sabre';
 import { AmadeusAdapter } from './amadeus';
 import { FoursquareAdapter } from './foursquare';
+import { TicketmasterAdapter } from './ticketmaster';
 import { CoinGeckoAdapter } from './coingecko';
 import { config } from '../config';
 
@@ -72,6 +73,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const key = (config as Record<string, unknown>).PROVIDER_KEY_FOURSQUARE as string | undefined;
       if (!key) return undefined;
       return getOrCreate('foursquare', () => new FoursquareAdapter(key));
+    }
+    case 'ticketmaster': {
+      const key = (config as Record<string, unknown>).PROVIDER_KEY_TICKETMASTER as string | undefined;
+      if (!key) return undefined;
+      return getOrCreate('ticketmaster', () => new TicketmasterAdapter(key));
     }
     default:
       return undefined;

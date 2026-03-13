@@ -350,6 +350,49 @@ tools:
     price_usd: "0.020"
     cache_ttl: 300
 
+  # --- UC-008: Ticketmaster Discovery API ---
+  - tool_id: ticketmaster.events_search
+    name: Ticketmaster Event Search
+    provider: ticketmaster
+    price_usd: "0.003"
+    cache_ttl: 300
+
+  - tool_id: ticketmaster.event_details
+    name: Ticketmaster Event Details
+    provider: ticketmaster
+    price_usd: "0.005"
+    cache_ttl: 900
+
+  - tool_id: ticketmaster.events_nearby
+    name: Ticketmaster Events Nearby
+    provider: ticketmaster
+    price_usd: "0.003"
+    cache_ttl: 300
+
+  - tool_id: ticketmaster.artist_events
+    name: Ticketmaster Artist Events
+    provider: ticketmaster
+    price_usd: "0.005"
+    cache_ttl: 300
+
+  - tool_id: ticketmaster.venue_events
+    name: Ticketmaster Venue Events
+    provider: ticketmaster
+    price_usd: "0.003"
+    cache_ttl: 300
+
+  - tool_id: ticketmaster.events_trending
+    name: Ticketmaster Trending Events
+    provider: ticketmaster
+    price_usd: "0.003"
+    cache_ttl: 300
+
+  - tool_id: ticketmaster.events_categories
+    name: Ticketmaster Event Categories
+    provider: ticketmaster
+    price_usd: "0.001"
+    cache_ttl: 604800
+
   # --- UC-020: AsterDEX ---
   - tool_id: aster.exchange_info
     name: AsterDEX Exchange Info

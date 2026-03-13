@@ -53,6 +53,9 @@ export const appEnvSchema = z.object({
   // Foursquare Places API (UC-003) — Service API Key (Bearer auth)
   PROVIDER_KEY_FOURSQUARE: z.string().optional().default(''),
 
+  // Ticketmaster Discovery API (UC-008) — Consumer Key (query param auth)
+  PROVIDER_KEY_TICKETMASTER: z.string().optional().default(''),
+
   // Polymarket trading — Phase 2 (UC-001 §3-§8)
   POLYMARKET_WALLET_ADDRESS: z.string().startsWith('0x').optional().default(''),
   POLYMARKET_PRIVATE_KEY: z.string().optional().default(''),
