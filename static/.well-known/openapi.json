@@ -4787,6 +4787,682 @@
         ]
       }
     },
+    "/api/v1/tools/ticketmaster.events_search/call": {
+      "post": {
+        "operationId": "ticketmaster_events_search",
+        "summary": "Search Events",
+        "description": "Search for events (concerts, sports, theatre, festivals) by keyword, city, date, or category across 26+ countries (Ticketmaster)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ticketmaster.events_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "keyword": {
+                    "type": "string",
+                    "description": "Search keyword (e.g. \"concert\", \"NBA\", \"Taylor Swift\")"
+                  },
+                  "city": {
+                    "type": "string",
+                    "description": "City name to filter events (e.g. \"New York\", \"London\")"
+                  },
+                  "countryCode": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2,
+                    "description": "ISO 3166-1 alpha-2 country code (e.g. \"US\", \"GB\", \"DE\")"
+                  },
+                  "stateCode": {
+                    "type": "string",
+                    "description": "State code for US/CA events (e.g. \"NY\", \"CA\", \"ON\")"
+                  },
+                  "classificationName": {
+                    "type": "string",
+                    "description": "Event category filter (e.g. \"Music\", \"Sports\", \"Arts & Theatre\")"
+                  },
+                  "startDateTime": {
+                    "type": "string",
+                    "description": "Start date/time in ISO 8601 format with Z suffix (e.g. \"2026-04-01T00:00:00Z\")"
+                  },
+                  "endDateTime": {
+                    "type": "string",
+                    "description": "End date/time in ISO 8601 format with Z suffix (e.g. \"2026-12-31T23:59:59Z\")"
+                  },
+                  "size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 200,
+                    "description": "Number of results per page (1-200, default 20)"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Page number (0-based)"
+                  },
+                  "sort": {
+                    "type": "string",
+                    "description": "Sort order (e.g. \"date,asc\", \"relevance,desc\", \"name,asc\")"
+                  },
+                  "locale": {
+                    "type": "string",
+                    "description": "Locale for response (e.g. \"en-us\", \"fr-fr\")"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ticketmaster.event_details/call": {
+      "post": {
+        "operationId": "ticketmaster_event_details",
+        "summary": "Get Event Details",
+        "description": "Get full details for an event — dates, venues, prices, images, classifications, seat map (Ticketmaster)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ticketmaster.event_details"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Ticketmaster event ID (e.g. \"vvG1iZ4JkS1GKT\")"
+                  },
+                  "locale": {
+                    "type": "string",
+                    "description": "Locale for response (e.g. \"en-us\")"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ticketmaster.events_nearby/call": {
+      "post": {
+        "operationId": "ticketmaster_events_nearby",
+        "summary": "Find Nearby Events",
+        "description": "Find events near geographic coordinates with radius filter (Ticketmaster)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ticketmaster.events_nearby"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "latlong": {
+                    "type": "string",
+                    "description": "Latitude,longitude coordinates (e.g. \"40.7128,-74.0060\" for NYC)"
+                  },
+                  "radius": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 500,
+                    "description": "Search radius (default unit: miles, max 500)"
+                  },
+                  "unit": {
+                    "type": "string",
+                    "enum": [
+                      "miles",
+                      "km"
+                    ],
+                    "description": "Distance unit for radius (default: miles)"
+                  },
+                  "keyword": {
+                    "type": "string",
+                    "description": "Optional keyword filter (e.g. \"jazz\", \"basketball\")"
+                  },
+                  "classificationName": {
+                    "type": "string",
+                    "description": "Event category filter (e.g. \"Music\", \"Sports\")"
+                  },
+                  "startDateTime": {
+                    "type": "string",
+                    "description": "Start date/time in ISO 8601 format with Z suffix"
+                  },
+                  "endDateTime": {
+                    "type": "string",
+                    "description": "End date/time in ISO 8601 format with Z suffix"
+                  },
+                  "size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 200,
+                    "description": "Number of results per page (1-200, default 20)"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Page number (0-based)"
+                  },
+                  "sort": {
+                    "type": "string",
+                    "description": "Sort order (e.g. \"date,asc\", \"distance,asc\")"
+                  },
+                  "locale": {
+                    "type": "string",
+                    "description": "Locale for response (e.g. \"en-us\")"
+                  }
+                },
+                "required": [
+                  "latlong"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ticketmaster.artist_events/call": {
+      "post": {
+        "operationId": "ticketmaster_artist_events",
+        "summary": "Get Artist Events",
+        "description": "Find events by artist or performer name with optional country and date filters (Ticketmaster)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ticketmaster.artist_events"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "keyword": {
+                    "type": "string",
+                    "description": "Artist/performer name to search (e.g. \"Beyonce\", \"Coldplay\")"
+                  },
+                  "attractionId": {
+                    "type": "string",
+                    "description": "Ticketmaster attraction ID for exact artist match"
+                  },
+                  "countryCode": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2,
+                    "description": "ISO 3166-1 alpha-2 country code (e.g. \"US\", \"GB\")"
+                  },
+                  "startDateTime": {
+                    "type": "string",
+                    "description": "Start date/time in ISO 8601 format with Z suffix"
+                  },
+                  "endDateTime": {
+                    "type": "string",
+                    "description": "End date/time in ISO 8601 format with Z suffix"
+                  },
+                  "size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 200,
+                    "description": "Number of results per page (1-200, default 20)"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Page number (0-based)"
+                  },
+                  "sort": {
+                    "type": "string",
+                    "description": "Sort order (e.g. \"date,asc\", \"relevance,desc\")"
+                  },
+                  "locale": {
+                    "type": "string",
+                    "description": "Locale for response (e.g. \"en-us\")"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ticketmaster.venue_events/call": {
+      "post": {
+        "operationId": "ticketmaster_venue_events",
+        "summary": "Get Venue Events",
+        "description": "Get upcoming events at a specific venue by venue ID (Ticketmaster)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ticketmaster.venue_events"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "venueId": {
+                    "type": "string",
+                    "description": "Ticketmaster venue ID (e.g. \"KovZpZA7AAEA\" for Madison Square Garden)"
+                  },
+                  "keyword": {
+                    "type": "string",
+                    "description": "Optional keyword filter for events at this venue"
+                  },
+                  "startDateTime": {
+                    "type": "string",
+                    "description": "Start date/time in ISO 8601 format with Z suffix"
+                  },
+                  "endDateTime": {
+                    "type": "string",
+                    "description": "End date/time in ISO 8601 format with Z suffix"
+                  },
+                  "size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 200,
+                    "description": "Number of results per page (1-200, default 20)"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Page number (0-based)"
+                  },
+                  "sort": {
+                    "type": "string",
+                    "description": "Sort order (e.g. \"date,asc\", \"relevance,desc\")"
+                  },
+                  "locale": {
+                    "type": "string",
+                    "description": "Locale for response (e.g. \"en-us\")"
+                  }
+                },
+                "required": [
+                  "venueId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ticketmaster.events_trending/call": {
+      "post": {
+        "operationId": "ticketmaster_events_trending",
+        "summary": "Get Trending Events",
+        "description": "Get trending and popular events sorted by relevance (Ticketmaster)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ticketmaster.events_trending"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "countryCode": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2,
+                    "description": "ISO 3166-1 alpha-2 country code (e.g. \"US\", \"GB\")"
+                  },
+                  "classificationName": {
+                    "type": "string",
+                    "description": "Event category filter (e.g. \"Music\", \"Sports\")"
+                  },
+                  "size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 200,
+                    "description": "Number of results per page (1-200, default 20)"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Page number (0-based)"
+                  },
+                  "locale": {
+                    "type": "string",
+                    "description": "Locale for response (e.g. \"en-us\")"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ticketmaster.events_categories/call": {
+      "post": {
+        "operationId": "ticketmaster_events_categories",
+        "summary": "Get Event Categories",
+        "description": "Get all event classification categories — segments, genres, sub-genres (Ticketmaster)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ticketmaster.events_categories"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 200,
+                    "description": "Number of results per page (1-200, default 20)"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Page number (0-based)"
+                  },
+                  "locale": {
+                    "type": "string",
+                    "description": "Locale for response (e.g. \"en-us\")"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/aster.exchange_info/call": {
       "post": {
         "operationId": "aster_exchange_info",
