@@ -1,7 +1,9 @@
 import { z } from 'zod';
 
 export const asterdexSchemas: Record<string, z.ZodSchema> = {
-  'aster.exchange_info': z.object({}).strip(),
+  'aster.exchange_info': z.object({
+    symbol: z.string().optional().describe('Trading pair symbol to filter (e.g. BTCUSDT). Omit for all pairs.'),
+  }).strip(),
 
   'aster.market_data': z.object({
     symbol: z.string().optional().describe('Trading pair symbol (e.g. BTCUSDT). Omit for all pairs.'),
