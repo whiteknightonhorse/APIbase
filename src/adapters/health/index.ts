@@ -10,8 +10,6 @@ import type {
   OpenFdaDrugEventsResponse,
   OpenFdaFoodRecallsResponse,
   OpenFdaDrugLabelsResponse,
-  DsldSupplementSearchResponse,
-  DsldSupplementDetails,
 } from './types';
 
 /**
@@ -122,18 +120,20 @@ export class HealthAdapter extends BaseAdapter {
         return data;
       }
       case 'health.supplement_search': {
-        const data = body as DsldSupplementSearchResponse;
-        if (!Array.isArray(data.data)) {
-          throw new Error('Missing data in NIH DSLD search response');
+        // DSLD search-filter returns { hits: [...], stats: {...} }
+        const raw = body as Record<string, unknown>;
+        if (!Array.isArray(raw.hits)) {
+          throw new Error('Missing hits in NIH DSLD search response');
         }
-        return data;
+        return raw;
       }
       case 'health.supplement_details': {
-        const data = body as DsldSupplementDetails;
-        if (!data.dsld_id || !data.product_name) {
+        // DSLD label/{id} returns { id, fullName, brandName, ... }
+        const raw = body as Record<string, unknown>;
+        if (!raw.id && !raw.fullName) {
           throw new Error('Missing required fields in NIH DSLD supplement details response');
         }
-        return data;
+        return raw;
       }
       default:
         return body;
@@ -255,18 +255,18 @@ export class HealthAdapter extends BaseAdapter {
   // NIH DSLD (Dietary Supplement Label Database)
   // ---------------------------------------------------------------------------
 
-  /** NIH DSLD browse/search — search supplement labels */
+  /** NIH DSLD search-filter — search supplement labels */
   private buildSupplementSearch(
     params: Record<string, unknown>,
     headers: Record<string, string>,
   ): { url: string; method: string; headers: Record<string, string> } {
     const qs = new URLSearchParams();
-    qs.set('query', String(params.query));
-    if (params.limit) qs.set('rows', String(params.limit));
-    if (params.offset) qs.set('offset', String(params.offset));
+    qs.set('q', String(params.query));
+    if (params.limit) qs.set('size', String(params.limit));
+    if (params.offset) qs.set('from', String(params.offset));
 
     return {
-      url: `${HealthAdapter.DSLD_BASE}/browse?${qs.toString()}`,
+      url: `${HealthAdapter.DSLD_BASE}/search-filter?${qs.toString()}`,
       method: 'GET',
       headers,
     };
