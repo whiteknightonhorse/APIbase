@@ -6,6 +6,7 @@ import { OpenWeatherMapAdapter } from './openweathermap';
 import { SabreAdapter } from './sabre';
 import { AmadeusAdapter } from './amadeus';
 import { FoursquareAdapter } from './foursquare';
+import { CoinGeckoAdapter } from './coingecko';
 import { config } from '../config';
 
 /**
@@ -47,9 +48,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       return getOrCreate('openweathermap', () => new OpenWeatherMapAdapter(key));
     }
     case 'crypto':
-    case 'coingecko':
-      // CoinGecko adapter not yet implemented — return undefined
-      return undefined;
+    case 'coingecko': {
+      const cgKey = (config as Record<string, unknown>).PROVIDER_KEY_COINGECKO as string | undefined;
+      if (!cgKey) return undefined;
+      return getOrCreate('coingecko', () => new CoinGeckoAdapter(cgKey));
+    }
     case 'aviasales':
       // Aviasales adapter not yet implemented — return undefined
       return undefined;
