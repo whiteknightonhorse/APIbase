@@ -298,6 +298,8 @@ export class JobsAdapter extends BaseAdapter {
     }
 
     headers['Authorization'] = this.careerjetAuth;
+    // CareerJet requires Referer header matching registered publisher domain
+    headers['Referer'] = 'https://apibase.pro';
 
     const qs = new URLSearchParams();
     qs.set('keywords', String(params.keywords));
