@@ -583,3 +583,40 @@ tools:
     provider: asterdex
     price_usd: "0.003"
     cache_ttl: 30
+
+  # --- UC-015: Jobs / Career Intelligence ---
+  - tool_id: jobs.salary_data
+    name: Salary Data (BLS)
+    provider: jobs
+    price_usd: "0.003"
+    cache_ttl: 86400
+
+  - tool_id: jobs.occupation_search
+    name: Occupation Search (O*NET)
+    provider: jobs
+    price_usd: "0.003"
+    cache_ttl: 86400
+
+  - tool_id: jobs.occupation_details
+    name: Occupation Details (O*NET)
+    provider: jobs
+    price_usd: "0.003"
+    cache_ttl: 604800
+
+  - tool_id: jobs.esco_search
+    name: EU Skills Search (ESCO)
+    provider: jobs
+    price_usd: "0.003"
+    cache_ttl: 604800
+
+  - tool_id: jobs.esco_details
+    name: EU Skill/Occupation Details (ESCO)
+    provider: jobs
+    price_usd: "0.003"
+    cache_ttl: 604800
+
+  - tool_id: jobs.job_search
+    name: Job Listings Search (CareerJet)
+    provider: jobs
+    price_usd: "0.003"
+    cache_ttl: 14400

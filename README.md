@@ -1,7 +1,7 @@
 # APIbase.pro — The API Hub for AI Agents
 
 > Search flights, find restaurants, discover events, browse movies, compare prices, track status, trade prediction markets — all via MCP.
-> One endpoint. 95 tools. 15 providers. Pay per call.
+> One endpoint. 100 tools. 19 providers. Pay per call.
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Health](https://apibase.pro/health/ready)**
 
@@ -139,7 +139,7 @@ Returns places with names, ratings, categories, distance, hours, price tier, and
 
 ---
 
-## Available Tools (95)
+## Available Tools (100)
 
 ### Finance / Banking / Financial Intelligence (6 tools)
 
@@ -209,6 +209,19 @@ Search artists, albums, songs, and recordings across 50M+ entries (MusicBrainz C
 | `music.recording_search` | Search songs by title or artist | $0.003 |
 | `music.fresh_releases` | Discover recently released albums and singles | $0.003 |
 | `music.radio_search` | Search 40K+ internet radio stations by genre, country, language | $0.002 |
+
+### Jobs / Career Intelligence (6 tools)
+
+US salary data, occupation taxonomy, EU skills framework, and global job listings. 4 providers: BLS (US government salary/employment data), O*NET (1,000+ occupations with skills/knowledge/abilities), ESCO (EU Skills/Competences/Occupations in 27 languages), and CareerJet (global job listings across 90+ countries). All $0 upstream cost.
+
+| Tool | Description | Price |
+|------|-------------|-------|
+| `jobs.salary_data` | US salary/employment timeseries from BLS — wage estimates by occupation and geography | $0.003 |
+| `jobs.occupation_search` | Search O*NET occupation taxonomy — 1,000+ occupations with SOC codes | $0.003 |
+| `jobs.occupation_details` | O*NET occupation details — skills, knowledge, abilities, technology, tasks | $0.003 |
+| `jobs.esco_search` | Search ESCO EU occupations and skills in 27 languages | $0.003 |
+| `jobs.esco_details` | ESCO occupation/skill details — essential skills, ISCO codes, relationships | $0.003 |
+| `jobs.job_search` | Search global job listings — title, salary, company, location across 90+ countries | $0.003 |
 
 ### Foursquare — Places & Restaurant Discovery (5 tools)
 

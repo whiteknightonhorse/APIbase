@@ -66,6 +66,11 @@ export const appEnvSchema = z.object({
   // Finance / Banking (UC-016) — FRED API key (free at fred.stlouisfed.org)
   PROVIDER_KEY_FRED: z.string().optional().default(''),
 
+  // Jobs / Career Intelligence (UC-015) — O*NET, BLS, CareerJet API keys
+  PROVIDER_KEY_ONET: z.string().optional().default(''),
+  PROVIDER_KEY_BLS: z.string().optional().default(''),
+  PROVIDER_KEY_CAREERJET: z.string().optional().default(''),
+
   // Polymarket trading — Phase 2 (UC-001 §3-§8)
   POLYMARKET_WALLET_ADDRESS: z.string().startsWith('0x').optional().default(''),
   POLYMARKET_PRIVATE_KEY: z.string().optional().default(''),

@@ -8049,6 +8049,560 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/jobs.salary_data/call": {
+      "post": {
+        "operationId": "jobs_salary_data",
+        "summary": "Get Salary Data",
+        "description": "Get US salary and employment timeseries data from BLS — wage estimates, employment counts, occupational statistics by SOC code and geography",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "jobs.salary_data"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "series_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "description": "BLS timeseries IDs (e.g. [\"OEUM0000000000000151252004\"] for Software Developers mean salary). Encodes occupation code + geography + data type.",
+                    "minItems": 1,
+                    "maxItems": 50
+                  },
+                  "start_year": {
+                    "type": "string",
+                    "description": "Start year (e.g. \"2020\"). Omit for latest available."
+                  },
+                  "end_year": {
+                    "type": "string",
+                    "description": "End year (e.g. \"2024\"). Omit for latest available."
+                  }
+                },
+                "required": [
+                  "series_ids"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/jobs.occupation_search/call": {
+      "post": {
+        "operationId": "jobs_occupation_search",
+        "summary": "Search Occupations",
+        "description": "Search O*NET occupation taxonomy by keyword — 1,000+ occupations with SOC codes, titles, and relevance scores",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "jobs.occupation_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "keyword": {
+                    "type": "string",
+                    "description": "Search keyword for occupations (e.g. \"software developer\", \"nurse\", \"data analyst\").",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "start": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Starting index for pagination (1-based). Omit for first page."
+                  },
+                  "end": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Ending index for pagination. Omit for default page size."
+                  }
+                },
+                "required": [
+                  "keyword"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/jobs.occupation_details/call": {
+      "post": {
+        "operationId": "jobs_occupation_details",
+        "summary": "Get Occupation Details",
+        "description": "Get detailed occupation info from O*NET by SOC code — overview, skills, knowledge, abilities, technology skills, tasks",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "jobs.occupation_details"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "description": "O*NET SOC occupation code (e.g. \"15-1252.00\" for Software Developers). Get codes from occupation_search.",
+                    "minLength": 1,
+                    "maxLength": 20
+                  },
+                  "section": {
+                    "type": "string",
+                    "enum": [
+                      "skills",
+                      "knowledge",
+                      "abilities",
+                      "technology_skills",
+                      "tasks"
+                    ],
+                    "description": "Specific section to retrieve. Omit for general overview (title, description, sample titles)."
+                  }
+                },
+                "required": [
+                  "code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/jobs.esco_search/call": {
+      "post": {
+        "operationId": "jobs_esco_search",
+        "summary": "Search EU Skills & Occupations",
+        "description": "Search ESCO (European Skills/Competences/Occupations) taxonomy — occupations and skills in 27 EU languages",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "jobs.esco_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "description": "Search text for EU occupations or skills (e.g. \"software developer\", \"project management\").",
+                    "minLength": 1,
+                    "maxLength": 500
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "occupation",
+                      "skill"
+                    ],
+                    "description": "Resource type to search. Default: \"occupation\"."
+                  },
+                  "language": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 5,
+                    "description": "ISO 639-1 language code (e.g. \"en\", \"de\", \"fr\"). Default: \"en\". ESCO supports 27 EU languages."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Results per page (default 25, max 100)."
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Offset for pagination. Omit for first page."
+                  }
+                },
+                "required": [
+                  "text"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/jobs.esco_details/call": {
+      "post": {
+        "operationId": "jobs_esco_details",
+        "summary": "Get EU Skill/Occupation Details",
+        "description": "Get ESCO resource details by URI — occupation descriptions, essential/optional skills, ISCO codes, skill relationships",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "jobs.esco_details"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "uri": {
+                    "type": "string",
+                    "description": "ESCO resource URI (e.g. \"http://data.europa.eu/esco/occupation/...\"). Get URIs from esco_search.",
+                    "minLength": 1
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "occupation",
+                      "skill"
+                    ],
+                    "description": "Resource type: \"occupation\" or \"skill\". Default: \"occupation\"."
+                  },
+                  "language": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 5,
+                    "description": "ISO 639-1 language code. Default: \"en\"."
+                  }
+                },
+                "required": [
+                  "uri"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/jobs.job_search/call": {
+      "post": {
+        "operationId": "jobs_job_search",
+        "summary": "Search Job Listings",
+        "description": "Search global job listings via CareerJet — title, company, salary, location, contract type across 90+ countries",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "jobs.job_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "keywords": {
+                    "type": "string",
+                    "description": "Job search keywords (e.g. \"software engineer\", \"marketing manager remote\").",
+                    "minLength": 1,
+                    "maxLength": 500
+                  },
+                  "location": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "description": "Location filter (e.g. \"New York\", \"London\", \"Berlin\"). Omit for worldwide."
+                  },
+                  "locale_code": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 10,
+                    "description": "Locale code for results (e.g. \"en_US\", \"en_GB\", \"de_DE\"). Default: \"en_US\"."
+                  },
+                  "contract_type": {
+                    "type": "string",
+                    "enum": [
+                      "permanent",
+                      "contract",
+                      "temporary",
+                      "internship",
+                      "volunteering"
+                    ],
+                    "description": "Filter by contract type."
+                  },
+                  "work_hours": {
+                    "type": "string",
+                    "enum": [
+                      "full_time",
+                      "part_time"
+                    ],
+                    "description": "Filter by work hours."
+                  },
+                  "sort": {
+                    "type": "string",
+                    "enum": [
+                      "relevance",
+                      "date",
+                      "salary"
+                    ],
+                    "description": "Sort order for results. Default: \"relevance\"."
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10,
+                    "description": "Page number (1-10). Default: 1."
+                  },
+                  "page_size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Results per page (1-100). Default: 20."
+                  }
+                },
+                "required": [
+                  "keywords"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

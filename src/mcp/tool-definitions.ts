@@ -741,4 +741,50 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description: 'Get candlestick (OHLCV) data for a trading pair on AsterDEX',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // Jobs / Career Intelligence (UC-015, 6 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'jobs.salary_data',
+    mcpName: 'jobs.salary.data',
+    title: 'Get Salary Data',
+    description: 'Get US salary and employment timeseries data from BLS — wage estimates, employment counts, occupational statistics by SOC code and geography',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'jobs.occupation_search',
+    mcpName: 'jobs.occupations.search',
+    title: 'Search Occupations',
+    description: 'Search O*NET occupation taxonomy by keyword — 1,000+ occupations with SOC codes, titles, and relevance scores',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'jobs.occupation_details',
+    mcpName: 'jobs.occupations.details',
+    title: 'Get Occupation Details',
+    description: 'Get detailed occupation info from O*NET by SOC code — overview, skills, knowledge, abilities, technology skills, tasks',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'jobs.esco_search',
+    mcpName: 'jobs.skills.search',
+    title: 'Search EU Skills & Occupations',
+    description: 'Search ESCO (European Skills/Competences/Occupations) taxonomy — occupations and skills in 27 EU languages',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'jobs.esco_details',
+    mcpName: 'jobs.skills.details',
+    title: 'Get EU Skill/Occupation Details',
+    description: 'Get ESCO resource details by URI — occupation descriptions, essential/optional skills, ISCO codes, skill relationships',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'jobs.job_search',
+    mcpName: 'jobs.listings.search',
+    title: 'Search Job Listings',
+    description: 'Search global job listings via CareerJet — title, company, salary, location, contract type across 90+ countries',
+    annotations: READ_ONLY,
+  },
 ];

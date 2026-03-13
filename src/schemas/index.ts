@@ -13,6 +13,7 @@ import { tmdbSchemas } from './tmdb.schema';
 import { healthSchemas } from './health.schema';
 import { financeSchemas } from './finance.schema';
 import { musicSchemas } from './music.schema';
+import { jobsSchemas } from './jobs.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -29,4 +30,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...healthSchemas,
   ...financeSchemas,
   ...musicSchemas,
+  ...jobsSchemas,
 };

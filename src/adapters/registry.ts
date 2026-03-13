@@ -12,6 +12,7 @@ import { TmdbAdapter } from './tmdb';
 import { HealthAdapter } from './health';
 import { FinanceAdapter } from './finance';
 import { MusicAdapter } from './music';
+import { JobsAdapter } from './jobs';
 import { config } from '../config';
 
 /**
@@ -102,6 +103,13 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'music':
       // All 3 providers (MusicBrainz, ListenBrainz, RadioBrowser) are free, no API keys needed
       return getOrCreate('music', () => new MusicAdapter());
+    case 'jobs': {
+      const onetKey = (config as Record<string, unknown>).PROVIDER_KEY_ONET as string | undefined;
+      if (!onetKey) return undefined;
+      const blsKey = (config as Record<string, unknown>).PROVIDER_KEY_BLS as string | undefined;
+      const cjKey = (config as Record<string, unknown>).PROVIDER_KEY_CAREERJET as string | undefined;
+      return getOrCreate('jobs', () => new JobsAdapter(onetKey, blsKey || undefined, cjKey || undefined));
+    }
     default:
       return undefined;
   }
