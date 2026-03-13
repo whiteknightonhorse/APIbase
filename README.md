@@ -1,7 +1,7 @@
 # APIbase.pro — The API Hub for AI Agents
 
 > Search flights, find restaurants, discover events, browse movies, compare prices, track status, trade prediction markets — all via MCP.
-> One endpoint. 88 tools. 14 providers. Pay per call.
+> One endpoint. 95 tools. 15 providers. Pay per call.
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Health](https://apibase.pro/health/ready)**
 
@@ -9,7 +9,7 @@
 
 ## What is APIbase?
 
-Production MCP server — universal API hub for AI agents. 88 tools across travel, places, events, entertainment, health, finance, weather, and more. Search flights (Amadeus, Sabre GDS), find restaurants and places (Foursquare), discover events and concerts (Ticketmaster), browse movies and TV shows (TMDB), look up nutrition data and drug safety (USDA, OpenFDA, NIH), get exchange rates, economic indicators, and treasury data (ECB, FRED, World Bank, US Treasury), trade prediction markets (Polymarket), track crypto, check weather — with more providers shipping regularly. One endpoint, pay per call via x402 USDC micropayments. Auto-registration, zero setup. Covers the most popular API categories agents actually need: travel, local services, events, entertainment, health, financial data, e-commerce, and marketing.
+Production MCP server — universal API hub for AI agents. 95 tools across travel, places, events, entertainment, music, health, finance, weather, and more. Search flights (Amadeus, Sabre GDS), find restaurants and places (Foursquare), discover events and concerts (Ticketmaster), browse movies and TV shows (TMDB), search music artists, albums, and recordings (MusicBrainz), discover fresh releases (ListenBrainz), find internet radio stations (RadioBrowser), look up nutrition data and drug safety (USDA, OpenFDA, NIH), get exchange rates, economic indicators, and treasury data (ECB, FRED, World Bank, US Treasury), trade prediction markets (Polymarket), track crypto, check weather — with more providers shipping regularly. One endpoint, pay per call via x402 USDC micropayments. Auto-registration, zero setup. Covers the most popular API categories agents actually need: travel, local services, events, entertainment, music, health, financial data, e-commerce, and marketing.
 
 **Built for AI agents, not humans.** Every tool is designed for autonomous discovery, authentication, and invocation via the [Model Context Protocol](https://modelcontextprotocol.io).
 
@@ -19,7 +19,7 @@ Production MCP server — universal API hub for AI agents. 88 tools across trave
 
 ### Why agents use APIbase
 
-- **One MCP endpoint** — `https://apibase.pro/mcp` connects to 14 providers
+- **One MCP endpoint** — `https://apibase.pro/mcp` connects to 15 providers
 - **Real-time flight search** — Amadeus + Sabre GDS, 500+ airlines, real prices
 - **Places & restaurants** — Foursquare Places API, 100M+ places in 190+ countries
 - **Pay per call** — x402 micropayments (USDC), no subscriptions, no minimums
@@ -139,7 +139,7 @@ Returns places with names, ratings, categories, distance, hours, price tier, and
 
 ---
 
-## Available Tools (88)
+## Available Tools (95)
 
 ### Finance / Banking / Financial Intelligence (6 tools)
 
@@ -195,6 +195,20 @@ The world's largest community-maintained entertainment database. 1M+ movies, 218
 | `tmdb.movie_similar` | Movie recommendations based on a movie | $0.003 |
 | `tmdb.movie_person` | Search actors/directors or get full filmography | $0.003 |
 | `tmdb.movie_where_to_watch` | Find streaming, rental, and purchase options by country | $0.003 |
+
+### Music / Audio Discovery (7 tools)
+
+Search artists, albums, songs, and recordings across 50M+ entries (MusicBrainz CC0), discover fresh releases (ListenBrainz CC0), and find 40K+ internet radio stations (RadioBrowser Public Domain). All $0 upstream cost, no API keys needed.
+
+| Tool | Description | Price |
+|------|-------------|-------|
+| `music.artist_search` | Search 2M+ music artists by name | $0.003 |
+| `music.artist_details` | Artist details: tags, ratings, external links, life span | $0.003 |
+| `music.release_search` | Search albums, singles, EPs across 50M+ recordings | $0.003 |
+| `music.release_details` | Full release: tracklist, artist credits, labels | $0.003 |
+| `music.recording_search` | Search songs by title or artist | $0.003 |
+| `music.fresh_releases` | Discover recently released albums and singles | $0.003 |
+| `music.radio_search` | Search 40K+ internet radio stations by genre, country, language | $0.002 |
 
 ### Foursquare — Places & Restaurant Discovery (5 tools)
 

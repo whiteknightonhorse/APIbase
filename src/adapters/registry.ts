@@ -11,6 +11,7 @@ import { CoinGeckoAdapter } from './coingecko';
 import { TmdbAdapter } from './tmdb';
 import { HealthAdapter } from './health';
 import { FinanceAdapter } from './finance';
+import { MusicAdapter } from './music';
 import { config } from '../config';
 
 /**
@@ -98,6 +99,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const fredKey = (config as Record<string, unknown>).PROVIDER_KEY_FRED as string | undefined;
       return getOrCreate('finance', () => new FinanceAdapter(fredKey || undefined));
     }
+    case 'music':
+      // All 3 providers (MusicBrainz, ListenBrainz, RadioBrowser) are free, no API keys needed
+      return getOrCreate('music', () => new MusicAdapter());
     default:
       return undefined;
   }
