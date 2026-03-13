@@ -38,7 +38,7 @@ export const appEnvSchema = z.object({
 
   // Provider API keys (§5.3)
   PROVIDER_KEY_OPENWEATHER: z.string().min(1),
-  PROVIDER_KEY_COINGECKO: z.string().min(1),
+  PROVIDER_KEY_COINGECKO: z.string().optional().default(''),
   PROVIDER_KEY_POLYMARKET: z.string().optional().default(''),
   PROVIDER_KEY_AVIASALES: z.string().optional().default(''),
 

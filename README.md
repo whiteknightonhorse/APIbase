@@ -1,7 +1,7 @@
 # APIbase.pro — The API Hub for AI Agents
 
 > Search flights, find restaurants, compare prices, track status, trade prediction markets — all via MCP.
-> One endpoint. 61 tools. 9 providers. Pay per call.
+> One endpoint. 61 tools. 10 providers. Pay per call.
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Health](https://apibase.pro/health/ready)**
 
@@ -19,7 +19,7 @@ Production MCP server — universal API hub for AI agents. 61 tools across trave
 
 ### Why agents use APIbase
 
-- **One MCP endpoint** — `https://apibase.pro/mcp` connects to 9 providers
+- **One MCP endpoint** — `https://apibase.pro/mcp` connects to 10 providers
 - **Real-time flight search** — Amadeus + Sabre GDS, 500+ airlines, real prices
 - **Places & restaurants** — Foursquare Places API, 100M+ places in 190+ countries
 - **Pay per call** — x402 micropayments (USDC), no subscriptions, no minimums
@@ -219,6 +219,22 @@ Decentralized perpetual exchange on Asterism. Market data, order books, and cand
 | `aster.market_data` | Market data and 24h stats | $0.002 |
 | `aster.order_book` | Order book depth | $0.003 |
 | `aster.klines` | Candlestick / OHLCV data | $0.003 |
+
+### CoinGecko — Crypto Market Data (9 tools)
+
+Real-time and historical crypto data for 10,000+ coins. Prices, market overviews, trending assets, and DEX pool data via GeckoTerminal.
+
+| Tool | Description | Price |
+|------|-------------|-------|
+| `crypto.get_price` | Real-time prices for any cryptocurrency | $0.001 |
+| `coingecko.get_market` | Market overview with sorting and filtering | $0.001 |
+| `crypto.coin_detail` | Detailed coin info (market data, community, dev stats) | $0.002 |
+| `crypto.price_history` | Historical price charts (up to 365 days) | $0.002 |
+| `crypto.trending` | Currently trending coins on CoinGecko | $0.001 |
+| `crypto.global` | Global crypto market statistics | $0.001 |
+| `crypto.search` | Search coins, exchanges, and categories | $0.001 |
+| `crypto.dex_pools` | DEX liquidity pools via GeckoTerminal | $0.001 |
+| `crypto.token_by_address` | Token info by contract address via GeckoTerminal | $0.001 |
 
 ---
 
