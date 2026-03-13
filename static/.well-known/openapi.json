@@ -7160,6 +7160,581 @@
         ]
       }
     },
+    "/api/v1/tools/music.artist_search/call": {
+      "post": {
+        "operationId": "music_artist_search",
+        "summary": "Search Music Artists",
+        "description": "Search for music artists by name across 2M+ artists — biography, country, tags, aliases (MusicBrainz)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "music.artist_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search query for artist name (e.g. \"Radiohead\", \"Miles Davis\")"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Max results to return (1-100, default 25)"
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Pagination offset for results"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/music.artist_details/call": {
+      "post": {
+        "operationId": "music_artist_details",
+        "summary": "Get Artist Details",
+        "description": "Get detailed artist info by MusicBrainz ID — tags, ratings, external links, life span, area (MusicBrainz)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "music.artist_details"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "mbid": {
+                    "type": "string",
+                    "description": "MusicBrainz artist ID (UUID format, e.g. \"a74b1b7f-71a5-4011-9441-d0b5e4122711\")"
+                  }
+                },
+                "required": [
+                  "mbid"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/music.release_search/call": {
+      "post": {
+        "operationId": "music_release_search",
+        "summary": "Search Music Releases",
+        "description": "Search for albums, singles, and EPs across 50M+ recordings — title, artist, date, tracklist (MusicBrainz)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "music.release_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search query for release/album title (e.g. \"OK Computer\", \"Kind of Blue\"). Supports Lucene syntax: artist:\"Radiohead\" AND release:\"OK Computer\""
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Max results to return (1-100, default 25)"
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Pagination offset for results"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/music.release_details/call": {
+      "post": {
+        "operationId": "music_release_details",
+        "summary": "Get Release Details",
+        "description": "Get full release details by MusicBrainz ID — tracklist, artist credits, labels, media formats (MusicBrainz)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "music.release_details"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "mbid": {
+                    "type": "string",
+                    "description": "MusicBrainz release ID (UUID format). Returns full tracklist, artist credits, and label info"
+                  }
+                },
+                "required": [
+                  "mbid"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/music.recording_search/call": {
+      "post": {
+        "operationId": "music_recording_search",
+        "summary": "Search Music Recordings",
+        "description": "Search for songs and recordings by title or artist — duration, release history, artist credits (MusicBrainz)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "music.recording_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search query for song/recording title (e.g. \"Creep\", \"So What\"). Supports Lucene syntax: artist:\"Radiohead\" AND recording:\"Creep\""
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Max results to return (1-100, default 25)"
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Pagination offset for results"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/music.fresh_releases/call": {
+      "post": {
+        "operationId": "music_fresh_releases",
+        "summary": "Get Fresh Music Releases",
+        "description": "Discover recently released albums and singles from the past N days — trending new music (ListenBrainz)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "music.fresh_releases"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "days": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 90,
+                    "description": "Number of days to look back for fresh releases (1-90, default 7)"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 200,
+                    "description": "Max releases to return (1-200, default 50)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/music.radio_search/call": {
+      "post": {
+        "operationId": "music_radio_search",
+        "summary": "Search Radio Stations",
+        "description": "Search 40K+ internet radio stations by name, genre, country, or language — streaming URLs, bitrate, codec (RadioBrowser)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "music.radio_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Station name to search for (e.g. \"BBC Radio\", \"Jazz FM\")"
+                  },
+                  "tag": {
+                    "type": "string",
+                    "description": "Tag/genre filter (e.g. \"rock\", \"jazz\", \"classical\", \"news\")"
+                  },
+                  "country": {
+                    "type": "string",
+                    "description": "Country name filter (e.g. \"Germany\", \"United States\")"
+                  },
+                  "countrycode": {
+                    "type": "string",
+                    "description": "ISO 3166-1 alpha-2 country code (e.g. \"US\", \"DE\", \"GB\")"
+                  },
+                  "language": {
+                    "type": "string",
+                    "description": "Language filter (e.g. \"english\", \"german\", \"spanish\")"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Max stations to return (1-100, default 25)"
+                  },
+                  "order": {
+                    "type": "string",
+                    "enum": [
+                      "name",
+                      "url",
+                      "homepage",
+                      "favicon",
+                      "tags",
+                      "country",
+                      "state",
+                      "language",
+                      "votes",
+                      "codec",
+                      "bitrate",
+                      "lastcheckok",
+                      "lastchecktime",
+                      "clicktimestamp",
+                      "clickcount",
+                      "clicktrend",
+                      "changetimestamp",
+                      "random"
+                    ],
+                    "description": "Sort order for results"
+                  },
+                  "hidebroken": {
+                    "type": "boolean",
+                    "description": "Hide broken/offline stations (recommended: true)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/aster.exchange_info/call": {
       "post": {
         "operationId": "aster_exchange_info",

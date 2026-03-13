@@ -658,6 +658,59 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   },
 
   // ---------------------------------------------------------------------------
+  // Music / Audio Discovery (UC-018, 7 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'music.artist_search',
+    mcpName: 'music.artists.search',
+    title: 'Search Music Artists',
+    description: 'Search for music artists by name across 2M+ artists — biography, country, tags, aliases (MusicBrainz)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'music.artist_details',
+    mcpName: 'music.artists.details',
+    title: 'Get Artist Details',
+    description: 'Get detailed artist info by MusicBrainz ID — tags, ratings, external links, life span, area (MusicBrainz)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'music.release_search',
+    mcpName: 'music.releases.search',
+    title: 'Search Music Releases',
+    description: 'Search for albums, singles, and EPs across 50M+ recordings — title, artist, date, tracklist (MusicBrainz)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'music.release_details',
+    mcpName: 'music.releases.details',
+    title: 'Get Release Details',
+    description: 'Get full release details by MusicBrainz ID — tracklist, artist credits, labels, media formats (MusicBrainz)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'music.recording_search',
+    mcpName: 'music.recordings.search',
+    title: 'Search Music Recordings',
+    description: 'Search for songs and recordings by title or artist — duration, release history, artist credits (MusicBrainz)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'music.fresh_releases',
+    mcpName: 'music.discover.fresh',
+    title: 'Get Fresh Music Releases',
+    description: 'Discover recently released albums and singles from the past N days — trending new music (ListenBrainz)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'music.radio_search',
+    mcpName: 'music.radio.search',
+    title: 'Search Radio Stations',
+    description: 'Search 40K+ internet radio stations by name, genre, country, or language — streaming URLs, bitrate, codec (RadioBrowser)',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
   // AsterDEX — DeFi Perpetuals (UC-020, Phase 1 read-only)
   // ---------------------------------------------------------------------------
   {

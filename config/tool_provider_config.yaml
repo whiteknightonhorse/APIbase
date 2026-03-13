@@ -516,6 +516,49 @@ tools:
     price_usd: "0.001"
     cache_ttl: 2592000
 
+  # --- UC-018: Music / Audio Discovery (MusicBrainz + ListenBrainz + RadioBrowser) ---
+  - tool_id: music.artist_search
+    name: Music Artist Search
+    provider: music
+    price_usd: "0.003"
+    cache_ttl: 86400
+
+  - tool_id: music.artist_details
+    name: Music Artist Details
+    provider: music
+    price_usd: "0.003"
+    cache_ttl: 604800
+
+  - tool_id: music.release_search
+    name: Music Release Search
+    provider: music
+    price_usd: "0.003"
+    cache_ttl: 86400
+
+  - tool_id: music.release_details
+    name: Music Release Details
+    provider: music
+    price_usd: "0.003"
+    cache_ttl: 604800
+
+  - tool_id: music.recording_search
+    name: Music Recording Search
+    provider: music
+    price_usd: "0.003"
+    cache_ttl: 86400
+
+  - tool_id: music.fresh_releases
+    name: Fresh Music Releases
+    provider: music
+    price_usd: "0.003"
+    cache_ttl: 21600
+
+  - tool_id: music.radio_search
+    name: Radio Station Search
+    provider: music
+    price_usd: "0.002"
+    cache_ttl: 21600
+
   # --- UC-020: AsterDEX ---
   - tool_id: aster.exchange_info
     name: AsterDEX Exchange Info
