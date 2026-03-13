@@ -506,6 +506,59 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   },
 
   // ---------------------------------------------------------------------------
+  // TMDB — Movies & TV Discovery (UC-010, 7 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'tmdb.movie_search',
+    mcpName: 'tmdb.movies.search',
+    title: 'Search Movies & TV',
+    description: 'Search for movies, TV shows, and people by name across 1M+ titles in 39 languages (TMDB)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'tmdb.movie_details',
+    mcpName: 'tmdb.movies.details',
+    title: 'Get Movie Details',
+    description: 'Get full movie details — cast, crew, trailers, ratings, streaming providers, runtime, budget, revenue (TMDB)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'tmdb.movie_discover',
+    mcpName: 'tmdb.movies.discover',
+    title: 'Discover Movies & TV',
+    description: 'Discover movies or TV shows by genre, year, rating, language, and sort order (TMDB)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'tmdb.movie_trending',
+    mcpName: 'tmdb.movies.trending',
+    title: 'Get Trending Movies & TV',
+    description: 'Get trending movies, TV shows, or people — daily or weekly (TMDB)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'tmdb.movie_similar',
+    mcpName: 'tmdb.movies.similar',
+    title: 'Get Similar Movies',
+    description: 'Get movie recommendations based on a movie ID — similar genres, themes, cast (TMDB)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'tmdb.movie_person',
+    mcpName: 'tmdb.movies.person',
+    title: 'Search Person / Filmography',
+    description: 'Search for actors, directors, or crew by name, or get full filmography by person ID (TMDB)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'tmdb.movie_where_to_watch',
+    mcpName: 'tmdb.movies.where_to_watch',
+    title: 'Where to Watch',
+    description: 'Find streaming, rental, and purchase options for a movie or TV show by country (TMDB)',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
   // AsterDEX — DeFi Perpetuals (UC-020, Phase 1 read-only)
   // ---------------------------------------------------------------------------
   {

@@ -393,6 +393,49 @@ tools:
     price_usd: "0.001"
     cache_ttl: 604800
 
+  # --- UC-010: TMDB (Movies & TV) ---
+  - tool_id: tmdb.movie_search
+    name: TMDB Movie Search
+    provider: tmdb
+    price_usd: "0.002"
+    cache_ttl: 21600
+
+  - tool_id: tmdb.movie_details
+    name: TMDB Movie Details
+    provider: tmdb
+    price_usd: "0.005"
+    cache_ttl: 86400
+
+  - tool_id: tmdb.movie_discover
+    name: TMDB Discover
+    provider: tmdb
+    price_usd: "0.005"
+    cache_ttl: 21600
+
+  - tool_id: tmdb.movie_trending
+    name: TMDB Trending
+    provider: tmdb
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: tmdb.movie_similar
+    name: TMDB Similar Movies
+    provider: tmdb
+    price_usd: "0.003"
+    cache_ttl: 86400
+
+  - tool_id: tmdb.movie_person
+    name: TMDB Person Search
+    provider: tmdb
+    price_usd: "0.003"
+    cache_ttl: 86400
+
+  - tool_id: tmdb.movie_where_to_watch
+    name: TMDB Where to Watch
+    provider: tmdb
+    price_usd: "0.003"
+    cache_ttl: 86400
+
   # --- UC-020: AsterDEX ---
   - tool_id: aster.exchange_info
     name: AsterDEX Exchange Info

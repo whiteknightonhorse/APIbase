@@ -8,6 +8,7 @@ import { AmadeusAdapter } from './amadeus';
 import { FoursquareAdapter } from './foursquare';
 import { TicketmasterAdapter } from './ticketmaster';
 import { CoinGeckoAdapter } from './coingecko';
+import { TmdbAdapter } from './tmdb';
 import { config } from '../config';
 
 /**
@@ -78,6 +79,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const key = (config as Record<string, unknown>).PROVIDER_KEY_TICKETMASTER as string | undefined;
       if (!key) return undefined;
       return getOrCreate('ticketmaster', () => new TicketmasterAdapter(key));
+    }
+    case 'tmdb': {
+      const token = (config as Record<string, unknown>).TMDB_ACCESS_TOKEN as string | undefined;
+      if (!token) return undefined;
+      return getOrCreate('tmdb', () => new TmdbAdapter(token));
     }
     default:
       return undefined;

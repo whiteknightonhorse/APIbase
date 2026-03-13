@@ -9,6 +9,7 @@ import { hyperliquidSchemas } from './hyperliquid.schema';
 import { asterdexSchemas } from './asterdex.schema';
 import { foursquareSchemas } from './foursquare.schema';
 import { ticketmasterSchemas } from './ticketmaster.schema';
+import { tmdbSchemas } from './tmdb.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -21,4 +22,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...asterdexSchemas,
   ...foursquareSchemas,
   ...ticketmasterSchemas,
+  ...tmdbSchemas,
 };

@@ -1,7 +1,7 @@
 # APIbase.pro — The API Hub for AI Agents
 
-> Search flights, find restaurants, discover events, compare prices, track status, trade prediction markets — all via MCP.
-> One endpoint. 68 tools. 11 providers. Pay per call.
+> Search flights, find restaurants, discover events, browse movies, compare prices, track status, trade prediction markets — all via MCP.
+> One endpoint. 75 tools. 12 providers. Pay per call.
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Health](https://apibase.pro/health/ready)**
 
@@ -9,7 +9,7 @@
 
 ## What is APIbase?
 
-Production MCP server — universal API hub for AI agents. 68 tools across travel, places, events, finance, weather, and more. Search flights (Amadeus, Sabre GDS), find restaurants and places (Foursquare), discover events and concerts (Ticketmaster), trade prediction markets (Polymarket), track crypto, check weather — with more providers shipping regularly. One endpoint, pay per call via x402 USDC micropayments. Auto-registration, zero setup. Covers the most popular API categories agents actually need: travel, local services, events, financial data, e-commerce, and marketing.
+Production MCP server — universal API hub for AI agents. 75 tools across travel, places, events, entertainment, finance, weather, and more. Search flights (Amadeus, Sabre GDS), find restaurants and places (Foursquare), discover events and concerts (Ticketmaster), browse movies and TV shows (TMDB), trade prediction markets (Polymarket), track crypto, check weather — with more providers shipping regularly. One endpoint, pay per call via x402 USDC micropayments. Auto-registration, zero setup. Covers the most popular API categories agents actually need: travel, local services, events, entertainment, financial data, e-commerce, and marketing.
 
 **Built for AI agents, not humans.** Every tool is designed for autonomous discovery, authentication, and invocation via the [Model Context Protocol](https://modelcontextprotocol.io).
 
@@ -19,7 +19,7 @@ Production MCP server — universal API hub for AI agents. 68 tools across trave
 
 ### Why agents use APIbase
 
-- **One MCP endpoint** — `https://apibase.pro/mcp` connects to 11 providers
+- **One MCP endpoint** — `https://apibase.pro/mcp` connects to 12 providers
 - **Real-time flight search** — Amadeus + Sabre GDS, 500+ airlines, real prices
 - **Places & restaurants** — Foursquare Places API, 100M+ places in 190+ countries
 - **Pay per call** — x402 micropayments (USDC), no subscriptions, no minimums
@@ -139,7 +139,7 @@ Returns places with names, ratings, categories, distance, hours, price tier, and
 
 ---
 
-## Available Tools (68)
+## Available Tools (75)
 
 ### Ticketmaster — Events & Entertainment (7 tools)
 
@@ -154,6 +154,20 @@ Discover concerts, sports, theatre, and festivals across 26+ countries. Real-tim
 | `ticketmaster.venue_events` | Get upcoming events at a specific venue | $0.003 |
 | `ticketmaster.events_trending` | Get trending and popular events | $0.003 |
 | `ticketmaster.events_categories` | Get all event classification categories | $0.001 |
+
+### TMDB — Movies & TV Discovery (7 tools)
+
+The world's largest community-maintained entertainment database. 1M+ movies, 218K+ TV shows, 39 languages. Search, discover, get details, find streaming options.
+
+| Tool | Description | Price |
+|------|-------------|-------|
+| `tmdb.movie_search` | Search movies, TV shows, and people by name | $0.002 |
+| `tmdb.movie_details` | Full movie details: cast, crew, trailers, streaming, budget | $0.005 |
+| `tmdb.movie_discover` | Discover movies or TV by genre, year, rating, language | $0.005 |
+| `tmdb.movie_trending` | Trending movies, TV shows, or people (daily/weekly) | $0.002 |
+| `tmdb.movie_similar` | Movie recommendations based on a movie | $0.003 |
+| `tmdb.movie_person` | Search actors/directors or get full filmography | $0.003 |
+| `tmdb.movie_where_to_watch` | Find streaming, rental, and purchase options by country | $0.003 |
 
 ### Foursquare — Places & Restaurant Discovery (5 tools)
 

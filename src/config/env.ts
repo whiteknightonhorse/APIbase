@@ -56,6 +56,9 @@ export const appEnvSchema = z.object({
   // Ticketmaster Discovery API (UC-008) — Consumer Key (query param auth)
   PROVIDER_KEY_TICKETMASTER: z.string().optional().default(''),
 
+  // TMDB (UC-010) — v4 Read Access Token (Bearer auth)
+  TMDB_ACCESS_TOKEN: z.string().optional().default(''),
+
   // Polymarket trading — Phase 2 (UC-001 §3-§8)
   POLYMARKET_WALLET_ADDRESS: z.string().startsWith('0x').optional().default(''),
   POLYMARKET_PRIVATE_KEY: z.string().optional().default(''),
