@@ -479,6 +479,43 @@ tools:
     price_usd: "0.003"
     cache_ttl: 86400
 
+  # --- UC-016: Finance / Banking / Financial Intelligence ---
+  - tool_id: finance.exchange_rates
+    name: Currency Exchange Rates
+    provider: finance
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: finance.ecb_rates
+    name: ECB Official Rates
+    provider: finance
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: finance.economic_indicator
+    name: FRED Economic Indicator
+    provider: finance
+    price_usd: "0.005"
+    cache_ttl: 86400
+
+  - tool_id: finance.country_data
+    name: World Bank Country Data
+    provider: finance
+    price_usd: "0.005"
+    cache_ttl: 604800
+
+  - tool_id: finance.treasury_data
+    name: US Treasury Fiscal Data
+    provider: finance
+    price_usd: "0.003"
+    cache_ttl: 86400
+
+  - tool_id: finance.validate_iban
+    name: IBAN Validation
+    provider: finance
+    price_usd: "0.001"
+    cache_ttl: 2592000
+
   # --- UC-020: AsterDEX ---
   - tool_id: aster.exchange_info
     name: AsterDEX Exchange Info

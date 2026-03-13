@@ -6645,6 +6645,521 @@
         ]
       }
     },
+    "/api/v1/tools/finance.exchange_rates/call": {
+      "post": {
+        "operationId": "finance_exchange_rates",
+        "summary": "Get Exchange Rates",
+        "description": "Get currency exchange rates for 200+ fiat and crypto currencies with optional historical dates (fawazahmed0 CDN)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "finance.exchange_rates"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "base": {
+                    "type": "string",
+                    "description": "Base currency code (e.g. \"usd\", \"eur\", \"btc\"). Lowercase. 200+ currencies supported.",
+                    "minLength": 2,
+                    "maxLength": 10
+                  },
+                  "date": {
+                    "type": "string",
+                    "description": "Historical date in YYYY-MM-DD format. Omit for latest rates."
+                  },
+                  "currencies": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "maxItems": 50,
+                    "description": "Filter to specific target currencies (e.g. [\"eur\",\"gbp\"]). Omit for all."
+                  }
+                },
+                "required": [
+                  "base"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/finance.ecb_rates/call": {
+      "post": {
+        "operationId": "finance_ecb_rates",
+        "summary": "Get ECB Exchange Rates",
+        "description": "Get official European Central Bank reference exchange rates for ~33 fiat currencies (Frankfurter/ECB)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "finance.ecb_rates"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "base": {
+                    "type": "string",
+                    "description": "Base currency code, uppercase (e.g. \"USD\", \"EUR\"). ~33 ECB currencies.",
+                    "minLength": 3,
+                    "maxLength": 3
+                  },
+                  "date": {
+                    "type": "string",
+                    "description": "Historical date in YYYY-MM-DD format. Omit for latest ECB rates."
+                  },
+                  "currencies": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "maxItems": 33,
+                    "description": "Filter to specific target currencies (e.g. [\"EUR\",\"GBP\"]). Omit for all ECB currencies."
+                  }
+                },
+                "required": [
+                  "base"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/finance.economic_indicator/call": {
+      "post": {
+        "operationId": "finance_economic_indicator",
+        "summary": "Get Economic Indicator",
+        "description": "Get US economic data from 816K+ FRED series — GDP, CPI, unemployment, interest rates, money supply (Federal Reserve)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "finance.economic_indicator"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "series_id": {
+                    "type": "string",
+                    "description": "FRED series ID (e.g. \"GDP\", \"CPIAUCSL\", \"UNRATE\", \"DFF\", \"T10Y2Y\"). Browse at fred.stlouisfed.org.",
+                    "minLength": 1,
+                    "maxLength": 50
+                  },
+                  "observation_start": {
+                    "type": "string",
+                    "description": "Start date for observations in YYYY-MM-DD format."
+                  },
+                  "observation_end": {
+                    "type": "string",
+                    "description": "End date for observations in YYYY-MM-DD format."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100000,
+                    "description": "Maximum number of observations to return (default 100000)."
+                  },
+                  "sort_order": {
+                    "type": "string",
+                    "enum": [
+                      "asc",
+                      "desc"
+                    ],
+                    "description": "Sort order by observation date. Default \"asc\"."
+                  }
+                },
+                "required": [
+                  "series_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/finance.country_data/call": {
+      "post": {
+        "operationId": "finance_country_data",
+        "summary": "Get Country Economic Data",
+        "description": "Get global development indicators from World Bank — GDP, population, inflation, trade, poverty for 200+ countries",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "finance.country_data"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "country_code": {
+                    "type": "string",
+                    "description": "ISO 3166 country code (e.g. \"US\", \"DE\", \"CHN\") or \"all\" for all countries.",
+                    "minLength": 2,
+                    "maxLength": 3
+                  },
+                  "indicator_id": {
+                    "type": "string",
+                    "description": "World Bank indicator ID (e.g. \"NY.GDP.MKTP.CD\" for GDP, \"SP.POP.TOTL\" for population, \"FP.CPI.TOTL.ZG\" for inflation).",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "date_range": {
+                    "type": "string",
+                    "description": "Year or year range (e.g. \"2023\" or \"2010:2023\"). Omit for all available years."
+                  },
+                  "per_page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 1000,
+                    "description": "Results per page (default 50, max 1000)."
+                  }
+                },
+                "required": [
+                  "country_code",
+                  "indicator_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/finance.treasury_data/call": {
+      "post": {
+        "operationId": "finance_treasury_data",
+        "summary": "Get US Treasury Data",
+        "description": "Get US Treasury fiscal data — interest rates on federal debt, national debt, debt outstanding, gold reserves, exchange rates",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "finance.treasury_data"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "endpoint": {
+                    "type": "string",
+                    "enum": [
+                      "avg_interest_rates",
+                      "debt_to_penny",
+                      "debt_outstanding",
+                      "top_federal",
+                      "gold_reserve",
+                      "exchange_rates_report"
+                    ],
+                    "description": "Treasury dataset endpoint: avg_interest_rates (interest rates on federal debt), debt_to_penny (daily national debt), debt_outstanding (debt by security type), top_federal (top federal spending), gold_reserve (US gold reserves), exchange_rates_report (Treasury exchange rates)."
+                  },
+                  "filter": {
+                    "type": "string",
+                    "description": "Filter expression (e.g. \"record_date:gte:2024-01-01,security_desc:eq:Treasury Bills\"). See Treasury API docs."
+                  },
+                  "page_size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10000,
+                    "description": "Number of records per page (default 100, max 10000)."
+                  },
+                  "sort": {
+                    "type": "string",
+                    "description": "Sort field with direction prefix (e.g. \"-record_date\" for newest first). Default: \"-record_date\"."
+                  }
+                },
+                "required": [
+                  "endpoint"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/finance.validate_iban/call": {
+      "post": {
+        "operationId": "finance_validate_iban",
+        "summary": "Validate IBAN",
+        "description": "Validate an IBAN number and get associated bank data — BIC/SWIFT code, bank name, city (OpenIBAN)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "finance.validate_iban"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "iban": {
+                    "type": "string",
+                    "description": "IBAN to validate (e.g. \"DE89370400440532013000\"). Spaces are stripped automatically.",
+                    "minLength": 15,
+                    "maxLength": 34
+                  }
+                },
+                "required": [
+                  "iban"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/aster.exchange_info/call": {
       "post": {
         "operationId": "aster_exchange_info",

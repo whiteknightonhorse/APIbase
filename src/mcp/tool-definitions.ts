@@ -612,6 +612,52 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   },
 
   // ---------------------------------------------------------------------------
+  // Finance / Banking / Financial Intelligence (UC-016, 6 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'finance.exchange_rates',
+    mcpName: 'finance.currency.rates',
+    title: 'Get Exchange Rates',
+    description: 'Get currency exchange rates for 200+ fiat and crypto currencies with optional historical dates (fawazahmed0 CDN)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'finance.ecb_rates',
+    mcpName: 'finance.currency.ecb',
+    title: 'Get ECB Exchange Rates',
+    description: 'Get official European Central Bank reference exchange rates for ~33 fiat currencies (Frankfurter/ECB)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'finance.economic_indicator',
+    mcpName: 'finance.macro.indicator',
+    title: 'Get Economic Indicator',
+    description: 'Get US economic data from 816K+ FRED series — GDP, CPI, unemployment, interest rates, money supply (Federal Reserve)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'finance.country_data',
+    mcpName: 'finance.macro.country',
+    title: 'Get Country Economic Data',
+    description: 'Get global development indicators from World Bank — GDP, population, inflation, trade, poverty for 200+ countries',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'finance.treasury_data',
+    mcpName: 'finance.treasury.data',
+    title: 'Get US Treasury Data',
+    description: 'Get US Treasury fiscal data — interest rates on federal debt, national debt, debt outstanding, gold reserves, exchange rates',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'finance.validate_iban',
+    mcpName: 'finance.banking.iban',
+    title: 'Validate IBAN',
+    description: 'Validate an IBAN number and get associated bank data — BIC/SWIFT code, bank name, city (OpenIBAN)',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
   // AsterDEX — DeFi Perpetuals (UC-020, Phase 1 read-only)
   // ---------------------------------------------------------------------------
   {

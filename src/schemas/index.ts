@@ -11,6 +11,7 @@ import { foursquareSchemas } from './foursquare.schema';
 import { ticketmasterSchemas } from './ticketmaster.schema';
 import { tmdbSchemas } from './tmdb.schema';
 import { healthSchemas } from './health.schema';
+import { financeSchemas } from './finance.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -25,4 +26,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...ticketmasterSchemas,
   ...tmdbSchemas,
   ...healthSchemas,
+  ...financeSchemas,
 };

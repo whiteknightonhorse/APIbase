@@ -1,7 +1,7 @@
 # APIbase.pro — The API Hub for AI Agents
 
 > Search flights, find restaurants, discover events, browse movies, compare prices, track status, trade prediction markets — all via MCP.
-> One endpoint. 82 tools. 13 providers. Pay per call.
+> One endpoint. 88 tools. 14 providers. Pay per call.
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Health](https://apibase.pro/health/ready)**
 
@@ -9,7 +9,7 @@
 
 ## What is APIbase?
 
-Production MCP server — universal API hub for AI agents. 82 tools across travel, places, events, entertainment, health, finance, weather, and more. Search flights (Amadeus, Sabre GDS), find restaurants and places (Foursquare), discover events and concerts (Ticketmaster), browse movies and TV shows (TMDB), look up nutrition data and drug safety (USDA, OpenFDA, NIH), trade prediction markets (Polymarket), track crypto, check weather — with more providers shipping regularly. One endpoint, pay per call via x402 USDC micropayments. Auto-registration, zero setup. Covers the most popular API categories agents actually need: travel, local services, events, entertainment, health, financial data, e-commerce, and marketing.
+Production MCP server — universal API hub for AI agents. 88 tools across travel, places, events, entertainment, health, finance, weather, and more. Search flights (Amadeus, Sabre GDS), find restaurants and places (Foursquare), discover events and concerts (Ticketmaster), browse movies and TV shows (TMDB), look up nutrition data and drug safety (USDA, OpenFDA, NIH), get exchange rates, economic indicators, and treasury data (ECB, FRED, World Bank, US Treasury), trade prediction markets (Polymarket), track crypto, check weather — with more providers shipping regularly. One endpoint, pay per call via x402 USDC micropayments. Auto-registration, zero setup. Covers the most popular API categories agents actually need: travel, local services, events, entertainment, health, financial data, e-commerce, and marketing.
 
 **Built for AI agents, not humans.** Every tool is designed for autonomous discovery, authentication, and invocation via the [Model Context Protocol](https://modelcontextprotocol.io).
 
@@ -19,7 +19,7 @@ Production MCP server — universal API hub for AI agents. 82 tools across trave
 
 ### Why agents use APIbase
 
-- **One MCP endpoint** — `https://apibase.pro/mcp` connects to 12 providers
+- **One MCP endpoint** — `https://apibase.pro/mcp` connects to 14 providers
 - **Real-time flight search** — Amadeus + Sabre GDS, 500+ airlines, real prices
 - **Places & restaurants** — Foursquare Places API, 100M+ places in 190+ countries
 - **Pay per call** — x402 micropayments (USDC), no subscriptions, no minimums
@@ -139,7 +139,20 @@ Returns places with names, ratings, categories, distance, hours, price tier, and
 
 ---
 
-## Available Tools (82)
+## Available Tools (88)
+
+### Finance / Banking / Financial Intelligence (6 tools)
+
+Currency exchange rates, macroeconomic indicators, and banking utilities. 6 free open-data APIs: fawazahmed0 (200+ currencies), Frankfurter/ECB (~33 official fiat), FRED (816K+ US economic series), World Bank (16K+ global indicators), US Treasury Fiscal Data, and OpenIBAN (IBAN validation). All $0 upstream cost.
+
+| Tool | Description | Price |
+|------|-------------|-------|
+| `finance.exchange_rates` | Exchange rates for 200+ fiat and crypto currencies | $0.002 |
+| `finance.ecb_rates` | Official ECB reference rates for ~33 fiat currencies | $0.002 |
+| `finance.economic_indicator` | FRED data — GDP, CPI, unemployment, interest rates | $0.005 |
+| `finance.country_data` | World Bank data — GDP, population, inflation for 200+ countries | $0.005 |
+| `finance.treasury_data` | US Treasury — interest rates, national debt, gold reserves | $0.003 |
+| `finance.validate_iban` | Validate IBAN and get bank data (BIC, name, city) | $0.001 |
 
 ### Health & Nutrition — Government Data APIs (7 tools)
 

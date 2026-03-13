@@ -10,6 +10,7 @@ import { TicketmasterAdapter } from './ticketmaster';
 import { CoinGeckoAdapter } from './coingecko';
 import { TmdbAdapter } from './tmdb';
 import { HealthAdapter } from './health';
+import { FinanceAdapter } from './finance';
 import { config } from '../config';
 
 /**
@@ -91,6 +92,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       if (!usdaKey) return undefined;
       const openFdaKey = (config as Record<string, unknown>).PROVIDER_KEY_OPENFDA as string | undefined;
       return getOrCreate('health', () => new HealthAdapter(usdaKey, openFdaKey || undefined));
+    }
+    case 'finance': {
+      // 5/6 tools need no key; only FRED requires PROVIDER_KEY_FRED (optional)
+      const fredKey = (config as Record<string, unknown>).PROVIDER_KEY_FRED as string | undefined;
+      return getOrCreate('finance', () => new FinanceAdapter(fredKey || undefined));
     }
     default:
       return undefined;
