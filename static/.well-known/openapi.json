@@ -4349,6 +4349,444 @@
         ]
       }
     },
+    "/api/v1/tools/foursquare.place_search/call": {
+      "post": {
+        "operationId": "foursquare_place_search",
+        "summary": "Search Places",
+        "description": "Search for places (restaurants, hotels, cafes, attractions) worldwide by name, category, or location (Foursquare)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "foursquare.place_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search term (e.g. \"restaurant\", \"coffee\", \"hotel\")"
+                  },
+                  "near": {
+                    "type": "string",
+                    "description": "Place name for geographic context (e.g. \"Bangkok,Thailand\", \"New York,NY\")"
+                  },
+                  "ll": {
+                    "type": "string",
+                    "description": "Latitude,longitude (e.g. \"13.7563,100.5018\"). Use either near or ll, not both"
+                  },
+                  "radius": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100000,
+                    "description": "Search radius in meters (max 100000)"
+                  },
+                  "categories": {
+                    "type": "string",
+                    "description": "Comma-separated Foursquare category IDs to filter results"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Max results to return (1-50, default 10)"
+                  },
+                  "sort": {
+                    "type": "string",
+                    "enum": [
+                      "relevance",
+                      "rating",
+                      "distance",
+                      "popularity"
+                    ],
+                    "description": "Sort order for results"
+                  },
+                  "open_now": {
+                    "type": "boolean",
+                    "description": "Filter to only places open now"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/foursquare.place_details/call": {
+      "post": {
+        "operationId": "foursquare_place_details",
+        "summary": "Get Place Details",
+        "description": "Get detailed information about a place — hours, rating, price, contact, categories (Foursquare)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "foursquare.place_details"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "fsq_id": {
+                    "type": "string",
+                    "description": "Foursquare place ID (e.g. \"4b5988fef964a520e62a28e3\")"
+                  }
+                },
+                "required": [
+                  "fsq_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/foursquare.place_tips/call": {
+      "post": {
+        "operationId": "foursquare_place_tips",
+        "summary": "Get Place Tips",
+        "description": "Get user tips and reviews for a place (Foursquare)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "foursquare.place_tips"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "fsq_id": {
+                    "type": "string",
+                    "description": "Foursquare place ID to get tips for"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Max tips to return (1-50, default 10)"
+                  },
+                  "sort": {
+                    "type": "string",
+                    "enum": [
+                      "popular",
+                      "newest",
+                      "oldest"
+                    ],
+                    "description": "Sort order for tips"
+                  }
+                },
+                "required": [
+                  "fsq_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/foursquare.place_photos/call": {
+      "post": {
+        "operationId": "foursquare_place_photos",
+        "summary": "Get Place Photos",
+        "description": "Get photos for a place with size and classification options (Foursquare)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "foursquare.place_photos"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "fsq_id": {
+                    "type": "string",
+                    "description": "Foursquare place ID to get photos for"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Max photos to return (1-50, default 10)"
+                  },
+                  "sort": {
+                    "type": "string",
+                    "enum": [
+                      "popular",
+                      "newest"
+                    ],
+                    "description": "Sort order for photos"
+                  },
+                  "classifications": {
+                    "type": "string",
+                    "description": "Comma-separated photo classifications (e.g. \"food,indoor,outdoor\")"
+                  }
+                },
+                "required": [
+                  "fsq_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/foursquare.autocomplete/call": {
+      "post": {
+        "operationId": "foursquare_autocomplete",
+        "summary": "Autocomplete Places",
+        "description": "Get autocomplete suggestions for places, addresses, and searches (Foursquare)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "foursquare.autocomplete"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search query for autocomplete suggestions"
+                  },
+                  "ll": {
+                    "type": "string",
+                    "description": "Latitude,longitude to bias results (e.g. \"13.7563,100.5018\")"
+                  },
+                  "radius": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100000,
+                    "description": "Bias radius in meters"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10,
+                    "description": "Max suggestions to return (1-10, default 5)"
+                  },
+                  "types": {
+                    "type": "string",
+                    "description": "Comma-separated result types (e.g. \"place,address,search\")"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/aster.exchange_info/call": {
       "post": {
         "operationId": "aster_exchange_info",
