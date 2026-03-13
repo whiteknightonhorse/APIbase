@@ -319,6 +319,37 @@ tools:
     price_usd: "0.005"
     cache_ttl: 60
 
+  # --- UC-003: Foursquare Places ---
+  - tool_id: foursquare.place_search
+    name: Foursquare Place Search
+    provider: foursquare
+    price_usd: "0.025"
+    cache_ttl: 300
+
+  - tool_id: foursquare.place_details
+    name: Foursquare Place Details
+    provider: foursquare
+    price_usd: "0.025"
+    cache_ttl: 3600
+
+  - tool_id: foursquare.place_tips
+    name: Foursquare Place Tips
+    provider: foursquare
+    price_usd: "0.030"
+    cache_ttl: 3600
+
+  - tool_id: foursquare.place_photos
+    name: Foursquare Place Photos
+    provider: foursquare
+    price_usd: "0.030"
+    cache_ttl: 3600
+
+  - tool_id: foursquare.autocomplete
+    name: Foursquare Autocomplete
+    provider: foursquare
+    price_usd: "0.020"
+    cache_ttl: 300
+
   # --- UC-020: AsterDEX ---
   - tool_id: aster.exchange_info
     name: AsterDEX Exchange Info

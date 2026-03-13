@@ -1,7 +1,7 @@
 # APIbase.pro — The API Hub for AI Agents
 
-> Search flights, compare prices, track status, trade prediction markets — all via MCP.
-> One endpoint. 33 tools. 5 providers. Pay per call.
+> Search flights, find restaurants, compare prices, track status, trade prediction markets — all via MCP.
+> One endpoint. 61 tools. 9 providers. Pay per call.
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Health](https://apibase.pro/health/ready)**
 
@@ -9,7 +9,7 @@
 
 ## What is APIbase?
 
-Production MCP server — universal API hub for AI agents. 45+ tools across travel, finance, e-commerce, weather, and more. Search flights (Amadeus, Sabre GDS), trade prediction markets (Polymarket), track crypto, check weather — with more providers shipping regularly. One endpoint, pay per call via x402 USDC micropayments. Auto-registration, zero setup. Covers the most popular API categories agents actually need: travel, financial data, local services, e-commerce, and marketing.
+Production MCP server — universal API hub for AI agents. 61 tools across travel, places, finance, weather, and more. Search flights (Amadeus, Sabre GDS), find restaurants and places (Foursquare), trade prediction markets (Polymarket), track crypto, check weather — with more providers shipping regularly. One endpoint, pay per call via x402 USDC micropayments. Auto-registration, zero setup. Covers the most popular API categories agents actually need: travel, local services, financial data, e-commerce, and marketing.
 
 **Built for AI agents, not humans.** Every tool is designed for autonomous discovery, authentication, and invocation via the [Model Context Protocol](https://modelcontextprotocol.io).
 
@@ -19,8 +19,9 @@ Production MCP server — universal API hub for AI agents. 45+ tools across trav
 
 ### Why agents use APIbase
 
-- **One MCP endpoint** — `https://apibase.pro/mcp` connects to 5 providers
+- **One MCP endpoint** — `https://apibase.pro/mcp` connects to 9 providers
 - **Real-time flight search** — Amadeus + Sabre GDS, 500+ airlines, real prices
+- **Places & restaurants** — Foursquare Places API, 100M+ places in 190+ countries
 - **Pay per call** — x402 micropayments (USDC), no subscriptions, no minimums
 - **Auto-registration** — agents get API keys instantly, zero human setup
 - **Production-grade** — 13-stage pipeline, escrow payments, idempotent operations
@@ -116,9 +117,41 @@ The agent calls `amadeus.flight_search` and gets real-time prices from 500+ airl
 
 Returns itineraries with prices, airlines, stops, duration, baggage info — ready for the agent to compare and present.
 
+## Restaurant Search Example
+
+Ask your AI agent:
+
+> "Find the best restaurants near me in Bangkok"
+
+The agent calls `foursquare.place_search` and gets results from 100M+ places worldwide:
+
+```json
+{
+  "query": "restaurant",
+  "near": "Bangkok,Thailand",
+  "sort": "rating",
+  "limit": 5,
+  "open_now": true
+}
+```
+
+Returns places with names, ratings, categories, distance, hours, price tier, and contact info.
+
 ---
 
-## Available Tools (33)
+## Available Tools (61)
+
+### Foursquare — Places & Restaurant Discovery (5 tools)
+
+Search restaurants, hotels, cafes, attractions worldwide. 100M+ places in 190+ countries with ratings, tips, and photos.
+
+| Tool | Description | Price |
+|------|-------------|-------|
+| `foursquare.place_search` | Search places by query, location, category, with filtering | $0.025 |
+| `foursquare.place_details` | Full details: hours, rating, price, contact, categories | $0.025 |
+| `foursquare.place_tips` | User tips and reviews for a place | $0.030 |
+| `foursquare.place_photos` | Venue photos with size and classification options | $0.030 |
+| `foursquare.autocomplete` | Autocomplete suggestions for places and addresses | $0.020 |
 
 ### Amadeus — Flight Search & Travel Data (7 tools)
 

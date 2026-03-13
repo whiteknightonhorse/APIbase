@@ -5,6 +5,7 @@ import { AsterDexAdapter } from './asterdex';
 import { OpenWeatherMapAdapter } from './openweathermap';
 import { SabreAdapter } from './sabre';
 import { AmadeusAdapter } from './amadeus';
+import { FoursquareAdapter } from './foursquare';
 import { config } from '../config';
 
 /**
@@ -63,6 +64,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const apiSecret = (config as Record<string, unknown>).AMADEUS_API_SECRET as string | undefined;
       if (!apiKey || !apiSecret) return undefined;
       return getOrCreate('amadeus', () => new AmadeusAdapter(apiKey, apiSecret));
+    }
+    case 'foursquare': {
+      const key = (config as Record<string, unknown>).PROVIDER_KEY_FOURSQUARE as string | undefined;
+      if (!key) return undefined;
+      return getOrCreate('foursquare', () => new FoursquareAdapter(key));
     }
     default:
       return undefined;

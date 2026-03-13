@@ -414,6 +414,45 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   },
 
   // ---------------------------------------------------------------------------
+  // Foursquare Places (UC-003, 5 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'foursquare.place_search',
+    mcpName: 'foursquare.places.search',
+    title: 'Search Places',
+    description: 'Search for places (restaurants, hotels, cafes, attractions) worldwide by name, category, or location (Foursquare)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'foursquare.place_details',
+    mcpName: 'foursquare.places.details',
+    title: 'Get Place Details',
+    description: 'Get detailed information about a place — hours, rating, price, contact, categories (Foursquare)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'foursquare.place_tips',
+    mcpName: 'foursquare.places.tips',
+    title: 'Get Place Tips',
+    description: 'Get user tips and reviews for a place (Foursquare)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'foursquare.place_photos',
+    mcpName: 'foursquare.places.photos',
+    title: 'Get Place Photos',
+    description: 'Get photos for a place with size and classification options (Foursquare)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'foursquare.autocomplete',
+    mcpName: 'foursquare.places.autocomplete',
+    title: 'Autocomplete Places',
+    description: 'Get autocomplete suggestions for places, addresses, and searches (Foursquare)',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
   // AsterDEX — DeFi Perpetuals (UC-020, Phase 1 read-only)
   // ---------------------------------------------------------------------------
   {

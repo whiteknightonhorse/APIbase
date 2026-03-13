@@ -50,6 +50,9 @@ export const appEnvSchema = z.object({
   AMADEUS_API_KEY: z.string().optional().default(''),
   AMADEUS_API_SECRET: z.string().optional().default(''),
 
+  // Foursquare Places API (UC-003) — Service API Key (Bearer auth)
+  PROVIDER_KEY_FOURSQUARE: z.string().optional().default(''),
+
   // Polymarket trading — Phase 2 (UC-001 §3-§8)
   POLYMARKET_WALLET_ADDRESS: z.string().startsWith('0x').optional().default(''),
   POLYMARKET_PRIVATE_KEY: z.string().optional().default(''),

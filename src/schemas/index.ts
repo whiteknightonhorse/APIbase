@@ -7,6 +7,7 @@ import { sabreSchemas } from './sabre.schema';
 import { amadeusSchemas } from './amadeus.schema';
 import { hyperliquidSchemas } from './hyperliquid.schema';
 import { asterdexSchemas } from './asterdex.schema';
+import { foursquareSchemas } from './foursquare.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -17,4 +18,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...amadeusSchemas,
   ...hyperliquidSchemas,
   ...asterdexSchemas,
+  ...foursquareSchemas,
 };
