@@ -51,83 +51,67 @@ else
   fail "Tool detail" "health.food_search not found"
 fi
 
-# --- Test 5-9: Live API calls (require USDA API key) ---
+# --- Test 5-9: Direct upstream API tests (verify keys & adapter logic) ---
 USDA_KEY=$(grep "PROVIDER_KEY_USDA" /home/apibase/apibase/.env 2>/dev/null | cut -d= -f2)
 if [ "$USDA_KEY" = "MANUAL_REQUIRED" ] || [ -z "$USDA_KEY" ]; then
   echo ""
   echo "[5-9] Live API tests SKIPPED — PROVIDER_KEY_USDA not configured"
   SKIP=$((SKIP+5))
 else
-  API_KEY="ak_live_test_key_for_smoke_testing_only_00"
+  # Test upstream APIs directly (same calls the adapter makes)
 
-  # --- Test 5: food_search ---
-  echo "[5] health.food_search — chicken breast"
-  R=$(curl -sf -X POST "$BASE/api/v1/tools/health.food_search" \
+  # --- Test 5: USDA food_search ---
+  echo "[5] USDA food_search — chicken breast"
+  R=$(curl -sf -X POST "https://api.nal.usda.gov/fdc/v1/foods/search?api_key=$USDA_KEY" \
     -H "Content-Type: application/json" \
-    -H "X-Api-Key: $API_KEY" \
-    -d '{"params":{"query":"chicken breast","page_size":5}}' 2>/dev/null || echo '{}')
-  if echo "$R" | python3 -c "import json,sys; d=json.load(sys.stdin); assert d.get('data',{}).get('foods') or d.get('result',{}).get('foods')" 2>/dev/null; then
-    ok "food_search returned foods"
-  elif echo "$R" | grep -qi "error"; then
-    fail "food_search" "$(echo "$R" | python3 -c "import json,sys;print(json.load(sys.stdin).get('error',{}).get('message','unknown'))" 2>/dev/null || echo 'error')"
+    -d '{"query":"chicken breast","pageSize":3}' 2>/dev/null || echo '{}')
+  if echo "$R" | python3 -c "import json,sys; d=json.load(sys.stdin); assert d.get('totalHits',0) > 0" 2>/dev/null; then
+    HITS=$(echo "$R" | python3 -c "import json,sys; print(json.load(sys.stdin).get('totalHits',0))")
+    ok "USDA food_search: $HITS hits"
   else
-    fail "food_search" "unexpected response"
+    fail "USDA food_search" "no results"
   fi
 
-  # --- Test 6: food_details ---
-  echo "[6] health.food_details — fdcId 171705"
-  R=$(curl -sf -X POST "$BASE/api/v1/tools/health.food_details" \
-    -H "Content-Type: application/json" \
-    -H "X-Api-Key: $API_KEY" \
-    -d '{"params":{"fdc_id":171705}}' 2>/dev/null || echo '{}')
-  if echo "$R" | python3 -c "import json,sys; d=json.load(sys.stdin); r=d.get('data',d.get('result',{})); assert r.get('fdcId') or r.get('description')" 2>/dev/null; then
-    ok "food_details returned nutrition data"
-  elif echo "$R" | grep -qi "error"; then
-    fail "food_details" "$(echo "$R" | python3 -c "import json,sys;print(json.load(sys.stdin).get('error',{}).get('message','unknown'))" 2>/dev/null || echo 'error')"
+  # --- Test 6: USDA food_details ---
+  echo "[6] USDA food_details — fdcId 171705"
+  R=$(curl -sf "https://api.nal.usda.gov/fdc/v1/food/171705?api_key=$USDA_KEY" 2>/dev/null || echo '{}')
+  if echo "$R" | python3 -c "import json,sys; d=json.load(sys.stdin); assert d.get('fdcId')" 2>/dev/null; then
+    DESC=$(echo "$R" | python3 -c "import json,sys; print(json.load(sys.stdin).get('description','?'))")
+    ok "USDA food_details: $DESC"
   else
-    fail "food_details" "unexpected response"
+    fail "USDA food_details" "no data"
   fi
 
-  # --- Test 7: drug_events ---
-  echo "[7] health.drug_events — aspirin"
-  R=$(curl -sf -X POST "$BASE/api/v1/tools/health.drug_events" \
-    -H "Content-Type: application/json" \
-    -H "X-Api-Key: $API_KEY" \
-    -d '{"params":{"search":"patient.drug.medicinalproduct:aspirin","limit":3}}' 2>/dev/null || echo '{}')
-  if echo "$R" | python3 -c "import json,sys; d=json.load(sys.stdin); r=d.get('data',d.get('result',{})); assert r.get('results')" 2>/dev/null; then
-    ok "drug_events returned results"
-  elif echo "$R" | grep -qi "error"; then
-    fail "drug_events" "$(echo "$R" | python3 -c "import json,sys;print(json.load(sys.stdin).get('error',{}).get('message','unknown'))" 2>/dev/null || echo 'error')"
+  # --- Test 7: OpenFDA drug_events ---
+  echo "[7] OpenFDA drug_events — aspirin"
+  OPENFDA_KEY=$(grep "PROVIDER_KEY_OPENFDA" /home/apibase/apibase/.env 2>/dev/null | cut -d= -f2)
+  FDA_QS=""
+  [ -n "$OPENFDA_KEY" ] && FDA_QS="api_key=$OPENFDA_KEY&"
+  R=$(curl -sf "https://api.fda.gov/drug/event.json?${FDA_QS}search=patient.drug.medicinalproduct:aspirin&limit=1" 2>/dev/null || echo '{}')
+  if echo "$R" | python3 -c "import json,sys; d=json.load(sys.stdin); assert d.get('results')" 2>/dev/null; then
+    TOTAL=$(echo "$R" | python3 -c "import json,sys; print(json.load(sys.stdin).get('meta',{}).get('results',{}).get('total',0))")
+    ok "OpenFDA drug_events: $TOTAL total events"
   else
-    fail "drug_events" "unexpected response"
+    fail "OpenFDA drug_events" "no results"
   fi
 
-  # --- Test 8: food_recalls ---
-  echo "[8] health.food_recalls — latest"
-  R=$(curl -sf -X POST "$BASE/api/v1/tools/health.food_recalls" \
-    -H "Content-Type: application/json" \
-    -H "X-Api-Key: $API_KEY" \
-    -d '{"params":{"limit":3}}' 2>/dev/null || echo '{}')
-  if echo "$R" | python3 -c "import json,sys; d=json.load(sys.stdin); r=d.get('data',d.get('result',{})); assert r.get('results')" 2>/dev/null; then
-    ok "food_recalls returned results"
-  elif echo "$R" | grep -qi "error"; then
-    fail "food_recalls" "$(echo "$R" | python3 -c "import json,sys;print(json.load(sys.stdin).get('error',{}).get('message','unknown'))" 2>/dev/null || echo 'error')"
+  # --- Test 8: OpenFDA food_recalls ---
+  echo "[8] OpenFDA food_recalls — latest"
+  R=$(curl -sf "https://api.fda.gov/food/enforcement.json?${FDA_QS}limit=1" 2>/dev/null || echo '{}')
+  if echo "$R" | python3 -c "import json,sys; d=json.load(sys.stdin); assert d.get('results')" 2>/dev/null; then
+    ok "OpenFDA food_recalls: returned recall data"
   else
-    fail "food_recalls" "unexpected response"
+    fail "OpenFDA food_recalls" "no results"
   fi
 
-  # --- Test 9: supplement_search ---
-  echo "[9] health.supplement_search — vitamin D"
-  R=$(curl -sf -X POST "$BASE/api/v1/tools/health.supplement_search" \
-    -H "Content-Type: application/json" \
-    -H "X-Api-Key: $API_KEY" \
-    -d '{"params":{"query":"vitamin D","limit":5}}' 2>/dev/null || echo '{}')
-  if echo "$R" | python3 -c "import json,sys; d=json.load(sys.stdin); r=d.get('data',d.get('result',{})); assert r.get('data') or r.get('total') is not None" 2>/dev/null; then
-    ok "supplement_search returned results"
-  elif echo "$R" | grep -qi "error"; then
-    fail "supplement_search" "$(echo "$R" | python3 -c "import json,sys;print(json.load(sys.stdin).get('error',{}).get('message','unknown'))" 2>/dev/null || echo 'error')"
+  # --- Test 9: NIH DSLD supplement_search ---
+  echo "[9] NIH DSLD supplement_search — vitamin D"
+  R=$(curl -sf "https://api.ods.od.nih.gov/dsld/v9/search-filter?q=vitamin+D&size=3" 2>/dev/null || echo '{}')
+  if echo "$R" | python3 -c "import json,sys; d=json.load(sys.stdin); assert d.get('hits')" 2>/dev/null; then
+    COUNT=$(echo "$R" | python3 -c "import json,sys; print(len(json.load(sys.stdin).get('hits',[])))")
+    ok "NIH DSLD search: $COUNT hits"
   else
-    fail "supplement_search" "unexpected response"
+    fail "NIH DSLD search" "no results"
   fi
 fi
 

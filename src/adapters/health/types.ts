@@ -155,41 +155,48 @@ export interface OpenFdaDrugLabelsResponse {
 // NIH DSLD (Dietary Supplement Label Database)
 // ---------------------------------------------------------------------------
 
-export interface DsldSupplementSearchItem {
-  dsld_id: number;
-  product_name: string;
-  brand_name?: string;
-  net_contents?: string;
-  net_content_unit?: string;
-  serving_size?: string;
-  product_type?: string;
-  date_entered?: string;
+export interface DsldSearchHit {
+  _index: string;
+  _type: string;
+  _id: string;
+  _score: number;
+  _source: {
+    brandName?: string;
+    fullName?: string;
+    entryDate?: string;
+    allIngredients?: Array<{
+      ingredientGroup: string;
+      name: string;
+      category: string;
+      notes?: string;
+    }>;
+    userGroups?: Array<{
+      dailyValueTargetGroupName: string;
+      langualCode: string;
+    }>;
+    physicalState?: { langualCodeDescription: string };
+    [key: string]: unknown;
+  };
 }
 
-export interface DsldSupplementSearchResponse {
-  total: number;
-  data: DsldSupplementSearchItem[];
+export interface DsldSearchResponse {
+  hits: DsldSearchHit[];
+  stats: Record<string, unknown>;
 }
 
-export interface DsldSupplementIngredient {
-  ingredient_name: string;
-  amount_per_serving?: string;
-  unit?: string;
-  daily_value_percent?: string;
-}
-
-export interface DsldSupplementDetails {
-  dsld_id: number;
-  product_name: string;
-  brand_name?: string;
-  net_contents?: string;
-  net_content_unit?: string;
-  serving_size?: string;
-  servings_per_container?: string;
-  product_type?: string;
-  target_groups?: string[];
-  ingredients: DsldSupplementIngredient[];
-  other_ingredients?: string;
-  date_entered?: string;
+export interface DsldLabelResponse {
+  id: number;
+  fullName: string;
+  brandName?: string;
+  servingsPerContainer?: string;
+  allIngredients?: Array<{
+    ingredientGroup: string;
+    name: string;
+    amount?: string;
+    amountUnit?: string;
+    dailyValue?: string;
+    category: string;
+  }>;
+  otherIngredients?: string;
   [key: string]: unknown;
 }
