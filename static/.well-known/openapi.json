@@ -5463,6 +5463,623 @@
         ]
       }
     },
+    "/api/v1/tools/tmdb.movie_search/call": {
+      "post": {
+        "operationId": "tmdb_movie_search",
+        "summary": "Search Movies & TV",
+        "description": "Search for movies, TV shows, and people by name across 1M+ titles in 39 languages (TMDB)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "tmdb.movie_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search query (movie, TV show, or person name)"
+                  },
+                  "language": {
+                    "type": "string",
+                    "description": "ISO 639-1 language code (e.g. \"en-US\", \"de-DE\", \"ja-JP\"). Default: en-US"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 500,
+                    "description": "Page number (1-500, default 1)"
+                  },
+                  "include_adult": {
+                    "type": "boolean",
+                    "description": "Include adult content in results (default false)"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/tmdb.movie_details/call": {
+      "post": {
+        "operationId": "tmdb_movie_details",
+        "summary": "Get Movie Details",
+        "description": "Get full movie details — cast, crew, trailers, ratings, streaming providers, runtime, budget, revenue (TMDB)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "tmdb.movie_details"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "TMDB movie ID (e.g. 550 for Fight Club, 27205 for Inception)"
+                  },
+                  "language": {
+                    "type": "string",
+                    "description": "ISO 639-1 language code (e.g. \"en-US\"). Default: en-US"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/tmdb.movie_discover/call": {
+      "post": {
+        "operationId": "tmdb_movie_discover",
+        "summary": "Discover Movies & TV",
+        "description": "Discover movies or TV shows by genre, year, rating, language, and sort order (TMDB)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "tmdb.movie_discover"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "movie",
+                      "tv"
+                    ],
+                    "description": "Content type to discover: \"movie\" or \"tv\" (default \"movie\")"
+                  },
+                  "language": {
+                    "type": "string",
+                    "description": "ISO 639-1 language code (e.g. \"en-US\"). Default: en-US"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 500,
+                    "description": "Page number (1-500, default 1)"
+                  },
+                  "sort_by": {
+                    "type": "string",
+                    "description": "Sort field (e.g. \"popularity.desc\", \"vote_average.desc\", \"revenue.desc\", \"primary_release_date.desc\")"
+                  },
+                  "with_genres": {
+                    "type": "string",
+                    "description": "Comma-separated genre IDs to filter (e.g. \"28,12\" for Action+Adventure)"
+                  },
+                  "year": {
+                    "type": "integer",
+                    "description": "Filter by release year (movies only)"
+                  },
+                  "primary_release_year": {
+                    "type": "integer",
+                    "description": "Filter by primary release year (movies only)"
+                  },
+                  "first_air_date_year": {
+                    "type": "integer",
+                    "description": "Filter by first air date year (TV only)"
+                  },
+                  "vote_average_gte": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 10,
+                    "description": "Minimum vote average (0-10)"
+                  },
+                  "vote_average_lte": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 10,
+                    "description": "Maximum vote average (0-10)"
+                  },
+                  "with_original_language": {
+                    "type": "string",
+                    "description": "ISO 639-1 original language filter (e.g. \"en\", \"ko\", \"ja\")"
+                  },
+                  "region": {
+                    "type": "string",
+                    "description": "ISO 3166-1 region for release dates (e.g. \"US\", \"GB\")"
+                  },
+                  "include_adult": {
+                    "type": "boolean",
+                    "description": "Include adult content (default false)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/tmdb.movie_trending/call": {
+      "post": {
+        "operationId": "tmdb_movie_trending",
+        "summary": "Get Trending Movies & TV",
+        "description": "Get trending movies, TV shows, or people — daily or weekly (TMDB)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "tmdb.movie_trending"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "movie",
+                      "tv",
+                      "person",
+                      "all"
+                    ],
+                    "description": "Content type: \"movie\", \"tv\", \"person\", or \"all\" (default \"movie\")"
+                  },
+                  "window": {
+                    "type": "string",
+                    "enum": [
+                      "day",
+                      "week"
+                    ],
+                    "description": "Time window: \"day\" or \"week\" (default \"week\")"
+                  },
+                  "language": {
+                    "type": "string",
+                    "description": "ISO 639-1 language code (e.g. \"en-US\"). Default: en-US"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 500,
+                    "description": "Page number (1-500, default 1)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/tmdb.movie_similar/call": {
+      "post": {
+        "operationId": "tmdb_movie_similar",
+        "summary": "Get Similar Movies",
+        "description": "Get movie recommendations based on a movie ID — similar genres, themes, cast (TMDB)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "tmdb.movie_similar"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "TMDB movie ID to get recommendations for"
+                  },
+                  "language": {
+                    "type": "string",
+                    "description": "ISO 639-1 language code (e.g. \"en-US\"). Default: en-US"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 500,
+                    "description": "Page number (1-500, default 1)"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/tmdb.movie_person/call": {
+      "post": {
+        "operationId": "tmdb_movie_person",
+        "summary": "Search Person / Filmography",
+        "description": "Search for actors, directors, or crew by name, or get full filmography by person ID (TMDB)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "tmdb.movie_person"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Person name to search for (e.g. \"Tom Hanks\", \"Miyazaki\"). Use either query or id"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "description": "TMDB person ID for detailed filmography (e.g. 31 for Tom Hanks). Use either id or query"
+                  },
+                  "language": {
+                    "type": "string",
+                    "description": "ISO 639-1 language code (e.g. \"en-US\"). Default: en-US"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 500,
+                    "description": "Page number for search results (1-500, default 1)"
+                  },
+                  "include_adult": {
+                    "type": "boolean",
+                    "description": "Include adult content (default false)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/tmdb.movie_where_to_watch/call": {
+      "post": {
+        "operationId": "tmdb_movie_where_to_watch",
+        "summary": "Where to Watch",
+        "description": "Find streaming, rental, and purchase options for a movie or TV show by country (TMDB)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "tmdb.movie_where_to_watch"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "TMDB movie or TV show ID"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "movie",
+                      "tv"
+                    ],
+                    "description": "Content type: \"movie\" or \"tv\" (default \"movie\")"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/aster.exchange_info/call": {
       "post": {
         "operationId": "aster_exchange_info",
