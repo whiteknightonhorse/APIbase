@@ -1,7 +1,7 @@
 # APIbase.pro — The API Hub for AI Agents
 
 > Search flights, find restaurants, compare prices, track status, trade prediction markets — all via MCP.
-> One endpoint. 61 tools. 10 providers. Pay per call.
+> One endpoint. 60 tools. 10 providers. Pay per call.
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Health](https://apibase.pro/health/ready)**
 
@@ -9,7 +9,7 @@
 
 ## What is APIbase?
 
-Production MCP server — universal API hub for AI agents. 61 tools across travel, places, finance, weather, and more. Search flights (Amadeus, Sabre GDS), find restaurants and places (Foursquare), trade prediction markets (Polymarket), track crypto, check weather — with more providers shipping regularly. One endpoint, pay per call via x402 USDC micropayments. Auto-registration, zero setup. Covers the most popular API categories agents actually need: travel, local services, financial data, e-commerce, and marketing.
+Production MCP server — universal API hub for AI agents. 60 tools across travel, places, finance, weather, and more. Search flights (Amadeus, Sabre GDS), find restaurants and places (Foursquare), trade prediction markets (Polymarket), track crypto, check weather — with more providers shipping regularly. One endpoint, pay per call via x402 USDC micropayments. Auto-registration, zero setup. Covers the most popular API categories agents actually need: travel, local services, financial data, e-commerce, and marketing.
 
 **Built for AI agents, not humans.** Every tool is designed for autonomous discovery, authentication, and invocation via the [Model Context Protocol](https://modelcontextprotocol.io).
 
@@ -139,7 +139,7 @@ Returns places with names, ratings, categories, distance, hours, price tier, and
 
 ---
 
-## Available Tools (61)
+## Available Tools (60)
 
 ### Foursquare — Places & Restaurant Discovery (5 tools)
 
