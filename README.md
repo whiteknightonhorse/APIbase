@@ -1,7 +1,7 @@
 # APIbase.pro — The API Hub for AI Agents
 
-> Search flights, find restaurants, discover events, browse movies, compare prices, track status, trade prediction markets — all via MCP.
-> One endpoint. 107 tools. 20 providers. Pay per call.
+> Search flights, find restaurants, discover events, browse movies, geocode addresses, get directions, compare prices, track status, trade prediction markets — all via MCP.
+> One endpoint. 114 tools. 21 providers. Pay per call.
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Health](https://apibase.pro/health/ready)**
 
@@ -9,7 +9,7 @@
 
 ## What is APIbase?
 
-Production MCP server — universal API hub for AI agents. 107 tools across travel, places, events, entertainment, music, health, finance, education, jobs, weather, and more. Search flights (Amadeus, Sabre GDS), find restaurants and places (Foursquare), discover events and concerts (Ticketmaster), browse movies and TV shows (TMDB), search music artists, albums, and recordings (MusicBrainz), discover fresh releases (ListenBrainz), find internet radio stations (RadioBrowser), look up nutrition data and drug safety (USDA, OpenFDA, NIH), get exchange rates, economic indicators, and treasury data (ECB, FRED, World Bank, US Treasury), search academic papers and preprints (OpenAlex, arXiv, PubMed, CrossRef), compare US colleges and earnings (College Scorecard), find jobs and salary data (BLS, O*NET, ESCO, CareerJet), trade prediction markets (Polymarket), track crypto, check weather — with more providers shipping regularly. One endpoint, pay per call via x402 USDC micropayments. Auto-registration, zero setup. Covers the most popular API categories agents actually need: travel, local services, events, entertainment, music, health, financial data, education, jobs, and marketing.
+Production MCP server — universal API hub for AI agents. 114 tools across travel, places, maps, events, entertainment, music, health, finance, education, jobs, weather, and more. Search flights (Amadeus, Sabre GDS), find restaurants and places (Foursquare), geocode addresses, search places and POI, get directions (Geoapify/OSM), discover events and concerts (Ticketmaster), browse movies and TV shows (TMDB), search music artists, albums, and recordings (MusicBrainz), discover fresh releases (ListenBrainz), find internet radio stations (RadioBrowser), look up nutrition data and drug safety (USDA, OpenFDA, NIH), get exchange rates, economic indicators, and treasury data (ECB, FRED, World Bank, US Treasury), search academic papers and preprints (OpenAlex, arXiv, PubMed, CrossRef), compare US colleges and earnings (College Scorecard), find jobs and salary data (BLS, O*NET, ESCO, CareerJet), trade prediction markets (Polymarket), track crypto, check weather — with more providers shipping regularly. One endpoint, pay per call via x402 USDC micropayments. Auto-registration, zero setup. Covers the most popular API categories agents actually need: travel, local services, maps, events, entertainment, music, health, financial data, education, jobs, and marketing.
 
 **Built for AI agents, not humans.** Every tool is designed for autonomous discovery, authentication, and invocation via the [Model Context Protocol](https://modelcontextprotocol.io).
 
@@ -19,7 +19,7 @@ Production MCP server — universal API hub for AI agents. 107 tools across trav
 
 ### Why agents use APIbase
 
-- **One MCP endpoint** — `https://apibase.pro/mcp` connects to 20 providers
+- **One MCP endpoint** — `https://apibase.pro/mcp` connects to 21 providers
 - **Real-time flight search** — Amadeus + Sabre GDS, 500+ airlines, real prices
 - **Places & restaurants** — Foursquare Places API, 100M+ places in 190+ countries
 - **Pay per call** — x402 micropayments (USDC), no subscriptions, no minimums
@@ -139,7 +139,21 @@ Returns places with names, ratings, categories, distance, hours, price tier, and
 
 ---
 
-## Available Tools (107)
+## Available Tools (114)
+
+### Maps / Navigation / Geolocation (7 tools)
+
+Geocode addresses, reverse geocode coordinates, search places and POI, get directions, calculate reachability areas, and geolocate IP addresses. Powered by Geoapify (OSM-based). Free tier 3,000 credits/day, ODbL license — caching and redistribution allowed. $0 upstream cost.
+
+| Tool | Description | Price |
+|------|-------------|-------|
+| `geo.geocode` | Convert address or place name to coordinates (lat/lon) | $0.002 |
+| `geo.reverse_geocode` | Convert coordinates to structured address | $0.002 |
+| `geo.place_search` | Search POI (restaurants, pharmacies, hotels) near a location | $0.003 |
+| `geo.autocomplete` | Autocomplete suggestions for addresses and places | $0.002 |
+| `geo.routing` | Turn-by-turn directions (drive, walk, bicycle, transit) | $0.005 |
+| `geo.isochrone` | Reachability area — how far you can travel in given time/distance | $0.005 |
+| `geo.ip_geolocation` | Geolocate an IPv4/IPv6 address to country, city, coordinates | $0.002 |
 
 ### Finance / Banking / Financial Intelligence (6 tools)
 

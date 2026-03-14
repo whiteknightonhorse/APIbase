@@ -840,4 +840,57 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description: 'Resolve a DOI to full publication metadata — title, authors, journal, citations, funding, license (CrossRef)',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // Maps / Navigation / Geolocation (UC-012, 7 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'geo.geocode',
+    mcpName: 'geo.address.geocode',
+    title: 'Geocode Address',
+    description: 'Convert an address, place name, or landmark to geographic coordinates (lat/lon) with structured address data (Geoapify/OSM)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'geo.reverse_geocode',
+    mcpName: 'geo.address.reverse',
+    title: 'Reverse Geocode',
+    description: 'Convert geographic coordinates (lat/lon) to a structured address — street, city, country, postal code (Geoapify/OSM)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'geo.place_search',
+    mcpName: 'geo.places.search',
+    title: 'Search Places & POI',
+    description: 'Search points of interest (restaurants, pharmacies, hotels, attractions) near a location by category and radius (Geoapify/OSM)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'geo.autocomplete',
+    mcpName: 'geo.address.autocomplete',
+    title: 'Autocomplete Address',
+    description: 'Get autocomplete suggestions as you type an address or place name — for real-time search UX (Geoapify/OSM)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'geo.routing',
+    mcpName: 'geo.navigation.route',
+    title: 'Get Directions',
+    description: 'Get turn-by-turn driving, walking, cycling, or transit directions between two points with distance and time (Geoapify/OSM)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'geo.isochrone',
+    mcpName: 'geo.navigation.isochrone',
+    title: 'Get Isochrone',
+    description: 'Get reachability area (isochrone) — polygon showing how far you can travel from a point in a given time or distance (Geoapify/OSM)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'geo.ip_geolocation',
+    mcpName: 'geo.ip.geolocation',
+    title: 'IP Geolocation',
+    description: 'Geolocate an IP address (IPv4/IPv6) to country, city, coordinates, and network info (Geoapify)',
+    annotations: READ_ONLY,
+  },
 ];
