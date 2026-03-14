@@ -84,6 +84,7 @@ export function registerTools(server: McpServer, apiKey: string, requestId: stri
                 error: result.error.error,
                 message: result.error.message,
                 request_id: requestId,
+                ...(result.error.extra ?? {}),
               }),
             },
           ],

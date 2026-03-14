@@ -45,6 +45,7 @@ executeRouter.post(
         message: result.error.message,
         request_id: requestId,
         ...(result.error.retryAfter ? { retry_after: result.error.retryAfter } : {}),
+        ...(result.error.extra ?? {}),
       });
     } catch (err) {
       next(err);

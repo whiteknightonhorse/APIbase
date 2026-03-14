@@ -14,6 +14,7 @@ import { healthSchemas } from './health.schema';
 import { financeSchemas } from './finance.schema';
 import { musicSchemas } from './music.schema';
 import { jobsSchemas } from './jobs.schema';
+import { educationSchemas } from './education.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -31,4 +32,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...financeSchemas,
   ...musicSchemas,
   ...jobsSchemas,
+  ...educationSchemas,
 };

@@ -13,6 +13,7 @@ import { HealthAdapter } from './health';
 import { FinanceAdapter } from './finance';
 import { MusicAdapter } from './music';
 import { JobsAdapter } from './jobs';
+import { EducationAdapter } from './education';
 import { config } from '../config';
 
 /**
@@ -109,6 +110,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const blsKey = (config as Record<string, unknown>).PROVIDER_KEY_BLS as string | undefined;
       const cjKey = (config as Record<string, unknown>).PROVIDER_KEY_CAREERJET as string | undefined;
       return getOrCreate('jobs', () => new JobsAdapter(onetKey, blsKey || undefined, cjKey || undefined));
+    }
+    case 'education': {
+      // All 5 providers are free; Scorecard uses DEMO_KEY by default, PubMed key is optional
+      const scorecardKey = (config as Record<string, unknown>).PROVIDER_KEY_SCORECARD as string | undefined;
+      const pubmedKey = (config as Record<string, unknown>).PROVIDER_KEY_PUBMED as string | undefined;
+      return getOrCreate('education', () => new EducationAdapter(scorecardKey || undefined, pubmedKey || undefined));
     }
     default:
       return undefined;

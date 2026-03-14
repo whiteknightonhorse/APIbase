@@ -787,4 +787,57 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description: 'Search global job listings via CareerJet — title, company, salary, location, contract type across 90+ countries',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // Education / Academic Research (UC-017, 7 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'education.paper_search',
+    mcpName: 'education.papers.search',
+    title: 'Search Academic Papers',
+    description: 'Search 250M+ academic papers across all disciplines — citations, authors, institutions, open access status (OpenAlex)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'education.paper_details',
+    mcpName: 'education.papers.details',
+    title: 'Get Paper Details',
+    description: 'Get full details for an academic paper by OpenAlex ID or DOI — authors, citations, abstract, references, open access links (OpenAlex)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'education.college_search',
+    mcpName: 'education.colleges.search',
+    title: 'Search US Colleges',
+    description: 'Search US colleges and universities — admissions, tuition, enrollment, earnings, completion rates (College Scorecard)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'education.college_details',
+    mcpName: 'education.colleges.details',
+    title: 'Get College Details',
+    description: 'Get detailed data for a US college by UNITID — admissions rate, costs, student outcomes, earnings after graduation (College Scorecard)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'education.pubmed_search',
+    mcpName: 'education.pubmed.search',
+    title: 'Search PubMed',
+    description: 'Search 36M+ biomedical and life science articles — clinical trials, reviews, meta-analyses with date and type filters (PubMed/NCBI)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'education.arxiv_search',
+    mcpName: 'education.arxiv.search',
+    title: 'Search arXiv Preprints',
+    description: 'Search 2.4M+ preprints in physics, math, CS, biology, and more — full text, authors, categories, PDF links (arXiv)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'education.doi_lookup',
+    mcpName: 'education.crossref.doi',
+    title: 'Lookup DOI',
+    description: 'Resolve a DOI to full publication metadata — title, authors, journal, citations, funding, license (CrossRef)',
+    annotations: READ_ONLY,
+  },
 ];

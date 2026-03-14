@@ -620,3 +620,46 @@ tools:
     provider: jobs
     price_usd: "0.003"
     cache_ttl: 14400
+
+  # --- UC-017: Education / Academic Research ---
+  - tool_id: education.paper_search
+    name: Paper Search (OpenAlex)
+    provider: education
+    price_usd: "0.002"
+    cache_ttl: 43200
+
+  - tool_id: education.paper_details
+    name: Paper Details (OpenAlex)
+    provider: education
+    price_usd: "0.002"
+    cache_ttl: 604800
+
+  - tool_id: education.college_search
+    name: College Search (Scorecard)
+    provider: education
+    price_usd: "0.003"
+    cache_ttl: 604800
+
+  - tool_id: education.college_details
+    name: College Details (Scorecard)
+    provider: education
+    price_usd: "0.003"
+    cache_ttl: 604800
+
+  - tool_id: education.pubmed_search
+    name: PubMed Search (NCBI)
+    provider: education
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: education.arxiv_search
+    name: arXiv Search
+    provider: education
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: education.doi_lookup
+    name: DOI Lookup (CrossRef)
+    provider: education
+    price_usd: "0.002"
+    cache_ttl: 2592000
