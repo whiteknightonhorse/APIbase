@@ -8603,6 +8603,626 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/education.paper_search/call": {
+      "post": {
+        "operationId": "education_paper_search",
+        "summary": "Search Academic Papers",
+        "description": "Search 250M+ academic papers across all disciplines — citations, authors, institutions, open access status (OpenAlex)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "education.paper_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search text for academic papers (e.g. \"machine learning\", \"CRISPR gene editing\").",
+                    "minLength": 1,
+                    "maxLength": 500
+                  },
+                  "concept": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "description": "OpenAlex concept ID filter (e.g. \"C41008148\" for Computer Science). Get IDs from OpenAlex concepts API."
+                  },
+                  "author": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "description": "Author name or ORCID to filter by (e.g. \"Yoshua Bengio\", \"0000-0001-2345-6789\")."
+                  },
+                  "institution": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "description": "Institution name or ROR ID to filter by (e.g. \"MIT\", \"Stanford University\")."
+                  },
+                  "year_from": {
+                    "type": "integer",
+                    "minimum": 1800,
+                    "maximum": 2100,
+                    "description": "Filter papers published from this year (inclusive)."
+                  },
+                  "year_to": {
+                    "type": "integer",
+                    "minimum": 1800,
+                    "maximum": 2100,
+                    "description": "Filter papers published up to this year (inclusive)."
+                  },
+                  "open_access_only": {
+                    "type": "boolean",
+                    "description": "If true, only return open access papers."
+                  },
+                  "sort": {
+                    "type": "string",
+                    "enum": [
+                      "relevance",
+                      "cited_by_count",
+                      "publication_date"
+                    ],
+                    "description": "Sort order for results. Default: \"relevance\"."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Number of results to return (1-50). Default: 10."
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/education.paper_details/call": {
+      "post": {
+        "operationId": "education_paper_details",
+        "summary": "Get Paper Details",
+        "description": "Get full details for an academic paper by OpenAlex ID or DOI — authors, citations, abstract, references, open access links (OpenAlex)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "education.paper_details"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "OpenAlex work ID (e.g. \"W2741809807\") or DOI (e.g. \"10.1038/nature12373\"). Get IDs from paper_search.",
+                    "minLength": 1,
+                    "maxLength": 200
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/education.college_search/call": {
+      "post": {
+        "operationId": "education_college_search",
+        "summary": "Search US Colleges",
+        "description": "Search US colleges and universities — admissions, tuition, enrollment, earnings, completion rates (College Scorecard)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "education.college_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "description": "School name to search for (e.g. \"MIT\", \"Stanford\", \"Community College\")."
+                  },
+                  "state": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2,
+                    "description": "US state abbreviation (e.g. \"CA\", \"NY\", \"TX\")."
+                  },
+                  "degree_type": {
+                    "type": "string",
+                    "enum": [
+                      "associate",
+                      "bachelor",
+                      "graduate"
+                    ],
+                    "description": "Filter by predominant degree type awarded."
+                  },
+                  "program": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "description": "Field of study filter (e.g. \"Computer Science\", \"Nursing\", \"Business\")."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Number of results to return (1-50). Default: 10."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/education.college_details/call": {
+      "post": {
+        "operationId": "education_college_details",
+        "summary": "Get College Details",
+        "description": "Get detailed data for a US college by UNITID — admissions rate, costs, student outcomes, earnings after graduation (College Scorecard)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "education.college_details"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "school_id": {
+                    "type": "integer",
+                    "description": "College Scorecard UNITID (e.g. 166027 for MIT). Get IDs from college_search.",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "school_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/education.pubmed_search/call": {
+      "post": {
+        "operationId": "education_pubmed_search",
+        "summary": "Search PubMed",
+        "description": "Search 36M+ biomedical and life science articles — clinical trials, reviews, meta-analyses with date and type filters (PubMed/NCBI)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "education.pubmed_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search text for biomedical literature (e.g. \"COVID-19 vaccine efficacy\", \"BRCA1 breast cancer\").",
+                    "minLength": 1,
+                    "maxLength": 500
+                  },
+                  "publication_type": {
+                    "type": "string",
+                    "enum": [
+                      "review",
+                      "clinical-trial",
+                      "meta-analysis",
+                      "any"
+                    ],
+                    "description": "Filter by publication type. Default: \"any\"."
+                  },
+                  "date_from": {
+                    "type": "string",
+                    "description": "Start date filter in YYYY/MM/DD format (e.g. \"2023/01/01\")."
+                  },
+                  "date_to": {
+                    "type": "string",
+                    "description": "End date filter in YYYY/MM/DD format (e.g. \"2024/12/31\")."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Number of results to return (1-50). Default: 10."
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/education.arxiv_search/call": {
+      "post": {
+        "operationId": "education_arxiv_search",
+        "summary": "Search arXiv Preprints",
+        "description": "Search 2.4M+ preprints in physics, math, CS, biology, and more — full text, authors, categories, PDF links (arXiv)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "education.arxiv_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search text for preprints (e.g. \"transformer architecture\", \"quantum computing\").",
+                    "minLength": 1,
+                    "maxLength": 500
+                  },
+                  "category": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "description": "arXiv category filter (e.g. \"cs.AI\", \"math.CO\", \"physics.hep-th\", \"q-bio.GN\")."
+                  },
+                  "author": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "description": "Author name to filter by (e.g. \"Vaswani\", \"Hinton\")."
+                  },
+                  "sort": {
+                    "type": "string",
+                    "enum": [
+                      "relevance",
+                      "lastUpdatedDate",
+                      "submittedDate"
+                    ],
+                    "description": "Sort order for results. Default: \"relevance\"."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Number of results to return (1-50). Default: 10."
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/education.doi_lookup/call": {
+      "post": {
+        "operationId": "education_doi_lookup",
+        "summary": "Lookup DOI",
+        "description": "Resolve a DOI to full publication metadata — title, authors, journal, citations, funding, license (CrossRef)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "education.doi_lookup"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "doi": {
+                    "type": "string",
+                    "description": "DOI to resolve (e.g. \"10.1038/nature12373\", \"10.1145/3292500.3330648\").",
+                    "minLength": 3,
+                    "maxLength": 200
+                  }
+                },
+                "required": [
+                  "doi"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {
