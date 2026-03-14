@@ -1,7 +1,7 @@
 # APIbase.pro — The API Hub for AI Agents
 
 > Search flights, find restaurants, discover events, browse movies, compare prices, track status, trade prediction markets — all via MCP.
-> One endpoint. 100 tools. 19 providers. Pay per call.
+> One endpoint. 107 tools. 20 providers. Pay per call.
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Health](https://apibase.pro/health/ready)**
 
@@ -9,7 +9,7 @@
 
 ## What is APIbase?
 
-Production MCP server — universal API hub for AI agents. 95 tools across travel, places, events, entertainment, music, health, finance, weather, and more. Search flights (Amadeus, Sabre GDS), find restaurants and places (Foursquare), discover events and concerts (Ticketmaster), browse movies and TV shows (TMDB), search music artists, albums, and recordings (MusicBrainz), discover fresh releases (ListenBrainz), find internet radio stations (RadioBrowser), look up nutrition data and drug safety (USDA, OpenFDA, NIH), get exchange rates, economic indicators, and treasury data (ECB, FRED, World Bank, US Treasury), trade prediction markets (Polymarket), track crypto, check weather — with more providers shipping regularly. One endpoint, pay per call via x402 USDC micropayments. Auto-registration, zero setup. Covers the most popular API categories agents actually need: travel, local services, events, entertainment, music, health, financial data, e-commerce, and marketing.
+Production MCP server — universal API hub for AI agents. 107 tools across travel, places, events, entertainment, music, health, finance, education, jobs, weather, and more. Search flights (Amadeus, Sabre GDS), find restaurants and places (Foursquare), discover events and concerts (Ticketmaster), browse movies and TV shows (TMDB), search music artists, albums, and recordings (MusicBrainz), discover fresh releases (ListenBrainz), find internet radio stations (RadioBrowser), look up nutrition data and drug safety (USDA, OpenFDA, NIH), get exchange rates, economic indicators, and treasury data (ECB, FRED, World Bank, US Treasury), search academic papers and preprints (OpenAlex, arXiv, PubMed, CrossRef), compare US colleges and earnings (College Scorecard), find jobs and salary data (BLS, O*NET, ESCO, CareerJet), trade prediction markets (Polymarket), track crypto, check weather — with more providers shipping regularly. One endpoint, pay per call via x402 USDC micropayments. Auto-registration, zero setup. Covers the most popular API categories agents actually need: travel, local services, events, entertainment, music, health, financial data, education, jobs, and marketing.
 
 **Built for AI agents, not humans.** Every tool is designed for autonomous discovery, authentication, and invocation via the [Model Context Protocol](https://modelcontextprotocol.io).
 
@@ -19,7 +19,7 @@ Production MCP server — universal API hub for AI agents. 95 tools across trave
 
 ### Why agents use APIbase
 
-- **One MCP endpoint** — `https://apibase.pro/mcp` connects to 15 providers
+- **One MCP endpoint** — `https://apibase.pro/mcp` connects to 20 providers
 - **Real-time flight search** — Amadeus + Sabre GDS, 500+ airlines, real prices
 - **Places & restaurants** — Foursquare Places API, 100M+ places in 190+ countries
 - **Pay per call** — x402 micropayments (USDC), no subscriptions, no minimums
@@ -139,7 +139,7 @@ Returns places with names, ratings, categories, distance, hours, price tier, and
 
 ---
 
-## Available Tools (100)
+## Available Tools (107)
 
 ### Finance / Banking / Financial Intelligence (6 tools)
 
@@ -317,6 +317,20 @@ Real-time and historical crypto data for 10,000+ coins. Prices, market overviews
 | `crypto.search` | Search coins, exchanges, and categories | $0.001 |
 | `crypto.dex_pools` | DEX liquidity pools via GeckoTerminal | $0.001 |
 | `crypto.token_by_address` | Token info by contract address via GeckoTerminal | $0.001 |
+
+### Education / Academic Research (7 tools)
+
+Search 250M+ academic papers (OpenAlex CC0), compare US colleges and graduate earnings (College Scorecard), search biomedical literature (PubMed/NCBI), find preprints (arXiv CC0), and resolve DOIs (CrossRef CC0). All $0 upstream cost, 5 free open-data providers.
+
+| Tool | Description | Price |
+|------|-------------|-------|
+| `education.paper_search` | Search 250M+ academic papers across all disciplines (OpenAlex) | $0.002 |
+| `education.paper_details` | Full paper details by ID or DOI — authors, citations, abstract (OpenAlex) | $0.002 |
+| `education.college_search` | Search US colleges — admissions, tuition, earnings, completion rates (College Scorecard) | $0.003 |
+| `education.college_details` | Detailed college data by UNITID — costs, outcomes, student demographics (College Scorecard) | $0.003 |
+| `education.pubmed_search` | Search 36M+ biomedical articles — clinical trials, reviews, meta-analyses (PubMed/NCBI) | $0.002 |
+| `education.arxiv_search` | Search 2.4M+ preprints in physics, math, CS, biology (arXiv) | $0.002 |
+| `education.doi_lookup` | Resolve DOI to full publication metadata — authors, journal, citations (CrossRef) | $0.002 |
 
 ---
 
