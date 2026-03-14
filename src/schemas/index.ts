@@ -16,6 +16,7 @@ import { musicSchemas } from './music.schema';
 import { jobsSchemas } from './jobs.schema';
 import { educationSchemas } from './education.schema';
 import { geoSchemas } from './geo.schema';
+import { aipushSchemas } from './aipush.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -35,4 +36,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...jobsSchemas,
   ...educationSchemas,
   ...geoSchemas,
+  ...aipushSchemas,
 };

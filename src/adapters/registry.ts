@@ -15,6 +15,7 @@ import { MusicAdapter } from './music';
 import { JobsAdapter } from './jobs';
 import { EducationAdapter } from './education';
 import { GeoAdapter } from './geo';
+import { AIPushAdapter } from './aipush';
 import { config } from '../config';
 
 /**
@@ -122,6 +123,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const geoKey = (config as Record<string, unknown>).PROVIDER_KEY_GEOAPIFY as string | undefined;
       if (!geoKey) return undefined;
       return getOrCreate('geo', () => new GeoAdapter(geoKey));
+    }
+    case 'aipush': {
+      const aipushSecret = (config as Record<string, unknown>).AIPUSH_INTERNAL_SECRET as string | undefined;
+      if (!aipushSecret) return undefined;
+      const aipushUrl = (config as Record<string, unknown>).AIPUSH_INTERNAL_URL as string | undefined;
+      return getOrCreate('aipush', () => new AIPushAdapter(aipushSecret, aipushUrl || undefined));
     }
     default:
       return undefined;

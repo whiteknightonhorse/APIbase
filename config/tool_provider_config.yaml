@@ -706,3 +706,46 @@ tools:
     provider: geo
     price_usd: "0.002"
     cache_ttl: 604800
+
+  # --- UC-019: AIPush AI Marketing ---
+  - tool_id: aipush.setup_website
+    name: Setup Website (AIPush)
+    provider: aipush
+    price_usd: "1.000"
+    cache_ttl: 86400
+
+  - tool_id: aipush.website_status
+    name: Website Status (AIPush)
+    provider: aipush
+    price_usd: "0.002"
+    cache_ttl: 30
+
+  - tool_id: aipush.generate_page
+    name: Generate AI Page (AIPush)
+    provider: aipush
+    price_usd: "0.050"
+    cache_ttl: 0
+
+  - tool_id: aipush.list_pages
+    name: List Pages (AIPush)
+    provider: aipush
+    price_usd: "0.002"
+    cache_ttl: 60
+
+  - tool_id: aipush.page_content
+    name: Page Content (AIPush)
+    provider: aipush
+    price_usd: "0.003"
+    cache_ttl: 86400
+
+  - tool_id: aipush.website_profile
+    name: Website Profile (AIPush)
+    provider: aipush
+    price_usd: "0.010"
+    cache_ttl: 86400
+
+  - tool_id: aipush.check_visibility
+    name: AI Visibility Score (AIPush)
+    provider: aipush
+    price_usd: "0.100"
+    cache_ttl: 3600

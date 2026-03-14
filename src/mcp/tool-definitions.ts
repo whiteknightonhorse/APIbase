@@ -893,4 +893,67 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description: 'Geolocate an IP address (IPv4/IPv6) to country, city, coordinates, and network info (Geoapify)',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // AIPush — AI Marketing / Page Generation (UC-019, 7 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'aipush.setup_website',
+    mcpName: 'aipush.website.setup',
+    title: 'Setup Website for AI Marketing',
+    description: 'Register a website and run Material Intelligence Pipeline (MIP) — crawls site, extracts business signals, analyzes competitors, builds AI-optimized content profile. Required before generating pages. DNS CNAME required: reference.{domain} → cname.aipush.app (AIPush)',
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: true,
+    },
+  },
+  {
+    toolId: 'aipush.website_status',
+    mcpName: 'aipush.website.status',
+    title: 'Check Website Status',
+    description: 'Check MIP analysis status, DNS verification, SSL provisioning, billing status, and page generation progress for a registered website (AIPush)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'aipush.generate_page',
+    mcpName: 'aipush.pages.generate',
+    title: 'Generate AI Marketing Page',
+    description: 'Generate one AI-optimized HTML page for a website — structured for AI assistant answer compilation (ChatGPT, Perplexity, Gemini). Page includes decision question, short answer with CTA, comparison, pricing, FAQ. Published at reference.{domain}/{slug} (AIPush)',
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: false,
+      openWorldHint: true,
+    },
+  },
+  {
+    toolId: 'aipush.list_pages',
+    mcpName: 'aipush.pages.list',
+    title: 'List Generated Pages',
+    description: 'List all published AI marketing pages for a website with URLs, titles, and publish dates (AIPush)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'aipush.page_content',
+    mcpName: 'aipush.pages.content',
+    title: 'Get Page Content',
+    description: 'Get full HTML content and metadata of a specific generated page by slug (AIPush)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'aipush.website_profile',
+    mcpName: 'aipush.analysis.profile',
+    title: 'Get Website Business Profile',
+    description: 'Get MIP business analysis results — business name, category, location, competitors, value propositions, and market surface data (AIPush)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'aipush.check_visibility',
+    mcpName: 'aipush.analysis.visibility',
+    title: 'Check AI Visibility Score',
+    description: 'Test whether AI assistants (ChatGPT, Perplexity, Gemini) know about and recommend a brand — returns per-model visibility scores (AIPush)',
+    annotations: READ_ONLY,
+  },
 ];
