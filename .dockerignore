@@ -15,3 +15,5 @@ tests
 postgres_data
 redis_data
 .tsbuildinfo
+backups
+.env.enc
