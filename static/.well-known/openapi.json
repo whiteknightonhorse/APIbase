@@ -9901,6 +9901,540 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/aipush.setup_website/call": {
+      "post": {
+        "operationId": "aipush_setup_website",
+        "summary": "Setup Website for AI Marketing",
+        "description": "Register a website and run Material Intelligence Pipeline (MIP) — crawls site, extracts business signals, analyzes competitors, builds AI-optimized content profile. Required before generating pages. DNS CNAME required: reference.{domain} → cname.aipush.app (AIPush)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "aipush.setup_website"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "website_domain": {
+                    "type": "string",
+                    "description": "Domain of the website to register (e.g. \"example.com\", \"myhotel.com\"). Must have a CNAME record: reference.{domain} → cname.aipush.app",
+                    "minLength": 3,
+                    "maxLength": 253
+                  },
+                  "target_url": {
+                    "type": "string",
+                    "description": "Target conversion URL — the single page all generated content will link to (e.g. \"https://example.com/book\", \"https://myhotel.com/reserve\"). Must be on the same domain.",
+                    "maxLength": 2048
+                  }
+                },
+                "required": [
+                  "website_domain",
+                  "target_url"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/aipush.website_status/call": {
+      "post": {
+        "operationId": "aipush_website_status",
+        "summary": "Check Website Status",
+        "description": "Check MIP analysis status, DNS verification, SSL provisioning, billing status, and page generation progress for a registered website (AIPush)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "aipush.website_status"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "website_domain": {
+                    "type": "string",
+                    "description": "Domain to check status for (e.g. \"example.com\").",
+                    "minLength": 3,
+                    "maxLength": 253
+                  }
+                },
+                "required": [
+                  "website_domain"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/aipush.generate_page/call": {
+      "post": {
+        "operationId": "aipush_generate_page",
+        "summary": "Generate AI Marketing Page",
+        "description": "Generate one AI-optimized HTML page for a website — structured for AI assistant answer compilation (ChatGPT, Perplexity, Gemini). Page includes decision question, short answer with CTA, comparison, pricing, FAQ. Published at reference.{domain}/{slug} (AIPush)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "aipush.generate_page"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "website_domain": {
+                    "type": "string",
+                    "description": "Domain of the website to generate a page for. Must be set up first via aipush.setup_website.",
+                    "minLength": 3,
+                    "maxLength": 253
+                  },
+                  "keyword": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 200,
+                    "description": "Target keyword or topic for the page (e.g. \"best hotels in Bangkok\", \"affordable dentist near me\"). If omitted, the system picks from the semantic coverage grid."
+                  }
+                },
+                "required": [
+                  "website_domain"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/aipush.list_pages/call": {
+      "post": {
+        "operationId": "aipush_list_pages",
+        "summary": "List Generated Pages",
+        "description": "List all published AI marketing pages for a website with URLs, titles, and publish dates (AIPush)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "aipush.list_pages"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "website_domain": {
+                    "type": "string",
+                    "description": "Domain to list pages for (e.g. \"example.com\").",
+                    "minLength": 3,
+                    "maxLength": 253
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of pages to return (default 20, max 100)."
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Number of pages to skip for pagination (default 0)."
+                  }
+                },
+                "required": [
+                  "website_domain"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/aipush.page_content/call": {
+      "post": {
+        "operationId": "aipush_page_content",
+        "summary": "Get Page Content",
+        "description": "Get full HTML content and metadata of a specific generated page by slug (AIPush)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "aipush.page_content"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "website_domain": {
+                    "type": "string",
+                    "description": "Domain the page belongs to (e.g. \"example.com\").",
+                    "minLength": 3,
+                    "maxLength": 253
+                  },
+                  "slug": {
+                    "type": "string",
+                    "description": "Page slug identifier (e.g. \"best-hotels-bangkok-2026\"). Returned by aipush.list_pages or aipush.generate_page.",
+                    "minLength": 1,
+                    "maxLength": 200
+                  }
+                },
+                "required": [
+                  "website_domain",
+                  "slug"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/aipush.website_profile/call": {
+      "post": {
+        "operationId": "aipush_website_profile",
+        "summary": "Get Website Business Profile",
+        "description": "Get MIP business analysis results — business name, category, location, competitors, value propositions, and market surface data (AIPush)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "aipush.website_profile"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "website_domain": {
+                    "type": "string",
+                    "description": "Domain to get the MIP business analysis for. Must have completed setup (mip_status = \"ready\").",
+                    "minLength": 3,
+                    "maxLength": 253
+                  }
+                },
+                "required": [
+                  "website_domain"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/aipush.check_visibility/call": {
+      "post": {
+        "operationId": "aipush_check_visibility",
+        "summary": "Check AI Visibility Score",
+        "description": "Test whether AI assistants (ChatGPT, Perplexity, Gemini) know about and recommend a brand — returns per-model visibility scores (AIPush)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "aipush.check_visibility"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "website_domain": {
+                    "type": "string",
+                    "description": "Domain to check AI visibility for (e.g. \"example.com\"). Tests whether AI assistants know about and recommend this brand.",
+                    "minLength": 3,
+                    "maxLength": 253
+                  }
+                },
+                "required": [
+                  "website_domain"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {
