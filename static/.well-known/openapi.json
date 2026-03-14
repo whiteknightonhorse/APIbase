@@ -9223,6 +9223,684 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/geo.geocode/call": {
+      "post": {
+        "operationId": "geo_geocode",
+        "summary": "Geocode Address",
+        "description": "Convert an address, place name, or landmark to geographic coordinates (lat/lon) with structured address data (Geoapify/OSM)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "geo.geocode"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "description": "Address, place name, or landmark to geocode (e.g. \"1600 Pennsylvania Ave, Washington DC\", \"Eiffel Tower\").",
+                    "minLength": 1,
+                    "maxLength": 500
+                  },
+                  "lang": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 5,
+                    "description": "Result language code (e.g. \"en\", \"de\", \"ru\"). Default: English."
+                  },
+                  "country_code": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2,
+                    "description": "ISO 3166-1 alpha-2 country code to filter results (e.g. \"US\", \"DE\", \"FR\")."
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "city",
+                      "street",
+                      "amenity",
+                      "country"
+                    ],
+                    "description": "Filter by result type: city, street, amenity, or country."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 5,
+                    "description": "Maximum number of results to return (default 1, max 5)."
+                  }
+                },
+                "required": [
+                  "text"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/geo.reverse_geocode/call": {
+      "post": {
+        "operationId": "geo_reverse_geocode",
+        "summary": "Reverse Geocode",
+        "description": "Convert geographic coordinates (lat/lon) to a structured address — street, city, country, postal code (Geoapify/OSM)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "geo.reverse_geocode"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "lat": {
+                    "type": "number",
+                    "description": "Latitude of the point to reverse geocode.",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "lon": {
+                    "type": "number",
+                    "description": "Longitude of the point to reverse geocode.",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  "lang": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 5,
+                    "description": "Result language code (e.g. \"en\", \"de\", \"ru\"). Default: English."
+                  }
+                },
+                "required": [
+                  "lat",
+                  "lon"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/geo.place_search/call": {
+      "post": {
+        "operationId": "geo_place_search",
+        "summary": "Search Places & POI",
+        "description": "Search points of interest (restaurants, pharmacies, hotels, attractions) near a location by category and radius (Geoapify/OSM)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "geo.place_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "categories": {
+                    "type": "string",
+                    "description": "POI category filter (e.g. \"catering.restaurant\", \"healthcare.pharmacy\", \"tourism.attraction\", \"accommodation.hotel\"). Multiple categories separated by comma.",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "lat": {
+                    "type": "number",
+                    "description": "Center latitude for the search area.",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "lon": {
+                    "type": "number",
+                    "description": "Center longitude for the search area.",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  "radius": {
+                    "type": "integer",
+                    "minimum": 100,
+                    "maximum": 50000,
+                    "description": "Search radius in meters (default 1000, max 50000)."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of results (default 20, max 50)."
+                  },
+                  "lang": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 5,
+                    "description": "Result language code (e.g. \"en\", \"de\", \"ru\"). Default: English."
+                  }
+                },
+                "required": [
+                  "categories",
+                  "lat",
+                  "lon"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/geo.autocomplete/call": {
+      "post": {
+        "operationId": "geo_autocomplete",
+        "summary": "Autocomplete Address",
+        "description": "Get autocomplete suggestions as you type an address or place name — for real-time search UX (Geoapify/OSM)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "geo.autocomplete"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "description": "Partial address or place name to autocomplete (e.g. \"1600 Penn\", \"Berlin Bran\").",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "lang": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 5,
+                    "description": "Result language code (e.g. \"en\", \"de\", \"ru\"). Default: English."
+                  },
+                  "country_code": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2,
+                    "description": "ISO 3166-1 alpha-2 country code to filter results (e.g. \"US\", \"DE\")."
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "city",
+                      "street",
+                      "amenity",
+                      "country"
+                    ],
+                    "description": "Filter by result type: city, street, amenity, or country."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 5,
+                    "description": "Maximum number of suggestions (default 5, max 5)."
+                  }
+                },
+                "required": [
+                  "text"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/geo.routing/call": {
+      "post": {
+        "operationId": "geo_routing",
+        "summary": "Get Directions",
+        "description": "Get turn-by-turn driving, walking, cycling, or transit directions between two points with distance and time (Geoapify/OSM)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "geo.routing"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "origin_lat": {
+                    "type": "number",
+                    "description": "Start point latitude.",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "origin_lon": {
+                    "type": "number",
+                    "description": "Start point longitude.",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  "dest_lat": {
+                    "type": "number",
+                    "description": "Destination latitude.",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "dest_lon": {
+                    "type": "number",
+                    "description": "Destination longitude.",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  "mode": {
+                    "type": "string",
+                    "enum": [
+                      "drive",
+                      "walk",
+                      "bicycle",
+                      "transit"
+                    ],
+                    "description": "Travel mode: drive, walk, bicycle, or transit. Default: drive."
+                  },
+                  "lang": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 5,
+                    "description": "Turn-by-turn instruction language (e.g. \"en\", \"de\"). Default: English."
+                  },
+                  "units": {
+                    "type": "string",
+                    "enum": [
+                      "metric",
+                      "imperial"
+                    ],
+                    "description": "Distance units: metric (km) or imperial (miles). Default: metric."
+                  }
+                },
+                "required": [
+                  "origin_lat",
+                  "origin_lon",
+                  "dest_lat",
+                  "dest_lon"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/geo.isochrone/call": {
+      "post": {
+        "operationId": "geo_isochrone",
+        "summary": "Get Isochrone",
+        "description": "Get reachability area (isochrone) — polygon showing how far you can travel from a point in a given time or distance (Geoapify/OSM)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "geo.isochrone"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "lat": {
+                    "type": "number",
+                    "description": "Center point latitude.",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "lon": {
+                    "type": "number",
+                    "description": "Center point longitude.",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  "mode": {
+                    "type": "string",
+                    "enum": [
+                      "drive",
+                      "walk",
+                      "bicycle"
+                    ],
+                    "description": "Travel mode: drive, walk, or bicycle. Default: drive."
+                  },
+                  "time": {
+                    "type": "integer",
+                    "minimum": 60,
+                    "maximum": 7200,
+                    "description": "Reachability time in seconds (default 900 = 15 min, max 7200 = 2h). Mutually exclusive with distance."
+                  },
+                  "distance": {
+                    "type": "integer",
+                    "minimum": 100,
+                    "maximum": 100000,
+                    "description": "Reachability distance in meters (max 100km). Mutually exclusive with time."
+                  }
+                },
+                "required": [
+                  "lat",
+                  "lon"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/geo.ip_geolocation/call": {
+      "post": {
+        "operationId": "geo_ip_geolocation",
+        "summary": "IP Geolocation",
+        "description": "Geolocate an IP address (IPv4/IPv6) to country, city, coordinates, and network info (Geoapify)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "geo.ip_geolocation"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ip": {
+                    "type": "string",
+                    "description": "IPv4 or IPv6 address to geolocate (e.g. \"8.8.8.8\", \"2001:4860:4860::8888\").",
+                    "minLength": 7,
+                    "maxLength": 45
+                  }
+                },
+                "required": [
+                  "ip"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {
