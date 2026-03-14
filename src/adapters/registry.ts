@@ -14,6 +14,7 @@ import { FinanceAdapter } from './finance';
 import { MusicAdapter } from './music';
 import { JobsAdapter } from './jobs';
 import { EducationAdapter } from './education';
+import { GeoAdapter } from './geo';
 import { config } from '../config';
 
 /**
@@ -116,6 +117,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const scorecardKey = (config as Record<string, unknown>).PROVIDER_KEY_SCORECARD as string | undefined;
       const pubmedKey = (config as Record<string, unknown>).PROVIDER_KEY_PUBMED as string | undefined;
       return getOrCreate('education', () => new EducationAdapter(scorecardKey || undefined, pubmedKey || undefined));
+    }
+    case 'geo': {
+      const geoKey = (config as Record<string, unknown>).PROVIDER_KEY_GEOAPIFY as string | undefined;
+      if (!geoKey) return undefined;
+      return getOrCreate('geo', () => new GeoAdapter(geoKey));
     }
     default:
       return undefined;
