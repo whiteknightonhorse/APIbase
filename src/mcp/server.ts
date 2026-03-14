@@ -7,6 +7,11 @@
  *
  * One McpServer + Transport per session. All tool calls route through the
  * full 13-stage pipeline.
+ *
+ * Session management:
+ *   - Max 10,000 concurrent sessions
+ *   - 10-minute idle timeout with 60s sweep
+ *   - Prometheus gauge: mcp_sessions_active
  */
 
 import express from 'express';
@@ -16,11 +21,78 @@ import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 import { logger } from '../config/logger';
+import { mcpSessionsActive } from '../services/metrics.service';
 import { registerTools } from './tool-adapter';
 import { registerPrompts } from './prompt-adapter';
 
+// ---------------------------------------------------------------------------
+// Session state
+// ---------------------------------------------------------------------------
+
 /** Active sessions: sessionId → transport (both transport types) */
 const sessions = new Map<string, SSEServerTransport | StreamableHTTPServerTransport>();
+
+/** Last activity timestamp per session for idle eviction */
+const sessionLastActivity = new Map<string, number>();
+
+const MAX_SESSIONS = 10_000;
+const SESSION_IDLE_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
+
+// ---------------------------------------------------------------------------
+// Idle sweep (60s interval)
+// ---------------------------------------------------------------------------
+
+function touchSession(sessionId: string): void {
+  sessionLastActivity.set(sessionId, Date.now());
+}
+
+function removeSession(sessionId: string): void {
+  sessions.delete(sessionId);
+  sessionLastActivity.delete(sessionId);
+  mcpSessionsActive.set(sessions.size);
+}
+
+const sweepTimer = setInterval(() => {
+  const now = Date.now();
+  for (const [sid, lastActive] of sessionLastActivity) {
+    if (now - lastActive > SESSION_IDLE_TIMEOUT_MS) {
+      const transport = sessions.get(sid);
+      if (transport) {
+        transport.close?.().catch(() => {});
+      }
+      removeSession(sid);
+      logger.info({ session_id: sid }, 'MCP session evicted (idle timeout)');
+    }
+  }
+}, 60_000);
+sweepTimer.unref();
+
+// ---------------------------------------------------------------------------
+// Shutdown
+// ---------------------------------------------------------------------------
+
+/**
+ * Close all MCP sessions and stop the sweep timer.
+ * Called during graceful shutdown (§12.230).
+ */
+export async function shutdownMcpSessions(): Promise<void> {
+  clearInterval(sweepTimer);
+  for (const [sid, transport] of sessions) {
+    try {
+      await transport.close?.();
+    } catch {
+      // best-effort
+    }
+    logger.info({ session_id: sid }, 'MCP session closed (shutdown)');
+  }
+  sessions.clear();
+  sessionLastActivity.clear();
+  mcpSessionsActive.set(0);
+}
+
+// ---------------------------------------------------------------------------
+// Server config
+// ---------------------------------------------------------------------------
 
 /** Server metadata passed to McpServer constructor */
 const SERVER_INFO = {
@@ -110,6 +182,7 @@ export function createMcpRouter(): express.Router {
           });
           return;
         }
+        touchSession(sessionId);
         await transport.handleRequest(req, res, req.body);
         return;
       }
@@ -122,6 +195,16 @@ export function createMcpRouter(): express.Router {
             code: -32600,
             message: 'Bad Request: first request must be an initialize request',
           },
+          id: null,
+        });
+        return;
+      }
+
+      // Session cap check
+      if (sessions.size >= MAX_SESSIONS) {
+        res.status(503).json({
+          jsonrpc: '2.0',
+          error: { code: -32000, message: 'Too many active sessions' },
           id: null,
         });
         return;
@@ -142,13 +225,15 @@ export function createMcpRouter(): express.Router {
         sessionIdGenerator: () => randomUUID(),
         onsessioninitialized: (sid: string) => {
           sessions.set(sid, transport);
+          touchSession(sid);
+          mcpSessionsActive.set(sessions.size);
           logger.info(
             { request_id: requestId, session_id: sid },
             'MCP Streamable HTTP session created',
           );
         },
         onsessionclosed: (sid: string) => {
-          sessions.delete(sid);
+          removeSession(sid);
           logger.info(
             { request_id: requestId, session_id: sid },
             'MCP Streamable HTTP session closed',
@@ -197,6 +282,7 @@ export function createMcpRouter(): express.Router {
         return;
       }
 
+      touchSession(sessionId);
       await transport.handleRequest(req, res);
     } catch (error) {
       logger.error({ err: error }, 'MCP Streamable HTTP GET error');
@@ -229,7 +315,7 @@ export function createMcpRouter(): express.Router {
       }
 
       await transport.handleRequest(req, res);
-      sessions.delete(sessionId);
+      removeSession(sessionId);
     } catch (error) {
       logger.error({ err: error }, 'MCP Streamable HTTP DELETE error');
       if (!res.headersSent) {
@@ -253,6 +339,15 @@ export function createMcpRouter(): express.Router {
       return;
     }
 
+    // Session cap check
+    if (sessions.size >= MAX_SESSIONS) {
+      res.status(503).json({
+        error: 'service_unavailable',
+        message: 'Too many active sessions',
+      });
+      return;
+    }
+
     const requestId = (req.headers['x-request-id'] as string) || randomUUID();
 
     const transport = new SSEServerTransport('/messages', res);
@@ -261,10 +356,12 @@ export function createMcpRouter(): express.Router {
     const mcpServer = createMcpServer(apiKey, requestId);
 
     sessions.set(sessionId, transport);
+    touchSession(sessionId);
+    mcpSessionsActive.set(sessions.size);
     logger.info({ request_id: requestId, session_id: sessionId }, 'MCP SSE session created');
 
     const cleanup = (): void => {
-      sessions.delete(sessionId);
+      removeSession(sessionId);
       logger.info({ request_id: requestId, session_id: sessionId }, 'MCP SSE session closed');
     };
 
@@ -275,7 +372,7 @@ export function createMcpRouter(): express.Router {
         { request_id: requestId, session_id: sessionId, err: error },
         'MCP SSE transport error',
       );
-      sessions.delete(sessionId);
+      removeSession(sessionId);
     };
 
     mcpServer.connect(transport).catch((error: unknown) => {
@@ -283,7 +380,7 @@ export function createMcpRouter(): express.Router {
         { request_id: requestId, session_id: sessionId, err: error },
         'MCP server connect failed',
       );
-      sessions.delete(sessionId);
+      removeSession(sessionId);
       if (!res.headersSent) {
         res.status(500).json({ error: 'internal_error', message: 'MCP connection failed' });
       }
@@ -309,6 +406,8 @@ export function createMcpRouter(): express.Router {
       });
       return;
     }
+
+    touchSession(sessionId);
 
     transport.handlePostMessage(req, res, req.body).catch((error: unknown) => {
       logger.error({ session_id: sessionId, err: error }, 'MCP POST message handling failed');

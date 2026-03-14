@@ -1,8 +1,6 @@
-import Redis from 'ioredis';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { config } from '../config';
-import { logger } from '../config/logger';
+import { ensureRedisConnected } from './redis.service';
 
 /**
  * Rate Limit Service — dual token bucket (§12.172, §12.152).
@@ -43,25 +41,10 @@ const TIER_GLOBALS: Record<string, BucketConfig> = {
 };
 
 // ---------------------------------------------------------------------------
-// Lazy Redis + Lua script
+// Lua script (lazy loaded)
 // ---------------------------------------------------------------------------
 
-let redis: Redis | null = null;
 let luaScript: string | null = null;
-
-function getRedis(): Redis {
-  if (!redis) {
-    redis = new Redis(config.REDIS_URL, {
-      maxRetriesPerRequest: 1,
-      lazyConnect: true,
-      connectTimeout: 1000,
-    });
-    redis.on('error', (err) => {
-      logger.warn({ err }, 'RateLimit Redis background error');
-    });
-  }
-  return redis;
-}
 
 function getLuaScript(): string {
   if (!luaScript) {
@@ -89,10 +72,7 @@ async function checkBucket(
   key: string,
   bucketConfig: BucketConfig,
 ): Promise<{ allowed: boolean; remaining: number; limit: number }> {
-  const r = getRedis();
-  if (r.status === 'wait') {
-    await r.connect();
-  }
+  const r = await ensureRedisConnected();
 
   const now = Date.now() / 1000; // fractional seconds
   const result = (await r.eval(
@@ -167,10 +147,7 @@ export async function checkRateLimit(
   };
 }
 
-/** Shut down Redis connection (graceful shutdown). */
+/** No-op — shared Redis singleton shutdown handled by redis.service.ts. */
 export async function shutdownRateLimitRedis(): Promise<void> {
-  if (redis) {
-    redis.disconnect();
-    redis = null;
-  }
+  // no-op: shared singleton
 }

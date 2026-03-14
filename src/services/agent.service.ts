@@ -1,8 +1,7 @@
-import { PrismaClient } from '@prisma/client';
 import { createHash } from 'node:crypto';
-import Redis from 'ioredis';
 import { generateApiKey, hashApiKey } from './api-key.service';
-import { config } from '../config';
+import { getPrisma } from './prisma.service';
+import { ensureRedisConnected } from './redis.service';
 import { logger } from '../config/logger';
 
 /**
@@ -15,43 +14,6 @@ import { logger } from '../config/logger';
  *   Anonymous — auto-create, 100 req/day, free read-only
  *   Basic    — explicit register, $10/day, free + testnet x402
  */
-
-// ---------------------------------------------------------------------------
-// Lazy singletons
-// ---------------------------------------------------------------------------
-
-let prisma: PrismaClient | null = null;
-
-function getPrisma(): PrismaClient {
-  if (!prisma) {
-    prisma = new PrismaClient();
-  }
-  return prisma;
-}
-
-let redis: Redis | null = null;
-
-function getRedis(): Redis {
-  if (!redis) {
-    redis = new Redis(config.REDIS_URL, {
-      maxRetriesPerRequest: 1,
-      lazyConnect: true,
-      connectTimeout: 1000,
-    });
-    redis.on('error', (err) => {
-      logger.warn({ err }, 'Agent service Redis background error');
-    });
-  }
-  return redis;
-}
-
-async function ensureRedis(): Promise<Redis> {
-  const r = getRedis();
-  if (r.status === 'wait') {
-    await r.connect();
-  }
-  return r;
-}
 
 // ---------------------------------------------------------------------------
 // Types
@@ -168,7 +130,7 @@ export async function autoRegisterAnonymous(
 
   // Check Redis for existing anonymous agent with same fingerprint
   try {
-    const r = await ensureRedis();
+    const r = await ensureRedisConnected();
     const existingAgentId = await r.get(redisKey);
 
     if (existingAgentId) {
@@ -211,7 +173,7 @@ export async function autoRegisterAnonymous(
 
   // Store fingerprint → agent_id in Redis with 24h TTL (§12.84)
   try {
-    const r = await ensureRedis();
+    const r = await ensureRedisConnected();
     await r.set(redisKey, agent.agent_id, 'EX', ANON_FINGERPRINT_TTL_SECONDS);
   } catch {
     logger.warn(
@@ -236,11 +198,9 @@ export async function autoRegisterAnonymous(
 // Shutdown
 // ---------------------------------------------------------------------------
 
+/** No-op — shared Redis singleton shutdown handled by redis.service.ts. */
 export async function shutdownAgentRedis(): Promise<void> {
-  if (redis) {
-    await redis.quit();
-    redis = null;
-  }
+  // no-op: shared singleton
 }
 
 // ---------------------------------------------------------------------------
