@@ -118,3 +118,13 @@ export const ledgerWritesTotal = new client.Counter({
   labelNames: ['status'] as const,
   registers: [register],
 });
+
+// ---------------------------------------------------------------------------
+// MCP session metrics
+// ---------------------------------------------------------------------------
+
+export const mcpSessionsActive = new client.Gauge({
+  name: 'mcp_sessions_active',
+  help: 'Number of active MCP sessions',
+  registers: [register],
+});

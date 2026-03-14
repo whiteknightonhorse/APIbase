@@ -1,8 +1,6 @@
 import { createHash } from 'node:crypto';
-import Redis from 'ioredis';
 import stringify from 'fast-json-stable-stringify';
-import { config } from '../config';
-import { logger } from '../config/logger';
+import { ensureRedisConnected } from './redis.service';
 
 /**
  * Cache & Single-Flight Service (§12.144, §12.150, §12.127).
@@ -16,34 +14,6 @@ import { logger } from '../config/logger';
 
 const LOCK_TTL_SECONDS = 30;
 const EPHEMERAL_TTL_SECONDS = 5;
-
-// ---------------------------------------------------------------------------
-// Lazy Redis instance
-// ---------------------------------------------------------------------------
-
-let redis: Redis | null = null;
-
-function getRedis(): Redis {
-  if (!redis) {
-    redis = new Redis(config.REDIS_URL, {
-      maxRetriesPerRequest: 1,
-      lazyConnect: true,
-      connectTimeout: 1000,
-    });
-    redis.on('error', (err) => {
-      logger.warn({ err }, 'Cache Redis background error');
-    });
-  }
-  return redis;
-}
-
-async function ensureConnected(): Promise<Redis> {
-  const r = getRedis();
-  if (r.status === 'wait') {
-    await r.connect();
-  }
-  return r;
-}
 
 // ---------------------------------------------------------------------------
 // Public API
@@ -65,7 +35,7 @@ export function generateCacheKey(toolId: string, params: unknown): string {
  * Throws on Redis error (fail closed §12.186).
  */
 export async function getCache(key: string): Promise<string | null> {
-  const r = await ensureConnected();
+  const r = await ensureRedisConnected();
   return r.get(key);
 }
 
@@ -74,7 +44,7 @@ export async function getCache(key: string): Promise<string | null> {
  * TTL <= 0 uses 5s ephemeral buffer for single-flight sharing.
  */
 export async function setCache(key: string, value: string, ttlSeconds: number): Promise<void> {
-  const r = await ensureConnected();
+  const r = await ensureRedisConnected();
   const effectiveTtl = ttlSeconds > 0 ? ttlSeconds : EPHEMERAL_TTL_SECONDS;
   await r.set(key, value, 'EX', effectiveTtl);
 }
@@ -85,7 +55,7 @@ export async function setCache(key: string, value: string, ttlSeconds: number): 
  * Returns true if this request is the lock owner.
  */
 export async function acquireLock(key: string): Promise<boolean> {
-  const r = await ensureConnected();
+  const r = await ensureRedisConnected();
   const result = await r.set(`lock:${key}`, '1', 'EX', LOCK_TTL_SECONDS, 'NX');
   return result === 'OK';
 }
@@ -94,7 +64,7 @@ export async function acquireLock(key: string): Promise<boolean> {
  * Release single-flight lock after cache is set.
  */
 export async function releaseLock(key: string): Promise<void> {
-  const r = await ensureConnected();
+  const r = await ensureRedisConnected();
   await r.del(`lock:${key}`);
 }
 
@@ -119,10 +89,7 @@ export async function waitForResult(
   return null;
 }
 
-/** Shut down Redis connection (graceful shutdown). */
+/** No-op — shared Redis singleton shutdown handled by redis.service.ts. */
 export async function shutdownCacheRedis(): Promise<void> {
-  if (redis) {
-    redis.disconnect();
-    redis = null;
-  }
+  // no-op: shared singleton
 }

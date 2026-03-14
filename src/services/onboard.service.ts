@@ -1,45 +1,7 @@
-import { PrismaClient } from '@prisma/client';
-import Redis from 'ioredis';
 import crypto from 'node:crypto';
-import { config } from '../config';
+import { getPrisma } from './prisma.service';
+import { ensureRedisConnected } from './redis.service';
 import { logger } from '../config/logger';
-
-// ---------------------------------------------------------------------------
-// Lazy singletons (same pattern as escrow.service, cache.service)
-// ---------------------------------------------------------------------------
-
-let prisma: PrismaClient | null = null;
-
-function getPrisma(): PrismaClient {
-  if (!prisma) {
-    prisma = new PrismaClient();
-  }
-  return prisma;
-}
-
-let redis: Redis | null = null;
-
-function getRedis(): Redis {
-  if (!redis) {
-    redis = new Redis(config.REDIS_URL, {
-      maxRetriesPerRequest: 1,
-      lazyConnect: true,
-      connectTimeout: 1000,
-    });
-    redis.on('error', (err) => {
-      logger.warn({ err }, 'Onboard Redis background error');
-    });
-  }
-  return redis;
-}
-
-async function ensureConnected(): Promise<Redis> {
-  const r = getRedis();
-  if (r.status === 'wait') {
-    await r.connect();
-  }
-  return r;
-}
 
 // ---------------------------------------------------------------------------
 // Rate limiting — 5 submissions per IP per hour (§6.12)
@@ -52,7 +14,7 @@ export async function checkIpRateLimit(ip: string): Promise<{ allowed: boolean; 
   const key = `onboard:ratelimit:${ip}`;
 
   try {
-    const r = await ensureConnected();
+    const r = await ensureRedisConnected();
     const count = await r.incr(key);
 
     if (count === 1) {

@@ -1,5 +1,4 @@
-import Redis from 'ioredis';
-import { config } from '../config';
+import { ensureRedisConnected, getSharedRedis } from './redis.service';
 import { logger } from '../config/logger';
 
 /**
@@ -27,26 +26,6 @@ export type IdempotencyCheckResult =
   | { action: 'conflict'; retryAfter: number }
   | { action: 'return_cached'; statusCode: number; body: string };
 
-// ---------------------------------------------------------------------------
-// Lazy Redis instance
-// ---------------------------------------------------------------------------
-
-let redis: Redis | null = null;
-
-function getRedis(): Redis {
-  if (!redis) {
-    redis = new Redis(config.REDIS_URL, {
-      maxRetriesPerRequest: 1,
-      lazyConnect: true,
-      connectTimeout: 1000,
-    });
-    redis.on('error', (err) => {
-      logger.warn({ err }, 'Idempotency Redis background error');
-    });
-  }
-  return redis;
-}
-
 function redisKey(agentId: string, key: string): string {
   return `idempotency:${agentId}:${key}`;
 }
@@ -67,10 +46,7 @@ export async function checkIdempotency(
   agentId: string,
   key: string,
 ): Promise<IdempotencyCheckResult> {
-  const r = getRedis();
-  if (r.status === 'wait') {
-    await r.connect();
-  }
+  const r = await ensureRedisConnected();
 
   const rk = redisKey(agentId, key);
   const raw = await r.get(rk);
@@ -98,7 +74,7 @@ export async function checkIdempotency(
  * Called after checkIdempotency returns 'proceed'.
  */
 export async function setPending(agentId: string, key: string, executionId: string): Promise<void> {
-  const r = getRedis();
+  const r = getSharedRedis();
   const rk = redisKey(agentId, key);
 
   const record: IdempotencyRecord = {
@@ -123,7 +99,7 @@ export async function finalizeIdempotency(
   responseBody: string,
 ): Promise<void> {
   try {
-    const r = getRedis();
+    const r = getSharedRedis();
     const rk = redisKey(agentId, key);
 
     const record: IdempotencyRecord = {
@@ -142,10 +118,7 @@ export async function finalizeIdempotency(
   }
 }
 
-/** Shut down Redis connection (graceful shutdown). */
+/** No-op — shared Redis singleton shutdown handled by redis.service.ts. */
 export async function shutdownIdempotencyRedis(): Promise<void> {
-  if (redis) {
-    redis.disconnect();
-    redis = null;
-  }
+  // no-op: shared singleton
 }
