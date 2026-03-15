@@ -9,7 +9,7 @@ const networkEnum = z.enum([
   'base',
   'avalanche',
   'optimism',
-]).describe('Blockchain network');
+]).describe('Blockchain network to query (e.g. ethereum, bsc, polygon, solana)');
 
 const cryptoGetPrice = z
   .object({
@@ -66,8 +66,8 @@ const cryptoPriceHistory = z
   .object({
     coin_id: z.string().describe('CoinGecko coin ID (e.g. bitcoin, ethereum)'),
     days: z.number().int().max(365).optional().describe('Number of days of history (1-365)'),
-    interval: z.enum(['5m', 'hourly', 'daily']).optional().describe('Data point interval'),
-    format: z.enum(['timeseries', 'ohlcv']).optional().describe('Response format'),
+    interval: z.enum(['5m', 'hourly', 'daily']).optional().describe('Data point interval for price history (5m, hourly, or daily)'),
+    format: z.enum(['timeseries', 'ohlcv']).optional().describe('Response format: timeseries (price points) or ohlcv (candlestick data)'),
   })
   .strip();
 

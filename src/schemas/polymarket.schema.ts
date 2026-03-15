@@ -43,7 +43,7 @@ const polymarketPrices = z
 const polymarketPriceHistory = z
   .object({
     market_id: z.string().describe('Polymarket condition ID'),
-    interval: z.enum(['1h', '4h', '1d', '1w']).optional().describe('Price data interval'),
+    interval: z.enum(['1h', '4h', '1d', '1w']).optional().describe('Price data interval for history (1h, 4h, 1d, or 1w)'),
     days: z.number().int().max(365).optional().describe('Number of days of history (1-365)'),
   })
   .strip();
@@ -82,7 +82,7 @@ const polymarketPlaceOrder = z
 
 const polymarketCancelOrder = z
   .object({
-    order_id: z.string().describe('Order ID to cancel'),
+    order_id: z.string().describe('Polymarket order ID to cancel (from open_orders response)'),
   })
   .strip();
 

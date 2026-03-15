@@ -41,7 +41,7 @@ const weatherAirQuality = z
 const weatherGeocode = z
   .object({
     query: z.string().describe('Location name or coordinates to geocode'),
-    type: z.enum(['forward', 'reverse']).optional().describe('Geocoding direction'),
+    type: z.enum(['forward', 'reverse']).optional().describe('Geocoding direction: forward (name to coords) or reverse (coords to name)'),
     limit: z.number().int().max(5).optional().describe('Max number of results (1-5)'),
   })
   .strip();

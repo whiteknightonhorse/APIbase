@@ -23,7 +23,7 @@ const foursquarePlaceTips = z
   .object({
     fsq_id: z.string().describe('Foursquare place ID to get tips for'),
     limit: z.number().int().min(1).max(50).optional().describe('Max tips to return (1-50, default 10)'),
-    sort: z.enum(['popular', 'newest', 'oldest']).optional().describe('Sort order for tips'),
+    sort: z.enum(['popular', 'newest', 'oldest']).optional().describe('Sort order for tips: popular, newest, or oldest'),
   })
   .strip();
 
