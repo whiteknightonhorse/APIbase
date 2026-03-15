@@ -11,7 +11,7 @@ const amadeusFlightSearch = z
       .enum(['ECONOMY', 'PREMIUM_ECONOMY', 'BUSINESS', 'FIRST'])
       .optional()
       .default('ECONOMY')
-      .describe('Cabin class'),
+      .describe('Cabin class: ECONOMY, PREMIUM_ECONOMY, BUSINESS, or FIRST (default ECONOMY)'),
     nonstop: z.boolean().optional().default(false).describe('Only return non-stop flights'),
     max_results: z.number().int().min(1).max(50).optional().default(10).describe('Max number of flight offers (1-50)'),
     currency: z.string().length(3).optional().default('USD').describe('Price currency ISO code (e.g. USD, EUR)'),

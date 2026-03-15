@@ -15,7 +15,7 @@ const aviasalesSearchFlights = z
       .strip()
       .optional()
       .describe('Passenger counts by type'),
-    cabin_class: z.enum(['economy', 'business']).optional().describe('Cabin class'),
+    cabin_class: z.enum(['economy', 'business']).optional().describe('Cabin class: economy or business (default economy)'),
     direct_only: z.boolean().optional().describe('Only return direct (non-stop) flights'),
     currency: z.string().optional().describe('Price currency ISO code (e.g. USD, EUR)'),
     sort_by: z.enum(['price', 'duration', 'departure_time']).optional().describe('Sort order for results'),
