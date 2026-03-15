@@ -988,4 +988,36 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description: 'Get product reviews and ratings by ASIN or product ID — review text, rating, author, verified purchase status (Zinc)',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // Diffbot — AI-Powered Web Extraction (UC-026, 4 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'diffbot.product_extract',
+    mcpName: 'diffbot.products.extract',
+    title: 'Extract Product Data',
+    description: 'Extract structured product data from any e-commerce URL — title, price, brand, specs, images, reviews. Works on any retailer without custom integration (Diffbot)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'diffbot.page_analyze',
+    mcpName: 'diffbot.pages.analyze',
+    title: 'Analyze Web Page',
+    description: 'Auto-detect page type (product, article, image, video) and extract structured data from any URL using AI (Diffbot)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'diffbot.article_extract',
+    mcpName: 'diffbot.articles.extract',
+    title: 'Extract Article Text',
+    description: 'Extract article text, author, date, tags, sentiment, and images from any blog or news URL with multi-page support (Diffbot)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'diffbot.search',
+    mcpName: 'diffbot.knowledge.search',
+    title: 'Search Knowledge Graph',
+    description: 'Search Diffbot Knowledge Graph for products, organizations, people, and places — billions of structured entities from the web (Diffbot)',
+    annotations: READ_ONLY,
+  },
 ];

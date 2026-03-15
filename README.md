@@ -1,7 +1,7 @@
 # APIbase.pro — The API Hub for AI Agents
 
 > Search flights, find restaurants, discover events, browse movies, geocode addresses, get directions, generate AI marketing pages, compare prices, track status, trade prediction markets — all via MCP.
-> One endpoint. 125 tools. 23 providers. Pay per call.
+> One endpoint. 129 tools. 24 providers. Pay per call.
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Health](https://apibase.pro/health/ready)**
 
@@ -9,7 +9,7 @@
 
 ## What is APIbase?
 
-Production MCP server — universal API hub for AI agents. 125 tools across travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, AI marketing, weather, and more. Search flights (Amadeus, Sabre GDS), find restaurants and places (Foursquare), geocode addresses, search places and POI, get directions (Geoapify/OSM), discover events and concerts (Ticketmaster), browse movies and TV shows (TMDB), search music artists, albums, and recordings (MusicBrainz), discover fresh releases (ListenBrainz), find internet radio stations (RadioBrowser), look up nutrition data and drug safety (USDA, OpenFDA, NIH), get exchange rates, economic indicators, and treasury data (ECB, FRED, World Bank, US Treasury), search academic papers and preprints (OpenAlex, arXiv, PubMed, CrossRef), compare US colleges and earnings (College Scorecard), find jobs and salary data (BLS, O*NET, ESCO, CareerJet), trade prediction markets (Polymarket), track crypto, check weather — with more providers shipping regularly. One endpoint, pay per call via x402 USDC micropayments. Auto-registration, zero setup. Covers the most popular API categories agents actually need: travel, local services, maps, events, entertainment, music, health, financial data, education, jobs, and marketing.
+Production MCP server — universal API hub for AI agents. 129 tools across travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, AI marketing, weather, and more. Search flights (Amadeus, Sabre GDS), find restaurants and places (Foursquare), geocode addresses, search places and POI, get directions (Geoapify/OSM), discover events and concerts (Ticketmaster), browse movies and TV shows (TMDB), search music artists, albums, and recordings (MusicBrainz), discover fresh releases (ListenBrainz), find internet radio stations (RadioBrowser), look up nutrition data and drug safety (USDA, OpenFDA, NIH), get exchange rates, economic indicators, and treasury data (ECB, FRED, World Bank, US Treasury), search academic papers and preprints (OpenAlex, arXiv, PubMed, CrossRef), compare US colleges and earnings (College Scorecard), find jobs and salary data (BLS, O*NET, ESCO, CareerJet), trade prediction markets (Polymarket), track crypto, check weather — with more providers shipping regularly. One endpoint, pay per call via x402 USDC micropayments. Auto-registration, zero setup. Covers the most popular API categories agents actually need: travel, local services, maps, events, entertainment, music, health, financial data, education, jobs, and marketing.
 
 **Built for AI agents, not humans.** Every tool is designed for autonomous discovery, authentication, and invocation via the [Model Context Protocol](https://modelcontextprotocol.io).
 
@@ -19,7 +19,7 @@ Production MCP server — universal API hub for AI agents. 125 tools across trav
 
 ### Why agents use APIbase
 
-- **One MCP endpoint** — `https://apibase.pro/mcp` connects to 23 providers
+- **One MCP endpoint** — `https://apibase.pro/mcp` connects to 24 providers
 - **Real-time flight search** — Amadeus + Sabre GDS, 500+ airlines, real prices
 - **Places & restaurants** — Foursquare Places API, 100M+ places in 190+ countries
 - **Pay per call** — x402 micropayments (USDC), no subscriptions, no minimums
@@ -139,7 +139,7 @@ Returns places with names, ratings, categories, distance, hours, price tier, and
 
 ---
 
-## Available Tools (125)
+## Available Tools (129)
 
 ### AIPush — AI Marketing / Page Generation (7 tools)
 
@@ -154,6 +154,17 @@ Generate AI-optimized marketing pages that increase your brand's visibility in A
 | `aipush.page_content` | Get full HTML content of a generated page | $0.003 |
 | `aipush.website_profile` | Get MIP business analysis — competitors, value props, market | $0.010 |
 | `aipush.check_visibility` | AI visibility score — do ChatGPT/Perplexity know your brand? | $0.100 |
+
+### Diffbot — AI-Powered Web Extraction (4 tools)
+
+Extract structured data from any web page using AI. Product data from any e-commerce URL, article text from any blog or news site, auto-detection of page type, and Knowledge Graph search across billions of entities. No retailer-specific integration needed. Powered by Diffbot AI, 10,000 free credits/month.
+
+| Tool | Description | Price |
+|------|-------------|-------|
+| `diffbot.product_extract` | Extract product data from any e-commerce URL (any retailer) | $0.003 |
+| `diffbot.page_analyze` | Auto-detect page type and extract structured data | $0.003 |
+| `diffbot.article_extract` | Extract article text, author, date, tags, sentiment | $0.003 |
+| `diffbot.search` | Search Knowledge Graph — products, orgs, people, places | $0.005 |
 
 ### Zinc — E-commerce Product Data (4 tools)
 

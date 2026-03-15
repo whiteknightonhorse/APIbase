@@ -17,6 +17,7 @@ import { EducationAdapter } from './education';
 import { GeoAdapter } from './geo';
 import { AIPushAdapter } from './aipush';
 import { ZincAdapter } from './zinc';
+import { DiffbotAdapter } from './diffbot';
 import { config } from '../config';
 
 /**
@@ -135,6 +136,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const zincKey = (config as Record<string, unknown>).PROVIDER_KEY_ZINC as string | undefined;
       if (!zincKey) return undefined;
       return getOrCreate('zinc', () => new ZincAdapter(zincKey));
+    }
+    case 'diffbot': {
+      const diffbotKey = (config as Record<string, unknown>).PROVIDER_KEY_DIFFBOT as string | undefined;
+      if (!diffbotKey) return undefined;
+      return getOrCreate('diffbot', () => new DiffbotAdapter(diffbotKey));
     }
     default:
       return undefined;

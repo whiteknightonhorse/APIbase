@@ -774,3 +774,28 @@ tools:
     provider: zinc
     price_usd: "0.012"
     cache_ttl: 3600
+
+  # --- UC-026: Diffbot AI Extraction ---
+  - tool_id: diffbot.product_extract
+    name: Diffbot Product Extract
+    provider: diffbot
+    price_usd: "0.003"
+    cache_ttl: 3600
+
+  - tool_id: diffbot.page_analyze
+    name: Diffbot Page Analyze
+    provider: diffbot
+    price_usd: "0.003"
+    cache_ttl: 3600
+
+  - tool_id: diffbot.article_extract
+    name: Diffbot Article Extract
+    provider: diffbot
+    price_usd: "0.003"
+    cache_ttl: 3600
+
+  - tool_id: diffbot.search
+    name: Diffbot Knowledge Graph Search
+    provider: diffbot
+    price_usd: "0.005"
+    cache_ttl: 86400

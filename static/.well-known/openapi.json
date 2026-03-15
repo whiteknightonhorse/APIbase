@@ -189,7 +189,7 @@
                       "daily",
                       "both"
                     ],
-                    "description": "Forecast granularity"
+                    "description": "Forecast granularity: hourly, daily, or both"
                   },
                   "units": {
                     "type": "string",
@@ -502,7 +502,7 @@
                       "forward",
                       "reverse"
                     ],
-                    "description": "Geocoding direction"
+                    "description": "Geocoding direction: forward (name to coords) or reverse (coords to name)"
                   },
                   "limit": {
                     "type": "integer",
@@ -951,7 +951,7 @@
                       "hourly",
                       "daily"
                     ],
-                    "description": "Data point interval"
+                    "description": "Data point interval for price history (5m, hourly, or daily)"
                   },
                   "format": {
                     "type": "string",
@@ -959,7 +959,7 @@
                       "timeseries",
                       "ohlcv"
                     ],
-                    "description": "Response format"
+                    "description": "Response format: timeseries (price points) or ohlcv (candlestick data)"
                   }
                 },
                 "required": [
@@ -1181,7 +1181,7 @@
                       "avalanche",
                       "optimism"
                     ],
-                    "description": "Blockchain network"
+                    "description": "Blockchain network to query (e.g. ethereum, bsc, polygon, solana)"
                   },
                   "sort_by": {
                     "type": "string",
@@ -1277,7 +1277,7 @@
                       "avalanche",
                       "optimism"
                     ],
-                    "description": "Blockchain network"
+                    "description": "Blockchain network to query (e.g. ethereum, bsc, polygon, solana)"
                   }
                 },
                 "required": [
@@ -1685,7 +1685,7 @@
                       "1d",
                       "1w"
                     ],
-                    "description": "Price data interval"
+                    "description": "Price data interval for history (1h, 4h, 1d, or 1w)"
                   },
                   "days": {
                     "type": "integer",
@@ -2035,7 +2035,7 @@
                 "properties": {
                   "order_id": {
                     "type": "string",
-                    "description": "Order ID to cancel"
+                    "description": "Polymarket order ID to cancel (from open_orders response)"
                   }
                 },
                 "required": [
@@ -2682,7 +2682,7 @@
                       "BUSINESS",
                       "FIRST"
                     ],
-                    "description": "Cabin class",
+                    "description": "Cabin class: ECONOMY, PREMIUM_ECONOMY, BUSINESS, or FIRST (default ECONOMY)",
                     "default": "ECONOMY"
                   },
                   "nonstop": {
@@ -3283,7 +3283,7 @@
                       "economy",
                       "business"
                     ],
-                    "description": "Cabin class"
+                    "description": "Cabin class: economy or business (default economy)"
                   },
                   "direct_only": {
                     "type": "boolean",
@@ -3649,7 +3649,7 @@
                         "description": "Number of child guests"
                       }
                     },
-                    "description": "Guest counts by type"
+                    "description": "Guest counts by type (adults, children)"
                   },
                   "stars": {
                     "type": "array",
@@ -4088,7 +4088,7 @@
                       "1w",
                       "1M"
                     ],
-                    "description": "Candlestick interval"
+                    "description": "Candlestick interval (1m, 5m, 15m, 1h, 4h, 1d, 1w)"
                   },
                   "start_time": {
                     "type": "integer",
@@ -4566,7 +4566,7 @@
                       "newest",
                       "oldest"
                     ],
-                    "description": "Sort order for tips"
+                    "description": "Sort order for tips: popular, newest, or oldest"
                   }
                 },
                 "required": [
@@ -4650,7 +4650,7 @@
                       "popular",
                       "newest"
                     ],
-                    "description": "Sort order for photos"
+                    "description": "Sort order for photos: popular or newest"
                   },
                   "classifications": {
                     "type": "string",
@@ -4734,7 +4734,7 @@
                     "type": "integer",
                     "minimum": 1,
                     "maximum": 100000,
-                    "description": "Bias radius in meters"
+                    "description": "Bias radius in meters for location results"
                   },
                   "limit": {
                     "type": "integer",
@@ -4851,7 +4851,7 @@
                   "page": {
                     "type": "integer",
                     "minimum": 0,
-                    "description": "Page number (0-based)"
+                    "description": "Page number for pagination (0-based, default 0)"
                   },
                   "sort": {
                     "type": "string",
@@ -5041,7 +5041,7 @@
                   "page": {
                     "type": "integer",
                     "minimum": 0,
-                    "description": "Page number (0-based)"
+                    "description": "Page number for pagination (0-based, default 0)"
                   },
                   "sort": {
                     "type": "string",
@@ -5148,7 +5148,7 @@
                   "page": {
                     "type": "integer",
                     "minimum": 0,
-                    "description": "Page number (0-based)"
+                    "description": "Page number for pagination (0-based, default 0)"
                   },
                   "sort": {
                     "type": "string",
@@ -5246,7 +5246,7 @@
                   "page": {
                     "type": "integer",
                     "minimum": 0,
-                    "description": "Page number (0-based)"
+                    "description": "Page number for pagination (0-based, default 0)"
                   },
                   "sort": {
                     "type": "string",
@@ -5341,7 +5341,7 @@
                   "page": {
                     "type": "integer",
                     "minimum": 0,
-                    "description": "Page number (0-based)"
+                    "description": "Page number for pagination (0-based, default 0)"
                   },
                   "locale": {
                     "type": "string",
@@ -5419,7 +5419,7 @@
                   "page": {
                     "type": "integer",
                     "minimum": 0,
-                    "description": "Page number (0-based)"
+                    "description": "Page number for pagination (0-based, default 0)"
                   },
                   "locale": {
                     "type": "string",
@@ -6683,7 +6683,8 @@
                   "currencies": {
                     "type": "array",
                     "items": {
-                      "type": "string"
+                      "type": "string",
+                      "description": "Currency code (e.g. \"eur\", \"gbp\", \"jpy\")"
                     },
                     "maxItems": 50,
                     "description": "Filter to specific target currencies (e.g. [\"eur\",\"gbp\"]). Omit for all."
@@ -6767,7 +6768,8 @@
                   "currencies": {
                     "type": "array",
                     "items": {
-                      "type": "string"
+                      "type": "string",
+                      "description": "Currency code (e.g. \"EUR\", \"GBP\", \"JPY\")"
                     },
                     "maxItems": 33,
                     "description": "Filter to specific target currencies (e.g. [\"EUR\",\"GBP\"]). Omit for all ECB currencies."
@@ -8079,6 +8081,7 @@
                     "type": "array",
                     "items": {
                       "type": "string",
+                      "description": "BLS series ID (e.g. \"OEUM0000000000000151252004\")",
                       "minLength": 1
                     },
                     "description": "BLS timeseries IDs (e.g. [\"OEUM0000000000000151252004\"] for Software Developers mean salary). Encodes occupation code + geography + data type.",
@@ -8540,7 +8543,7 @@
                       "full_time",
                       "part_time"
                     ],
-                    "description": "Filter by work hours."
+                    "description": "Filter by work hours: full_time or part_time"
                   },
                   "sort": {
                     "type": "string",
@@ -9640,25 +9643,25 @@
                 "properties": {
                   "origin_lat": {
                     "type": "number",
-                    "description": "Start point latitude.",
+                    "description": "Start point latitude (e.g. 40.7128)",
                     "minimum": -90,
                     "maximum": 90
                   },
                   "origin_lon": {
                     "type": "number",
-                    "description": "Start point longitude.",
+                    "description": "Start point longitude (e.g. -74.0060)",
                     "minimum": -180,
                     "maximum": 180
                   },
                   "dest_lat": {
                     "type": "number",
-                    "description": "Destination latitude.",
+                    "description": "Destination latitude (e.g. 48.8566)",
                     "minimum": -90,
                     "maximum": 90
                   },
                   "dest_lon": {
                     "type": "number",
-                    "description": "Destination longitude.",
+                    "description": "Destination longitude (e.g. 2.3522)",
                     "minimum": -180,
                     "maximum": 180
                   },
@@ -9757,13 +9760,13 @@
                 "properties": {
                   "lat": {
                     "type": "number",
-                    "description": "Center point latitude.",
+                    "description": "Center point latitude (e.g. 52.5200)",
                     "minimum": -90,
                     "maximum": 90
                   },
                   "lon": {
                     "type": "number",
-                    "description": "Center point longitude.",
+                    "description": "Center point longitude (e.g. 13.4050)",
                     "minimum": -180,
                     "maximum": 180
                   },
@@ -10754,6 +10757,360 @@
                 },
                 "required": [
                   "product_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/diffbot.product_extract/call": {
+      "post": {
+        "operationId": "diffbot_product_extract",
+        "summary": "Extract Product Data",
+        "description": "Extract structured product data from any e-commerce URL — title, price, brand, specs, images, reviews. Works on any retailer without custom integration (Diffbot)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "diffbot.product_extract"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "description": "Product page URL to extract data from (any e-commerce site)"
+                  },
+                  "discussion": {
+                    "type": "boolean",
+                    "description": "Include product reviews and comments (default false)"
+                  },
+                  "timeout": {
+                    "type": "integer",
+                    "minimum": 5000,
+                    "maximum": 30000,
+                    "description": "Request timeout in milliseconds (5000-30000, default 15000)"
+                  }
+                },
+                "required": [
+                  "url"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/diffbot.page_analyze/call": {
+      "post": {
+        "operationId": "diffbot_page_analyze",
+        "summary": "Analyze Web Page",
+        "description": "Auto-detect page type (product, article, image, video) and extract structured data from any URL using AI (Diffbot)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "diffbot.page_analyze"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "description": "Web page URL to auto-detect type and extract structured data"
+                  },
+                  "mode": {
+                    "type": "string",
+                    "enum": [
+                      "product",
+                      "article",
+                      "image",
+                      "discussion",
+                      "video"
+                    ],
+                    "description": "Force extraction mode instead of auto-detection"
+                  },
+                  "fallback": {
+                    "type": "string",
+                    "enum": [
+                      "article",
+                      "product"
+                    ],
+                    "description": "Fallback extraction type if auto-detection fails"
+                  },
+                  "timeout": {
+                    "type": "integer",
+                    "minimum": 5000,
+                    "maximum": 30000,
+                    "description": "Request timeout in milliseconds (5000-30000, default 15000)"
+                  }
+                },
+                "required": [
+                  "url"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/diffbot.article_extract/call": {
+      "post": {
+        "operationId": "diffbot_article_extract",
+        "summary": "Extract Article Text",
+        "description": "Extract article text, author, date, tags, sentiment, and images from any blog or news URL with multi-page support (Diffbot)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "diffbot.article_extract"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "description": "Article or blog post URL to extract text, author, and metadata"
+                  },
+                  "paging": {
+                    "type": "boolean",
+                    "description": "Follow multi-page articles and concatenate text (default true)"
+                  },
+                  "maxTags": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of topic tags to return (1-50, default 10)"
+                  },
+                  "timeout": {
+                    "type": "integer",
+                    "minimum": 5000,
+                    "maximum": 30000,
+                    "description": "Request timeout in milliseconds (5000-30000, default 15000)"
+                  }
+                },
+                "required": [
+                  "url"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/diffbot.search/call": {
+      "post": {
+        "operationId": "diffbot_search",
+        "summary": "Search Knowledge Graph",
+        "description": "Search Diffbot Knowledge Graph for products, organizations, people, and places — billions of structured entities from the web (Diffbot)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "diffbot.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Diffbot Knowledge Graph query (DQL) — e.g. \"type:Product title:iPhone\""
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "Product",
+                      "Article",
+                      "Organization",
+                      "Person",
+                      "Place",
+                      "Event"
+                    ],
+                    "description": "Filter results by entity type in Knowledge Graph"
+                  },
+                  "size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Number of results to return (1-50, default 25)"
+                  },
+                  "from": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Pagination offset for results (default 0)"
+                  }
+                },
+                "required": [
+                  "query"
                 ]
               }
             }

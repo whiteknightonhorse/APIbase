@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase \u2014 The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 125 tools across travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, AI marketing, weather, and more. Pay-per-call via x402 micropayments.",
+    "description": "Unified MCP gateway to 129 tools across travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, AI marketing, weather, and more. Pay-per-call via x402 micropayments.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -5486,6 +5486,195 @@
         },
         "required": [
           "product_id"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "diffbot.products.extract",
+      "title": "Extract Product Data",
+      "description": "Extract structured product data from any e-commerce URL \u2014 title, price, brand, specs, images, reviews. Works on any retailer without custom integration (Diffbot)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Product page URL to extract data from (any e-commerce site)"
+          },
+          "discussion": {
+            "type": "boolean",
+            "description": "Include product reviews and comments (default false)"
+          },
+          "timeout": {
+            "type": "integer",
+            "minimum": 5000,
+            "maximum": 30000,
+            "description": "Request timeout in milliseconds (5000-30000, default 15000)"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "diffbot.pages.analyze",
+      "title": "Analyze Web Page",
+      "description": "Auto-detect page type (product, article, image, video) and extract structured data from any URL using AI (Diffbot)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Web page URL to auto-detect type and extract structured data"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "product",
+              "article",
+              "image",
+              "discussion",
+              "video"
+            ],
+            "description": "Force extraction mode instead of auto-detection"
+          },
+          "fallback": {
+            "type": "string",
+            "enum": [
+              "article",
+              "product"
+            ],
+            "description": "Fallback extraction type if auto-detection fails"
+          },
+          "timeout": {
+            "type": "integer",
+            "minimum": 5000,
+            "maximum": 30000,
+            "description": "Request timeout in milliseconds (5000-30000, default 15000)"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "diffbot.articles.extract",
+      "title": "Extract Article Text",
+      "description": "Extract article text, author, date, tags, sentiment, and images from any blog or news URL with multi-page support (Diffbot)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Article or blog post URL to extract text, author, and metadata"
+          },
+          "paging": {
+            "type": "boolean",
+            "description": "Follow multi-page articles and concatenate text (default true)"
+          },
+          "maxTags": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Maximum number of topic tags to return (1-50, default 10)"
+          },
+          "timeout": {
+            "type": "integer",
+            "minimum": 5000,
+            "maximum": 30000,
+            "description": "Request timeout in milliseconds (5000-30000, default 15000)"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "diffbot.knowledge.search",
+      "title": "Search Knowledge Graph",
+      "description": "Search Diffbot Knowledge Graph for products, organizations, people, and places \u2014 billions of structured entities from the web (Diffbot)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Diffbot Knowledge Graph query (DQL) \u2014 e.g. \"type:Product title:iPhone\""
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "Product",
+              "Article",
+              "Organization",
+              "Person",
+              "Place",
+              "Event"
+            ],
+            "description": "Filter results by entity type in Knowledge Graph"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of results to return (1-50, default 25)"
+          },
+          "from": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Pagination offset for results (default 0)"
+          }
+        },
+        "required": [
+          "query"
         ],
         "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
