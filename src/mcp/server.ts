@@ -144,6 +144,11 @@ function extractApiKey(req: express.Request): string | null {
   if (smitheryKey) {
     return smitheryKey;
   }
+  // Smithery scanner passes key as query parameter
+  const queryKey = req.query.apiKey as string | undefined;
+  if (queryKey) {
+    return queryKey;
+  }
   return null;
 }
 
