@@ -18,6 +18,7 @@ import { GeoAdapter } from './geo';
 import { AIPushAdapter } from './aipush';
 import { ZincAdapter } from './zinc';
 import { DiffbotAdapter } from './diffbot';
+import { WhoisXmlAdapter } from './whoisxml';
 import { config } from '../config';
 
 /**
@@ -141,6 +142,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const diffbotKey = (config as Record<string, unknown>).PROVIDER_KEY_DIFFBOT as string | undefined;
       if (!diffbotKey) return undefined;
       return getOrCreate('diffbot', () => new DiffbotAdapter(diffbotKey));
+    }
+    case 'whois': {
+      const whoisKey = (config as Record<string, unknown>).PROVIDER_KEY_WHOISXML as string | undefined;
+      if (!whoisKey) return undefined;
+      return getOrCreate('whoisxml', () => new WhoisXmlAdapter(whoisKey));
     }
     default:
       return undefined;

@@ -88,6 +88,9 @@ export const appEnvSchema = z.object({
   // Diffbot AI Extraction (UC-026) — query param auth, 10K free/month
   PROVIDER_KEY_DIFFBOT: z.string().optional().default(''),
 
+  // WhoisXML API (UC-028) — query param auth, 500 free queries
+  PROVIDER_KEY_WHOISXML: z.string().optional().default(''),
+
   // Polymarket trading — Phase 2 (UC-001 §3-§8)
   POLYMARKET_WALLET_ADDRESS: z.string().startsWith('0x').optional().default(''),
   POLYMARKET_PRIVATE_KEY: z.string().optional().default(''),

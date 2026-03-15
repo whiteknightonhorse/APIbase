@@ -1020,4 +1020,36 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description: 'Search Diffbot Knowledge Graph for products, organizations, people, and places — billions of structured entities from the web (Diffbot)',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // WhoisXML API — Domain / WHOIS / DNS Intelligence (UC-028, 4 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'whois.lookup',
+    mcpName: 'whois.domain.lookup',
+    title: 'WHOIS Lookup',
+    description: 'Get WHOIS registration data for any domain — registrar, creation/expiry dates, nameservers, registrant contact, status across 374M+ domains and 7,596 TLDs (WhoisXML)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'whois.dns_lookup',
+    mcpName: 'whois.dns.lookup',
+    title: 'DNS Lookup',
+    description: 'Get DNS records for a domain — A, AAAA, MX, NS, SOA, TXT, CNAME, SRV, CAA records with TTL and raw data (WhoisXML)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'whois.availability',
+    mcpName: 'whois.domain.availability',
+    title: 'Check Domain Availability',
+    description: 'Check if a domain name is available for registration — fast DNS check or thorough DNS+WHOIS verification (WhoisXML)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'whois.reverse',
+    mcpName: 'whois.domain.reverse',
+    title: 'Reverse WHOIS Search',
+    description: 'Find all domains registered by a person, company, or email — reverse WHOIS lookup for OSINT and brand monitoring (WhoisXML)',
+    annotations: READ_ONLY,
+  },
 ];

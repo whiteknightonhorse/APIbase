@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase \u2014 The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 129 tools across travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, AI marketing, weather, and more. Pay-per-call via x402 micropayments.",
+    "description": "Unified MCP gateway to 133 tools across travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, domain intelligence, AI marketing, weather, and more. Pay-per-call via x402 micropayments.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -5675,6 +5675,154 @@
         },
         "required": [
           "query"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "whois.domain.lookup",
+      "title": "WHOIS Lookup",
+      "description": "Get WHOIS registration data for any domain \u2014 registrar, creation/expiry dates, nameservers, registrant contact, status across 374M+ domains and 7,596 TLDs (WhoisXML)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "domain": {
+            "type": "string",
+            "description": "Domain name, IPv4, IPv6, or email address for WHOIS lookup (e.g. \"google.com\", \"8.8.8.8\")"
+          },
+          "prefer_fresh": {
+            "type": "boolean",
+            "description": "Get latest WHOIS record even if incomplete (default false)"
+          },
+          "include_ips": {
+            "type": "boolean",
+            "description": "Include resolved IP addresses for the domain (default false)"
+          },
+          "check_availability": {
+            "type": "boolean",
+            "description": "Also check domain availability status (default false)"
+          }
+        },
+        "required": [
+          "domain"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "whois.dns.lookup",
+      "title": "DNS Lookup",
+      "description": "Get DNS records for a domain \u2014 A, AAAA, MX, NS, SOA, TXT, CNAME, SRV, CAA records with TTL and raw data (WhoisXML)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "domain": {
+            "type": "string",
+            "description": "Domain name to look up DNS records for (e.g. \"google.com\")"
+          },
+          "record_type": {
+            "type": "string",
+            "enum": [
+              "A",
+              "AAAA",
+              "MX",
+              "NS",
+              "SOA",
+              "TXT",
+              "CNAME",
+              "SRV",
+              "CAA",
+              "_all"
+            ],
+            "description": "DNS record type to query: A, AAAA, MX, NS, SOA, TXT, CNAME, SRV, CAA, or _all (default _all)"
+          }
+        },
+        "required": [
+          "domain"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "whois.domain.availability",
+      "title": "Check Domain Availability",
+      "description": "Check if a domain name is available for registration \u2014 fast DNS check or thorough DNS+WHOIS verification (WhoisXML)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "domain": {
+            "type": "string",
+            "description": "Domain name to check availability for (e.g. \"example.com\", \"mybrand.io\")"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "DNS_ONLY",
+              "DNS_AND_WHOIS"
+            ],
+            "description": "Check mode: DNS_ONLY is fast, DNS_AND_WHOIS is more accurate (default DNS_AND_WHOIS)"
+          }
+        },
+        "required": [
+          "domain"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "whois.domain.reverse",
+      "title": "Reverse WHOIS Search",
+      "description": "Find all domains registered by a person, company, or email \u2014 reverse WHOIS lookup for OSINT and brand monitoring (WhoisXML)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "keyword": {
+            "type": "string",
+            "description": "Search keyword to find domains \u2014 registrant name, email, company, or address (e.g. \"John Smith\", \"acme.com\")"
+          }
+        },
+        "required": [
+          "keyword"
         ],
         "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"

@@ -799,3 +799,28 @@ tools:
     provider: diffbot
     price_usd: "0.005"
     cache_ttl: 86400
+
+  # --- UC-028: WhoisXML API (Domain / WHOIS / DNS) ---
+  - tool_id: whois.lookup
+    name: WHOIS Domain Lookup
+    provider: whoisxml
+    price_usd: "0.005"
+    cache_ttl: 86400
+
+  - tool_id: whois.dns_lookup
+    name: DNS Record Lookup
+    provider: whoisxml
+    price_usd: "0.003"
+    cache_ttl: 3600
+
+  - tool_id: whois.availability
+    name: Domain Availability Check
+    provider: whoisxml
+    price_usd: "0.003"
+    cache_ttl: 300
+
+  - tool_id: whois.reverse
+    name: Reverse WHOIS Search
+    provider: whoisxml
+    price_usd: "0.008"
+    cache_ttl: 86400
