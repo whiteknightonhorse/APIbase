@@ -10,7 +10,7 @@ const ticketmasterEventsSearch = z
     startDateTime: z.string().optional().describe('Start date/time in ISO 8601 format with Z suffix (e.g. "2026-04-01T00:00:00Z")'),
     endDateTime: z.string().optional().describe('End date/time in ISO 8601 format with Z suffix (e.g. "2026-12-31T23:59:59Z")'),
     size: z.number().int().min(1).max(200).optional().describe('Number of results per page (1-200, default 20)'),
-    page: z.number().int().min(0).optional().describe('Page number (0-based)'),
+    page: z.number().int().min(0).optional().describe('Page number for pagination (0-based, default 0)'),
     sort: z.string().optional().describe('Sort order (e.g. "date,asc", "relevance,desc", "name,asc")'),
     locale: z.string().optional().describe('Locale for response (e.g. "en-us", "fr-fr")'),
   })
@@ -33,7 +33,7 @@ const ticketmasterEventsNearby = z
     startDateTime: z.string().optional().describe('Start date/time in ISO 8601 format with Z suffix'),
     endDateTime: z.string().optional().describe('End date/time in ISO 8601 format with Z suffix'),
     size: z.number().int().min(1).max(200).optional().describe('Number of results per page (1-200, default 20)'),
-    page: z.number().int().min(0).optional().describe('Page number (0-based)'),
+    page: z.number().int().min(0).optional().describe('Page number for pagination (0-based, default 0)'),
     sort: z.string().optional().describe('Sort order (e.g. "date,asc", "distance,asc")'),
     locale: z.string().optional().describe('Locale for response (e.g. "en-us")'),
   })
@@ -47,7 +47,7 @@ const ticketmasterArtistEvents = z
     startDateTime: z.string().optional().describe('Start date/time in ISO 8601 format with Z suffix'),
     endDateTime: z.string().optional().describe('End date/time in ISO 8601 format with Z suffix'),
     size: z.number().int().min(1).max(200).optional().describe('Number of results per page (1-200, default 20)'),
-    page: z.number().int().min(0).optional().describe('Page number (0-based)'),
+    page: z.number().int().min(0).optional().describe('Page number for pagination (0-based, default 0)'),
     sort: z.string().optional().describe('Sort order (e.g. "date,asc", "relevance,desc")'),
     locale: z.string().optional().describe('Locale for response (e.g. "en-us")'),
   })
@@ -60,7 +60,7 @@ const ticketmasterVenueEvents = z
     startDateTime: z.string().optional().describe('Start date/time in ISO 8601 format with Z suffix'),
     endDateTime: z.string().optional().describe('End date/time in ISO 8601 format with Z suffix'),
     size: z.number().int().min(1).max(200).optional().describe('Number of results per page (1-200, default 20)'),
-    page: z.number().int().min(0).optional().describe('Page number (0-based)'),
+    page: z.number().int().min(0).optional().describe('Page number for pagination (0-based, default 0)'),
     sort: z.string().optional().describe('Sort order (e.g. "date,asc", "relevance,desc")'),
     locale: z.string().optional().describe('Locale for response (e.g. "en-us")'),
   })
@@ -71,7 +71,7 @@ const ticketmasterEventsTrending = z
     countryCode: z.string().length(2).optional().describe('ISO 3166-1 alpha-2 country code (e.g. "US", "GB")'),
     classificationName: z.string().optional().describe('Event category filter (e.g. "Music", "Sports")'),
     size: z.number().int().min(1).max(200).optional().describe('Number of results per page (1-200, default 20)'),
-    page: z.number().int().min(0).optional().describe('Page number (0-based)'),
+    page: z.number().int().min(0).optional().describe('Page number for pagination (0-based, default 0)'),
     locale: z.string().optional().describe('Locale for response (e.g. "en-us")'),
   })
   .strip();
@@ -79,7 +79,7 @@ const ticketmasterEventsTrending = z
 const ticketmasterEventsCategories = z
   .object({
     size: z.number().int().min(1).max(200).optional().describe('Number of results per page (1-200, default 20)'),
-    page: z.number().int().min(0).optional().describe('Page number (0-based)'),
+    page: z.number().int().min(0).optional().describe('Page number for pagination (0-based, default 0)'),
     locale: z.string().optional().describe('Locale for response (e.g. "en-us")'),
   })
   .strip();

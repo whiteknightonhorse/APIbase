@@ -31,7 +31,7 @@ const foursquarePlacePhotos = z
   .object({
     fsq_id: z.string().describe('Foursquare place ID to get photos for'),
     limit: z.number().int().min(1).max(50).optional().describe('Max photos to return (1-50, default 10)'),
-    sort: z.enum(['popular', 'newest']).optional().describe('Sort order for photos'),
+    sort: z.enum(['popular', 'newest']).optional().describe('Sort order for photos: popular or newest'),
     classifications: z.string().optional().describe('Comma-separated photo classifications (e.g. "food,indoor,outdoor")'),
   })
   .strip();
@@ -40,7 +40,7 @@ const foursquareAutocomplete = z
   .object({
     query: z.string().describe('Search query for autocomplete suggestions'),
     ll: z.string().optional().describe('Latitude,longitude to bias results (e.g. "13.7563,100.5018")'),
-    radius: z.number().int().min(1).max(100000).optional().describe('Bias radius in meters'),
+    radius: z.number().int().min(1).max(100000).optional().describe('Bias radius in meters for location results'),
     limit: z.number().int().min(1).max(10).optional().describe('Max suggestions to return (1-10, default 5)'),
     types: z.string().optional().describe('Comma-separated result types (e.g. "place,address,search")'),
   })

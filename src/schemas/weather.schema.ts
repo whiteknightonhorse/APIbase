@@ -12,7 +12,7 @@ const weatherGetCurrent = z
 const weatherGetForecast = z
   .object({
     location: z.string().describe('City name, coordinates (lat,lon), or zip code'),
-    type: z.enum(['hourly', 'daily', 'both']).optional().describe('Forecast granularity'),
+    type: z.enum(['hourly', 'daily', 'both']).optional().describe('Forecast granularity: hourly, daily, or both'),
     units: unitsEnum.optional(),
   })
   .strip();

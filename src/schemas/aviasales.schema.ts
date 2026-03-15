@@ -62,7 +62,7 @@ const aviasalesHotelSearch = z
       })
       .strip()
       .optional()
-      .describe('Guest counts by type'),
+      .describe('Guest counts by type (adults, children)'),
     stars: z.array(z.number().int().min(1).max(5).describe('Star rating (1-5)')).optional().describe('Filter by hotel star ratings'),
     sort_by: z.enum(['price', 'rating', 'stars', 'popularity']).optional().describe('Sort order for results'),
     price_max_usd: z.number().optional().describe('Maximum price per night in USD'),

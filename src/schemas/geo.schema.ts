@@ -155,22 +155,22 @@ const geoRouting = z
       .number()
       .min(-90)
       .max(90)
-      .describe('Start point latitude.'),
+      .describe('Start point latitude (e.g. 40.7128)'),
     origin_lon: z
       .number()
       .min(-180)
       .max(180)
-      .describe('Start point longitude.'),
+      .describe('Start point longitude (e.g. -74.0060)'),
     dest_lat: z
       .number()
       .min(-90)
       .max(90)
-      .describe('Destination latitude.'),
+      .describe('Destination latitude (e.g. 48.8566)'),
     dest_lon: z
       .number()
       .min(-180)
       .max(180)
-      .describe('Destination longitude.'),
+      .describe('Destination longitude (e.g. 2.3522)'),
     mode: z
       .enum(['drive', 'walk', 'bicycle', 'transit'])
       .optional()
@@ -198,12 +198,12 @@ const geoIsochrone = z
       .number()
       .min(-90)
       .max(90)
-      .describe('Center point latitude.'),
+      .describe('Center point latitude (e.g. 52.5200)'),
     lon: z
       .number()
       .min(-180)
       .max(180)
-      .describe('Center point longitude.'),
+      .describe('Center point longitude (e.g. 13.4050)'),
     mode: z
       .enum(['drive', 'walk', 'bicycle'])
       .optional()

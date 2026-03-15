@@ -13,7 +13,7 @@ export const hyperliquidSchemas: Record<string, z.ZodSchema> = {
 
   'hyperliquid.klines': z.object({
     coin: z.string().describe('Coin symbol (e.g. BTC, ETH)'),
-    interval: z.enum(['1m', '3m', '5m', '15m', '30m', '1h', '2h', '4h', '6h', '8h', '12h', '1d', '3d', '1w', '1M']).optional().describe('Candlestick interval'),
+    interval: z.enum(['1m', '3m', '5m', '15m', '30m', '1h', '2h', '4h', '6h', '8h', '12h', '1d', '3d', '1w', '1M']).optional().describe('Candlestick interval (1m, 5m, 15m, 1h, 4h, 1d, 1w)'),
     start_time: z.number().int().optional().describe('Start time in milliseconds since epoch'),
     end_time: z.number().int().optional().describe('End time in milliseconds since epoch'),
   }).strip(),
