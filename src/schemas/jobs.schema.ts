@@ -159,7 +159,7 @@ const jobsJobSearch = z
     work_hours: z
       .enum(['full_time', 'part_time'])
       .optional()
-      .describe('Filter by work hours.'),
+      .describe('Filter by work hours: full_time or part_time'),
     sort: z
       .enum(['relevance', 'date', 'salary'])
       .optional()
