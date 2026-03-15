@@ -10435,6 +10435,362 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/zinc.product_search/call": {
+      "post": {
+        "operationId": "zinc_product_search",
+        "summary": "Search Products",
+        "description": "Search products across Amazon, Walmart, and other major retailers by keyword — titles, prices, ratings, images (Zinc)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "zinc.product_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Product search query (e.g. \"wireless headphones\", \"laptop stand\")"
+                  },
+                  "retailer": {
+                    "type": "string",
+                    "enum": [
+                      "amazon",
+                      "walmart",
+                      "amazon_uk",
+                      "amazon_ca",
+                      "amazon_de",
+                      "amazon_fr",
+                      "amazon_it",
+                      "amazon_es",
+                      "amazon_in",
+                      "amazon_jp"
+                    ],
+                    "description": "Retailer to search (default: amazon)"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20,
+                    "description": "Results page number (1-20, default 1)"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/zinc.product_details/call": {
+      "post": {
+        "operationId": "zinc_product_details",
+        "summary": "Get Product Details",
+        "description": "Get full product details by ASIN or product ID — title, description, brand, images, price, features, categories (Zinc)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "zinc.product_details"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "product_id": {
+                    "type": "string",
+                    "description": "Product ID or ASIN (e.g. \"B09V3KXJPB\")"
+                  },
+                  "retailer": {
+                    "type": "string",
+                    "enum": [
+                      "amazon",
+                      "walmart",
+                      "amazon_uk",
+                      "amazon_ca",
+                      "amazon_de",
+                      "amazon_fr",
+                      "amazon_it",
+                      "amazon_es",
+                      "amazon_in",
+                      "amazon_jp"
+                    ],
+                    "description": "Retailer to search (default: amazon)"
+                  }
+                },
+                "required": [
+                  "product_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/zinc.product_offers/call": {
+      "post": {
+        "operationId": "zinc_product_offers",
+        "summary": "Get Product Offers",
+        "description": "Get all seller offers for a product — prices, shipping, condition, Prime eligibility, seller ratings (Zinc)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "zinc.product_offers"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "product_id": {
+                    "type": "string",
+                    "description": "Product ID or ASIN to get seller offers for"
+                  },
+                  "retailer": {
+                    "type": "string",
+                    "enum": [
+                      "amazon",
+                      "walmart",
+                      "amazon_uk",
+                      "amazon_ca",
+                      "amazon_de",
+                      "amazon_fr",
+                      "amazon_it",
+                      "amazon_es",
+                      "amazon_in",
+                      "amazon_jp"
+                    ],
+                    "description": "Retailer to search (default: amazon)"
+                  }
+                },
+                "required": [
+                  "product_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/zinc.product_reviews/call": {
+      "post": {
+        "operationId": "zinc_product_reviews",
+        "summary": "Get Product Reviews",
+        "description": "Get product reviews and ratings by ASIN or product ID — review text, rating, author, verified purchase status (Zinc)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "zinc.product_reviews"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "product_id": {
+                    "type": "string",
+                    "description": "Product ID or ASIN to get reviews for"
+                  },
+                  "retailer": {
+                    "type": "string",
+                    "enum": [
+                      "amazon",
+                      "walmart",
+                      "amazon_uk",
+                      "amazon_ca",
+                      "amazon_de",
+                      "amazon_fr",
+                      "amazon_it",
+                      "amazon_es",
+                      "amazon_in",
+                      "amazon_jp"
+                    ],
+                    "description": "Retailer to search (default: amazon)"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20,
+                    "description": "Reviews page number (1-20, default 1)"
+                  }
+                },
+                "required": [
+                  "product_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

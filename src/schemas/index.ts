@@ -17,6 +17,7 @@ import { jobsSchemas } from './jobs.schema';
 import { educationSchemas } from './education.schema';
 import { geoSchemas } from './geo.schema';
 import { aipushSchemas } from './aipush.schema';
+import { zincSchemas } from './zinc.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -37,4 +38,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...educationSchemas,
   ...geoSchemas,
   ...aipushSchemas,
+  ...zincSchemas,
 };

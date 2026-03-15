@@ -16,6 +16,7 @@ import { JobsAdapter } from './jobs';
 import { EducationAdapter } from './education';
 import { GeoAdapter } from './geo';
 import { AIPushAdapter } from './aipush';
+import { ZincAdapter } from './zinc';
 import { config } from '../config';
 
 /**
@@ -129,6 +130,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       if (!aipushSecret) return undefined;
       const aipushUrl = (config as Record<string, unknown>).AIPUSH_INTERNAL_URL as string | undefined;
       return getOrCreate('aipush', () => new AIPushAdapter(aipushSecret, aipushUrl || undefined));
+    }
+    case 'zinc': {
+      const zincKey = (config as Record<string, unknown>).PROVIDER_KEY_ZINC as string | undefined;
+      if (!zincKey) return undefined;
+      return getOrCreate('zinc', () => new ZincAdapter(zincKey));
     }
     default:
       return undefined;

@@ -749,3 +749,28 @@ tools:
     provider: aipush
     price_usd: "0.100"
     cache_ttl: 3600
+
+  # --- UC-025: Zinc E-commerce Product Data ---
+  - tool_id: zinc.product_search
+    name: Zinc Product Search
+    provider: zinc
+    price_usd: "0.012"
+    cache_ttl: 300
+
+  - tool_id: zinc.product_details
+    name: Zinc Product Details
+    provider: zinc
+    price_usd: "0.012"
+    cache_ttl: 3600
+
+  - tool_id: zinc.product_offers
+    name: Zinc Product Offers
+    provider: zinc
+    price_usd: "0.012"
+    cache_ttl: 300
+
+  - tool_id: zinc.product_reviews
+    name: Zinc Product Reviews
+    provider: zinc
+    price_usd: "0.012"
+    cache_ttl: 3600
