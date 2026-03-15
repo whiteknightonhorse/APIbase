@@ -1,0 +1,5543 @@
+{
+  "serverInfo": {
+    "name": "APIbase",
+    "version": "1.0.0",
+    "title": "APIbase \u2014 The API Hub for AI Agents",
+    "description": "Unified MCP gateway to 125 tools across travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, AI marketing, weather, and more. Pay-per-call via x402 micropayments.",
+    "websiteUrl": "https://apibase.pro",
+    "icons": [
+      {
+        "src": "https://apibase.pro/icon.png",
+        "mimeType": "image/png",
+        "sizes": [
+          "256x256"
+        ]
+      }
+    ]
+  },
+  "authentication": {
+    "required": false
+  },
+  "tools": [
+    {
+      "name": "weather.conditions.current",
+      "title": "Get Current Weather",
+      "description": "Get current weather conditions for a location",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "type": "string",
+            "description": "City name, coordinates (lat,lon), or zip code"
+          },
+          "units": {
+            "type": "string",
+            "enum": [
+              "metric",
+              "imperial"
+            ],
+            "description": "Temperature units system"
+          }
+        },
+        "required": [
+          "location"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "weather.conditions.forecast",
+      "title": "Get Weather Forecast",
+      "description": "Get weather forecast for a location",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "type": "string",
+            "description": "City name, coordinates (lat,lon), or zip code"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "hourly",
+              "daily",
+              "both"
+            ],
+            "description": "Forecast granularity: hourly, daily, or both"
+          },
+          "units": {
+            "type": "string",
+            "enum": [
+              "metric",
+              "imperial"
+            ],
+            "description": "Temperature units system"
+          }
+        },
+        "required": [
+          "location"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "weather.alerts.get",
+      "title": "Get Weather Alerts",
+      "description": "Get active weather alerts for a location",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "type": "string",
+            "description": "City name, coordinates (lat,lon), or zip code"
+          }
+        },
+        "required": [
+          "location"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "weather.conditions.history",
+      "title": "Get Historical Weather",
+      "description": "Get historical weather data for a location and date",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "type": "string",
+            "description": "City name, coordinates (lat,lon), or zip code"
+          },
+          "date": {
+            "type": "string",
+            "description": "Historical date in YYYY-MM-DD format"
+          },
+          "units": {
+            "type": "string",
+            "enum": [
+              "metric",
+              "imperial"
+            ],
+            "description": "Temperature units system"
+          }
+        },
+        "required": [
+          "location",
+          "date"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "weather.air.quality",
+      "title": "Get Air Quality",
+      "description": "Get air quality index for a location",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "type": "string",
+            "description": "City name, coordinates (lat,lon), or zip code"
+          },
+          "include_forecast": {
+            "type": "boolean",
+            "description": "Include air quality forecast for next 24h"
+          }
+        },
+        "required": [
+          "location"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "weather.location.geocode",
+      "title": "Geocode Location",
+      "description": "Geocode a location query to coordinates",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Location name or coordinates to geocode"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "forward",
+              "reverse"
+            ],
+            "description": "Geocoding direction: forward (name to coords) or reverse (coords to name)"
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 5,
+            "description": "Max number of results (1-5)"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "weather.conditions.compare",
+      "title": "Compare Weather",
+      "description": "Compare weather across multiple locations",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "City name or coordinates"
+            },
+            "minItems": 2,
+            "maxItems": 5,
+            "description": "List of 2-5 locations to compare"
+          },
+          "units": {
+            "type": "string",
+            "enum": [
+              "metric",
+              "imperial"
+            ],
+            "description": "Temperature units system"
+          }
+        },
+        "required": [
+          "locations"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "crypto.price.current",
+      "title": "Get Crypto Prices",
+      "description": "Get current prices for cryptocurrencies",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "coins": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "CoinGecko coin ID (e.g. bitcoin, ethereum)"
+            },
+            "maxItems": 50,
+            "description": "List of coin IDs to get prices for"
+          },
+          "vs_currencies": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "Currency code (e.g. usd, eur, btc)"
+            },
+            "description": "Target currencies for price conversion"
+          },
+          "include_24h_change": {
+            "type": "boolean",
+            "description": "Include 24-hour price change percentage"
+          },
+          "include_market_cap": {
+            "type": "boolean",
+            "description": "Include market capitalization"
+          },
+          "include_volume": {
+            "type": "boolean",
+            "description": "Include 24-hour trading volume"
+          }
+        },
+        "required": [
+          "coins"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "crypto.market.overview",
+      "title": "Get Crypto Market Data",
+      "description": "Get cryptocurrency market data by category",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": [
+              "defi",
+              "layer-1",
+              "layer-2",
+              "gaming",
+              "ai-big-data",
+              "meme-token",
+              "stablecoins",
+              "nft",
+              "exchange-based-tokens",
+              "real-world-assets"
+            ],
+            "description": "Filter by market category"
+          },
+          "sort_by": {
+            "type": "string",
+            "enum": [
+              "market_cap_desc",
+              "market_cap_asc",
+              "volume_desc",
+              "price_desc",
+              "price_change_24h_desc"
+            ],
+            "description": "Sort order for results"
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 250,
+            "description": "Max number of results (1-250)"
+          },
+          "include_sparkline": {
+            "type": "boolean",
+            "description": "Include 7-day sparkline price data"
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "crypto.coin.detail",
+      "title": "Get Coin Details",
+      "description": "Get detailed information about a cryptocurrency",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "coin_id": {
+            "type": "string",
+            "description": "CoinGecko coin ID (e.g. bitcoin, ethereum)"
+          },
+          "include_description": {
+            "type": "boolean",
+            "description": "Include coin description text"
+          },
+          "include_developer": {
+            "type": "boolean",
+            "description": "Include developer/GitHub stats"
+          },
+          "include_community": {
+            "type": "boolean",
+            "description": "Include community/social stats"
+          }
+        },
+        "required": [
+          "coin_id"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "crypto.price.history",
+      "title": "Get Crypto Price History",
+      "description": "Get price history for a cryptocurrency",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "coin_id": {
+            "type": "string",
+            "description": "CoinGecko coin ID (e.g. bitcoin, ethereum)"
+          },
+          "days": {
+            "type": "integer",
+            "maximum": 365,
+            "description": "Number of days of history (1-365)"
+          },
+          "interval": {
+            "type": "string",
+            "enum": [
+              "5m",
+              "hourly",
+              "daily"
+            ],
+            "description": "Data point interval for price history (5m, hourly, or daily)"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "timeseries",
+              "ohlcv"
+            ],
+            "description": "Response format: timeseries (price points) or ohlcv (candlestick data)"
+          }
+        },
+        "required": [
+          "coin_id"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "crypto.trending.get",
+      "title": "Get Trending Coins",
+      "description": "Get trending cryptocurrencies",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "include_nfts": {
+            "type": "boolean",
+            "description": "Include trending NFT collections"
+          },
+          "include_categories": {
+            "type": "boolean",
+            "description": "Include trending categories"
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "crypto.global.stats",
+      "title": "Get Global Crypto Stats",
+      "description": "Get global cryptocurrency market statistics",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "include_defi": {
+            "type": "boolean",
+            "description": "Include DeFi-specific global stats"
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "crypto.dex.pools",
+      "title": "Get DEX Pools",
+      "description": "Get DEX liquidity pool data",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query for pool name or token"
+          },
+          "network": {
+            "type": "string",
+            "enum": [
+              "ethereum",
+              "bsc",
+              "polygon",
+              "arbitrum",
+              "solana",
+              "base",
+              "avalanche",
+              "optimism"
+            ],
+            "description": "Blockchain network to query (e.g. ethereum, bsc, polygon, solana)"
+          },
+          "sort_by": {
+            "type": "string",
+            "enum": [
+              "volume_24h",
+              "liquidity",
+              "price_change_24h",
+              "transactions_24h"
+            ],
+            "description": "Sort order for pool results"
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 50,
+            "description": "Max number of results (1-50)"
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "crypto.token.lookup",
+      "title": "Get Token by Address",
+      "description": "Get token info by contract address",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "contract_address": {
+            "type": "string",
+            "description": "Token contract address (e.g. 0x...)"
+          },
+          "network": {
+            "type": "string",
+            "enum": [
+              "ethereum",
+              "bsc",
+              "polygon",
+              "arbitrum",
+              "solana",
+              "base",
+              "avalanche",
+              "optimism"
+            ],
+            "description": "Blockchain network to query (e.g. ethereum, bsc, polygon, solana)"
+          }
+        },
+        "required": [
+          "contract_address"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "crypto.coin.search",
+      "title": "Search Cryptocurrencies",
+      "description": "Search for cryptocurrencies by name or symbol",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query for coin name, symbol, or ID"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "polymarket.market.search",
+      "title": "Search Prediction Markets",
+      "description": "Search prediction markets on Polymarket",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query for prediction markets"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "politics",
+              "crypto",
+              "sports",
+              "finance",
+              "science",
+              "culture",
+              "geopolitics",
+              "iran",
+              "economics"
+            ],
+            "description": "Filter by market category"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "resolved",
+              "all"
+            ],
+            "description": "Filter by market status"
+          },
+          "sort_by": {
+            "type": "string",
+            "enum": [
+              "volume",
+              "newest",
+              "ending_soon",
+              "probability_high",
+              "probability_low"
+            ],
+            "description": "Sort order for results"
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 100,
+            "description": "Max number of results (1-100)"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "polymarket.market.detail",
+      "title": "Get Market Details",
+      "description": "Get detailed info about a prediction market",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "market_id": {
+            "type": "string",
+            "description": "Polymarket condition ID or slug"
+          },
+          "include_orderbook": {
+            "type": "boolean",
+            "description": "Include current order book snapshot"
+          },
+          "include_history": {
+            "type": "boolean",
+            "description": "Include recent price history"
+          }
+        },
+        "required": [
+          "market_id"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "polymarket.market.prices",
+      "title": "Get Market Price",
+      "description": "Get midpoint price for a prediction market token",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "token_id": {
+            "type": "string",
+            "description": "Polymarket CLOB token ID"
+          }
+        },
+        "required": [
+          "token_id"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "polymarket.market.history",
+      "title": "Get Market Price History",
+      "description": "Get price history for a prediction market",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "market_id": {
+            "type": "string",
+            "description": "Polymarket condition ID"
+          },
+          "interval": {
+            "type": "string",
+            "enum": [
+              "1h",
+              "4h",
+              "1d",
+              "1w"
+            ],
+            "description": "Price data interval for history (1h, 4h, 1d, or 1w)"
+          },
+          "days": {
+            "type": "integer",
+            "maximum": 365,
+            "description": "Number of days of history (1-365)"
+          }
+        },
+        "required": [
+          "market_id"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "polymarket.market.orderbook",
+      "title": "Get Order Book",
+      "description": "Get order book for a prediction market",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "market_id": {
+            "type": "string",
+            "description": "Polymarket condition ID"
+          },
+          "depth": {
+            "type": "integer",
+            "maximum": 50,
+            "description": "Number of price levels per side (1-50)"
+          }
+        },
+        "required": [
+          "market_id"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "polymarket.market.trending",
+      "title": "Get Trending Markets",
+      "description": "Get trending prediction markets",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "sort_by": {
+            "type": "string",
+            "enum": [
+              "volume_24h",
+              "newest",
+              "biggest_move",
+              "ending_soon"
+            ],
+            "description": "Sort order for trending markets"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "politics",
+              "crypto",
+              "sports",
+              "finance",
+              "science",
+              "culture",
+              "geopolitics"
+            ],
+            "description": "Filter by market category"
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 50,
+            "description": "Max number of results (1-50)"
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "polymarket.trading.place_order",
+      "title": "Place Order",
+      "description": "Place a limit order on Polymarket",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "token_id": {
+            "type": "string",
+            "description": "Polymarket CLOB token ID to trade"
+          },
+          "price": {
+            "type": "number",
+            "minimum": 0.01,
+            "maximum": 0.99,
+            "description": "Limit price between 0.01 and 0.99"
+          },
+          "side": {
+            "type": "string",
+            "enum": [
+              "buy",
+              "sell"
+            ],
+            "description": "Order side: buy or sell"
+          },
+          "size": {
+            "type": "number",
+            "minimum": 1,
+            "description": "Order size in USDC units"
+          },
+          "order_type": {
+            "type": "string",
+            "enum": [
+              "GTC",
+              "GTD",
+              "FOK"
+            ],
+            "description": "Order type: Good-Til-Cancelled, Good-Til-Date, Fill-Or-Kill"
+          },
+          "tick_size": {
+            "type": "string",
+            "description": "Minimum price increment (e.g. 0.01, 0.001)"
+          },
+          "neg_risk": {
+            "type": "boolean",
+            "description": "Whether this is a negative risk market"
+          }
+        },
+        "required": [
+          "token_id",
+          "price",
+          "side",
+          "size"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "polymarket.trading.cancel_order",
+      "title": "Cancel Order",
+      "description": "Cancel an open order on Polymarket",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "order_id": {
+            "type": "string",
+            "description": "Polymarket order ID to cancel (from open_orders response)"
+          }
+        },
+        "required": [
+          "order_id"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "polymarket.trading.open_orders",
+      "title": "Get Open Orders",
+      "description": "Get open orders on Polymarket",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "market_id": {
+            "type": "string",
+            "description": "Filter orders by market condition ID"
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "polymarket.trading.history",
+      "title": "Get Trade History",
+      "description": "Get trade history on Polymarket",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "market_id": {
+            "type": "string",
+            "description": "Filter trades by market condition ID"
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 100,
+            "description": "Max number of results (1-100)"
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "polymarket.account.balance",
+      "title": "Get Balance",
+      "description": "Get balance/allowance on Polymarket",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "asset_type": {
+            "type": "string",
+            "enum": [
+              "COLLATERAL",
+              "CONDITIONAL"
+            ],
+            "description": "Asset type: COLLATERAL (USDC) or CONDITIONAL (outcome tokens)"
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "sabre.flights.search",
+      "title": "Search Flights (Sabre)",
+      "description": "Search for real-time flight offers with prices between airports (Sabre GDS)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "origin": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "Origin airport IATA code (e.g. JFK, LAX)"
+          },
+          "destination": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "Destination airport IATA code (e.g. CDG, LHR)"
+          },
+          "departure_date": {
+            "type": "string",
+            "description": "Departure date in YYYY-MM-DD format"
+          },
+          "return_date": {
+            "type": "string",
+            "description": "Return date in YYYY-MM-DD format for round trips"
+          },
+          "point_of_sale": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "default": "US",
+            "description": "2-letter country code for pricing (e.g. US, GB)"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Max number of flight offers (1-50)"
+          }
+        },
+        "required": [
+          "origin",
+          "destination",
+          "departure_date"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "sabre.flights.destinations",
+      "title": "Find Cheap Destinations",
+      "description": "Find cheapest flight destinations from an origin airport",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "origin": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "Origin airport IATA code (e.g. JFK, LAX)"
+          },
+          "departure_date": {
+            "type": "string",
+            "description": "Departure date in YYYY-MM-DD format"
+          },
+          "return_date": {
+            "type": "string",
+            "description": "Return date in YYYY-MM-DD format"
+          },
+          "point_of_sale": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "default": "US",
+            "description": "2-letter country code for pricing (e.g. US, GB)"
+          },
+          "max_fare": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Maximum fare in USD to filter results"
+          }
+        },
+        "required": [
+          "origin",
+          "departure_date",
+          "return_date"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "sabre.reference.airline",
+      "title": "Airline Lookup (Sabre)",
+      "description": "Look up airline details by IATA or ICAO code",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "airline_code": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 3,
+            "description": "Airline IATA (2-char) or ICAO (3-char) code"
+          }
+        },
+        "required": [
+          "airline_code"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "sabre.reference.themes",
+      "title": "Get Travel Themes",
+      "description": "Get travel theme categories (beach, skiing, romantic, etc.)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locale": {
+            "type": "string",
+            "description": "Response locale (e.g. en-US, de-DE)"
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "amadeus.flights.search",
+      "title": "Search Flights (Amadeus)",
+      "description": "Search for real-time flight offers between airports with prices, airlines, stops, and duration (Amadeus)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "origin": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "Origin airport IATA code (e.g. JFK, LAX)"
+          },
+          "destination": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "Destination airport IATA code (e.g. CDG, LHR)"
+          },
+          "departure_date": {
+            "type": "string",
+            "description": "Departure date in YYYY-MM-DD format"
+          },
+          "return_date": {
+            "type": "string",
+            "description": "Return date in YYYY-MM-DD format for round trips"
+          },
+          "adults": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9,
+            "default": 1,
+            "description": "Number of adult passengers (1-9)"
+          },
+          "travel_class": {
+            "type": "string",
+            "enum": [
+              "ECONOMY",
+              "PREMIUM_ECONOMY",
+              "BUSINESS",
+              "FIRST"
+            ],
+            "default": "ECONOMY",
+            "description": "Cabin class: ECONOMY, PREMIUM_ECONOMY, BUSINESS, or FIRST (default ECONOMY)"
+          },
+          "nonstop": {
+            "type": "boolean",
+            "default": false,
+            "description": "Only return non-stop flights"
+          },
+          "max_results": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "default": 10,
+            "description": "Max number of flight offers (1-50)"
+          },
+          "currency": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "default": "USD",
+            "description": "Price currency ISO code (e.g. USD, EUR)"
+          }
+        },
+        "required": [
+          "origin",
+          "destination",
+          "departure_date"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "amadeus.flights.price",
+      "title": "Confirm Flight Price",
+      "description": "Confirm and get final pricing for a flight offer from Amadeus flight search",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "flight_offer": {
+            "type": "object",
+            "additionalProperties": {},
+            "description": "Flight offer object from flight_search results"
+          }
+        },
+        "required": [
+          "flight_offer"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "amadeus.flights.status",
+      "title": "Get Flight Status",
+      "description": "Get real-time status of a specific flight \u2014 delays, cancellations, gate info (Amadeus)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "carrier_code": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 3,
+            "description": "Airline IATA or ICAO code (e.g. AA, UAL)"
+          },
+          "flight_number": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 5,
+            "description": "Flight number (e.g. 100, 1234)"
+          },
+          "date": {
+            "type": "string",
+            "description": "Flight date in YYYY-MM-DD format"
+          }
+        },
+        "required": [
+          "carrier_code",
+          "flight_number",
+          "date"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "amadeus.airports.search",
+      "title": "Search Airports",
+      "description": "Search airports and cities by keyword or IATA code with autocomplete (Amadeus)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "keyword": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "description": "Airport or city name to search (e.g. London, JFK)"
+          },
+          "subType": {
+            "type": "string",
+            "enum": [
+              "AIRPORT",
+              "CITY"
+            ],
+            "description": "Filter by location type"
+          }
+        },
+        "required": [
+          "keyword"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "amadeus.airports.nearest",
+      "title": "Find Nearest Airports",
+      "description": "Find nearest airports by geographic coordinates (Amadeus)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "latitude": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90,
+            "description": "Latitude in decimal degrees (-90 to 90)"
+          },
+          "longitude": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180,
+            "description": "Longitude in decimal degrees (-180 to 180)"
+          },
+          "radius": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 500,
+            "default": 500,
+            "description": "Search radius in km (1-500)"
+          }
+        },
+        "required": [
+          "latitude",
+          "longitude"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "amadeus.airports.routes",
+      "title": "Get Airport Routes",
+      "description": "Get all direct flight destinations from an airport (Amadeus)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "airport_code": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "Airport IATA code (e.g. JFK, LAX)"
+          }
+        },
+        "required": [
+          "airport_code"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "amadeus.reference.airline",
+      "title": "Airline Lookup (Amadeus)",
+      "description": "Look up airline details by IATA or ICAO code (Amadeus)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "airline_code": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 3,
+            "description": "Airline IATA (2-char) or ICAO (3-char) code"
+          }
+        },
+        "required": [
+          "airline_code"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "aviasales.flights.search",
+      "title": "Search Flights (Aviasales)",
+      "description": "Search for flights between airports",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "origin": {
+            "type": "string",
+            "description": "Origin airport IATA code (e.g. JFK, LAX)"
+          },
+          "destination": {
+            "type": "string",
+            "description": "Destination airport IATA code (e.g. CDG, LHR)"
+          },
+          "departure_date": {
+            "type": "string",
+            "description": "Departure date in YYYY-MM-DD format"
+          },
+          "return_date": {
+            "type": "string",
+            "description": "Return date in YYYY-MM-DD format for round trips"
+          },
+          "passengers": {
+            "type": "object",
+            "properties": {
+              "adults": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9,
+                "description": "Number of adult passengers (1-9)"
+              },
+              "children": {
+                "type": "integer",
+                "maximum": 9,
+                "description": "Number of child passengers (0-9)"
+              },
+              "infants": {
+                "type": "integer",
+                "maximum": 9,
+                "description": "Number of infant passengers (0-9)"
+              }
+            },
+            "additionalProperties": false,
+            "description": "Passenger counts by type"
+          },
+          "cabin_class": {
+            "type": "string",
+            "enum": [
+              "economy",
+              "business"
+            ],
+            "description": "Cabin class: economy or business (default economy)"
+          },
+          "direct_only": {
+            "type": "boolean",
+            "description": "Only return direct (non-stop) flights"
+          },
+          "currency": {
+            "type": "string",
+            "description": "Price currency ISO code (e.g. USD, EUR)"
+          },
+          "sort_by": {
+            "type": "string",
+            "enum": [
+              "price",
+              "duration",
+              "departure_time"
+            ],
+            "description": "Sort order for results"
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 50,
+            "description": "Max number of results (1-50)"
+          }
+        },
+        "required": [
+          "origin",
+          "destination",
+          "departure_date"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "aviasales.flights.calendar",
+      "title": "Flight Price Calendar",
+      "description": "Get flight price calendar for a route",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "origin": {
+            "type": "string",
+            "description": "Origin airport IATA code (e.g. JFK, LAX)"
+          },
+          "destination": {
+            "type": "string",
+            "description": "Destination airport IATA code (e.g. CDG, LHR)"
+          },
+          "month": {
+            "type": "string",
+            "description": "Month in YYYY-MM format"
+          },
+          "currency": {
+            "type": "string",
+            "description": "Price currency ISO code (e.g. USD, EUR)"
+          }
+        },
+        "required": [
+          "origin",
+          "destination",
+          "month"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "aviasales.flights.cheap",
+      "title": "Find Cheap Flights",
+      "description": "Find cheapest flights from an origin",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "origin": {
+            "type": "string",
+            "description": "Origin airport IATA code (e.g. JFK, LAX)"
+          },
+          "destination": {
+            "type": "string",
+            "description": "Destination airport IATA code (optional, searches all destinations if omitted)"
+          },
+          "departure_month": {
+            "type": "string",
+            "description": "Filter by departure month in YYYY-MM format"
+          },
+          "direct_only": {
+            "type": "boolean",
+            "description": "Only return direct flights"
+          },
+          "currency": {
+            "type": "string",
+            "description": "Price currency ISO code (e.g. USD, EUR)"
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 30,
+            "description": "Max number of results (1-30)"
+          }
+        },
+        "required": [
+          "origin"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "aviasales.flights.popular",
+      "title": "Popular Flight Routes",
+      "description": "Get popular flight routes from an origin",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "origin": {
+            "type": "string",
+            "description": "Origin airport IATA code (e.g. JFK, LAX)"
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 30,
+            "description": "Max number of results (1-30)"
+          }
+        },
+        "required": [
+          "origin"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "aviasales.hotels.search",
+      "title": "Search Hotels",
+      "description": "Search for hotels in a city",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "city": {
+            "type": "string",
+            "description": "City name or IATA code for hotel search"
+          },
+          "check_in": {
+            "type": "string",
+            "description": "Check-in date in YYYY-MM-DD format"
+          },
+          "check_out": {
+            "type": "string",
+            "description": "Check-out date in YYYY-MM-DD format"
+          },
+          "guests": {
+            "type": "object",
+            "properties": {
+              "adults": {
+                "type": "integer",
+                "description": "Number of adult guests"
+              },
+              "children": {
+                "type": "integer",
+                "description": "Number of child guests"
+              }
+            },
+            "additionalProperties": false,
+            "description": "Guest counts by type (adults, children)"
+          },
+          "stars": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5,
+              "description": "Star rating (1-5)"
+            },
+            "description": "Filter by hotel star ratings"
+          },
+          "sort_by": {
+            "type": "string",
+            "enum": [
+              "price",
+              "rating",
+              "stars",
+              "popularity"
+            ],
+            "description": "Sort order for results"
+          },
+          "price_max_usd": {
+            "type": "number",
+            "description": "Maximum price per night in USD"
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 50,
+            "description": "Max number of results (1-50)"
+          }
+        },
+        "required": [
+          "city",
+          "check_in",
+          "check_out"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "aviasales.flights.nearby",
+      "title": "Nearby Destinations",
+      "description": "Find nearby flight destinations",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "origin": {
+            "type": "string",
+            "description": "Origin airport IATA code (e.g. JFK, LAX)"
+          },
+          "destination": {
+            "type": "string",
+            "description": "Destination airport IATA code (e.g. CDG, LHR)"
+          },
+          "departure_date": {
+            "type": "string",
+            "description": "Departure date in YYYY-MM-DD format"
+          },
+          "return_date": {
+            "type": "string",
+            "description": "Return date in YYYY-MM-DD format"
+          },
+          "flexibility_days": {
+            "type": "integer",
+            "description": "Date flexibility in days (+/-)"
+          },
+          "distance_km": {
+            "type": "integer",
+            "description": "Max distance from destination in km"
+          },
+          "currency": {
+            "type": "string",
+            "description": "Price currency ISO code (e.g. USD, EUR)"
+          }
+        },
+        "required": [
+          "origin",
+          "destination",
+          "departure_date"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "aviasales.reference.airport",
+      "title": "Airport Lookup",
+      "description": "Look up airport by name or code",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Airport name, city, or IATA code to search"
+          },
+          "locale": {
+            "type": "string",
+            "description": "Response locale (e.g. en, de, fr)"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "hyperliquid.markets.data",
+      "title": "Hyperliquid Market Data",
+      "description": "Get market metadata and mid prices for all perpetual pairs on Hyperliquid",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "coin": {
+            "type": "string",
+            "description": "Specific coin symbol (e.g. BTC, ETH). Omit for all markets."
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "hyperliquid.markets.orderbook",
+      "title": "Hyperliquid Order Book",
+      "description": "Get L2 order book depth for a perpetual pair on Hyperliquid",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "coin": {
+            "type": "string",
+            "description": "Coin symbol (e.g. BTC, ETH)"
+          },
+          "n_sig_figs": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10,
+            "description": "Number of significant figures for price levels"
+          },
+          "mantissa": {
+            "type": "integer",
+            "description": "Mantissa for price rounding"
+          }
+        },
+        "required": [
+          "coin"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "hyperliquid.markets.klines",
+      "title": "Hyperliquid Klines",
+      "description": "Get candlestick (OHLCV) data for a perpetual pair on Hyperliquid",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "coin": {
+            "type": "string",
+            "description": "Coin symbol (e.g. BTC, ETH)"
+          },
+          "interval": {
+            "type": "string",
+            "enum": [
+              "1m",
+              "3m",
+              "5m",
+              "15m",
+              "30m",
+              "1h",
+              "2h",
+              "4h",
+              "6h",
+              "8h",
+              "12h",
+              "1d",
+              "3d",
+              "1w",
+              "1M"
+            ],
+            "description": "Candlestick interval (1m, 5m, 15m, 1h, 4h, 1d, 1w)"
+          },
+          "start_time": {
+            "type": "integer",
+            "description": "Start time in milliseconds since epoch"
+          },
+          "end_time": {
+            "type": "integer",
+            "description": "End time in milliseconds since epoch"
+          }
+        },
+        "required": [
+          "coin"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "hyperliquid.account.positions",
+      "title": "Hyperliquid Positions",
+      "description": "Get open positions for a user wallet on Hyperliquid",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "type": "string",
+            "description": "User wallet address (0x...)"
+          }
+        },
+        "required": [
+          "user"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "hyperliquid.account.summary",
+      "title": "Hyperliquid Account",
+      "description": "Get account summary and margin details for a user wallet on Hyperliquid",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "type": "string",
+            "description": "User wallet address (0x...)"
+          }
+        },
+        "required": [
+          "user"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "hyperliquid.vaults.details",
+      "title": "Hyperliquid Vault",
+      "description": "Get vault details including performance and TVL on Hyperliquid",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "vault_address": {
+            "type": "string",
+            "description": "Vault contract address (0x...)"
+          }
+        },
+        "required": [
+          "vault_address"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "foursquare.places.search",
+      "title": "Search Places",
+      "description": "Search for places (restaurants, hotels, cafes, attractions) worldwide by name, category, or location (Foursquare)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search term (e.g. \"restaurant\", \"coffee\", \"hotel\")"
+          },
+          "near": {
+            "type": "string",
+            "description": "Place name for geographic context (e.g. \"Bangkok,Thailand\", \"New York,NY\")"
+          },
+          "ll": {
+            "type": "string",
+            "description": "Latitude,longitude (e.g. \"13.7563,100.5018\"). Use either near or ll, not both"
+          },
+          "radius": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100000,
+            "description": "Search radius in meters (max 100000)"
+          },
+          "categories": {
+            "type": "string",
+            "description": "Comma-separated Foursquare category IDs to filter results"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Max results to return (1-50, default 10)"
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "relevance",
+              "rating",
+              "distance",
+              "popularity"
+            ],
+            "description": "Sort order for results"
+          },
+          "open_now": {
+            "type": "boolean",
+            "description": "Filter to only places open now"
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "foursquare.places.details",
+      "title": "Get Place Details",
+      "description": "Get detailed information about a place \u2014 hours, rating, price, contact, categories (Foursquare)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "fsq_id": {
+            "type": "string",
+            "description": "Foursquare place ID (e.g. \"4b5988fef964a520e62a28e3\")"
+          }
+        },
+        "required": [
+          "fsq_id"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "foursquare.places.tips",
+      "title": "Get Place Tips",
+      "description": "Get user tips and reviews for a place (Foursquare)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "fsq_id": {
+            "type": "string",
+            "description": "Foursquare place ID to get tips for"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Max tips to return (1-50, default 10)"
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "popular",
+              "newest",
+              "oldest"
+            ],
+            "description": "Sort order for tips: popular, newest, or oldest"
+          }
+        },
+        "required": [
+          "fsq_id"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "foursquare.places.photos",
+      "title": "Get Place Photos",
+      "description": "Get photos for a place with size and classification options (Foursquare)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "fsq_id": {
+            "type": "string",
+            "description": "Foursquare place ID to get photos for"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Max photos to return (1-50, default 10)"
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "popular",
+              "newest"
+            ],
+            "description": "Sort order for photos: popular or newest"
+          },
+          "classifications": {
+            "type": "string",
+            "description": "Comma-separated photo classifications (e.g. \"food,indoor,outdoor\")"
+          }
+        },
+        "required": [
+          "fsq_id"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "foursquare.places.autocomplete",
+      "title": "Autocomplete Places",
+      "description": "Get autocomplete suggestions for places, addresses, and searches (Foursquare)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query for autocomplete suggestions"
+          },
+          "ll": {
+            "type": "string",
+            "description": "Latitude,longitude to bias results (e.g. \"13.7563,100.5018\")"
+          },
+          "radius": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100000,
+            "description": "Bias radius in meters for location results"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10,
+            "description": "Max suggestions to return (1-10, default 5)"
+          },
+          "types": {
+            "type": "string",
+            "description": "Comma-separated result types (e.g. \"place,address,search\")"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "ticketmaster.events.search",
+      "title": "Search Events",
+      "description": "Search for events (concerts, sports, theatre, festivals) by keyword, city, date, or category across 26+ countries (Ticketmaster)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "keyword": {
+            "type": "string",
+            "description": "Search keyword (e.g. \"concert\", \"NBA\", \"Taylor Swift\")"
+          },
+          "city": {
+            "type": "string",
+            "description": "City name to filter events (e.g. \"New York\", \"London\")"
+          },
+          "countryCode": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "ISO 3166-1 alpha-2 country code (e.g. \"US\", \"GB\", \"DE\")"
+          },
+          "stateCode": {
+            "type": "string",
+            "description": "State code for US/CA events (e.g. \"NY\", \"CA\", \"ON\")"
+          },
+          "classificationName": {
+            "type": "string",
+            "description": "Event category filter (e.g. \"Music\", \"Sports\", \"Arts & Theatre\")"
+          },
+          "startDateTime": {
+            "type": "string",
+            "description": "Start date/time in ISO 8601 format with Z suffix (e.g. \"2026-04-01T00:00:00Z\")"
+          },
+          "endDateTime": {
+            "type": "string",
+            "description": "End date/time in ISO 8601 format with Z suffix (e.g. \"2026-12-31T23:59:59Z\")"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "description": "Number of results per page (1-200, default 20)"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Page number for pagination (0-based, default 0)"
+          },
+          "sort": {
+            "type": "string",
+            "description": "Sort order (e.g. \"date,asc\", \"relevance,desc\", \"name,asc\")"
+          },
+          "locale": {
+            "type": "string",
+            "description": "Locale for response (e.g. \"en-us\", \"fr-fr\")"
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "ticketmaster.events.details",
+      "title": "Get Event Details",
+      "description": "Get full details for an event \u2014 dates, venues, prices, images, classifications, seat map (Ticketmaster)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Ticketmaster event ID (e.g. \"vvG1iZ4JkS1GKT\")"
+          },
+          "locale": {
+            "type": "string",
+            "description": "Locale for response (e.g. \"en-us\")"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "ticketmaster.events.nearby",
+      "title": "Find Nearby Events",
+      "description": "Find events near geographic coordinates with radius filter (Ticketmaster)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "latlong": {
+            "type": "string",
+            "description": "Latitude,longitude coordinates (e.g. \"40.7128,-74.0060\" for NYC)"
+          },
+          "radius": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 500,
+            "description": "Search radius (default unit: miles, max 500)"
+          },
+          "unit": {
+            "type": "string",
+            "enum": [
+              "miles",
+              "km"
+            ],
+            "description": "Distance unit for radius (default: miles)"
+          },
+          "keyword": {
+            "type": "string",
+            "description": "Optional keyword filter (e.g. \"jazz\", \"basketball\")"
+          },
+          "classificationName": {
+            "type": "string",
+            "description": "Event category filter (e.g. \"Music\", \"Sports\")"
+          },
+          "startDateTime": {
+            "type": "string",
+            "description": "Start date/time in ISO 8601 format with Z suffix"
+          },
+          "endDateTime": {
+            "type": "string",
+            "description": "End date/time in ISO 8601 format with Z suffix"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "description": "Number of results per page (1-200, default 20)"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Page number for pagination (0-based, default 0)"
+          },
+          "sort": {
+            "type": "string",
+            "description": "Sort order (e.g. \"date,asc\", \"distance,asc\")"
+          },
+          "locale": {
+            "type": "string",
+            "description": "Locale for response (e.g. \"en-us\")"
+          }
+        },
+        "required": [
+          "latlong"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "ticketmaster.events.by_artist",
+      "title": "Get Artist Events",
+      "description": "Find events by artist or performer name with optional country and date filters (Ticketmaster)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "keyword": {
+            "type": "string",
+            "description": "Artist/performer name to search (e.g. \"Beyonce\", \"Coldplay\")"
+          },
+          "attractionId": {
+            "type": "string",
+            "description": "Ticketmaster attraction ID for exact artist match"
+          },
+          "countryCode": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "ISO 3166-1 alpha-2 country code (e.g. \"US\", \"GB\")"
+          },
+          "startDateTime": {
+            "type": "string",
+            "description": "Start date/time in ISO 8601 format with Z suffix"
+          },
+          "endDateTime": {
+            "type": "string",
+            "description": "End date/time in ISO 8601 format with Z suffix"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "description": "Number of results per page (1-200, default 20)"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Page number for pagination (0-based, default 0)"
+          },
+          "sort": {
+            "type": "string",
+            "description": "Sort order (e.g. \"date,asc\", \"relevance,desc\")"
+          },
+          "locale": {
+            "type": "string",
+            "description": "Locale for response (e.g. \"en-us\")"
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "ticketmaster.events.by_venue",
+      "title": "Get Venue Events",
+      "description": "Get upcoming events at a specific venue by venue ID (Ticketmaster)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "venueId": {
+            "type": "string",
+            "description": "Ticketmaster venue ID (e.g. \"KovZpZA7AAEA\" for Madison Square Garden)"
+          },
+          "keyword": {
+            "type": "string",
+            "description": "Optional keyword filter for events at this venue"
+          },
+          "startDateTime": {
+            "type": "string",
+            "description": "Start date/time in ISO 8601 format with Z suffix"
+          },
+          "endDateTime": {
+            "type": "string",
+            "description": "End date/time in ISO 8601 format with Z suffix"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "description": "Number of results per page (1-200, default 20)"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Page number for pagination (0-based, default 0)"
+          },
+          "sort": {
+            "type": "string",
+            "description": "Sort order (e.g. \"date,asc\", \"relevance,desc\")"
+          },
+          "locale": {
+            "type": "string",
+            "description": "Locale for response (e.g. \"en-us\")"
+          }
+        },
+        "required": [
+          "venueId"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "ticketmaster.events.trending",
+      "title": "Get Trending Events",
+      "description": "Get trending and popular events sorted by relevance (Ticketmaster)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "countryCode": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "ISO 3166-1 alpha-2 country code (e.g. \"US\", \"GB\")"
+          },
+          "classificationName": {
+            "type": "string",
+            "description": "Event category filter (e.g. \"Music\", \"Sports\")"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "description": "Number of results per page (1-200, default 20)"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Page number for pagination (0-based, default 0)"
+          },
+          "locale": {
+            "type": "string",
+            "description": "Locale for response (e.g. \"en-us\")"
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "ticketmaster.events.categories",
+      "title": "Get Event Categories",
+      "description": "Get all event classification categories \u2014 segments, genres, sub-genres (Ticketmaster)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "description": "Number of results per page (1-200, default 20)"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Page number for pagination (0-based, default 0)"
+          },
+          "locale": {
+            "type": "string",
+            "description": "Locale for response (e.g. \"en-us\")"
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "tmdb.movies.search",
+      "title": "Search Movies & TV",
+      "description": "Search for movies, TV shows, and people by name across 1M+ titles in 39 languages (TMDB)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query (movie, TV show, or person name)"
+          },
+          "language": {
+            "type": "string",
+            "description": "ISO 639-1 language code (e.g. \"en-US\", \"de-DE\", \"ja-JP\"). Default: en-US"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 500,
+            "description": "Page number (1-500, default 1)"
+          },
+          "include_adult": {
+            "type": "boolean",
+            "description": "Include adult content in results (default false)"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "tmdb.movies.details",
+      "title": "Get Movie Details",
+      "description": "Get full movie details \u2014 cast, crew, trailers, ratings, streaming providers, runtime, budget, revenue (TMDB)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "TMDB movie ID (e.g. 550 for Fight Club, 27205 for Inception)"
+          },
+          "language": {
+            "type": "string",
+            "description": "ISO 639-1 language code (e.g. \"en-US\"). Default: en-US"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "tmdb.movies.discover",
+      "title": "Discover Movies & TV",
+      "description": "Discover movies or TV shows by genre, year, rating, language, and sort order (TMDB)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "movie",
+              "tv"
+            ],
+            "description": "Content type to discover: \"movie\" or \"tv\" (default \"movie\")"
+          },
+          "language": {
+            "type": "string",
+            "description": "ISO 639-1 language code (e.g. \"en-US\"). Default: en-US"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 500,
+            "description": "Page number (1-500, default 1)"
+          },
+          "sort_by": {
+            "type": "string",
+            "description": "Sort field (e.g. \"popularity.desc\", \"vote_average.desc\", \"revenue.desc\", \"primary_release_date.desc\")"
+          },
+          "with_genres": {
+            "type": "string",
+            "description": "Comma-separated genre IDs to filter (e.g. \"28,12\" for Action+Adventure)"
+          },
+          "year": {
+            "type": "integer",
+            "description": "Filter by release year (movies only)"
+          },
+          "primary_release_year": {
+            "type": "integer",
+            "description": "Filter by primary release year (movies only)"
+          },
+          "first_air_date_year": {
+            "type": "integer",
+            "description": "Filter by first air date year (TV only)"
+          },
+          "vote_average_gte": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 10,
+            "description": "Minimum vote average (0-10)"
+          },
+          "vote_average_lte": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 10,
+            "description": "Maximum vote average (0-10)"
+          },
+          "with_original_language": {
+            "type": "string",
+            "description": "ISO 639-1 original language filter (e.g. \"en\", \"ko\", \"ja\")"
+          },
+          "region": {
+            "type": "string",
+            "description": "ISO 3166-1 region for release dates (e.g. \"US\", \"GB\")"
+          },
+          "include_adult": {
+            "type": "boolean",
+            "description": "Include adult content (default false)"
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "tmdb.movies.trending",
+      "title": "Get Trending Movies & TV",
+      "description": "Get trending movies, TV shows, or people \u2014 daily or weekly (TMDB)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "movie",
+              "tv",
+              "person",
+              "all"
+            ],
+            "description": "Content type: \"movie\", \"tv\", \"person\", or \"all\" (default \"movie\")"
+          },
+          "window": {
+            "type": "string",
+            "enum": [
+              "day",
+              "week"
+            ],
+            "description": "Time window: \"day\" or \"week\" (default \"week\")"
+          },
+          "language": {
+            "type": "string",
+            "description": "ISO 639-1 language code (e.g. \"en-US\"). Default: en-US"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 500,
+            "description": "Page number (1-500, default 1)"
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "tmdb.movies.similar",
+      "title": "Get Similar Movies",
+      "description": "Get movie recommendations based on a movie ID \u2014 similar genres, themes, cast (TMDB)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "TMDB movie ID to get recommendations for"
+          },
+          "language": {
+            "type": "string",
+            "description": "ISO 639-1 language code (e.g. \"en-US\"). Default: en-US"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 500,
+            "description": "Page number (1-500, default 1)"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "tmdb.movies.person",
+      "title": "Search Person / Filmography",
+      "description": "Search for actors, directors, or crew by name, or get full filmography by person ID (TMDB)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Person name to search for (e.g. \"Tom Hanks\", \"Miyazaki\"). Use either query or id"
+          },
+          "id": {
+            "type": "integer",
+            "description": "TMDB person ID for detailed filmography (e.g. 31 for Tom Hanks). Use either id or query"
+          },
+          "language": {
+            "type": "string",
+            "description": "ISO 639-1 language code (e.g. \"en-US\"). Default: en-US"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 500,
+            "description": "Page number for search results (1-500, default 1)"
+          },
+          "include_adult": {
+            "type": "boolean",
+            "description": "Include adult content (default false)"
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "tmdb.movies.where_to_watch",
+      "title": "Where to Watch",
+      "description": "Find streaming, rental, and purchase options for a movie or TV show by country (TMDB)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "TMDB movie or TV show ID"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "movie",
+              "tv"
+            ],
+            "description": "Content type: \"movie\" or \"tv\" (default \"movie\")"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "health.nutrition.food_search",
+      "title": "Search Foods (USDA)",
+      "description": "Search 350K+ foods in the USDA FoodData Central database \u2014 nutrition facts, ingredients, branded products, and reference foods",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Food search query (e.g. \"chicken breast\", \"brown rice\", \"vitamin D milk\")"
+          },
+          "data_type": {
+            "type": "string",
+            "enum": [
+              "Foundation",
+              "Branded",
+              "SR Legacy",
+              "all"
+            ],
+            "description": "USDA data type filter: \"Foundation\" (reference foods), \"Branded\" (brand-name products), \"SR Legacy\" (legacy reference), \"all\" (default)"
+          },
+          "brand_owner": {
+            "type": "string",
+            "description": "Filter by brand owner name (e.g. \"General Mills\", \"Tyson\")"
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "description": "Results per page (1-200, default 50)"
+          },
+          "page_number": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number (default 1)"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "health.nutrition.food_details",
+      "title": "Get Food Nutrition Details",
+      "description": "Get detailed nutrition data for a food item \u2014 up to 150 nutrients, portions, serving sizes, ingredients (USDA)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "fdc_id": {
+            "type": "integer",
+            "description": "USDA FoodData Central food ID (e.g. 171705 for chicken breast)"
+          }
+        },
+        "required": [
+          "fdc_id"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "health.safety.drug_events",
+      "title": "Search Drug Adverse Events",
+      "description": "Search FDA FAERS database for drug adverse event reports \u2014 side effects, reactions, patient demographics (OpenFDA)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "search": {
+            "type": "string",
+            "description": "OpenFDA search query for adverse events (e.g. \"patient.drug.medicinalproduct:aspirin\", \"patient.reaction.reactionmeddrapt:headache\")"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Number of results (1-100, default 10)"
+          },
+          "skip": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of results to skip for pagination"
+          }
+        },
+        "required": [
+          "search"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "health.safety.food_recalls",
+      "title": "Search Food Recalls",
+      "description": "Search FDA food enforcement and recall reports \u2014 contamination, mislabeling, safety alerts (OpenFDA)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "search": {
+            "type": "string",
+            "description": "OpenFDA search query for food recalls (e.g. \"reason_for_recall:salmonella\", \"recalling_firm:\"Tyson\"\")"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Number of results (1-100, default 10)"
+          },
+          "skip": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of results to skip for pagination"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Ongoing",
+              "Completed",
+              "Terminated"
+            ],
+            "description": "Filter by recall status"
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "health.safety.drug_labels",
+      "title": "Search Drug Labels",
+      "description": "Search drug labeling data \u2014 indications, dosage, warnings, interactions, contraindications (OpenFDA)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "search": {
+            "type": "string",
+            "description": "OpenFDA search query for drug labels (e.g. \"openfda.brand_name:ibuprofen\", \"openfda.generic_name:metformin\", \"drug_interactions:warfarin\")"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Number of results (1-100, default 10)"
+          },
+          "skip": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of results to skip for pagination"
+          }
+        },
+        "required": [
+          "search"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "health.supplements.search",
+      "title": "Search Dietary Supplements",
+      "description": "Search 200K+ dietary supplement labels in the NIH DSLD database \u2014 vitamins, minerals, herbal products",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Supplement search query (e.g. \"vitamin D\", \"fish oil\", \"probiotics\")"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Number of results (1-100, default 25)"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Result offset for pagination"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "health.supplements.details",
+      "title": "Get Supplement Label Details",
+      "description": "Get full supplement label data \u2014 ingredients, amounts per serving, daily values, target groups (NIH DSLD)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "dsld_id": {
+            "type": "integer",
+            "description": "NIH DSLD supplement label ID"
+          }
+        },
+        "required": [
+          "dsld_id"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "finance.currency.rates",
+      "title": "Get Exchange Rates",
+      "description": "Get currency exchange rates for 200+ fiat and crypto currencies with optional historical dates (fawazahmed0 CDN)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "base": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 10,
+            "description": "Base currency code (e.g. \"usd\", \"eur\", \"btc\"). Lowercase. 200+ currencies supported."
+          },
+          "date": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "Historical date in YYYY-MM-DD format. Omit for latest rates."
+          },
+          "currencies": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "Currency code (e.g. \"eur\", \"gbp\", \"jpy\")"
+            },
+            "maxItems": 50,
+            "description": "Filter to specific target currencies (e.g. [\"eur\",\"gbp\"]). Omit for all."
+          }
+        },
+        "required": [
+          "base"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "finance.currency.ecb",
+      "title": "Get ECB Exchange Rates",
+      "description": "Get official European Central Bank reference exchange rates for ~33 fiat currencies (Frankfurter/ECB)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "base": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "Base currency code, uppercase (e.g. \"USD\", \"EUR\"). ~33 ECB currencies."
+          },
+          "date": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "Historical date in YYYY-MM-DD format. Omit for latest ECB rates."
+          },
+          "currencies": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "Currency code (e.g. \"EUR\", \"GBP\", \"JPY\")"
+            },
+            "maxItems": 33,
+            "description": "Filter to specific target currencies (e.g. [\"EUR\",\"GBP\"]). Omit for all ECB currencies."
+          }
+        },
+        "required": [
+          "base"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "finance.macro.indicator",
+      "title": "Get Economic Indicator",
+      "description": "Get US economic data from 816K+ FRED series \u2014 GDP, CPI, unemployment, interest rates, money supply (Federal Reserve)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "series_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50,
+            "description": "FRED series ID (e.g. \"GDP\", \"CPIAUCSL\", \"UNRATE\", \"DFF\", \"T10Y2Y\"). Browse at fred.stlouisfed.org."
+          },
+          "observation_start": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "Start date for observations in YYYY-MM-DD format."
+          },
+          "observation_end": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "End date for observations in YYYY-MM-DD format."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100000,
+            "description": "Maximum number of observations to return (default 100000)."
+          },
+          "sort_order": {
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "description": "Sort order by observation date. Default \"asc\"."
+          }
+        },
+        "required": [
+          "series_id"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "finance.macro.country",
+      "title": "Get Country Economic Data",
+      "description": "Get global development indicators from World Bank \u2014 GDP, population, inflation, trade, poverty for 200+ countries",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "country_code": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 3,
+            "description": "ISO 3166 country code (e.g. \"US\", \"DE\", \"CHN\") or \"all\" for all countries."
+          },
+          "indicator_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "description": "World Bank indicator ID (e.g. \"NY.GDP.MKTP.CD\" for GDP, \"SP.POP.TOTL\" for population, \"FP.CPI.TOTL.ZG\" for inflation)."
+          },
+          "date_range": {
+            "type": "string",
+            "description": "Year or year range (e.g. \"2023\" or \"2010:2023\"). Omit for all available years."
+          },
+          "per_page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000,
+            "description": "Results per page (default 50, max 1000)."
+          }
+        },
+        "required": [
+          "country_code",
+          "indicator_id"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "finance.treasury.data",
+      "title": "Get US Treasury Data",
+      "description": "Get US Treasury fiscal data \u2014 interest rates on federal debt, national debt, debt outstanding, gold reserves, exchange rates",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "endpoint": {
+            "type": "string",
+            "enum": [
+              "avg_interest_rates",
+              "debt_to_penny",
+              "debt_outstanding",
+              "top_federal",
+              "gold_reserve",
+              "exchange_rates_report"
+            ],
+            "description": "Treasury dataset endpoint: avg_interest_rates (interest rates on federal debt), debt_to_penny (daily national debt), debt_outstanding (debt by security type), top_federal (top federal spending), gold_reserve (US gold reserves), exchange_rates_report (Treasury exchange rates)."
+          },
+          "filter": {
+            "type": "string",
+            "description": "Filter expression (e.g. \"record_date:gte:2024-01-01,security_desc:eq:Treasury Bills\"). See Treasury API docs."
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000,
+            "description": "Number of records per page (default 100, max 10000)."
+          },
+          "sort": {
+            "type": "string",
+            "description": "Sort field with direction prefix (e.g. \"-record_date\" for newest first). Default: \"-record_date\"."
+          }
+        },
+        "required": [
+          "endpoint"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "finance.banking.iban",
+      "title": "Validate IBAN",
+      "description": "Validate an IBAN number and get associated bank data \u2014 BIC/SWIFT code, bank name, city (OpenIBAN)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "iban": {
+            "type": "string",
+            "minLength": 15,
+            "maxLength": 34,
+            "description": "IBAN to validate (e.g. \"DE89370400440532013000\"). Spaces are stripped automatically."
+          }
+        },
+        "required": [
+          "iban"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "music.artists.search",
+      "title": "Search Music Artists",
+      "description": "Search for music artists by name across 2M+ artists \u2014 biography, country, tags, aliases (MusicBrainz)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query for artist name (e.g. \"Radiohead\", \"Miles Davis\")"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Max results to return (1-100, default 25)"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Pagination offset for results"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "music.artists.details",
+      "title": "Get Artist Details",
+      "description": "Get detailed artist info by MusicBrainz ID \u2014 tags, ratings, external links, life span, area (MusicBrainz)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "mbid": {
+            "type": "string",
+            "format": "uuid",
+            "description": "MusicBrainz artist ID (UUID format, e.g. \"a74b1b7f-71a5-4011-9441-d0b5e4122711\")"
+          }
+        },
+        "required": [
+          "mbid"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "music.releases.search",
+      "title": "Search Music Releases",
+      "description": "Search for albums, singles, and EPs across 50M+ recordings \u2014 title, artist, date, tracklist (MusicBrainz)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query for release/album title (e.g. \"OK Computer\", \"Kind of Blue\"). Supports Lucene syntax: artist:\"Radiohead\" AND release:\"OK Computer\""
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Max results to return (1-100, default 25)"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Pagination offset for results"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "music.releases.details",
+      "title": "Get Release Details",
+      "description": "Get full release details by MusicBrainz ID \u2014 tracklist, artist credits, labels, media formats (MusicBrainz)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "mbid": {
+            "type": "string",
+            "format": "uuid",
+            "description": "MusicBrainz release ID (UUID format). Returns full tracklist, artist credits, and label info"
+          }
+        },
+        "required": [
+          "mbid"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "music.recordings.search",
+      "title": "Search Music Recordings",
+      "description": "Search for songs and recordings by title or artist \u2014 duration, release history, artist credits (MusicBrainz)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query for song/recording title (e.g. \"Creep\", \"So What\"). Supports Lucene syntax: artist:\"Radiohead\" AND recording:\"Creep\""
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Max results to return (1-100, default 25)"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Pagination offset for results"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "music.discover.fresh",
+      "title": "Get Fresh Music Releases",
+      "description": "Discover recently released albums and singles from the past N days \u2014 trending new music (ListenBrainz)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "days": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 90,
+            "description": "Number of days to look back for fresh releases (1-90, default 7)"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "description": "Max releases to return (1-200, default 50)"
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "music.radio.search",
+      "title": "Search Radio Stations",
+      "description": "Search 40K+ internet radio stations by name, genre, country, or language \u2014 streaming URLs, bitrate, codec (RadioBrowser)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Station name to search for (e.g. \"BBC Radio\", \"Jazz FM\")"
+          },
+          "tag": {
+            "type": "string",
+            "description": "Tag/genre filter (e.g. \"rock\", \"jazz\", \"classical\", \"news\")"
+          },
+          "country": {
+            "type": "string",
+            "description": "Country name filter (e.g. \"Germany\", \"United States\")"
+          },
+          "countrycode": {
+            "type": "string",
+            "description": "ISO 3166-1 alpha-2 country code (e.g. \"US\", \"DE\", \"GB\")"
+          },
+          "language": {
+            "type": "string",
+            "description": "Language filter (e.g. \"english\", \"german\", \"spanish\")"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Max stations to return (1-100, default 25)"
+          },
+          "order": {
+            "type": "string",
+            "enum": [
+              "name",
+              "url",
+              "homepage",
+              "favicon",
+              "tags",
+              "country",
+              "state",
+              "language",
+              "votes",
+              "codec",
+              "bitrate",
+              "lastcheckok",
+              "lastchecktime",
+              "clicktimestamp",
+              "clickcount",
+              "clicktrend",
+              "changetimestamp",
+              "random"
+            ],
+            "description": "Sort order for results"
+          },
+          "hidebroken": {
+            "type": "boolean",
+            "description": "Hide broken/offline stations (recommended: true)"
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "aster.exchange.info",
+      "title": "AsterDEX Exchange Info",
+      "description": "Get exchange information and available trading pairs on AsterDEX",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "description": "Trading pair symbol to filter (e.g. BTCUSDT). Omit for all pairs."
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "aster.markets.ticker",
+      "title": "AsterDEX Market Data",
+      "description": "Get 24-hour ticker statistics for trading pairs on AsterDEX",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "description": "Trading pair symbol (e.g. BTCUSDT). Omit for all pairs."
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "aster.markets.orderbook",
+      "title": "AsterDEX Order Book",
+      "description": "Get order book depth for a trading pair on AsterDEX",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "description": "Trading pair symbol (e.g. BTCUSDT)"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 5,
+            "maximum": 1000,
+            "description": "Depth limit (default 20)"
+          }
+        },
+        "required": [
+          "symbol"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "aster.markets.klines",
+      "title": "AsterDEX Klines",
+      "description": "Get candlestick (OHLCV) data for a trading pair on AsterDEX",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "description": "Trading pair symbol (e.g. BTCUSDT)"
+          },
+          "interval": {
+            "type": "string",
+            "enum": [
+              "1m",
+              "3m",
+              "5m",
+              "15m",
+              "30m",
+              "1h",
+              "2h",
+              "4h",
+              "6h",
+              "8h",
+              "12h",
+              "1d",
+              "3d",
+              "1w",
+              "1M"
+            ],
+            "description": "Candlestick interval (default 1h)"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1500,
+            "description": "Number of candles (default 100)"
+          },
+          "start_time": {
+            "type": "integer",
+            "description": "Start time in milliseconds since epoch"
+          },
+          "end_time": {
+            "type": "integer",
+            "description": "End time in milliseconds since epoch"
+          }
+        },
+        "required": [
+          "symbol"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "jobs.salary.data",
+      "title": "Get Salary Data",
+      "description": "Get US salary and employment timeseries data from BLS \u2014 wage estimates, employment counts, occupational statistics by SOC code and geography",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "series_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "description": "BLS series ID (e.g. \"OEUM0000000000000151252004\")"
+            },
+            "minItems": 1,
+            "maxItems": 50,
+            "description": "BLS timeseries IDs (e.g. [\"OEUM0000000000000151252004\"] for Software Developers mean salary). Encodes occupation code + geography + data type."
+          },
+          "start_year": {
+            "type": "string",
+            "pattern": "^\\d{4}$",
+            "description": "Start year (e.g. \"2020\"). Omit for latest available."
+          },
+          "end_year": {
+            "type": "string",
+            "pattern": "^\\d{4}$",
+            "description": "End year (e.g. \"2024\"). Omit for latest available."
+          }
+        },
+        "required": [
+          "series_ids"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "jobs.occupations.search",
+      "title": "Search Occupations",
+      "description": "Search O*NET occupation taxonomy by keyword \u2014 1,000+ occupations with SOC codes, titles, and relevance scores",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "keyword": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "Search keyword for occupations (e.g. \"software developer\", \"nurse\", \"data analyst\")."
+          },
+          "start": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Starting index for pagination (1-based). Omit for first page."
+          },
+          "end": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Ending index for pagination. Omit for default page size."
+          }
+        },
+        "required": [
+          "keyword"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "jobs.occupations.details",
+      "title": "Get Occupation Details",
+      "description": "Get detailed occupation info from O*NET by SOC code \u2014 overview, skills, knowledge, abilities, technology skills, tasks",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20,
+            "description": "O*NET SOC occupation code (e.g. \"15-1252.00\" for Software Developers). Get codes from occupation_search."
+          },
+          "section": {
+            "type": "string",
+            "enum": [
+              "skills",
+              "knowledge",
+              "abilities",
+              "technology_skills",
+              "tasks"
+            ],
+            "description": "Specific section to retrieve. Omit for general overview (title, description, sample titles)."
+          }
+        },
+        "required": [
+          "code"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "jobs.skills.search",
+      "title": "Search EU Skills & Occupations",
+      "description": "Search ESCO (European Skills/Competences/Occupations) taxonomy \u2014 occupations and skills in 27 EU languages",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500,
+            "description": "Search text for EU occupations or skills (e.g. \"software developer\", \"project management\")."
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "occupation",
+              "skill"
+            ],
+            "description": "Resource type to search. Default: \"occupation\"."
+          },
+          "language": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 5,
+            "description": "ISO 639-1 language code (e.g. \"en\", \"de\", \"fr\"). Default: \"en\". ESCO supports 27 EU languages."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Results per page (default 25, max 100)."
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Offset for pagination. Omit for first page."
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "jobs.skills.details",
+      "title": "Get EU Skill/Occupation Details",
+      "description": "Get ESCO resource details by URI \u2014 occupation descriptions, essential/optional skills, ISCO codes, skill relationships",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "uri": {
+            "type": "string",
+            "minLength": 1,
+            "description": "ESCO resource URI (e.g. \"http://data.europa.eu/esco/occupation/...\"). Get URIs from esco_search."
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "occupation",
+              "skill"
+            ],
+            "description": "Resource type: \"occupation\" or \"skill\". Default: \"occupation\"."
+          },
+          "language": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 5,
+            "description": "ISO 639-1 language code. Default: \"en\"."
+          }
+        },
+        "required": [
+          "uri"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "jobs.listings.search",
+      "title": "Search Job Listings",
+      "description": "Search global job listings via CareerJet \u2014 title, company, salary, location, contract type across 90+ countries",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "keywords": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500,
+            "description": "Job search keywords (e.g. \"software engineer\", \"marketing manager remote\")."
+          },
+          "location": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "Location filter (e.g. \"New York\", \"London\", \"Berlin\"). Omit for worldwide."
+          },
+          "locale_code": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 10,
+            "description": "Locale code for results (e.g. \"en_US\", \"en_GB\", \"de_DE\"). Default: \"en_US\"."
+          },
+          "contract_type": {
+            "type": "string",
+            "enum": [
+              "permanent",
+              "contract",
+              "temporary",
+              "internship",
+              "volunteering"
+            ],
+            "description": "Filter by contract type."
+          },
+          "work_hours": {
+            "type": "string",
+            "enum": [
+              "full_time",
+              "part_time"
+            ],
+            "description": "Filter by work hours: full_time or part_time"
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "relevance",
+              "date",
+              "salary"
+            ],
+            "description": "Sort order for results. Default: \"relevance\"."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10,
+            "description": "Page number (1-10). Default: 1."
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Results per page (1-100). Default: 20."
+          }
+        },
+        "required": [
+          "keywords"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "education.papers.search",
+      "title": "Search Academic Papers",
+      "description": "Search 250M+ academic papers across all disciplines \u2014 citations, authors, institutions, open access status (OpenAlex)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500,
+            "description": "Search text for academic papers (e.g. \"machine learning\", \"CRISPR gene editing\")."
+          },
+          "concept": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "OpenAlex concept ID filter (e.g. \"C41008148\" for Computer Science). Get IDs from OpenAlex concepts API."
+          },
+          "author": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "Author name or ORCID to filter by (e.g. \"Yoshua Bengio\", \"0000-0001-2345-6789\")."
+          },
+          "institution": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "Institution name or ROR ID to filter by (e.g. \"MIT\", \"Stanford University\")."
+          },
+          "year_from": {
+            "type": "integer",
+            "minimum": 1800,
+            "maximum": 2100,
+            "description": "Filter papers published from this year (inclusive)."
+          },
+          "year_to": {
+            "type": "integer",
+            "minimum": 1800,
+            "maximum": 2100,
+            "description": "Filter papers published up to this year (inclusive)."
+          },
+          "open_access_only": {
+            "type": "boolean",
+            "description": "If true, only return open access papers."
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "relevance",
+              "cited_by_count",
+              "publication_date"
+            ],
+            "description": "Sort order for results. Default: \"relevance\"."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of results to return (1-50). Default: 10."
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "education.papers.details",
+      "title": "Get Paper Details",
+      "description": "Get full details for an academic paper by OpenAlex ID or DOI \u2014 authors, citations, abstract, references, open access links (OpenAlex)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "OpenAlex work ID (e.g. \"W2741809807\") or DOI (e.g. \"10.1038/nature12373\"). Get IDs from paper_search."
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "education.colleges.search",
+      "title": "Search US Colleges",
+      "description": "Search US colleges and universities \u2014 admissions, tuition, enrollment, earnings, completion rates (College Scorecard)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "School name to search for (e.g. \"MIT\", \"Stanford\", \"Community College\")."
+          },
+          "state": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "US state abbreviation (e.g. \"CA\", \"NY\", \"TX\")."
+          },
+          "degree_type": {
+            "type": "string",
+            "enum": [
+              "associate",
+              "bachelor",
+              "graduate"
+            ],
+            "description": "Filter by predominant degree type awarded."
+          },
+          "program": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "Field of study filter (e.g. \"Computer Science\", \"Nursing\", \"Business\")."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of results to return (1-50). Default: 10."
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "education.colleges.details",
+      "title": "Get College Details",
+      "description": "Get detailed data for a US college by UNITID \u2014 admissions rate, costs, student outcomes, earnings after graduation (College Scorecard)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "school_id": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "description": "College Scorecard UNITID (e.g. 166027 for MIT). Get IDs from college_search."
+          }
+        },
+        "required": [
+          "school_id"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "education.pubmed.search",
+      "title": "Search PubMed",
+      "description": "Search 36M+ biomedical and life science articles \u2014 clinical trials, reviews, meta-analyses with date and type filters (PubMed/NCBI)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500,
+            "description": "Search text for biomedical literature (e.g. \"COVID-19 vaccine efficacy\", \"BRCA1 breast cancer\")."
+          },
+          "publication_type": {
+            "type": "string",
+            "enum": [
+              "review",
+              "clinical-trial",
+              "meta-analysis",
+              "any"
+            ],
+            "description": "Filter by publication type. Default: \"any\"."
+          },
+          "date_from": {
+            "type": "string",
+            "pattern": "^\\d{4}\\/\\d{2}\\/\\d{2}$",
+            "description": "Start date filter in YYYY/MM/DD format (e.g. \"2023/01/01\")."
+          },
+          "date_to": {
+            "type": "string",
+            "pattern": "^\\d{4}\\/\\d{2}\\/\\d{2}$",
+            "description": "End date filter in YYYY/MM/DD format (e.g. \"2024/12/31\")."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of results to return (1-50). Default: 10."
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "education.arxiv.search",
+      "title": "Search arXiv Preprints",
+      "description": "Search 2.4M+ preprints in physics, math, CS, biology, and more \u2014 full text, authors, categories, PDF links (arXiv)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500,
+            "description": "Search text for preprints (e.g. \"transformer architecture\", \"quantum computing\")."
+          },
+          "category": {
+            "type": "string",
+            "maxLength": 20,
+            "description": "arXiv category filter (e.g. \"cs.AI\", \"math.CO\", \"physics.hep-th\", \"q-bio.GN\")."
+          },
+          "author": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "Author name to filter by (e.g. \"Vaswani\", \"Hinton\")."
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "relevance",
+              "lastUpdatedDate",
+              "submittedDate"
+            ],
+            "description": "Sort order for results. Default: \"relevance\"."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of results to return (1-50). Default: 10."
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "education.crossref.doi",
+      "title": "Lookup DOI",
+      "description": "Resolve a DOI to full publication metadata \u2014 title, authors, journal, citations, funding, license (CrossRef)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "doi": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 200,
+            "description": "DOI to resolve (e.g. \"10.1038/nature12373\", \"10.1145/3292500.3330648\")."
+          }
+        },
+        "required": [
+          "doi"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "geo.address.geocode",
+      "title": "Geocode Address",
+      "description": "Convert an address, place name, or landmark to geographic coordinates (lat/lon) with structured address data (Geoapify/OSM)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500,
+            "description": "Address, place name, or landmark to geocode (e.g. \"1600 Pennsylvania Ave, Washington DC\", \"Eiffel Tower\")."
+          },
+          "lang": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 5,
+            "description": "Result language code (e.g. \"en\", \"de\", \"ru\"). Default: English."
+          },
+          "country_code": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "ISO 3166-1 alpha-2 country code to filter results (e.g. \"US\", \"DE\", \"FR\")."
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "city",
+              "street",
+              "amenity",
+              "country"
+            ],
+            "description": "Filter by result type: city, street, amenity, or country."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "description": "Maximum number of results to return (default 1, max 5)."
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "geo.address.reverse",
+      "title": "Reverse Geocode",
+      "description": "Convert geographic coordinates (lat/lon) to a structured address \u2014 street, city, country, postal code (Geoapify/OSM)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90,
+            "description": "Latitude of the point to reverse geocode."
+          },
+          "lon": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180,
+            "description": "Longitude of the point to reverse geocode."
+          },
+          "lang": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 5,
+            "description": "Result language code (e.g. \"en\", \"de\", \"ru\"). Default: English."
+          }
+        },
+        "required": [
+          "lat",
+          "lon"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "geo.places.search",
+      "title": "Search Places & POI",
+      "description": "Search points of interest (restaurants, pharmacies, hotels, attractions) near a location by category and radius (Geoapify/OSM)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "categories": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "POI category filter (e.g. \"catering.restaurant\", \"healthcare.pharmacy\", \"tourism.attraction\", \"accommodation.hotel\"). Multiple categories separated by comma."
+          },
+          "lat": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90,
+            "description": "Center latitude for the search area."
+          },
+          "lon": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180,
+            "description": "Center longitude for the search area."
+          },
+          "radius": {
+            "type": "integer",
+            "minimum": 100,
+            "maximum": 50000,
+            "description": "Search radius in meters (default 1000, max 50000)."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Maximum number of results (default 20, max 50)."
+          },
+          "lang": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 5,
+            "description": "Result language code (e.g. \"en\", \"de\", \"ru\"). Default: English."
+          }
+        },
+        "required": [
+          "categories",
+          "lat",
+          "lon"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "geo.address.autocomplete",
+      "title": "Autocomplete Address",
+      "description": "Get autocomplete suggestions as you type an address or place name \u2014 for real-time search UX (Geoapify/OSM)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "Partial address or place name to autocomplete (e.g. \"1600 Penn\", \"Berlin Bran\")."
+          },
+          "lang": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 5,
+            "description": "Result language code (e.g. \"en\", \"de\", \"ru\"). Default: English."
+          },
+          "country_code": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "ISO 3166-1 alpha-2 country code to filter results (e.g. \"US\", \"DE\")."
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "city",
+              "street",
+              "amenity",
+              "country"
+            ],
+            "description": "Filter by result type: city, street, amenity, or country."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "description": "Maximum number of suggestions (default 5, max 5)."
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "geo.navigation.route",
+      "title": "Get Directions",
+      "description": "Get turn-by-turn driving, walking, cycling, or transit directions between two points with distance and time (Geoapify/OSM)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "origin_lat": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90,
+            "description": "Start point latitude (e.g. 40.7128)"
+          },
+          "origin_lon": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180,
+            "description": "Start point longitude (e.g. -74.0060)"
+          },
+          "dest_lat": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90,
+            "description": "Destination latitude (e.g. 48.8566)"
+          },
+          "dest_lon": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180,
+            "description": "Destination longitude (e.g. 2.3522)"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "drive",
+              "walk",
+              "bicycle",
+              "transit"
+            ],
+            "description": "Travel mode: drive, walk, bicycle, or transit. Default: drive."
+          },
+          "lang": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 5,
+            "description": "Turn-by-turn instruction language (e.g. \"en\", \"de\"). Default: English."
+          },
+          "units": {
+            "type": "string",
+            "enum": [
+              "metric",
+              "imperial"
+            ],
+            "description": "Distance units: metric (km) or imperial (miles). Default: metric."
+          }
+        },
+        "required": [
+          "origin_lat",
+          "origin_lon",
+          "dest_lat",
+          "dest_lon"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "geo.navigation.isochrone",
+      "title": "Get Isochrone",
+      "description": "Get reachability area (isochrone) \u2014 polygon showing how far you can travel from a point in a given time or distance (Geoapify/OSM)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90,
+            "description": "Center point latitude (e.g. 52.5200)"
+          },
+          "lon": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180,
+            "description": "Center point longitude (e.g. 13.4050)"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "drive",
+              "walk",
+              "bicycle"
+            ],
+            "description": "Travel mode: drive, walk, or bicycle. Default: drive."
+          },
+          "time": {
+            "type": "integer",
+            "minimum": 60,
+            "maximum": 7200,
+            "description": "Reachability time in seconds (default 900 = 15 min, max 7200 = 2h). Mutually exclusive with distance."
+          },
+          "distance": {
+            "type": "integer",
+            "minimum": 100,
+            "maximum": 100000,
+            "description": "Reachability distance in meters (max 100km). Mutually exclusive with time."
+          }
+        },
+        "required": [
+          "lat",
+          "lon"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "geo.ip.geolocation",
+      "title": "IP Geolocation",
+      "description": "Geolocate an IP address (IPv4/IPv6) to country, city, coordinates, and network info (Geoapify)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ip": {
+            "type": "string",
+            "minLength": 7,
+            "maxLength": 45,
+            "description": "IPv4 or IPv6 address to geolocate (e.g. \"8.8.8.8\", \"2001:4860:4860::8888\")."
+          }
+        },
+        "required": [
+          "ip"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "aipush.website.setup",
+      "title": "Setup Website for AI Marketing",
+      "description": "Register a website and run Material Intelligence Pipeline (MIP) \u2014 crawls site, extracts business signals, analyzes competitors, builds AI-optimized content profile. Required before generating pages. DNS CNAME required: reference.{domain} \u2192 cname.aipush.app (AIPush)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "website_domain": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 253,
+            "description": "Domain of the website to register (e.g. \"example.com\", \"myhotel.com\"). Must have a CNAME record: reference.{domain} \u2192 cname.aipush.app"
+          },
+          "target_url": {
+            "type": "string",
+            "format": "uri",
+            "maxLength": 2048,
+            "description": "Target conversion URL \u2014 the single page all generated content will link to (e.g. \"https://example.com/book\", \"https://myhotel.com/reserve\"). Must be on the same domain."
+          }
+        },
+        "required": [
+          "website_domain",
+          "target_url"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "aipush.website.status",
+      "title": "Check Website Status",
+      "description": "Check MIP analysis status, DNS verification, SSL provisioning, billing status, and page generation progress for a registered website (AIPush)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "website_domain": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 253,
+            "description": "Domain to check status for (e.g. \"example.com\")."
+          }
+        },
+        "required": [
+          "website_domain"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "aipush.pages.generate",
+      "title": "Generate AI Marketing Page",
+      "description": "Generate one AI-optimized HTML page for a website \u2014 structured for AI assistant answer compilation (ChatGPT, Perplexity, Gemini). Page includes decision question, short answer with CTA, comparison, pricing, FAQ. Published at reference.{domain}/{slug} (AIPush)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "website_domain": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 253,
+            "description": "Domain of the website to generate a page for. Must be set up first via aipush.setup_website."
+          },
+          "keyword": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 200,
+            "description": "Target keyword or topic for the page (e.g. \"best hotels in Bangkok\", \"affordable dentist near me\"). If omitted, the system picks from the semantic coverage grid."
+          }
+        },
+        "required": [
+          "website_domain"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "aipush.pages.list",
+      "title": "List Generated Pages",
+      "description": "List all published AI marketing pages for a website with URLs, titles, and publish dates (AIPush)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "website_domain": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 253,
+            "description": "Domain to list pages for (e.g. \"example.com\")."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Maximum number of pages to return (default 20, max 100)."
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of pages to skip for pagination (default 0)."
+          }
+        },
+        "required": [
+          "website_domain"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "aipush.pages.content",
+      "title": "Get Page Content",
+      "description": "Get full HTML content and metadata of a specific generated page by slug (AIPush)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "website_domain": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 253,
+            "description": "Domain the page belongs to (e.g. \"example.com\")."
+          },
+          "slug": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "Page slug identifier (e.g. \"best-hotels-bangkok-2026\"). Returned by aipush.list_pages or aipush.generate_page."
+          }
+        },
+        "required": [
+          "website_domain",
+          "slug"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "aipush.analysis.profile",
+      "title": "Get Website Business Profile",
+      "description": "Get MIP business analysis results \u2014 business name, category, location, competitors, value propositions, and market surface data (AIPush)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "website_domain": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 253,
+            "description": "Domain to get the MIP business analysis for. Must have completed setup (mip_status = \"ready\")."
+          }
+        },
+        "required": [
+          "website_domain"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "aipush.analysis.visibility",
+      "title": "Check AI Visibility Score",
+      "description": "Test whether AI assistants (ChatGPT, Perplexity, Gemini) know about and recommend a brand \u2014 returns per-model visibility scores (AIPush)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "website_domain": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 253,
+            "description": "Domain to check AI visibility for (e.g. \"example.com\"). Tests whether AI assistants know about and recommend this brand."
+          }
+        },
+        "required": [
+          "website_domain"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "zinc.products.search",
+      "title": "Search Products",
+      "description": "Search products across Amazon, Walmart, and other major retailers by keyword \u2014 titles, prices, ratings, images (Zinc)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Product search query (e.g. \"wireless headphones\", \"laptop stand\")"
+          },
+          "retailer": {
+            "type": "string",
+            "enum": [
+              "amazon",
+              "walmart",
+              "amazon_uk",
+              "amazon_ca",
+              "amazon_de",
+              "amazon_fr",
+              "amazon_it",
+              "amazon_es",
+              "amazon_in",
+              "amazon_jp"
+            ],
+            "description": "Retailer to search (default: amazon)"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "Results page number (1-20, default 1)"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "zinc.products.detail",
+      "title": "Get Product Details",
+      "description": "Get full product details by ASIN or product ID \u2014 title, description, brand, images, price, features, categories (Zinc)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "description": "Product ID or ASIN (e.g. \"B09V3KXJPB\")"
+          },
+          "retailer": {
+            "type": "string",
+            "enum": [
+              "amazon",
+              "walmart",
+              "amazon_uk",
+              "amazon_ca",
+              "amazon_de",
+              "amazon_fr",
+              "amazon_it",
+              "amazon_es",
+              "amazon_in",
+              "amazon_jp"
+            ],
+            "description": "Retailer to search (default: amazon)"
+          }
+        },
+        "required": [
+          "product_id"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "zinc.products.offers",
+      "title": "Get Product Offers",
+      "description": "Get all seller offers for a product \u2014 prices, shipping, condition, Prime eligibility, seller ratings (Zinc)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "description": "Product ID or ASIN to get seller offers for"
+          },
+          "retailer": {
+            "type": "string",
+            "enum": [
+              "amazon",
+              "walmart",
+              "amazon_uk",
+              "amazon_ca",
+              "amazon_de",
+              "amazon_fr",
+              "amazon_it",
+              "amazon_es",
+              "amazon_in",
+              "amazon_jp"
+            ],
+            "description": "Retailer to search (default: amazon)"
+          }
+        },
+        "required": [
+          "product_id"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    },
+    {
+      "name": "zinc.products.reviews",
+      "title": "Get Product Reviews",
+      "description": "Get product reviews and ratings by ASIN or product ID \u2014 review text, rating, author, verified purchase status (Zinc)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "description": "Product ID or ASIN to get reviews for"
+          },
+          "retailer": {
+            "type": "string",
+            "enum": [
+              "amazon",
+              "walmart",
+              "amazon_uk",
+              "amazon_ca",
+              "amazon_de",
+              "amazon_fr",
+              "amazon_it",
+              "amazon_es",
+              "amazon_in",
+              "amazon_jp"
+            ],
+            "description": "Retailer to search (default: amazon)"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "Reviews page number (1-20, default 1)"
+          }
+        },
+        "required": [
+          "product_id"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      }
+    }
+  ],
+  "resources": [],
+  "prompts": [
+    {
+      "name": "find_cheapest_flight",
+      "description": "Search for the cheapest flights between two airports and confirm pricing",
+      "arguments": [
+        {
+          "name": "origin",
+          "description": "Origin airport IATA code (e.g. JFK)",
+          "required": true
+        },
+        {
+          "name": "destination",
+          "description": "Destination airport IATA code (e.g. CDG)",
+          "required": true
+        },
+        {
+          "name": "date",
+          "description": "Departure date in YYYY-MM-DD format",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "crypto_market_overview",
+      "description": "Get a comprehensive overview of the cryptocurrency market"
+    },
+    {
+      "name": "prediction_market_research",
+      "description": "Research a topic on Polymarket prediction markets",
+      "arguments": [
+        {
+          "name": "topic",
+          "description": "Topic to research (e.g. US election, Bitcoin price)",
+          "required": true
+        }
+      ]
+    }
+  ]
+}
