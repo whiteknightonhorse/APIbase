@@ -17,7 +17,7 @@ const financeExchangeRates = z
       .optional()
       .describe('Historical date in YYYY-MM-DD format. Omit for latest rates.'),
     currencies: z
-      .array(z.string())
+      .array(z.string().describe('Currency code (e.g. "eur", "gbp", "jpy")'))
       .max(50)
       .optional()
       .describe('Filter to specific target currencies (e.g. ["eur","gbp"]). Omit for all.'),
@@ -41,7 +41,7 @@ const financeEcbRates = z
       .optional()
       .describe('Historical date in YYYY-MM-DD format. Omit for latest ECB rates.'),
     currencies: z
-      .array(z.string())
+      .array(z.string().describe('Currency code (e.g. "EUR", "GBP", "JPY")'))
       .max(33)
       .optional()
       .describe('Filter to specific target currencies (e.g. ["EUR","GBP"]). Omit for all ECB currencies.'),

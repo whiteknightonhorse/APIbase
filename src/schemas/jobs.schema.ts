@@ -7,7 +7,7 @@ import { z, type ZodSchema } from 'zod';
 const jobsSalaryData = z
   .object({
     series_ids: z
-      .array(z.string().min(1))
+      .array(z.string().min(1).describe('BLS series ID (e.g. "OEUM0000000000000151252004")'))
       .min(1)
       .max(50)
       .describe(
