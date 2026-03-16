@@ -855,3 +855,90 @@ tools:
     provider: spoonacular
     price_usd: "0.005"
     cache_ttl: 86400
+
+  # --- UC-034: NASA Open APIs (Space / Astronomy) ---
+  - tool_id: nasa.apod
+    name: NASA Astronomy Picture of the Day
+    provider: nasa
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: nasa.neo_feed
+    name: NASA Near-Earth Asteroids Feed
+    provider: nasa
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: nasa.donki_flr
+    name: NASA Solar Flare Events
+    provider: nasa
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: nasa.epic
+    name: NASA Earth Camera (EPIC)
+    provider: nasa
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: nasa.image_search
+    name: NASA Image & Video Search
+    provider: nasa
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  # --- UC-035: NASA JPL Solar System Dynamics ---
+  - tool_id: jpl.close_approaches
+    name: JPL Asteroid Close Approaches
+    provider: jpl
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: jpl.fireballs
+    name: JPL Fireball Events
+    provider: jpl
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: jpl.small_body
+    name: JPL Small Body Lookup
+    provider: jpl
+    price_usd: "0.001"
+    cache_ttl: 604800
+
+  - tool_id: jpl.impact_risk
+    name: JPL Asteroid Impact Risk (Sentry)
+    provider: jpl
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  # --- UC-037: RAWG Video Games Database ---
+  - tool_id: rawg.game_search
+    name: RAWG Game Search
+    provider: rawg
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: rawg.game_details
+    name: RAWG Game Details
+    provider: rawg
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: rawg.screenshots
+    name: RAWG Game Screenshots
+    provider: rawg
+    price_usd: "0.001"
+    cache_ttl: 604800
+
+  - tool_id: rawg.store_links
+    name: RAWG Game Store Links
+    provider: rawg
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: rawg.game_series
+    name: RAWG Game Series
+    provider: rawg
+    price_usd: "0.001"
+    cache_ttl: 604800

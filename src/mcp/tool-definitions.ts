@@ -1091,4 +1091,114 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description: 'Analyze a recipe by title and ingredient list — returns full nutrition breakdown, dietary labels, and caloric distribution (Spoonacular)',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // NASA Open APIs — Space / Astronomy (UC-034, 5 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'nasa.apod',
+    mcpName: 'nasa.astronomy.apod',
+    title: 'Astronomy Picture of the Day',
+    description: 'Get NASA Astronomy Picture of the Day — daily curated space image or video with expert explanation, dating back to 1995 (NASA APOD)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nasa.neo_feed',
+    mcpName: 'nasa.asteroids.feed',
+    title: 'Near-Earth Asteroids Feed',
+    description: 'Get near-Earth asteroid close approaches for a date range — size estimates, hazard classification, velocity, miss distance (NASA NeoWs)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nasa.donki_flr',
+    mcpName: 'nasa.space_weather.flares',
+    title: 'Solar Flare Events',
+    description: 'Get solar flare events from the Space Weather Database — class, peak time, source region, linked CMEs and geomagnetic storms (NASA DONKI)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nasa.epic',
+    mcpName: 'nasa.earth.epic',
+    title: 'Earth Camera (EPIC)',
+    description: 'Get full-disc Earth images from the DSCOVR satellite EPIC camera — daily natural color photos from Lagrange point L1, 1.5M km away (NASA EPIC)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nasa.image_search',
+    mcpName: 'nasa.media.search',
+    title: 'Search NASA Images & Videos',
+    description: 'Search NASA Image and Video Library — 140K+ images, videos, and audio from missions, telescopes, and events with metadata and download links (NASA)',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
+  // NASA JPL Solar System Dynamics (UC-035, 4 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'jpl.close_approaches',
+    mcpName: 'jpl.asteroids.approaches',
+    title: 'Asteroid Close Approaches',
+    description: 'Get upcoming and past asteroid close approaches to Earth — distance, velocity, size, sorted by date or distance (NASA JPL)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'jpl.fireballs',
+    mcpName: 'jpl.events.fireballs',
+    title: 'Fireball Events',
+    description: 'Get reported fireball (bolide) events — atmospheric entry energy, velocity, altitude, geographic coordinates (NASA JPL CNEOS)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'jpl.small_body',
+    mcpName: 'jpl.bodies.lookup',
+    title: 'Small Body Lookup',
+    description: 'Look up asteroid or comet data by name/designation — orbital elements, physical parameters, discovery info, hazard classification (NASA JPL SBDB)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'jpl.impact_risk',
+    mcpName: 'jpl.asteroids.sentry',
+    title: 'Asteroid Impact Risk (Sentry)',
+    description: 'Get asteroid impact risk assessments from the Sentry monitoring system — impact probability, Palermo/Torino scale, size estimates (NASA JPL)',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
+  // RAWG — Video Games Database (UC-037, 5 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'rawg.game_search',
+    mcpName: 'rawg.games.search',
+    title: 'Search Video Games',
+    description: 'Search 800K+ video games — filter by genre, platform, release date, Metacritic score, with ratings, screenshots, and store links (RAWG)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'rawg.game_details',
+    mcpName: 'rawg.games.details',
+    title: 'Get Game Details',
+    description: 'Get full game details by ID or slug — description, platforms, genres, developers, publishers, ratings, Metacritic score, system requirements (RAWG)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'rawg.screenshots',
+    mcpName: 'rawg.games.screenshots',
+    title: 'Get Game Screenshots',
+    description: 'Get screenshot images for a game — full resolution URLs with dimensions (RAWG)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'rawg.store_links',
+    mcpName: 'rawg.games.stores',
+    title: 'Get Game Store Links',
+    description: 'Get purchase/download links for a game across stores — Steam, PlayStation Store, Xbox, Epic, GOG, Nintendo (RAWG)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'rawg.game_series',
+    mcpName: 'rawg.games.series',
+    title: 'Get Game Series',
+    description: 'Get all games in the same series/franchise — sequels, prequels, and spin-offs with ratings and release dates (RAWG)',
+    annotations: READ_ONLY,
+  },
 ];
