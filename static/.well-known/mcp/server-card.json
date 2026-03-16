@@ -2,8 +2,8 @@
   "serverInfo": {
     "name": "APIbase",
     "version": "1.0.0",
-    "title": "APIbase \u2014 The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 133 tools across travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, domain intelligence, AI marketing, weather, and more. Pay-per-call via x402 micropayments.",
+    "title": "APIbase — The API Hub for AI Agents",
+    "description": "Unified MCP gateway to 138 tools across travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, recipes, domain intelligence, AI marketing, weather, and more. Pay-per-call via x402 micropayments.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -42,17 +42,13 @@
         "required": [
           "location"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -87,17 +83,13 @@
         "required": [
           "location"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -115,17 +107,13 @@
         "required": [
           "location"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -156,17 +144,13 @@
           "location",
           "date"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -188,17 +172,13 @@
         "required": [
           "location"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -229,17 +209,13 @@
         "required": [
           "query"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -271,17 +247,13 @@
         "required": [
           "locations"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -324,17 +296,13 @@
         "required": [
           "coins"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -381,17 +349,13 @@
             "description": "Include 7-day sparkline price data"
           }
         },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -421,17 +385,13 @@
         "required": [
           "coin_id"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -471,17 +431,13 @@
         "required": [
           "coin_id"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -500,17 +456,13 @@
             "description": "Include trending categories"
           }
         },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -525,17 +477,13 @@
             "description": "Include DeFi-specific global stats"
           }
         },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -579,17 +527,13 @@
             "description": "Max number of results (1-50)"
           }
         },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -621,17 +565,13 @@
         "required": [
           "contract_address"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -649,17 +589,13 @@
         "required": [
           "query"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -717,17 +653,13 @@
         "required": [
           "query"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -753,17 +685,13 @@
         "required": [
           "market_id"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -781,17 +709,13 @@
         "required": [
           "token_id"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -824,17 +748,13 @@
         "required": [
           "market_id"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -857,17 +777,13 @@
         "required": [
           "market_id"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -906,17 +822,13 @@
             "description": "Max number of results (1-50)"
           }
         },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -973,17 +885,13 @@
           "side",
           "size"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": false,
         "destructiveHint": true,
         "idempotentHint": false,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -1001,17 +909,13 @@
         "required": [
           "order_id"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": false,
         "destructiveHint": true,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -1026,17 +930,13 @@
             "description": "Filter orders by market condition ID"
           }
         },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -1056,17 +956,13 @@
             "description": "Max number of results (1-100)"
           }
         },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -1085,17 +981,13 @@
             "description": "Asset type: COLLATERAL (USDC) or CONDITIONAL (outcome tokens)"
           }
         },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -1144,17 +1036,13 @@
           "destination",
           "departure_date"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -1187,7 +1075,8 @@
           },
           "max_fare": {
             "type": "number",
-            "exclusiveMinimum": 0,
+            "exclusiveMinimum": true,
+            "minimum": 0,
             "description": "Maximum fare in USD to filter results"
           }
         },
@@ -1196,17 +1085,13 @@
           "departure_date",
           "return_date"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -1226,17 +1111,13 @@
         "required": [
           "airline_code"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -1251,17 +1132,13 @@
             "description": "Response locale (e.g. en-US, de-DE)"
           }
         },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -1334,17 +1211,13 @@
           "destination",
           "departure_date"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -1363,23 +1236,19 @@
         "required": [
           "flight_offer"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "amadeus.flights.status",
       "title": "Get Flight Status",
-      "description": "Get real-time status of a specific flight \u2014 delays, cancellations, gate info (Amadeus)",
+      "description": "Get real-time status of a specific flight — delays, cancellations, gate info (Amadeus)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -1405,17 +1274,13 @@
           "flight_number",
           "date"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -1443,17 +1308,13 @@
         "required": [
           "keyword"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -1487,17 +1348,13 @@
           "latitude",
           "longitude"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -1517,17 +1374,13 @@
         "required": [
           "airport_code"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -1547,17 +1400,13 @@
         "required": [
           "airline_code"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -1642,17 +1491,13 @@
           "destination",
           "departure_date"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -1684,17 +1529,13 @@
           "destination",
           "month"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -1733,17 +1574,13 @@
         "required": [
           "origin"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -1766,17 +1603,13 @@
         "required": [
           "origin"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -1848,17 +1681,13 @@
           "check_in",
           "check_out"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -1902,17 +1731,13 @@
           "destination",
           "departure_date"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -1934,17 +1759,13 @@
         "required": [
           "query"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -1959,17 +1780,13 @@
             "description": "Specific coin symbol (e.g. BTC, ETH). Omit for all markets."
           }
         },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -1997,17 +1814,13 @@
         "required": [
           "coin"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -2054,17 +1867,13 @@
         "required": [
           "coin"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -2082,17 +1891,13 @@
         "required": [
           "user"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -2110,17 +1915,13 @@
         "required": [
           "user"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -2138,17 +1939,13 @@
         "required": [
           "vault_address"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -2201,23 +1998,19 @@
             "description": "Filter to only places open now"
           }
         },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "foursquare.places.details",
       "title": "Get Place Details",
-      "description": "Get detailed information about a place \u2014 hours, rating, price, contact, categories (Foursquare)",
+      "description": "Get detailed information about a place — hours, rating, price, contact, categories (Foursquare)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2229,17 +2022,13 @@
         "required": [
           "fsq_id"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -2272,17 +2061,13 @@
         "required": [
           "fsq_id"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -2318,17 +2103,13 @@
         "required": [
           "fsq_id"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -2366,17 +2147,13 @@
         "required": [
           "query"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -2436,23 +2213,19 @@
             "description": "Locale for response (e.g. \"en-us\", \"fr-fr\")"
           }
         },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "ticketmaster.events.details",
       "title": "Get Event Details",
-      "description": "Get full details for an event \u2014 dates, venues, prices, images, classifications, seat map (Ticketmaster)",
+      "description": "Get full details for an event — dates, venues, prices, images, classifications, seat map (Ticketmaster)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2468,17 +2241,13 @@
         "required": [
           "id"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -2545,17 +2314,13 @@
         "required": [
           "latlong"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -2607,17 +2372,13 @@
             "description": "Locale for response (e.g. \"en-us\")"
           }
         },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -2666,17 +2427,13 @@
         "required": [
           "venueId"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -2712,23 +2469,19 @@
             "description": "Locale for response (e.g. \"en-us\")"
           }
         },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "ticketmaster.events.categories",
       "title": "Get Event Categories",
-      "description": "Get all event classification categories \u2014 segments, genres, sub-genres (Ticketmaster)",
+      "description": "Get all event classification categories — segments, genres, sub-genres (Ticketmaster)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2748,17 +2501,13 @@
             "description": "Locale for response (e.g. \"en-us\")"
           }
         },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -2790,23 +2539,19 @@
         "required": [
           "query"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "tmdb.movies.details",
       "title": "Get Movie Details",
-      "description": "Get full movie details \u2014 cast, crew, trailers, ratings, streaming providers, runtime, budget, revenue (TMDB)",
+      "description": "Get full movie details — cast, crew, trailers, ratings, streaming providers, runtime, budget, revenue (TMDB)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2822,17 +2567,13 @@
         "required": [
           "id"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -2905,23 +2646,19 @@
             "description": "Include adult content (default false)"
           }
         },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "tmdb.movies.trending",
       "title": "Get Trending Movies & TV",
-      "description": "Get trending movies, TV shows, or people \u2014 daily or weekly (TMDB)",
+      "description": "Get trending movies, TV shows, or people — daily or weekly (TMDB)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2954,23 +2691,19 @@
             "description": "Page number (1-500, default 1)"
           }
         },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "tmdb.movies.similar",
       "title": "Get Similar Movies",
-      "description": "Get movie recommendations based on a movie ID \u2014 similar genres, themes, cast (TMDB)",
+      "description": "Get movie recommendations based on a movie ID — similar genres, themes, cast (TMDB)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2992,17 +2725,13 @@
         "required": [
           "id"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -3035,17 +2764,13 @@
             "description": "Include adult content (default false)"
           }
         },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -3071,23 +2796,19 @@
         "required": [
           "id"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "health.nutrition.food_search",
       "title": "Search Foods (USDA)",
-      "description": "Search 350K+ foods in the USDA FoodData Central database \u2014 nutrition facts, ingredients, branded products, and reference foods",
+      "description": "Search 350K+ foods in the USDA FoodData Central database — nutrition facts, ingredients, branded products, and reference foods",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3124,23 +2845,19 @@
         "required": [
           "query"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "health.nutrition.food_details",
       "title": "Get Food Nutrition Details",
-      "description": "Get detailed nutrition data for a food item \u2014 up to 150 nutrients, portions, serving sizes, ingredients (USDA)",
+      "description": "Get detailed nutrition data for a food item — up to 150 nutrients, portions, serving sizes, ingredients (USDA)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3152,23 +2869,19 @@
         "required": [
           "fdc_id"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "health.safety.drug_events",
       "title": "Search Drug Adverse Events",
-      "description": "Search FDA FAERS database for drug adverse event reports \u2014 side effects, reactions, patient demographics (OpenFDA)",
+      "description": "Search FDA FAERS database for drug adverse event reports — side effects, reactions, patient demographics (OpenFDA)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3191,23 +2904,19 @@
         "required": [
           "search"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "health.safety.food_recalls",
       "title": "Search Food Recalls",
-      "description": "Search FDA food enforcement and recall reports \u2014 contamination, mislabeling, safety alerts (OpenFDA)",
+      "description": "Search FDA food enforcement and recall reports — contamination, mislabeling, safety alerts (OpenFDA)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3236,23 +2945,19 @@
             "description": "Filter by recall status"
           }
         },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "health.safety.drug_labels",
       "title": "Search Drug Labels",
-      "description": "Search drug labeling data \u2014 indications, dosage, warnings, interactions, contraindications (OpenFDA)",
+      "description": "Search drug labeling data — indications, dosage, warnings, interactions, contraindications (OpenFDA)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3275,23 +2980,19 @@
         "required": [
           "search"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "health.supplements.search",
       "title": "Search Dietary Supplements",
-      "description": "Search 200K+ dietary supplement labels in the NIH DSLD database \u2014 vitamins, minerals, herbal products",
+      "description": "Search 200K+ dietary supplement labels in the NIH DSLD database — vitamins, minerals, herbal products",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3314,23 +3015,19 @@
         "required": [
           "query"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "health.supplements.details",
       "title": "Get Supplement Label Details",
-      "description": "Get full supplement label data \u2014 ingredients, amounts per serving, daily values, target groups (NIH DSLD)",
+      "description": "Get full supplement label data — ingredients, amounts per serving, daily values, target groups (NIH DSLD)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3342,17 +3039,13 @@
         "required": [
           "dsld_id"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -3386,17 +3079,13 @@
         "required": [
           "base"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -3430,23 +3119,19 @@
         "required": [
           "base"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "finance.macro.indicator",
       "title": "Get Economic Indicator",
-      "description": "Get US economic data from 816K+ FRED series \u2014 GDP, CPI, unemployment, interest rates, money supply (Federal Reserve)",
+      "description": "Get US economic data from 816K+ FRED series — GDP, CPI, unemployment, interest rates, money supply (Federal Reserve)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3484,23 +3169,19 @@
         "required": [
           "series_id"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "finance.macro.country",
       "title": "Get Country Economic Data",
-      "description": "Get global development indicators from World Bank \u2014 GDP, population, inflation, trade, poverty for 200+ countries",
+      "description": "Get global development indicators from World Bank — GDP, population, inflation, trade, poverty for 200+ countries",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3531,23 +3212,19 @@
           "country_code",
           "indicator_id"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "finance.treasury.data",
       "title": "Get US Treasury Data",
-      "description": "Get US Treasury fiscal data \u2014 interest rates on federal debt, national debt, debt outstanding, gold reserves, exchange rates",
+      "description": "Get US Treasury fiscal data — interest rates on federal debt, national debt, debt outstanding, gold reserves, exchange rates",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3581,23 +3258,19 @@
         "required": [
           "endpoint"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "finance.banking.iban",
       "title": "Validate IBAN",
-      "description": "Validate an IBAN number and get associated bank data \u2014 BIC/SWIFT code, bank name, city (OpenIBAN)",
+      "description": "Validate an IBAN number and get associated bank data — BIC/SWIFT code, bank name, city (OpenIBAN)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3611,23 +3284,19 @@
         "required": [
           "iban"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "music.artists.search",
       "title": "Search Music Artists",
-      "description": "Search for music artists by name across 2M+ artists \u2014 biography, country, tags, aliases (MusicBrainz)",
+      "description": "Search for music artists by name across 2M+ artists — biography, country, tags, aliases (MusicBrainz)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3650,23 +3319,19 @@
         "required": [
           "query"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "music.artists.details",
       "title": "Get Artist Details",
-      "description": "Get detailed artist info by MusicBrainz ID \u2014 tags, ratings, external links, life span, area (MusicBrainz)",
+      "description": "Get detailed artist info by MusicBrainz ID — tags, ratings, external links, life span, area (MusicBrainz)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3679,23 +3344,19 @@
         "required": [
           "mbid"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "music.releases.search",
       "title": "Search Music Releases",
-      "description": "Search for albums, singles, and EPs across 50M+ recordings \u2014 title, artist, date, tracklist (MusicBrainz)",
+      "description": "Search for albums, singles, and EPs across 50M+ recordings — title, artist, date, tracklist (MusicBrainz)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3718,23 +3379,19 @@
         "required": [
           "query"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "music.releases.details",
       "title": "Get Release Details",
-      "description": "Get full release details by MusicBrainz ID \u2014 tracklist, artist credits, labels, media formats (MusicBrainz)",
+      "description": "Get full release details by MusicBrainz ID — tracklist, artist credits, labels, media formats (MusicBrainz)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3747,23 +3404,19 @@
         "required": [
           "mbid"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "music.recordings.search",
       "title": "Search Music Recordings",
-      "description": "Search for songs and recordings by title or artist \u2014 duration, release history, artist credits (MusicBrainz)",
+      "description": "Search for songs and recordings by title or artist — duration, release history, artist credits (MusicBrainz)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3786,23 +3439,19 @@
         "required": [
           "query"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "music.discover.fresh",
       "title": "Get Fresh Music Releases",
-      "description": "Discover recently released albums and singles from the past N days \u2014 trending new music (ListenBrainz)",
+      "description": "Discover recently released albums and singles from the past N days — trending new music (ListenBrainz)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3819,23 +3468,19 @@
             "description": "Max releases to return (1-200, default 50)"
           }
         },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "music.radio.search",
       "title": "Search Radio Stations",
-      "description": "Search 40K+ internet radio stations by name, genre, country, or language \u2014 streaming URLs, bitrate, codec (RadioBrowser)",
+      "description": "Search 40K+ internet radio stations by name, genre, country, or language — streaming URLs, bitrate, codec (RadioBrowser)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3894,17 +3539,13 @@
             "description": "Hide broken/offline stations (recommended: true)"
           }
         },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -3919,17 +3560,13 @@
             "description": "Trading pair symbol to filter (e.g. BTCUSDT). Omit for all pairs."
           }
         },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -3944,17 +3581,13 @@
             "description": "Trading pair symbol (e.g. BTCUSDT). Omit for all pairs."
           }
         },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -3978,17 +3611,13 @@
         "required": [
           "symbol"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -4041,23 +3670,19 @@
         "required": [
           "symbol"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "jobs.salary.data",
       "title": "Get Salary Data",
-      "description": "Get US salary and employment timeseries data from BLS \u2014 wage estimates, employment counts, occupational statistics by SOC code and geography",
+      "description": "Get US salary and employment timeseries data from BLS — wage estimates, employment counts, occupational statistics by SOC code and geography",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4086,23 +3711,19 @@
         "required": [
           "series_ids"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "jobs.occupations.search",
       "title": "Search Occupations",
-      "description": "Search O*NET occupation taxonomy by keyword \u2014 1,000+ occupations with SOC codes, titles, and relevance scores",
+      "description": "Search O*NET occupation taxonomy by keyword — 1,000+ occupations with SOC codes, titles, and relevance scores",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4126,23 +3747,19 @@
         "required": [
           "keyword"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "jobs.occupations.details",
       "title": "Get Occupation Details",
-      "description": "Get detailed occupation info from O*NET by SOC code \u2014 overview, skills, knowledge, abilities, technology skills, tasks",
+      "description": "Get detailed occupation info from O*NET by SOC code — overview, skills, knowledge, abilities, technology skills, tasks",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4167,23 +3784,19 @@
         "required": [
           "code"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "jobs.skills.search",
       "title": "Search EU Skills & Occupations",
-      "description": "Search ESCO (European Skills/Competences/Occupations) taxonomy \u2014 occupations and skills in 27 EU languages",
+      "description": "Search ESCO (European Skills/Competences/Occupations) taxonomy — occupations and skills in 27 EU languages",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4222,23 +3835,19 @@
         "required": [
           "text"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "jobs.skills.details",
       "title": "Get EU Skill/Occupation Details",
-      "description": "Get ESCO resource details by URI \u2014 occupation descriptions, essential/optional skills, ISCO codes, skill relationships",
+      "description": "Get ESCO resource details by URI — occupation descriptions, essential/optional skills, ISCO codes, skill relationships",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4265,23 +3874,19 @@
         "required": [
           "uri"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "jobs.listings.search",
       "title": "Search Job Listings",
-      "description": "Search global job listings via CareerJet \u2014 title, company, salary, location, contract type across 90+ countries",
+      "description": "Search global job listings via CareerJet — title, company, salary, location, contract type across 90+ countries",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4346,23 +3951,19 @@
         "required": [
           "keywords"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "education.papers.search",
       "title": "Search Academic Papers",
-      "description": "Search 250M+ academic papers across all disciplines \u2014 citations, authors, institutions, open access status (OpenAlex)",
+      "description": "Search 250M+ academic papers across all disciplines — citations, authors, institutions, open access status (OpenAlex)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4422,23 +4023,19 @@
         "required": [
           "query"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "education.papers.details",
       "title": "Get Paper Details",
-      "description": "Get full details for an academic paper by OpenAlex ID or DOI \u2014 authors, citations, abstract, references, open access links (OpenAlex)",
+      "description": "Get full details for an academic paper by OpenAlex ID or DOI — authors, citations, abstract, references, open access links (OpenAlex)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4452,23 +4049,19 @@
         "required": [
           "id"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "education.colleges.search",
       "title": "Search US Colleges",
-      "description": "Search US colleges and universities \u2014 admissions, tuition, enrollment, earnings, completion rates (College Scorecard)",
+      "description": "Search US colleges and universities — admissions, tuition, enrollment, earnings, completion rates (College Scorecard)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4504,52 +4097,45 @@
             "description": "Number of results to return (1-50). Default: 10."
           }
         },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "education.colleges.details",
       "title": "Get College Details",
-      "description": "Get detailed data for a US college by UNITID \u2014 admissions rate, costs, student outcomes, earnings after graduation (College Scorecard)",
+      "description": "Get detailed data for a US college by UNITID — admissions rate, costs, student outcomes, earnings after graduation (College Scorecard)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "school_id": {
             "type": "integer",
-            "exclusiveMinimum": 0,
+            "exclusiveMinimum": true,
+            "minimum": 0,
             "description": "College Scorecard UNITID (e.g. 166027 for MIT). Get IDs from college_search."
           }
         },
         "required": [
           "school_id"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "education.pubmed.search",
       "title": "Search PubMed",
-      "description": "Search 36M+ biomedical and life science articles \u2014 clinical trials, reviews, meta-analyses with date and type filters (PubMed/NCBI)",
+      "description": "Search 36M+ biomedical and life science articles — clinical trials, reviews, meta-analyses with date and type filters (PubMed/NCBI)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4589,23 +4175,19 @@
         "required": [
           "query"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "education.arxiv.search",
       "title": "Search arXiv Preprints",
-      "description": "Search 2.4M+ preprints in physics, math, CS, biology, and more \u2014 full text, authors, categories, PDF links (arXiv)",
+      "description": "Search 2.4M+ preprints in physics, math, CS, biology, and more — full text, authors, categories, PDF links (arXiv)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4644,23 +4226,19 @@
         "required": [
           "query"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "education.crossref.doi",
       "title": "Lookup DOI",
-      "description": "Resolve a DOI to full publication metadata \u2014 title, authors, journal, citations, funding, license (CrossRef)",
+      "description": "Resolve a DOI to full publication metadata — title, authors, journal, citations, funding, license (CrossRef)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4674,17 +4252,13 @@
         "required": [
           "doi"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -4732,23 +4306,19 @@
         "required": [
           "text"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "geo.address.reverse",
       "title": "Reverse Geocode",
-      "description": "Convert geographic coordinates (lat/lon) to a structured address \u2014 street, city, country, postal code (Geoapify/OSM)",
+      "description": "Convert geographic coordinates (lat/lon) to a structured address — street, city, country, postal code (Geoapify/OSM)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4775,17 +4345,13 @@
           "lat",
           "lon"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -4837,23 +4403,19 @@
           "lat",
           "lon"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "geo.address.autocomplete",
       "title": "Autocomplete Address",
-      "description": "Get autocomplete suggestions as you type an address or place name \u2014 for real-time search UX (Geoapify/OSM)",
+      "description": "Get autocomplete suggestions as you type an address or place name — for real-time search UX (Geoapify/OSM)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4895,17 +4457,13 @@
         "required": [
           "text"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -4970,23 +4528,19 @@
           "dest_lat",
           "dest_lon"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "geo.navigation.isochrone",
       "title": "Get Isochrone",
-      "description": "Get reachability area (isochrone) \u2014 polygon showing how far you can travel from a point in a given time or distance (Geoapify/OSM)",
+      "description": "Get reachability area (isochrone) — polygon showing how far you can travel from a point in a given time or distance (Geoapify/OSM)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5028,17 +4582,13 @@
           "lat",
           "lon"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -5058,23 +4608,19 @@
         "required": [
           "ip"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "aipush.website.setup",
       "title": "Setup Website for AI Marketing",
-      "description": "Register a website and run Material Intelligence Pipeline (MIP) \u2014 crawls site, extracts business signals, analyzes competitors, builds AI-optimized content profile. Required before generating pages. DNS CNAME required: reference.{domain} \u2192 cname.aipush.app (AIPush)",
+      "description": "Register a website for AI marketing. Call with domain + target_url. If DNS is not configured, returns DNS_NOT_VERIFIED with exact CNAME record instructions — relay to user: reference.{domain} → cname.aipush.app. After user creates DNS record, call again. On success: client registered, MIP analysis starts automatically, SSL provisioning begins. Poll website_status until mip_status='ready' and cf_hostname_status='active', then use generate_page. Idempotent (AIPush)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5082,36 +4628,32 @@
             "type": "string",
             "minLength": 3,
             "maxLength": 253,
-            "description": "Domain of the website to register (e.g. \"example.com\", \"myhotel.com\"). Must have a CNAME record: reference.{domain} \u2192 cname.aipush.app"
+            "description": "Domain of the website to register (e.g. \"example.com\", \"myhotel.com\"). Must have a CNAME record: reference.{domain} → cname.aipush.app"
           },
           "target_url": {
             "type": "string",
             "format": "uri",
             "maxLength": 2048,
-            "description": "Target conversion URL \u2014 the single page all generated content will link to (e.g. \"https://example.com/book\", \"https://myhotel.com/reserve\"). Must be on the same domain."
+            "description": "Target conversion URL — the single page all generated content will link to (e.g. \"https://example.com/book\", \"https://myhotel.com/reserve\"). Must be on the same domain."
           }
         },
         "required": [
           "website_domain",
           "target_url"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": false,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "aipush.website.status",
       "title": "Check Website Status",
-      "description": "Check MIP analysis status, DNS verification, SSL provisioning, billing status, and page generation progress for a registered website (AIPush)",
+      "description": "Poll website readiness after setup_website. Returns billing_status, mip_status ('empty'|'pending'|'ready'), cf_hostname_status, cf_ssl_status, pages_total. Gate your workflow: wait for mip_status='ready' AND cf_hostname_status='active' before calling generate_page. Safe to poll repeatedly (AIPush)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5125,23 +4667,19 @@
         "required": [
           "website_domain"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "aipush.pages.generate",
       "title": "Generate AI Marketing Page",
-      "description": "Generate one AI-optimized HTML page for a website \u2014 structured for AI assistant answer compilation (ChatGPT, Perplexity, Gemini). Page includes decision question, short answer with CTA, comparison, pricing, FAQ. Published at reference.{domain}/{slug} (AIPush)",
+      "description": "Requires mip_status='ready' and cf_hostname_status='active' (check website_status first). Generates one AI-optimized HTML page structured for AI assistant answer compilation (ChatGPT, Perplexity, Gemini). Page includes decision question, short answer with CTA, comparison, pricing, FAQ. Published at reference.{domain}/{slug}. Optional keyword parameter targets specific search intent (AIPush)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5161,17 +4699,13 @@
         "required": [
           "website_domain"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": false,
         "destructiveHint": false,
         "idempotentHint": false,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -5202,17 +4736,13 @@
         "required": [
           "website_domain"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -5239,23 +4769,19 @@
           "website_domain",
           "slug"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "aipush.analysis.profile",
       "title": "Get Website Business Profile",
-      "description": "Get MIP business analysis results \u2014 business name, category, location, competitors, value propositions, and market surface data (AIPush)",
+      "description": "Get MIP business analysis results — business name, category, location, competitors, value propositions, and market surface data (AIPush)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5269,23 +4795,19 @@
         "required": [
           "website_domain"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "aipush.analysis.visibility",
       "title": "Check AI Visibility Score",
-      "description": "Test whether AI assistants (ChatGPT, Perplexity, Gemini) know about and recommend a brand \u2014 returns per-model visibility scores (AIPush)",
+      "description": "Test whether AI assistants (ChatGPT, Perplexity, Gemini) know about and recommend a brand — returns per-model visibility scores (AIPush)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5299,23 +4821,19 @@
         "required": [
           "website_domain"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "zinc.products.search",
       "title": "Search Products",
-      "description": "Search products across Amazon, Walmart, and other major retailers by keyword \u2014 titles, prices, ratings, images (Zinc)",
+      "description": "Search products across Amazon, Walmart, and other major retailers by keyword — titles, prices, ratings, images (Zinc)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5349,23 +4867,19 @@
         "required": [
           "query"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "zinc.products.detail",
       "title": "Get Product Details",
-      "description": "Get full product details by ASIN or product ID \u2014 title, description, brand, images, price, features, categories (Zinc)",
+      "description": "Get full product details by ASIN or product ID — title, description, brand, images, price, features, categories (Zinc)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5393,23 +4907,19 @@
         "required": [
           "product_id"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "zinc.products.offers",
       "title": "Get Product Offers",
-      "description": "Get all seller offers for a product \u2014 prices, shipping, condition, Prime eligibility, seller ratings (Zinc)",
+      "description": "Get all seller offers for a product — prices, shipping, condition, Prime eligibility, seller ratings (Zinc)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5437,23 +4947,19 @@
         "required": [
           "product_id"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "zinc.products.reviews",
       "title": "Get Product Reviews",
-      "description": "Get product reviews and ratings by ASIN or product ID \u2014 review text, rating, author, verified purchase status (Zinc)",
+      "description": "Get product reviews and ratings by ASIN or product ID — review text, rating, author, verified purchase status (Zinc)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5487,23 +4993,19 @@
         "required": [
           "product_id"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "diffbot.products.extract",
       "title": "Extract Product Data",
-      "description": "Extract structured product data from any e-commerce URL \u2014 title, price, brand, specs, images, reviews. Works on any retailer without custom integration (Diffbot)",
+      "description": "Extract structured product data from any e-commerce URL — title, price, brand, specs, images, reviews. Works on any retailer without custom integration (Diffbot)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5526,17 +5028,13 @@
         "required": [
           "url"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -5580,17 +5078,13 @@
         "required": [
           "url"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
@@ -5625,29 +5119,25 @@
         "required": [
           "url"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "diffbot.knowledge.search",
       "title": "Search Knowledge Graph",
-      "description": "Search Diffbot Knowledge Graph for products, organizations, people, and places \u2014 billions of structured entities from the web (Diffbot)",
+      "description": "Search Diffbot Knowledge Graph for products, organizations, people, and places — billions of structured entities from the web (Diffbot)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "query": {
             "type": "string",
-            "description": "Diffbot Knowledge Graph query (DQL) \u2014 e.g. \"type:Product title:iPhone\""
+            "description": "Diffbot Knowledge Graph query (DQL) — e.g. \"type:Product title:iPhone\""
           },
           "type": {
             "type": "string",
@@ -5676,23 +5166,19 @@
         "required": [
           "query"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "whois.domain.lookup",
       "title": "WHOIS Lookup",
-      "description": "Get WHOIS registration data for any domain \u2014 registrar, creation/expiry dates, nameservers, registrant contact, status across 374M+ domains and 7,596 TLDs (WhoisXML)",
+      "description": "Get WHOIS registration data for any domain — registrar, creation/expiry dates, nameservers, registrant contact, status across 374M+ domains and 7,596 TLDs (WhoisXML)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5716,23 +5202,19 @@
         "required": [
           "domain"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "whois.dns.lookup",
       "title": "DNS Lookup",
-      "description": "Get DNS records for a domain \u2014 A, AAAA, MX, NS, SOA, TXT, CNAME, SRV, CAA records with TTL and raw data (WhoisXML)",
+      "description": "Get DNS records for a domain — A, AAAA, MX, NS, SOA, TXT, CNAME, SRV, CAA records with TTL and raw data (WhoisXML)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5760,23 +5242,19 @@
         "required": [
           "domain"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "whois.domain.availability",
       "title": "Check Domain Availability",
-      "description": "Check if a domain name is available for registration \u2014 fast DNS check or thorough DNS+WHOIS verification (WhoisXML)",
+      "description": "Check if a domain name is available for registration — fast DNS check or thorough DNS+WHOIS verification (WhoisXML)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5796,85 +5274,258 @@
         "required": [
           "domain"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
-      },
-      "execution": {
-        "taskSupport": "forbidden"
       }
     },
     {
       "name": "whois.domain.reverse",
       "title": "Reverse WHOIS Search",
-      "description": "Find all domains registered by a person, company, or email \u2014 reverse WHOIS lookup for OSINT and brand monitoring (WhoisXML)",
+      "description": "Find all domains registered by a person, company, or email — reverse WHOIS lookup for OSINT and brand monitoring (WhoisXML)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "keyword": {
             "type": "string",
-            "description": "Search keyword to find domains \u2014 registrant name, email, company, or address (e.g. \"John Smith\", \"acme.com\")"
+            "description": "Search keyword to find domains — registrant name, email, company, or address (e.g. \"John Smith\", \"acme.com\")"
           }
         },
         "required": [
           "keyword"
         ],
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
+      }
+    },
+    {
+      "name": "spoonacular.recipes.search",
+      "title": "Search Recipes",
+      "description": "Search 365K+ recipes with dietary filters (vegan, keto, gluten-free), cuisine, meal type, and max prep time — includes nutrition data per result (Spoonacular)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query for recipes (e.g. \"pasta\", \"chicken soup\")"
+          },
+          "cuisine": {
+            "type": "string",
+            "description": "Cuisine filter — comma-separated (e.g. \"italian\", \"mexican,chinese\")"
+          },
+          "diet": {
+            "type": "string",
+            "description": "Diet filter: gluten free, ketogenic, vegetarian, lacto-vegetarian, ovo-vegetarian, vegan, pescetarian, paleo, primal, whole30"
+          },
+          "intolerances": {
+            "type": "string",
+            "description": "Intolerances filter — comma-separated (e.g. \"dairy,gluten,peanut,shellfish\")"
+          },
+          "type": {
+            "type": "string",
+            "description": "Meal type: main course, side dish, dessert, appetizer, salad, bread, breakfast, soup, beverage, sauce, marinade, fingerfood, snack, drink"
+          },
+          "max_ready_time": {
+            "type": "integer",
+            "description": "Maximum preparation time in minutes"
+          },
+          "number": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Number of results to return (default 10, max 100)"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Offset for pagination (default 0)"
+          }
+        },
+        "additionalProperties": false
       },
-      "execution": {
-        "taskSupport": "forbidden"
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "spoonacular.recipes.details",
+      "title": "Get Recipe Details",
+      "description": "Get full recipe details by ID — ingredients, step-by-step instructions, nutrition facts, dietary labels, prep time, servings, and price per serving (Spoonacular)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Spoonacular recipe ID (from recipe_search or by_ingredients results)"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "spoonacular.recipes.by_ingredients",
+      "title": "Find Recipes by Ingredients",
+      "description": "Find recipes using ingredients you have on hand — shows used/missing ingredients count, ranked by ingredient match (Spoonacular)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ingredients": {
+            "type": "string",
+            "description": "Comma-separated list of ingredients you have (e.g. \"chicken,rice,tomato\")"
+          },
+          "number": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Number of results to return (default 10, max 100)"
+          },
+          "ranking": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2,
+            "description": "Ranking mode: 1 = maximize used ingredients, 2 = minimize missing ingredients (default 1)"
+          },
+          "ignore_pantry": {
+            "type": "boolean",
+            "description": "Ignore common pantry items like water, flour, salt (default false)"
+          }
+        },
+        "required": [
+          "ingredients"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "spoonacular.ingredients.search",
+      "title": "Search Ingredients",
+      "description": "Search 86K+ food ingredients with nutrition data — sortable by calories, protein, fat, or carbs (Spoonacular)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Ingredient search query (e.g. \"banana\", \"olive oil\", \"chicken breast\")"
+          },
+          "number": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Number of results to return (default 10, max 100)"
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "calories",
+              "protein",
+              "fat",
+              "carbs"
+            ],
+            "description": "Sort results by nutrient value"
+          },
+          "sort_direction": {
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "description": "Sort direction (default asc)"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "spoonacular.recipes.analyze",
+      "title": "Analyze Recipe Nutrition",
+      "description": "Analyze a recipe by title and ingredient list — returns full nutrition breakdown, dietary labels, and caloric distribution (Spoonacular)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Recipe title (e.g. \"Spaghetti Carbonara\")"
+          },
+          "ingredients": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of ingredient strings (e.g. [\"200g spaghetti\", \"100g guanciale\", \"2 eggs\"])"
+          },
+          "instructions": {
+            "type": "string",
+            "description": "Cooking instructions as plain text"
+          },
+          "servings": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Number of servings (default 1)"
+          }
+        },
+        "required": [
+          "title",
+          "ingredients"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
       }
     }
   ],
-  "resources": [],
   "prompts": [
     {
-      "name": "find_cheapest_flight",
-      "description": "Search for the cheapest flights between two airports and confirm pricing",
-      "arguments": [
-        {
-          "name": "origin",
-          "description": "Origin airport IATA code (e.g. JFK)",
-          "required": true
-        },
-        {
-          "name": "destination",
-          "description": "Destination airport IATA code (e.g. CDG)",
-          "required": true
-        },
-        {
-          "name": "date",
-          "description": "Departure date in YYYY-MM-DD format",
-          "required": true
-        }
-      ]
+      "name": "help",
+      "description": "How to use APIbase MCP gateway"
     },
     {
-      "name": "crypto_market_overview",
-      "description": "Get a comprehensive overview of the cryptocurrency market"
+      "name": "register",
+      "description": "Register a new AI agent and get API key"
     },
     {
-      "name": "prediction_market_research",
-      "description": "Research a topic on Polymarket prediction markets",
-      "arguments": [
-        {
-          "name": "topic",
-          "description": "Topic to research (e.g. US election, Bitcoin price)",
-          "required": true
-        }
-      ]
+      "name": "pricing",
+      "description": "View tool pricing and payment info"
     }
-  ]
+  ],
+  "resources": []
 }
