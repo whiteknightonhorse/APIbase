@@ -19,6 +19,7 @@ import { AIPushAdapter } from './aipush';
 import { ZincAdapter } from './zinc';
 import { DiffbotAdapter } from './diffbot';
 import { WhoisXmlAdapter } from './whoisxml';
+import { SpoonacularAdapter } from './spoonacular';
 import { config } from '../config';
 
 /**
@@ -147,6 +148,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const whoisKey = (config as Record<string, unknown>).PROVIDER_KEY_WHOISXML as string | undefined;
       if (!whoisKey) return undefined;
       return getOrCreate('whoisxml', () => new WhoisXmlAdapter(whoisKey));
+    }
+    case 'spoonacular': {
+      const spoonKey = (config as Record<string, unknown>).PROVIDER_KEY_SPOONACULAR as string | undefined;
+      if (!spoonKey) return undefined;
+      return getOrCreate('spoonacular', () => new SpoonacularAdapter(spoonKey));
     }
     default:
       return undefined;

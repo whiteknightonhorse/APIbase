@@ -1052,4 +1052,43 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description: 'Find all domains registered by a person, company, or email — reverse WHOIS lookup for OSINT and brand monitoring (WhoisXML)',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // Spoonacular — Recipe / Cooking / Food Data (UC-031, 5 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'spoonacular.recipe_search',
+    mcpName: 'spoonacular.recipes.search',
+    title: 'Search Recipes',
+    description: 'Search 365K+ recipes with dietary filters (vegan, keto, gluten-free), cuisine, meal type, and max prep time — includes nutrition data per result (Spoonacular)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'spoonacular.recipe_details',
+    mcpName: 'spoonacular.recipes.details',
+    title: 'Get Recipe Details',
+    description: 'Get full recipe details by ID — ingredients, step-by-step instructions, nutrition facts, dietary labels, prep time, servings, and price per serving (Spoonacular)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'spoonacular.by_ingredients',
+    mcpName: 'spoonacular.recipes.by_ingredients',
+    title: 'Find Recipes by Ingredients',
+    description: 'Find recipes using ingredients you have on hand — shows used/missing ingredients count, ranked by ingredient match (Spoonacular)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'spoonacular.ingredient_search',
+    mcpName: 'spoonacular.ingredients.search',
+    title: 'Search Ingredients',
+    description: 'Search 86K+ food ingredients with nutrition data — sortable by calories, protein, fat, or carbs (Spoonacular)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'spoonacular.analyze_recipe',
+    mcpName: 'spoonacular.recipes.analyze',
+    title: 'Analyze Recipe Nutrition',
+    description: 'Analyze a recipe by title and ingredient list — returns full nutrition breakdown, dietary labels, and caloric distribution (Spoonacular)',
+    annotations: READ_ONLY,
+  },
 ];
