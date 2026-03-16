@@ -11464,6 +11464,441 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/spoonacular.recipe_search/call": {
+      "post": {
+        "operationId": "spoonacular_recipe_search",
+        "summary": "Search Recipes",
+        "description": "Search 365K+ recipes with dietary filters (vegan, keto, gluten-free), cuisine, meal type, and max prep time — includes nutrition data per result (Spoonacular)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "spoonacular.recipe_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search query for recipes (e.g. \"pasta\", \"chicken soup\")"
+                  },
+                  "cuisine": {
+                    "type": "string",
+                    "description": "Cuisine filter — comma-separated (e.g. \"italian\", \"mexican,chinese\")"
+                  },
+                  "diet": {
+                    "type": "string",
+                    "description": "Diet filter: gluten free, ketogenic, vegetarian, lacto-vegetarian, ovo-vegetarian, vegan, pescetarian, paleo, primal, whole30"
+                  },
+                  "intolerances": {
+                    "type": "string",
+                    "description": "Intolerances filter — comma-separated (e.g. \"dairy,gluten,peanut,shellfish\")"
+                  },
+                  "type": {
+                    "type": "string",
+                    "description": "Meal type: main course, side dish, dessert, appetizer, salad, bread, breakfast, soup, beverage, sauce, marinade, fingerfood, snack, drink"
+                  },
+                  "max_ready_time": {
+                    "type": "integer",
+                    "description": "Maximum preparation time in minutes"
+                  },
+                  "number": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Number of results to return (default 10, max 100)"
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Offset for pagination (default 0)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/spoonacular.recipe_details/call": {
+      "post": {
+        "operationId": "spoonacular_recipe_details",
+        "summary": "Get Recipe Details",
+        "description": "Get full recipe details by ID — ingredients, step-by-step instructions, nutrition facts, dietary labels, prep time, servings, and price per serving (Spoonacular)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "spoonacular.recipe_details"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Spoonacular recipe ID (from recipe_search or by_ingredients results)"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/spoonacular.by_ingredients/call": {
+      "post": {
+        "operationId": "spoonacular_by_ingredients",
+        "summary": "Find Recipes by Ingredients",
+        "description": "Find recipes using ingredients you have on hand — shows used/missing ingredients count, ranked by ingredient match (Spoonacular)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "spoonacular.by_ingredients"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ingredients": {
+                    "type": "string",
+                    "description": "Comma-separated list of ingredients you have (e.g. \"chicken,rice,tomato\")"
+                  },
+                  "number": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Number of results to return (default 10, max 100)"
+                  },
+                  "ranking": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 2,
+                    "description": "Ranking mode: 1 = maximize used ingredients, 2 = minimize missing ingredients (default 1)"
+                  },
+                  "ignore_pantry": {
+                    "type": "boolean",
+                    "description": "Ignore common pantry items like water, flour, salt (default false)"
+                  }
+                },
+                "required": [
+                  "ingredients"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/spoonacular.ingredient_search/call": {
+      "post": {
+        "operationId": "spoonacular_ingredient_search",
+        "summary": "Search Ingredients",
+        "description": "Search 86K+ food ingredients with nutrition data — sortable by calories, protein, fat, or carbs (Spoonacular)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "spoonacular.ingredient_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Ingredient search query (e.g. \"banana\", \"olive oil\", \"chicken breast\")"
+                  },
+                  "number": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Number of results to return (default 10, max 100)"
+                  },
+                  "sort": {
+                    "type": "string",
+                    "enum": [
+                      "calories",
+                      "protein",
+                      "fat",
+                      "carbs"
+                    ],
+                    "description": "Sort results by nutrient value"
+                  },
+                  "sort_direction": {
+                    "type": "string",
+                    "enum": [
+                      "asc",
+                      "desc"
+                    ],
+                    "description": "Sort direction (default asc)"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/spoonacular.analyze_recipe/call": {
+      "post": {
+        "operationId": "spoonacular_analyze_recipe",
+        "summary": "Analyze Recipe Nutrition",
+        "description": "Analyze a recipe by title and ingredient list — returns full nutrition breakdown, dietary labels, and caloric distribution (Spoonacular)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "spoonacular.analyze_recipe"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "description": "Recipe title (e.g. \"Spaghetti Carbonara\")"
+                  },
+                  "ingredients": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "List of ingredient strings (e.g. [\"200g spaghetti\", \"100g guanciale\", \"2 eggs\"])"
+                  },
+                  "instructions": {
+                    "type": "string",
+                    "description": "Cooking instructions as plain text"
+                  },
+                  "servings": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Number of servings (default 1)"
+                  }
+                },
+                "required": [
+                  "title",
+                  "ingredients"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

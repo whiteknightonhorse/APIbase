@@ -20,6 +20,7 @@ import { aipushSchemas } from './aipush.schema';
 import { zincSchemas } from './zinc.schema';
 import { diffbotSchemas } from './diffbot.schema';
 import { whoisxmlSchemas } from './whoisxml.schema';
+import { spoonacularSchemas } from './spoonacular.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -43,4 +44,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...zincSchemas,
   ...diffbotSchemas,
   ...whoisxmlSchemas,
+  ...spoonacularSchemas,
 };
