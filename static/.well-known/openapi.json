@@ -9909,7 +9909,7 @@
       "post": {
         "operationId": "aipush_setup_website",
         "summary": "Setup Website for AI Marketing",
-        "description": "Register a website and run Material Intelligence Pipeline (MIP) — crawls site, extracts business signals, analyzes competitors, builds AI-optimized content profile. Required before generating pages. DNS CNAME required: reference.{domain} → cname.aipush.app (AIPush)",
+        "description": "Register a website for AI marketing. Call with domain + target_url. If DNS is not configured, returns DNS_NOT_VERIFIED with exact CNAME record instructions — relay to user: reference.{domain} → cname.aipush.app. After user creates DNS record, call again. On success: client registered, MIP analysis starts automatically, SSL provisioning begins. Poll website_status until mip_status='ready' and cf_hostname_status='active', then use generate_page. Idempotent (AIPush)",
         "parameters": [
           {
             "name": "toolId",
@@ -9987,7 +9987,7 @@
       "post": {
         "operationId": "aipush_website_status",
         "summary": "Check Website Status",
-        "description": "Check MIP analysis status, DNS verification, SSL provisioning, billing status, and page generation progress for a registered website (AIPush)",
+        "description": "Poll website readiness after setup_website. Returns billing_status, mip_status ('empty'|'pending'|'ready'), cf_hostname_status, cf_ssl_status, pages_total. Gate your workflow: wait for mip_status='ready' AND cf_hostname_status='active' before calling generate_page. Safe to poll repeatedly (AIPush)",
         "parameters": [
           {
             "name": "toolId",
@@ -10059,7 +10059,7 @@
       "post": {
         "operationId": "aipush_generate_page",
         "summary": "Generate AI Marketing Page",
-        "description": "Generate one AI-optimized HTML page for a website — structured for AI assistant answer compilation (ChatGPT, Perplexity, Gemini). Page includes decision question, short answer with CTA, comparison, pricing, FAQ. Published at reference.{domain}/{slug} (AIPush)",
+        "description": "Requires mip_status='ready' and cf_hostname_status='active' (check website_status first). Generates one AI-optimized HTML page structured for AI assistant answer compilation (ChatGPT, Perplexity, Gemini). Page includes decision question, short answer with CTA, comparison, pricing, FAQ. Published at reference.{domain}/{slug}. Optional keyword parameter targets specific search intent (AIPush)",
         "parameters": [
           {
             "name": "toolId",

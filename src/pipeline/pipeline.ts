@@ -1,4 +1,5 @@
 import { logger } from '../config/logger';
+import { releaseLock } from '../services/cache.service';
 import {
   type Stage,
   type PipelineContext,
@@ -107,6 +108,10 @@ export async function runPipeline(
           },
           `Pipeline stopped at ${stage.name}: ${result.error.message}`,
         );
+        // Release single-flight lock if owned (prevents 30s hang on stages 7-12 errors)
+        if (ctx.isLockOwner && ctx.cacheKey) {
+          await releaseLock(ctx.cacheKey).catch(() => {});
+        }
         return result;
       }
 
@@ -122,6 +127,11 @@ export async function runPipeline(
         },
         `Pipeline error at ${stage.name}`,
       );
+
+      // Release single-flight lock if owned (prevents 30s hang on uncaught errors)
+      if (ctx.isLockOwner && ctx.cacheKey) {
+        await releaseLock(ctx.cacheKey).catch(() => {});
+      }
 
       return err({
         code: 500,

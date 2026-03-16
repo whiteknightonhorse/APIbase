@@ -176,10 +176,11 @@ export abstract class BaseAdapter {
     }
 
     if (response.status >= 400) {
+      const detail = bodyText.length > 0 ? `: ${bodyText.slice(0, 500)}` : '';
       throw createProviderError({
         code: ProviderErrorCode.INVALID_RESPONSE,
         httpStatus: 502,
-        message: `Provider returned client error ${response.status}`,
+        message: `Provider returned client error ${response.status}${detail}`,
         provider: this.provider,
         toolId: req.toolId,
         durationMs,
