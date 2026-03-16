@@ -20,6 +20,9 @@ import { ZincAdapter } from './zinc';
 import { DiffbotAdapter } from './diffbot';
 import { WhoisXmlAdapter } from './whoisxml';
 import { SpoonacularAdapter } from './spoonacular';
+import { NasaAdapter } from './nasa';
+import { JplAdapter } from './jpl';
+import { RawgAdapter } from './rawg';
 import { config } from '../config';
 
 /**
@@ -153,6 +156,19 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const spoonKey = (config as Record<string, unknown>).PROVIDER_KEY_SPOONACULAR as string | undefined;
       if (!spoonKey) return undefined;
       return getOrCreate('spoonacular', () => new SpoonacularAdapter(spoonKey));
+    }
+    case 'nasa': {
+      const nasaKey = (config as Record<string, unknown>).PROVIDER_KEY_NASA as string | undefined;
+      if (!nasaKey) return undefined;
+      return getOrCreate('nasa', () => new NasaAdapter(nasaKey));
+    }
+    case 'jpl':
+      // JPL SSD APIs are open access — no API key needed
+      return getOrCreate('jpl', () => new JplAdapter());
+    case 'rawg': {
+      const rawgKey = (config as Record<string, unknown>).PROVIDER_KEY_RAWG as string | undefined;
+      if (!rawgKey) return undefined;
+      return getOrCreate('rawg', () => new RawgAdapter(rawgKey));
     }
     default:
       return undefined;

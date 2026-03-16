@@ -21,6 +21,9 @@ import { zincSchemas } from './zinc.schema';
 import { diffbotSchemas } from './diffbot.schema';
 import { whoisxmlSchemas } from './whoisxml.schema';
 import { spoonacularSchemas } from './spoonacular.schema';
+import { nasaSchemas } from './nasa.schema';
+import { jplSchemas } from './jpl.schema';
+import { rawgSchemas } from './rawg.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -45,4 +48,7 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...diffbotSchemas,
   ...whoisxmlSchemas,
   ...spoonacularSchemas,
+  ...nasaSchemas,
+  ...jplSchemas,
+  ...rawgSchemas,
 };

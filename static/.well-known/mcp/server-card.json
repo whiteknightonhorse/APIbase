@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase — The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 138 tools across travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, recipes, domain intelligence, AI marketing, weather, and more. Pay-per-call via x402 micropayments.",
+    "description": "Unified MCP gateway to 152 tools across travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, recipes, domain intelligence, AI marketing, weather, space/astronomy, gaming, and more. Pay-per-call via x402 micropayments.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -5511,21 +5511,508 @@
         "idempotentHint": true,
         "openWorldHint": true
       }
-    }
-  ],
-  "prompts": [
-    {
-      "name": "help",
-      "description": "How to use APIbase MCP gateway"
     },
     {
-      "name": "register",
-      "description": "Register a new AI agent and get API key"
+      "name": "nasa.astronomy.apod",
+      "title": "Astronomy Picture of the Day",
+      "description": "Get NASA Astronomy Picture of the Day — daily curated space image or video with expert explanation, dating back to 1995 (NASA APOD)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "Date in YYYY-MM-DD format (default: today). Returns the Astronomy Picture of the Day for that date"
+          },
+          "thumbs": {
+            "type": "boolean",
+            "description": "Return thumbnail URL for video APOD entries (default false)"
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
     },
     {
-      "name": "pricing",
-      "description": "View tool pricing and payment info"
+      "name": "nasa.asteroids.feed",
+      "title": "Near-Earth Asteroids Feed",
+      "description": "Get near-Earth asteroid close approaches for a date range — size estimates, hazard classification, velocity, miss distance (NASA NeoWs)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "start_date": {
+            "type": "string",
+            "description": "Start date in YYYY-MM-DD format for asteroid feed (max 7-day span)"
+          },
+          "end_date": {
+            "type": "string",
+            "description": "End date in YYYY-MM-DD format (default: start_date + 7 days)"
+          }
+        },
+        "required": [
+          "start_date"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "nasa.space_weather.flares",
+      "title": "Solar Flare Events",
+      "description": "Get solar flare events from the Space Weather Database — class, peak time, source region, linked CMEs and geomagnetic storms (NASA DONKI)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "start_date": {
+            "type": "string",
+            "description": "Start date in YYYY-MM-DD format (default: 30 days ago)"
+          },
+          "end_date": {
+            "type": "string",
+            "description": "End date in YYYY-MM-DD format (default: today)"
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "nasa.earth.epic",
+      "title": "Earth Camera (EPIC)",
+      "description": "Get full-disc Earth images from the DSCOVR satellite EPIC camera — daily natural color photos from Lagrange point L1, 1.5M km away (NASA EPIC)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "Date in YYYY-MM-DD format (default: most recent available). Returns DSCOVR EPIC Earth images for that date"
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "nasa.media.search",
+      "title": "Search NASA Images & Videos",
+      "description": "Search NASA Image and Video Library — 140K+ images, videos, and audio from missions, telescopes, and events with metadata and download links (NASA)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "description": "Search query for NASA images and videos (e.g. \"mars rover\", \"apollo 11\", \"nebula\")"
+          },
+          "media_type": {
+            "type": "string",
+            "enum": [
+              "image",
+              "video",
+              "audio"
+            ],
+            "description": "Filter by media type (default: all types)"
+          },
+          "year_start": {
+            "type": "integer",
+            "description": "Filter results to year >= year_start"
+          },
+          "year_end": {
+            "type": "integer",
+            "description": "Filter results to year <= year_end"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number for pagination (default 1)"
+          }
+        },
+        "required": [
+          "q"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "jpl.asteroids.approaches",
+      "title": "Asteroid Close Approaches",
+      "description": "Get upcoming and past asteroid close approaches to Earth — distance, velocity, size, sorted by date or distance (NASA JPL)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "date_min": {
+            "type": "string",
+            "description": "Minimum close-approach date in YYYY-MM-DD format (default: now)"
+          },
+          "date_max": {
+            "type": "string",
+            "description": "Maximum close-approach date in YYYY-MM-DD format (default: +60 days)"
+          },
+          "dist_max": {
+            "type": "string",
+            "description": "Maximum approach distance in AU (e.g. \"0.05\" = ~7.5M km). Default: 0.05"
+          },
+          "h_max": {
+            "type": "number",
+            "description": "Maximum absolute magnitude H (smaller H = larger object). Filter for brighter/bigger asteroids"
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "date",
+              "dist",
+              "dist-min",
+              "h",
+              "v-inf",
+              "v-rel"
+            ],
+            "description": "Sort field (default: date)"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Maximum number of results (default 20, max 100)"
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "jpl.events.fireballs",
+      "title": "Fireball Events",
+      "description": "Get reported fireball (bolide) events — atmospheric entry energy, velocity, altitude, geographic coordinates (NASA JPL CNEOS)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "date_min": {
+            "type": "string",
+            "description": "Minimum event date in YYYY-MM-DD format"
+          },
+          "date_max": {
+            "type": "string",
+            "description": "Maximum event date in YYYY-MM-DD format"
+          },
+          "energy_min": {
+            "type": "number",
+            "description": "Minimum radiated energy in Joules (e.g. 1e10)"
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "date",
+              "energy",
+              "impact-e",
+              "vel",
+              "alt"
+            ],
+            "description": "Sort field (default: date descending)"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Maximum number of results (default 20, max 100)"
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "jpl.bodies.lookup",
+      "title": "Small Body Lookup",
+      "description": "Look up asteroid or comet data by name/designation — orbital elements, physical parameters, discovery info, hazard classification (NASA JPL SBDB)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "sstr": {
+            "type": "string",
+            "description": "Search string — asteroid/comet name or designation (e.g. \"Apophis\", \"2024 YR4\", \"Halley\")"
+          },
+          "des": {
+            "type": "string",
+            "description": "SPK-ID or designation for exact lookup (e.g. \"99942\" for Apophis)"
+          },
+          "phys_par": {
+            "type": "boolean",
+            "description": "Include physical parameters like diameter, albedo, rotation period (default true)"
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "jpl.asteroids.sentry",
+      "title": "Asteroid Impact Risk (Sentry)",
+      "description": "Get asteroid impact risk assessments from the Sentry monitoring system — impact probability, Palermo/Torino scale, size estimates (NASA JPL)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "des": {
+            "type": "string",
+            "description": "Asteroid designation to check specific object (e.g. \"99942\" for Apophis). Omit for full list"
+          },
+          "h_max": {
+            "type": "number",
+            "description": "Maximum absolute magnitude H — filter for larger objects"
+          },
+          "ps_min": {
+            "type": "number",
+            "description": "Minimum Palermo Scale value (e.g. -3). Higher = more concerning"
+          },
+          "ip_min": {
+            "type": "number",
+            "description": "Minimum impact probability (e.g. 1e-7)"
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "rawg.games.search",
+      "title": "Search Video Games",
+      "description": "Search 800K+ video games — filter by genre, platform, release date, Metacritic score, with ratings, screenshots, and store links (RAWG)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "search": {
+            "type": "string",
+            "description": "Search query for games (e.g. \"The Witcher\", \"Red Dead Redemption\")"
+          },
+          "genres": {
+            "type": "string",
+            "description": "Filter by genre IDs — comma-separated (e.g. \"4\" for action, \"5\" for RPG, \"4,5\" for both)"
+          },
+          "platforms": {
+            "type": "string",
+            "description": "Filter by platform IDs — comma-separated (e.g. \"4\" for PC, \"187\" for PS5, \"186\" for Xbox Series)"
+          },
+          "dates": {
+            "type": "string",
+            "description": "Filter by release date range YYYY-MM-DD,YYYY-MM-DD (e.g. \"2024-01-01,2024-12-31\")"
+          },
+          "ordering": {
+            "type": "string",
+            "description": "Sort field: name, released, added, created, updated, rating, metacritic. Prefix with \"-\" for descending (e.g. \"-rating\")"
+          },
+          "metacritic": {
+            "type": "string",
+            "description": "Filter by Metacritic score range \"min,max\" (e.g. \"80,100\" for highly rated)"
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 40,
+            "description": "Number of results per page (default 20, max 40)"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number for pagination (default 1)"
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "rawg.games.details",
+      "title": "Get Game Details",
+      "description": "Get full game details by ID or slug — description, platforms, genres, developers, publishers, ratings, Metacritic score, system requirements (RAWG)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "RAWG game ID (numeric) or slug (e.g. \"grand-theft-auto-v\", 3498)"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "rawg.games.screenshots",
+      "title": "Get Game Screenshots",
+      "description": "Get screenshot images for a game — full resolution URLs with dimensions (RAWG)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "RAWG game ID or slug"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number (default 1)"
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 40,
+            "description": "Results per page (default 20, max 40)"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "rawg.games.stores",
+      "title": "Get Game Store Links",
+      "description": "Get purchase/download links for a game across stores — Steam, PlayStation Store, Xbox, Epic, GOG, Nintendo (RAWG)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "RAWG game ID or slug"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "rawg.games.series",
+      "title": "Get Game Series",
+      "description": "Get all games in the same series/franchise — sequels, prequels, and spin-offs with ratings and release dates (RAWG)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "RAWG game ID or slug"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number (default 1)"
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 40,
+            "description": "Results per page (default 20, max 40)"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
     }
-  ],
-  "resources": []
+  ]
 }
