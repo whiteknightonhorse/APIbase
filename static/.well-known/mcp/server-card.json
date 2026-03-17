@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase — The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 159 tools across travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, recipes, domain intelligence, AI marketing, QR codes, weather, space/astronomy, gaming, and more. Pay-per-call via x402 micropayments.",
+    "description": "Unified MCP gateway to 161 tools across travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, recipes, domain intelligence, AI marketing, QR codes, barcode/product lookup, weather, space/astronomy, gaming, and more. Pay-per-call via x402 micropayments.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -6229,6 +6229,74 @@
         },
         "required": [
           "fileurl"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "upc.products.lookup",
+      "title": "Product Barcode Lookup",
+      "description": "Look up a product by UPC, EAN, GTIN, or ISBN barcode — returns title, brand, images, dimensions, weight, category, price range, and marketplace offers (UPCitemdb)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "upc": {
+            "type": "string",
+            "description": "UPC, EAN, GTIN, or ISBN barcode number to look up (e.g. \"012345678905\", \"9780140449136\")"
+          }
+        },
+        "required": [
+          "upc"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "upc.products.search",
+      "title": "Product Search by Name",
+      "description": "Search products by name, brand, or description — returns matching items with UPC codes, images, categories, and price ranges (UPCitemdb)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Full-text search query for product name, brand, or description (e.g. \"iPhone 16\", \"Sony headphones\")"
+          },
+          "match_mode": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Match mode: 0 = broad match (default), 1 = exact match"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "product",
+              "brand",
+              "category"
+            ],
+            "description": "Search type: \"product\" (default), \"brand\", or \"category\""
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Pagination offset for results (default: 0)"
+          }
+        },
+        "required": [
+          "query"
         ],
         "additionalProperties": false
       },

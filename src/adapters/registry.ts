@@ -25,6 +25,7 @@ import { JplAdapter } from './jpl';
 import { RawgAdapter } from './rawg';
 import { IgdbAdapter } from './igdb';
 import { QrServerAdapter } from './qrserver';
+import { UpcItemDbAdapter } from './upcitemdb';
 import { config } from '../config';
 
 /**
@@ -181,6 +182,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'qrserver':
       // QRServer APIs are open access — no API key needed
       return getOrCreate('qrserver', () => new QrServerAdapter());
+    case 'upc':
+      // UPCitemdb free trial tier — no API key needed
+      return getOrCreate('upcitemdb', () => new UpcItemDbAdapter());
     default:
       return undefined;
   }

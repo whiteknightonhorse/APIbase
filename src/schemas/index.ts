@@ -26,6 +26,7 @@ import { jplSchemas } from './jpl.schema';
 import { rawgSchemas } from './rawg.schema';
 import { igdbSchemas } from './igdb.schema';
 import { qrserverSchemas } from './qrserver.schema';
+import { upcitemdbSchemas } from './upcitemdb.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -55,4 +56,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...rawgSchemas,
   ...igdbSchemas,
   ...qrserverSchemas,
+  ...upcitemdbSchemas,
 };
