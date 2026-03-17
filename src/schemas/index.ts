@@ -27,6 +27,7 @@ import { rawgSchemas } from './rawg.schema';
 import { igdbSchemas } from './igdb.schema';
 import { qrserverSchemas } from './qrserver.schema';
 import { upcitemdbSchemas } from './upcitemdb.schema';
+import { ipapiSchemas } from './ipapi.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -57,4 +58,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...igdbSchemas,
   ...qrserverSchemas,
   ...upcitemdbSchemas,
+  ...ipapiSchemas,
 };

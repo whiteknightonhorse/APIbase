@@ -999,3 +999,16 @@ tools:
     provider: upcitemdb
     price_usd: "0.002"
     cache_ttl: 3600
+
+  # --- UC-045: ipapi.is (IP Intelligence / Geolocation) ---
+  - tool_id: ip.lookup
+    name: IP Address Lookup
+    provider: ipapi
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: ip.bulk_lookup
+    name: Bulk IP Lookup
+    provider: ipapi
+    price_usd: "0.005"
+    cache_ttl: 3600

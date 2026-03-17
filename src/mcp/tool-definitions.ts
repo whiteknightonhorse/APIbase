@@ -1276,4 +1276,22 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description: 'Search products by name, brand, or description — returns matching items with UPC codes, images, categories, and price ranges (UPCitemdb)',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // ipapi.is — IP Intelligence / Geolocation (UC-045, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'ip.lookup',
+    mcpName: 'ip.intelligence.lookup',
+    title: 'IP Address Lookup',
+    description: 'Look up any IP address — geolocation (country, city, coordinates), 9 security flags (VPN, Tor, proxy, datacenter, abuser, crawler, bogon, mobile, satellite), ASN, company info, abuse contacts (ipapi.is)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ip.bulk_lookup',
+    mcpName: 'ip.intelligence.bulk',
+    title: 'Bulk IP Lookup',
+    description: 'Look up multiple IP addresses in one call (max 100) — country, city, VPN/Tor/proxy flags, ASN, and organization for each IP (ipapi.is)',
+    annotations: READ_ONLY,
+  },
 ];
