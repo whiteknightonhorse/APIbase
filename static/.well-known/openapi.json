@@ -13864,6 +13864,318 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/earthquake.search/call": {
+      "post": {
+        "operationId": "earthquake_search",
+        "summary": "Search Earthquakes",
+        "description": "Search global earthquakes by time, location, magnitude, and depth — returns magnitude, coordinates, tsunami flags, PAGER alerts, and felt reports. 100+ years of data, updated every minute (USGS)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "earthquake.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "starttime": {
+                    "type": "string",
+                    "description": "Start date in ISO 8601 format, e.g. \"2026-01-01\" or \"2026-01-01T00:00:00\""
+                  },
+                  "endtime": {
+                    "type": "string",
+                    "description": "End date in ISO 8601 format (default: now)"
+                  },
+                  "minmagnitude": {
+                    "type": "number",
+                    "description": "Minimum magnitude on Richter scale (e.g. 4.5 for significant earthquakes)"
+                  },
+                  "maxmagnitude": {
+                    "type": "number",
+                    "description": "Maximum magnitude on Richter scale"
+                  },
+                  "latitude": {
+                    "type": "number",
+                    "minimum": -90,
+                    "maximum": 90,
+                    "description": "Center latitude for radius search (-90 to 90)"
+                  },
+                  "longitude": {
+                    "type": "number",
+                    "minimum": -180,
+                    "maximum": 180,
+                    "description": "Center longitude for radius search (-180 to 180)"
+                  },
+                  "maxradiuskm": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 20001.6,
+                    "description": "Search radius in kilometers from lat/lon center point (max ~20,000 km)"
+                  },
+                  "mindepth": {
+                    "type": "number",
+                    "description": "Minimum depth in kilometers (negative = above sea level)"
+                  },
+                  "maxdepth": {
+                    "type": "number",
+                    "description": "Maximum depth in kilometers (max 1000)"
+                  },
+                  "orderby": {
+                    "type": "string",
+                    "enum": [
+                      "time",
+                      "time-asc",
+                      "magnitude",
+                      "magnitude-asc"
+                    ],
+                    "description": "Sort order: \"time\" (newest first, default), \"time-asc\", \"magnitude\" (largest first), \"magnitude-asc\""
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 200,
+                    "description": "Maximum number of results (default 20, max 200)"
+                  },
+                  "alertlevel": {
+                    "type": "string",
+                    "enum": [
+                      "green",
+                      "yellow",
+                      "orange",
+                      "red"
+                    ],
+                    "description": "PAGER alert level filter: green (no damage), yellow, orange, red (significant damage/casualties)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/earthquake.feed/call": {
+      "post": {
+        "operationId": "earthquake_feed",
+        "summary": "Real-Time Earthquake Feed",
+        "description": "Get real-time earthquake feed by magnitude threshold (significant/4.5+/2.5+/1.0+/all) and time window (hour/day/week/month) — updated every minute (USGS)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "earthquake.feed"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "magnitude": {
+                    "type": "string",
+                    "enum": [
+                      "significant",
+                      "4.5",
+                      "2.5",
+                      "1.0",
+                      "all"
+                    ],
+                    "description": "Magnitude threshold: \"significant\", \"4.5\", \"2.5\", \"1.0\", or \"all\" (default: \"4.5\")"
+                  },
+                  "timeframe": {
+                    "type": "string",
+                    "enum": [
+                      "hour",
+                      "day",
+                      "week",
+                      "month"
+                    ],
+                    "description": "Time window: \"hour\", \"day\" (default), \"week\", or \"month\""
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/earthquake.count/call": {
+      "post": {
+        "operationId": "earthquake_count",
+        "summary": "Count Earthquakes",
+        "description": "Count earthquakes matching search criteria without returning full data — useful for statistics and monitoring thresholds (USGS)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "earthquake.count"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "starttime": {
+                    "type": "string",
+                    "description": "Start date in ISO 8601 format, e.g. \"2026-01-01\""
+                  },
+                  "endtime": {
+                    "type": "string",
+                    "description": "End date in ISO 8601 format (default: now)"
+                  },
+                  "minmagnitude": {
+                    "type": "number",
+                    "description": "Minimum magnitude on Richter scale"
+                  },
+                  "maxmagnitude": {
+                    "type": "number",
+                    "description": "Maximum magnitude on Richter scale"
+                  },
+                  "latitude": {
+                    "type": "number",
+                    "minimum": -90,
+                    "maximum": 90,
+                    "description": "Center latitude for radius search"
+                  },
+                  "longitude": {
+                    "type": "number",
+                    "minimum": -180,
+                    "maximum": 180,
+                    "description": "Center longitude for radius search"
+                  },
+                  "maxradiuskm": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 20001.6,
+                    "description": "Search radius in kilometers from lat/lon center"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

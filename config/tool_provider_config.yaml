@@ -1012,3 +1012,22 @@ tools:
     provider: ipapi
     price_usd: "0.005"
     cache_ttl: 3600
+
+  # --- UC-048: USGS Earthquake Hazards Program ---
+  - tool_id: earthquake.search
+    name: Earthquake Search
+    provider: usgs-earthquake
+    price_usd: "0.001"
+    cache_ttl: 60
+
+  - tool_id: earthquake.feed
+    name: Earthquake Real-Time Feed
+    provider: usgs-earthquake
+    price_usd: "0.001"
+    cache_ttl: 60
+
+  - tool_id: earthquake.count
+    name: Earthquake Count
+    provider: usgs-earthquake
+    price_usd: "0.001"
+    cache_ttl: 60

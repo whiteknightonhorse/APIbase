@@ -27,6 +27,7 @@ import { IgdbAdapter } from './igdb';
 import { QrServerAdapter } from './qrserver';
 import { UpcItemDbAdapter } from './upcitemdb';
 import { IpApiAdapter } from './ipapi';
+import { UsgsEarthquakeAdapter } from './usgs-earthquake';
 import { config } from '../config';
 
 /**
@@ -189,6 +190,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'ip':
       // ipapi.is free tier — no API key needed (1K/day)
       return getOrCreate('ipapi', () => new IpApiAdapter());
+    case 'earthquake':
+      // USGS Earthquake — open access, no API key needed
+      return getOrCreate('usgs-earthquake', () => new UsgsEarthquakeAdapter());
     default:
       return undefined;
   }
