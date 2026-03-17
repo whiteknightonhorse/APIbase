@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase — The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 157 tools across travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, recipes, domain intelligence, AI marketing, weather, space/astronomy, gaming, and more. Pay-per-call via x402 micropayments.",
+    "description": "Unified MCP gateway to 159 tools across travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, recipes, domain intelligence, AI marketing, QR codes, weather, space/astronomy, gaming, and more. Pay-per-call via x402 micropayments.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -6144,6 +6144,91 @@
         },
         "required": [
           "id"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "qrserver.qr.generate",
+      "title": "Generate QR Code",
+      "description": "Generate a QR code image URL from text or URL — customizable size, color, background, format (PNG/SVG), error correction level. Returns direct image URL (goqr.me)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "Text or URL to encode into a QR code (required)"
+          },
+          "size": {
+            "type": "string",
+            "description": "Image size in WxH pixels, e.g. \"200x200\", \"400x400\" (default: \"200x200\")"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "png",
+              "svg"
+            ],
+            "description": "Image format: \"png\" or \"svg\" (default: \"png\")"
+          },
+          "color": {
+            "type": "string",
+            "description": "Foreground color as 6-digit hex without #, e.g. \"000000\" for black (default: \"000000\")"
+          },
+          "bgcolor": {
+            "type": "string",
+            "description": "Background color as 6-digit hex without #, e.g. \"ffffff\" for white (default: \"ffffff\")"
+          },
+          "margin": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 50,
+            "description": "Quiet zone margin in modules around the QR code (default: 1)"
+          },
+          "ecc": {
+            "type": "string",
+            "enum": [
+              "L",
+              "M",
+              "Q",
+              "H"
+            ],
+            "description": "Error correction level: L (7%), M (15%), Q (25%), H (30%) — higher allows more damage tolerance (default: \"L\")"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "qrserver.qr.read",
+      "title": "Read QR Code",
+      "description": "Decode a QR code from an image URL — extracts the encoded text or URL from any QR code image (goqr.me)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "fileurl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL of an image containing a QR code to decode (required)"
+          }
+        },
+        "required": [
+          "fileurl"
         ],
         "additionalProperties": false
       },

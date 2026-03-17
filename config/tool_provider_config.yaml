@@ -973,3 +973,16 @@ tools:
     provider: igdb
     price_usd: "0.001"
     cache_ttl: 604800
+
+  # --- UC-040: QRServer (QR Code Generator & Reader) ---
+  - tool_id: qrserver.generate
+    name: QR Code Generate
+    provider: qrserver
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: qrserver.read
+    name: QR Code Read
+    provider: qrserver
+    price_usd: "0.001"
+    cache_ttl: 3600

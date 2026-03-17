@@ -1240,4 +1240,22 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description: 'Get cover art, screenshots, and video trailers for a game — image URLs with dimensions and YouTube video IDs',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // QRServer — QR Code Generator & Reader (UC-040, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'qrserver.generate',
+    mcpName: 'qrserver.qr.generate',
+    title: 'Generate QR Code',
+    description: 'Generate a QR code image URL from text or URL — customizable size, color, background, format (PNG/SVG), error correction level. Returns direct image URL (goqr.me)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'qrserver.read',
+    mcpName: 'qrserver.qr.read',
+    title: 'Read QR Code',
+    description: 'Decode a QR code from an image URL — extracts the encoded text or URL from any QR code image (goqr.me)',
+    annotations: READ_ONLY,
+  },
 ];

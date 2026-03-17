@@ -13037,7 +13037,22 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object"
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search query for games (e.g. \"Cyberpunk 2077\", \"The Legend of Zelda\", \"Elden Ring\")"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of results to return (default 10, max 50)"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
               }
             }
           }
@@ -13098,7 +13113,16 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object"
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "IGDB game ID (numeric, e.g. 1877 for Cyberpunk 2077)"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
               }
             }
           }
@@ -13159,7 +13183,23 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object"
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "IGDB company ID (numeric, e.g. 70 for Nintendo). Use either id or query."
+                  },
+                  "query": {
+                    "type": "string",
+                    "description": "Search query for company name (e.g. \"Valve\", \"CD Projekt\"). Use either id or query."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of results when searching by query (default 10, max 50)"
+                  }
+                }
               }
             }
           }
@@ -13220,7 +13260,23 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object"
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "IGDB platform ID (numeric, e.g. 48 for PlayStation 4, 6 for PC). Use either id or query."
+                  },
+                  "query": {
+                    "type": "string",
+                    "description": "Search query for platform name (e.g. \"PlayStation\", \"Nintendo Switch\"). Use either id or query."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of results when searching by query (default 10, max 50)"
+                  }
+                }
               }
             }
           }
@@ -13281,7 +13337,192 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object"
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "IGDB game ID (numeric, e.g. 1877 for Cyberpunk 2077)"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/qrserver.generate/call": {
+      "post": {
+        "operationId": "qrserver_generate",
+        "summary": "Generate QR Code",
+        "description": "Generate a QR code image URL from text or URL — customizable size, color, background, format (PNG/SVG), error correction level. Returns direct image URL (goqr.me)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "qrserver.generate"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "type": "string",
+                    "description": "Text or URL to encode into a QR code (required)"
+                  },
+                  "size": {
+                    "type": "string",
+                    "description": "Image size in WxH pixels, e.g. \"200x200\", \"400x400\" (default: \"200x200\")"
+                  },
+                  "format": {
+                    "type": "string",
+                    "enum": [
+                      "png",
+                      "svg"
+                    ],
+                    "description": "Image format: \"png\" or \"svg\" (default: \"png\")"
+                  },
+                  "color": {
+                    "type": "string",
+                    "description": "Foreground color as 6-digit hex without #, e.g. \"000000\" for black (default: \"000000\")"
+                  },
+                  "bgcolor": {
+                    "type": "string",
+                    "description": "Background color as 6-digit hex without #, e.g. \"ffffff\" for white (default: \"ffffff\")"
+                  },
+                  "margin": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 50,
+                    "description": "Quiet zone margin in modules around the QR code (default: 1)"
+                  },
+                  "ecc": {
+                    "type": "string",
+                    "enum": [
+                      "L",
+                      "M",
+                      "Q",
+                      "H"
+                    ],
+                    "description": "Error correction level: L (7%), M (15%), Q (25%), H (30%) — higher allows more damage tolerance (default: \"L\")"
+                  }
+                },
+                "required": [
+                  "data"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/qrserver.read/call": {
+      "post": {
+        "operationId": "qrserver_read",
+        "summary": "Read QR Code",
+        "description": "Decode a QR code from an image URL — extracts the encoded text or URL from any QR code image (goqr.me)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "qrserver.read"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "fileurl": {
+                    "type": "string",
+                    "description": "URL of an image containing a QR code to decode (required)"
+                  }
+                },
+                "required": [
+                  "fileurl"
+                ]
               }
             }
           }

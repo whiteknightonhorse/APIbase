@@ -55,9 +55,10 @@ COPY --from=builder /app/dist ./dist
 COPY --from=deps /app/prisma ./prisma
 COPY --from=deps /app/node_modules/.prisma ./node_modules/.prisma
 
-# Copy migration files, scripts, and Lua scripts for entrypoint
+# Copy migration files, scripts, config, and Lua scripts for entrypoint
 COPY prisma/migrations ./prisma/migrations
 COPY scripts/ ./scripts/
+COPY config/ ./config/
 COPY lua/ ./lua/
 COPY docker/entrypoint.sh ./entrypoint.sh
 

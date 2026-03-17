@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact — APIbase.pro</title>
+<meta name="description" content="Contact the APIbase.pro team for API issues, provider inquiries, billing questions, or partnership proposals.">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="canonical" href="https://apibase.pro/contact">
+<meta property="og:title" content="Contact — APIbase.pro">
+<meta property="og:description" content="Contact the APIbase.pro team for API issues, provider inquiries, or billing questions.">
+<meta property="og:url" content="https://apibase.pro/contact">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+  font-family:'JetBrains Mono','Fira Code','Cascadia Code','Courier New',monospace;
+  background:#1a1a2e;
+  color:#b0ffb0;
+  line-height:1.7;
+  padding:1.5rem;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+}
+
+/* --- Terminal window --- */
+.window{
+  max-width:880px;
+  width:100%;
+  background:#0c0c0c;
+  border-radius:10px 10px 8px 8px;
+  border:1px solid #444;
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.6),
+    0 0 80px rgba(0,255,65,0.04),
+    inset 0 0 80px rgba(0,255,65,0.01);
+  overflow:hidden;
+  position:relative;
+}
+
+/* CRT scanline overlay */
+.window::after{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;bottom:0;
+  background:repeating-linear-gradient(
+    0deg,
+    rgba(0,0,0,0.06) 0px,
+    rgba(0,0,0,0.06) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  pointer-events:none;
+  z-index:2;
+}
+
+/* --- Title bar --- */
+.titlebar{
+  background:linear-gradient(180deg,#3d3d3d 0%,#2a2a2a 100%);
+  padding:10px 14px;
+  display:flex;
+  align-items:center;
+  border-bottom:1px solid #1a1a1a;
+  position:relative;
+  z-index:3;
+}
+
+.dots{display:flex;gap:7px;flex-shrink:0}
+.dot{
+  width:13px;height:13px;
+  border-radius:50%;
+  border:1px solid rgba(0,0,0,0.2);
+}
+.dot-red{background:#ff5f56;border-color:#e0443e}
+.dot-yellow{background:#ffbd2e;border-color:#dea123}
+.dot-green{background:#27c93f;border-color:#1aab29}
+
+.titlebar-text{
+  flex:1;
+  text-align:center;
+  color:#999;
+  font-size:0.78rem;
+  font-family:inherit;
+  letter-spacing:0.5px;
+}
+
+/* --- Content area --- */
+.container{
+  padding:1.8rem 2rem 2rem;
+  position:relative;
+  z-index:1;
+}
+
+/* --- Nav as terminal menu bar --- */
+nav{
+  display:flex;
+  flex-wrap:wrap;
+  gap:0.3rem;
+  margin-bottom:1.8rem;
+  padding:0.5rem 0;
+  border-bottom:1px solid #1a3a1a;
+}
+nav::before{
+  content:'[';
+  color:#555;
+}
+nav::after{
+  content:']';
+  color:#555;
+}
+nav .brand{
+  color:#00ff41;
+  font-weight:700;
+  font-size:0.9rem;
+  text-decoration:none;
+  text-shadow:0 0 8px rgba(0,255,65,0.4);
+}
+nav a{
+  color:#00cc33;
+  text-decoration:none;
+  font-size:0.85rem;
+}
+nav a::before{
+  content:' | ';
+  color:#333;
+}
+nav .brand::before{
+  content:'';
+}
+nav a:hover{
+  color:#00ff41;
+  text-shadow:0 0 6px rgba(0,255,65,0.5);
+}
+
+/* --- Terminal prompt block --- */
+.terminal{
+  background:#080808;
+  border:1px solid #1a3a1a;
+  border-radius:4px;
+  padding:1.5rem;
+  margin-bottom:2rem;
+  overflow-x:auto;
+  font-size:0.85rem;
+  line-height:1.6;
+  box-shadow:inset 0 0 30px rgba(0,255,65,0.02);
+}
+.terminal .prompt{color:#00ff41;font-weight:700}
+.terminal .output{color:#00ff41}
+.cursor{
+  display:inline-block;
+  width:8px;
+  height:1.1em;
+  background:#00ff41;
+  vertical-align:text-bottom;
+  animation:blink 1s step-end infinite;
+  margin-left:2px;
+}
+@keyframes blink{
+  0%,100%{opacity:1}
+  50%{opacity:0}
+}
+
+/* --- Typography --- */
+h1{
+  color:#00ff41;
+  font-size:1.3rem;
+  margin-bottom:2rem;
+  line-height:1.5;
+  text-shadow:0 0 10px rgba(0,255,65,0.3);
+}
+h1::before{
+  content:'> ';
+  color:#00aa30;
+}
+h2{
+  color:#00ff41;
+  font-size:1.05rem;
+  margin:2.5rem 0 1rem;
+  padding-left:1rem;
+  border-left:2px solid #00aa30;
+  text-shadow:0 0 6px rgba(0,255,65,0.2);
+}
+h2::before{content:'## ';color:#006620}
+p{margin-bottom:1rem;font-size:0.9rem;color:#a0d8a0}
+strong{color:#33ff66}
+
+/* --- Lists --- */
+ul{padding-left:1.5rem;margin-bottom:1rem}
+li{margin-bottom:0.4rem;font-size:0.9rem;color:#a0d8a0}
+li::marker{color:#00aa30}
+
+/* --- Links --- */
+a{color:#00ccff;text-decoration:none}
+a:hover{
+  color:#66ddff;
+  text-shadow:0 0 6px rgba(0,204,255,0.4);
+}
+
+/* --- Code --- */
+code{
+  background:#0a1a0a;
+  padding:0.15rem 0.4rem;
+  border-radius:3px;
+  font-size:0.85rem;
+  color:#00ff41;
+  border:1px solid #1a3a1a;
+  text-shadow:0 0 4px rgba(0,255,65,0.3);
+}
+
+/* --- Footer / status bar --- */
+.footer{
+  margin-top:2rem;
+  padding:0.6rem 0;
+  border-top:1px solid #1a3a1a;
+  color:#2a6a2a;
+  font-size:0.78rem;
+  display:flex;
+  justify-content:space-between;
+}
+.footer::before{
+  content:'STATUS: ONLINE';
+  color:#00aa30;
+}
+.footer::after{
+  content:'PID 1337 | TTY pts/0';
+  color:#2a5a2a;
+}
+
+/* --- Responsive --- */
+@media(max-width:600px){
+  body{padding:0.5rem}
+  .container{padding:1rem}
+  .titlebar{padding:8px 10px}
+  h1{font-size:1.05rem}
+  h1::before{content:''}
+  .footer::after{display:none}
+  nav::before,nav::after{display:none}
+}
+</style>
+</head>
+<body>
+<div class="window">
+
+<div class="titlebar">
+<div class="dots">
+<span class="dot dot-red"></span>
+<span class="dot dot-yellow"></span>
+<span class="dot dot-green"></span>
+</div>
+<span class="titlebar-text">apibase@prod ~ /srv/apibase</span>
+</div>
+
+<div class="container">
+
+<nav>
+<a class="brand" href="/">APIbase.pro</a>
+<a href="/pricing">Pricing</a>
+<a href="/contact">Contact</a>
+<a href="/privacy">Privacy</a>
+<a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a>
+</nav>
+
+<h1>Contact</h1>
+
+<div class="terminal">
+<span class="prompt">$</span> echo $SUPPORT_EMAIL<br>
+<span class="output">support@apibase.pro</span><span class="cursor"></span>
+</div>
+
+<h2>Get in touch</h2>
+<p>Email us at <strong>support@apibase.pro</strong> for:</p>
+<ul>
+<li>API issues — tool errors, timeouts, unexpected responses</li>
+<li>Provider inquiries — onboarding your API, partnership proposals</li>
+<li>Billing — x402 payment questions, escrow issues, refunds</li>
+<li>Security — vulnerability reports, credential concerns</li>
+<li>General questions — MCP integration, tool catalog, documentation</li>
+</ul>
+
+<h2>Response time</h2>
+<p>We aim to respond within 24 hours on business days.</p>
+
+<h2>Other resources</h2>
+<ul>
+<li>Documentation: <a href="https://apibase.pro/llms.txt">apibase.pro/llms.txt</a></li>
+<li>Tool catalog: <a href="https://apibase.pro/api/v1/tools">apibase.pro/api/v1/tools</a></li>
+<li>GitHub: <a href="https://github.com/whiteknightonhorse/APIbase">github.com/whiteknightonhorse/APIbase</a></li>
+<li>System health: <a href="https://apibase.pro/health/ready">apibase.pro/health/ready</a></li>
+</ul>
+
+<div class="footer">
+<p>APIbase.pro — Unified MCP Gateway</p>
+</div>
+
+</div>
+</div>
+</body>
+</html>

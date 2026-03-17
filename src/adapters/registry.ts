@@ -24,6 +24,7 @@ import { NasaAdapter } from './nasa';
 import { JplAdapter } from './jpl';
 import { RawgAdapter } from './rawg';
 import { IgdbAdapter } from './igdb';
+import { QrServerAdapter } from './qrserver';
 import { config } from '../config';
 
 /**
@@ -177,6 +178,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       if (!igdbClientId || !igdbClientSecret) return undefined;
       return getOrCreate('igdb', () => new IgdbAdapter(igdbClientId, igdbClientSecret));
     }
+    case 'qrserver':
+      // QRServer APIs are open access — no API key needed
+      return getOrCreate('qrserver', () => new QrServerAdapter());
     default:
       return undefined;
   }
