@@ -196,12 +196,6 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
-  - tool_id: aviasales.hotel_search
-    name: Hotel Search
-    provider: aviasales
-    price_usd: "0.003"
-    cache_ttl: 60
-
   - tool_id: aviasales.nearby_destinations
     name: Nearby Destinations
     provider: aviasales
