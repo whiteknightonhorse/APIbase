@@ -6020,7 +6020,22 @@
       "description": "Search 280K+ games in IGDB (Twitch) — rich metadata with genres, platforms, ratings, cover art, and release dates",
       "inputSchema": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query for games (e.g. \"Cyberpunk 2077\", \"The Legend of Zelda\", \"Elden Ring\")"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Maximum number of results to return (default 10, max 50)"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
@@ -6035,7 +6050,16 @@
       "description": "Get full game details by IGDB ID — storyline, genres, platforms, developers, publishers, themes, game modes, similar games, and websites",
       "inputSchema": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "IGDB game ID (numeric, e.g. 1877 for Cyberpunk 2077)"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
@@ -6050,7 +6074,23 @@
       "description": "Look up game companies by ID or search by name — description, country, developed/published game IDs, logos, and websites",
       "inputSchema": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "IGDB company ID (numeric, e.g. 70 for Nintendo). Use either id or query."
+          },
+          "query": {
+            "type": "string",
+            "description": "Search query for company name (e.g. \"Valve\", \"CD Projekt\"). Use either id or query."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Maximum number of results when searching by query (default 10, max 50)"
+          }
+        },
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
@@ -6065,7 +6105,23 @@
       "description": "Look up gaming platforms by ID or search by name — abbreviation, generation, platform family, versions, and summary",
       "inputSchema": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "IGDB platform ID (numeric, e.g. 48 for PlayStation 4, 6 for PC). Use either id or query."
+          },
+          "query": {
+            "type": "string",
+            "description": "Search query for platform name (e.g. \"PlayStation\", \"Nintendo Switch\"). Use either id or query."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Maximum number of results when searching by query (default 10, max 50)"
+          }
+        },
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
@@ -6080,7 +6136,16 @@
       "description": "Get cover art, screenshots, and video trailers for a game — image URLs with dimensions and YouTube video IDs",
       "inputSchema": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "IGDB game ID (numeric, e.g. 1877 for Cyberpunk 2077)"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
