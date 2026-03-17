@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase — The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 166 tools across travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, recipes, domain intelligence, AI marketing, QR codes, barcode/product lookup, IP intelligence, earthquakes/seismology, weather, space/astronomy, gaming, and more. Pay-per-call via x402 micropayments.",
+    "description": "Unified MCP gateway to 171 tools across travel, places, maps, events, entertainment, music, anime/manga, health, finance, education, jobs, e-commerce, recipes, domain intelligence, AI marketing, QR codes, barcode/product lookup, IP intelligence, earthquakes/seismology, weather, space/astronomy, gaming, and more. Pay-per-call via x402 micropayments.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -6523,6 +6523,226 @@
             "minimum": 0,
             "maximum": 20001.6,
             "description": "Search radius in kilometers from lat/lon center"
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "anime.titles.search",
+      "title": "Search Anime",
+      "description": "Search 28K+ anime titles by name, genre, type, status, and rating — scores, episodes, studios, seasons (MyAnimeList via Jikan)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query for anime title (e.g. \"Naruto\", \"Attack on Titan\")"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "tv",
+              "movie",
+              "ova",
+              "special",
+              "ona",
+              "music",
+              "cm",
+              "pv",
+              "tv_special"
+            ],
+            "description": "Anime type filter: tv, movie, ova, special, ona, music"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "airing",
+              "complete",
+              "upcoming"
+            ],
+            "description": "Airing status: \"airing\", \"complete\", or \"upcoming\""
+          },
+          "rating": {
+            "type": "string",
+            "enum": [
+              "g",
+              "pg",
+              "pg13",
+              "r17",
+              "r",
+              "rx"
+            ],
+            "description": "Age rating: g (all ages), pg, pg13, r17 (violence), r (mild nudity), rx (hentai)"
+          },
+          "genre": {
+            "type": "integer",
+            "description": "Genre ID filter (e.g. 1=Action, 2=Adventure, 4=Comedy, 8=Drama, 10=Fantasy, 22=Romance)"
+          },
+          "order_by": {
+            "type": "string",
+            "enum": [
+              "title",
+              "start_date",
+              "end_date",
+              "episodes",
+              "score",
+              "rank",
+              "popularity",
+              "favorites",
+              "members"
+            ],
+            "description": "Sort field (default: relevance)"
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "description": "Sort direction: \"asc\" or \"desc\" (default: desc)"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number for pagination (default: 1)"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 25,
+            "description": "Results per page (default: 10, max: 25)"
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "anime.titles.details",
+      "title": "Get Anime Details",
+      "description": "Get full anime details by MAL ID — synopsis, score, rank, episodes, studios, genres, themes, demographics, rating (MyAnimeList via Jikan)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "MyAnimeList ID of the anime (e.g. 1 for Cowboy Bebop, 20 for Naruto)"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "anime.manga.details",
+      "title": "Get Manga Details",
+      "description": "Get full manga details by MAL ID — synopsis, chapters, volumes, authors, score, rank, genres (MyAnimeList via Jikan)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "MyAnimeList ID of the manga (e.g. 13 for One Piece, 2 for Berserk)"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "anime.titles.characters",
+      "title": "Get Anime Characters",
+      "description": "Get character cast and Japanese voice actors for an anime — names, roles (main/supporting), images (MyAnimeList via Jikan)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "MyAnimeList ID of the anime to get character cast for"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "anime.titles.top",
+      "title": "Top Anime Rankings",
+      "description": "Get top-ranked anime by score — filter by type (TV/movie/OVA), status (airing/upcoming), or popularity (MyAnimeList via Jikan)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "tv",
+              "movie",
+              "ova",
+              "special",
+              "ona",
+              "music",
+              "cm",
+              "pv",
+              "tv_special"
+            ],
+            "description": "Filter top list by anime type (default: all types)"
+          },
+          "filter": {
+            "type": "string",
+            "enum": [
+              "airing",
+              "upcoming",
+              "bypopularity",
+              "favorite"
+            ],
+            "description": "Filter: \"airing\" (currently), \"upcoming\", \"bypopularity\", or \"favorite\""
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number (default: 1)"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 25,
+            "description": "Results per page (default: 10, max: 25)"
           }
         },
         "additionalProperties": false

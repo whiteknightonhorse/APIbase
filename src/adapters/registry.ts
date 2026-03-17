@@ -28,6 +28,7 @@ import { QrServerAdapter } from './qrserver';
 import { UpcItemDbAdapter } from './upcitemdb';
 import { IpApiAdapter } from './ipapi';
 import { UsgsEarthquakeAdapter } from './usgs-earthquake';
+import { JikanAdapter } from './jikan';
 import { config } from '../config';
 
 /**
@@ -193,6 +194,10 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'earthquake':
       // USGS Earthquake — open access, no API key needed
       return getOrCreate('usgs-earthquake', () => new UsgsEarthquakeAdapter());
+    case 'anime':
+    case 'manga':
+      // Jikan (MyAnimeList) — open access, no API key, MIT licensed
+      return getOrCreate('jikan', () => new JikanAdapter());
     default:
       return undefined;
   }

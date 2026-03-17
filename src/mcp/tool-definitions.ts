@@ -1319,4 +1319,43 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description: 'Count earthquakes matching search criteria without returning full data — useful for statistics and monitoring thresholds (USGS)',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // Jikan — Anime / Manga Database via MyAnimeList (UC-051, 5 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'anime.search',
+    mcpName: 'anime.titles.search',
+    title: 'Search Anime',
+    description: 'Search 28K+ anime titles by name, genre, type, status, and rating — scores, episodes, studios, seasons (MyAnimeList via Jikan)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'anime.details',
+    mcpName: 'anime.titles.details',
+    title: 'Get Anime Details',
+    description: 'Get full anime details by MAL ID — synopsis, score, rank, episodes, studios, genres, themes, demographics, rating (MyAnimeList via Jikan)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'manga.details',
+    mcpName: 'anime.manga.details',
+    title: 'Get Manga Details',
+    description: 'Get full manga details by MAL ID — synopsis, chapters, volumes, authors, score, rank, genres (MyAnimeList via Jikan)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'anime.characters',
+    mcpName: 'anime.titles.characters',
+    title: 'Get Anime Characters',
+    description: 'Get character cast and Japanese voice actors for an anime — names, roles (main/supporting), images (MyAnimeList via Jikan)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'anime.top',
+    mcpName: 'anime.titles.top',
+    title: 'Top Anime Rankings',
+    description: 'Get top-ranked anime by score — filter by type (TV/movie/OVA), status (airing/upcoming), or popularity (MyAnimeList via Jikan)',
+    annotations: READ_ONLY,
+  },
 ];
