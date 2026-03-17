@@ -1390,4 +1390,15 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description: 'Get author profile by Open Library Author ID — biography, birth/death dates, photo, Wikipedia link (Open Library / Internet Archive)',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // ZeroBounce — Email Validation (UC-055, 1 tool)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'email.validate',
+    mcpName: 'email.validation.check',
+    title: 'Validate Email Address',
+    description: 'Validate an email address — checks deliverability, detects disposable/spam trap/abuse/catch-all addresses, MX records, SMTP provider, domain age. 99.6% accuracy (ZeroBounce)',
+    annotations: READ_ONLY,
+  },
 ];

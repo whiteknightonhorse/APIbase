@@ -104,6 +104,9 @@ export const appEnvSchema = z.object({
   IGDB_CLIENT_ID: z.string().optional().default(''),
   IGDB_CLIENT_SECRET: z.string().optional().default(''),
 
+  // ZeroBounce Email Validation (UC-055) — query param auth, 100 free/month, $39/2K credits
+  PROVIDER_KEY_ZEROBOUNCE: z.string().optional().default(''),
+
   // Polymarket trading — Phase 2 (UC-001 §3-§8)
   POLYMARKET_WALLET_ADDRESS: z.string().startsWith('0x').optional().default(''),
   POLYMARKET_PRIVATE_KEY: z.string().optional().default(''),

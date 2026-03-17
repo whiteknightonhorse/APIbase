@@ -31,6 +31,7 @@ import { ipapiSchemas } from './ipapi.schema';
 import { usgsEarthquakeSchemas } from './usgs-earthquake.schema';
 import { jikanSchemas } from './jikan.schema';
 import { openlibrarySchemas } from './openlibrary.schema';
+import { zerobounceSchemas } from './zerobounce.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -65,4 +66,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...usgsEarthquakeSchemas,
   ...jikanSchemas,
   ...openlibrarySchemas,
+  ...zerobounceSchemas,
 };

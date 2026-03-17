@@ -1087,3 +1087,10 @@ tools:
     provider: openlibrary
     price_usd: "0.001"
     cache_ttl: 2592000
+
+  # --- UC-055: ZeroBounce Email Validation ---
+  - tool_id: email.validate
+    name: Email Validation
+    provider: zerobounce
+    price_usd: "0.025"
+    cache_ttl: 86400

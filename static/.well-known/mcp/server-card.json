@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase — The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 175 tools across travel, places, maps, events, entertainment, music, anime/manga, books, health, finance, education, jobs, e-commerce, recipes, domain intelligence, AI marketing, QR codes, barcode/product lookup, IP intelligence, earthquakes/seismology, weather, space/astronomy, gaming, and more. Pay-per-call via x402 micropayments.",
+    "description": "Unified MCP gateway to 176 tools across travel, places, maps, events, entertainment, music, anime/manga, books, health, finance, education, jobs, e-commerce, recipes, domain intelligence, AI marketing, QR codes, barcode/product lookup, IP intelligence, earthquakes/seismology, email validation, weather, space/astronomy, gaming, and more. Pay-per-call via x402 micropayments.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -6877,6 +6877,35 @@
         },
         "required": [
           "olid"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "email.validation.check",
+      "title": "Validate Email Address",
+      "description": "Validate an email address — checks deliverability, detects disposable/spam trap/abuse/catch-all addresses, MX records, SMTP provider, domain age. 99.6% accuracy (ZeroBounce)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email address to validate (e.g. \"user@example.com\")"
+          },
+          "ip_address": {
+            "type": "string",
+            "description": "IP address of the email owner for additional geo/fraud scoring (optional)"
+          }
+        },
+        "required": [
+          "email"
         ],
         "additionalProperties": false
       },

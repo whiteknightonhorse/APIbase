@@ -30,6 +30,7 @@ import { IpApiAdapter } from './ipapi';
 import { UsgsEarthquakeAdapter } from './usgs-earthquake';
 import { JikanAdapter } from './jikan';
 import { OpenLibraryAdapter } from './openlibrary';
+import { ZeroBounceAdapter } from './zerobounce';
 import { config } from '../config';
 
 /**
@@ -202,6 +203,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'books':
       // Open Library — open access, no API key, CC0
       return getOrCreate('openlibrary', () => new OpenLibraryAdapter());
+    case 'email': {
+      const zbKey = (config as Record<string, unknown>).PROVIDER_KEY_ZEROBOUNCE as string | undefined;
+      if (!zbKey) return undefined;
+      return getOrCreate('zerobounce', () => new ZeroBounceAdapter(zbKey));
+    }
     default:
       return undefined;
   }
