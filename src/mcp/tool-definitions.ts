@@ -1258,4 +1258,22 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description: 'Decode a QR code from an image URL — extracts the encoded text or URL from any QR code image (goqr.me)',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // UPCitemdb — Barcode / UPC / Product Lookup (UC-041, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'upc.lookup',
+    mcpName: 'upc.products.lookup',
+    title: 'Product Barcode Lookup',
+    description: 'Look up a product by UPC, EAN, GTIN, or ISBN barcode — returns title, brand, images, dimensions, weight, category, price range, and marketplace offers (UPCitemdb)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'upc.search',
+    mcpName: 'upc.products.search',
+    title: 'Product Search by Name',
+    description: 'Search products by name, brand, or description — returns matching items with UPC codes, images, categories, and price ranges (UPCitemdb)',
+    annotations: READ_ONLY,
+  },
 ];

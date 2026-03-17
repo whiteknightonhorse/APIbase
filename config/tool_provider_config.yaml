@@ -986,3 +986,16 @@ tools:
     provider: qrserver
     price_usd: "0.001"
     cache_ttl: 3600
+
+  # --- UC-041: UPCitemdb (Barcode / Product Lookup) ---
+  - tool_id: upc.lookup
+    name: UPC Product Lookup
+    provider: upcitemdb
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: upc.search
+    name: UPC Product Search
+    provider: upcitemdb
+    price_usd: "0.002"
+    cache_ttl: 3600
