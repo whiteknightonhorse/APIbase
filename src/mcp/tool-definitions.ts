@@ -1201,4 +1201,43 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description: 'Get all games in the same series/franchise — sequels, prequels, and spin-offs with ratings and release dates (RAWG)',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // IGDB — Video Games Database by Twitch (UC-039, 5 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'igdb.game_search',
+    mcpName: 'igdb.games.search',
+    title: 'Search Games (IGDB)',
+    description: 'Search 280K+ games in IGDB (Twitch) — rich metadata with genres, platforms, ratings, cover art, and release dates',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'igdb.game_details',
+    mcpName: 'igdb.games.details',
+    title: 'Get Game Details (IGDB)',
+    description: 'Get full game details by IGDB ID — storyline, genres, platforms, developers, publishers, themes, game modes, similar games, and websites',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'igdb.company_info',
+    mcpName: 'igdb.companies.info',
+    title: 'Get Company Info (IGDB)',
+    description: 'Look up game companies by ID or search by name — description, country, developed/published game IDs, logos, and websites',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'igdb.platform_info',
+    mcpName: 'igdb.platforms.info',
+    title: 'Get Platform Info (IGDB)',
+    description: 'Look up gaming platforms by ID or search by name — abbreviation, generation, platform family, versions, and summary',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'igdb.game_media',
+    mcpName: 'igdb.games.media',
+    title: 'Get Game Media (IGDB)',
+    description: 'Get cover art, screenshots, and video trailers for a game — image URLs with dimensions and YouTube video IDs',
+    annotations: READ_ONLY,
+  },
 ];

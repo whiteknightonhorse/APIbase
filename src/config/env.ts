@@ -100,6 +100,10 @@ export const appEnvSchema = z.object({
   // RAWG Video Games Database (UC-037) — query param auth, unlimited free
   PROVIDER_KEY_RAWG: z.string().optional().default(''),
 
+  // IGDB Video Games Database (UC-039) — OAuth2 Twitch Client Credentials, unlimited free
+  IGDB_CLIENT_ID: z.string().optional().default(''),
+  IGDB_CLIENT_SECRET: z.string().optional().default(''),
+
   // Polymarket trading — Phase 2 (UC-001 §3-§8)
   POLYMARKET_WALLET_ADDRESS: z.string().startsWith('0x').optional().default(''),
   POLYMARKET_PRIVATE_KEY: z.string().optional().default(''),

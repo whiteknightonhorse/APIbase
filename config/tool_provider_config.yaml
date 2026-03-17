@@ -942,3 +942,34 @@ tools:
     provider: rawg
     price_usd: "0.001"
     cache_ttl: 604800
+
+  # --- UC-039: IGDB Video Games Database (by Twitch) ---
+  - tool_id: igdb.game_search
+    name: IGDB Game Search
+    provider: igdb
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: igdb.game_details
+    name: IGDB Game Details
+    provider: igdb
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: igdb.company_info
+    name: IGDB Company Info
+    provider: igdb
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: igdb.platform_info
+    name: IGDB Platform Info
+    provider: igdb
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: igdb.game_media
+    name: IGDB Game Media
+    provider: igdb
+    price_usd: "0.001"
+    cache_ttl: 604800
