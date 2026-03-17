@@ -1294,4 +1294,29 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description: 'Look up multiple IP addresses in one call (max 100) — country, city, VPN/Tor/proxy flags, ASN, and organization for each IP (ipapi.is)',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // USGS Earthquake Hazards Program (UC-048, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'earthquake.search',
+    mcpName: 'earthquake.events.search',
+    title: 'Search Earthquakes',
+    description: 'Search global earthquakes by time, location, magnitude, and depth — returns magnitude, coordinates, tsunami flags, PAGER alerts, and felt reports. 100+ years of data, updated every minute (USGS)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'earthquake.feed',
+    mcpName: 'earthquake.events.feed',
+    title: 'Real-Time Earthquake Feed',
+    description: 'Get real-time earthquake feed by magnitude threshold (significant/4.5+/2.5+/1.0+/all) and time window (hour/day/week/month) — updated every minute (USGS)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'earthquake.count',
+    mcpName: 'earthquake.events.count',
+    title: 'Count Earthquakes',
+    description: 'Count earthquakes matching search criteria without returning full data — useful for statistics and monitoring thresholds (USGS)',
+    annotations: READ_ONLY,
+  },
 ];
