@@ -1358,4 +1358,36 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description: 'Get top-ranked anime by score — filter by type (TV/movie/OVA), status (airing/upcoming), or popularity (MyAnimeList via Jikan)',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // Open Library — Books / ISBN Lookup (UC-054, 4 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'books.isbn_lookup',
+    mcpName: 'books.editions.isbn',
+    title: 'ISBN Book Lookup',
+    description: 'Look up a book by ISBN-10 or ISBN-13 — title, author, publisher, pages, cover image, subjects. 40M+ books (Open Library / Internet Archive)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'books.search',
+    mcpName: 'books.catalog.search',
+    title: 'Search Books',
+    description: 'Search 40M+ books by title, author, subject, or ISBN — ratings, cover images, edition counts, publish year (Open Library / Internet Archive)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'books.work_details',
+    mcpName: 'books.works.details',
+    title: 'Get Book Work Details',
+    description: 'Get consolidated work metadata across all editions by Open Library Work ID — description, subjects, authors, cover, first publish date (Open Library)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'books.author',
+    mcpName: 'books.authors.details',
+    title: 'Get Author Details',
+    description: 'Get author profile by Open Library Author ID — biography, birth/death dates, photo, Wikipedia link (Open Library / Internet Archive)',
+    annotations: READ_ONLY,
+  },
 ];

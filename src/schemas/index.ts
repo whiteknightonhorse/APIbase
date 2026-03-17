@@ -30,6 +30,7 @@ import { upcitemdbSchemas } from './upcitemdb.schema';
 import { ipapiSchemas } from './ipapi.schema';
 import { usgsEarthquakeSchemas } from './usgs-earthquake.schema';
 import { jikanSchemas } from './jikan.schema';
+import { openlibrarySchemas } from './openlibrary.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -63,4 +64,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...ipapiSchemas,
   ...usgsEarthquakeSchemas,
   ...jikanSchemas,
+  ...openlibrarySchemas,
 };
