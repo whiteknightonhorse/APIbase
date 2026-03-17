@@ -177,7 +177,7 @@ async function checkHealth(
   }
 }
 
-async function fetchZeroBounceCredits(redis: Redis): Promise<number | null> {
+async function fetchZeroBounceCredits(_redis: Redis): Promise<number | null> {
   // Read ZeroBounce API key from environment
   const apiKey = process.env.PROVIDER_KEY_ZEROBOUNCE;
   if (!apiKey) return null;

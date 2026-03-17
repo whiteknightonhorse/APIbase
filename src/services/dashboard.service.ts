@@ -1,6 +1,5 @@
 import { getPrisma } from './prisma.service';
-import { getSharedRedis, ensureRedisConnected } from './redis.service';
-import { logger } from '../config/logger';
+import { ensureRedisConnected } from './redis.service';
 import providerLimitsConfig from '../config/provider-limits.json';
 
 /**
