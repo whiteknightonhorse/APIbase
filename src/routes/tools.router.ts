@@ -10,7 +10,7 @@ import { AppError, ErrorCode } from '../types/errors';
  * Tool catalog routes (§6.15, §12.39, §12.114).
  *
  * GET /api/tools             — public catalog, no auth, Cache-Control: public, max-age=3600
- * GET /api/v1/tools          — paginated tool list (cursor, default 50, max 100)
+ * GET /api/v1/tools          — paginated tool list (cursor, default 200, max 500)
  * GET /api/v1/tools/:toolId  — single tool details
  *
  * Empty catalog → 503 (never return empty tool list silently).
@@ -37,10 +37,10 @@ toolsRouter.get('/api/tools', async (_req: Request, res: Response, next: NextFun
 toolsRouter.get('/api/v1/tools', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const cursor = typeof req.query.cursor === 'string' ? req.query.cursor : null;
-    const rawLimit = typeof req.query.limit === 'string' ? parseInt(req.query.limit, 10) : 50;
+    const rawLimit = typeof req.query.limit === 'string' ? parseInt(req.query.limit, 10) : 200;
 
-    if (isNaN(rawLimit) || rawLimit < 1 || rawLimit > 100) {
-      throw new AppError(ErrorCode.BAD_REQUEST, 'limit must be between 1 and 100');
+    if (isNaN(rawLimit) || rawLimit < 1 || rawLimit > 500) {
+      throw new AppError(ErrorCode.BAD_REQUEST, 'limit must be between 1 and 500');
     }
 
     const result = await getToolsPaginated(cursor, rawLimit);

@@ -5,7 +5,7 @@ import { PrismaClient } from '@prisma/client';
  *
  * Provides tool catalog queries from PostgreSQL.
  * Public catalog: GET /api/tools — flat list with Cache-Control.
- * Paginated list: GET /api/v1/tools — cursor-based, default 50, max 100.
+ * Paginated list: GET /api/v1/tools — cursor-based, default 200, max 500.
  * Single tool: GET /api/v1/tools/:toolId.
  */
 
@@ -50,6 +50,7 @@ export interface PublicCatalog {
 
 export interface PaginatedTools {
   data: ToolCatalogEntry[];
+  total: number;
   pagination: {
     cursor: string | null;
     has_more: boolean;
@@ -114,7 +115,7 @@ export async function getToolsPaginated(
   limit: number,
 ): Promise<PaginatedTools> {
   const db = getPrisma();
-  const take = Math.min(Math.max(limit, 1), 100);
+  const take = Math.min(Math.max(limit, 1), 500);
 
   let decodedCursor: string | null = null;
   if (cursor) {
@@ -125,11 +126,14 @@ export async function getToolsPaginated(
     }
   }
 
-  const tools = await db.tool.findMany({
-    where: decodedCursor ? { tool_id: { gt: decodedCursor } } : undefined,
-    orderBy: { tool_id: 'asc' },
-    take: take + 1,
-  });
+  const [tools, total] = await Promise.all([
+    db.tool.findMany({
+      where: decodedCursor ? { tool_id: { gt: decodedCursor } } : undefined,
+      orderBy: { tool_id: 'asc' },
+      take: take + 1,
+    }),
+    db.tool.count(),
+  ]);
 
   const hasMore = tools.length > take;
   const page = hasMore ? tools.slice(0, take) : tools;
@@ -140,6 +144,7 @@ export async function getToolsPaginated(
 
   return {
     data: page.map(toEntry),
+    total,
     pagination: {
       cursor: nextCursor,
       has_more: hasMore,
