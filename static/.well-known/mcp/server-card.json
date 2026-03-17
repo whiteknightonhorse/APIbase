@@ -2,8 +2,8 @@
   "serverInfo": {
     "name": "APIbase",
     "version": "1.0.0",
-    "title": "APIbase \u2014 The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 152 tools across travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, recipes, domain intelligence, AI marketing, weather, space/astronomy, gaming, and more. Pay-per-call via x402 micropayments.",
+    "title": "APIbase — The API Hub for AI Agents",
+    "description": "Unified MCP gateway to 157 tools across travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, recipes, domain intelligence, AI marketing, weather, space/astronomy, gaming, and more. Pay-per-call via x402 micropayments.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -1248,7 +1248,7 @@
     {
       "name": "amadeus.flights.status",
       "title": "Get Flight Status",
-      "description": "Get real-time status of a specific flight \u2014 delays, cancellations, gate info (Amadeus)",
+      "description": "Get real-time status of a specific flight — delays, cancellations, gate info (Amadeus)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2010,7 +2010,7 @@
     {
       "name": "foursquare.places.details",
       "title": "Get Place Details",
-      "description": "Get detailed information about a place \u2014 hours, rating, price, contact, categories (Foursquare)",
+      "description": "Get detailed information about a place — hours, rating, price, contact, categories (Foursquare)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2225,7 +2225,7 @@
     {
       "name": "ticketmaster.events.details",
       "title": "Get Event Details",
-      "description": "Get full details for an event \u2014 dates, venues, prices, images, classifications, seat map (Ticketmaster)",
+      "description": "Get full details for an event — dates, venues, prices, images, classifications, seat map (Ticketmaster)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2481,7 +2481,7 @@
     {
       "name": "ticketmaster.events.categories",
       "title": "Get Event Categories",
-      "description": "Get all event classification categories \u2014 segments, genres, sub-genres (Ticketmaster)",
+      "description": "Get all event classification categories — segments, genres, sub-genres (Ticketmaster)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2551,7 +2551,7 @@
     {
       "name": "tmdb.movies.details",
       "title": "Get Movie Details",
-      "description": "Get full movie details \u2014 cast, crew, trailers, ratings, streaming providers, runtime, budget, revenue (TMDB)",
+      "description": "Get full movie details — cast, crew, trailers, ratings, streaming providers, runtime, budget, revenue (TMDB)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2658,7 +2658,7 @@
     {
       "name": "tmdb.movies.trending",
       "title": "Get Trending Movies & TV",
-      "description": "Get trending movies, TV shows, or people \u2014 daily or weekly (TMDB)",
+      "description": "Get trending movies, TV shows, or people — daily or weekly (TMDB)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2703,7 +2703,7 @@
     {
       "name": "tmdb.movies.similar",
       "title": "Get Similar Movies",
-      "description": "Get movie recommendations based on a movie ID \u2014 similar genres, themes, cast (TMDB)",
+      "description": "Get movie recommendations based on a movie ID — similar genres, themes, cast (TMDB)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2808,7 +2808,7 @@
     {
       "name": "health.nutrition.food_search",
       "title": "Search Foods (USDA)",
-      "description": "Search 350K+ foods in the USDA FoodData Central database \u2014 nutrition facts, ingredients, branded products, and reference foods",
+      "description": "Search 350K+ foods in the USDA FoodData Central database — nutrition facts, ingredients, branded products, and reference foods",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2857,7 +2857,7 @@
     {
       "name": "health.nutrition.food_details",
       "title": "Get Food Nutrition Details",
-      "description": "Get detailed nutrition data for a food item \u2014 up to 150 nutrients, portions, serving sizes, ingredients (USDA)",
+      "description": "Get detailed nutrition data for a food item — up to 150 nutrients, portions, serving sizes, ingredients (USDA)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2881,7 +2881,7 @@
     {
       "name": "health.safety.drug_events",
       "title": "Search Drug Adverse Events",
-      "description": "Search FDA FAERS database for drug adverse event reports \u2014 side effects, reactions, patient demographics (OpenFDA)",
+      "description": "Search FDA FAERS database for drug adverse event reports — side effects, reactions, patient demographics (OpenFDA)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2916,7 +2916,7 @@
     {
       "name": "health.safety.food_recalls",
       "title": "Search Food Recalls",
-      "description": "Search FDA food enforcement and recall reports \u2014 contamination, mislabeling, safety alerts (OpenFDA)",
+      "description": "Search FDA food enforcement and recall reports — contamination, mislabeling, safety alerts (OpenFDA)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2957,7 +2957,7 @@
     {
       "name": "health.safety.drug_labels",
       "title": "Search Drug Labels",
-      "description": "Search drug labeling data \u2014 indications, dosage, warnings, interactions, contraindications (OpenFDA)",
+      "description": "Search drug labeling data — indications, dosage, warnings, interactions, contraindications (OpenFDA)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2992,7 +2992,7 @@
     {
       "name": "health.supplements.search",
       "title": "Search Dietary Supplements",
-      "description": "Search 200K+ dietary supplement labels in the NIH DSLD database \u2014 vitamins, minerals, herbal products",
+      "description": "Search 200K+ dietary supplement labels in the NIH DSLD database — vitamins, minerals, herbal products",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3027,7 +3027,7 @@
     {
       "name": "health.supplements.details",
       "title": "Get Supplement Label Details",
-      "description": "Get full supplement label data \u2014 ingredients, amounts per serving, daily values, target groups (NIH DSLD)",
+      "description": "Get full supplement label data — ingredients, amounts per serving, daily values, target groups (NIH DSLD)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3131,7 +3131,7 @@
     {
       "name": "finance.macro.indicator",
       "title": "Get Economic Indicator",
-      "description": "Get US economic data from 816K+ FRED series \u2014 GDP, CPI, unemployment, interest rates, money supply (Federal Reserve)",
+      "description": "Get US economic data from 816K+ FRED series — GDP, CPI, unemployment, interest rates, money supply (Federal Reserve)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3181,7 +3181,7 @@
     {
       "name": "finance.macro.country",
       "title": "Get Country Economic Data",
-      "description": "Get global development indicators from World Bank \u2014 GDP, population, inflation, trade, poverty for 200+ countries",
+      "description": "Get global development indicators from World Bank — GDP, population, inflation, trade, poverty for 200+ countries",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3224,7 +3224,7 @@
     {
       "name": "finance.treasury.data",
       "title": "Get US Treasury Data",
-      "description": "Get US Treasury fiscal data \u2014 interest rates on federal debt, national debt, debt outstanding, gold reserves, exchange rates",
+      "description": "Get US Treasury fiscal data — interest rates on federal debt, national debt, debt outstanding, gold reserves, exchange rates",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3270,7 +3270,7 @@
     {
       "name": "finance.banking.iban",
       "title": "Validate IBAN",
-      "description": "Validate an IBAN number and get associated bank data \u2014 BIC/SWIFT code, bank name, city (OpenIBAN)",
+      "description": "Validate an IBAN number and get associated bank data — BIC/SWIFT code, bank name, city (OpenIBAN)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3296,7 +3296,7 @@
     {
       "name": "music.artists.search",
       "title": "Search Music Artists",
-      "description": "Search for music artists by name across 2M+ artists \u2014 biography, country, tags, aliases (MusicBrainz)",
+      "description": "Search for music artists by name across 2M+ artists — biography, country, tags, aliases (MusicBrainz)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3331,7 +3331,7 @@
     {
       "name": "music.artists.details",
       "title": "Get Artist Details",
-      "description": "Get detailed artist info by MusicBrainz ID \u2014 tags, ratings, external links, life span, area (MusicBrainz)",
+      "description": "Get detailed artist info by MusicBrainz ID — tags, ratings, external links, life span, area (MusicBrainz)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3356,7 +3356,7 @@
     {
       "name": "music.releases.search",
       "title": "Search Music Releases",
-      "description": "Search for albums, singles, and EPs across 50M+ recordings \u2014 title, artist, date, tracklist (MusicBrainz)",
+      "description": "Search for albums, singles, and EPs across 50M+ recordings — title, artist, date, tracklist (MusicBrainz)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3391,7 +3391,7 @@
     {
       "name": "music.releases.details",
       "title": "Get Release Details",
-      "description": "Get full release details by MusicBrainz ID \u2014 tracklist, artist credits, labels, media formats (MusicBrainz)",
+      "description": "Get full release details by MusicBrainz ID — tracklist, artist credits, labels, media formats (MusicBrainz)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3416,7 +3416,7 @@
     {
       "name": "music.recordings.search",
       "title": "Search Music Recordings",
-      "description": "Search for songs and recordings by title or artist \u2014 duration, release history, artist credits (MusicBrainz)",
+      "description": "Search for songs and recordings by title or artist — duration, release history, artist credits (MusicBrainz)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3451,7 +3451,7 @@
     {
       "name": "music.discover.fresh",
       "title": "Get Fresh Music Releases",
-      "description": "Discover recently released albums and singles from the past N days \u2014 trending new music (ListenBrainz)",
+      "description": "Discover recently released albums and singles from the past N days — trending new music (ListenBrainz)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3480,7 +3480,7 @@
     {
       "name": "music.radio.search",
       "title": "Search Radio Stations",
-      "description": "Search 40K+ internet radio stations by name, genre, country, or language \u2014 streaming URLs, bitrate, codec (RadioBrowser)",
+      "description": "Search 40K+ internet radio stations by name, genre, country, or language — streaming URLs, bitrate, codec (RadioBrowser)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3682,7 +3682,7 @@
     {
       "name": "jobs.salary.data",
       "title": "Get Salary Data",
-      "description": "Get US salary and employment timeseries data from BLS \u2014 wage estimates, employment counts, occupational statistics by SOC code and geography",
+      "description": "Get US salary and employment timeseries data from BLS — wage estimates, employment counts, occupational statistics by SOC code and geography",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3723,7 +3723,7 @@
     {
       "name": "jobs.occupations.search",
       "title": "Search Occupations",
-      "description": "Search O*NET occupation taxonomy by keyword \u2014 1,000+ occupations with SOC codes, titles, and relevance scores",
+      "description": "Search O*NET occupation taxonomy by keyword — 1,000+ occupations with SOC codes, titles, and relevance scores",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3759,7 +3759,7 @@
     {
       "name": "jobs.occupations.details",
       "title": "Get Occupation Details",
-      "description": "Get detailed occupation info from O*NET by SOC code \u2014 overview, skills, knowledge, abilities, technology skills, tasks",
+      "description": "Get detailed occupation info from O*NET by SOC code — overview, skills, knowledge, abilities, technology skills, tasks",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3796,7 +3796,7 @@
     {
       "name": "jobs.skills.search",
       "title": "Search EU Skills & Occupations",
-      "description": "Search ESCO (European Skills/Competences/Occupations) taxonomy \u2014 occupations and skills in 27 EU languages",
+      "description": "Search ESCO (European Skills/Competences/Occupations) taxonomy — occupations and skills in 27 EU languages",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3847,7 +3847,7 @@
     {
       "name": "jobs.skills.details",
       "title": "Get EU Skill/Occupation Details",
-      "description": "Get ESCO resource details by URI \u2014 occupation descriptions, essential/optional skills, ISCO codes, skill relationships",
+      "description": "Get ESCO resource details by URI — occupation descriptions, essential/optional skills, ISCO codes, skill relationships",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3886,7 +3886,7 @@
     {
       "name": "jobs.listings.search",
       "title": "Search Job Listings",
-      "description": "Search global job listings via CareerJet \u2014 title, company, salary, location, contract type across 90+ countries",
+      "description": "Search global job listings via CareerJet — title, company, salary, location, contract type across 90+ countries",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3963,7 +3963,7 @@
     {
       "name": "education.papers.search",
       "title": "Search Academic Papers",
-      "description": "Search 250M+ academic papers across all disciplines \u2014 citations, authors, institutions, open access status (OpenAlex)",
+      "description": "Search 250M+ academic papers across all disciplines — citations, authors, institutions, open access status (OpenAlex)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4035,7 +4035,7 @@
     {
       "name": "education.papers.details",
       "title": "Get Paper Details",
-      "description": "Get full details for an academic paper by OpenAlex ID or DOI \u2014 authors, citations, abstract, references, open access links (OpenAlex)",
+      "description": "Get full details for an academic paper by OpenAlex ID or DOI — authors, citations, abstract, references, open access links (OpenAlex)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4061,7 +4061,7 @@
     {
       "name": "education.colleges.search",
       "title": "Search US Colleges",
-      "description": "Search US colleges and universities \u2014 admissions, tuition, enrollment, earnings, completion rates (College Scorecard)",
+      "description": "Search US colleges and universities — admissions, tuition, enrollment, earnings, completion rates (College Scorecard)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4109,7 +4109,7 @@
     {
       "name": "education.colleges.details",
       "title": "Get College Details",
-      "description": "Get detailed data for a US college by UNITID \u2014 admissions rate, costs, student outcomes, earnings after graduation (College Scorecard)",
+      "description": "Get detailed data for a US college by UNITID — admissions rate, costs, student outcomes, earnings after graduation (College Scorecard)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4135,7 +4135,7 @@
     {
       "name": "education.pubmed.search",
       "title": "Search PubMed",
-      "description": "Search 36M+ biomedical and life science articles \u2014 clinical trials, reviews, meta-analyses with date and type filters (PubMed/NCBI)",
+      "description": "Search 36M+ biomedical and life science articles — clinical trials, reviews, meta-analyses with date and type filters (PubMed/NCBI)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4187,7 +4187,7 @@
     {
       "name": "education.arxiv.search",
       "title": "Search arXiv Preprints",
-      "description": "Search 2.4M+ preprints in physics, math, CS, biology, and more \u2014 full text, authors, categories, PDF links (arXiv)",
+      "description": "Search 2.4M+ preprints in physics, math, CS, biology, and more — full text, authors, categories, PDF links (arXiv)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4238,7 +4238,7 @@
     {
       "name": "education.crossref.doi",
       "title": "Lookup DOI",
-      "description": "Resolve a DOI to full publication metadata \u2014 title, authors, journal, citations, funding, license (CrossRef)",
+      "description": "Resolve a DOI to full publication metadata — title, authors, journal, citations, funding, license (CrossRef)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4318,7 +4318,7 @@
     {
       "name": "geo.address.reverse",
       "title": "Reverse Geocode",
-      "description": "Convert geographic coordinates (lat/lon) to a structured address \u2014 street, city, country, postal code (Geoapify/OSM)",
+      "description": "Convert geographic coordinates (lat/lon) to a structured address — street, city, country, postal code (Geoapify/OSM)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4415,7 +4415,7 @@
     {
       "name": "geo.address.autocomplete",
       "title": "Autocomplete Address",
-      "description": "Get autocomplete suggestions as you type an address or place name \u2014 for real-time search UX (Geoapify/OSM)",
+      "description": "Get autocomplete suggestions as you type an address or place name — for real-time search UX (Geoapify/OSM)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4540,7 +4540,7 @@
     {
       "name": "geo.navigation.isochrone",
       "title": "Get Isochrone",
-      "description": "Get reachability area (isochrone) \u2014 polygon showing how far you can travel from a point in a given time or distance (Geoapify/OSM)",
+      "description": "Get reachability area (isochrone) — polygon showing how far you can travel from a point in a given time or distance (Geoapify/OSM)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4620,7 +4620,7 @@
     {
       "name": "aipush.website.setup",
       "title": "Setup Website for AI Marketing",
-      "description": "Register a website for AI marketing. Call with domain + target_url. If DNS is not configured, returns DNS_NOT_VERIFIED with exact CNAME record instructions \u2014 relay to user: reference.{domain} \u2192 cname.aipush.app. After user creates DNS record, call again. On success: client registered, MIP analysis starts automatically, SSL provisioning begins. Poll website_status until mip_status='ready' and cf_hostname_status='active', then use generate_page. Idempotent (AIPush)",
+      "description": "Register a website for AI marketing. Call with domain + target_url. If DNS is not configured, returns DNS_NOT_VERIFIED with exact CNAME record instructions — relay to user: reference.{domain} → cname.aipush.app. After user creates DNS record, call again. On success: client registered, MIP analysis starts automatically, SSL provisioning begins. Poll website_status until mip_status='ready' and cf_hostname_status='active', then use generate_page. Idempotent (AIPush)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4628,13 +4628,13 @@
             "type": "string",
             "minLength": 3,
             "maxLength": 253,
-            "description": "Domain of the website to register (e.g. \"example.com\", \"myhotel.com\"). Must have a CNAME record: reference.{domain} \u2192 cname.aipush.app"
+            "description": "Domain of the website to register (e.g. \"example.com\", \"myhotel.com\"). Must have a CNAME record: reference.{domain} → cname.aipush.app"
           },
           "target_url": {
             "type": "string",
             "format": "uri",
             "maxLength": 2048,
-            "description": "Target conversion URL \u2014 the single page all generated content will link to (e.g. \"https://example.com/book\", \"https://myhotel.com/reserve\"). Must be on the same domain."
+            "description": "Target conversion URL — the single page all generated content will link to (e.g. \"https://example.com/book\", \"https://myhotel.com/reserve\"). Must be on the same domain."
           }
         },
         "required": [
@@ -4781,7 +4781,7 @@
     {
       "name": "aipush.analysis.profile",
       "title": "Get Website Business Profile",
-      "description": "Get MIP business analysis results \u2014 business name, category, location, competitors, value propositions, and market surface data (AIPush)",
+      "description": "Get MIP business analysis results — business name, category, location, competitors, value propositions, and market surface data (AIPush)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4807,7 +4807,7 @@
     {
       "name": "aipush.analysis.visibility",
       "title": "Check AI Visibility Score",
-      "description": "Test whether AI assistants (ChatGPT, Perplexity, Gemini) know about and recommend a brand \u2014 returns per-model visibility scores (AIPush)",
+      "description": "Test whether AI assistants (ChatGPT, Perplexity, Gemini) know about and recommend a brand — returns per-model visibility scores (AIPush)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4833,7 +4833,7 @@
     {
       "name": "zinc.products.search",
       "title": "Search Products",
-      "description": "Search products across Amazon, Walmart, and other major retailers by keyword \u2014 titles, prices, ratings, images (Zinc)",
+      "description": "Search products across Amazon, Walmart, and other major retailers by keyword — titles, prices, ratings, images (Zinc)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4879,7 +4879,7 @@
     {
       "name": "zinc.products.detail",
       "title": "Get Product Details",
-      "description": "Get full product details by ASIN or product ID \u2014 title, description, brand, images, price, features, categories (Zinc)",
+      "description": "Get full product details by ASIN or product ID — title, description, brand, images, price, features, categories (Zinc)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4919,7 +4919,7 @@
     {
       "name": "zinc.products.offers",
       "title": "Get Product Offers",
-      "description": "Get all seller offers for a product \u2014 prices, shipping, condition, Prime eligibility, seller ratings (Zinc)",
+      "description": "Get all seller offers for a product — prices, shipping, condition, Prime eligibility, seller ratings (Zinc)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4959,7 +4959,7 @@
     {
       "name": "zinc.products.reviews",
       "title": "Get Product Reviews",
-      "description": "Get product reviews and ratings by ASIN or product ID \u2014 review text, rating, author, verified purchase status (Zinc)",
+      "description": "Get product reviews and ratings by ASIN or product ID — review text, rating, author, verified purchase status (Zinc)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5005,7 +5005,7 @@
     {
       "name": "diffbot.products.extract",
       "title": "Extract Product Data",
-      "description": "Extract structured product data from any e-commerce URL \u2014 title, price, brand, specs, images, reviews. Works on any retailer without custom integration (Diffbot)",
+      "description": "Extract structured product data from any e-commerce URL — title, price, brand, specs, images, reviews. Works on any retailer without custom integration (Diffbot)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5131,13 +5131,13 @@
     {
       "name": "diffbot.knowledge.search",
       "title": "Search Knowledge Graph",
-      "description": "Search Diffbot Knowledge Graph for products, organizations, people, and places \u2014 billions of structured entities from the web (Diffbot)",
+      "description": "Search Diffbot Knowledge Graph for products, organizations, people, and places — billions of structured entities from the web (Diffbot)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "query": {
             "type": "string",
-            "description": "Diffbot Knowledge Graph query (DQL) \u2014 e.g. \"type:Product title:iPhone\""
+            "description": "Diffbot Knowledge Graph query (DQL) — e.g. \"type:Product title:iPhone\""
           },
           "type": {
             "type": "string",
@@ -5178,7 +5178,7 @@
     {
       "name": "whois.domain.lookup",
       "title": "WHOIS Lookup",
-      "description": "Get WHOIS registration data for any domain \u2014 registrar, creation/expiry dates, nameservers, registrant contact, status across 374M+ domains and 7,596 TLDs (WhoisXML)",
+      "description": "Get WHOIS registration data for any domain — registrar, creation/expiry dates, nameservers, registrant contact, status across 374M+ domains and 7,596 TLDs (WhoisXML)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5214,7 +5214,7 @@
     {
       "name": "whois.dns.lookup",
       "title": "DNS Lookup",
-      "description": "Get DNS records for a domain \u2014 A, AAAA, MX, NS, SOA, TXT, CNAME, SRV, CAA records with TTL and raw data (WhoisXML)",
+      "description": "Get DNS records for a domain — A, AAAA, MX, NS, SOA, TXT, CNAME, SRV, CAA records with TTL and raw data (WhoisXML)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5254,7 +5254,7 @@
     {
       "name": "whois.domain.availability",
       "title": "Check Domain Availability",
-      "description": "Check if a domain name is available for registration \u2014 fast DNS check or thorough DNS+WHOIS verification (WhoisXML)",
+      "description": "Check if a domain name is available for registration — fast DNS check or thorough DNS+WHOIS verification (WhoisXML)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5286,13 +5286,13 @@
     {
       "name": "whois.domain.reverse",
       "title": "Reverse WHOIS Search",
-      "description": "Find all domains registered by a person, company, or email \u2014 reverse WHOIS lookup for OSINT and brand monitoring (WhoisXML)",
+      "description": "Find all domains registered by a person, company, or email — reverse WHOIS lookup for OSINT and brand monitoring (WhoisXML)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "keyword": {
             "type": "string",
-            "description": "Search keyword to find domains \u2014 registrant name, email, company, or address (e.g. \"John Smith\", \"acme.com\")"
+            "description": "Search keyword to find domains — registrant name, email, company, or address (e.g. \"John Smith\", \"acme.com\")"
           }
         },
         "required": [
@@ -5310,7 +5310,7 @@
     {
       "name": "spoonacular.recipes.search",
       "title": "Search Recipes",
-      "description": "Search 365K+ recipes with dietary filters (vegan, keto, gluten-free), cuisine, meal type, and max prep time \u2014 includes nutrition data per result (Spoonacular)",
+      "description": "Search 365K+ recipes with dietary filters (vegan, keto, gluten-free), cuisine, meal type, and max prep time — includes nutrition data per result (Spoonacular)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5320,7 +5320,7 @@
           },
           "cuisine": {
             "type": "string",
-            "description": "Cuisine filter \u2014 comma-separated (e.g. \"italian\", \"mexican,chinese\")"
+            "description": "Cuisine filter — comma-separated (e.g. \"italian\", \"mexican,chinese\")"
           },
           "diet": {
             "type": "string",
@@ -5328,7 +5328,7 @@
           },
           "intolerances": {
             "type": "string",
-            "description": "Intolerances filter \u2014 comma-separated (e.g. \"dairy,gluten,peanut,shellfish\")"
+            "description": "Intolerances filter — comma-separated (e.g. \"dairy,gluten,peanut,shellfish\")"
           },
           "type": {
             "type": "string",
@@ -5362,7 +5362,7 @@
     {
       "name": "spoonacular.recipes.details",
       "title": "Get Recipe Details",
-      "description": "Get full recipe details by ID \u2014 ingredients, step-by-step instructions, nutrition facts, dietary labels, prep time, servings, and price per serving (Spoonacular)",
+      "description": "Get full recipe details by ID — ingredients, step-by-step instructions, nutrition facts, dietary labels, prep time, servings, and price per serving (Spoonacular)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5386,7 +5386,7 @@
     {
       "name": "spoonacular.recipes.by_ingredients",
       "title": "Find Recipes by Ingredients",
-      "description": "Find recipes using ingredients you have on hand \u2014 shows used/missing ingredients count, ranked by ingredient match (Spoonacular)",
+      "description": "Find recipes using ingredients you have on hand — shows used/missing ingredients count, ranked by ingredient match (Spoonacular)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5426,7 +5426,7 @@
     {
       "name": "spoonacular.ingredients.search",
       "title": "Search Ingredients",
-      "description": "Search 86K+ food ingredients with nutrition data \u2014 sortable by calories, protein, fat, or carbs (Spoonacular)",
+      "description": "Search 86K+ food ingredients with nutrition data — sortable by calories, protein, fat, or carbs (Spoonacular)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5474,7 +5474,7 @@
     {
       "name": "spoonacular.recipes.analyze",
       "title": "Analyze Recipe Nutrition",
-      "description": "Analyze a recipe by title and ingredient list \u2014 returns full nutrition breakdown, dietary labels, and caloric distribution (Spoonacular)",
+      "description": "Analyze a recipe by title and ingredient list — returns full nutrition breakdown, dietary labels, and caloric distribution (Spoonacular)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5515,7 +5515,7 @@
     {
       "name": "nasa.astronomy.apod",
       "title": "Astronomy Picture of the Day",
-      "description": "Get NASA Astronomy Picture of the Day \u2014 daily curated space image or video with expert explanation, dating back to 1995 (NASA APOD)",
+      "description": "Get NASA Astronomy Picture of the Day — daily curated space image or video with expert explanation, dating back to 1995 (NASA APOD)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5540,7 +5540,7 @@
     {
       "name": "nasa.asteroids.feed",
       "title": "Near-Earth Asteroids Feed",
-      "description": "Get near-Earth asteroid close approaches for a date range \u2014 size estimates, hazard classification, velocity, miss distance (NASA NeoWs)",
+      "description": "Get near-Earth asteroid close approaches for a date range — size estimates, hazard classification, velocity, miss distance (NASA NeoWs)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5568,7 +5568,7 @@
     {
       "name": "nasa.space_weather.flares",
       "title": "Solar Flare Events",
-      "description": "Get solar flare events from the Space Weather Database \u2014 class, peak time, source region, linked CMEs and geomagnetic storms (NASA DONKI)",
+      "description": "Get solar flare events from the Space Weather Database — class, peak time, source region, linked CMEs and geomagnetic storms (NASA DONKI)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5593,7 +5593,7 @@
     {
       "name": "nasa.earth.epic",
       "title": "Earth Camera (EPIC)",
-      "description": "Get full-disc Earth images from the DSCOVR satellite EPIC camera \u2014 daily natural color photos from Lagrange point L1, 1.5M km away (NASA EPIC)",
+      "description": "Get full-disc Earth images from the DSCOVR satellite EPIC camera — daily natural color photos from Lagrange point L1, 1.5M km away (NASA EPIC)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5614,7 +5614,7 @@
     {
       "name": "nasa.media.search",
       "title": "Search NASA Images & Videos",
-      "description": "Search NASA Image and Video Library \u2014 140K+ images, videos, and audio from missions, telescopes, and events with metadata and download links (NASA)",
+      "description": "Search NASA Image and Video Library — 140K+ images, videos, and audio from missions, telescopes, and events with metadata and download links (NASA)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5660,7 +5660,7 @@
     {
       "name": "jpl.asteroids.approaches",
       "title": "Asteroid Close Approaches",
-      "description": "Get upcoming and past asteroid close approaches to Earth \u2014 distance, velocity, size, sorted by date or distance (NASA JPL)",
+      "description": "Get upcoming and past asteroid close approaches to Earth — distance, velocity, size, sorted by date or distance (NASA JPL)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5711,7 +5711,7 @@
     {
       "name": "jpl.events.fireballs",
       "title": "Fireball Events",
-      "description": "Get reported fireball (bolide) events \u2014 atmospheric entry energy, velocity, altitude, geographic coordinates (NASA JPL CNEOS)",
+      "description": "Get reported fireball (bolide) events — atmospheric entry energy, velocity, altitude, geographic coordinates (NASA JPL CNEOS)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5757,13 +5757,13 @@
     {
       "name": "jpl.bodies.lookup",
       "title": "Small Body Lookup",
-      "description": "Look up asteroid or comet data by name/designation \u2014 orbital elements, physical parameters, discovery info, hazard classification (NASA JPL SBDB)",
+      "description": "Look up asteroid or comet data by name/designation — orbital elements, physical parameters, discovery info, hazard classification (NASA JPL SBDB)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "sstr": {
             "type": "string",
-            "description": "Search string \u2014 asteroid/comet name or designation (e.g. \"Apophis\", \"2024 YR4\", \"Halley\")"
+            "description": "Search string — asteroid/comet name or designation (e.g. \"Apophis\", \"2024 YR4\", \"Halley\")"
           },
           "des": {
             "type": "string",
@@ -5786,7 +5786,7 @@
     {
       "name": "jpl.asteroids.sentry",
       "title": "Asteroid Impact Risk (Sentry)",
-      "description": "Get asteroid impact risk assessments from the Sentry monitoring system \u2014 impact probability, Palermo/Torino scale, size estimates (NASA JPL)",
+      "description": "Get asteroid impact risk assessments from the Sentry monitoring system — impact probability, Palermo/Torino scale, size estimates (NASA JPL)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5796,7 +5796,7 @@
           },
           "h_max": {
             "type": "number",
-            "description": "Maximum absolute magnitude H \u2014 filter for larger objects"
+            "description": "Maximum absolute magnitude H — filter for larger objects"
           },
           "ps_min": {
             "type": "number",
@@ -5819,7 +5819,7 @@
     {
       "name": "rawg.games.search",
       "title": "Search Video Games",
-      "description": "Search 800K+ video games \u2014 filter by genre, platform, release date, Metacritic score, with ratings, screenshots, and store links (RAWG)",
+      "description": "Search 800K+ video games — filter by genre, platform, release date, Metacritic score, with ratings, screenshots, and store links (RAWG)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5829,11 +5829,11 @@
           },
           "genres": {
             "type": "string",
-            "description": "Filter by genre IDs \u2014 comma-separated (e.g. \"4\" for action, \"5\" for RPG, \"4,5\" for both)"
+            "description": "Filter by genre IDs — comma-separated (e.g. \"4\" for action, \"5\" for RPG, \"4,5\" for both)"
           },
           "platforms": {
             "type": "string",
-            "description": "Filter by platform IDs \u2014 comma-separated (e.g. \"4\" for PC, \"187\" for PS5, \"186\" for Xbox Series)"
+            "description": "Filter by platform IDs — comma-separated (e.g. \"4\" for PC, \"187\" for PS5, \"186\" for Xbox Series)"
           },
           "dates": {
             "type": "string",
@@ -5871,7 +5871,7 @@
     {
       "name": "rawg.games.details",
       "title": "Get Game Details",
-      "description": "Get full game details by ID or slug \u2014 description, platforms, genres, developers, publishers, ratings, Metacritic score, system requirements (RAWG)",
+      "description": "Get full game details by ID or slug — description, platforms, genres, developers, publishers, ratings, Metacritic score, system requirements (RAWG)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5902,7 +5902,7 @@
     {
       "name": "rawg.games.screenshots",
       "title": "Get Game Screenshots",
-      "description": "Get screenshot images for a game \u2014 full resolution URLs with dimensions (RAWG)",
+      "description": "Get screenshot images for a game — full resolution URLs with dimensions (RAWG)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5944,7 +5944,7 @@
     {
       "name": "rawg.games.stores",
       "title": "Get Game Store Links",
-      "description": "Get purchase/download links for a game across stores \u2014 Steam, PlayStation Store, Xbox, Epic, GOG, Nintendo (RAWG)",
+      "description": "Get purchase/download links for a game across stores — Steam, PlayStation Store, Xbox, Epic, GOG, Nintendo (RAWG)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5975,7 +5975,7 @@
     {
       "name": "rawg.games.series",
       "title": "Get Game Series",
-      "description": "Get all games in the same series/franchise \u2014 sequels, prequels, and spin-offs with ratings and release dates (RAWG)",
+      "description": "Get all games in the same series/franchise — sequels, prequels, and spin-offs with ratings and release dates (RAWG)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -6006,6 +6006,81 @@
           "id"
         ],
         "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "igdb.games.search",
+      "title": "Search Games (IGDB)",
+      "description": "Search 280K+ games in IGDB (Twitch) — rich metadata with genres, platforms, ratings, cover art, and release dates",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "igdb.games.details",
+      "title": "Get Game Details (IGDB)",
+      "description": "Get full game details by IGDB ID — storyline, genres, platforms, developers, publishers, themes, game modes, similar games, and websites",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "igdb.companies.info",
+      "title": "Get Company Info (IGDB)",
+      "description": "Look up game companies by ID or search by name — description, country, developed/published game IDs, logos, and websites",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "igdb.platforms.info",
+      "title": "Get Platform Info (IGDB)",
+      "description": "Look up gaming platforms by ID or search by name — abbreviation, generation, platform family, versions, and summary",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "igdb.games.media",
+      "title": "Get Game Media (IGDB)",
+      "description": "Get cover art, screenshots, and video trailers for a game — image URLs with dimensions and YouTube video IDs",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
       },
       "annotations": {
         "readOnlyHint": true,

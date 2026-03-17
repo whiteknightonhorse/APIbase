@@ -23,6 +23,7 @@ import { SpoonacularAdapter } from './spoonacular';
 import { NasaAdapter } from './nasa';
 import { JplAdapter } from './jpl';
 import { RawgAdapter } from './rawg';
+import { IgdbAdapter } from './igdb';
 import { config } from '../config';
 
 /**
@@ -169,6 +170,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const rawgKey = (config as Record<string, unknown>).PROVIDER_KEY_RAWG as string | undefined;
       if (!rawgKey) return undefined;
       return getOrCreate('rawg', () => new RawgAdapter(rawgKey));
+    }
+    case 'igdb': {
+      const igdbClientId = (config as Record<string, unknown>).IGDB_CLIENT_ID as string | undefined;
+      const igdbClientSecret = (config as Record<string, unknown>).IGDB_CLIENT_SECRET as string | undefined;
+      if (!igdbClientId || !igdbClientSecret) return undefined;
+      return getOrCreate('igdb', () => new IgdbAdapter(igdbClientId, igdbClientSecret));
     }
     default:
       return undefined;
