@@ -13,6 +13,7 @@ import { x402Middleware } from '../middleware/x402.middleware';
 import { x402Router } from '../routes/x402.router';
 import { onboardRouter } from '../routes/onboard.router';
 import { executeRouter } from '../routes/execute.router';
+import { dashboardRouter } from '../routes/dashboard.router';
 
 /**
  * Express application configuration (§6.1, §12.243).
@@ -44,6 +45,7 @@ export function createApp(): express.Express {
   app.use(healthRouter);
   app.use(metricsRouter);
   app.use(x402Router);
+  app.use(dashboardRouter);
 
   // --- Body parsing ---
   app.use(express.json({ limit: '1mb' }));

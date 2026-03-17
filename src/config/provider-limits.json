@@ -1,0 +1,235 @@
+{
+  "polymarket": {
+    "display_name": "Polymarket",
+    "health_url": "https://clob.polymarket.com/time",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none"
+  },
+  "hyperliquid": {
+    "display_name": "Hyperliquid",
+    "health_url": "https://api.hyperliquid.xyz/info",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none"
+  },
+  "asterdex": {
+    "display_name": "AsterDEX",
+    "health_url": "https://perp-api.asterfi.io/api/v1/public/tickers",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none"
+  },
+  "openweathermap": {
+    "display_name": "OpenWeatherMap",
+    "health_url": "https://api.openweathermap.org/data/2.5/weather?q=London&appid=test",
+    "limit_type": "daily",
+    "free_limit": 1000,
+    "reset_period": "daily"
+  },
+  "coingecko": {
+    "display_name": "CoinGecko",
+    "health_url": "https://api.coingecko.com/api/v3/ping",
+    "limit_type": "monthly",
+    "free_limit": 10000,
+    "reset_period": "monthly"
+  },
+  "sabre": {
+    "display_name": "Sabre GDS",
+    "health_url": "https://api-crt.cert.havail.sabre.com/health",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none"
+  },
+  "amadeus": {
+    "display_name": "Amadeus",
+    "health_url": "https://test.api.amadeus.com/v1/security/oauth2/token",
+    "limit_type": "monthly",
+    "free_limit": 2000,
+    "reset_period": "monthly"
+  },
+  "foursquare": {
+    "display_name": "Foursquare",
+    "health_url": "https://api.foursquare.com/v3/autocomplete?query=test",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none"
+  },
+  "ticketmaster": {
+    "display_name": "Ticketmaster",
+    "health_url": "https://app.ticketmaster.com/discovery/v2/events.json?size=1&apikey=test",
+    "limit_type": "daily",
+    "free_limit": 5000,
+    "reset_period": "daily"
+  },
+  "tmdb": {
+    "display_name": "TMDB",
+    "health_url": "https://api.themoviedb.org/3/configuration",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none"
+  },
+  "health": {
+    "display_name": "Health & Nutrition",
+    "health_url": "https://api.nal.usda.gov/fdc/v1/foods/search?query=test&pageSize=1&api_key=DEMO_KEY",
+    "limit_type": "daily",
+    "free_limit": 1000,
+    "reset_period": "daily"
+  },
+  "finance": {
+    "display_name": "Finance / Banking",
+    "health_url": "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies.json",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none"
+  },
+  "music": {
+    "display_name": "Music / Audio",
+    "health_url": "https://musicbrainz.org/ws/2/artist?query=test&limit=1&fmt=json",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none"
+  },
+  "jobs": {
+    "display_name": "Jobs / Career",
+    "health_url": "https://api.bls.gov/publicAPI/v2/timeseries/data/OEUS000000000000000000004",
+    "limit_type": "daily",
+    "free_limit": 500,
+    "reset_period": "daily"
+  },
+  "education": {
+    "display_name": "Education / Research",
+    "health_url": "https://api.openalex.org/works?search=test&per_page=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none"
+  },
+  "geo": {
+    "display_name": "Maps / Geolocation",
+    "health_url": "https://api.geoapify.com/v1/geocode/search?text=test&limit=1&apiKey=test",
+    "limit_type": "daily",
+    "free_limit": 3000,
+    "reset_period": "daily"
+  },
+  "aviasales": {
+    "display_name": "Aviasales",
+    "health_url": "https://api.travelpayouts.com/v1/prices/cheap",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none"
+  },
+  "aipush": {
+    "display_name": "AIPush AI Marketing",
+    "health_url": "http://172.18.0.1:3000/health",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none"
+  },
+  "zinc": {
+    "display_name": "Zinc E-commerce",
+    "health_url": "https://api.zinc.io/v1/search?query=test&max_results=1",
+    "limit_type": "credits",
+    "free_limit": 0,
+    "reset_period": "none",
+    "paid_balance": true
+  },
+  "diffbot": {
+    "display_name": "Diffbot AI Extraction",
+    "health_url": "https://api.diffbot.com/v3/analyze",
+    "limit_type": "monthly",
+    "free_limit": 10000,
+    "reset_period": "monthly"
+  },
+  "whoisxml": {
+    "display_name": "WhoisXML",
+    "health_url": "https://www.whoisxmlapi.com/whoisserver/WhoisService",
+    "limit_type": "credits",
+    "free_limit": 500,
+    "reset_period": "none"
+  },
+  "spoonacular": {
+    "display_name": "Spoonacular Recipe",
+    "health_url": "https://api.spoonacular.com/recipes/complexSearch?query=test&number=1",
+    "limit_type": "daily",
+    "free_limit": 150,
+    "reset_period": "daily"
+  },
+  "nasa": {
+    "display_name": "NASA Open APIs",
+    "health_url": "https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY",
+    "limit_type": "hourly",
+    "free_limit": 1000,
+    "reset_period": "hourly"
+  },
+  "jpl": {
+    "display_name": "NASA JPL SSD",
+    "health_url": "https://ssd-api.jpl.nasa.gov/cad.api?limit=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none"
+  },
+  "rawg": {
+    "display_name": "RAWG Video Games",
+    "health_url": "https://api.rawg.io/api/games?key=test&page_size=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none"
+  },
+  "igdb": {
+    "display_name": "IGDB Video Games",
+    "health_url": "https://api.igdb.com/v4/games",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none"
+  },
+  "qrserver": {
+    "display_name": "QRServer",
+    "health_url": "https://api.qrserver.com/v1/create-qr-code/?size=10x10&data=test",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none"
+  },
+  "upcitemdb": {
+    "display_name": "UPCitemdb",
+    "health_url": "https://api.upcitemdb.com/prod/trial/lookup?upc=012345678901",
+    "limit_type": "daily",
+    "free_limit": 100,
+    "reset_period": "daily"
+  },
+  "ipapi": {
+    "display_name": "ipapi.is",
+    "health_url": "https://api.ipapi.is/?q=8.8.8.8",
+    "limit_type": "daily",
+    "free_limit": 1000,
+    "reset_period": "daily"
+  },
+  "usgs-earthquake": {
+    "display_name": "USGS Earthquake",
+    "health_url": "https://earthquake.usgs.gov/fdsnws/event/1/count?starttime=2024-01-01&endtime=2024-01-02",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none"
+  },
+  "jikan": {
+    "display_name": "Jikan / MyAnimeList",
+    "health_url": "https://api.jikan.moe/v4/anime?limit=1&q=test",
+    "limit_type": "daily",
+    "free_limit": 86400,
+    "reset_period": "daily"
+  },
+  "openlibrary": {
+    "display_name": "Open Library",
+    "health_url": "https://openlibrary.org/search.json?q=test&limit=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none"
+  },
+  "zerobounce": {
+    "display_name": "ZeroBounce",
+    "health_url": "https://api.zerobounce.net/v2/getcredits",
+    "limit_type": "credits",
+    "free_limit": 100,
+    "reset_period": "monthly",
+    "balance_api": true
+  }
+}

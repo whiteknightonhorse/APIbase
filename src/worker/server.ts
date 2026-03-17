@@ -4,6 +4,7 @@ import { config } from '../config';
 import { logger } from '../config/logger';
 import { createHealthServer, updateHeartbeatTimestamp } from './health';
 import { run as runReconciliation } from '../jobs/reconciliation.job';
+import { run as runProviderHealth } from '../jobs/provider-health.job';
 
 /**
  * Worker process entry point (§12.194, §12.244).
@@ -58,6 +59,7 @@ async function sendHeartbeat(): Promise<void> {
 // ---------------------------------------------------------------------------
 
 let reconciliationRunning = false;
+let providerHealthRunning = false;
 
 async function runReconciliationSafe(): Promise<void> {
   if (reconciliationRunning) {
@@ -70,6 +72,24 @@ async function runReconciliationSafe(): Promise<void> {
     logger.error({ err }, 'Reconciliation job failed');
   } finally {
     reconciliationRunning = false;
+  }
+}
+
+async function runProviderHealthSafe(): Promise<void> {
+  if (providerHealthRunning) {
+    return;
+  }
+  providerHealthRunning = true;
+  try {
+    const r = getRedis();
+    if (r.status === 'wait') {
+      await r.connect();
+    }
+    await runProviderHealth(r);
+  } catch (err) {
+    logger.error({ err }, 'Provider health job failed');
+  } finally {
+    providerHealthRunning = false;
   }
 }
 
@@ -90,7 +110,12 @@ const reconciliationTask = cron.schedule('* * * * *', () => {
   runReconciliationSafe().catch(() => {});
 });
 
-logger.info('Worker started — heartbeat + reconciliation cron active');
+// Schedule provider health checks every 2 min (round-robin, 1 provider per run)
+const providerHealthTask = cron.schedule('*/2 * * * *', () => {
+  runProviderHealthSafe().catch(() => {});
+});
+
+logger.info('Worker started — heartbeat + reconciliation + provider-health cron active');
 
 // ---------------------------------------------------------------------------
 // Graceful shutdown (§12.230 — 60s stop_grace_period)
@@ -100,6 +125,7 @@ function shutdown(signal: string): void {
   logger.info({ signal }, 'Worker shutdown signal received');
 
   reconciliationTask.stop();
+  providerHealthTask.stop();
 
   if (heartbeatTimer) {
     clearInterval(heartbeatTimer);
