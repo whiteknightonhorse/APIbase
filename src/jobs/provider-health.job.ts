@@ -28,6 +28,8 @@ const limitsConfig = providerLimitsConfig as Record<string, {
   reset_period: string;
   paid_balance?: boolean;
   balance_api?: boolean;
+  docs_url?: string;
+  limit_proof?: string;
 }>;
 
 // Sorted provider list for round-robin
@@ -65,29 +67,50 @@ export async function run(redis: Redis): Promise<void> {
 
   // 2. Count usage + compute limits
   const db = getPrisma();
-
-  // Determine period for usage counting
-  let interval = '24 hours';
-  if (cfg.reset_period === 'hourly') interval = '1 hour';
-  else if (cfg.reset_period === 'monthly') interval = '30 days';
-  else if (cfg.reset_period === 'daily') interval = '24 hours';
-
-  const usageRows: Array<{ count: bigint }> = await db.$queryRawUnsafe(`
-    SELECT COUNT(*) AS count
-    FROM execution_ledger el
-    WHERE el.tool_id IN (SELECT tool_id FROM tools WHERE provider = $1)
-      AND el.created_at >= NOW() - INTERVAL '${interval}'
-      AND el.status IN ('success', 'shared_success', 'provider_success')
-  `, providerName);
-
-  const used = Number(usageRows[0]?.count || 0);
   const freeLimit = cfg.free_limit;
   const isUnlimited = cfg.limit_type === 'unlimited';
+  const isPaid = cfg.paid_balance === true && freeLimit === 0;
+
+  // Skip DB query for unlimited and paid providers
+  let used = 0;
+  if (!isUnlimited && !isPaid) {
+    // Build time filter based on reset_period
+    let timeFilter: string;
+    switch (cfg.reset_period) {
+      case 'none':
+        // Lifetime credits (e.g. WhoisXML 500) — count all-time usage
+        timeFilter = '';
+        break;
+      case 'monthly':
+        // Calendar month anchor (not rolling 30 days)
+        timeFilter = `AND el.created_at >= date_trunc('month', NOW())`;
+        break;
+      case 'hourly':
+        timeFilter = `AND el.created_at >= NOW() - INTERVAL '1 hour'`;
+        break;
+      default:
+        // daily (default) — rolling 24h
+        timeFilter = `AND el.created_at >= NOW() - INTERVAL '24 hours'`;
+        break;
+    }
+
+    const usageRows: Array<{ count: bigint }> = await db.$queryRawUnsafe(`
+      SELECT COUNT(*) AS count
+      FROM execution_ledger el
+      WHERE el.tool_id IN (SELECT tool_id FROM tools WHERE provider = $1)
+        ${timeFilter}
+        AND el.status IN ('success', 'shared_success', 'provider_success')
+    `, providerName);
+
+    used = Number(usageRows[0]?.count || 0);
+  }
+
   const remaining = isUnlimited ? 0 : Math.max(0, freeLimit - used);
   const pctRemaining = isUnlimited ? 100 : (freeLimit > 0 ? Math.round((remaining / freeLimit) * 100) : 100);
 
   let limitStatus: string;
-  if (isUnlimited) limitStatus = 'green';
+  if (isPaid) limitStatus = 'paid';
+  else if (isUnlimited) limitStatus = 'green';
   else if (pctRemaining <= 0) limitStatus = 'red';
   else if (pctRemaining < 25) limitStatus = 'yellow';
   else if (pctRemaining < 50) limitStatus = 'orange';

@@ -4,126 +4,162 @@
     "health_url": "https://clob.polymarket.com/time",
     "limit_type": "unlimited",
     "free_limit": 0,
-    "reset_period": "none"
+    "reset_period": "none",
+    "docs_url": "https://docs.polymarket.com/#overview",
+    "limit_proof": "Public REST API, no documented rate limits or API key required"
   },
   "hyperliquid": {
     "display_name": "Hyperliquid",
     "health_url": "https://api.hyperliquid.xyz/info",
     "limit_type": "unlimited",
     "free_limit": 0,
-    "reset_period": "none"
+    "reset_period": "none",
+    "docs_url": "https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api",
+    "limit_proof": "Public info API, no rate limits documented for read-only endpoints"
   },
   "asterdex": {
     "display_name": "AsterDEX",
     "health_url": "https://perp-api.asterfi.io/api/v1/public/tickers",
     "limit_type": "unlimited",
     "free_limit": 0,
-    "reset_period": "none"
+    "reset_period": "none",
+    "docs_url": "https://asterdex.gitbook.io/asterdex",
+    "limit_proof": "Public DEX API, no auth or rate limits documented"
   },
   "openweathermap": {
     "display_name": "OpenWeatherMap",
     "health_url": "https://api.openweathermap.org/data/2.5/weather?q=London&appid=test",
     "limit_type": "daily",
     "free_limit": 1000,
-    "reset_period": "daily"
+    "reset_period": "daily",
+    "docs_url": "https://openweathermap.org/price",
+    "limit_proof": "Free plan: 1,000 calls/day, 60 calls/min"
   },
   "coingecko": {
     "display_name": "CoinGecko",
     "health_url": "https://api.coingecko.com/api/v3/ping",
     "limit_type": "monthly",
     "free_limit": 10000,
-    "reset_period": "monthly"
+    "reset_period": "monthly",
+    "docs_url": "https://www.coingecko.com/en/api/pricing",
+    "limit_proof": "Demo plan: 10,000 calls/month, 30 calls/min"
   },
   "sabre": {
     "display_name": "Sabre GDS",
     "health_url": "https://api-crt.cert.havail.sabre.com/health",
     "limit_type": "unlimited",
     "free_limit": 0,
-    "reset_period": "none"
+    "reset_period": "none",
+    "docs_url": "https://developer.sabre.com/guides/travel-agency/developer-guides/getting-started",
+    "limit_proof": "Cert environment free for development, no documented call limits"
   },
   "amadeus": {
     "display_name": "Amadeus",
-    "health_url": "https://test.api.amadeus.com/v1/security/oauth2/token",
+    "health_url": "https://test.api.amadeus.com/v1/reference-data/airlines?airlineCodes=AA",
     "limit_type": "monthly",
     "free_limit": 2000,
-    "reset_period": "monthly"
+    "reset_period": "monthly",
+    "docs_url": "https://developers.amadeus.com/pricing",
+    "limit_proof": "Self-Service free tier: 2,000 Flight Search calls/month, varies by endpoint"
   },
   "foursquare": {
     "display_name": "Foursquare",
     "health_url": "https://api.foursquare.com/v3/autocomplete?query=test",
     "limit_type": "unlimited",
     "free_limit": 0,
-    "reset_period": "none"
+    "reset_period": "none",
+    "docs_url": "https://docs.foursquare.com/developer/reference/rate-limits",
+    "limit_proof": "Developer plan: no hard monthly cap documented, rate-limited per second"
   },
   "ticketmaster": {
     "display_name": "Ticketmaster",
     "health_url": "https://app.ticketmaster.com/discovery/v2/events.json?size=1&apikey=test",
     "limit_type": "daily",
     "free_limit": 5000,
-    "reset_period": "daily"
+    "reset_period": "daily",
+    "docs_url": "https://developer.ticketmaster.com/products-and-docs/apis/getting-started/",
+    "limit_proof": "Discovery API: 5,000 calls/day rate limit"
   },
   "tmdb": {
     "display_name": "TMDB",
     "health_url": "https://api.themoviedb.org/3/configuration",
     "limit_type": "unlimited",
     "free_limit": 0,
-    "reset_period": "none"
+    "reset_period": "none",
+    "docs_url": "https://developer.themoviedb.org/docs/rate-limiting",
+    "limit_proof": "Free API, rate limit ~50 requests/second, no daily/monthly cap"
   },
   "health": {
     "display_name": "Health & Nutrition",
     "health_url": "https://api.nal.usda.gov/fdc/v1/foods/search?query=test&pageSize=1&api_key=DEMO_KEY",
     "limit_type": "daily",
     "free_limit": 1000,
-    "reset_period": "daily"
+    "reset_period": "daily",
+    "docs_url": "https://fdc.nal.usda.gov/api-guide",
+    "limit_proof": "USDA FoodData Central: 1,000 requests/hour with API key (aggregated as daily)"
   },
   "finance": {
     "display_name": "Finance / Banking",
     "health_url": "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies.json",
     "limit_type": "unlimited",
     "free_limit": 0,
-    "reset_period": "none"
+    "reset_period": "none",
+    "docs_url": "https://github.com/fawazahmed0/exchange-api",
+    "limit_proof": "Open-source CDN-hosted data, ECB/Frankfurter public, FRED free key, World Bank open, OpenIBAN free"
   },
   "music": {
     "display_name": "Music / Audio",
     "health_url": "https://musicbrainz.org/ws/2/artist?query=test&limit=1&fmt=json",
     "limit_type": "unlimited",
     "free_limit": 0,
-    "reset_period": "none"
+    "reset_period": "none",
+    "docs_url": "https://musicbrainz.org/doc/MusicBrainz_API/Rate_Limiting",
+    "limit_proof": "MusicBrainz: 1 req/sec with User-Agent, no daily cap. ListenBrainz + RadioBrowser also unlimited."
   },
   "jobs": {
     "display_name": "Jobs / Career",
     "health_url": "https://api.bls.gov/publicAPI/v2/timeseries/data/OEUS000000000000000000004",
     "limit_type": "daily",
     "free_limit": 500,
-    "reset_period": "daily"
+    "reset_period": "daily",
+    "docs_url": "https://www.bls.gov/developers/api_faqs.htm",
+    "limit_proof": "BLS registered tier: 500 requests/day. ESCO/CareerJet unlimited."
   },
   "education": {
     "display_name": "Education / Research",
     "health_url": "https://api.openalex.org/works?search=test&per_page=1",
     "limit_type": "unlimited",
     "free_limit": 0,
-    "reset_period": "none"
+    "reset_period": "none",
+    "docs_url": "https://docs.openalex.org/how-to-use-the-api/rate-limits-and-authentication",
+    "limit_proof": "OpenAlex: 10 req/sec polite pool, no daily cap. PubMed/arXiv/CrossRef also free unlimited."
   },
   "geo": {
     "display_name": "Maps / Geolocation",
     "health_url": "https://api.geoapify.com/v1/geocode/search?text=test&limit=1&apiKey=test",
     "limit_type": "daily",
     "free_limit": 3000,
-    "reset_period": "daily"
+    "reset_period": "daily",
+    "docs_url": "https://www.geoapify.com/pricing",
+    "limit_proof": "Geoapify free tier: 3,000 credits/day"
   },
   "aviasales": {
     "display_name": "Aviasales",
     "health_url": "https://api.travelpayouts.com/v1/prices/cheap",
     "limit_type": "unlimited",
     "free_limit": 0,
-    "reset_period": "none"
+    "reset_period": "none",
+    "docs_url": "https://support.travelpayouts.com/hc/en-us/articles/210996088",
+    "limit_proof": "Travelpayouts Data API: free for partners, no documented call limits"
   },
   "aipush": {
     "display_name": "AIPush AI Marketing",
     "health_url": "http://172.18.0.1:3000/health",
     "limit_type": "unlimited",
     "free_limit": 0,
-    "reset_period": "none"
+    "reset_period": "none",
+    "docs_url": "internal",
+    "limit_proof": "Internal service-to-service on same server, no rate limits"
   },
   "zinc": {
     "display_name": "Zinc E-commerce",
@@ -131,98 +167,126 @@
     "limit_type": "credits",
     "free_limit": 0,
     "reset_period": "none",
-    "paid_balance": true
+    "paid_balance": true,
+    "docs_url": "https://docs.zincapi.com/#introduction",
+    "limit_proof": "Paid API only: $0.01/call, no free tier, pay-as-you-go"
   },
   "diffbot": {
     "display_name": "Diffbot AI Extraction",
     "health_url": "https://api.diffbot.com/v3/analyze",
     "limit_type": "monthly",
     "free_limit": 10000,
-    "reset_period": "monthly"
+    "reset_period": "monthly",
+    "docs_url": "https://docs.diffbot.com/reference/account-limits",
+    "limit_proof": "Free trial: 10,000 calls/month"
   },
   "whoisxml": {
     "display_name": "WhoisXML",
     "health_url": "https://www.whoisxmlapi.com/whoisserver/WhoisService",
     "limit_type": "credits",
     "free_limit": 500,
-    "reset_period": "none"
+    "reset_period": "none",
+    "docs_url": "https://whois.whoisxmlapi.com/documentation/making-requests",
+    "limit_proof": "500 free DRS credits on signup, lifetime (not time-reset), then paid plans"
   },
   "spoonacular": {
     "display_name": "Spoonacular Recipe",
     "health_url": "https://api.spoonacular.com/recipes/complexSearch?query=test&number=1",
     "limit_type": "daily",
     "free_limit": 150,
-    "reset_period": "daily"
+    "reset_period": "daily",
+    "docs_url": "https://spoonacular.com/food-api/pricing",
+    "limit_proof": "Free plan: 150 points/day (most endpoints cost 1 point)"
   },
   "nasa": {
     "display_name": "NASA Open APIs",
     "health_url": "https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY",
     "limit_type": "hourly",
     "free_limit": 1000,
-    "reset_period": "hourly"
+    "reset_period": "hourly",
+    "docs_url": "https://api.nasa.gov/",
+    "limit_proof": "1,000 requests/hour per API key"
   },
   "jpl": {
     "display_name": "NASA JPL SSD",
     "health_url": "https://ssd-api.jpl.nasa.gov/cad.api?limit=1",
     "limit_type": "unlimited",
     "free_limit": 0,
-    "reset_period": "none"
+    "reset_period": "none",
+    "docs_url": "https://ssd-api.jpl.nasa.gov/doc/",
+    "limit_proof": "US Government open data, no auth required, no documented rate limits"
   },
   "rawg": {
     "display_name": "RAWG Video Games",
     "health_url": "https://api.rawg.io/api/games?key=test&page_size=1",
     "limit_type": "unlimited",
     "free_limit": 0,
-    "reset_period": "none"
+    "reset_period": "none",
+    "docs_url": "https://rawg.io/apidocs",
+    "limit_proof": "Free tier: unlimited requests, API key required but no cap documented"
   },
   "igdb": {
     "display_name": "IGDB Video Games",
     "health_url": "https://api.igdb.com/v4/games",
     "limit_type": "unlimited",
     "free_limit": 0,
-    "reset_period": "none"
+    "reset_period": "none",
+    "docs_url": "https://api-docs.igdb.com/#rate-limits",
+    "limit_proof": "4 requests/second, unlimited daily/monthly with Twitch OAuth2"
   },
   "qrserver": {
     "display_name": "QRServer",
     "health_url": "https://api.qrserver.com/v1/create-qr-code/?size=10x10&data=test",
     "limit_type": "unlimited",
     "free_limit": 0,
-    "reset_period": "none"
+    "reset_period": "none",
+    "docs_url": "https://goqr.me/api/",
+    "limit_proof": "Fully free, open access, no auth or rate limits documented"
   },
   "upcitemdb": {
     "display_name": "UPCitemdb",
     "health_url": "https://api.upcitemdb.com/prod/trial/lookup?upc=012345678901",
     "limit_type": "daily",
     "free_limit": 100,
-    "reset_period": "daily"
+    "reset_period": "daily",
+    "docs_url": "https://www.upcitemdb.com/wp/docs/main/development/getting-started/",
+    "limit_proof": "Free trial tier: 100 requests/day, 6 requests/minute"
   },
   "ipapi": {
     "display_name": "ipapi.is",
     "health_url": "https://api.ipapi.is/?q=8.8.8.8",
     "limit_type": "daily",
     "free_limit": 1000,
-    "reset_period": "daily"
+    "reset_period": "daily",
+    "docs_url": "https://ipapi.is/developers.html",
+    "limit_proof": "Free tier: 1,000 requests/day without API key"
   },
   "usgs-earthquake": {
     "display_name": "USGS Earthquake",
     "health_url": "https://earthquake.usgs.gov/fdsnws/event/1/count?starttime=2024-01-01&endtime=2024-01-02",
     "limit_type": "unlimited",
     "free_limit": 0,
-    "reset_period": "none"
+    "reset_period": "none",
+    "docs_url": "https://earthquake.usgs.gov/fdsnws/event/1/",
+    "limit_proof": "US Government open data, no auth required, no rate limits documented"
   },
   "jikan": {
     "display_name": "Jikan / MyAnimeList",
     "health_url": "https://api.jikan.moe/v4/anime?limit=1&q=test",
-    "limit_type": "daily",
-    "free_limit": 86400,
-    "reset_period": "daily"
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://docs.api.jikan.moe/#section/Information/Rate-Limiting",
+    "limit_proof": "Rate limit: 3 req/sec, 60 req/min. No daily or monthly cap documented."
   },
   "openlibrary": {
     "display_name": "Open Library",
     "health_url": "https://openlibrary.org/search.json?q=test&limit=1",
     "limit_type": "unlimited",
     "free_limit": 0,
-    "reset_period": "none"
+    "reset_period": "none",
+    "docs_url": "https://openlibrary.org/developers/api",
+    "limit_proof": "CC0 public domain, no auth required, no rate limits documented"
   },
   "zerobounce": {
     "display_name": "ZeroBounce",
@@ -230,6 +294,8 @@
     "limit_type": "credits",
     "free_limit": 100,
     "reset_period": "monthly",
-    "balance_api": true
+    "balance_api": true,
+    "docs_url": "https://www.zerobounce.net/email-validation-api-quickstart/",
+    "limit_proof": "100 free credits/month, then $39/2,000 credits (no expiry on purchased)"
   }
 }

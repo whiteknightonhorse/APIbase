@@ -184,6 +184,7 @@ td{color:#88bb88}
 .dot-y{background:#ffbd2e;box-shadow:0 0 6px rgba(255,189,46,0.6)}
 .dot-r{background:#ff5f56;box-shadow:0 0 6px rgba(255,95,86,0.6)}
 .dot-u{background:#555;box-shadow:0 0 4px rgba(85,85,85,0.4)}
+.dot-p{background:#4a9eff;box-shadow:0 0 6px rgba(74,158,255,0.5)}
 
 .lat-green{color:#27c93f}
 .lat-orange{color:#ff9f43}
@@ -299,6 +300,7 @@ td{color:#88bb88}
     else if (status === 'orange') cls = 'dot-o';
     else if (status === 'yellow') cls = 'dot-y';
     else if (status === 'red') cls = 'dot-r';
+    else if (status === 'paid') cls = 'dot-p';
     return '<span class="status-dot ' + cls + '"></span>';
   }
 
@@ -338,6 +340,8 @@ td{color:#88bb88}
       html += '<td>' + statusDot(p.limits.status);
       if (p.limits.type === 'unlimited') {
         html += 'Unlimited';
+      } else if (p.limits.status === 'paid') {
+        html += 'Paid';
       } else {
         html += p.limits.pct_remaining + '%';
       }

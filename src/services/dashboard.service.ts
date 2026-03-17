@@ -27,7 +27,7 @@ interface ProviderLimits {
   used: number;
   remaining: number;
   pct_remaining: number;
-  status: 'green' | 'orange' | 'yellow' | 'red';
+  status: 'green' | 'orange' | 'yellow' | 'red' | 'paid';
 }
 
 interface ProviderDashboardEntry {
@@ -58,6 +58,8 @@ const limitsConfig = providerLimitsConfig as Record<string, {
   reset_period: string;
   paid_balance?: boolean;
   balance_api?: boolean;
+  docs_url?: string;
+  limit_proof?: string;
 }>;
 
 export async function getDashboardData(): Promise<DashboardResponse> {
@@ -202,6 +204,18 @@ function buildDefaultLimits(providerName: string, used: number): ProviderLimits 
       remaining: 0,
       pct_remaining: 100,
       status: 'green',
+    };
+  }
+
+  // Paid providers with no free tier
+  if (cfg.paid_balance && cfg.free_limit === 0) {
+    return {
+      type: cfg.limit_type,
+      free_limit: 0,
+      used,
+      remaining: 0,
+      pct_remaining: 0,
+      status: 'paid',
     };
   }
 
