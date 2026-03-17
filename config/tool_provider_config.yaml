@@ -1031,3 +1031,34 @@ tools:
     provider: usgs-earthquake
     price_usd: "0.001"
     cache_ttl: 60
+
+  # --- UC-051: Jikan (MyAnimeList) Anime / Manga ---
+  - tool_id: anime.search
+    name: Anime Search
+    provider: jikan
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: anime.details
+    name: Anime Details
+    provider: jikan
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: manga.details
+    name: Manga Details
+    provider: jikan
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: anime.characters
+    name: Anime Characters
+    provider: jikan
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: anime.top
+    name: Top Anime Rankings
+    provider: jikan
+    price_usd: "0.001"
+    cache_ttl: 3600

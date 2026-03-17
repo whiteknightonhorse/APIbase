@@ -29,6 +29,7 @@ import { qrserverSchemas } from './qrserver.schema';
 import { upcitemdbSchemas } from './upcitemdb.schema';
 import { ipapiSchemas } from './ipapi.schema';
 import { usgsEarthquakeSchemas } from './usgs-earthquake.schema';
+import { jikanSchemas } from './jikan.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -61,4 +62,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...upcitemdbSchemas,
   ...ipapiSchemas,
   ...usgsEarthquakeSchemas,
+  ...jikanSchemas,
 };
