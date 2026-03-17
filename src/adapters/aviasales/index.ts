@@ -76,7 +76,6 @@ export class AviasalesAdapter extends BaseAdapter {
 
   protected parseResponse(raw: ProviderRawResponse, req: ProviderRequest): unknown {
     const body = raw.body;
-    const params = req.params as Record<string, unknown>;
 
     switch (req.toolId) {
       case 'aviasales.search_flights': {
@@ -200,7 +199,7 @@ export class AviasalesAdapter extends BaseAdapter {
 
   private buildAirportLookup(
     params: Record<string, unknown>,
-    headers: Record<string, string>,
+    _headers: Record<string, string>,
   ): { url: string; method: string; headers: Record<string, string> } {
     const qs = new URLSearchParams();
     qs.set('term', String(params.query));

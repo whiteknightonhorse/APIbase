@@ -31,6 +31,7 @@ import { UsgsEarthquakeAdapter } from './usgs-earthquake';
 import { JikanAdapter } from './jikan';
 import { OpenLibraryAdapter } from './openlibrary';
 import { ZeroBounceAdapter } from './zerobounce';
+import { AviasalesAdapter } from './aviasales';
 import { config } from '../config';
 
 /**
@@ -80,7 +81,6 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'aviasales': {
       const aviasalesToken = (config as Record<string, unknown>).PROVIDER_KEY_AVIASALES as string | undefined;
       if (!aviasalesToken) return undefined;
-      const { AviasalesAdapter } = require('./aviasales') as typeof import('./aviasales');
       return getOrCreate('aviasales', () => new AviasalesAdapter(aviasalesToken));
     }
     case 'sabre': {

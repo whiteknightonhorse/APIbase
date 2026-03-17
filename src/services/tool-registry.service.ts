@@ -95,7 +95,10 @@ function toEntry(tool: {
 
 export async function getPublicCatalog(): Promise<PublicCatalog> {
   const db = getPrisma();
-  const tools = await db.tool.findMany({ orderBy: { tool_id: 'asc' } });
+  const tools = await db.tool.findMany({
+    where: { status: { not: 'unavailable' } },
+    orderBy: { tool_id: 'asc' },
+  });
 
   return {
     platform: 'APIbase',
@@ -126,13 +129,16 @@ export async function getToolsPaginated(
     }
   }
 
+  const statusFilter = { status: { not: 'unavailable' } };
   const [tools, total] = await Promise.all([
     db.tool.findMany({
-      where: decodedCursor ? { tool_id: { gt: decodedCursor } } : undefined,
+      where: decodedCursor
+        ? { tool_id: { gt: decodedCursor }, ...statusFilter }
+        : statusFilter,
       orderBy: { tool_id: 'asc' },
       take: take + 1,
     }),
-    db.tool.count(),
+    db.tool.count({ where: statusFilter }),
   ]);
 
   const hasMore = tools.length > take;
