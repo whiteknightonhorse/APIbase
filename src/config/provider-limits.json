@@ -144,13 +144,13 @@
     "limit_proof": "Geoapify free tier: 3,000 credits/day"
   },
   "aviasales": {
-    "display_name": "Aviasales",
-    "health_url": "https://api.travelpayouts.com/v1/prices/cheap",
-    "limit_type": "unlimited",
-    "free_limit": 0,
-    "reset_period": "none",
+    "display_name": "Aviasales / Travelpayouts",
+    "health_url": "https://api.travelpayouts.com/data/en/countries.json",
+    "limit_type": "hourly",
+    "free_limit": 200,
+    "reset_period": "hourly",
     "docs_url": "https://support.travelpayouts.com/hc/en-us/articles/210996088",
-    "limit_proof": "Travelpayouts Data API: free for partners, no documented call limits"
+    "limit_proof": "Flight Data API: 200 req/hour per IP, free for partners"
   },
   "aipush": {
     "display_name": "AIPush AI Marketing",

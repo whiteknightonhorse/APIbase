@@ -77,9 +77,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       if (!cgKey) return undefined;
       return getOrCreate('coingecko', () => new CoinGeckoAdapter(cgKey));
     }
-    case 'aviasales':
-      // Aviasales adapter not yet implemented — return undefined
-      return undefined;
+    case 'aviasales': {
+      const aviasalesToken = (config as Record<string, unknown>).PROVIDER_KEY_AVIASALES as string | undefined;
+      if (!aviasalesToken) return undefined;
+      const { AviasalesAdapter } = require('./aviasales') as typeof import('./aviasales');
+      return getOrCreate('aviasales', () => new AviasalesAdapter(aviasalesToken));
+    }
     case 'sabre': {
       const clientId = (config as Record<string, unknown>).SABRE_CLIENT_ID as string | undefined;
       const clientSecret = (config as Record<string, unknown>).SABRE_CLIENT_SECRET as string | undefined;

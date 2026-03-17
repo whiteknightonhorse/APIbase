@@ -3241,77 +3241,39 @@
                 "properties": {
                   "origin": {
                     "type": "string",
-                    "description": "Origin airport IATA code (e.g. JFK, LAX)"
+                    "description": "Departure city or airport IATA code (e.g. MOW, JFK, BKK)",
+                    "minLength": 2,
+                    "maxLength": 4
                   },
                   "destination": {
                     "type": "string",
-                    "description": "Destination airport IATA code (e.g. CDG, LHR)"
+                    "minLength": 2,
+                    "maxLength": 4,
+                    "description": "Arrival IATA code (omit to search all destinations)"
                   },
                   "departure_date": {
                     "type": "string",
-                    "description": "Departure date in YYYY-MM-DD format"
-                  },
-                  "return_date": {
-                    "type": "string",
-                    "description": "Return date in YYYY-MM-DD format for round trips"
-                  },
-                  "passengers": {
-                    "type": "object",
-                    "properties": {
-                      "adults": {
-                        "type": "integer",
-                        "minimum": 1,
-                        "maximum": 9,
-                        "description": "Number of adult passengers (1-9)"
-                      },
-                      "children": {
-                        "type": "integer",
-                        "maximum": 9,
-                        "description": "Number of child passengers (0-9)"
-                      },
-                      "infants": {
-                        "type": "integer",
-                        "maximum": 9,
-                        "description": "Number of infant passengers (0-9)"
-                      }
-                    },
-                    "description": "Passenger counts by type"
-                  },
-                  "cabin_class": {
-                    "type": "string",
-                    "enum": [
-                      "economy",
-                      "business"
-                    ],
-                    "description": "Cabin class: economy or business (default economy)"
+                    "description": "Departure date in YYYY-MM-DD format (filters results to this date and later)"
                   },
                   "direct_only": {
                     "type": "boolean",
-                    "description": "Only return direct (non-stop) flights"
+                    "description": "Only show non-stop flights (default false)"
                   },
                   "currency": {
                     "type": "string",
-                    "description": "Price currency ISO code (e.g. USD, EUR)"
-                  },
-                  "sort_by": {
-                    "type": "string",
-                    "enum": [
-                      "price",
-                      "duration",
-                      "departure_time"
-                    ],
-                    "description": "Sort order for results"
+                    "minLength": 3,
+                    "maxLength": 3,
+                    "description": "Currency code for prices (default usd)"
                   },
                   "limit": {
                     "type": "integer",
-                    "maximum": 50,
-                    "description": "Max number of results (1-50)"
+                    "minimum": 1,
+                    "maximum": 30,
+                    "description": "Max number of results to return (default 10)"
                   }
                 },
                 "required": [
-                  "origin",
-                  "destination",
-                  "departure_date"
+                  "origin"
                 ]
               }
             }
@@ -3377,25 +3339,30 @@
                 "properties": {
                   "origin": {
                     "type": "string",
-                    "description": "Origin airport IATA code (e.g. JFK, LAX)"
+                    "description": "Departure city or airport IATA code (e.g. MOW, JFK)",
+                    "minLength": 2,
+                    "maxLength": 4
                   },
                   "destination": {
                     "type": "string",
-                    "description": "Destination airport IATA code (e.g. CDG, LHR)"
+                    "description": "Arrival IATA code (e.g. BKK, LON)",
+                    "minLength": 2,
+                    "maxLength": 4
                   },
                   "month": {
                     "type": "string",
-                    "description": "Month in YYYY-MM format"
+                    "description": "Month in YYYY-MM format to get calendar prices (e.g. 2026-06)"
                   },
                   "currency": {
                     "type": "string",
-                    "description": "Price currency ISO code (e.g. USD, EUR)"
+                    "minLength": 3,
+                    "maxLength": 3,
+                    "description": "Currency code for prices (default usd)"
                   }
                 },
                 "required": [
                   "origin",
-                  "destination",
-                  "month"
+                  "destination"
                 ]
               }
             }
@@ -3461,11 +3428,15 @@
                 "properties": {
                   "origin": {
                     "type": "string",
-                    "description": "Origin airport IATA code (e.g. JFK, LAX)"
+                    "description": "Departure city or airport IATA code (e.g. MOW, BER)",
+                    "minLength": 2,
+                    "maxLength": 4
                   },
                   "destination": {
                     "type": "string",
-                    "description": "Destination airport IATA code (optional, searches all destinations if omitted)"
+                    "minLength": 2,
+                    "maxLength": 4,
+                    "description": "Arrival IATA code (omit to find cheapest flights to anywhere)"
                   },
                   "departure_month": {
                     "type": "string",
@@ -3473,16 +3444,13 @@
                   },
                   "direct_only": {
                     "type": "boolean",
-                    "description": "Only return direct flights"
+                    "description": "Only return direct (non-stop) flights"
                   },
                   "currency": {
                     "type": "string",
-                    "description": "Price currency ISO code (e.g. USD, EUR)"
-                  },
-                  "limit": {
-                    "type": "integer",
-                    "maximum": 30,
-                    "description": "Max number of results (1-30)"
+                    "minLength": 3,
+                    "maxLength": 3,
+                    "description": "Currency code for prices (default usd)"
                   }
                 },
                 "required": [
@@ -3552,139 +3520,19 @@
                 "properties": {
                   "origin": {
                     "type": "string",
-                    "description": "Origin airport IATA code (e.g. JFK, LAX)"
+                    "description": "Departure city IATA code (e.g. MOW, NYC, LON)",
+                    "minLength": 2,
+                    "maxLength": 4
                   },
-                  "limit": {
-                    "type": "integer",
-                    "maximum": 30,
-                    "description": "Max number of results (1-30)"
+                  "currency": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 3,
+                    "description": "Currency code for prices (default usd)"
                   }
                 },
                 "required": [
                   "origin"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tool execution result"
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "401": {
-            "description": "Unauthorized — missing or invalid API key"
-          },
-          "402": {
-            "description": "Payment required (x402)"
-          },
-          "404": {
-            "description": "Tool not found"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          },
-          "500": {
-            "description": "Internal server error"
-          },
-          "502": {
-            "description": "Provider unavailable"
-          }
-        },
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/tools/aviasales.hotel_search/call": {
-      "post": {
-        "operationId": "aviasales_hotel_search",
-        "summary": "Search Hotels",
-        "description": "Search for hotels in a city",
-        "parameters": [
-          {
-            "name": "toolId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "aviasales.hotel_search"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "city": {
-                    "type": "string",
-                    "description": "City name or IATA code for hotel search"
-                  },
-                  "check_in": {
-                    "type": "string",
-                    "description": "Check-in date in YYYY-MM-DD format"
-                  },
-                  "check_out": {
-                    "type": "string",
-                    "description": "Check-out date in YYYY-MM-DD format"
-                  },
-                  "guests": {
-                    "type": "object",
-                    "properties": {
-                      "adults": {
-                        "type": "integer",
-                        "description": "Number of adult guests"
-                      },
-                      "children": {
-                        "type": "integer",
-                        "description": "Number of child guests"
-                      }
-                    },
-                    "description": "Guest counts by type (adults, children)"
-                  },
-                  "stars": {
-                    "type": "array",
-                    "items": {
-                      "type": "integer",
-                      "description": "Star rating (1-5)",
-                      "minimum": 1,
-                      "maximum": 5
-                    },
-                    "description": "Filter by hotel star ratings"
-                  },
-                  "sort_by": {
-                    "type": "string",
-                    "enum": [
-                      "price",
-                      "rating",
-                      "stars",
-                      "popularity"
-                    ],
-                    "description": "Sort order for results"
-                  },
-                  "price_max_usd": {
-                    "type": "number",
-                    "description": "Maximum price per night in USD"
-                  },
-                  "limit": {
-                    "type": "integer",
-                    "maximum": 50,
-                    "description": "Max number of results (1-50)"
-                  }
-                },
-                "required": [
-                  "city",
-                  "check_in",
-                  "check_out"
                 ]
               }
             }
@@ -3750,13 +3598,17 @@
                 "properties": {
                   "origin": {
                     "type": "string",
-                    "description": "Origin airport IATA code (e.g. JFK, LAX)"
+                    "description": "Departure city IATA code (e.g. MOW)",
+                    "minLength": 2,
+                    "maxLength": 4
                   },
                   "destination": {
                     "type": "string",
-                    "description": "Destination airport IATA code (e.g. CDG, LHR)"
+                    "description": "Target destination IATA code — also searches nearby airports",
+                    "minLength": 2,
+                    "maxLength": 4
                   },
-                  "departure_date": {
+                  "depart_date": {
                     "type": "string",
                     "description": "Departure date in YYYY-MM-DD format"
                   },
@@ -3764,23 +3616,22 @@
                     "type": "string",
                     "description": "Return date in YYYY-MM-DD format"
                   },
-                  "flexibility_days": {
+                  "flexibility": {
                     "type": "integer",
-                    "description": "Date flexibility in days (+/-)"
-                  },
-                  "distance_km": {
-                    "type": "integer",
-                    "description": "Max distance from destination in km"
+                    "minimum": 0,
+                    "maximum": 7,
+                    "description": "Date flexibility in days (+/- from given dates)"
                   },
                   "currency": {
                     "type": "string",
-                    "description": "Price currency ISO code (e.g. USD, EUR)"
+                    "minLength": 3,
+                    "maxLength": 3,
+                    "description": "Currency code for prices (default usd)"
                   }
                 },
                 "required": [
                   "origin",
-                  "destination",
-                  "departure_date"
+                  "destination"
                 ]
               }
             }
@@ -3846,11 +3697,8 @@
                 "properties": {
                   "query": {
                     "type": "string",
-                    "description": "Airport name, city, or IATA code to search"
-                  },
-                  "locale": {
-                    "type": "string",
-                    "description": "Response locale (e.g. en, de, fr)"
+                    "description": "Airport name, city name, or IATA code to search for (e.g. Bangkok, JFK, Heathrow)",
+                    "minLength": 1
                   }
                 },
                 "required": [

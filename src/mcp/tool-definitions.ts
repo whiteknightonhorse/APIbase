@@ -316,7 +316,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     annotations: READ_ONLY,
   },
 
-  // Aviasales (7)
+  // Aviasales (6)
   {
     toolId: 'aviasales.search_flights',
     mcpName: 'aviasales.flights.search',
@@ -343,13 +343,6 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     mcpName: 'aviasales.flights.popular',
     title: 'Popular Flight Routes',
     description: 'Get popular flight routes from an origin',
-    annotations: READ_ONLY,
-  },
-  {
-    toolId: 'aviasales.hotel_search',
-    mcpName: 'aviasales.hotels.search',
-    title: 'Search Hotels',
-    description: 'Search for hotels in a city',
     annotations: READ_ONLY,
   },
   {
