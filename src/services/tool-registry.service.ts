@@ -5,7 +5,7 @@ import { PrismaClient } from '@prisma/client';
  *
  * Provides tool catalog queries from PostgreSQL.
  * Public catalog: GET /api/tools — flat list with Cache-Control.
- * Paginated list: GET /api/v1/tools — cursor-based, default 200, max 500.
+ * Paginated list: GET /api/v1/tools — default 1000 (all tools), cursor available.
  * Single tool: GET /api/v1/tools/:toolId.
  */
 
@@ -107,7 +107,7 @@ export async function getPublicCatalog(): Promise<PublicCatalog> {
 }
 
 // ---------------------------------------------------------------------------
-// Paginated list (§12.39 — cursor pagination, default 50, max 100)
+// Paginated list (§12.39 — default 1000, cursor available, max 1000)
 // ---------------------------------------------------------------------------
 
 export async function getToolsPaginated(
@@ -115,7 +115,7 @@ export async function getToolsPaginated(
   limit: number,
 ): Promise<PaginatedTools> {
   const db = getPrisma();
-  const take = Math.min(Math.max(limit, 1), 500);
+  const take = Math.min(Math.max(limit, 1), 1000);
 
   let decodedCursor: string | null = null;
   if (cursor) {
