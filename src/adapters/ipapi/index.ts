@@ -4,7 +4,7 @@ import {
   type ProviderRawResponse,
   ProviderErrorCode,
 } from '../../types/provider';
-import type { IpLookupResponse, IpBulkLookupResponse } from './types';
+import type { IpLookupResponse } from './types';
 
 /**
  * ipapi.is adapter (UC-045).
