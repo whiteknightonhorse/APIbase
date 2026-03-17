@@ -26,6 +26,7 @@ import { RawgAdapter } from './rawg';
 import { IgdbAdapter } from './igdb';
 import { QrServerAdapter } from './qrserver';
 import { UpcItemDbAdapter } from './upcitemdb';
+import { IpApiAdapter } from './ipapi';
 import { config } from '../config';
 
 /**
@@ -185,6 +186,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'upc':
       // UPCitemdb free trial tier — no API key needed
       return getOrCreate('upcitemdb', () => new UpcItemDbAdapter());
+    case 'ip':
+      // ipapi.is free tier — no API key needed (1K/day)
+      return getOrCreate('ipapi', () => new IpApiAdapter());
     default:
       return undefined;
   }
