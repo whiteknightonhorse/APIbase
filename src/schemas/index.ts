@@ -24,6 +24,7 @@ import { spoonacularSchemas } from './spoonacular.schema';
 import { nasaSchemas } from './nasa.schema';
 import { jplSchemas } from './jpl.schema';
 import { rawgSchemas } from './rawg.schema';
+import { igdbSchemas } from './igdb.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -51,4 +52,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...nasaSchemas,
   ...jplSchemas,
   ...rawgSchemas,
+  ...igdbSchemas,
 };
