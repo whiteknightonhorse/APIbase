@@ -1062,3 +1062,28 @@ tools:
     provider: jikan
     price_usd: "0.001"
     cache_ttl: 3600
+
+  # --- UC-054: Open Library (Books / ISBN Lookup) ---
+  - tool_id: books.isbn_lookup
+    name: ISBN Book Lookup
+    provider: openlibrary
+    price_usd: "0.001"
+    cache_ttl: 2592000
+
+  - tool_id: books.search
+    name: Book Search
+    provider: openlibrary
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: books.work_details
+    name: Book Work Details
+    provider: openlibrary
+    price_usd: "0.001"
+    cache_ttl: 2592000
+
+  - tool_id: books.author
+    name: Author Details
+    provider: openlibrary
+    price_usd: "0.001"
+    cache_ttl: 2592000

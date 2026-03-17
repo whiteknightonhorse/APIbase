@@ -29,6 +29,7 @@ import { UpcItemDbAdapter } from './upcitemdb';
 import { IpApiAdapter } from './ipapi';
 import { UsgsEarthquakeAdapter } from './usgs-earthquake';
 import { JikanAdapter } from './jikan';
+import { OpenLibraryAdapter } from './openlibrary';
 import { config } from '../config';
 
 /**
@@ -198,6 +199,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'manga':
       // Jikan (MyAnimeList) — open access, no API key, MIT licensed
       return getOrCreate('jikan', () => new JikanAdapter());
+    case 'books':
+      // Open Library — open access, no API key, CC0
+      return getOrCreate('openlibrary', () => new OpenLibraryAdapter());
     default:
       return undefined;
   }
