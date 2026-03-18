@@ -1063,3 +1063,10 @@ tools:
     provider: zerobounce
     price_usd: "0.025"
     cache_ttl: 86400
+
+  # --- UC-062: Walk Score (Walkability & Transit Intelligence) ---
+  - tool_id: walkscore.score
+    name: Walk Score & Transit Score
+    provider: walkscore
+    price_usd: "0.001"
+    cache_ttl: 604800

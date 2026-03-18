@@ -31,6 +31,7 @@ import { JikanAdapter } from './jikan';
 import { OpenLibraryAdapter } from './openlibrary';
 import { ZeroBounceAdapter } from './zerobounce';
 import { AviasalesAdapter } from './aviasales';
+import { WalkScoreAdapter } from './walkscore';
 import { config } from '../config';
 
 /**
@@ -204,6 +205,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const zbKey = (config as Record<string, unknown>).PROVIDER_KEY_ZEROBOUNCE as string | undefined;
       if (!zbKey) return undefined;
       return getOrCreate('zerobounce', () => new ZeroBounceAdapter(zbKey));
+    }
+    case 'walkscore': {
+      const wsKey = (config as Record<string, unknown>).PROVIDER_KEY_WALKSCORE as string | undefined;
+      if (!wsKey) return undefined;
+      return getOrCreate('walkscore', () => new WalkScoreAdapter(wsKey));
     }
     default:
       return undefined;
