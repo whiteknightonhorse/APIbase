@@ -32,6 +32,7 @@ import { OpenLibraryAdapter } from './openlibrary';
 import { ZeroBounceAdapter } from './zerobounce';
 import { AviasalesAdapter } from './aviasales';
 import { WalkScoreAdapter } from './walkscore';
+import { UsRealEstateAdapter } from './usrealestate';
 import { config } from '../config';
 
 /**
@@ -205,6 +206,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const zbKey = (config as Record<string, unknown>).PROVIDER_KEY_ZEROBOUNCE as string | undefined;
       if (!zbKey) return undefined;
       return getOrCreate('zerobounce', () => new ZeroBounceAdapter(zbKey));
+    }
+    case 'usrealestate': {
+      const rapidKey = (config as Record<string, unknown>).PROVIDER_KEY_RAPIDAPI as string | undefined;
+      if (!rapidKey) return undefined;
+      return getOrCreate('usrealestate', () => new UsRealEstateAdapter(rapidKey));
     }
     case 'walkscore': {
       const wsKey = (config as Record<string, unknown>).PROVIDER_KEY_WALKSCORE as string | undefined;

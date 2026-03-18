@@ -1366,6 +1366,31 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // ---------------------------------------------------------------------------
   // Walk Score — Walkability & Transit Intelligence (UC-062, 1 tool)
   // ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // US Real Estate — Property Listings & Details (UC-063, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'usrealestate.for_sale',
+    mcpName: 'realestate.listings.for_sale',
+    title: 'Search US Properties For Sale',
+    description: 'Search active for-sale property listings across the US — filter by city, state, ZIP, price range, bedrooms, bathrooms, sqft, property type. Returns address, price, specs, photos. Millions of MLS listings (RapidAPI / Realtor.com data)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'usrealestate.property_detail',
+    mcpName: 'realestate.property.details',
+    title: 'Get US Property Details',
+    description: 'Detailed property information by property ID — beds, baths, sqft, year built, lot size, tax assessment, HOA, days on market, photos, last sale price/date. Use for_sale search first to get property_id (RapidAPI / Realtor.com data)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'usrealestate.location_suggest',
+    mcpName: 'realestate.location.suggest',
+    title: 'US Real Estate Location Search',
+    description: 'Autocomplete location search for US real estate — returns matching cities, ZIP codes, and addresses with coordinates. Use to find valid city/state codes for property searches (RapidAPI / Realtor.com data)',
+    annotations: READ_ONLY,
+  },
+
   {
     toolId: 'walkscore.score',
     mcpName: 'realestate.walkscore.score',

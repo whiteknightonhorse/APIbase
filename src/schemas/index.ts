@@ -32,6 +32,7 @@ import { jikanSchemas } from './jikan.schema';
 import { openlibrarySchemas } from './openlibrary.schema';
 import { zerobounceSchemas } from './zerobounce.schema';
 import { walkscoreSchemas } from './walkscore.schema';
+import { usrealestateSchemas } from './usrealestate.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -67,4 +68,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...openlibrarySchemas,
   ...zerobounceSchemas,
   ...walkscoreSchemas,
+  ...usrealestateSchemas,
 };

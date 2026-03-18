@@ -1064,6 +1064,25 @@ tools:
     price_usd: "0.025"
     cache_ttl: 86400
 
+  # --- UC-063: US Real Estate (RapidAPI — Property Listings & Details) ---
+  - tool_id: usrealestate.for_sale
+    name: US Properties For Sale
+    provider: usrealestate
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: usrealestate.property_detail
+    name: US Property Details
+    provider: usrealestate
+    price_usd: "0.003"
+    cache_ttl: 86400
+
+  - tool_id: usrealestate.location_suggest
+    name: US Location Search
+    provider: usrealestate
+    price_usd: "0.001"
+    cache_ttl: 604800
+
   # --- UC-062: Walk Score (Walkability & Transit Intelligence) ---
   - tool_id: walkscore.score
     name: Walk Score & Transit Score
