@@ -24,7 +24,7 @@ const musicReleaseSearch = z
 
 const musicReleaseDetails = z
   .object({
-    mbid: z.string().uuid().describe('MusicBrainz release ID (UUID format). Returns full tracklist, artist credits, and label info'),
+    mbid: z.string().uuid().describe('MusicBrainz release ID (UUID format). Returns artist credits and label info'),
   })
   .strip();
 

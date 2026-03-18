@@ -671,14 +671,14 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     toolId: 'music.release_search',
     mcpName: 'music.releases.search',
     title: 'Search Music Releases',
-    description: 'Search for albums, singles, and EPs across 50M+ recordings — title, artist, date, tracklist (MusicBrainz)',
+    description: 'Search for albums, singles, and EPs across 50M+ recordings — title, artist, date (MusicBrainz)',
     annotations: READ_ONLY,
   },
   {
     toolId: 'music.release_details',
     mcpName: 'music.releases.details',
     title: 'Get Release Details',
-    description: 'Get full release details by MusicBrainz ID — tracklist, artist credits, labels, media formats (MusicBrainz)',
+    description: 'Get full release details by MusicBrainz ID — artist credits, labels, media formats (MusicBrainz)',
     annotations: READ_ONLY,
   },
   {
