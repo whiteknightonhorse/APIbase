@@ -15,6 +15,7 @@ import { createPipelineContext } from '../pipeline/types';
 import { runPipeline } from '../pipeline/pipeline';
 import { logger } from '../config/logger';
 import { TOOL_DEFINITIONS } from './tool-definitions';
+import { getActiveToolIds } from '../pipeline/stages/tool-status.stage';
 
 // Re-export for backward compatibility
 export { TOOL_DEFINITIONS } from './tool-definitions';
@@ -28,7 +29,13 @@ export { TOOL_DEFINITIONS } from './tool-definitions';
  * MCP clients see mcpName (3-level), pipeline uses toolId (2-level).
  */
 export function registerTools(server: McpServer, apiKey: string, requestId: string): void {
+  const activeIds = getActiveToolIds();
+
   for (const def of TOOL_DEFINITIONS) {
+    // Skip tools marked unavailable in DB (e.g. foursquare without API key)
+    if (activeIds.size > 0 && !activeIds.has(def.toolId)) {
+      continue;
+    }
     const schema = toolSchemas[def.toolId];
     if (!schema) {
       logger.warn({ tool_id: def.toolId }, 'No schema found for tool, skipping MCP registration');

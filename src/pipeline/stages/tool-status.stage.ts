@@ -57,6 +57,17 @@ export async function initToolCache(): Promise<void> {
   refreshTimer.unref();
 }
 
+/** Returns tool IDs whose DB status is not 'unavailable'. Used by MCP tool registration. */
+export function getActiveToolIds(): Set<string> {
+  const active = new Set<string>();
+  for (const [id, entry] of toolCache) {
+    if (entry.status !== 'unavailable') {
+      active.add(id);
+    }
+  }
+  return active;
+}
+
 /** Stop the refresh timer (graceful shutdown). */
 export function stopToolCacheRefresh(): void {
   if (refreshTimer) {
