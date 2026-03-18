@@ -1,6 +1,7 @@
 import { type Stage, ok } from '../types';
 import { finalize, refund } from '../../services/escrow.service';
 import { logger } from '../../config/logger';
+import { settleX402 } from './x402-settle';
 
 /**
  * ESCROW_FINALIZE stage (§12.43 stage 10, §12.151).
@@ -12,6 +13,14 @@ export const escrowFinalizeStage: Stage = {
   name: 'ESCROW_FINALIZE',
 
   async execute(ctx) {
+    // x402 on-chain payment — settle with facilitator (§8.9)
+    if (ctx.x402Paid && ctx.providerCalled && ctx.providerResponse && ctx.x402PaymentHeader) {
+      await settleX402(ctx);
+      ctx.billingStatus = 'PAID';
+      ctx.finalCost = ctx.toolPrice ?? 0;
+      return ok(ctx);
+    }
+
     // Cache hits had no escrow — handled by LEDGER_WRITE (§12.173)
     if (ctx.cacheHit) {
       return ok(ctx);

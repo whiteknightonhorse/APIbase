@@ -107,6 +107,7 @@ export interface PipelineContext {
   escrowCreatedAt?: Date;
   x402Paid?: boolean;
   x402Payer?: string;
+  x402PaymentHeader?: string;
 
   // PROVIDER_CALL stage
   providerResponse?: NormalizedResponse;
