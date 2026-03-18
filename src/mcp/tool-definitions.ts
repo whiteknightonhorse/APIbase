@@ -1362,4 +1362,15 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description: 'Validate an email address — checks deliverability, detects disposable/spam trap/abuse/catch-all addresses, MX records, SMTP provider, domain age. 99.6% accuracy (ZeroBounce)',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // Walk Score — Walkability & Transit Intelligence (UC-062, 1 tool)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'walkscore.score',
+    mcpName: 'realestate.walkscore.score',
+    title: 'Get Walk Score, Transit Score & Bike Score',
+    description: 'Walk Score (0-100), Transit Score (0-100), and Bike Score (0-100) for any US/Canada address. Measures walkability to amenities, public transit quality, and cycling infrastructure. Industry-standard walkability metric used by 30,000+ websites (Walk Score / Redfin)',
+    annotations: READ_ONLY,
+  },
 ];
