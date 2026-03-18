@@ -205,7 +205,7 @@ tools:
   - tool_id: aviasales.airport_lookup
     name: Airport Lookup
     provider: aviasales
-    price_usd: "0.000"
+    price_usd: "0.001"
     cache_ttl: 86400
 
   # --- UC-023: Sabre GDS ---
@@ -742,31 +742,6 @@ tools:
     name: AI Visibility Score (AIPush)
     provider: aipush
     price_usd: "0.100"
-    cache_ttl: 3600
-
-  # --- UC-025: Zinc E-commerce Product Data ---
-  - tool_id: zinc.product_search
-    name: Zinc Product Search
-    provider: zinc
-    price_usd: "0.012"
-    cache_ttl: 300
-
-  - tool_id: zinc.product_details
-    name: Zinc Product Details
-    provider: zinc
-    price_usd: "0.012"
-    cache_ttl: 3600
-
-  - tool_id: zinc.product_offers
-    name: Zinc Product Offers
-    provider: zinc
-    price_usd: "0.012"
-    cache_ttl: 300
-
-  - tool_id: zinc.product_reviews
-    name: Zinc Product Reviews
-    provider: zinc
-    price_usd: "0.012"
     cache_ttl: 3600
 
   # --- UC-026: Diffbot AI Extraction ---

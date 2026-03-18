@@ -16,11 +16,11 @@ import type {
  * Foursquare Places API adapter (UC-003).
  *
  * Supported tools (Phase 1):
- *   foursquare.place_search  → GET /v3/places/search
- *   foursquare.place_details → GET /v3/places/{fsq_id}
- *   foursquare.place_tips    → GET /v3/places/{fsq_id}/tips
- *   foursquare.place_photos  → GET /v3/places/{fsq_id}/photos
- *   foursquare.autocomplete  → GET /v3/autocomplete
+ *   foursquare.place_search  → GET /places/search
+ *   foursquare.place_details → GET /places/{fsq_id}
+ *   foursquare.place_tips    → GET /places/{fsq_id}/tips
+ *   foursquare.place_photos  → GET /places/{fsq_id}/photos
+ *   foursquare.autocomplete  → GET /autocomplete
  *
  * Auth: Bearer token (Service API Key).
  * Version: X-Places-Api-Version header.
@@ -143,7 +143,7 @@ export class FoursquareAdapter extends BaseAdapter {
     );
 
     return {
-      url: `${this.baseUrl}/v3/places/search?${qs.toString()}`,
+      url: `${this.baseUrl}/places/search?${qs.toString()}`,
       method: 'GET',
       headers,
     };
@@ -163,7 +163,7 @@ export class FoursquareAdapter extends BaseAdapter {
     );
 
     return {
-      url: `${this.baseUrl}/v3/places/${encodeURIComponent(fsqId)}?${qs.toString()}`,
+      url: `${this.baseUrl}/places/${encodeURIComponent(fsqId)}?${qs.toString()}`,
       method: 'GET',
       headers,
     };
@@ -183,7 +183,7 @@ export class FoursquareAdapter extends BaseAdapter {
     const suffix = query ? `?${query}` : '';
 
     return {
-      url: `${this.baseUrl}/v3/places/${encodeURIComponent(fsqId)}/tips${suffix}`,
+      url: `${this.baseUrl}/places/${encodeURIComponent(fsqId)}/tips${suffix}`,
       method: 'GET',
       headers,
     };
@@ -204,7 +204,7 @@ export class FoursquareAdapter extends BaseAdapter {
     const suffix = query ? `?${query}` : '';
 
     return {
-      url: `${this.baseUrl}/v3/places/${encodeURIComponent(fsqId)}/photos${suffix}`,
+      url: `${this.baseUrl}/places/${encodeURIComponent(fsqId)}/photos${suffix}`,
       method: 'GET',
       headers,
     };
@@ -223,7 +223,7 @@ export class FoursquareAdapter extends BaseAdapter {
     if (params.types) qs.set('types', String(params.types));
 
     return {
-      url: `${this.baseUrl}/v3/autocomplete?${qs.toString()}`,
+      url: `${this.baseUrl}/autocomplete?${qs.toString()}`,
       method: 'GET',
       headers,
     };

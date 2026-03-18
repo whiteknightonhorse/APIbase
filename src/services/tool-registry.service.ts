@@ -1,4 +1,7 @@
 import { PrismaClient } from '@prisma/client';
+import { toolSchemas } from '../schemas/index';
+import { TOOL_DEFINITIONS } from '../mcp/tool-definitions';
+import { zodToJsonSchema } from '../utils/zod-to-json-schema';
 
 /**
  * Tool registry service (§6.15, §12.114, §12.39).
@@ -10,6 +13,30 @@ import { PrismaClient } from '@prisma/client';
  */
 
 const CACHE_HIT_PRICE_RATIO = 0.1; // 10% of full price (§12.173)
+
+// ---------------------------------------------------------------------------
+// Pre-computed lookup maps (built once at module load, not per-request)
+// ---------------------------------------------------------------------------
+
+const TOOL_SCHEMAS_JSON: ReadonlyMap<string, Record<string, unknown>> = (() => {
+  const map = new Map<string, Record<string, unknown>>();
+  for (const [toolId, schema] of Object.entries(toolSchemas)) {
+    try {
+      map.set(toolId, zodToJsonSchema(schema));
+    } catch {
+      // Skip tools with unconvertible schemas — they get empty {}
+    }
+  }
+  return map;
+})();
+
+const TOOL_DESCRIPTIONS: ReadonlyMap<string, string> = (() => {
+  const map = new Map<string, string>();
+  for (const def of TOOL_DEFINITIONS) {
+    map.set(def.toolId, def.description);
+  }
+  return map;
+})();
 
 // ---------------------------------------------------------------------------
 // Lazy PrismaClient singleton
@@ -76,7 +103,7 @@ function toEntry(tool: {
   return {
     id: tool.tool_id,
     name: tool.name,
-    description: tool.name,
+    description: TOOL_DESCRIPTIONS.get(tool.tool_id) ?? tool.name,
     endpoint: `/api/v1/tools/${tool.tool_id}`,
     method: 'POST',
     category: tool.tool_id.includes('.') ? tool.tool_id.split('.')[0] : tool.provider,
@@ -84,7 +111,7 @@ function toEntry(tool: {
       price_usd: priceUsd,
       cache_hit_price_usd: cacheHitPrice,
     },
-    input_schema: {},
+    input_schema: TOOL_SCHEMAS_JSON.get(tool.tool_id) ?? {},
     status: tool.status,
   };
 }

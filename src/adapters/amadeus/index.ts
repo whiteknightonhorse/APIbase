@@ -223,7 +223,7 @@ export class AmadeusAdapter extends BaseAdapter {
       'page[limit]': '10',
     });
 
-    if (params.subType) qs.set('subType', params.subType as string);
+    qs.set('subType', (params.subType as string) || 'AIRPORT,CITY');
 
     return {
       url: `${this.baseUrl}/v1/reference-data/locations?${qs.toString()}`,

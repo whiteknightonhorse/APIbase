@@ -262,7 +262,7 @@ export class HealthAdapter extends BaseAdapter {
   ): { url: string; method: string; headers: Record<string, string> } {
     const qs = new URLSearchParams();
     qs.set('q', String(params.query));
-    if (params.limit) qs.set('size', String(params.limit));
+    qs.set('size', String(params.limit ?? 50));
     if (params.offset) qs.set('from', String(params.offset));
 
     return {

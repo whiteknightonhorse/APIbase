@@ -190,6 +190,24 @@ td{color:#88bb88}
 .lat-orange{color:#ff9f43}
 .lat-red{color:#ff5f56}
 
+.payment-status{
+  display:flex;
+  gap:1.5rem;
+  flex-wrap:wrap;
+  margin-bottom:1.5rem;
+  padding:0.8rem 1rem;
+  background:#080808;
+  border:1px solid #1a3a1a;
+  border-radius:4px;
+  font-size:0.82rem;
+  color:#a0d8a0;
+  align-items:center;
+}
+.payment-status .label{color:#00ff41;font-weight:700;margin-right:0.3rem}
+.payment-status .mode{display:flex;align-items:center;gap:0.4rem}
+.payment-status .separator{color:#333}
+.payment-status .testnet-warn{color:#ff5f56;font-weight:700}
+
 .loading{
   text-align:center;
   padding:3rem;
@@ -270,6 +288,8 @@ td{color:#88bb88}
 <span class="stat">Calls 24h: <span class="val" id="t-calls">--</span></span>
 </div>
 
+<div class="payment-status" id="payment-status"></div>
+
 <div class="refresh-bar">
 <span>Auto-refresh every 60s</span>
 <span class="timer" id="timer">Next refresh: 60s</span>
@@ -316,11 +336,48 @@ td{color:#88bb88}
     return n.toLocaleString();
   }
 
+  function networkLabel(network) {
+    if (network === 'eip155:8453') return 'Base';
+    if (network === 'eip155:84532') return 'Base Sepolia';
+    return network || '--';
+  }
+
+  function renderPaymentStatus(data) {
+    var el = document.getElementById('payment-status');
+    if (!data.payment_system) { el.style.display = 'none'; return; }
+    var ps = data.payment_system;
+    var html = '<span class="label">Payment:</span>';
+
+    // Mode A — always green if dashboard loads (PG is alive)
+    html += '<span class="mode">' + statusDot('green') + 'Mode A Active</span>';
+    html += '<span class="separator">|</span>';
+
+    // Mode B — x402 on-chain
+    var mb = ps.mode_b;
+    if (mb.status === 'unknown') {
+      html += '<span class="mode">' + statusDot('unknown') + 'x402 (Mode B) Checking...</span>';
+    } else {
+      html += '<span class="mode">' + statusDot(mb.status);
+      html += 'x402 (Mode B)';
+      if (mb.latency_ms !== null) html += ' ' + mb.latency_ms + 'ms';
+      if (mb.network) html += ' — ' + mb.network + ' (' + networkLabel(mb.network) + ')';
+      html += '</span>';
+    }
+
+    if (mb.testnet === true) {
+      html += ' <span class="testnet-warn">TESTNET — mainnet payments will fail</span>';
+    }
+
+    el.innerHTML = html;
+  }
+
   function renderTable(data) {
     document.getElementById('t-providers').textContent = data.totals.providers;
     document.getElementById('t-tools').textContent = formatNum(data.totals.tools);
     document.getElementById('t-calls').textContent = formatNum(data.totals.calls_24h);
     document.getElementById('gen-time').textContent = 'Generated: ' + new Date(data.generated_at).toLocaleTimeString();
+
+    renderPaymentStatus(data);
 
     var html = '<div class="table-wrap"><table>';
     html += '<thead><tr>';

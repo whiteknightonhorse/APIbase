@@ -58,10 +58,10 @@ export async function settleX402(ctx: PipelineContext): Promise<void> {
         scheme: payload.scheme,
         network: payload.network,
         asset: cfg.usdcAddress,
-        amount: String(ctx.toolPrice ?? 0),
+        amount: String(Math.round((ctx.toolPrice ?? 0) * 1_000_000)),
         payTo: cfg.paymentAddress,
         maxTimeoutSeconds: cfg.maxTimeoutSeconds,
-        extra: {},
+        extra: { name: 'USD Coin', version: '2' },
       };
     } else {
       requirements = {

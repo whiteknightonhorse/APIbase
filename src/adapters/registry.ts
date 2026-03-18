@@ -16,7 +16,6 @@ import { JobsAdapter } from './jobs';
 import { EducationAdapter } from './education';
 import { GeoAdapter } from './geo';
 import { AIPushAdapter } from './aipush';
-import { ZincAdapter } from './zinc';
 import { DiffbotAdapter } from './diffbot';
 import { WhoisXmlAdapter } from './whoisxml';
 import { SpoonacularAdapter } from './spoonacular';
@@ -126,7 +125,7 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       return getOrCreate('music', () => new MusicAdapter());
     case 'jobs': {
       const onetKey = (config as Record<string, unknown>).PROVIDER_KEY_ONET as string | undefined;
-      if (!onetKey) return undefined;
+      if (!onetKey || onetKey === 'MANUAL_REQUIRED') return undefined;
       const blsKey = (config as Record<string, unknown>).PROVIDER_KEY_BLS as string | undefined;
       const cjKey = (config as Record<string, unknown>).PROVIDER_KEY_CAREERJET as string | undefined;
       return getOrCreate('jobs', () => new JobsAdapter(onetKey, blsKey || undefined, cjKey || undefined));
@@ -147,11 +146,6 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       if (!aipushSecret) return undefined;
       const aipushUrl = (config as Record<string, unknown>).AIPUSH_INTERNAL_URL as string | undefined;
       return getOrCreate('aipush', () => new AIPushAdapter(aipushSecret, aipushUrl || undefined));
-    }
-    case 'zinc': {
-      const zincKey = (config as Record<string, unknown>).PROVIDER_KEY_ZINC as string | undefined;
-      if (!zincKey) return undefined;
-      return getOrCreate('zinc', () => new ZincAdapter(zincKey));
     }
     case 'diffbot': {
       const diffbotKey = (config as Record<string, unknown>).PROVIDER_KEY_DIFFBOT as string | undefined;

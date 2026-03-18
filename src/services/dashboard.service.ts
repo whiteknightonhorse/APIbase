@@ -40,6 +40,18 @@ interface ProviderDashboardEntry {
   tool_count: number;
 }
 
+interface PaymentSystemStatus {
+  mode_a: { status: 'green'; description: string };
+  mode_b: {
+    status: 'green' | 'orange' | 'red' | 'unknown';
+    latency_ms: number | null;
+    facilitator: string;
+    network: string;
+    testnet: boolean;
+    last_check: string | null;
+  };
+}
+
 interface DashboardResponse {
   generated_at: string;
   providers: ProviderDashboardEntry[];
@@ -48,6 +60,7 @@ interface DashboardResponse {
     tools: number;
     calls_24h: number;
   };
+  payment_system: PaymentSystemStatus;
 }
 
 const limitsConfig = providerLimitsConfig as Record<string, {
@@ -172,6 +185,36 @@ export async function getDashboardData(): Promise<DashboardResponse> {
     });
   }
 
+  // Read x402 health from Redis (written by x402-health.job.ts hourly)
+  let paymentSystem: PaymentSystemStatus = {
+    mode_a: { status: 'green', description: 'Pre-funded balance (PG)' },
+    mode_b: {
+      status: 'unknown',
+      latency_ms: null,
+      facilitator: '',
+      network: '',
+      testnet: false,
+      last_check: null,
+    },
+  };
+  if (redis) {
+    try {
+      const x402Data = await redis.hgetall('x402:health');
+      if (x402Data && x402Data.status) {
+        paymentSystem.mode_b = {
+          status: x402Data.status as PaymentSystemStatus['mode_b']['status'],
+          latency_ms: x402Data.latency_ms ? parseInt(x402Data.latency_ms, 10) : null,
+          facilitator: x402Data.facilitator_url || '',
+          network: x402Data.network || '',
+          testnet: x402Data.testnet === 'true',
+          last_check: x402Data.last_check || null,
+        };
+      }
+    } catch {
+      // non-fatal
+    }
+  }
+
   const response: DashboardResponse = {
     generated_at: new Date().toISOString(),
     providers,
@@ -180,6 +223,7 @@ export async function getDashboardData(): Promise<DashboardResponse> {
       tools: totalTools,
       calls_24h: totalCalls,
     },
+    payment_system: paymentSystem,
   };
 
   // Cache in Redis
