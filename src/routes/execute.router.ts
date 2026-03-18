@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { createPipelineContext } from '../pipeline/types';
 import { runPipeline } from '../pipeline/pipeline';
 import { logger } from '../config/logger';
+import { buildPaymentRequiredResponse } from '../middleware/x402.middleware';
 
 /**
  * REST tool execution endpoint (thin wrapper around 13-stage pipeline).
@@ -32,6 +33,12 @@ executeRouter.post(
       });
       ctx.toolId = toolId;
 
+      if (req.x402Payment?.verified) {
+        ctx.x402Paid = true;
+        ctx.x402Payer = req.x402Payment.payer;
+        ctx.x402PaymentHeader = req.headers['x-payment'] as string;
+      }
+
       const result = await runPipeline(ctx);
 
       if (result.ok) {
@@ -40,6 +47,15 @@ executeRouter.post(
       }
 
       const status = result.error.code || 500;
+
+      if (status === 402) {
+        const priceUsd = (result.error.extra?.price_usd as number) ?? 0;
+        const priceVersion = (result.error.extra?.price_version as number) ?? 1;
+        const body = buildPaymentRequiredResponse(toolId, priceUsd, priceVersion, requestId);
+        res.status(402).json(body);
+        return;
+      }
+
       res.status(status).json({
         error: result.error.error,
         message: result.error.message,
