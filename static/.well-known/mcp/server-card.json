@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase — The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 176 tools across travel, places, maps, events, entertainment, music, anime/manga, books, health, finance, education, jobs, e-commerce, recipes, domain intelligence, AI marketing, QR codes, barcode/product lookup, IP intelligence, earthquakes/seismology, email validation, weather, space/astronomy, gaming, and more. Pay-per-call via x402 micropayments.",
+    "description": "Unified MCP gateway to 175 tools across travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, recipes, domain intelligence, AI marketing, real estate, weather, space/astronomy, gaming, and more. Pay-per-call via x402 micropayments.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -1418,78 +1418,39 @@
         "properties": {
           "origin": {
             "type": "string",
-            "description": "Origin airport IATA code (e.g. JFK, LAX)"
+            "minLength": 2,
+            "maxLength": 4,
+            "description": "Departure city or airport IATA code (e.g. MOW, JFK, BKK)"
           },
           "destination": {
             "type": "string",
-            "description": "Destination airport IATA code (e.g. CDG, LHR)"
+            "minLength": 2,
+            "maxLength": 4,
+            "description": "Arrival IATA code (omit to search all destinations)"
           },
           "departure_date": {
             "type": "string",
-            "description": "Departure date in YYYY-MM-DD format"
-          },
-          "return_date": {
-            "type": "string",
-            "description": "Return date in YYYY-MM-DD format for round trips"
-          },
-          "passengers": {
-            "type": "object",
-            "properties": {
-              "adults": {
-                "type": "integer",
-                "minimum": 1,
-                "maximum": 9,
-                "description": "Number of adult passengers (1-9)"
-              },
-              "children": {
-                "type": "integer",
-                "maximum": 9,
-                "description": "Number of child passengers (0-9)"
-              },
-              "infants": {
-                "type": "integer",
-                "maximum": 9,
-                "description": "Number of infant passengers (0-9)"
-              }
-            },
-            "additionalProperties": false,
-            "description": "Passenger counts by type"
-          },
-          "cabin_class": {
-            "type": "string",
-            "enum": [
-              "economy",
-              "business"
-            ],
-            "description": "Cabin class: economy or business (default economy)"
+            "description": "Departure date in YYYY-MM-DD format (filters results to this date and later)"
           },
           "direct_only": {
             "type": "boolean",
-            "description": "Only return direct (non-stop) flights"
+            "description": "Only show non-stop flights (default false)"
           },
           "currency": {
             "type": "string",
-            "description": "Price currency ISO code (e.g. USD, EUR)"
-          },
-          "sort_by": {
-            "type": "string",
-            "enum": [
-              "price",
-              "duration",
-              "departure_time"
-            ],
-            "description": "Sort order for results"
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "Currency code for prices (default usd)"
           },
           "limit": {
             "type": "integer",
-            "maximum": 50,
-            "description": "Max number of results (1-50)"
+            "minimum": 1,
+            "maximum": 30,
+            "description": "Max number of results to return (default 10)"
           }
         },
         "required": [
-          "origin",
-          "destination",
-          "departure_date"
+          "origin"
         ],
         "additionalProperties": false
       },
@@ -1509,25 +1470,30 @@
         "properties": {
           "origin": {
             "type": "string",
-            "description": "Origin airport IATA code (e.g. JFK, LAX)"
+            "minLength": 2,
+            "maxLength": 4,
+            "description": "Departure city or airport IATA code (e.g. MOW, JFK)"
           },
           "destination": {
             "type": "string",
-            "description": "Destination airport IATA code (e.g. CDG, LHR)"
+            "minLength": 2,
+            "maxLength": 4,
+            "description": "Arrival IATA code (e.g. BKK, LON)"
           },
           "month": {
             "type": "string",
-            "description": "Month in YYYY-MM format"
+            "description": "Month in YYYY-MM format to get calendar prices (e.g. 2026-06)"
           },
           "currency": {
             "type": "string",
-            "description": "Price currency ISO code (e.g. USD, EUR)"
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "Currency code for prices (default usd)"
           }
         },
         "required": [
           "origin",
-          "destination",
-          "month"
+          "destination"
         ],
         "additionalProperties": false
       },
@@ -1547,11 +1513,15 @@
         "properties": {
           "origin": {
             "type": "string",
-            "description": "Origin airport IATA code (e.g. JFK, LAX)"
+            "minLength": 2,
+            "maxLength": 4,
+            "description": "Departure city or airport IATA code (e.g. MOW, BER)"
           },
           "destination": {
             "type": "string",
-            "description": "Destination airport IATA code (optional, searches all destinations if omitted)"
+            "minLength": 2,
+            "maxLength": 4,
+            "description": "Arrival IATA code (omit to find cheapest flights to anywhere)"
           },
           "departure_month": {
             "type": "string",
@@ -1559,16 +1529,13 @@
           },
           "direct_only": {
             "type": "boolean",
-            "description": "Only return direct flights"
+            "description": "Only return direct (non-stop) flights"
           },
           "currency": {
             "type": "string",
-            "description": "Price currency ISO code (e.g. USD, EUR)"
-          },
-          "limit": {
-            "type": "integer",
-            "maximum": 30,
-            "description": "Max number of results (1-30)"
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "Currency code for prices (default usd)"
           }
         },
         "required": [
@@ -1592,94 +1559,19 @@
         "properties": {
           "origin": {
             "type": "string",
-            "description": "Origin airport IATA code (e.g. JFK, LAX)"
+            "minLength": 2,
+            "maxLength": 4,
+            "description": "Departure city IATA code (e.g. MOW, NYC, LON)"
           },
-          "limit": {
-            "type": "integer",
-            "maximum": 30,
-            "description": "Max number of results (1-30)"
+          "currency": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "Currency code for prices (default usd)"
           }
         },
         "required": [
           "origin"
-        ],
-        "additionalProperties": false
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      }
-    },
-    {
-      "name": "aviasales.hotels.search",
-      "title": "Search Hotels",
-      "description": "Search for hotels in a city",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "city": {
-            "type": "string",
-            "description": "City name or IATA code for hotel search"
-          },
-          "check_in": {
-            "type": "string",
-            "description": "Check-in date in YYYY-MM-DD format"
-          },
-          "check_out": {
-            "type": "string",
-            "description": "Check-out date in YYYY-MM-DD format"
-          },
-          "guests": {
-            "type": "object",
-            "properties": {
-              "adults": {
-                "type": "integer",
-                "description": "Number of adult guests"
-              },
-              "children": {
-                "type": "integer",
-                "description": "Number of child guests"
-              }
-            },
-            "additionalProperties": false,
-            "description": "Guest counts by type (adults, children)"
-          },
-          "stars": {
-            "type": "array",
-            "items": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 5,
-              "description": "Star rating (1-5)"
-            },
-            "description": "Filter by hotel star ratings"
-          },
-          "sort_by": {
-            "type": "string",
-            "enum": [
-              "price",
-              "rating",
-              "stars",
-              "popularity"
-            ],
-            "description": "Sort order for results"
-          },
-          "price_max_usd": {
-            "type": "number",
-            "description": "Maximum price per night in USD"
-          },
-          "limit": {
-            "type": "integer",
-            "maximum": 50,
-            "description": "Max number of results (1-50)"
-          }
-        },
-        "required": [
-          "city",
-          "check_in",
-          "check_out"
         ],
         "additionalProperties": false
       },
@@ -1699,13 +1591,17 @@
         "properties": {
           "origin": {
             "type": "string",
-            "description": "Origin airport IATA code (e.g. JFK, LAX)"
+            "minLength": 2,
+            "maxLength": 4,
+            "description": "Departure city IATA code (e.g. MOW)"
           },
           "destination": {
             "type": "string",
-            "description": "Destination airport IATA code (e.g. CDG, LHR)"
+            "minLength": 2,
+            "maxLength": 4,
+            "description": "Target destination IATA code — also searches nearby airports"
           },
-          "departure_date": {
+          "depart_date": {
             "type": "string",
             "description": "Departure date in YYYY-MM-DD format"
           },
@@ -1713,23 +1609,22 @@
             "type": "string",
             "description": "Return date in YYYY-MM-DD format"
           },
-          "flexibility_days": {
+          "flexibility": {
             "type": "integer",
-            "description": "Date flexibility in days (+/-)"
-          },
-          "distance_km": {
-            "type": "integer",
-            "description": "Max distance from destination in km"
+            "minimum": 0,
+            "maximum": 7,
+            "description": "Date flexibility in days (+/- from given dates)"
           },
           "currency": {
             "type": "string",
-            "description": "Price currency ISO code (e.g. USD, EUR)"
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "Currency code for prices (default usd)"
           }
         },
         "required": [
           "origin",
-          "destination",
-          "departure_date"
+          "destination"
         ],
         "additionalProperties": false
       },
@@ -1749,11 +1644,8 @@
         "properties": {
           "query": {
             "type": "string",
-            "description": "Airport name, city, or IATA code to search"
-          },
-          "locale": {
-            "type": "string",
-            "description": "Response locale (e.g. en, de, fr)"
+            "minLength": 1,
+            "description": "Airport name, city name, or IATA code to search for (e.g. Bangkok, JFK, Heathrow)"
           }
         },
         "required": [
@@ -3356,7 +3248,7 @@
     {
       "name": "music.releases.search",
       "title": "Search Music Releases",
-      "description": "Search for albums, singles, and EPs across 50M+ recordings — title, artist, date, tracklist (MusicBrainz)",
+      "description": "Search for albums, singles, and EPs across 50M+ recordings — title, artist, date (MusicBrainz)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3391,14 +3283,14 @@
     {
       "name": "music.releases.details",
       "title": "Get Release Details",
-      "description": "Get full release details by MusicBrainz ID — tracklist, artist credits, labels, media formats (MusicBrainz)",
+      "description": "Get full release details by MusicBrainz ID — artist credits, labels, media formats (MusicBrainz)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "mbid": {
             "type": "string",
             "format": "uuid",
-            "description": "MusicBrainz release ID (UUID format). Returns full tracklist, artist credits, and label info"
+            "description": "MusicBrainz release ID (UUID format). Returns artist credits and label info"
           }
         },
         "required": [
@@ -4820,178 +4712,6 @@
         },
         "required": [
           "website_domain"
-        ],
-        "additionalProperties": false
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      }
-    },
-    {
-      "name": "zinc.products.search",
-      "title": "Search Products",
-      "description": "Search products across Amazon, Walmart, and other major retailers by keyword — titles, prices, ratings, images (Zinc)",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "query": {
-            "type": "string",
-            "description": "Product search query (e.g. \"wireless headphones\", \"laptop stand\")"
-          },
-          "retailer": {
-            "type": "string",
-            "enum": [
-              "amazon",
-              "walmart",
-              "amazon_uk",
-              "amazon_ca",
-              "amazon_de",
-              "amazon_fr",
-              "amazon_it",
-              "amazon_es",
-              "amazon_in",
-              "amazon_jp"
-            ],
-            "description": "Retailer to search (default: amazon)"
-          },
-          "page": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 20,
-            "description": "Results page number (1-20, default 1)"
-          }
-        },
-        "required": [
-          "query"
-        ],
-        "additionalProperties": false
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      }
-    },
-    {
-      "name": "zinc.products.detail",
-      "title": "Get Product Details",
-      "description": "Get full product details by ASIN or product ID — title, description, brand, images, price, features, categories (Zinc)",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "product_id": {
-            "type": "string",
-            "description": "Product ID or ASIN (e.g. \"B09V3KXJPB\")"
-          },
-          "retailer": {
-            "type": "string",
-            "enum": [
-              "amazon",
-              "walmart",
-              "amazon_uk",
-              "amazon_ca",
-              "amazon_de",
-              "amazon_fr",
-              "amazon_it",
-              "amazon_es",
-              "amazon_in",
-              "amazon_jp"
-            ],
-            "description": "Retailer to search (default: amazon)"
-          }
-        },
-        "required": [
-          "product_id"
-        ],
-        "additionalProperties": false
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      }
-    },
-    {
-      "name": "zinc.products.offers",
-      "title": "Get Product Offers",
-      "description": "Get all seller offers for a product — prices, shipping, condition, Prime eligibility, seller ratings (Zinc)",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "product_id": {
-            "type": "string",
-            "description": "Product ID or ASIN to get seller offers for"
-          },
-          "retailer": {
-            "type": "string",
-            "enum": [
-              "amazon",
-              "walmart",
-              "amazon_uk",
-              "amazon_ca",
-              "amazon_de",
-              "amazon_fr",
-              "amazon_it",
-              "amazon_es",
-              "amazon_in",
-              "amazon_jp"
-            ],
-            "description": "Retailer to search (default: amazon)"
-          }
-        },
-        "required": [
-          "product_id"
-        ],
-        "additionalProperties": false
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      }
-    },
-    {
-      "name": "zinc.products.reviews",
-      "title": "Get Product Reviews",
-      "description": "Get product reviews and ratings by ASIN or product ID — review text, rating, author, verified purchase status (Zinc)",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "product_id": {
-            "type": "string",
-            "description": "Product ID or ASIN to get reviews for"
-          },
-          "retailer": {
-            "type": "string",
-            "enum": [
-              "amazon",
-              "walmart",
-              "amazon_uk",
-              "amazon_ca",
-              "amazon_de",
-              "amazon_fr",
-              "amazon_it",
-              "amazon_es",
-              "amazon_in",
-              "amazon_jp"
-            ],
-            "description": "Retailer to search (default: amazon)"
-          },
-          "page": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 20,
-            "description": "Reviews page number (1-20, default 1)"
-          }
-        },
-        "required": [
-          "product_id"
         ],
         "additionalProperties": false
       },
@@ -6906,6 +6626,182 @@
         },
         "required": [
           "email"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "realestate.listings.for_sale",
+      "title": "Search US Properties For Sale",
+      "description": "Search active for-sale property listings across the US — filter by city, state, ZIP, price range, bedrooms, bathrooms, sqft, property type. Returns address, price, specs, photos. Millions of MLS listings (RapidAPI / Realtor.com data)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "city": {
+            "type": "string",
+            "description": "City name, e.g. \"Austin\" (use with state_code)"
+          },
+          "state_code": {
+            "type": "string",
+            "maxLength": 2,
+            "description": "Two-letter US state code, e.g. \"TX\""
+          },
+          "postal_code": {
+            "type": "string",
+            "description": "ZIP code, e.g. \"78701\" (alternative to city+state)"
+          },
+          "price_min": {
+            "type": "integer",
+            "description": "Minimum listing price in USD"
+          },
+          "price_max": {
+            "type": "integer",
+            "description": "Maximum listing price in USD"
+          },
+          "beds_min": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Minimum number of bedrooms"
+          },
+          "baths_min": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Minimum number of bathrooms"
+          },
+          "sqft_min": {
+            "type": "integer",
+            "description": "Minimum square footage"
+          },
+          "property_type": {
+            "type": "string",
+            "enum": [
+              "single_family",
+              "multi_family",
+              "condo",
+              "townhomes",
+              "mobile",
+              "land",
+              "farm"
+            ],
+            "description": "Property type filter"
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "relevant",
+              "newest",
+              "price_low",
+              "price_high",
+              "open_house_date",
+              "sqft_high",
+              "price_reduced_date"
+            ],
+            "description": "Sort order (default: relevant)"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 42,
+            "description": "Number of results (default 10, max 42)"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Pagination offset (default 0)"
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "realestate.property.details",
+      "title": "Get US Property Details",
+      "description": "Detailed property information by property ID — beds, baths, sqft, year built, lot size, tax assessment, HOA, days on market, photos, last sale price/date. Use for_sale search first to get property_id (RapidAPI / Realtor.com data)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "property_id": {
+            "type": "string",
+            "description": "Property ID from a for_sale search result (e.g. \"2734304997\")"
+          }
+        },
+        "required": [
+          "property_id"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "realestate.location.suggest",
+      "title": "US Real Estate Location Search",
+      "description": "Autocomplete location search for US real estate — returns matching cities, ZIP codes, and addresses with coordinates. Use to find valid city/state codes for property searches (RapidAPI / Realtor.com data)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "minLength": 2,
+            "description": "Location search query — city name, address, or ZIP code (e.g. \"Austin TX\", \"90210\")"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "realestate.walkscore.score",
+      "title": "Get Walk Score, Transit Score & Bike Score",
+      "description": "Walk Score (0-100), Transit Score (0-100), and Bike Score (0-100) for any US/Canada address. Measures walkability to amenities, public transit quality, and cycling infrastructure. Industry-standard walkability metric used by 30,000+ websites (Walk Score / Redfin)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": "string",
+            "description": "Full street address, e.g. \"1119 8th Avenue Seattle WA 98101\""
+          },
+          "latitude": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90,
+            "description": "Latitude of the address (-90 to 90). Use geo.geocode to get coordinates."
+          },
+          "longitude": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180,
+            "description": "Longitude of the address (-180 to 180). Use geo.geocode to get coordinates."
+          }
+        },
+        "required": [
+          "address",
+          "latitude",
+          "longitude"
         ],
         "additionalProperties": false
       },
