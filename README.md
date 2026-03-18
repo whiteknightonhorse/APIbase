@@ -1,7 +1,7 @@
 # APIbase.pro — The API Hub for AI Agents
 
-> Search flights, find restaurants, discover events, browse movies, geocode addresses, get directions, generate AI marketing pages, compare prices, track status, trade prediction markets — all via MCP.
-> One endpoint. 166 tools. 31 providers. Pay per call.
+> Search flights, find restaurants, discover events, browse movies, geocode addresses, get directions, generate AI marketing pages, compare prices, track status, trade prediction markets, check walkability scores, search US property listings — all via MCP.
+> One endpoint. 170 tools. 33 providers. Pay per call.
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Health](https://apibase.pro/health/ready)**
 
@@ -9,7 +9,7 @@
 
 ## What is APIbase?
 
-Production MCP server — universal API hub for AI agents. 166 tools across travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, AI marketing, recipes, space/astronomy, gaming, dev tools, weather, and more. Search flights (Amadeus, Sabre GDS), find restaurants and places (Foursquare), geocode addresses, search places and POI, get directions (Geoapify/OSM), discover events and concerts (Ticketmaster), browse movies and TV shows (TMDB), search music artists, albums, and recordings (MusicBrainz), discover fresh releases (ListenBrainz), find internet radio stations (RadioBrowser), look up nutrition data and drug safety (USDA, OpenFDA, NIH), get exchange rates, economic indicators, and treasury data (ECB, FRED, World Bank, US Treasury), search academic papers and preprints (OpenAlex, arXiv, PubMed, CrossRef), compare US colleges and earnings (College Scorecard), find jobs and salary data (BLS, O*NET, ESCO, CareerJet), trade prediction markets (Polymarket), track crypto, check weather — with more providers shipping regularly. One endpoint, pay per call via x402 USDC micropayments. Auto-registration, zero setup. Covers the most popular API categories agents actually need: travel, local services, maps, events, entertainment, music, health, financial data, education, jobs, and marketing.
+Production MCP server — universal API hub for AI agents. 170 tools across travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, AI marketing, recipes, space/astronomy, gaming, real estate, dev tools, weather, and more. Search flights (Amadeus, Sabre GDS), find restaurants and places (Foursquare), geocode addresses, search places and POI, get directions (Geoapify/OSM), discover events and concerts (Ticketmaster), browse movies and TV shows (TMDB), search music artists, albums, and recordings (MusicBrainz), discover fresh releases (ListenBrainz), find internet radio stations (RadioBrowser), look up nutrition data and drug safety (USDA, OpenFDA, NIH), get exchange rates, economic indicators, and treasury data (ECB, FRED, World Bank, US Treasury), search academic papers and preprints (OpenAlex, arXiv, PubMed, CrossRef), compare US colleges and earnings (College Scorecard), find jobs and salary data (BLS, O*NET, ESCO, CareerJet), check walkability and transit scores (Walk Score), search US property listings and details (RapidAPI/Realtor.com), trade prediction markets (Polymarket), track crypto, check weather — with more providers shipping regularly. One endpoint, pay per call via x402 USDC micropayments. Auto-registration, zero setup. Covers the most popular API categories agents actually need: travel, local services, maps, events, entertainment, music, health, financial data, education, jobs, real estate, and marketing.
 
 **Built for AI agents, not humans.** Every tool is designed for autonomous discovery, authentication, and invocation via the [Model Context Protocol](https://modelcontextprotocol.io).
 
@@ -19,7 +19,7 @@ Production MCP server — universal API hub for AI agents. 166 tools across trav
 
 ### Why agents use APIbase
 
-- **One MCP endpoint** — `https://apibase.pro/mcp` connects to 31 providers
+- **One MCP endpoint** — `https://apibase.pro/mcp` connects to 33 providers
 - **Real-time flight search** — Amadeus + Sabre GDS, 500+ airlines, real prices
 - **Places & restaurants** — Foursquare Places API, 100M+ places in 190+ countries
 - **Pay per call** — x402 micropayments (USDC), no subscriptions, no minimums
@@ -139,7 +139,7 @@ Returns places with names, ratings, categories, distance, hours, price tier, and
 
 ---
 
-## Available Tools (166)
+## Available Tools (170)
 
 ### AIPush — AI Marketing / Page Generation (7 tools)
 
@@ -224,6 +224,24 @@ Generate and decode QR codes via API. Create customizable QR code images (size, 
 |------|-------------|-------|
 | `qrserver.generate` | Generate QR code image URL — customizable size, color, format (PNG/SVG), error correction | $0.001 |
 | `qrserver.read` | Decode QR code from image URL — extract encoded text or URL | $0.001 |
+
+### Walk Score — Walkability & Transit Intelligence (1 tool)
+
+Walk Score, Transit Score, and Bike Score (0-100) for any US/Canada address. Industry-standard walkability metric used by 30,000+ websites including Apartments.com, Zillow, and Redfin. Measures walkability to amenities, public transit quality, and cycling infrastructure. Free tier: 5,000 calls/day. Powered by Walk Score (Redfin).
+
+| Tool | Description | Price |
+|------|-------------|-------|
+| `walkscore.score` | Walk Score (0-100), Transit Score (0-100), and Bike Score (0-100) for any address | $0.001 |
+
+### US Real Estate — Property Listings & Details (3 tools)
+
+Search active for-sale property listings across the US with filters for city, state, ZIP, price range, bedrooms, bathrooms, sqft, and property type. Get detailed property info including tax history, HOA fees, photos, and days on market. Location autocomplete for finding valid cities and ZIP codes. Millions of MLS listings from Realtor.com data. Free tier: 500K req/month. Powered by RapidAPI.
+
+| Tool | Description | Price |
+|------|-------------|-------|
+| `usrealestate.for_sale` | Search for-sale listings — filter by city, state, ZIP, price, beds, baths, type | $0.002 |
+| `usrealestate.property_detail` | Full property details — beds, baths, sqft, tax, HOA, photos, sale history | $0.003 |
+| `usrealestate.location_suggest` | Location autocomplete — cities, ZIP codes, addresses with coordinates | $0.001 |
 
 ### ZeroBounce — Email Validation (1 tool)
 
