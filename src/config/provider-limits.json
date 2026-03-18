@@ -161,16 +161,6 @@
     "docs_url": "internal",
     "limit_proof": "Internal service-to-service on same server, no rate limits"
   },
-  "zinc": {
-    "display_name": "Zinc E-commerce",
-    "health_url": "https://api.zinc.io/v1/search?query=test&max_results=1",
-    "limit_type": "credits",
-    "free_limit": 0,
-    "reset_period": "none",
-    "paid_balance": true,
-    "docs_url": "https://docs.zincapi.com/#introduction",
-    "limit_proof": "Paid API only: $0.01/call, no free tier, pay-as-you-go"
-  },
   "diffbot": {
     "display_name": "Diffbot AI Extraction",
     "health_url": "https://api.diffbot.com/v3/analyze",

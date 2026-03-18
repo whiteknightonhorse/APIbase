@@ -102,14 +102,14 @@ export class IgdbAdapter extends BaseAdapter {
       case 'igdb.company_info': {
         const data = body as IgdbCompany[];
         if (data.length === 0) {
-          throw new Error('Company not found');
+          return { results: [], total: 0 };
         }
         return data.length === 1 ? data[0] : data;
       }
       case 'igdb.platform_info': {
         const data = body as IgdbPlatform[];
         if (data.length === 0) {
-          throw new Error('Platform not found');
+          return { results: [], total: 0 };
         }
         return data.length === 1 ? data[0] : data;
       }

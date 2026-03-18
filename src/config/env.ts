@@ -32,9 +32,9 @@ export const appEnvSchema = z.object({
   API_KEY_SECRET: z.string().min(32),
 
   // x402 payments (§8.6–8.9)
-  X402_NETWORK: z.string().min(1).default('base-sepolia'),
+  X402_NETWORK: z.string().min(1).default('base'),
   X402_PAYMENT_ADDRESS: z.string().min(1).default('0x0000000000000000000000000000000000000000'),
-  X402_FACILITATOR_URL: z.string().url().default('https://x402.org/facilitator'),
+  X402_FACILITATOR_URL: z.string().url().default('https://facilitator.payai.network'),
 
   // Provider API keys (§5.3)
   PROVIDER_KEY_OPENWEATHER: z.string().min(1),
@@ -81,9 +81,6 @@ export const appEnvSchema = z.object({
   // AIPush AI Marketing (UC-019) — internal service-to-service
   AIPUSH_INTERNAL_SECRET: z.string().optional().default(''),
   AIPUSH_INTERNAL_URL: z.string().optional().default('http://172.17.0.1:3000'),
-
-  // Zinc E-commerce API (UC-025) — Basic Auth ($0.01/call upstream)
-  PROVIDER_KEY_ZINC: z.string().optional().default(''),
 
   // Diffbot AI Extraction (UC-026) — query param auth, 10K free/month
   PROVIDER_KEY_DIFFBOT: z.string().optional().default(''),

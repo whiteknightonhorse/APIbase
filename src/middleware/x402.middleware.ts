@@ -5,6 +5,7 @@ import { HTTPFacilitatorClient, x402ResourceServer } from '@x402/core/server';
 import { registerExactEvmScheme } from '@x402/evm/exact/server';
 import { getX402Config } from '../config/x402.config';
 import { logger } from '../config/logger';
+import { AppError, ErrorCode } from '../types/errors';
 
 let resourceServer: x402ResourceServer | null = null;
 
@@ -23,8 +24,12 @@ export function x402Middleware(req: Request, _res: Response, next: NextFunction)
     (req.headers['x-payment'] as string | undefined) ??
     (req.headers['payment-signature'] as string | undefined);
 
-  if (!paymentHeader) {
+  if (paymentHeader === undefined) {
     next();
+    return;
+  }
+  if (paymentHeader.trim() === '') {
+    next(new AppError(ErrorCode.BAD_REQUEST, 'X-Payment header must not be empty'));
     return;
   }
 
@@ -41,11 +46,7 @@ async function verifyPayment(req: Request, paymentHeader: string): Promise<void>
     decoded = decodePaymentSignatureHeader(paymentHeader);
   } catch {
     log.warn({ requestId: req.requestId }, 'x402: failed to decode payment header');
-    const err = Object.assign(new Error('Invalid x402 payment header'), {
-      status: 400,
-      code: 'bad_request',
-    });
-    throw err;
+    throw new AppError(ErrorCode.BAD_REQUEST, 'Invalid x402 payment header');
   }
 
   const parsed = parsePaymentPayload(decoded);
@@ -54,11 +55,7 @@ async function verifyPayment(req: Request, paymentHeader: string): Promise<void>
       { requestId: req.requestId, errors: parsed.error.issues },
       'x402: payment payload validation failed',
     );
-    const err = Object.assign(new Error('Invalid x402 payment payload'), {
-      status: 400,
-      code: 'bad_request',
-    });
-    throw err;
+    throw new AppError(ErrorCode.BAD_REQUEST, 'Invalid x402 payment payload');
   }
 
   const payload = parsed.data;
@@ -79,10 +76,10 @@ async function verifyPayment(req: Request, paymentHeader: string): Promise<void>
       scheme: payload.scheme,
       network: payload.network,
       asset: cfg.usdcAddress,
-      amount: '0',
+      amount: '1',
       payTo: cfg.paymentAddress,
       maxTimeoutSeconds: cfg.maxTimeoutSeconds,
-      extra: {},
+      extra: { name: 'USD Coin', version: '2' },
     };
   } else {
     requirements = {
@@ -92,18 +89,23 @@ async function verifyPayment(req: Request, paymentHeader: string): Promise<void>
   }
 
   const server = getResourceServer();
-  const result = await server.verifyPayment(payload as never, requirements as never);
+  let result;
+  try {
+    result = await server.verifyPayment(payload as never, requirements as never);
+  } catch (verifyErr) {
+    log.error(
+      { requestId: req.requestId, err: verifyErr instanceof Error ? verifyErr.message : String(verifyErr) },
+      'x402: payment verification threw exception',
+    );
+    throw new AppError(ErrorCode.BAD_GATEWAY, 'Payment facilitator unavailable');
+  }
 
   if (!result.isValid) {
     log.warn(
       { requestId: req.requestId, reason: result.invalidReason },
       'x402: payment verification failed',
     );
-    const err = Object.assign(
-      new Error(result.invalidMessage ?? result.invalidReason ?? 'Payment verification failed'),
-      { status: 400, code: 'invalid_payment' },
-    );
-    throw err;
+    throw new AppError(ErrorCode.BAD_REQUEST, result.invalidMessage ?? result.invalidReason ?? 'Payment verification failed');
   }
 
   req.x402Payment = {
@@ -138,11 +140,11 @@ export function buildPaymentRequiredResponse(
       {
         scheme: 'exact',
         network: cfg.network,
-        amount: String(priceUsd),
+        amount: String(Math.round(priceUsd * 1_000_000)),
         asset: cfg.usdcAddress,
         payTo: cfg.paymentAddress,
         maxTimeoutSeconds: cfg.maxTimeoutSeconds,
-        extra: {},
+        extra: { name: 'USD Coin', version: '2' },
       },
     ],
     request_id: requestId,

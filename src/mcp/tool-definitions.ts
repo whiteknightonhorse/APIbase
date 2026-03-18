@@ -951,38 +951,6 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   },
 
   // ---------------------------------------------------------------------------
-  // Zinc — E-commerce Product Data (UC-025, 4 tools)
-  // ---------------------------------------------------------------------------
-  {
-    toolId: 'zinc.product_search',
-    mcpName: 'zinc.products.search',
-    title: 'Search Products',
-    description: 'Search products across Amazon, Walmart, and other major retailers by keyword — titles, prices, ratings, images (Zinc)',
-    annotations: READ_ONLY,
-  },
-  {
-    toolId: 'zinc.product_details',
-    mcpName: 'zinc.products.detail',
-    title: 'Get Product Details',
-    description: 'Get full product details by ASIN or product ID — title, description, brand, images, price, features, categories (Zinc)',
-    annotations: READ_ONLY,
-  },
-  {
-    toolId: 'zinc.product_offers',
-    mcpName: 'zinc.products.offers',
-    title: 'Get Product Offers',
-    description: 'Get all seller offers for a product — prices, shipping, condition, Prime eligibility, seller ratings (Zinc)',
-    annotations: READ_ONLY,
-  },
-  {
-    toolId: 'zinc.product_reviews',
-    mcpName: 'zinc.products.reviews',
-    title: 'Get Product Reviews',
-    description: 'Get product reviews and ratings by ASIN or product ID — review text, rating, author, verified purchase status (Zinc)',
-    annotations: READ_ONLY,
-  },
-
-  // ---------------------------------------------------------------------------
   // Diffbot — AI-Powered Web Extraction (UC-026, 4 tools)
   // ---------------------------------------------------------------------------
   {

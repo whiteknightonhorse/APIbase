@@ -17,7 +17,6 @@ import { jobsSchemas } from './jobs.schema';
 import { educationSchemas } from './education.schema';
 import { geoSchemas } from './geo.schema';
 import { aipushSchemas } from './aipush.schema';
-import { zincSchemas } from './zinc.schema';
 import { diffbotSchemas } from './diffbot.schema';
 import { whoisxmlSchemas } from './whoisxml.schema';
 import { spoonacularSchemas } from './spoonacular.schema';
@@ -52,7 +51,6 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...educationSchemas,
   ...geoSchemas,
   ...aipushSchemas,
-  ...zincSchemas,
   ...diffbotSchemas,
   ...whoisxmlSchemas,
   ...spoonacularSchemas,

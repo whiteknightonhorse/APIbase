@@ -56,6 +56,12 @@ export interface SharedEntry extends LedgerEntryBase {
   sharedFromExecutionId?: string;
 }
 
+export interface X402Entry extends LedgerEntryBase {
+  cost: number;
+  payer: string;
+  providerLatencyMs?: number;
+}
+
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
@@ -88,10 +94,7 @@ export async function writeDirectCharge(entry: DirectChargeEntry): Promise<numbe
       );
 
       if (updated === 0) {
-        logger.warn(
-          { agentId: entry.agentId, cost, requestId: entry.requestId },
-          'Insufficient funds for cache-hit charge',
-        );
+        throw new Error('INSUFFICIENT_FUNDS_CACHE_HIT');
       }
 
       await tx.executionLedger.create({
@@ -198,5 +201,44 @@ export async function writeSharedEntry(entry: SharedEntry): Promise<void> {
       sharedFrom: entry.sharedFromExecutionId,
     },
     'Shared success ledger entry recorded',
+  );
+}
+
+// ---------------------------------------------------------------------------
+// writeX402Entry — x402 on-chain payment (§8.9, §AP-9)
+// ---------------------------------------------------------------------------
+
+/**
+ * Write a ledger entry for an x402 on-chain payment.
+ * No escrow was created — payment was verified and settled via facilitator.
+ * Records cost and payer wallet for audit compliance.
+ */
+export async function writeX402Entry(entry: X402Entry): Promise<void> {
+  const db = getPrisma();
+
+  await db.executionLedger.create({
+    data: {
+      execution_id: entry.executionId,
+      agent_id: entry.agentId,
+      tool_id: entry.toolId,
+      status: 'success',
+      billing_status: 'PAID',
+      cost_usd: entry.cost,
+      provider_called: true,
+      cache_status: 'MISS',
+      provider_latency_ms: entry.providerLatencyMs ?? null,
+      idempotency_key: entry.idempotencyKey ?? null,
+    },
+  });
+
+  logger.info(
+    {
+      executionId: entry.executionId,
+      agentId: entry.agentId,
+      toolId: entry.toolId,
+      cost: entry.cost,
+      payer: entry.payer,
+    },
+    'x402 on-chain payment ledger entry recorded',
   );
 }

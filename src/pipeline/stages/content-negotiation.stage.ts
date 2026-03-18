@@ -14,6 +14,7 @@ export const contentNegotiationStage: Stage = {
     if (
       acceptValue &&
       !acceptValue.includes('application/json') &&
+      !acceptValue.includes('text/event-stream') &&
       !acceptValue.includes('*/*') &&
       acceptValue !== '*'
     ) {

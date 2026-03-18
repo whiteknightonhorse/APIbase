@@ -13,7 +13,7 @@ export function contentTypeMiddleware(req: Request, res: Response, next: NextFun
 
   // Check Accept header — reject if it explicitly excludes JSON
   const accept = req.headers.accept;
-  if (accept && !accept.includes('application/json') && !accept.includes('*/*') && accept !== '*') {
+  if (accept && !accept.includes('application/json') && !accept.includes('text/event-stream') && !accept.includes('*/*') && accept !== '*') {
     throw new AppError(ErrorCode.NOT_ACCEPTABLE, 'Accept header must be application/json');
   }
 

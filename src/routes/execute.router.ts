@@ -36,7 +36,7 @@ executeRouter.post(
       if (req.x402Payment?.verified) {
         ctx.x402Paid = true;
         ctx.x402Payer = req.x402Payment.payer;
-        ctx.x402PaymentHeader = req.headers['x-payment'] as string;
+        ctx.x402PaymentHeader = (req.headers['x-payment'] as string | undefined) ?? (req.headers['payment-signature'] as string | undefined) ?? '';
       }
 
       const result = await runPipeline(ctx);

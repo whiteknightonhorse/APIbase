@@ -208,7 +208,7 @@ export class MusicAdapter extends BaseAdapter {
   } {
     const mbid = String(params.mbid);
     const qs = new URLSearchParams();
-    qs.set('inc', 'recordings+artist-credits+labels');
+    qs.set('inc', 'artist-credits+labels');
     qs.set('fmt', 'json');
 
     return {
@@ -265,7 +265,7 @@ export class MusicAdapter extends BaseAdapter {
     if (params.country) qs.set('country', String(params.country));
     if (params.countrycode) qs.set('countrycode', String(params.countrycode));
     if (params.language) qs.set('language', String(params.language));
-    if (params.limit) qs.set('limit', String(params.limit));
+    qs.set('limit', String(params.limit ?? 100));
     if (params.order) qs.set('order', String(params.order));
     if (params.hidebroken !== undefined) qs.set('hidebroken', params.hidebroken ? 'true' : 'false');
 

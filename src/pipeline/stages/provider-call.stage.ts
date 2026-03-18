@@ -17,6 +17,10 @@ export const providerCallStage: Stage = {
   name: 'PROVIDER_CALL',
 
   async execute(ctx) {
+    if (ctx.cacheHit) {
+      return ok(ctx);
+    }
+
     const toolId = ctx.toolId;
     if (!toolId) {
       return err({
@@ -29,9 +33,10 @@ export const providerCallStage: Stage = {
     const adapter = resolveAdapter(toolId);
     if (!adapter) {
       return err({
-        code: 502,
-        error: 'bad_gateway',
+        code: 503,
+        error: 'service_unavailable',
         message: `No adapter registered for tool: ${toolId}`,
+        retryAfter: 60,
       });
     }
 

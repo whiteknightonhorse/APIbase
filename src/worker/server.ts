@@ -5,6 +5,7 @@ import { logger } from '../config/logger';
 import { createHealthServer, updateHeartbeatTimestamp } from './health';
 import { run as runReconciliation } from '../jobs/reconciliation.job';
 import { run as runProviderHealth } from '../jobs/provider-health.job';
+import { run as runX402Health } from '../jobs/x402-health.job';
 
 /**
  * Worker process entry point (§12.194, §12.244).
@@ -93,6 +94,26 @@ async function runProviderHealthSafe(): Promise<void> {
   }
 }
 
+let x402HealthRunning = false;
+
+async function runX402HealthSafe(): Promise<void> {
+  if (x402HealthRunning) {
+    return;
+  }
+  x402HealthRunning = true;
+  try {
+    const r = getRedis();
+    if (r.status === 'wait') {
+      await r.connect();
+    }
+    await runX402Health(r);
+  } catch (err) {
+    logger.error({ err }, 'x402 health job failed');
+  } finally {
+    x402HealthRunning = false;
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Start
 // ---------------------------------------------------------------------------
@@ -115,7 +136,15 @@ const providerHealthTask = cron.schedule('*/2 * * * *', () => {
   runProviderHealthSafe().catch(() => {});
 });
 
-logger.info('Worker started — heartbeat + reconciliation + provider-health cron active');
+// Schedule x402 facilitator health check every hour (§12.244)
+const x402HealthTask = cron.schedule('0 * * * *', () => {
+  runX402HealthSafe().catch(() => {});
+});
+
+// Run x402 health once at startup after 10s delay
+setTimeout(() => { runX402HealthSafe().catch(() => {}); }, 10_000);
+
+logger.info('Worker started — heartbeat + reconciliation + provider-health + x402-health cron active');
 
 // ---------------------------------------------------------------------------
 // Graceful shutdown (§12.230 — 60s stop_grace_period)
@@ -126,6 +155,7 @@ function shutdown(signal: string): void {
 
   reconciliationTask.stop();
   providerHealthTask.stop();
+  x402HealthTask.stop();
 
   if (heartbeatTimer) {
     clearInterval(heartbeatTimer);

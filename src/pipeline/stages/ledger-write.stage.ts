@@ -1,10 +1,12 @@
-import { type Stage, ok } from '../types';
+import { type Stage, ok, err } from '../types';
 import {
   writeDirectCharge,
   writeFreeEntry,
   writeSharedEntry,
+  writeX402Entry,
   CACHE_HIT_COST_MULTIPLIER,
 } from '../../services/ledger.service';
+import { getX402Config } from '../../config/x402.config';
 
 /**
  * LEDGER_WRITE stage (§12.43 stage 11, §12.151, §AP-9).
@@ -23,6 +25,24 @@ export const ledgerWriteStage: Stage = {
   async execute(ctx) {
     // Escrowed request: ledger already written by ESCROW_FINALIZE (§12.151)
     if (ctx.escrowId) {
+      ctx.ledgerWritten = true;
+      return ok(ctx);
+    }
+
+    // x402 on-chain payment — write ledger entry (no escrow was created) (§8.9, §AP-9)
+    if (ctx.x402Paid && ctx.billingStatus === 'PAID') {
+      if (ctx.agentId && ctx.toolId && ctx.executionId) {
+        await writeX402Entry({
+          executionId: ctx.executionId,
+          agentId: ctx.agentId,
+          toolId: ctx.toolId,
+          idempotencyKey: ctx.idempotencyKey,
+          requestId: ctx.requestId,
+          cost: ctx.finalCost ?? ctx.toolPrice ?? 0,
+          payer: ctx.x402Payer ?? 'unknown',
+          providerLatencyMs: ctx.providerDurationMs,
+        });
+      }
       ctx.ledgerWritten = true;
       return ok(ctx);
     }
@@ -51,14 +71,31 @@ export const ledgerWriteStage: Stage = {
       const toolPrice = ctx.toolPrice ?? 0;
 
       if (toolPrice > 0) {
-        const cost = await writeDirectCharge({
-          ...baseEntry,
-          toolPrice,
-          costMultiplier: CACHE_HIT_COST_MULTIPLIER,
-        });
+        try {
+          const cost = await writeDirectCharge({
+            ...baseEntry,
+            toolPrice,
+            costMultiplier: CACHE_HIT_COST_MULTIPLIER,
+          });
 
-        ctx.billingStatus = cost > 0 ? 'PAID' : 'FREE';
-        ctx.finalCost = cost;
+          ctx.billingStatus = cost > 0 ? 'PAID' : 'FREE';
+          ctx.finalCost = cost;
+        } catch (e) {
+          if (e instanceof Error && e.message === 'INSUFFICIENT_FUNDS_CACHE_HIT') {
+            const x402Cfg = getX402Config();
+            return err({
+              code: 402,
+              error: 'payment_required',
+              message: 'Insufficient balance for cache-hit charge',
+              extra: {
+                price_usd: toolPrice,
+                payment_address: x402Cfg.paymentAddress,
+                price_version: 1,
+              },
+            });
+          }
+          throw e;
+        }
       } else {
         await writeSharedEntry(baseEntry);
 
