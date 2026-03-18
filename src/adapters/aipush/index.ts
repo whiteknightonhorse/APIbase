@@ -38,7 +38,7 @@ export class AIPushAdapter extends BaseAdapter {
   constructor(internalSecret: string, baseUrl?: string) {
     super({
       provider: 'aipush',
-      baseUrl: baseUrl || 'http://172.17.0.1:3000',
+      baseUrl: baseUrl || 'http://172.18.0.1:3099',
       timeoutMs: 180_000, // 3 min max (page generation can take 30-180s)
       maxRetries: 0,      // no auto-retry for internal service
     });

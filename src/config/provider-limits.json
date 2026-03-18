@@ -154,7 +154,7 @@
   },
   "aipush": {
     "display_name": "AIPush AI Marketing",
-    "health_url": "http://172.18.0.1:3000/health",
+    "health_url": "http://172.18.0.1:3099/health",
     "limit_type": "unlimited",
     "free_limit": 0,
     "reset_period": "none",
