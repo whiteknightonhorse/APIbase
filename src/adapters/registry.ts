@@ -39,6 +39,9 @@ import { ExaAdapter } from './exa';
 import { NewsDataAdapter } from './newsdata';
 import { FinnhubAdapter } from './finnhub';
 import { OcrSpaceAdapter } from './ocrspace';
+import { RegulationsAdapter } from './regulations';
+import { FedRegisterAdapter } from './fedregister';
+import { CourtListenerAdapter } from './courtlistener';
 import { config } from '../config';
 
 /**
@@ -213,6 +216,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       if (!zbKey) return undefined;
       return getOrCreate('zerobounce', () => new ZeroBounceAdapter(zbKey));
     }
+    case 'regulations':
+      return getOrCreate('regulations', () => new RegulationsAdapter());
+    case 'fedregister':
+      return getOrCreate('fedregister', () => new FedRegisterAdapter());
+    case 'courtlistener':
+      return getOrCreate('courtlistener', () => new CourtListenerAdapter());
     case 'ocr': {
       const ocrKey = (config as Record<string, unknown>).PROVIDER_KEY_OCRSPACE as string | undefined;
       if (!ocrKey) return undefined;

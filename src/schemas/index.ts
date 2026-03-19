@@ -39,6 +39,9 @@ import { exaSchemas } from './exa.schema';
 import { newsdataSchemas } from './newsdata.schema';
 import { finnhubSchemas } from './finnhub.schema';
 import { ocrspaceSchemas } from './ocrspace.schema';
+import { regulationsSchemas } from './regulations.schema';
+import { fedregisterSchemas } from './fedregister.schema';
+import { courtlistenerSchemas } from './courtlistener.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -81,4 +84,7 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...newsdataSchemas,
   ...finnhubSchemas,
   ...ocrspaceSchemas,
+  ...regulationsSchemas,
+  ...fedregisterSchemas,
+  ...courtlistenerSchemas,
 };
