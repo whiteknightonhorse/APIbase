@@ -35,7 +35,6 @@ body{
   align-items:flex-start;
 }
 
-/* --- Terminal window --- */
 .window{
   max-width:880px;
   width:100%;
@@ -66,7 +65,19 @@ body{
   z-index:2;
 }
 
-/* --- Title bar --- */
+/* Animated scanline beam */
+.window::before{
+  content:'';
+  position:absolute;
+  top:-100%;left:0;right:0;
+  height:60px;
+  background:linear-gradient(180deg,transparent 0%,rgba(0,255,65,0.03) 50%,transparent 100%);
+  pointer-events:none;
+  z-index:3;
+  animation:scanline 8s linear infinite;
+}
+@keyframes scanline{0%{top:-60px}100%{top:100%}}
+
 .titlebar{
   background:linear-gradient(180deg,#3d3d3d 0%,#2a2a2a 100%);
   padding:10px 14px;
@@ -74,7 +85,7 @@ body{
   align-items:center;
   border-bottom:1px solid #1a1a1a;
   position:relative;
-  z-index:3;
+  z-index:4;
 }
 
 .dots{display:flex;gap:7px;flex-shrink:0}
@@ -96,30 +107,31 @@ body{
   letter-spacing:0.5px;
 }
 
-/* --- Content area --- */
+.cursor-blink{
+  display:inline-block;
+  width:8px;height:1.1em;
+  background:#999;
+  vertical-align:text-bottom;
+  animation:blink 1s step-end infinite;
+  margin-left:2px;
+}
+
 .container{
   padding:1.8rem 2rem 2rem;
   position:relative;
   z-index:1;
 }
 
-/* --- Nav as terminal menu bar --- */
 nav{
   display:flex;
   flex-wrap:wrap;
   gap:0.3rem;
-  margin-bottom:1.8rem;
+  margin-bottom:1rem;
   padding:0.5rem 0;
   border-bottom:1px solid #1a3a1a;
 }
-nav::before{
-  content:'[';
-  color:#555;
-}
-nav::after{
-  content:']';
-  color:#555;
-}
+nav::before{content:'[';color:#555}
+nav::after{content:']';color:#555}
 nav .brand{
   color:#00ff41;
   font-weight:700;
@@ -132,19 +144,36 @@ nav a{
   text-decoration:none;
   font-size:0.85rem;
 }
-nav a::before{
-  content:' | ';
-  color:#333;
-}
-nav .brand::before{
-  content:'';
-}
+nav a::before{content:' | ';color:#333}
+nav .brand::before{content:''}
 nav a:hover{
   color:#00ff41;
   text-shadow:0 0 6px rgba(0,255,65,0.5);
 }
 
-/* --- Terminal prompt block --- */
+/* System monitor line (htop style) */
+.sys-monitor{
+  margin-bottom:1.5rem;
+  font-size:0.82rem;
+  color:#00ff41;
+  letter-spacing:0.5px;
+  padding:0.3rem 0;
+}
+.sys-monitor .prompt{
+  color:#00aa30;
+  animation:blink 1s step-end infinite;
+}
+.sys-monitor .label{color:#2a6a2a}
+.sys-monitor strong{color:#00ff41}
+.sys-cursor{
+  display:inline-block;
+  width:7px;height:1em;
+  background:#00ff41;
+  vertical-align:text-bottom;
+  animation:blink 1s step-end infinite;
+  margin-left:3px;
+}
+
 .terminal{
   background:#080808;
   border:1px solid #1a3a1a;
@@ -172,18 +201,15 @@ nav a:hover{
   50%{opacity:0}
 }
 
-/* --- Typography --- */
+/* Phosphor glow on h1 */
 h1{
   color:#00ff41;
   font-size:1.3rem;
   margin-bottom:2rem;
   line-height:1.5;
-  text-shadow:0 0 10px rgba(0,255,65,0.3);
+  text-shadow:0 0 10px #00ff41, 0 0 20px #00ff41, 0 0 40px rgba(0,255,65,0.3);
 }
-h1::before{
-  content:'> ';
-  color:#00aa30;
-}
+h1::before{content:'> ';color:#00aa30}
 h2{
   color:#00ff41;
   font-size:1.05rem;
@@ -202,19 +228,13 @@ h3::before{content:'### ';color:#006620}
 p{margin-bottom:1rem;font-size:0.9rem;color:#a0d8a0}
 strong{color:#33ff66}
 
-/* --- Lists --- */
 ul,ol{padding-left:1.5rem;margin-bottom:1rem}
 li{margin-bottom:0.4rem;font-size:0.9rem;color:#a0d8a0}
 li::marker{color:#00aa30}
 
-/* --- Links --- */
 a{color:#00ccff;text-decoration:none}
-a:hover{
-  color:#66ddff;
-  text-shadow:0 0 6px rgba(0,204,255,0.4);
-}
+a:hover{color:#66ddff;text-shadow:0 0 6px rgba(0,204,255,0.4)}
 
-/* --- Table --- */
 table{
   width:100%;
   border-collapse:collapse;
@@ -234,7 +254,6 @@ th{
 }
 td{color:#88bb88}
 
-/* --- Code --- */
 code{
   background:#0a1a0a;
   padding:0.15rem 0.4rem;
@@ -245,26 +264,59 @@ code{
   text-shadow:0 0 4px rgba(0,255,65,0.3);
 }
 
-/* --- Footer / status bar --- */
+/* Step wizard */
+.step-wizard{
+  font-size:0.85rem;
+  margin:1rem 0;
+  padding:0;
+  list-style:none;
+}
+.step-wizard li{
+  padding:0.4rem 0;
+  color:#2a6a2a;
+  font-family:inherit;
+  margin-bottom:0;
+}
+.step-wizard .step-num{color:#00aa30}
+.step-wizard .step-ready{color:#00ff41}
+.step-wizard .step-dots{color:#1a3a1a}
+.step-wizard .step-tag{font-weight:700}
+.step-wizard .tag-ready{color:#00ff41}
+.step-wizard .tag-pending{color:#333}
+
+/* Extended footer */
 .footer{
   margin-top:2rem;
   padding:0.6rem 0;
   border-top:1px solid #1a3a1a;
   color:#2a6a2a;
-  font-size:0.78rem;
+  font-size:0.72rem;
+  display:flex;
+  flex-direction:column;
+  gap:0.2rem;
+}
+.footer-row{
   display:flex;
   justify-content:space-between;
+  flex-wrap:wrap;
+  gap:0.5rem;
 }
-.footer::before{
-  content:'STATUS: ONLINE';
-  color:#00aa30;
-}
-.footer::after{
-  content:'PID 1337 | TTY pts/0';
-  color:#2a5a2a;
-}
+.footer .online{color:#00aa30}
 
-/* --- Responsive --- */
+/* Boot sequence */
+#boot-screen{
+  padding:2rem;
+  font-size:0.82rem;
+  color:#00ff41;
+  min-height:200px;
+  position:relative;
+  z-index:1;
+}
+#boot-screen .line{opacity:0;margin-bottom:2px}
+#boot-screen .line.visible{opacity:1}
+#boot-screen .ok{color:#27c93f}
+#boot-screen .sys{color:#ffbd2e}
+
 @media(max-width:600px){
   body{padding:0.5rem}
   .container{padding:1rem}
@@ -273,7 +325,8 @@ code{
   h1::before{content:''}
   table{font-size:0.72rem}
   th,td{padding:0.35rem}
-  .footer::after{display:none}
+  .sys-monitor{font-size:0.72rem}
+  .footer{font-size:0.65rem}
   nav::before,nav::after{display:none}
 }
 </style>
@@ -288,10 +341,19 @@ code{
 <span class="dot dot-yellow"></span>
 <span class="dot dot-green"></span>
 </div>
-<span class="titlebar-text">apibase@prod ~ /srv/apibase</span>
+<span class="titlebar-text">apibase@prod:~$ cat /srv/apibase/index.html | render <span class="cursor-blink"></span></span>
 </div>
 
-<div class="container">
+<!-- Boot sequence (once per session) -->
+<div id="boot-screen" style="display:none">
+<div class="line sys">APIBASE OS v1.0.0 — INITIALIZING...</div>
+<div class="line"><span class="ok">[OK]</span> Loading MCP gateway... 203 tools, 46 providers</div>
+<div class="line"><span class="ok">[OK]</span> Connecting to Base network (x402/USDC)...</div>
+<div class="line"><span class="ok">[OK]</span> Auto-registration system ready...</div>
+<div class="line sys">SYSTEM READY. Launching apibase.pro...</div>
+</div>
+
+<div class="container" id="main-content">
 
 <nav>
 <a class="brand" href="/">APIbase.pro</a>
@@ -301,6 +363,10 @@ code{
 <a href="/privacy">Privacy</a>
 <a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a>
 </nav>
+
+<div class="sys-monitor">
+<span class="prompt">></span> <span class="label">SYSTEM</span>  <span class="label">PRV:</span><strong>46</strong>  <span class="label">TOOLS:</span><strong>203</strong>  <span class="label">PRICE:</span><strong>$0.001–$1.00</strong>  <span class="label">NET:</span><strong>Base/USDC</strong>  <span class="label">STATUS:</span><strong>ONLINE</strong><span class="sys-cursor"></span>
+</div>
 
 <div class="terminal">
 <span class="prompt">$</span> curl https://apibase.pro/api/v1/tools<br><br>
@@ -397,21 +463,72 @@ code{
 <p>Yes. The platform runs 16 Docker containers on dedicated infrastructure with automated health checks, graceful shutdown, append-only financial ledger, and 27 Prometheus alert rules. All tool calls are idempotent and escrow-protected.</p>
 
 <h2>Recommended next step</h2>
-<ol>
-<li>Connect your MCP client to <code>https://apibase.pro/mcp</code></li>
-<li>Browse the <a href="https://apibase.pro/api/v1/tools">tool catalog</a> to see all 203 available tools</li>
-<li>Fund your USDC wallet on Base and start making calls</li>
-<li>Read the <a href="https://apibase.pro/llms.txt">documentation</a> for full protocol details</li>
-</ol>
+<ul class="step-wizard">
+<li><span class="step-num">[STEP 1/4]</span> <span class="step-ready">Connect your MCP client to <code>https://apibase.pro/mcp</code></span> <span class="step-dots">........</span> <span class="step-tag tag-ready">[READY]</span></li>
+<li><span class="step-num">[STEP 2/4]</span> Browse the <a href="https://apibase.pro/api/v1/tools">tool catalog</a> — 203 tools available <span class="step-dots">............</span> <span class="step-tag tag-pending">[ ]</span></li>
+<li><span class="step-num">[STEP 3/4]</span> Fund your USDC wallet on Base <span class="step-dots">................................</span> <span class="step-tag tag-pending">[ ]</span></li>
+<li><span class="step-num">[STEP 4/4]</span> Read the <a href="https://apibase.pro/llms.txt">documentation</a> for full protocol details <span class="step-dots">........</span> <span class="step-tag tag-pending">[ ]</span></li>
+</ul>
 
 <h2>Disclosure</h2>
 <p>This page is published and maintained by the APIbase.pro team. APIbase.pro is an independent platform and is not affiliated with any of the upstream API providers listed. Provider names and trademarks belong to their respective owners.</p>
 
 <div class="footer">
-<p>APIbase.pro — Unified MCP Gateway</p>
+<div class="footer-row">
+<span><span class="online">STATUS: ONLINE</span>  |  PID: 1337  |  TTY: pts/0  |  USER: apibase</span>
+</div>
+<div class="footer-row">
+<span id="gen-time">Generated: --</span>
+<span id="uptime-counter">Uptime: 0m 0s</span>
+<span>BUILD: v1.0.0  |  TOOLS: 203</span>
+</div>
 </div>
 
 </div>
 </div>
+
+<script>
+(function(){
+  var pageLoadTime = Date.now();
+
+  // --- Boot sequence (once per session) ---
+  var bootScreen = document.getElementById('boot-screen');
+  var mainContent = document.getElementById('main-content');
+
+  if (!sessionStorage.getItem('apibase_home_booted')) {
+    mainContent.style.opacity = '0';
+    bootScreen.style.display = 'block';
+    var lines = bootScreen.querySelectorAll('.line');
+    var delay = 0;
+    for (var i = 0; i < lines.length; i++) {
+      (function(line, d) {
+        setTimeout(function() { line.classList.add('visible'); }, d);
+      })(lines[i], delay);
+      delay += 400;
+    }
+    setTimeout(function() {
+      bootScreen.style.display = 'none';
+      mainContent.style.transition = 'opacity 0.5s';
+      mainContent.style.opacity = '1';
+      sessionStorage.setItem('apibase_home_booted', '1');
+    }, delay + 600);
+  } else {
+    bootScreen.style.display = 'none';
+    mainContent.style.opacity = '1';
+  }
+
+  // --- Footer: generated time + uptime counter ---
+  var genEl = document.getElementById('gen-time');
+  if (genEl) genEl.textContent = 'Generated: ' + new Date().toLocaleTimeString();
+
+  setInterval(function() {
+    var elapsed = Math.floor((Date.now() - pageLoadTime) / 1000);
+    var m = Math.floor(elapsed / 60);
+    var s = elapsed % 60;
+    var el = document.getElementById('uptime-counter');
+    if (el) el.textContent = 'Uptime: ' + m + 'm ' + s + 's';
+  }, 1000);
+})();
+</script>
 </body>
 </html>
