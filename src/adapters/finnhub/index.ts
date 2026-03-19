@@ -82,7 +82,7 @@ export class FinnhubAdapter extends BaseAdapter {
     }
   }
 
-  private qs(params: Record<string, unknown>): URLSearchParams {
+  private qs(_params: Record<string, unknown>): URLSearchParams {
     const qs = new URLSearchParams();
     qs.set('token', this.apiKey);
     return qs;
