@@ -75,6 +75,8 @@ TARGETS=(
   "wong2/awesome-mcp-servers|Community Servers|wong2|Add APIbase to Community Servers"
   "jaw9c/awesome-remote-mcp-servers|Remote MCP Server List|jaw9c_table|Add APIbase remote MCP server"
   "unseen1980/awesome-travel|### Flights|travel_table|Add APIbase — AI-ready flight API hub"
+  "caramaschiHG/awesome-ai-agents-2026|Protocols and Standards|ai_agents_2026|Add APIbase — MCP API hub for AI agents"
+  "rodert/awesome-mcp|MCP Servers|rodert_mcp|Add APIbase — universal MCP gateway"
 )
 
 # ─── Randomized Descriptions ────────────────────────────────────────────────
@@ -86,9 +88,9 @@ random_choice() {
 
 gen_punkpeye_agg() {
   local descs=(
-    "Unified API hub for AI agents with 56+ tools across travel (Amadeus, Sabre), prediction markets (Polymarket), crypto, and weather. Pay-per-call via x402 micropayments in USDC."
-    "MCP gateway aggregating 56+ real-time APIs: flight search (Amadeus, Sabre GDS), prediction markets (Polymarket), crypto data, weather. x402 pay-per-call, no subscriptions."
-    "API hub serving 56+ tools to AI agents — flights (Amadeus, Sabre), prediction markets (Polymarket), crypto, weather, and more. x402 micropayments on Base, auto-registration."
+    "Unified API hub for AI agents with 200+ tools across travel (Amadeus, Sabre), prediction markets (Polymarket), crypto, and weather. Pay-per-call via x402 micropayments in USDC."
+    "MCP gateway aggregating 200+ real-time APIs: flight search (Amadeus, Sabre GDS), stocks (Finnhub), news (NewsData), maps (Geoapify), real estate (Walk Score), and 40+ more providers. x402 pay-per-call, no subscriptions."
+    "API hub serving 200+ tools to AI agents — flights (Amadeus, Sabre), stocks, news, search (Google/Serper), maps, legal, OCR, and 40+ more providers. x402 micropayments on Base, auto-registration."
   )
   local desc
   desc=$(random_choice "${descs[@]}")
@@ -97,9 +99,9 @@ gen_punkpeye_agg() {
 
 gen_punkpeye_travel() {
   local descs=(
-    "Real-time flight search and pricing via Amadeus and Sabre GDS — 11 aviation tools for AI agents via MCP. Airport search, route discovery, flight status, price confirmation."
-    "Flight search API hub for AI agents: Amadeus + Sabre GDS with 11 tools — search flights, confirm prices, check status, find airports, discover routes. MCP native."
-    "Aviation API gateway with 11 MCP tools: flight search, price confirmation, flight status (Amadeus), destination finder, airline lookup (Sabre GDS). Built for AI agents."
+    "Real-time flight search and pricing via Amadeus and Sabre GDS — 17 aviation tools for AI agents via MCP. Airport search, route discovery, flight status, price confirmation."
+    "Flight search API hub for AI agents: Amadeus + Sabre GDS with 17 tools — search flights, confirm prices, check status, find airports, discover routes. MCP native."
+    "Aviation API gateway with 17 MCP tools: flight search, price confirmation, flight status (Amadeus), destination finder, airline lookup (Sabre GDS). Built for AI agents."
   )
   local desc
   desc=$(random_choice "${descs[@]}")
@@ -108,9 +110,9 @@ gen_punkpeye_travel() {
 
 gen_appcypher() {
   local descs=(
-    "Unified MCP gateway to 56+ tools: flight search (Amadeus, Sabre), prediction markets (Polymarket), crypto, weather. Pay-per-call via x402 micropayments."
-    "API hub for AI agents — 56+ tools including travel (Amadeus, Sabre GDS), prediction markets, crypto data, weather. x402 USDC micropayments, auto-registration."
-    "Multi-provider MCP server: 56+ real-time API tools across travel, finance, crypto, and weather. x402 pay-per-call in USDC on Base."
+    "Unified MCP gateway to 200+ tools: flight search (Amadeus, Sabre), prediction markets (Polymarket), crypto, weather. Pay-per-call via x402 micropayments."
+    "API hub for AI agents — 200+ tools including travel (Amadeus, Sabre GDS), prediction markets, crypto data, weather. x402 USDC micropayments, auto-registration."
+    "Multi-provider MCP server: 200+ real-time API tools across travel, finance, search, news, legal, real estate, and 15+ more categories. x402 pay-per-call in USDC on Base."
   )
   local desc
   desc=$(random_choice "${descs[@]}")
@@ -119,9 +121,9 @@ gen_appcypher() {
 
 gen_wong2() {
   local descs=(
-    "Unified API hub for AI agents with 56+ tools — flight search (Amadeus, Sabre), prediction markets (Polymarket), crypto, weather. x402 pay-per-call."
-    "MCP gateway aggregating 56+ real-time APIs across travel, prediction markets, crypto, and weather. Pay-per-call via x402 micropayments."
-    "API hub serving 56+ tools to AI agents: flights, prediction markets, crypto, weather, and more. x402 USDC micropayments, auto-registration."
+    "Unified API hub for AI agents with 200+ tools — flight search (Amadeus, Sabre), prediction markets (Polymarket), crypto, weather. x402 pay-per-call."
+    "MCP gateway aggregating 200+ real-time APIs across travel, finance, news, maps, legal, real estate, and more. Pay-per-call via x402 micropayments."
+    "API hub serving 200+ tools to AI agents: flights, prediction markets, crypto, weather, and more. x402 USDC micropayments, auto-registration."
   )
   local desc
   desc=$(random_choice "${descs[@]}")
@@ -130,7 +132,7 @@ gen_wong2() {
 
 gen_jaw9c_table() {
   local descs=(
-    "56+ API tools: flights, prediction markets, crypto, weather"
+    "200+ API tools: flights, prediction markets, crypto, weather"
     "Unified API hub: flight search, prediction markets, crypto data"
     "Multi-provider API gateway: travel, finance, crypto, weather tools"
   )
@@ -142,12 +144,34 @@ gen_jaw9c_table() {
 gen_travel_table() {
   local descs=(
     "AI-ready API hub wrapping Amadeus + Sabre GDS for flight search, pricing, status. MCP native, x402 micropayments."
-    "MCP gateway for flight search via Amadeus and Sabre GDS — 11 aviation tools for AI agents."
+    "MCP gateway for flight search via Amadeus and Sabre GDS — 17 aviation tools for AI agents."
     "Unified flight API for AI agents: Amadeus + Sabre GDS wrapped in MCP. Search, price, status, routes."
   )
   local desc
   desc=$(random_choice "${descs[@]}")
   echo "| APIbase | $desc | [Go!]($APIBASE_URL) |"
+}
+
+gen_ai_agents_2026() {
+  local descs=(
+    "Universal MCP gateway — 200+ tools across flights, stocks, news, maps, legal, OCR, image gen, email, SMS. x402 USDC micropayments on Base. One endpoint for any AI agent."
+    "MCP API hub with 200+ tools (Amadeus, Finnhub, Serper, Tavily, NASA, USGS, Twilio). Pay-per-call via x402, no subscriptions. Production-ready, open source."
+    "Single MCP endpoint giving AI agents access to 200+ real-world APIs — travel, finance, search, legal, real estate, and more. x402 micropayments, auto-registration."
+  )
+  local desc
+  desc=$(random_choice "${descs[@]}")
+  echo "- [APIbase](https://apibase.pro) - $desc"
+}
+
+gen_rodert_mcp() {
+  local descs=(
+    "Universal MCP gateway aggregating 200+ tools from 46 providers — flights, stocks, news, search, maps, legal, OCR, image generation. x402 USDC pay-per-call on Base."
+    "Production MCP server with 200+ tools: Google Search (Serper), AI search (Tavily, Exa), stocks (Finnhub), news (NewsData), and 40+ more providers. x402 micropayments."
+    "MCP API hub — 200+ tools across 15+ categories. One endpoint, pay per call in USDC. Open source, 13-stage pipeline, auto-registration."
+  )
+  local desc
+  desc=$(random_choice "${descs[@]}")
+  echo "- [APIbase](https://apibase.pro) - $desc"
 }
 
 # ─── State Management ───────────────────────────────────────────────────────
@@ -303,6 +327,8 @@ print(base64.b64decode(data['content']).decode('utf-8'))
     wong2)           new_entry=$(gen_wong2) ;;
     jaw9c_table)     new_entry=$(gen_jaw9c_table) ;;
     travel_table)    new_entry=$(gen_travel_table) ;;
+    ai_agents_2026)  new_entry=$(gen_ai_agents_2026) ;;
+    rodert_mcp)      new_entry=$(gen_rodert_mcp) ;;
     *)
       log "ERROR: Unknown format: $format"
       return 1
@@ -436,14 +462,14 @@ print(json.dumps({
 
   # 11. Create PR
   local -a pr_bodies=(
-    "Adding [APIbase](https://apibase.pro) — a unified MCP gateway that serves 56+ real-time API tools to AI agents across travel, prediction markets, crypto, and weather.
+    "Adding [APIbase](https://apibase.pro) — a unified MCP gateway that serves 200+ real-time API tools to AI agents across travel, finance, news, maps, legal, real estate, and more.
 
 APIbase is an open-source, production MCP server with x402 micropayments, auto-registration, and Streamable HTTP transport."
-    "Hi! Adding [APIbase](https://apibase.pro) to the list. It's an MCP server that aggregates 56+ API tools (Amadeus, Sabre, Polymarket, crypto, weather) into a single endpoint for AI agents. Pay-per-call via x402 USDC micropayments.
+    "Hi! Adding [APIbase](https://apibase.pro) to the list. It's an MCP server that aggregates 200+ API tools (Amadeus, Sabre, Polymarket, crypto, weather) into a single endpoint for AI agents. Pay-per-call via x402 USDC micropayments.
 
 GitHub: https://github.com/$GH_USER/APIbase
 Smithery: https://smithery.ai/servers/apibase-pro/api-hub (100/100 quality score)"
-    "Submitting [APIbase](https://apibase.pro) — an MCP server providing AI agents access to 56+ tools across multiple domains (flights, prediction markets, crypto, weather). Uses x402 protocol for pay-per-call micropayments in USDC.
+    "Submitting [APIbase](https://apibase.pro) — an MCP server providing AI agents access to 200+ tools across multiple domains (flights, prediction markets, crypto, weather). Uses x402 protocol for pay-per-call micropayments in USDC.
 
 - MCP endpoint: https://apibase.pro/mcp
 - Smithery listing: https://smithery.ai/servers/apibase-pro/api-hub
