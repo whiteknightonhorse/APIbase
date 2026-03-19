@@ -104,6 +104,9 @@ export const appEnvSchema = z.object({
   // ZeroBounce Email Validation (UC-055) — query param auth, 100 free/month, $39/2K credits
   PROVIDER_KEY_ZEROBOUNCE: z.string().optional().default(''),
 
+  // NewsData.io (UC-070) — apikey query param, 200 credits/day free, commercial OK
+  PROVIDER_KEY_NEWSDATA: z.string().optional().default(''),
+
   // Exa Semantic Search (UC-069) — x-api-key header, 1,000 req/month free
   PROVIDER_KEY_EXA: z.string().optional().default(''),
 

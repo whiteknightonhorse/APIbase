@@ -288,6 +288,15 @@
     "docs_url": "https://www.zerobounce.net/email-validation-api-quickstart/",
     "limit_proof": "100 free credits/month, then $39/2,000 credits (no expiry on purchased)"
   },
+  "newsdata": {
+    "display_name": "NewsData.io",
+    "health_url": "https://newsdata.io/api/1/latest?language=en&size=1",
+    "limit_type": "daily",
+    "free_limit": 200,
+    "reset_period": "daily",
+    "docs_url": "https://newsdata.io/pricing",
+    "limit_proof": "Free plan: 200 API credits/day, commercial use permitted on all plans"
+  },
   "exa": {
     "display_name": "Exa Semantic Search",
     "health_url": "https://api.exa.ai/search",

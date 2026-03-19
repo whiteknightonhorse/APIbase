@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase — The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 184 tools across web search, AI search, semantic search, travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, recipes, domain intelligence, AI marketing, real estate, weather, space/astronomy, gaming, and more. Pay-per-call via x402 micropayments.",
+    "description": "Unified MCP gateway to 187 tools across news, web search, AI search, semantic search, travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, real estate, weather, space, gaming, and more. Pay-per-call via x402 micropayments.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -6637,6 +6637,117 @@
       }
     },
     {
+      "name": "news.global.latest",
+      "title": "Latest Global News",
+      "description": "Latest news from 180,000+ sources across 200+ countries in 70+ languages. Filter by keyword, country, category, language, domain, and recency. Returns title, link, description, source, sentiment, keywords (NewsData.io)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "description": "Search keywords in article title and content (e.g. \"AI agents\", \"climate change\")"
+          },
+          "country": {
+            "type": "string",
+            "description": "Country code filter, comma-separated (e.g. \"us\", \"gb,de,fr\"). 200+ countries supported."
+          },
+          "category": {
+            "type": "string",
+            "description": "Category filter, comma-separated: business, entertainment, environment, food, health, politics, science, sports, technology, top, tourism, world"
+          },
+          "language": {
+            "type": "string",
+            "description": "Language code filter (e.g. \"en\", \"de\", \"fr\", \"es\"). 70+ languages supported."
+          },
+          "domain": {
+            "type": "string",
+            "description": "Filter by source domain (e.g. \"bbc.co.uk\", \"nytimes.com\")"
+          },
+          "timeframe": {
+            "type": "string",
+            "description": "Recency filter in hours (e.g. \"24\" for last 24 hours, \"1\" for last hour)"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of articles to return (default 10, max 50)"
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "news.crypto.latest",
+      "title": "Crypto & Blockchain News",
+      "description": "Cryptocurrency and blockchain news feed — filter by coin (Bitcoin, Ethereum, Solana...), keyword, language. Dedicated crypto news index from specialized sources (NewsData.io)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "description": "Search keywords in crypto news (e.g. \"Bitcoin ETF\", \"DeFi\")"
+          },
+          "language": {
+            "type": "string",
+            "description": "Language code (e.g. \"en\")"
+          },
+          "coin": {
+            "type": "string",
+            "description": "Specific coin filter (e.g. \"Bitcoin\", \"Ethereum\", \"Solana\")"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of articles (default 10, max 50)"
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "news.global.sources",
+      "title": "News Sources Directory",
+      "description": "Browse available news sources — filter by country, language, and category. Returns source name, URL, categories, and languages covered. 180,000+ sources indexed (NewsData.io)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "country": {
+            "type": "string",
+            "description": "Country code to filter sources (e.g. \"us\", \"gb\")"
+          },
+          "language": {
+            "type": "string",
+            "description": "Language code to filter sources (e.g. \"en\")"
+          },
+          "category": {
+            "type": "string",
+            "description": "Category to filter sources (e.g. \"technology\", \"business\")"
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
       "name": "search.semantic.web",
       "title": "Semantic Web Search (Exa)",
       "description": "Neural/semantic web search — finds conceptually related pages, not just keyword matches. Supports category filters (company, research paper, news, people, tweet), domain filtering, date range. Returns relevance scores and highlighted excerpts (Exa)",
@@ -7225,36 +7336,36 @@
   "prompts": [
     {
       "name": "find_cheapest_flight",
-      "description": "Search for the cheapest flights between two airports and confirm pricing",
+      "description": "Search for the cheapest flights",
       "arguments": [
         {
           "name": "origin",
-          "description": "Origin airport IATA code",
+          "description": "Origin IATA",
           "required": true
         },
         {
           "name": "destination",
-          "description": "Destination airport IATA code",
+          "description": "Destination IATA",
           "required": true
         },
         {
           "name": "date",
-          "description": "Departure date YYYY-MM-DD",
+          "description": "YYYY-MM-DD",
           "required": true
         }
       ]
     },
     {
       "name": "crypto_market_overview",
-      "description": "Get a comprehensive overview of the cryptocurrency market"
+      "description": "Crypto market overview"
     },
     {
       "name": "prediction_market_research",
-      "description": "Research a topic on Polymarket prediction markets",
+      "description": "Research Polymarket",
       "arguments": [
         {
           "name": "topic",
-          "description": "Topic to research",
+          "description": "Topic",
           "required": true
         }
       ]

@@ -1367,6 +1367,31 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // Walk Score — Walkability & Transit Intelligence (UC-062, 1 tool)
   // ---------------------------------------------------------------------------
   // ---------------------------------------------------------------------------
+  // NewsData.io — Global News (UC-070, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'news.latest',
+    mcpName: 'news.global.latest',
+    title: 'Latest Global News',
+    description: 'Latest news from 180,000+ sources across 200+ countries in 70+ languages. Filter by keyword, country, category, language, domain, and recency. Returns title, link, description, source, sentiment, keywords (NewsData.io)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'news.crypto',
+    mcpName: 'news.crypto.latest',
+    title: 'Crypto & Blockchain News',
+    description: 'Cryptocurrency and blockchain news feed — filter by coin (Bitcoin, Ethereum, Solana...), keyword, language. Dedicated crypto news index from specialized sources (NewsData.io)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'news.sources',
+    mcpName: 'news.global.sources',
+    title: 'News Sources Directory',
+    description: 'Browse available news sources — filter by country, language, and category. Returns source name, URL, categories, and languages covered. 180,000+ sources indexed (NewsData.io)',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
   // Exa — Semantic Web Search (UC-069, 3 tools)
   // ---------------------------------------------------------------------------
   {

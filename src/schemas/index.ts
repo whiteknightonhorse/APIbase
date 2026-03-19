@@ -36,6 +36,7 @@ import { usrealestateSchemas } from './usrealestate.schema';
 import { serperSchemas } from './serper.schema';
 import { tavilySchemas } from './tavily.schema';
 import { exaSchemas } from './exa.schema';
+import { newsdataSchemas } from './newsdata.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -75,4 +76,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...serperSchemas,
   ...tavilySchemas,
   ...exaSchemas,
+  ...newsdataSchemas,
 };
