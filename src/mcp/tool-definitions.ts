@@ -1367,6 +1367,24 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // Walk Score — Walkability & Transit Intelligence (UC-062, 1 tool)
   // ---------------------------------------------------------------------------
   // ---------------------------------------------------------------------------
+  // Mastodon — Fediverse Social Media (UC-081, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'mastodon.trending',
+    mcpName: 'social.mastodon.trending',
+    title: 'Trending Mastodon Posts',
+    description: 'Trending posts on Mastodon (Fediverse) — popular content across the decentralized social network. Returns post text, author, reblogs, favourites, replies. No auth needed, $0 upstream (Mastodon.social)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'mastodon.trending_tags',
+    mcpName: 'social.mastodon.tags',
+    title: 'Trending Mastodon Hashtags',
+    description: 'Trending hashtags on Mastodon — top topics with usage counts. Track social media trends on the decentralized network. No auth needed (Mastodon.social)',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
   // Regulations.gov — US Federal Regulatory Data (UC-082, 2 tools)
   // ---------------------------------------------------------------------------
   {

@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase — The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 201 tools across legal/regulatory, OCR, stocks, news, web search, AI search, travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, real estate, weather, space, gaming, and more. Pay-per-call via x402 micropayments.",
+    "description": "Unified MCP gateway to 203 tools across social media, legal/regulatory, OCR, stocks, news, web search, AI search, travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, real estate, weather, space, gaming, and more. Pay-per-call via x402 micropayments.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -6637,6 +6637,52 @@
       }
     },
     {
+      "name": "social.mastodon.trending",
+      "title": "Trending Mastodon Posts",
+      "description": "Trending posts on Mastodon (Fediverse) — popular content across the decentralized social network. Returns post text, author, reblogs, favourites, replies. No auth needed, $0 upstream (Mastodon.social)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 40,
+            "description": "Number of trending posts to return (default 10, max 40)"
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "social.mastodon.tags",
+      "title": "Trending Mastodon Hashtags",
+      "description": "Trending hashtags on Mastodon — top topics with usage counts. Track social media trends on the decentralized network. No auth needed (Mastodon.social)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "Number of trending hashtags to return (default 10, max 20)"
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
       "name": "legal.regulations.search",
       "title": "Search US Federal Regulations",
       "description": "Search US federal regulatory documents — rules, proposed rules, notices, presidential documents. Filter by agency (EPA, SEC, FDA...), document type, date. 7,500+ results for \"artificial intelligence\" (Regulations.gov)",
@@ -7897,7 +7943,7 @@
     },
     {
       "name": "prediction_market_research",
-      "description": "Polymarket research",
+      "description": "Polymarket",
       "arguments": [
         {
           "name": "topic",

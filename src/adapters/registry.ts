@@ -40,6 +40,7 @@ import { NewsDataAdapter } from './newsdata';
 import { FinnhubAdapter } from './finnhub';
 import { OcrSpaceAdapter } from './ocrspace';
 import { RegulationsAdapter } from './regulations';
+import { MastodonAdapter } from './mastodon';
 import { FedRegisterAdapter } from './fedregister';
 import { CourtListenerAdapter } from './courtlistener';
 import { config } from '../config';
@@ -216,6 +217,8 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       if (!zbKey) return undefined;
       return getOrCreate('zerobounce', () => new ZeroBounceAdapter(zbKey));
     }
+    case 'mastodon':
+      return getOrCreate('mastodon', () => new MastodonAdapter());
     case 'regulations':
       return getOrCreate('regulations', () => new RegulationsAdapter());
     case 'fedregister':
