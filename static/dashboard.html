@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>APIbase.pro — Provider Status Dashboard</title>
-<meta name="description" content="Real-time status dashboard for all 37 APIbase.pro providers. Monitor health, API limits, call volume, and latency.">
+<meta name="description" content="Real-time status dashboard for all APIbase.pro providers. Monitor health, API limits, call volume, and latency.">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="shortcut icon" href="/favicon.png">
@@ -38,6 +38,7 @@ body{
   position:relative;
 }
 
+/* CRT scanline overlay */
 .window::after{
   content:'';
   position:absolute;
@@ -53,6 +54,19 @@ body{
   z-index:2;
 }
 
+/* Animated scanline beam */
+.window::before{
+  content:'';
+  position:absolute;
+  top:-100%;left:0;right:0;
+  height:60px;
+  background:linear-gradient(180deg,transparent 0%,rgba(0,255,65,0.03) 50%,transparent 100%);
+  pointer-events:none;
+  z-index:3;
+  animation:scanline 8s linear infinite;
+}
+@keyframes scanline{0%{top:-60px}100%{top:100%}}
+
 .titlebar{
   background:linear-gradient(180deg,#3d3d3d 0%,#2a2a2a 100%);
   padding:10px 14px;
@@ -60,7 +74,7 @@ body{
   align-items:center;
   border-bottom:1px solid #1a1a1a;
   position:relative;
-  z-index:3;
+  z-index:4;
 }
 
 .dots{display:flex;gap:7px;flex-shrink:0}
@@ -80,6 +94,15 @@ body{
   font-size:0.78rem;
   font-family:inherit;
   letter-spacing:0.5px;
+}
+
+.cursor-blink{
+  display:inline-block;
+  width:8px;height:1.1em;
+  background:#999;
+  vertical-align:text-bottom;
+  animation:blink 1s step-end infinite;
+  margin-left:2px;
 }
 
 .container{
@@ -117,31 +140,54 @@ nav a:hover{
   text-shadow:0 0 6px rgba(0,255,65,0.5);
 }
 
+/* Phosphor glow on h1 */
 h1{
   color:#00ff41;
   font-size:1.3rem;
   margin-bottom:1.5rem;
   line-height:1.5;
-  text-shadow:0 0 10px rgba(0,255,65,0.3);
+  text-shadow:0 0 10px #00ff41, 0 0 20px #00ff41, 0 0 40px rgba(0,255,65,0.3);
 }
 h1::before{content:'> ';color:#00aa30}
 
 a{color:#00ccff;text-decoration:none}
 a:hover{color:#66ddff;text-shadow:0 0 6px rgba(0,204,255,0.4)}
 
-.totals{
+/* System monitor line (htop style) */
+.system-monitor{
+  margin-bottom:1.2rem;
+  font-size:0.82rem;
+  color:#00ff41;
+  letter-spacing:0.5px;
+}
+.system-monitor::before{
+  content:'>';
+  color:#00aa30;
+  margin-right:6px;
+  animation:blink 1s step-end infinite;
+}
+.system-monitor .label{color:#2a6a2a;font-weight:400}
+.system-monitor .val{color:#00ff41;font-weight:700}
+
+.payment-status{
   display:flex;
-  gap:2rem;
+  gap:1.5rem;
+  flex-wrap:wrap;
   margin-bottom:1.5rem;
   padding:0.8rem 1rem;
   background:#080808;
   border:1px solid #1a3a1a;
   border-radius:4px;
-  font-size:0.85rem;
+  font-size:0.82rem;
+  color:#a0d8a0;
+  align-items:center;
 }
-.totals .stat{color:#a0d8a0}
-.totals .val{color:#00ff41;font-weight:700}
+.payment-status .label{color:#00ff41;font-weight:700;margin-right:0.3rem}
+.payment-status .mode{display:flex;align-items:center;gap:0.4rem}
+.payment-status .separator{color:#333}
+.payment-status .testnet-warn{color:#ff5f56;font-weight:700}
 
+/* ASCII progress bar for refresh */
 .refresh-bar{
   display:flex;
   justify-content:space-between;
@@ -149,8 +195,9 @@ a:hover{color:#66ddff;text-shadow:0 0 6px rgba(0,204,255,0.4)}
   margin-bottom:1rem;
   font-size:0.78rem;
   color:#2a6a2a;
+  font-family:inherit;
 }
-.refresh-bar .timer{color:#00aa30}
+.refresh-bar .progress{color:#00aa30;letter-spacing:0}
 
 .table-wrap{overflow-x:auto}
 table{
@@ -174,6 +221,12 @@ th{
 }
 td{color:#88bb88}
 
+/* Latency-based left border on rows */
+tr.lat-border-green td:first-child{border-left:2px solid #27c93f}
+tr.lat-border-orange td:first-child{border-left:2px solid #ffaa00}
+tr.lat-border-red td:first-child{border-left:2px solid #ff4444}
+tr.lat-border-unknown td:first-child{border-left:2px solid #333}
+
 .status-dot{
   display:inline-block;
   width:10px;height:10px;
@@ -191,24 +244,6 @@ td{color:#88bb88}
 .lat-green{color:#27c93f}
 .lat-orange{color:#ff9f43}
 .lat-red{color:#ff5f56}
-
-.payment-status{
-  display:flex;
-  gap:1.5rem;
-  flex-wrap:wrap;
-  margin-bottom:1.5rem;
-  padding:0.8rem 1rem;
-  background:#080808;
-  border:1px solid #1a3a1a;
-  border-radius:4px;
-  font-size:0.82rem;
-  color:#a0d8a0;
-  align-items:center;
-}
-.payment-status .label{color:#00ff41;font-weight:700;margin-right:0.3rem}
-.payment-status .mode{display:flex;align-items:center;gap:0.4rem}
-.payment-status .separator{color:#333}
-.payment-status .testnet-warn{color:#ff5f56;font-weight:700}
 
 .loading{
   text-align:center;
@@ -234,15 +269,41 @@ td{color:#88bb88}
   font-size:0.85rem;
 }
 
+/* Extended footer — unix ps style */
 .footer{
   margin-top:2rem;
   padding:0.6rem 0;
   border-top:1px solid #1a3a1a;
   color:#2a6a2a;
-  font-size:0.78rem;
+  font-size:0.72rem;
+  display:flex;
+  flex-direction:column;
+  gap:0.2rem;
+}
+.footer-row{
   display:flex;
   justify-content:space-between;
+  flex-wrap:wrap;
+  gap:0.5rem;
 }
+.footer .online{color:#00aa30}
+
+/* Boot sequence */
+#boot-screen{
+  padding:2rem;
+  font-size:0.82rem;
+  color:#00ff41;
+  min-height:200px;
+  position:relative;
+  z-index:1;
+}
+#boot-screen .line{
+  opacity:0;
+  margin-bottom:2px;
+}
+#boot-screen .line.visible{opacity:1}
+#boot-screen .ok{color:#27c93f}
+#boot-screen .sys{color:#ffbd2e}
 
 @media(max-width:600px){
   body{padding:0.5rem}
@@ -253,8 +314,8 @@ td{color:#88bb88}
   table{font-size:0.72rem}
   th,td{padding:0.35rem}
   .col-latency{display:none}
-  .totals{flex-wrap:wrap;gap:0.8rem}
-  .footer{flex-direction:column;gap:0.3rem}
+  .system-monitor{font-size:0.72rem}
+  .footer{font-size:0.65rem}
   nav::before,nav::after{display:none}
 }
 </style>
@@ -268,10 +329,19 @@ td{color:#88bb88}
 <span class="dot dot-yellow"></span>
 <span class="dot dot-green"></span>
 </div>
-<span class="titlebar-text">apibase@prod ~ /srv/apibase/dashboard</span>
+<span class="titlebar-text">apibase@prod:~$ cat /srv/apibase/dashboard | live <span class="cursor-blink"></span></span>
 </div>
 
-<div class="container">
+<!-- Boot sequence (shown once per session) -->
+<div id="boot-screen" style="display:none">
+<div class="line sys">APIBASE OS v1.0.0 — INITIALIZING...</div>
+<div class="line"><span class="ok">[OK]</span> Loading provider registry...</div>
+<div class="line"><span class="ok">[OK]</span> Connecting to payment layer (x402/Base)...</div>
+<div class="line"><span class="ok">[OK]</span> Fetching real-time status data...</div>
+<div class="line sys">SYSTEM READY. Launching dashboard...</div>
+</div>
+
+<div class="container" id="main-content">
 
 <nav>
 <a class="brand" href="/">APIbase.pro</a>
@@ -284,17 +354,15 @@ td{color:#88bb88}
 
 <h1>Provider Status Dashboard</h1>
 
-<div class="totals" id="totals">
-<span class="stat">Providers: <span class="val" id="t-providers">--</span></span>
-<span class="stat">Tools: <span class="val" id="t-tools">--</span></span>
-<span class="stat">Calls 24h: <span class="val" id="t-calls">--</span></span>
+<div class="system-monitor" id="system-monitor">
+<span class="label">SYSTEM</span>  <span class="label">PRV:</span><span class="val" id="t-providers">--</span>  <span class="label">TOOLS:</span><span class="val" id="t-tools">--</span>  <span class="label">OPS/24H:</span><span class="val" id="t-calls">--</span>  <span class="label">MEM:</span><span class="val">OK</span>  <span class="label">NET:</span><span class="val">ONLINE</span>
 </div>
 
 <div class="payment-status" id="payment-status"></div>
 
 <div class="refresh-bar">
 <span>Auto-refresh every 60s</span>
-<span class="timer" id="timer">Next refresh: 60s</span>
+<span class="progress" id="timer">REFRESH  [██████████████████████████████] 60s</span>
 </div>
 
 <div id="dashboard-content">
@@ -302,8 +370,14 @@ td{color:#88bb88}
 </div>
 
 <div class="footer">
-<span>STATUS: ONLINE</span>
-<span id="gen-time">--</span>
+<div class="footer-row">
+<span><span class="online">STATUS: ONLINE</span>  |  PID: 1337  |  TTY: pts/0  |  USER: apibase</span>
+</div>
+<div class="footer-row">
+<span id="gen-time">Generated: --</span>
+<span id="uptime-counter">Uptime: 0m 0s</span>
+<span>BUILD: v1.0.0</span>
+</div>
 </div>
 
 </div>
@@ -315,6 +389,53 @@ td{color:#88bb88}
   var timerEl = document.getElementById('timer');
   var countdown = 60;
   var intervalId = null;
+  var pageLoadTime = Date.now();
+
+  // --- Boot sequence (once per session) ---
+  var bootScreen = document.getElementById('boot-screen');
+  var mainContent = document.getElementById('main-content');
+
+  if (!sessionStorage.getItem('apibase_booted')) {
+    mainContent.style.opacity = '0';
+    bootScreen.style.display = 'block';
+    var lines = bootScreen.querySelectorAll('.line');
+    var delay = 0;
+    for (var i = 0; i < lines.length; i++) {
+      (function(line, d) {
+        setTimeout(function() { line.classList.add('visible'); }, d);
+      })(lines[i], delay);
+      delay += 400;
+    }
+    setTimeout(function() {
+      bootScreen.style.display = 'none';
+      mainContent.style.transition = 'opacity 0.5s';
+      mainContent.style.opacity = '1';
+      sessionStorage.setItem('apibase_booted', '1');
+    }, delay + 600);
+  } else {
+    bootScreen.style.display = 'none';
+    mainContent.style.opacity = '1';
+  }
+
+  // --- Uptime counter ---
+  setInterval(function() {
+    var elapsed = Math.floor((Date.now() - pageLoadTime) / 1000);
+    var m = Math.floor(elapsed / 60);
+    var s = elapsed % 60;
+    var el = document.getElementById('uptime-counter');
+    if (el) el.textContent = 'Uptime: ' + m + 'm ' + s + 's';
+  }, 1000);
+
+  // --- ASCII progress bar ---
+  function updateProgressBar(sec) {
+    var total = 30;
+    var filled = Math.round((sec / 60) * total);
+    var empty = total - filled;
+    var bar = '';
+    for (var i = 0; i < filled; i++) bar += '\u2588'; // █
+    for (var i = 0; i < empty; i++) bar += '\u2591'; // ░
+    timerEl.textContent = 'REFRESH  [' + bar + '] ' + sec + 's';
+  }
 
   function statusDot(status) {
     var cls = 'dot-u';
@@ -333,6 +454,13 @@ td{color:#88bb88}
     return 'lat-red';
   }
 
+  function latencyBorderClass(ms) {
+    if (ms === null || ms === undefined) return 'lat-border-unknown';
+    if (ms < 500) return 'lat-border-green';
+    if (ms <= 2000) return 'lat-border-orange';
+    return 'lat-border-red';
+  }
+
   function formatNum(n) {
     if (n === null || n === undefined) return '--';
     return n.toLocaleString();
@@ -349,12 +477,8 @@ td{color:#88bb88}
     if (!data.payment_system) { el.style.display = 'none'; return; }
     var ps = data.payment_system;
     var html = '<span class="label">Payment:</span>';
-
-    // Mode A — always green if dashboard loads (PG is alive)
     html += '<span class="mode">' + statusDot('green') + 'Mode A Active</span>';
     html += '<span class="separator">|</span>';
-
-    // Mode B — x402 on-chain
     var mb = ps.mode_b;
     if (mb.status === 'unknown') {
       html += '<span class="mode">' + statusDot('unknown') + 'x402 (Mode B) Checking...</span>';
@@ -365,11 +489,9 @@ td{color:#88bb88}
       if (mb.network) html += ' — ' + mb.network + ' (' + networkLabel(mb.network) + ')';
       html += '</span>';
     }
-
     if (mb.testnet === true) {
       html += ' <span class="testnet-warn">TESTNET — mainnet payments will fail</span>';
     }
-
     el.innerHTML = html;
   }
 
@@ -393,7 +515,8 @@ td{color:#88bb88}
 
     for (var i = 0; i < data.providers.length; i++) {
       var p = data.providers[i];
-      html += '<tr>';
+      var borderCls = latencyBorderClass(p.health.latency_ms);
+      html += '<tr class="' + borderCls + '">';
       html += '<td>' + escHtml(p.display_name) + '</td>';
       html += '<td>' + statusDot(p.health.status) + (p.health.latency_ms !== null ? p.health.latency_ms + 'ms' : '--') + '</td>';
       html += '<td>' + statusDot(p.limits.status);
@@ -454,7 +577,7 @@ td{color:#88bb88}
     if (countdown <= 0) {
       fetchDashboard();
     }
-    timerEl.textContent = 'Next refresh: ' + countdown + 's';
+    updateProgressBar(countdown);
   }
 
   fetchDashboard();
