@@ -36,6 +36,7 @@ import { UsRealEstateAdapter } from './usrealestate';
 import { SerperAdapter } from './serper';
 import { TavilyAdapter } from './tavily';
 import { ExaAdapter } from './exa';
+import { NewsDataAdapter } from './newsdata';
 import { config } from '../config';
 
 /**
@@ -209,6 +210,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const zbKey = (config as Record<string, unknown>).PROVIDER_KEY_ZEROBOUNCE as string | undefined;
       if (!zbKey) return undefined;
       return getOrCreate('zerobounce', () => new ZeroBounceAdapter(zbKey));
+    }
+    case 'news': {
+      const newsKey = (config as Record<string, unknown>).PROVIDER_KEY_NEWSDATA as string | undefined;
+      if (!newsKey) return undefined;
+      return getOrCreate('newsdata', () => new NewsDataAdapter(newsKey));
     }
     case 'exa': {
       const exaKey = (config as Record<string, unknown>).PROVIDER_KEY_EXA as string | undefined;
