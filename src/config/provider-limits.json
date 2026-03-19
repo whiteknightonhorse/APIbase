@@ -288,6 +288,15 @@
     "docs_url": "https://www.zerobounce.net/email-validation-api-quickstart/",
     "limit_proof": "100 free credits/month, then $39/2,000 credits (no expiry on purchased)"
   },
+  "mastodon": {
+    "display_name": "Mastodon (Fediverse)",
+    "health_url": "https://mastodon.social/api/v1/trends/tags?limit=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://docs.joinmastodon.org/api/",
+    "limit_proof": "Open source AGPL, no auth for trending endpoints, 300 req/5min with auth"
+  },
   "regulations": {
     "display_name": "Regulations.gov",
     "health_url": "https://api.regulations.gov/v4/documents?page[size]=5&api_key=DEMO_KEY",

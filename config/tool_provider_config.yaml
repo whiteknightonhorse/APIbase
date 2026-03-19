@@ -1064,6 +1064,19 @@ tools:
     price_usd: "0.025"
     cache_ttl: 86400
 
+  # --- UC-081: Mastodon (Fediverse Social Media) ---
+  - tool_id: mastodon.trending
+    name: Trending Mastodon Posts
+    provider: mastodon
+    price_usd: "0.001"
+    cache_ttl: 300
+
+  - tool_id: mastodon.trending_tags
+    name: Trending Mastodon Hashtags
+    provider: mastodon
+    price_usd: "0.001"
+    cache_ttl: 300
+
   # --- UC-082: Regulations.gov (US Federal Regulatory) ---
   - tool_id: regulations.search
     name: Search US Federal Regulations
