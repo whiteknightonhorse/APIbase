@@ -1367,6 +1367,74 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // Walk Score — Walkability & Transit Intelligence (UC-062, 1 tool)
   // ---------------------------------------------------------------------------
   // ---------------------------------------------------------------------------
+  // Regulations.gov — US Federal Regulatory Data (UC-082, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'regulations.search',
+    mcpName: 'legal.regulations.search',
+    title: 'Search US Federal Regulations',
+    description: 'Search US federal regulatory documents — rules, proposed rules, notices, presidential documents. Filter by agency (EPA, SEC, FDA...), document type, date. 7,500+ results for "artificial intelligence" (Regulations.gov)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'regulations.document',
+    mcpName: 'legal.regulations.document',
+    title: 'Get Regulatory Document Details',
+    description: 'Get full details of a US federal regulatory document by ID — title, abstract, agency, comment count, docket, dates. Public domain (Regulations.gov)',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
+  // Federal Register — US Federal Rules & Executive Orders (UC-083, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'fedregister.search',
+    mcpName: 'legal.fedregister.search',
+    title: 'Search Federal Register',
+    description: 'Search the US Federal Register — final rules, proposed rules, notices, executive orders. Filter by agency, type, date. 90+ years of official federal government records (Federal Register)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'fedregister.document',
+    mcpName: 'legal.fedregister.document',
+    title: 'Get Federal Register Document',
+    description: 'Get full Federal Register document by number — title, abstract, agencies, effective date, PDF link, comment deadline (Federal Register)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'fedregister.recent',
+    mcpName: 'legal.fedregister.recent',
+    title: 'Recent Federal Register Documents',
+    description: 'Latest documents published in the Federal Register — filter by type (rules, proposed rules, notices, presidential). No search query needed (Federal Register)',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
+  // CourtListener — US Case Law (UC-084, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'courtlistener.search',
+    mcpName: 'legal.caselaw.search',
+    title: 'Search US Court Opinions',
+    description: 'Search US federal and state court opinions — filter by court (scotus, ca9, dcd...), date range, relevance. Largest free US case law archive. 7,000+ AI-related opinions (CourtListener / Free Law Project)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'courtlistener.opinion',
+    mcpName: 'legal.caselaw.opinion',
+    title: 'Get Court Opinion Text',
+    description: 'Get full text of a US court opinion by ID — author, type, date, download URL. Up to 5,000 characters of opinion text (CourtListener)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'courtlistener.dockets',
+    mcpName: 'legal.caselaw.dockets',
+    title: 'Search Court Dockets (RECAP)',
+    description: 'Search PACER/RECAP federal court dockets — case filings, motions, orders. Filter by court. From the RECAP Archive (CourtListener / Free Law Project)',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
   // OCR.space — Optical Character Recognition (UC-078, 1 tool)
   // ---------------------------------------------------------------------------
   {

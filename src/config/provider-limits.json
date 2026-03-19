@@ -288,6 +288,33 @@
     "docs_url": "https://www.zerobounce.net/email-validation-api-quickstart/",
     "limit_proof": "100 free credits/month, then $39/2,000 credits (no expiry on purchased)"
   },
+  "regulations": {
+    "display_name": "Regulations.gov",
+    "health_url": "https://api.regulations.gov/v4/documents?page[size]=5&api_key=DEMO_KEY",
+    "limit_type": "hourly",
+    "free_limit": 1000,
+    "reset_period": "hourly",
+    "docs_url": "https://open.gsa.gov/api/regulationsgov/",
+    "limit_proof": "DEMO_KEY: 1,000 requests/hour. US government public domain data."
+  },
+  "fedregister": {
+    "display_name": "Federal Register",
+    "health_url": "https://www.federalregister.gov/api/v1/documents.json?per_page=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.federalregister.gov/developers/documentation/api/v1",
+    "limit_proof": "No auth required, no documented rate limits. US government public domain."
+  },
+  "courtlistener": {
+    "display_name": "CourtListener (Free Law Project)",
+    "health_url": "https://www.courtlistener.com/api/rest/v4/search/?q=test&type=o&page_size=1",
+    "limit_type": "hourly",
+    "free_limit": 5000,
+    "reset_period": "hourly",
+    "docs_url": "https://www.courtlistener.com/help/api/rest/",
+    "limit_proof": "5,000 requests/hour for authenticated users. Open data, 501(c)(3) nonprofit."
+  },
   "ocrspace": {
     "display_name": "OCR.space",
     "health_url": "https://api.ocr.space/parse/image",

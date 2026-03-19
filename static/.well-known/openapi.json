@@ -14508,6 +14508,681 @@
         ]
       }
     },
+    "/api/v1/tools/regulations.search/call": {
+      "post": {
+        "operationId": "regulations_search",
+        "summary": "Search US Federal Regulations",
+        "description": "Search US federal regulatory documents — rules, proposed rules, notices, presidential documents. Filter by agency (EPA, SEC, FDA...), document type, date. 7,500+ results for \"artificial intelligence\" (Regulations.gov)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "regulations.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search keywords in federal regulatory documents (e.g. \"artificial intelligence\", \"climate change\")"
+                  },
+                  "document_type": {
+                    "type": "string",
+                    "enum": [
+                      "Rule",
+                      "Proposed Rule",
+                      "Notice",
+                      "Presidential Document"
+                    ],
+                    "description": "Filter by document type"
+                  },
+                  "agency": {
+                    "type": "string",
+                    "description": "Filter by agency ID (e.g. \"EPA\", \"SEC\", \"FDA\")"
+                  },
+                  "posted_after": {
+                    "type": "string",
+                    "description": "Only documents posted after this date (YYYY-MM-DD)"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 5,
+                    "maximum": 25,
+                    "description": "Number of results (default 10, min 5, max 25)"
+                  },
+                  "sort": {
+                    "type": "string",
+                    "enum": [
+                      "postedDate",
+                      "-postedDate",
+                      "title",
+                      "documentId"
+                    ],
+                    "description": "Sort order (default: -postedDate, newest first)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/regulations.document/call": {
+      "post": {
+        "operationId": "regulations_document",
+        "summary": "Get Regulatory Document Details",
+        "description": "Get full details of a US federal regulatory document by ID — title, abstract, agency, comment count, docket, dates. Public domain (Regulations.gov)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "regulations.document"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "document_id": {
+                    "type": "string",
+                    "description": "Document ID from search results (e.g. \"FDA-2024-N-0001-0001\")"
+                  }
+                },
+                "required": [
+                  "document_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/fedregister.search/call": {
+      "post": {
+        "operationId": "fedregister_search",
+        "summary": "Search Federal Register",
+        "description": "Search the US Federal Register — final rules, proposed rules, notices, executive orders. Filter by agency, type, date. 90+ years of official federal government records (Federal Register)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fedregister.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search keywords in Federal Register (e.g. \"executive order\", \"cryptocurrency regulation\")"
+                  },
+                  "document_type": {
+                    "type": "string",
+                    "enum": [
+                      "RULE",
+                      "PRORULE",
+                      "NOTICE",
+                      "PRESDOCU"
+                    ],
+                    "description": "Type: RULE (final rule), PRORULE (proposed rule), NOTICE, PRESDOCU (presidential document/executive order)"
+                  },
+                  "agency": {
+                    "type": "string",
+                    "description": "Agency slug (e.g. \"environmental-protection-agency\", \"securities-and-exchange-commission\")"
+                  },
+                  "published_after": {
+                    "type": "string",
+                    "description": "Only documents published after this date (MM/DD/YYYY)"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20,
+                    "description": "Number of results (default 10, max 20)"
+                  },
+                  "sort": {
+                    "type": "string",
+                    "enum": [
+                      "newest",
+                      "oldest",
+                      "relevance"
+                    ],
+                    "description": "Sort order (default: newest)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/fedregister.document/call": {
+      "post": {
+        "operationId": "fedregister_document",
+        "summary": "Get Federal Register Document",
+        "description": "Get full Federal Register document by number — title, abstract, agencies, effective date, PDF link, comment deadline (Federal Register)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fedregister.document"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "document_number": {
+                    "type": "string",
+                    "description": "Federal Register document number (e.g. \"2026-12345\")"
+                  }
+                },
+                "required": [
+                  "document_number"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/fedregister.recent/call": {
+      "post": {
+        "operationId": "fedregister_recent",
+        "summary": "Recent Federal Register Documents",
+        "description": "Latest documents published in the Federal Register — filter by type (rules, proposed rules, notices, presidential). No search query needed (Federal Register)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fedregister.recent"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "document_type": {
+                    "type": "string",
+                    "enum": [
+                      "RULE",
+                      "PRORULE",
+                      "NOTICE",
+                      "PRESDOCU"
+                    ],
+                    "description": "Filter by type (default: all types)"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20,
+                    "description": "Number of results (default 10, max 20)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/courtlistener.search/call": {
+      "post": {
+        "operationId": "courtlistener_search",
+        "summary": "Search US Court Opinions",
+        "description": "Search US federal and state court opinions — filter by court (scotus, ca9, dcd...), date range, relevance. Largest free US case law archive. 7,000+ AI-related opinions (CourtListener / Free Law Project)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "courtlistener.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search query for US court opinions (e.g. \"artificial intelligence liability\", \"Fourth Amendment digital privacy\")"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "o",
+                      "r"
+                    ],
+                    "description": "Search type: \"o\" (opinions, default) or \"r\" (RECAP dockets)"
+                  },
+                  "court": {
+                    "type": "string",
+                    "description": "Court filter (e.g. \"scotus\" for Supreme Court, \"ca9\" for 9th Circuit, \"dcd\" for DC District)"
+                  },
+                  "filed_after": {
+                    "type": "string",
+                    "description": "Only cases filed after this date (YYYY-MM-DD)"
+                  },
+                  "filed_before": {
+                    "type": "string",
+                    "description": "Only cases filed before this date (YYYY-MM-DD)"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20,
+                    "description": "Number of results (default 10, max 20)"
+                  },
+                  "order_by": {
+                    "type": "string",
+                    "enum": [
+                      "score desc",
+                      "dateFiled desc",
+                      "dateFiled asc"
+                    ],
+                    "description": "Sort: relevance (default), newest, oldest"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/courtlistener.opinion/call": {
+      "post": {
+        "operationId": "courtlistener_opinion",
+        "summary": "Get Court Opinion Text",
+        "description": "Get full text of a US court opinion by ID — author, type, date, download URL. Up to 5,000 characters of opinion text (CourtListener)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "courtlistener.opinion"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "opinion_id": {
+                    "type": "string",
+                    "description": "Opinion ID from search results"
+                  }
+                },
+                "required": [
+                  "opinion_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/courtlistener.dockets/call": {
+      "post": {
+        "operationId": "courtlistener_dockets",
+        "summary": "Search Court Dockets (RECAP)",
+        "description": "Search PACER/RECAP federal court dockets — case filings, motions, orders. Filter by court. From the RECAP Archive (CourtListener / Free Law Project)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "courtlistener.dockets"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search query for RECAP dockets"
+                  },
+                  "court": {
+                    "type": "string",
+                    "description": "Court filter"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20,
+                    "description": "Number of results (default 10)"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/ocr.extract_text/call": {
       "post": {
         "operationId": "ocr_extract_text",
