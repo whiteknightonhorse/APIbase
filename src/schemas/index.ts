@@ -37,6 +37,7 @@ import { serperSchemas } from './serper.schema';
 import { tavilySchemas } from './tavily.schema';
 import { exaSchemas } from './exa.schema';
 import { newsdataSchemas } from './newsdata.schema';
+import { finnhubSchemas } from './finnhub.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -77,4 +78,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...tavilySchemas,
   ...exaSchemas,
   ...newsdataSchemas,
+  ...finnhubSchemas,
 };

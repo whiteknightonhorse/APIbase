@@ -37,6 +37,7 @@ import { SerperAdapter } from './serper';
 import { TavilyAdapter } from './tavily';
 import { ExaAdapter } from './exa';
 import { NewsDataAdapter } from './newsdata';
+import { FinnhubAdapter } from './finnhub';
 import { config } from '../config';
 
 /**
@@ -210,6 +211,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const zbKey = (config as Record<string, unknown>).PROVIDER_KEY_ZEROBOUNCE as string | undefined;
       if (!zbKey) return undefined;
       return getOrCreate('zerobounce', () => new ZeroBounceAdapter(zbKey));
+    }
+    case 'finnhub': {
+      const fhKey = (config as Record<string, unknown>).PROVIDER_KEY_FINNHUB as string | undefined;
+      if (!fhKey) return undefined;
+      return getOrCreate('finnhub', () => new FinnhubAdapter(fhKey));
     }
     case 'news': {
       const newsKey = (config as Record<string, unknown>).PROVIDER_KEY_NEWSDATA as string | undefined;
