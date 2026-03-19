@@ -288,6 +288,15 @@
     "docs_url": "https://www.zerobounce.net/email-validation-api-quickstart/",
     "limit_proof": "100 free credits/month, then $39/2,000 credits (no expiry on purchased)"
   },
+  "exa": {
+    "display_name": "Exa Semantic Search",
+    "health_url": "https://api.exa.ai/search",
+    "limit_type": "monthly",
+    "free_limit": 1000,
+    "reset_period": "monthly",
+    "docs_url": "https://docs.exa.ai/reference/search",
+    "limit_proof": "Free tier: 1,000 requests/month, no credit card required"
+  },
   "tavily": {
     "display_name": "Tavily AI Search",
     "health_url": "https://api.tavily.com/search",

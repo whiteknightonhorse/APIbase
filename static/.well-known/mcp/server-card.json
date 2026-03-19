@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase — The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 181 tools across web search, AI search, travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, recipes, domain intelligence, AI marketing, real estate, weather, space/astronomy, gaming, and more. Pay-per-call via x402 micropayments.",
+    "description": "Unified MCP gateway to 184 tools across web search, AI search, semantic search, travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, recipes, domain intelligence, AI marketing, real estate, weather, space/astronomy, gaming, and more. Pay-per-call via x402 micropayments.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -6637,6 +6637,160 @@
       }
     },
     {
+      "name": "search.semantic.web",
+      "title": "Semantic Web Search (Exa)",
+      "description": "Neural/semantic web search — finds conceptually related pages, not just keyword matches. Supports category filters (company, research paper, news, people, tweet), domain filtering, date range. Returns relevance scores and highlighted excerpts (Exa)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Natural language search query — Exa finds semantically related pages, not just keyword matches"
+          },
+          "num_results": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 25,
+            "description": "Number of results (default 10, max 25)"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "neural",
+              "keyword"
+            ],
+            "description": "Search type: \"auto\" (balanced), \"neural\" (semantic similarity), \"keyword\" (traditional). Default: auto"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "company",
+              "research paper",
+              "news",
+              "people",
+              "tweet"
+            ],
+            "description": "Category filter for specialized indexes (optional)"
+          },
+          "include_domains": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Only include results from these domains (e.g. [\"arxiv.org\"])"
+          },
+          "exclude_domains": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Exclude results from these domains"
+          },
+          "start_published_date": {
+            "type": "string",
+            "description": "Filter: only results published after this date (ISO format, e.g. \"2025-01-01\")"
+          },
+          "end_published_date": {
+            "type": "string",
+            "description": "Filter: only results published before this date"
+          },
+          "include_text": {
+            "type": "boolean",
+            "description": "Include full extracted page text in results (default false — saves tokens)"
+          },
+          "include_highlights": {
+            "type": "boolean",
+            "description": "Include key sentence highlights (default true)"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "search.semantic.contents",
+      "title": "Extract Page Content (Exa)",
+      "description": "Extract clean text content from up to 10 URLs — returns title, author, published date, full text. Use for feeding web pages into agent context (Exa)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "minItems": 1,
+            "maxItems": 10,
+            "description": "URLs to extract content from (1-10). Returns clean text, title, author, date."
+          }
+        },
+        "required": [
+          "urls"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "search.semantic.similar",
+      "title": "Find Similar Pages (Exa)",
+      "description": "Find web pages semantically similar to a given URL — discover related content, competitors, alternatives without knowing what to search for. Unique capability for research agents (Exa)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Reference URL — Exa finds pages semantically similar to this one"
+          },
+          "num_results": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 25,
+            "description": "Number of similar pages (default 10, max 25)"
+          },
+          "exclude_source_domain": {
+            "type": "boolean",
+            "description": "Exclude results from same domain as input URL (default true)"
+          },
+          "start_published_date": {
+            "type": "string",
+            "description": "Only include similar pages published after this date (ISO format)"
+          },
+          "include_text": {
+            "type": "boolean",
+            "description": "Include full extracted page text (default false)"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
       "name": "search.ai.web",
       "title": "AI Web Search (Tavily)",
       "description": "AI-optimized web search — returns synthesized answer + curated results with extracted page content and relevance scores. Built for LLM/agent RAG pipelines. Supports domain filtering and recency (Tavily)",
@@ -7075,17 +7229,17 @@
       "arguments": [
         {
           "name": "origin",
-          "description": "Origin airport IATA code (e.g. JFK)",
+          "description": "Origin airport IATA code",
           "required": true
         },
         {
           "name": "destination",
-          "description": "Destination airport IATA code (e.g. CDG)",
+          "description": "Destination airport IATA code",
           "required": true
         },
         {
           "name": "date",
-          "description": "Departure date in YYYY-MM-DD format",
+          "description": "Departure date YYYY-MM-DD",
           "required": true
         }
       ]
@@ -7100,7 +7254,7 @@
       "arguments": [
         {
           "name": "topic",
-          "description": "Topic to research (e.g. US election, Bitcoin price)",
+          "description": "Topic to research",
           "required": true
         }
       ]

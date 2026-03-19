@@ -1064,6 +1064,25 @@ tools:
     price_usd: "0.025"
     cache_ttl: 86400
 
+  # --- UC-069: Exa Semantic Search ---
+  - tool_id: exa.search
+    name: Semantic Web Search
+    provider: exa
+    price_usd: "0.012"
+    cache_ttl: 300
+
+  - tool_id: exa.contents
+    name: Extract Page Content
+    provider: exa
+    price_usd: "0.003"
+    cache_ttl: 3600
+
+  - tool_id: exa.find_similar
+    name: Find Similar Pages
+    provider: exa
+    price_usd: "0.012"
+    cache_ttl: 3600
+
   # --- UC-068: Tavily AI Search ---
   - tool_id: tavily.search
     name: AI Web Search
