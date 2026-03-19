@@ -1064,6 +1064,31 @@ tools:
     price_usd: "0.025"
     cache_ttl: 86400
 
+  # --- UC-067: Serper.dev (Google Search API) ---
+  - tool_id: serper.web_search
+    name: Google Web Search
+    provider: serper
+    price_usd: "0.002"
+    cache_ttl: 300
+
+  - tool_id: serper.news_search
+    name: Google News Search
+    provider: serper
+    price_usd: "0.002"
+    cache_ttl: 60
+
+  - tool_id: serper.image_search
+    name: Google Image Search
+    provider: serper
+    price_usd: "0.002"
+    cache_ttl: 300
+
+  - tool_id: serper.shopping_search
+    name: Google Shopping Search
+    provider: serper
+    price_usd: "0.002"
+    cache_ttl: 300
+
   # --- UC-063: US Real Estate (RapidAPI — Property Listings & Details) ---
   - tool_id: usrealestate.for_sale
     name: US Properties For Sale

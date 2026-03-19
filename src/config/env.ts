@@ -104,6 +104,9 @@ export const appEnvSchema = z.object({
   // ZeroBounce Email Validation (UC-055) — query param auth, 100 free/month, $39/2K credits
   PROVIDER_KEY_ZEROBOUNCE: z.string().optional().default(''),
 
+  // Serper.dev Google Search (UC-067) — X-API-KEY header, 2,500 free one-time, PAYG $0.001/call
+  PROVIDER_KEY_SERPER: z.string().optional().default(''),
+
   // US Real Estate via RapidAPI (UC-063) — header auth, 500K req/month free BASIC plan
   PROVIDER_KEY_RAPIDAPI: z.string().optional().default(''),
 

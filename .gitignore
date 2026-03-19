@@ -52,3 +52,5 @@ plan.md
 .claude/skills/
 
 TASK-FOR-AIPUSH-CLAUDE.md
+static/video/*.mov
+static/video/*.mp4

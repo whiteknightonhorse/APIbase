@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase — The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 175 tools across travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, recipes, domain intelligence, AI marketing, real estate, weather, space/astronomy, gaming, and more. Pay-per-call via x402 micropayments.",
+    "description": "Unified MCP gateway to 179 tools across web search, travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, recipes, domain intelligence, AI marketing, real estate, weather, space/astronomy, gaming, and more. Pay-per-call via x402 micropayments.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -6626,6 +6626,169 @@
         },
         "required": [
           "email"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "search.google.web",
+      "title": "Google Web Search",
+      "description": "Real-time Google web search results — organic listings, knowledge graph, answer box, people also ask, related searches. Supports country and language targeting. Powered by Serper.dev",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Search query (e.g. \"best restaurants in Berlin\", \"how does MCP protocol work\")"
+          },
+          "gl": {
+            "type": "string",
+            "maxLength": 2,
+            "description": "Country code for localized results (e.g. \"us\", \"gb\", \"de\", \"fr\")"
+          },
+          "hl": {
+            "type": "string",
+            "maxLength": 5,
+            "description": "Language code for results (e.g. \"en\", \"de\", \"fr\", \"es\")"
+          },
+          "num": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Number of results to return (default 10, max 100)"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number for pagination (default 1)"
+          }
+        },
+        "required": [
+          "q"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "search.google.news",
+      "title": "Google News Search",
+      "description": "Real-time Google News articles — title, source, date, snippet, image. Filter by time (past hour/day/week/month). Global coverage in 70+ languages (Serper.dev)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "minLength": 1,
+            "description": "News search query (e.g. \"AI agents\", \"Base network\")"
+          },
+          "gl": {
+            "type": "string",
+            "maxLength": 2,
+            "description": "Country code for localized news (e.g. \"us\", \"gb\")"
+          },
+          "hl": {
+            "type": "string",
+            "maxLength": 5,
+            "description": "Language code (e.g. \"en\", \"de\")"
+          },
+          "num": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Number of articles (default 10, max 100)"
+          },
+          "tbs": {
+            "type": "string",
+            "description": "Time filter: \"qdr:h\" (past hour), \"qdr:d\" (past day), \"qdr:w\" (past week), \"qdr:m\" (past month)"
+          }
+        },
+        "required": [
+          "q"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "search.google.images",
+      "title": "Google Image Search",
+      "description": "Google Image search results — image URL, thumbnail, dimensions, source domain. Search any visual content worldwide (Serper.dev)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Image search query (e.g. \"golden gate bridge sunset\")"
+          },
+          "gl": {
+            "type": "string",
+            "maxLength": 2,
+            "description": "Country code (e.g. \"us\")"
+          },
+          "num": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Number of images (default 10, max 100)"
+          }
+        },
+        "required": [
+          "q"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "search.google.shopping",
+      "title": "Google Shopping Search",
+      "description": "Google Shopping product listings — title, price, source, rating, delivery info, product images. Compare prices across retailers (Serper.dev)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Product search query (e.g. \"macbook pro 16 inch\", \"wireless headphones\")"
+          },
+          "gl": {
+            "type": "string",
+            "maxLength": 2,
+            "description": "Country code for localized prices (e.g. \"us\", \"gb\")"
+          },
+          "num": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Number of products (default 10, max 100)"
+          }
+        },
+        "required": [
+          "q"
         ],
         "additionalProperties": false
       },

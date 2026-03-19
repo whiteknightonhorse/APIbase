@@ -1367,6 +1367,38 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // Walk Score — Walkability & Transit Intelligence (UC-062, 1 tool)
   // ---------------------------------------------------------------------------
   // ---------------------------------------------------------------------------
+  // Serper.dev — Google Search API (UC-067, 4 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'serper.web_search',
+    mcpName: 'search.google.web',
+    title: 'Google Web Search',
+    description: 'Real-time Google web search results — organic listings, knowledge graph, answer box, people also ask, related searches. Supports country and language targeting. Powered by Serper.dev',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'serper.news_search',
+    mcpName: 'search.google.news',
+    title: 'Google News Search',
+    description: 'Real-time Google News articles — title, source, date, snippet, image. Filter by time (past hour/day/week/month). Global coverage in 70+ languages (Serper.dev)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'serper.image_search',
+    mcpName: 'search.google.images',
+    title: 'Google Image Search',
+    description: 'Google Image search results — image URL, thumbnail, dimensions, source domain. Search any visual content worldwide (Serper.dev)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'serper.shopping_search',
+    mcpName: 'search.google.shopping',
+    title: 'Google Shopping Search',
+    description: 'Google Shopping product listings — title, price, source, rating, delivery info, product images. Compare prices across retailers (Serper.dev)',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
   // US Real Estate — Property Listings & Details (UC-063, 3 tools)
   // ---------------------------------------------------------------------------
   {

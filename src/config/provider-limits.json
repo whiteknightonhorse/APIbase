@@ -287,5 +287,14 @@
     "balance_api": true,
     "docs_url": "https://www.zerobounce.net/email-validation-api-quickstart/",
     "limit_proof": "100 free credits/month, then $39/2,000 credits (no expiry on purchased)"
+  },
+  "serper": {
+    "display_name": "Serper.dev (Google Search)",
+    "health_url": "https://google.serper.dev/search",
+    "limit_type": "credits",
+    "free_limit": 2500,
+    "reset_period": "none",
+    "docs_url": "https://serper.dev/pricing",
+    "limit_proof": "2,500 free one-time queries (6-month validity), then PAYG $1/1K queries"
   }
 }

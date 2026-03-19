@@ -33,6 +33,7 @@ import { openlibrarySchemas } from './openlibrary.schema';
 import { zerobounceSchemas } from './zerobounce.schema';
 import { walkscoreSchemas } from './walkscore.schema';
 import { usrealestateSchemas } from './usrealestate.schema';
+import { serperSchemas } from './serper.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -69,4 +70,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...zerobounceSchemas,
   ...walkscoreSchemas,
   ...usrealestateSchemas,
+  ...serperSchemas,
 };
