@@ -14508,6 +14508,280 @@
         ]
       }
     },
+    "/api/v1/tools/stability.generate/call": {
+      "post": {
+        "operationId": "stability_generate",
+        "summary": "Generate Image (Stability AI)",
+        "description": "Generate images from text prompts using Stable Diffusion — supports style presets (anime, cinematic, pixel-art, photographic...), aspect ratios, negative prompts. Returns base64 PNG data URI. Powered by Stability AI",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "stability.generate"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "prompt": {
+                    "type": "string",
+                    "description": "Text prompt describing the image to generate (e.g. \"a futuristic city at sunset, cyberpunk style, detailed\")",
+                    "minLength": 1,
+                    "maxLength": 10000
+                  },
+                  "negative_prompt": {
+                    "type": "string",
+                    "description": "What to exclude from the image (e.g. \"blurry, low quality, text, watermark\")"
+                  },
+                  "aspect_ratio": {
+                    "type": "string",
+                    "enum": [
+                      "1:1",
+                      "16:9",
+                      "21:9",
+                      "2:3",
+                      "3:2",
+                      "4:5",
+                      "5:4",
+                      "9:16",
+                      "9:21"
+                    ],
+                    "description": "Image aspect ratio (default \"1:1\")"
+                  },
+                  "style_preset": {
+                    "type": "string",
+                    "enum": [
+                      "3d-model",
+                      "analog-film",
+                      "anime",
+                      "cinematic",
+                      "comic-book",
+                      "digital-art",
+                      "enhance",
+                      "fantasy-art",
+                      "isometric",
+                      "line-art",
+                      "low-poly",
+                      "neon-punk",
+                      "origami",
+                      "photographic",
+                      "pixel-art",
+                      "tile-texture"
+                    ],
+                    "description": "Style preset to guide generation"
+                  }
+                },
+                "required": [
+                  "prompt"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/resend.send_email/call": {
+      "post": {
+        "operationId": "resend_send_email",
+        "summary": "Send Email (Resend)",
+        "description": "Send transactional email — plain text or HTML body, multiple recipients, reply-to. Requires verified sender domain. 3,000 free emails/month (Resend)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "resend.send_email"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "to": {
+                    "type": "object"
+                  },
+                  "subject": {
+                    "type": "string",
+                    "description": "Email subject line",
+                    "minLength": 1
+                  },
+                  "text": {
+                    "type": "string",
+                    "description": "Plain text email body"
+                  },
+                  "html": {
+                    "type": "string",
+                    "description": "HTML email body (alternative to text)"
+                  },
+                  "from": {
+                    "type": "string",
+                    "description": "Sender email (default: noreply@apibase.pro). Must be a verified domain."
+                  },
+                  "reply_to": {
+                    "type": "string",
+                    "description": "Reply-to email address"
+                  }
+                },
+                "required": [
+                  "to",
+                  "subject"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/resend.email_status/call": {
+      "post": {
+        "operationId": "resend_email_status",
+        "summary": "Check Email Status (Resend)",
+        "description": "Check delivery status of a sent email by ID — last event, timestamps (Resend)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "resend.email_status"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email_id": {
+                    "type": "string",
+                    "description": "Email ID returned from send_email (e.g. \"d1c6e0a8-...\")"
+                  }
+                },
+                "required": [
+                  "email_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/mastodon.trending/call": {
       "post": {
         "operationId": "mastodon_trending",

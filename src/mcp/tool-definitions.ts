@@ -1367,6 +1367,35 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // Walk Score — Walkability & Transit Intelligence (UC-062, 1 tool)
   // ---------------------------------------------------------------------------
   // ---------------------------------------------------------------------------
+  // Stability AI — Image Generation (UC-080, 1 tool)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'stability.generate',
+    mcpName: 'ai.image.generate',
+    title: 'Generate Image (Stability AI)',
+    description: 'Generate images from text prompts using Stable Diffusion — supports style presets (anime, cinematic, pixel-art, photographic...), aspect ratios, negative prompts. Returns base64 PNG data URI. Powered by Stability AI',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
+  // Resend — Transactional Email (UC-076, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'resend.send_email',
+    mcpName: 'email.transactional.send',
+    title: 'Send Email (Resend)',
+    description: 'Send transactional email — plain text or HTML body, multiple recipients, reply-to. Requires verified sender domain. 3,000 free emails/month (Resend)',
+    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+  },
+  {
+    toolId: 'resend.email_status',
+    mcpName: 'email.transactional.status',
+    title: 'Check Email Status (Resend)',
+    description: 'Check delivery status of a sent email by ID — last event, timestamps (Resend)',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
   // Mastodon — Fediverse Social Media (UC-081, 2 tools)
   // ---------------------------------------------------------------------------
   {

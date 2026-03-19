@@ -288,6 +288,24 @@
     "docs_url": "https://www.zerobounce.net/email-validation-api-quickstart/",
     "limit_proof": "100 free credits/month, then $39/2,000 credits (no expiry on purchased)"
   },
+  "stability": {
+    "display_name": "Stability AI",
+    "health_url": "https://api.stability.ai/v2beta/stable-image/generate/core",
+    "limit_type": "credits",
+    "free_limit": 25,
+    "reset_period": "none",
+    "docs_url": "https://platform.stability.ai/pricing",
+    "limit_proof": "25 free credits on signup, then PAYG $0.01/credit. Core: 3 credits/image."
+  },
+  "resend": {
+    "display_name": "Resend Email",
+    "health_url": "https://api.resend.com/emails",
+    "limit_type": "monthly",
+    "free_limit": 3000,
+    "reset_period": "monthly",
+    "docs_url": "https://resend.com/pricing",
+    "limit_proof": "Free: 3,000 emails/month, 100/day cap, 1 domain."
+  },
   "mastodon": {
     "display_name": "Mastodon (Fediverse)",
     "health_url": "https://mastodon.social/api/v1/trends/tags?limit=1",

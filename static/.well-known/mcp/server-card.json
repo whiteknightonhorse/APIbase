@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase — The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 203 tools across social media, legal/regulatory, OCR, stocks, news, web search, AI search, travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, real estate, weather, space, gaming, and more. Pay-per-call via x402 micropayments.",
+    "description": "Unified MCP gateway to 206 tools across image generation, email, social media, legal, OCR, stocks, news, web search, travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, real estate, weather, space, gaming, and more. Pay-per-call via x402 micropayments.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -6626,6 +6626,156 @@
         },
         "required": [
           "email"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ai.image.generate",
+      "title": "Generate Image (Stability AI)",
+      "description": "Generate images from text prompts using Stable Diffusion — supports style presets (anime, cinematic, pixel-art, photographic...), aspect ratios, negative prompts. Returns base64 PNG data URI. Powered by Stability AI",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 10000,
+            "description": "Text prompt describing the image to generate (e.g. \"a futuristic city at sunset, cyberpunk style, detailed\")"
+          },
+          "negative_prompt": {
+            "type": "string",
+            "description": "What to exclude from the image (e.g. \"blurry, low quality, text, watermark\")"
+          },
+          "aspect_ratio": {
+            "type": "string",
+            "enum": [
+              "1:1",
+              "16:9",
+              "21:9",
+              "2:3",
+              "3:2",
+              "4:5",
+              "5:4",
+              "9:16",
+              "9:21"
+            ],
+            "description": "Image aspect ratio (default \"1:1\")"
+          },
+          "style_preset": {
+            "type": "string",
+            "enum": [
+              "3d-model",
+              "analog-film",
+              "anime",
+              "cinematic",
+              "comic-book",
+              "digital-art",
+              "enhance",
+              "fantasy-art",
+              "isometric",
+              "line-art",
+              "low-poly",
+              "neon-punk",
+              "origami",
+              "photographic",
+              "pixel-art",
+              "tile-texture"
+            ],
+            "description": "Style preset to guide generation"
+          }
+        },
+        "required": [
+          "prompt"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "email.transactional.send",
+      "title": "Send Email (Resend)",
+      "description": "Send transactional email — plain text or HTML body, multiple recipients, reply-to. Requires verified sender domain. 3,000 free emails/month (Resend)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "to": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "email"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "email"
+                }
+              }
+            ],
+            "description": "Recipient email address(es) — single email or array of emails"
+          },
+          "subject": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Email subject line"
+          },
+          "text": {
+            "type": "string",
+            "description": "Plain text email body"
+          },
+          "html": {
+            "type": "string",
+            "description": "HTML email body (alternative to text)"
+          },
+          "from": {
+            "type": "string",
+            "description": "Sender email (default: noreply@apibase.pro). Must be a verified domain."
+          },
+          "reply_to": {
+            "type": "string",
+            "format": "email",
+            "description": "Reply-to email address"
+          }
+        },
+        "required": [
+          "to",
+          "subject"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "email.transactional.status",
+      "title": "Check Email Status (Resend)",
+      "description": "Check delivery status of a sent email by ID — last event, timestamps (Resend)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "email_id": {
+            "type": "string",
+            "description": "Email ID returned from send_email (e.g. \"d1c6e0a8-...\")"
+          }
+        },
+        "required": [
+          "email_id"
         ],
         "additionalProperties": false
       },

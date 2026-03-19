@@ -1064,6 +1064,26 @@ tools:
     price_usd: "0.025"
     cache_ttl: 86400
 
+  # --- UC-080: Stability AI (Image Generation) ---
+  - tool_id: stability.generate
+    name: Generate Image
+    provider: stability
+    price_usd: "0.070"
+    cache_ttl: 0
+
+  # --- UC-076: Resend (Transactional Email) ---
+  - tool_id: resend.send_email
+    name: Send Email
+    provider: resend
+    price_usd: "0.003"
+    cache_ttl: 0
+
+  - tool_id: resend.email_status
+    name: Email Status
+    provider: resend
+    price_usd: "0.001"
+    cache_ttl: 60
+
   # --- UC-081: Mastodon (Fediverse Social Media) ---
   - tool_id: mastodon.trending
     name: Trending Mastodon Posts

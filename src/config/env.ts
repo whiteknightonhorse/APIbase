@@ -104,6 +104,12 @@ export const appEnvSchema = z.object({
   // ZeroBounce Email Validation (UC-055) — query param auth, 100 free/month, $39/2K credits
   PROVIDER_KEY_ZEROBOUNCE: z.string().optional().default(''),
 
+  // Stability AI (UC-080) — Bearer header, 25 free credits
+  PROVIDER_KEY_STABILITY: z.string().optional().default(''),
+
+  // Resend Email (UC-076) — Bearer header, 3K/month free
+  PROVIDER_KEY_RESEND: z.string().optional().default(''),
+
   // OCR.space (UC-078) — apikey header, 25K req/month free, commercial OK
   PROVIDER_KEY_OCRSPACE: z.string().optional().default(''),
 

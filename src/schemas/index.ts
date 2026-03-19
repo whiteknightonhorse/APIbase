@@ -41,6 +41,8 @@ import { finnhubSchemas } from './finnhub.schema';
 import { ocrspaceSchemas } from './ocrspace.schema';
 import { regulationsSchemas } from './regulations.schema';
 import { mastodonSchemas } from './mastodon.schema';
+import { stabilitySchemas } from './stability.schema';
+import { resendSchemas } from './resend.schema';
 import { fedregisterSchemas } from './fedregister.schema';
 import { courtlistenerSchemas } from './courtlistener.schema';
 
@@ -87,6 +89,8 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...ocrspaceSchemas,
   ...regulationsSchemas,
   ...mastodonSchemas,
+  ...stabilitySchemas,
+  ...resendSchemas,
   ...fedregisterSchemas,
   ...courtlistenerSchemas,
 };

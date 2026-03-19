@@ -41,6 +41,8 @@ import { FinnhubAdapter } from './finnhub';
 import { OcrSpaceAdapter } from './ocrspace';
 import { RegulationsAdapter } from './regulations';
 import { MastodonAdapter } from './mastodon';
+import { StabilityAdapter } from './stability';
+import { ResendAdapter } from './resend';
 import { FedRegisterAdapter } from './fedregister';
 import { CourtListenerAdapter } from './courtlistener';
 import { config } from '../config';
@@ -216,6 +218,16 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const zbKey = (config as Record<string, unknown>).PROVIDER_KEY_ZEROBOUNCE as string | undefined;
       if (!zbKey) return undefined;
       return getOrCreate('zerobounce', () => new ZeroBounceAdapter(zbKey));
+    }
+    case 'stability': {
+      const stabKey = (config as Record<string, unknown>).PROVIDER_KEY_STABILITY as string | undefined;
+      if (!stabKey) return undefined;
+      return getOrCreate('stability', () => new StabilityAdapter(stabKey));
+    }
+    case 'resend': {
+      const resendKey = (config as Record<string, unknown>).PROVIDER_KEY_RESEND as string | undefined;
+      if (!resendKey) return undefined;
+      return getOrCreate('resend', () => new ResendAdapter(resendKey));
     }
     case 'mastodon':
       return getOrCreate('mastodon', () => new MastodonAdapter());
