@@ -14,209 +14,72 @@
 <meta property="og:url" content="https://apibase.pro/privacy">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-
-body{
-  font-family:'JetBrains Mono','Fira Code','Cascadia Code','Courier New',monospace;
-  background:#1a1a2e;
-  color:#b0ffb0;
-  line-height:1.7;
-  padding:1.5rem;
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:flex-start;
-}
-
-/* --- Terminal window --- */
-.window{
-  max-width:880px;
-  width:100%;
-  background:#0c0c0c;
-  border-radius:10px 10px 8px 8px;
-  border:1px solid #444;
-  box-shadow:
-    0 20px 60px rgba(0,0,0,0.6),
-    0 0 80px rgba(0,255,65,0.04),
-    inset 0 0 80px rgba(0,255,65,0.01);
-  overflow:hidden;
-  position:relative;
-}
-
-/* CRT scanline overlay */
-.window::after{
-  content:'';
-  position:absolute;
-  top:0;left:0;right:0;bottom:0;
-  background:repeating-linear-gradient(
-    0deg,
-    rgba(0,0,0,0.06) 0px,
-    rgba(0,0,0,0.06) 1px,
-    transparent 1px,
-    transparent 3px
-  );
-  pointer-events:none;
-  z-index:2;
-}
-
-/* --- Title bar --- */
-.titlebar{
-  background:linear-gradient(180deg,#3d3d3d 0%,#2a2a2a 100%);
-  padding:10px 14px;
-  display:flex;
-  align-items:center;
-  border-bottom:1px solid #1a1a1a;
-  position:relative;
-  z-index:3;
-}
-
+body{font-family:'JetBrains Mono','Fira Code','Cascadia Code','Courier New',monospace;background:#1a1a2e;color:#b0ffb0;line-height:1.7;padding:1.5rem;min-height:100vh;display:flex;justify-content:center;align-items:flex-start}
+.window{max-width:880px;width:100%;background:#0c0c0c;border-radius:10px 10px 8px 8px;border:1px solid #444;box-shadow:0 20px 60px rgba(0,0,0,0.6),0 0 80px rgba(0,255,65,0.04),inset 0 0 80px rgba(0,255,65,0.01);overflow:hidden;position:relative}
+.window::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,0.06) 0px,rgba(0,0,0,0.06) 1px,transparent 1px,transparent 3px);pointer-events:none;z-index:2}
+.window::before{content:'';position:absolute;top:-100%;left:0;right:0;height:60px;background:linear-gradient(180deg,transparent 0%,rgba(0,255,65,0.03) 50%,transparent 100%);pointer-events:none;z-index:3;animation:scanline 8s linear infinite}
+@keyframes scanline{0%{top:-60px}100%{top:100%}}
+.titlebar{background:linear-gradient(180deg,#3d3d3d 0%,#2a2a2a 100%);padding:10px 14px;display:flex;align-items:center;border-bottom:1px solid #1a1a1a;position:relative;z-index:4}
 .dots{display:flex;gap:7px;flex-shrink:0}
-.dot{
-  width:13px;height:13px;
-  border-radius:50%;
-  border:1px solid rgba(0,0,0,0.2);
-}
+.dot{width:13px;height:13px;border-radius:50%;border:1px solid rgba(0,0,0,0.2)}
 .dot-red{background:#ff5f56;border-color:#e0443e}
 .dot-yellow{background:#ffbd2e;border-color:#dea123}
 .dot-green{background:#27c93f;border-color:#1aab29}
-
-.titlebar-text{
-  flex:1;
-  text-align:center;
-  color:#999;
-  font-size:0.78rem;
-  font-family:inherit;
-  letter-spacing:0.5px;
-}
-
-/* --- Content area --- */
-.container{
-  padding:1.8rem 2rem 2rem;
-  position:relative;
-  z-index:1;
-}
-
-/* --- Nav as terminal menu bar --- */
-nav{
-  display:flex;
-  flex-wrap:wrap;
-  gap:0.3rem;
-  margin-bottom:1.8rem;
-  padding:0.5rem 0;
-  border-bottom:1px solid #1a3a1a;
-}
-nav::before{
-  content:'[';
-  color:#555;
-}
-nav::after{
-  content:']';
-  color:#555;
-}
-nav .brand{
-  color:#00ff41;
-  font-weight:700;
-  font-size:0.9rem;
-  text-decoration:none;
-  text-shadow:0 0 8px rgba(0,255,65,0.4);
-}
-nav a{
-  color:#00cc33;
-  text-decoration:none;
-  font-size:0.85rem;
-}
-nav a::before{
-  content:' | ';
-  color:#333;
-}
-nav .brand::before{
-  content:'';
-}
-nav a:hover{
-  color:#00ff41;
-  text-shadow:0 0 6px rgba(0,255,65,0.5);
-}
-
-/* --- Typography --- */
-h1{
-  color:#00ff41;
-  font-size:1.3rem;
-  margin-bottom:0.5rem;
-  line-height:1.5;
-  text-shadow:0 0 10px rgba(0,255,65,0.3);
-}
-h1::before{
-  content:'> ';
-  color:#00aa30;
-}
-h2{
-  color:#00ff41;
-  font-size:1.05rem;
-  margin:2rem 0 0.8rem;
-  padding-left:1rem;
-  border-left:2px solid #00aa30;
-  text-shadow:0 0 6px rgba(0,255,65,0.2);
-}
+.titlebar-text{flex:1;text-align:center;color:#999;font-size:0.78rem;font-family:inherit;letter-spacing:0.5px}
+.cursor-blink{display:inline-block;width:8px;height:1.1em;background:#999;vertical-align:text-bottom;animation:blink 1s step-end infinite;margin-left:2px}
+.container{padding:1.8rem 2rem 2rem;position:relative;z-index:1}
+nav{display:flex;flex-wrap:wrap;gap:0.3rem;margin-bottom:1rem;padding:0.5rem 0;border-bottom:1px solid #1a3a1a}
+nav::before{content:'[';color:#555}nav::after{content:']';color:#555}
+nav .brand{color:#00ff41;font-weight:700;font-size:0.9rem;text-decoration:none;text-shadow:0 0 8px rgba(0,255,65,0.4)}
+nav a{color:#00cc33;text-decoration:none;font-size:0.85rem}
+nav a::before{content:' | ';color:#333}nav .brand::before{content:''}
+nav a:hover{color:#00ff41;text-shadow:0 0 6px rgba(0,255,65,0.5)}
+.sys-monitor{margin-bottom:1.5rem;font-size:0.82rem;color:#00ff41;letter-spacing:0.5px;padding:0.3rem 0}
+.sys-monitor .prompt{color:#00aa30;animation:blink 1s step-end infinite}
+.sys-monitor .label{color:#2a6a2a}
+.sys-monitor strong{color:#00ff41}
+.sys-cursor{display:inline-block;width:7px;height:1em;background:#00ff41;vertical-align:text-bottom;animation:blink 1s step-end infinite;margin-left:3px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+h1{color:#00ff41;font-size:1.3rem;margin-bottom:0.5rem;line-height:1.5;text-shadow:0 0 10px #00ff41,0 0 20px #00ff41,0 0 40px rgba(0,255,65,0.3)}
+h1::before{content:'> ';color:#00aa30}
+h2{color:#00ff41;font-size:1.05rem;margin:2rem 0 0.8rem;padding-left:1rem;border-left:2px solid #00aa30;text-shadow:0 0 6px rgba(0,255,65,0.2)}
 h2::before{content:'## ';color:#006620}
 p{margin-bottom:0.8rem;font-size:0.9rem;color:#a0d8a0}
 strong{color:#33ff66}
 .updated{color:#2a6a2a;font-size:0.82rem;margin-bottom:1.8rem}
-
-/* --- Lists --- */
 ul{padding-left:1.5rem;margin-bottom:1rem}
 li{margin-bottom:0.4rem;font-size:0.9rem;color:#a0d8a0}
 li::marker{color:#00aa30}
-
-/* --- Links --- */
 a{color:#00ccff;text-decoration:none}
-a:hover{
-  color:#66ddff;
-  text-shadow:0 0 6px rgba(0,204,255,0.4);
-}
-
-/* --- Footer / status bar --- */
-.footer{
-  margin-top:2rem;
-  padding:0.6rem 0;
-  border-top:1px solid #1a3a1a;
-  color:#2a6a2a;
-  font-size:0.78rem;
-  display:flex;
-  justify-content:space-between;
-}
-.footer::before{
-  content:'STATUS: ONLINE';
-  color:#00aa30;
-}
-.footer::after{
-  content:'PID 1337 | TTY pts/0';
-  color:#2a5a2a;
-}
-
-/* --- Responsive --- */
-@media(max-width:600px){
-  body{padding:0.5rem}
-  .container{padding:1rem}
-  .titlebar{padding:8px 10px}
-  h1{font-size:1.05rem}
-  h1::before{content:''}
-  .footer::after{display:none}
-  nav::before,nav::after{display:none}
-}
+a:hover{color:#66ddff;text-shadow:0 0 6px rgba(0,204,255,0.4)}
+.footer{margin-top:2rem;padding:0.6rem 0;border-top:1px solid #1a3a1a;color:#2a6a2a;font-size:0.72rem;display:flex;flex-direction:column;gap:0.2rem}
+.footer-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.5rem}
+.footer .online{color:#00aa30}
+#boot-screen{padding:2rem;font-size:0.82rem;color:#00ff41;min-height:200px;position:relative;z-index:1}
+#boot-screen .line{opacity:0;margin-bottom:2px}
+#boot-screen .line.visible{opacity:1}
+#boot-screen .ok{color:#27c93f}
+#boot-screen .sys{color:#ffbd2e}
+@media(max-width:600px){body{padding:0.5rem}.container{padding:1rem}.titlebar{padding:8px 10px}h1{font-size:1.05rem}h1::before{content:''}nav::before,nav::after{display:none}.sys-monitor{font-size:0.72rem}.footer{font-size:0.65rem}}
 </style>
 </head>
 <body>
 <div class="window">
 
 <div class="titlebar">
-<div class="dots">
-<span class="dot dot-red"></span>
-<span class="dot dot-yellow"></span>
-<span class="dot dot-green"></span>
-</div>
-<span class="titlebar-text">apibase@prod ~ /srv/apibase</span>
+<div class="dots"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></div>
+<span class="titlebar-text">apibase@prod:~$ cat /srv/apibase/privacy.html | render <span class="cursor-blink"></span></span>
 </div>
 
-<div class="container">
+<div id="boot-screen" style="display:none">
+<div class="line sys">APIBASE OS v1.0.0 — INITIALIZING...</div>
+<div class="line"><span class="ok">[OK]</span> Kernel: apibase-kernel 1.0.0</div>
+<div class="line"><span class="ok">[OK]</span> Compliance module: privacy-policy v2.1</div>
+<div class="line"><span class="ok">[OK]</span> Loading policy document...</div>
+<div class="line sys">SYSTEM READY. apibase@prod:~$</div>
+</div>
+
+<div class="container" id="main-content">
 
 <nav>
 <a class="brand" href="/">APIbase.pro</a>
@@ -226,6 +89,10 @@ a:hover{
 <a href="/privacy">Privacy</a>
 <a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a>
 </nav>
+
+<div class="sys-monitor">
+<span class="prompt">></span> <span class="label">SYSTEM</span>  <span class="label">PRV:</span><strong>46</strong>  <span class="label">TOOLS:</span><strong>203</strong>  <span class="label">PRICE:</span><strong>$0.001–$1.00</strong>  <span class="label">NET:</span><strong>Base/USDC</strong>  <span class="label">STATUS:</span><strong>ONLINE</strong><span class="sys-cursor"></span>
+</div>
 
 <h1>Privacy Policy</h1>
 <p class="updated">Last updated: March 13, 2026</p>
@@ -280,10 +147,48 @@ a:hover{
 <p>For privacy-related inquiries: <a href="mailto:support@apibase.pro">support@apibase.pro</a></p>
 
 <div class="footer">
-<p>APIbase.pro — Unified MCP Gateway</p>
+<div class="footer-row">
+<span><span class="online">STATUS: ONLINE</span>  |  PID: 1337  |  TTY: pts/0  |  USER: apibase</span>
+</div>
+<div class="footer-row">
+<span id="gen-time">Generated: --</span>
+<span id="uptime-counter">Uptime: 0m 0s</span>
+<span>BUILD: v1.0.0</span>
+</div>
 </div>
 
 </div>
 </div>
+
+<script>
+(function(){
+  var pageLoadTime = Date.now();
+  var bootScreen = document.getElementById('boot-screen');
+  var mainContent = document.getElementById('main-content');
+  if (!sessionStorage.getItem('apibase_privacy_booted')) {
+    mainContent.style.opacity = '0';
+    bootScreen.style.display = 'block';
+    var lines = bootScreen.querySelectorAll('.line');
+    var delay = 0;
+    for (var i = 0; i < lines.length; i++) {
+      (function(line, d) { setTimeout(function() { line.classList.add('visible'); }, d); })(lines[i], delay);
+      delay += 400;
+    }
+    setTimeout(function() {
+      bootScreen.style.display = 'none';
+      mainContent.style.transition = 'opacity 0.5s';
+      mainContent.style.opacity = '1';
+      sessionStorage.setItem('apibase_privacy_booted', '1');
+    }, delay + 600);
+  } else { bootScreen.style.display = 'none'; mainContent.style.opacity = '1'; }
+  var genEl = document.getElementById('gen-time');
+  if (genEl) genEl.textContent = 'Generated: ' + new Date().toLocaleTimeString();
+  setInterval(function() {
+    var elapsed = Math.floor((Date.now() - pageLoadTime) / 1000);
+    var el = document.getElementById('uptime-counter');
+    if (el) el.textContent = 'Uptime: ' + Math.floor(elapsed/60) + 'm ' + (elapsed%60) + 's';
+  }, 1000);
+})();
+</script>
 </body>
 </html>
