@@ -14508,6 +14508,296 @@
         ]
       }
     },
+    "/api/v1/tools/exa.search/call": {
+      "post": {
+        "operationId": "exa_search",
+        "summary": "Semantic Web Search (Exa)",
+        "description": "Neural/semantic web search — finds conceptually related pages, not just keyword matches. Supports category filters (company, research paper, news, people, tweet), domain filtering, date range. Returns relevance scores and highlighted excerpts (Exa)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "exa.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Natural language search query — Exa finds semantically related pages, not just keyword matches",
+                    "minLength": 1
+                  },
+                  "num_results": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 25,
+                    "description": "Number of results (default 10, max 25)"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "auto",
+                      "neural",
+                      "keyword"
+                    ],
+                    "description": "Search type: \"auto\" (balanced), \"neural\" (semantic similarity), \"keyword\" (traditional). Default: auto"
+                  },
+                  "category": {
+                    "type": "string",
+                    "enum": [
+                      "company",
+                      "research paper",
+                      "news",
+                      "people",
+                      "tweet"
+                    ],
+                    "description": "Category filter for specialized indexes (optional)"
+                  },
+                  "include_domains": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Only include results from these domains (e.g. [\"arxiv.org\"])"
+                  },
+                  "exclude_domains": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Exclude results from these domains"
+                  },
+                  "start_published_date": {
+                    "type": "string",
+                    "description": "Filter: only results published after this date (ISO format, e.g. \"2025-01-01\")"
+                  },
+                  "end_published_date": {
+                    "type": "string",
+                    "description": "Filter: only results published before this date"
+                  },
+                  "include_text": {
+                    "type": "boolean",
+                    "description": "Include full extracted page text in results (default false — saves tokens)"
+                  },
+                  "include_highlights": {
+                    "type": "boolean",
+                    "description": "Include key sentence highlights (default true)"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/exa.contents/call": {
+      "post": {
+        "operationId": "exa_contents",
+        "summary": "Extract Page Content (Exa)",
+        "description": "Extract clean text content from up to 10 URLs — returns title, author, published date, full text. Use for feeding web pages into agent context (Exa)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "exa.contents"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "urls": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "URLs to extract content from (1-10). Returns clean text, title, author, date.",
+                    "minItems": 1,
+                    "maxItems": 10
+                  }
+                },
+                "required": [
+                  "urls"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/exa.find_similar/call": {
+      "post": {
+        "operationId": "exa_find_similar",
+        "summary": "Find Similar Pages (Exa)",
+        "description": "Find web pages semantically similar to a given URL — discover related content, competitors, alternatives without knowing what to search for. Unique capability for research agents (Exa)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "exa.find_similar"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "description": "Reference URL — Exa finds pages semantically similar to this one"
+                  },
+                  "num_results": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 25,
+                    "description": "Number of similar pages (default 10, max 25)"
+                  },
+                  "exclude_source_domain": {
+                    "type": "boolean",
+                    "description": "Exclude results from same domain as input URL (default true)"
+                  },
+                  "start_published_date": {
+                    "type": "string",
+                    "description": "Only include similar pages published after this date (ISO format)"
+                  },
+                  "include_text": {
+                    "type": "boolean",
+                    "description": "Include full extracted page text (default false)"
+                  }
+                },
+                "required": [
+                  "url"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/tavily.search/call": {
       "post": {
         "operationId": "tavily_search",

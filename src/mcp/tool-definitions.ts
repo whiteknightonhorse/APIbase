@@ -1367,6 +1367,31 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // Walk Score — Walkability & Transit Intelligence (UC-062, 1 tool)
   // ---------------------------------------------------------------------------
   // ---------------------------------------------------------------------------
+  // Exa — Semantic Web Search (UC-069, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'exa.search',
+    mcpName: 'search.semantic.web',
+    title: 'Semantic Web Search (Exa)',
+    description: 'Neural/semantic web search — finds conceptually related pages, not just keyword matches. Supports category filters (company, research paper, news, people, tweet), domain filtering, date range. Returns relevance scores and highlighted excerpts (Exa)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'exa.contents',
+    mcpName: 'search.semantic.contents',
+    title: 'Extract Page Content (Exa)',
+    description: 'Extract clean text content from up to 10 URLs — returns title, author, published date, full text. Use for feeding web pages into agent context (Exa)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'exa.find_similar',
+    mcpName: 'search.semantic.similar',
+    title: 'Find Similar Pages (Exa)',
+    description: 'Find web pages semantically similar to a given URL — discover related content, competitors, alternatives without knowing what to search for. Unique capability for research agents (Exa)',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
   // Tavily — AI Web Search (UC-068, 2 tools)
   // ---------------------------------------------------------------------------
   {
