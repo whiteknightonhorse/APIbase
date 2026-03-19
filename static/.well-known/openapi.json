@@ -14508,6 +14508,119 @@
         ]
       }
     },
+    "/api/v1/tools/ocr.extract_text/call": {
+      "post": {
+        "operationId": "ocr_extract_text",
+        "summary": "Extract Text from Image (OCR)",
+        "description": "Extract text from any image or PDF URL using OCR — supports 20+ languages including English, Russian, Chinese, Japanese, Korean, Arabic. Returns recognized text. Handles PNG, JPG, GIF, BMP, PDF, TIFF (OCR.space)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ocr.extract_text"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "description": "URL of the image or PDF to extract text from (PNG, JPG, GIF, BMP, PDF, TIFF supported)"
+                  },
+                  "language": {
+                    "type": "string",
+                    "enum": [
+                      "eng",
+                      "ara",
+                      "chs",
+                      "cht",
+                      "dan",
+                      "dut",
+                      "fin",
+                      "fre",
+                      "ger",
+                      "gre",
+                      "hun",
+                      "ita",
+                      "jpn",
+                      "kor",
+                      "nor",
+                      "pol",
+                      "por",
+                      "rus",
+                      "spa",
+                      "swe",
+                      "tur"
+                    ],
+                    "description": "OCR language: \"eng\" (English, default), \"rus\" (Russian), \"ger\" (German), \"fre\" (French), \"spa\" (Spanish), \"jpn\" (Japanese), \"kor\" (Korean), \"chs\" (Chinese Simplified)"
+                  },
+                  "filetype": {
+                    "type": "string",
+                    "enum": [
+                      "PNG",
+                      "JPG",
+                      "GIF",
+                      "BMP",
+                      "PDF",
+                      "TIFF"
+                    ],
+                    "description": "File type hint — set if URL has no extension or content-type is wrong"
+                  },
+                  "detect_orientation": {
+                    "type": "boolean",
+                    "description": "Auto-detect and correct image orientation (default false)"
+                  }
+                },
+                "required": [
+                  "url"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/finnhub.quote/call": {
       "post": {
         "operationId": "finnhub_quote",

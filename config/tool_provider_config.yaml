@@ -1064,6 +1064,13 @@ tools:
     price_usd: "0.025"
     cache_ttl: 86400
 
+  # --- UC-078: OCR.space (Optical Character Recognition) ---
+  - tool_id: ocr.extract_text
+    name: Extract Text from Image (OCR)
+    provider: ocrspace
+    price_usd: "0.002"
+    cache_ttl: 86400
+
   # --- UC-074: Finnhub (Stock Market Data) ---
   - tool_id: finnhub.quote
     name: Real-Time Stock Quote

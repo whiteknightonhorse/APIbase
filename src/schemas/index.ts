@@ -38,6 +38,7 @@ import { tavilySchemas } from './tavily.schema';
 import { exaSchemas } from './exa.schema';
 import { newsdataSchemas } from './newsdata.schema';
 import { finnhubSchemas } from './finnhub.schema';
+import { ocrspaceSchemas } from './ocrspace.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -79,4 +80,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...exaSchemas,
   ...newsdataSchemas,
   ...finnhubSchemas,
+  ...ocrspaceSchemas,
 };

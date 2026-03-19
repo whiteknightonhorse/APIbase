@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase — The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 192 tools across stocks, news, web search, AI search, semantic search, travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, real estate, weather, space, gaming, and more. Pay-per-call via x402 micropayments.",
+    "description": "Unified MCP gateway to 193 tools across OCR, stocks, news, web search, AI search, semantic search, travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, real estate, weather, space, gaming, and more. Pay-per-call via x402 micropayments.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -6637,6 +6637,74 @@
       }
     },
     {
+      "name": "ai.ocr.extract",
+      "title": "Extract Text from Image (OCR)",
+      "description": "Extract text from any image or PDF URL using OCR — supports 20+ languages including English, Russian, Chinese, Japanese, Korean, Arabic. Returns recognized text. Handles PNG, JPG, GIF, BMP, PDF, TIFF (OCR.space)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL of the image or PDF to extract text from (PNG, JPG, GIF, BMP, PDF, TIFF supported)"
+          },
+          "language": {
+            "type": "string",
+            "enum": [
+              "eng",
+              "ara",
+              "chs",
+              "cht",
+              "dan",
+              "dut",
+              "fin",
+              "fre",
+              "ger",
+              "gre",
+              "hun",
+              "ita",
+              "jpn",
+              "kor",
+              "nor",
+              "pol",
+              "por",
+              "rus",
+              "spa",
+              "swe",
+              "tur"
+            ],
+            "description": "OCR language: \"eng\" (English, default), \"rus\" (Russian), \"ger\" (German), \"fre\" (French), \"spa\" (Spanish), \"jpn\" (Japanese), \"kor\" (Korean), \"chs\" (Chinese Simplified)"
+          },
+          "filetype": {
+            "type": "string",
+            "enum": [
+              "PNG",
+              "JPG",
+              "GIF",
+              "BMP",
+              "PDF",
+              "TIFF"
+            ],
+            "description": "File type hint — set if URL has no extension or content-type is wrong"
+          },
+          "detect_orientation": {
+            "type": "boolean",
+            "description": "Auto-detect and correct image orientation (default false)"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
       "name": "stocks.market.quote",
       "title": "Real-Time Stock Quote",
       "description": "Real-time stock price quote — current price, change, percent change, day high/low, open, previous close. Supports US stocks, ETFs, and major global exchanges (Finnhub)",
@@ -7497,16 +7565,16 @@
   "prompts": [
     {
       "name": "find_cheapest_flight",
-      "description": "Search for the cheapest flights",
+      "description": "Search flights",
       "arguments": [
         {
           "name": "origin",
-          "description": "Origin IATA",
+          "description": "IATA",
           "required": true
         },
         {
           "name": "destination",
-          "description": "Destination IATA",
+          "description": "IATA",
           "required": true
         },
         {
@@ -7518,11 +7586,11 @@
     },
     {
       "name": "crypto_market_overview",
-      "description": "Crypto market overview"
+      "description": "Crypto overview"
     },
     {
       "name": "prediction_market_research",
-      "description": "Research Polymarket",
+      "description": "Polymarket research",
       "arguments": [
         {
           "name": "topic",

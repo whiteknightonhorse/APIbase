@@ -288,6 +288,15 @@
     "docs_url": "https://www.zerobounce.net/email-validation-api-quickstart/",
     "limit_proof": "100 free credits/month, then $39/2,000 credits (no expiry on purchased)"
   },
+  "ocrspace": {
+    "display_name": "OCR.space",
+    "health_url": "https://api.ocr.space/parse/image",
+    "limit_type": "monthly",
+    "free_limit": 25000,
+    "reset_period": "monthly",
+    "docs_url": "https://ocr.space/ocrapi",
+    "limit_proof": "Free OCR API: 25,000 requests/month, commercial use permitted"
+  },
   "finnhub": {
     "display_name": "Finnhub Stock Market",
     "health_url": "https://finnhub.io/api/v1/quote?symbol=AAPL",
