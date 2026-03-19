@@ -104,6 +104,9 @@ export const appEnvSchema = z.object({
   // ZeroBounce Email Validation (UC-055) — query param auth, 100 free/month, $39/2K credits
   PROVIDER_KEY_ZEROBOUNCE: z.string().optional().default(''),
 
+  // Tavily AI Search (UC-068) — api_key in body, 1,000 credits/month free
+  PROVIDER_KEY_TAVILY: z.string().optional().default(''),
+
   // Serper.dev Google Search (UC-067) — X-API-KEY header, 2,500 free one-time, PAYG $0.001/call
   PROVIDER_KEY_SERPER: z.string().optional().default(''),
 

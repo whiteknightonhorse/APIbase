@@ -14508,6 +14508,189 @@
         ]
       }
     },
+    "/api/v1/tools/tavily.search/call": {
+      "post": {
+        "operationId": "tavily_search",
+        "summary": "AI Web Search (Tavily)",
+        "description": "AI-optimized web search — returns synthesized answer + curated results with extracted page content and relevance scores. Built for LLM/agent RAG pipelines. Supports domain filtering and recency (Tavily)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "tavily.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search query — Tavily returns AI-synthesized answer + curated results with extracted content",
+                    "minLength": 1
+                  },
+                  "search_depth": {
+                    "type": "string",
+                    "enum": [
+                      "basic",
+                      "advanced"
+                    ],
+                    "description": "Search depth: \"basic\" (faster, 1 credit) or \"advanced\" (deeper, 2 credits). Default: basic"
+                  },
+                  "include_answer": {
+                    "type": "boolean",
+                    "description": "Include AI-synthesized answer based on search results (default true)"
+                  },
+                  "max_results": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20,
+                    "description": "Number of results to return (default 5, max 20)"
+                  },
+                  "include_domains": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Only include results from these domains (e.g. [\"wikipedia.org\", \"arxiv.org\"])"
+                  },
+                  "exclude_domains": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Exclude results from these domains (e.g. [\"reddit.com\"])"
+                  },
+                  "days": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Recency filter — only include results from the last N days"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/tavily.extract/call": {
+      "post": {
+        "operationId": "tavily_extract",
+        "summary": "Extract Web Page Content (Tavily)",
+        "description": "Extract clean readable content from up to 20 URLs — returns text, title, author, published date. Eliminates scraping. Perfect for feeding web pages into agent context windows (Tavily)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "tavily.extract"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "urls": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "URLs to extract clean content from (1-20 URLs). Returns readable text, title, author, date.",
+                    "minItems": 1,
+                    "maxItems": 20
+                  }
+                },
+                "required": [
+                  "urls"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/serper.web_search/call": {
       "post": {
         "operationId": "serper_web_search",

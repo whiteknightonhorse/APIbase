@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase — The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 179 tools across web search, travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, recipes, domain intelligence, AI marketing, real estate, weather, space/astronomy, gaming, and more. Pay-per-call via x402 micropayments.",
+    "description": "Unified MCP gateway to 181 tools across web search, AI search, travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, recipes, domain intelligence, AI marketing, real estate, weather, space/astronomy, gaming, and more. Pay-per-call via x402 micropayments.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -6626,6 +6626,98 @@
         },
         "required": [
           "email"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "search.ai.web",
+      "title": "AI Web Search (Tavily)",
+      "description": "AI-optimized web search — returns synthesized answer + curated results with extracted page content and relevance scores. Built for LLM/agent RAG pipelines. Supports domain filtering and recency (Tavily)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Search query — Tavily returns AI-synthesized answer + curated results with extracted content"
+          },
+          "search_depth": {
+            "type": "string",
+            "enum": [
+              "basic",
+              "advanced"
+            ],
+            "description": "Search depth: \"basic\" (faster, 1 credit) or \"advanced\" (deeper, 2 credits). Default: basic"
+          },
+          "include_answer": {
+            "type": "boolean",
+            "description": "Include AI-synthesized answer based on search results (default true)"
+          },
+          "max_results": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "Number of results to return (default 5, max 20)"
+          },
+          "include_domains": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Only include results from these domains (e.g. [\"wikipedia.org\", \"arxiv.org\"])"
+          },
+          "exclude_domains": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Exclude results from these domains (e.g. [\"reddit.com\"])"
+          },
+          "days": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Recency filter — only include results from the last N days"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "search.ai.extract",
+      "title": "Extract Web Page Content (Tavily)",
+      "description": "Extract clean readable content from up to 20 URLs — returns text, title, author, published date. Eliminates scraping. Perfect for feeding web pages into agent context windows (Tavily)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "minItems": 1,
+            "maxItems": 20,
+            "description": "URLs to extract clean content from (1-20 URLs). Returns readable text, title, author, date."
+          }
+        },
+        "required": [
+          "urls"
         ],
         "additionalProperties": false
       },

@@ -34,6 +34,7 @@ import { AviasalesAdapter } from './aviasales';
 import { WalkScoreAdapter } from './walkscore';
 import { UsRealEstateAdapter } from './usrealestate';
 import { SerperAdapter } from './serper';
+import { TavilyAdapter } from './tavily';
 import { config } from '../config';
 
 /**
@@ -207,6 +208,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const zbKey = (config as Record<string, unknown>).PROVIDER_KEY_ZEROBOUNCE as string | undefined;
       if (!zbKey) return undefined;
       return getOrCreate('zerobounce', () => new ZeroBounceAdapter(zbKey));
+    }
+    case 'tavily': {
+      const tavilyKey = (config as Record<string, unknown>).PROVIDER_KEY_TAVILY as string | undefined;
+      if (!tavilyKey) return undefined;
+      return getOrCreate('tavily', () => new TavilyAdapter(tavilyKey));
     }
     case 'serper': {
       const serperKey = (config as Record<string, unknown>).PROVIDER_KEY_SERPER as string | undefined;

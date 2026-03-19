@@ -1367,6 +1367,24 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // Walk Score — Walkability & Transit Intelligence (UC-062, 1 tool)
   // ---------------------------------------------------------------------------
   // ---------------------------------------------------------------------------
+  // Tavily — AI Web Search (UC-068, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'tavily.search',
+    mcpName: 'search.ai.web',
+    title: 'AI Web Search (Tavily)',
+    description: 'AI-optimized web search — returns synthesized answer + curated results with extracted page content and relevance scores. Built for LLM/agent RAG pipelines. Supports domain filtering and recency (Tavily)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'tavily.extract',
+    mcpName: 'search.ai.extract',
+    title: 'Extract Web Page Content (Tavily)',
+    description: 'Extract clean readable content from up to 20 URLs — returns text, title, author, published date. Eliminates scraping. Perfect for feeding web pages into agent context windows (Tavily)',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
   // Serper.dev — Google Search API (UC-067, 4 tools)
   // ---------------------------------------------------------------------------
   {

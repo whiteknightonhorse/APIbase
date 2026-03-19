@@ -288,6 +288,15 @@
     "docs_url": "https://www.zerobounce.net/email-validation-api-quickstart/",
     "limit_proof": "100 free credits/month, then $39/2,000 credits (no expiry on purchased)"
   },
+  "tavily": {
+    "display_name": "Tavily AI Search",
+    "health_url": "https://api.tavily.com/search",
+    "limit_type": "monthly",
+    "free_limit": 1000,
+    "reset_period": "monthly",
+    "docs_url": "https://docs.tavily.com/documentation/api-reference/search",
+    "limit_proof": "Free tier: 1,000 API credits/month, no credit card required"
+  },
   "serper": {
     "display_name": "Serper.dev (Google Search)",
     "health_url": "https://google.serper.dev/search",
