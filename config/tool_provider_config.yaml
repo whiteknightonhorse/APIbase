@@ -1064,6 +1064,19 @@ tools:
     price_usd: "0.025"
     cache_ttl: 86400
 
+  # --- UC-086: Twilio (SMS & Phone Lookup) ---
+  - tool_id: twilio.lookup
+    name: Phone Number Lookup
+    provider: twilio
+    price_usd: "0.005"
+    cache_ttl: 86400
+
+  - tool_id: twilio.send_sms
+    name: Send SMS
+    provider: twilio
+    price_usd: "0.015"
+    cache_ttl: 0
+
   # --- UC-080: Stability AI (Image Generation) ---
   - tool_id: stability.generate
     name: Generate Image

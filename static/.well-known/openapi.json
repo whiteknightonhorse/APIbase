@@ -14508,6 +14508,169 @@
         ]
       }
     },
+    "/api/v1/tools/twilio.lookup/call": {
+      "post": {
+        "operationId": "twilio_lookup",
+        "summary": "Phone Number Lookup (Twilio)",
+        "description": "Validate and look up phone number info — format validation, country, national format. Optional: carrier name, line type (mobile/landline/VoIP), caller name CNAM (Twilio)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "twilio.lookup"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "phone_number": {
+                    "type": "string",
+                    "description": "Phone number in E.164 format (e.g. \"+14157012311\", \"+442071234567\")",
+                    "minLength": 1
+                  },
+                  "include_carrier": {
+                    "type": "boolean",
+                    "description": "Include carrier/line type info (costs extra credit). Returns carrier name, line type (mobile/landline/voip)."
+                  },
+                  "include_caller_name": {
+                    "type": "boolean",
+                    "description": "Include caller name CNAM lookup (costs extra credit). US numbers only."
+                  }
+                },
+                "required": [
+                  "phone_number"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/twilio.send_sms/call": {
+      "post": {
+        "operationId": "twilio_send_sms",
+        "summary": "Send SMS (Twilio)",
+        "description": "Send SMS message to any phone number worldwide. Requires a Twilio phone number as sender. Returns message SID and delivery status. $0.0083/SMS US outbound (Twilio)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "twilio.send_sms"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "to": {
+                    "type": "string",
+                    "description": "Recipient phone number in E.164 format (e.g. \"+14155551234\")",
+                    "minLength": 1
+                  },
+                  "from": {
+                    "type": "string",
+                    "description": "Sender phone number — must be a Twilio number you own (e.g. \"+15551234567\")",
+                    "minLength": 1
+                  },
+                  "body": {
+                    "type": "string",
+                    "description": "SMS message text (max 1600 chars, splits into multiple segments if >160)",
+                    "minLength": 1,
+                    "maxLength": 1600
+                  }
+                },
+                "required": [
+                  "to",
+                  "from",
+                  "body"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/stability.generate/call": {
       "post": {
         "operationId": "stability_generate",

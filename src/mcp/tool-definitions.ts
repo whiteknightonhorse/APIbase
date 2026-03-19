@@ -1367,6 +1367,24 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // Walk Score — Walkability & Transit Intelligence (UC-062, 1 tool)
   // ---------------------------------------------------------------------------
   // ---------------------------------------------------------------------------
+  // Twilio — SMS & Phone Lookup (UC-086, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'twilio.lookup',
+    mcpName: 'phone.twilio.lookup',
+    title: 'Phone Number Lookup (Twilio)',
+    description: 'Validate and look up phone number info — format validation, country, national format. Optional: carrier name, line type (mobile/landline/VoIP), caller name CNAM (Twilio)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'twilio.send_sms',
+    mcpName: 'phone.twilio.sms',
+    title: 'Send SMS (Twilio)',
+    description: 'Send SMS message to any phone number worldwide. Requires a Twilio phone number as sender. Returns message SID and delivery status. $0.0083/SMS US outbound (Twilio)',
+    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+  },
+
+  // ---------------------------------------------------------------------------
   // Stability AI — Image Generation (UC-080, 1 tool)
   // ---------------------------------------------------------------------------
   {

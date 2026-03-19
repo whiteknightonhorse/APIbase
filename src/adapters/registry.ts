@@ -42,6 +42,7 @@ import { OcrSpaceAdapter } from './ocrspace';
 import { RegulationsAdapter } from './regulations';
 import { MastodonAdapter } from './mastodon';
 import { StabilityAdapter } from './stability';
+import { TwilioAdapter } from './twilio';
 import { ResendAdapter } from './resend';
 import { FedRegisterAdapter } from './fedregister';
 import { CourtListenerAdapter } from './courtlistener';
@@ -218,6 +219,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const zbKey = (config as Record<string, unknown>).PROVIDER_KEY_ZEROBOUNCE as string | undefined;
       if (!zbKey) return undefined;
       return getOrCreate('zerobounce', () => new ZeroBounceAdapter(zbKey));
+    }
+    case 'twilio': {
+      const twilioSid = (config as Record<string, unknown>).TWILIO_ACCOUNT_SID as string | undefined;
+      const twilioToken = (config as Record<string, unknown>).TWILIO_AUTH_TOKEN as string | undefined;
+      if (!twilioSid || !twilioToken) return undefined;
+      return getOrCreate('twilio', () => new TwilioAdapter(twilioSid, twilioToken));
     }
     case 'stability': {
       const stabKey = (config as Record<string, unknown>).PROVIDER_KEY_STABILITY as string | undefined;
