@@ -104,6 +104,10 @@ export const appEnvSchema = z.object({
   // ZeroBounce Email Validation (UC-055) — query param auth, 100 free/month, $39/2K credits
   PROVIDER_KEY_ZEROBOUNCE: z.string().optional().default(''),
 
+  // Twilio SMS (UC-086) — Account SID + Auth Token, trial $15.50
+  TWILIO_ACCOUNT_SID: z.string().optional().default(''),
+  TWILIO_AUTH_TOKEN: z.string().optional().default(''),
+
   // Stability AI (UC-080) — Bearer header, 25 free credits
   PROVIDER_KEY_STABILITY: z.string().optional().default(''),
 

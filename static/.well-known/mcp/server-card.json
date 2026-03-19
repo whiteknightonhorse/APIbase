@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase — The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 206 tools across image generation, email, social media, legal, OCR, stocks, news, web search, travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, real estate, weather, space, gaming, and more. Pay-per-call via x402 micropayments.",
+    "description": "Unified MCP gateway to 208 tools across SMS, phone lookup, image generation, email, social media, legal, OCR, stocks, news, web search, travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, real estate, weather, space, gaming, and more. Pay-per-call via x402 micropayments.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -6633,6 +6633,77 @@
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "phone.twilio.lookup",
+      "title": "Phone Number Lookup (Twilio)",
+      "description": "Validate and look up phone number info — format validation, country, national format. Optional: carrier name, line type (mobile/landline/VoIP), caller name CNAM (Twilio)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "phone_number": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Phone number in E.164 format (e.g. \"+14157012311\", \"+442071234567\")"
+          },
+          "include_carrier": {
+            "type": "boolean",
+            "description": "Include carrier/line type info (costs extra credit). Returns carrier name, line type (mobile/landline/voip)."
+          },
+          "include_caller_name": {
+            "type": "boolean",
+            "description": "Include caller name CNAM lookup (costs extra credit). US numbers only."
+          }
+        },
+        "required": [
+          "phone_number"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "phone.twilio.sms",
+      "title": "Send SMS (Twilio)",
+      "description": "Send SMS message to any phone number worldwide. Requires a Twilio phone number as sender. Returns message SID and delivery status. $0.0083/SMS US outbound (Twilio)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "to": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Recipient phone number in E.164 format (e.g. \"+14155551234\")"
+          },
+          "from": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Sender phone number — must be a Twilio number you own (e.g. \"+15551234567\")"
+          },
+          "body": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1600,
+            "description": "SMS message text (max 1600 chars, splits into multiple segments if >160)"
+          }
+        },
+        "required": [
+          "to",
+          "from",
+          "body"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
         "openWorldHint": true
       }
     },

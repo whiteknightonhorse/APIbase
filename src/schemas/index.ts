@@ -42,6 +42,7 @@ import { ocrspaceSchemas } from './ocrspace.schema';
 import { regulationsSchemas } from './regulations.schema';
 import { mastodonSchemas } from './mastodon.schema';
 import { stabilitySchemas } from './stability.schema';
+import { twilioSchemas } from './twilio.schema';
 import { resendSchemas } from './resend.schema';
 import { fedregisterSchemas } from './fedregister.schema';
 import { courtlistenerSchemas } from './courtlistener.schema';
@@ -90,6 +91,7 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...regulationsSchemas,
   ...mastodonSchemas,
   ...stabilitySchemas,
+  ...twilioSchemas,
   ...resendSchemas,
   ...fedregisterSchemas,
   ...courtlistenerSchemas,
