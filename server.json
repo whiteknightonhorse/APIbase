@@ -1,0 +1,27 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.whiteknightonhorse/apibase",
+  "description": "Universal MCP gateway \u2014 203 tools, 46 providers. x402 USDC micropayments on Base.",
+  "repository": {
+    "url": "https://github.com/whiteknightonhorse/APIbase",
+    "source": "github"
+  },
+  "version": "1.0.1",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "apibase-mcp-client",
+      "version": "1.0.2",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": []
+    }
+  ],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://apibase.pro/mcp"
+    }
+  ]
+}
