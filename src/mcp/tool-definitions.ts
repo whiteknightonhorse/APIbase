@@ -1367,6 +1367,17 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // Walk Score — Walkability & Transit Intelligence (UC-062, 1 tool)
   // ---------------------------------------------------------------------------
   // ---------------------------------------------------------------------------
+  // OCR.space — Optical Character Recognition (UC-078, 1 tool)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'ocr.extract_text',
+    mcpName: 'ai.ocr.extract',
+    title: 'Extract Text from Image (OCR)',
+    description: 'Extract text from any image or PDF URL using OCR — supports 20+ languages including English, Russian, Chinese, Japanese, Korean, Arabic. Returns recognized text. Handles PNG, JPG, GIF, BMP, PDF, TIFF (OCR.space)',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
   // Finnhub — Stock Market Data (UC-074, 5 tools)
   // ---------------------------------------------------------------------------
   {

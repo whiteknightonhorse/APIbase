@@ -38,6 +38,7 @@ import { TavilyAdapter } from './tavily';
 import { ExaAdapter } from './exa';
 import { NewsDataAdapter } from './newsdata';
 import { FinnhubAdapter } from './finnhub';
+import { OcrSpaceAdapter } from './ocrspace';
 import { config } from '../config';
 
 /**
@@ -211,6 +212,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const zbKey = (config as Record<string, unknown>).PROVIDER_KEY_ZEROBOUNCE as string | undefined;
       if (!zbKey) return undefined;
       return getOrCreate('zerobounce', () => new ZeroBounceAdapter(zbKey));
+    }
+    case 'ocr': {
+      const ocrKey = (config as Record<string, unknown>).PROVIDER_KEY_OCRSPACE as string | undefined;
+      if (!ocrKey) return undefined;
+      return getOrCreate('ocrspace', () => new OcrSpaceAdapter(ocrKey));
     }
     case 'finnhub': {
       const fhKey = (config as Record<string, unknown>).PROVIDER_KEY_FINNHUB as string | undefined;
