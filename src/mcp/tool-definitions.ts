@@ -1367,6 +1367,45 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // Walk Score — Walkability & Transit Intelligence (UC-062, 1 tool)
   // ---------------------------------------------------------------------------
   // ---------------------------------------------------------------------------
+  // Finnhub — Stock Market Data (UC-074, 5 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'finnhub.quote',
+    mcpName: 'stocks.market.quote',
+    title: 'Real-Time Stock Quote',
+    description: 'Real-time stock price quote — current price, change, percent change, day high/low, open, previous close. Supports US stocks, ETFs, and major global exchanges (Finnhub)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'finnhub.company_profile',
+    mcpName: 'stocks.company.profile',
+    title: 'Company Profile',
+    description: 'Company profile by ticker — name, exchange, industry, country, market cap, shares outstanding, IPO date, logo, website (Finnhub)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'finnhub.company_news',
+    mcpName: 'stocks.company.news',
+    title: 'Company News',
+    description: 'Latest news articles about a specific company — headline, source, summary, date, image. Filter by date range (Finnhub)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'finnhub.candles',
+    mcpName: 'stocks.market.candles',
+    title: 'Stock Price Candles (OHLCV)',
+    description: 'Historical OHLCV candlestick data — open, high, low, close, volume with configurable resolution (1min to monthly). Use for charting and technical analysis (Finnhub)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'finnhub.market_news',
+    mcpName: 'stocks.market.news',
+    title: 'Market News',
+    description: 'General market news — categories: general, forex, crypto, merger. Top headlines with source, summary, and images (Finnhub)',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
   // NewsData.io — Global News (UC-070, 3 tools)
   // ---------------------------------------------------------------------------
   {

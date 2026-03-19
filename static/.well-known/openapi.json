@@ -14508,6 +14508,397 @@
         ]
       }
     },
+    "/api/v1/tools/finnhub.quote/call": {
+      "post": {
+        "operationId": "finnhub_quote",
+        "summary": "Real-Time Stock Quote",
+        "description": "Real-time stock price quote — current price, change, percent change, day high/low, open, previous close. Supports US stocks, ETFs, and major global exchanges (Finnhub)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "finnhub.quote"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string",
+                    "description": "Stock ticker symbol (e.g. \"AAPL\", \"GOOGL\", \"TSLA\", \"MSFT\")",
+                    "minLength": 1,
+                    "maxLength": 10
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/finnhub.company_profile/call": {
+      "post": {
+        "operationId": "finnhub_company_profile",
+        "summary": "Company Profile",
+        "description": "Company profile by ticker — name, exchange, industry, country, market cap, shares outstanding, IPO date, logo, website (Finnhub)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "finnhub.company_profile"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string",
+                    "description": "Stock ticker symbol (e.g. \"AAPL\")",
+                    "minLength": 1,
+                    "maxLength": 10
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/finnhub.company_news/call": {
+      "post": {
+        "operationId": "finnhub_company_news",
+        "summary": "Company News",
+        "description": "Latest news articles about a specific company — headline, source, summary, date, image. Filter by date range (Finnhub)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "finnhub.company_news"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string",
+                    "description": "Stock ticker symbol (e.g. \"AAPL\")",
+                    "minLength": 1,
+                    "maxLength": 10
+                  },
+                  "from": {
+                    "type": "string",
+                    "description": "Start date in YYYY-MM-DD format (default: 7 days ago)"
+                  },
+                  "to": {
+                    "type": "string",
+                    "description": "End date in YYYY-MM-DD format (default: today)"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/finnhub.candles/call": {
+      "post": {
+        "operationId": "finnhub_candles",
+        "summary": "Stock Price Candles (OHLCV)",
+        "description": "Historical OHLCV candlestick data — open, high, low, close, volume with configurable resolution (1min to monthly). Use for charting and technical analysis (Finnhub)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "finnhub.candles"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string",
+                    "description": "Stock ticker symbol (e.g. \"AAPL\")",
+                    "minLength": 1,
+                    "maxLength": 10
+                  },
+                  "resolution": {
+                    "type": "string",
+                    "enum": [
+                      "1",
+                      "5",
+                      "15",
+                      "30",
+                      "60",
+                      "D",
+                      "W",
+                      "M"
+                    ],
+                    "description": "Candle resolution: \"1\",\"5\",\"15\",\"30\",\"60\" (minutes), \"D\" (day), \"W\" (week), \"M\" (month). Default: \"D\""
+                  },
+                  "from": {
+                    "type": "integer",
+                    "description": "Start timestamp (Unix seconds). Default: 30 days ago"
+                  },
+                  "to": {
+                    "type": "integer",
+                    "description": "End timestamp (Unix seconds). Default: now"
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/finnhub.market_news/call": {
+      "post": {
+        "operationId": "finnhub_market_news",
+        "summary": "Market News",
+        "description": "General market news — categories: general, forex, crypto, merger. Top headlines with source, summary, and images (Finnhub)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "finnhub.market_news"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "category": {
+                    "type": "string",
+                    "enum": [
+                      "general",
+                      "forex",
+                      "crypto",
+                      "merger"
+                    ],
+                    "description": "News category: \"general\" (default), \"forex\", \"crypto\", \"merger\""
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/news.latest/call": {
       "post": {
         "operationId": "news_latest",

@@ -1,7 +1,7 @@
 # APIbase.pro — The API Hub for AI Agents
 
 > Search flights, find restaurants, discover events, browse movies, geocode addresses, get directions, generate AI marketing pages, compare prices, track status, trade prediction markets, check walkability scores, search US property listings — all via MCP.
-> One endpoint. 182 tools. 37 providers. Pay per call.
+> One endpoint. 187 tools. 38 providers. Pay per call.
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Health](https://apibase.pro/health/ready)**
 
@@ -9,7 +9,7 @@
 
 ## What is APIbase?
 
-Production MCP server — universal API hub for AI agents. 182 tools across travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, AI marketing, recipes, space/astronomy, gaming, real estate, dev tools, weather, and more. Search flights (Amadeus, Sabre GDS), find restaurants and places (Foursquare), geocode addresses, search places and POI, get directions (Geoapify/OSM), discover events and concerts (Ticketmaster), browse movies and TV shows (TMDB), search music artists, albums, and recordings (MusicBrainz), discover fresh releases (ListenBrainz), find internet radio stations (RadioBrowser), look up nutrition data and drug safety (USDA, OpenFDA, NIH), get exchange rates, economic indicators, and treasury data (ECB, FRED, World Bank, US Treasury), search academic papers and preprints (OpenAlex, arXiv, PubMed, CrossRef), compare US colleges and earnings (College Scorecard), find jobs and salary data (BLS, O*NET, ESCO, CareerJet), check walkability and transit scores (Walk Score), search US property listings and details (RapidAPI/Realtor.com), trade prediction markets (Polymarket), track crypto, check weather — with more providers shipping regularly. One endpoint, pay per call via x402 USDC micropayments. Auto-registration, zero setup. Covers the most popular API categories agents actually need: travel, local services, maps, events, entertainment, music, health, financial data, education, jobs, real estate, and marketing.
+Production MCP server — universal API hub for AI agents. 187 tools across travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, AI marketing, recipes, space/astronomy, gaming, real estate, dev tools, weather, and more. Search flights (Amadeus, Sabre GDS), find restaurants and places (Foursquare), geocode addresses, search places and POI, get directions (Geoapify/OSM), discover events and concerts (Ticketmaster), browse movies and TV shows (TMDB), search music artists, albums, and recordings (MusicBrainz), discover fresh releases (ListenBrainz), find internet radio stations (RadioBrowser), look up nutrition data and drug safety (USDA, OpenFDA, NIH), get exchange rates, economic indicators, and treasury data (ECB, FRED, World Bank, US Treasury), search academic papers and preprints (OpenAlex, arXiv, PubMed, CrossRef), compare US colleges and earnings (College Scorecard), find jobs and salary data (BLS, O*NET, ESCO, CareerJet), check walkability and transit scores (Walk Score), search US property listings and details (RapidAPI/Realtor.com), trade prediction markets (Polymarket), track crypto, check weather — with more providers shipping regularly. One endpoint, pay per call via x402 USDC micropayments. Auto-registration, zero setup. Covers the most popular API categories agents actually need: travel, local services, maps, events, entertainment, music, health, financial data, education, jobs, real estate, and marketing.
 
 **Built for AI agents, not humans.** Every tool is designed for autonomous discovery, authentication, and invocation via the [Model Context Protocol](https://modelcontextprotocol.io).
 
@@ -19,7 +19,7 @@ Production MCP server — universal API hub for AI agents. 182 tools across trav
 
 ### Why agents use APIbase
 
-- **One MCP endpoint** — `https://apibase.pro/mcp` connects to 37 providers
+- **One MCP endpoint** — `https://apibase.pro/mcp` connects to 38 providers
 - **Real-time flight search** — Amadeus + Sabre GDS, 500+ airlines, real prices
 - **Places & restaurants** — Foursquare Places API, 100M+ places in 190+ countries
 - **Pay per call** — x402 micropayments (USDC), no subscriptions, no minimums
@@ -139,7 +139,7 @@ Returns places with names, ratings, categories, distance, hours, price tier, and
 
 ---
 
-## Available Tools (182)
+## Available Tools (187)
 
 ### AIPush — AI Marketing / Page Generation (7 tools)
 
@@ -224,6 +224,18 @@ Generate and decode QR codes via API. Create customizable QR code images (size, 
 |------|-------------|-------|
 | `qrserver.generate` | Generate QR code image URL — customizable size, color, format (PNG/SVG), error correction | $0.001 |
 | `qrserver.read` | Decode QR code from image URL — extract encoded text or URL | $0.001 |
+
+### Finnhub — Stock Market Data (5 tools)
+
+Real-time stock quotes, company profiles, OHLCV candlestick charts, company news, and market news. Covers US stocks, ETFs, and major global exchanges. 60 requests/minute free tier (~86,400/day). Powered by Finnhub.
+
+| Tool | Description | Price |
+|------|-------------|-------|
+| `finnhub.quote` | Real-time stock price — current, change, high/low, open, previous close | $0.001 |
+| `finnhub.company_profile` | Company profile — name, exchange, industry, market cap, logo, website | $0.002 |
+| `finnhub.company_news` | Latest company news — headlines, source, summary, date range filter | $0.002 |
+| `finnhub.candles` | OHLCV candlestick data — 1min to monthly resolution, 30-day default | $0.002 |
+| `finnhub.market_news` | Market news — general, forex, crypto, merger categories | $0.002 |
 
 ### NewsData.io — Global News & Crypto News (3 tools)
 
