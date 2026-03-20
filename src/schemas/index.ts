@@ -43,6 +43,7 @@ import { regulationsSchemas } from './regulations.schema';
 import { mastodonSchemas } from './mastodon.schema';
 import { stabilitySchemas } from './stability.schema';
 import { twilioSchemas } from './twilio.schema';
+import { langblySchemas } from './langbly.schema';
 import { resendSchemas } from './resend.schema';
 import { fedregisterSchemas } from './fedregister.schema';
 import { courtlistenerSchemas } from './courtlistener.schema';
@@ -92,6 +93,7 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...mastodonSchemas,
   ...stabilitySchemas,
   ...twilioSchemas,
+  ...langblySchemas,
   ...resendSchemas,
   ...fedregisterSchemas,
   ...courtlistenerSchemas,

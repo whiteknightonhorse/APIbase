@@ -1064,6 +1064,25 @@ tools:
     price_usd: "0.025"
     cache_ttl: 86400
 
+  # --- UC-087: Langbly Translation ---
+  - tool_id: langbly.translate
+    name: Translate Text
+    provider: langbly
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: langbly.detect
+    name: Detect Language
+    provider: langbly
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: langbly.languages
+    name: List Languages
+    provider: langbly
+    price_usd: "0.001"
+    cache_ttl: 604800
+
   # --- UC-086: Twilio (SMS & Phone Lookup) ---
   - tool_id: twilio.lookup
     name: Phone Number Lookup
