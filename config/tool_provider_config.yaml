@@ -1064,6 +1064,31 @@ tools:
     price_usd: "0.025"
     cache_ttl: 86400
 
+  # --- UC-089: API-Sports (Multi-Sport Data) ---
+  - tool_id: sports.football_fixtures
+    name: Football Fixtures & Scores
+    provider: apisports
+    price_usd: "0.003"
+    cache_ttl: 60
+
+  - tool_id: sports.football_standings
+    name: Football League Standings
+    provider: apisports
+    price_usd: "0.003"
+    cache_ttl: 3600
+
+  - tool_id: sports.football_leagues
+    name: Search Football Leagues
+    provider: apisports
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: sports.basketball_games
+    name: Basketball Games & Scores
+    provider: apisports
+    price_usd: "0.003"
+    cache_ttl: 60
+
   # --- UC-087: Langbly Translation ---
   - tool_id: langbly.translate
     name: Translate Text

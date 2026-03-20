@@ -1367,6 +1367,38 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // Walk Score — Walkability & Transit Intelligence (UC-062, 1 tool)
   // ---------------------------------------------------------------------------
   // ---------------------------------------------------------------------------
+  // API-Sports — Multi-Sport Data (UC-089, 4 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'sports.football_fixtures',
+    mcpName: 'sports.football.fixtures',
+    title: 'Football/Soccer Fixtures & Scores',
+    description: 'Football/soccer fixtures, live scores, and results — filter by date, league (Premier League, La Liga, Champions League...), team. 2000+ leagues, 171 countries. 362+ fixtures per day (API-Sports)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'sports.football_standings',
+    mcpName: 'sports.football.standings',
+    title: 'Football League Standings',
+    description: 'League table/standings — rank, points, wins, draws, losses, goals for/against. All major leagues: Premier League (39), La Liga (140), Bundesliga (78), Serie A (135), Ligue 1 (61) (API-Sports)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'sports.football_leagues',
+    mcpName: 'sports.football.leagues',
+    title: 'Search Football Leagues',
+    description: 'Search football leagues and cups by country or name. Returns league ID, name, type (league/cup), country, logo. Use IDs for fixtures and standings queries (API-Sports)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'sports.basketball_games',
+    mcpName: 'sports.basketball.games',
+    title: 'Basketball Games & Scores',
+    description: 'Basketball games and scores — NBA, EuroLeague, and 100+ leagues worldwide. Filter by date, league, season, team. Live and historical data (API-Sports)',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
   // Langbly — Translation (UC-087, 3 tools)
   // ---------------------------------------------------------------------------
   {

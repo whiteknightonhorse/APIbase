@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase — The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 211 tools across translation, SMS, image generation, email, social media, legal, OCR, stocks, news, web search, travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, real estate, weather, space, gaming, and more. Pay-per-call via x402 micropayments.",
+    "description": "Unified MCP gateway to 215 tools across sports, translation, SMS, image gen, email, social media, legal, OCR, stocks, news, web search, travel, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, real estate, and more. Pay-per-call via x402 micropayments.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -6627,6 +6627,129 @@
         "required": [
           "email"
         ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "sports.football.fixtures",
+      "title": "Football/Soccer Fixtures & Scores",
+      "description": "Football/soccer fixtures, live scores, and results — filter by date, league (Premier League, La Liga, Champions League...), team. 2000+ leagues, 171 countries. 362+ fixtures per day (API-Sports)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "Date in YYYY-MM-DD format (e.g. \"2026-03-20\"). Returns all fixtures for that day."
+          },
+          "league": {
+            "type": "integer",
+            "description": "League ID (e.g. 39 = Premier League, 140 = La Liga, 78 = Bundesliga)"
+          },
+          "season": {
+            "type": "integer",
+            "description": "Season year (e.g. 2025)"
+          },
+          "team": {
+            "type": "integer",
+            "description": "Team ID to filter fixtures"
+          },
+          "live": {
+            "type": "boolean",
+            "description": "Set to true to get only live/in-play fixtures"
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "sports.football.standings",
+      "title": "Football League Standings",
+      "description": "League table/standings — rank, points, wins, draws, losses, goals for/against. All major leagues: Premier League (39), La Liga (140), Bundesliga (78), Serie A (135), Ligue 1 (61) (API-Sports)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "league": {
+            "type": "integer",
+            "description": "League ID (e.g. 39 = Premier League, 140 = La Liga, 135 = Serie A)"
+          },
+          "season": {
+            "type": "integer",
+            "description": "Season year (default: current season, e.g. 2025)"
+          }
+        },
+        "required": [
+          "league"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "sports.football.leagues",
+      "title": "Search Football Leagues",
+      "description": "Search football leagues and cups by country or name. Returns league ID, name, type (league/cup), country, logo. Use IDs for fixtures and standings queries (API-Sports)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "country": {
+            "type": "string",
+            "description": "Country name to filter leagues (e.g. \"England\", \"Spain\", \"Germany\")"
+          },
+          "search": {
+            "type": "string",
+            "description": "Search league by name (e.g. \"Premier\", \"Champions\")"
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "sports.basketball.games",
+      "title": "Basketball Games & Scores",
+      "description": "Basketball games and scores — NBA, EuroLeague, and 100+ leagues worldwide. Filter by date, league, season, team. Live and historical data (API-Sports)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "Date in YYYY-MM-DD format. Returns all basketball games for that day."
+          },
+          "league": {
+            "type": "integer",
+            "description": "League ID (e.g. 12 = NBA)"
+          },
+          "season": {
+            "type": "string",
+            "description": "Season (e.g. \"2025-2026\")"
+          },
+          "team": {
+            "type": "integer",
+            "description": "Team ID to filter games"
+          }
+        },
         "additionalProperties": false
       },
       "annotations": {

@@ -123,6 +123,9 @@ export const appEnvSchema = z.object({
   // NewsData.io (UC-070) — apikey query param, 200 credits/day free, commercial OK
   PROVIDER_KEY_NEWSDATA: z.string().optional().default(''),
 
+  // API-Sports (UC-089) — x-apisports-key header, 100 req/day per sport
+  PROVIDER_KEY_APISPORTS: z.string().optional().default(''),
+
   // Langbly Translation (UC-087) — Bearer header, 500K chars/mo free
   PROVIDER_KEY_LANGBLY: z.string().optional().default(''),
 

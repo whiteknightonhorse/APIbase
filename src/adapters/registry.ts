@@ -44,6 +44,7 @@ import { MastodonAdapter } from './mastodon';
 import { StabilityAdapter } from './stability';
 import { TwilioAdapter } from './twilio';
 import { LangblyAdapter } from './langbly';
+import { ApiSportsAdapter } from './apisports';
 import { ResendAdapter } from './resend';
 import { FedRegisterAdapter } from './fedregister';
 import { CourtListenerAdapter } from './courtlistener';
@@ -220,6 +221,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const zbKey = (config as Record<string, unknown>).PROVIDER_KEY_ZEROBOUNCE as string | undefined;
       if (!zbKey) return undefined;
       return getOrCreate('zerobounce', () => new ZeroBounceAdapter(zbKey));
+    }
+    case 'sports': {
+      const sportsKey = (config as Record<string, unknown>).PROVIDER_KEY_APISPORTS as string | undefined;
+      if (!sportsKey) return undefined;
+      return getOrCreate('apisports', () => new ApiSportsAdapter(sportsKey));
     }
     case 'langbly': {
       const lbKey = (config as Record<string, unknown>).PROVIDER_KEY_LANGBLY as string | undefined;

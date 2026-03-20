@@ -288,6 +288,15 @@
     "docs_url": "https://www.zerobounce.net/email-validation-api-quickstart/",
     "limit_proof": "100 free credits/month, then $39/2,000 credits (no expiry on purchased)"
   },
+  "apisports": {
+    "display_name": "API-Sports (Multi-Sport)",
+    "health_url": "https://v3.football.api-sports.io/status",
+    "limit_type": "daily",
+    "free_limit": 100,
+    "reset_period": "daily",
+    "docs_url": "https://api-sports.io/documentation",
+    "limit_proof": "Free plan: 100 requests/day per sport API, 10 req/min rate limit"
+  },
   "langbly": {
     "display_name": "Langbly Translation",
     "health_url": "https://api.langbly.com/language/translate/v2/languages",
