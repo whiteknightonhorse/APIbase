@@ -423,5 +423,14 @@
     "reset_period": "none",
     "docs_url": "https://serper.dev/pricing",
     "limit_proof": "2,500 free one-time queries (6-month validity), then PAYG $1/1K queries"
+  },
+  "apiflash": {
+    "display_name": "ApiFlash Screenshot",
+    "health_url": "https://api.apiflash.com/v1/urltoimage",
+    "limit_type": "monthly",
+    "free_limit": 100,
+    "reset_period": "monthly",
+    "docs_url": "https://apiflash.com/documentation",
+    "limit_proof": "Free plan: 100 screenshots/month, no credit card required"
   }
 }

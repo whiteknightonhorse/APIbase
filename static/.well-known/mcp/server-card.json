@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase — The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 215 tools across sports, translation, SMS, image gen, email, social media, legal, OCR, stocks, news, web search, travel, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, real estate, and more. Pay-per-call via x402 micropayments.",
+    "description": "Unified MCP gateway to 216 tools across screenshots, sports, translation, SMS, image gen, email, social media, legal, OCR, stocks, news, web search, travel, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, real estate, and more.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -6626,6 +6626,78 @@
         },
         "required": [
           "email"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "web.screenshot.capture",
+      "title": "Capture Website Screenshot (ApiFlash)",
+      "description": "Take a screenshot of any URL — returns image URL. Chrome-based rendering, supports full-page capture, custom viewport, ad blocking, cookie banner removal. Waits for JS-heavy SPAs to load (ApiFlash)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL of the website to screenshot (e.g. \"https://example.com\")"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "png",
+              "jpeg",
+              "webp"
+            ],
+            "description": "Image format: \"png\" (default), \"jpeg\", or \"webp\""
+          },
+          "width": {
+            "type": "integer",
+            "minimum": 100,
+            "maximum": 3840,
+            "description": "Viewport width in pixels (default 1920, max 3840)"
+          },
+          "height": {
+            "type": "integer",
+            "minimum": 100,
+            "maximum": 3840,
+            "description": "Viewport height in pixels (default 1080)"
+          },
+          "full_page": {
+            "type": "boolean",
+            "description": "Capture full page scroll height (default false)"
+          },
+          "delay": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10,
+            "description": "Wait N seconds before capture (0-10, for JS-heavy pages)"
+          },
+          "no_ads": {
+            "type": "boolean",
+            "description": "Block ads before capture (default false)"
+          },
+          "no_cookie_banners": {
+            "type": "boolean",
+            "description": "Remove cookie consent banners (default false)"
+          },
+          "wait_until": {
+            "type": "string",
+            "enum": [
+              "page_loaded",
+              "network_idle"
+            ],
+            "description": "\"page_loaded\" (default) or \"network_idle\" (wait for all XHR/fetch)"
+          }
+        },
+        "required": [
+          "url"
         ],
         "additionalProperties": false
       },
