@@ -1064,6 +1064,25 @@ tools:
     price_usd: "0.025"
     cache_ttl: 86400
 
+  # --- UC-103: TimeAPI.io (World Clock & Timezone) ---
+  - tool_id: worldclock.current
+    name: Current Time by Timezone
+    provider: timeapi
+    price_usd: "0.001"
+    cache_ttl: 1
+
+  - tool_id: worldclock.convert
+    name: Convert Time Between Timezones
+    provider: timeapi
+    price_usd: "0.001"
+    cache_ttl: 1
+
+  - tool_id: worldclock.zones
+    name: List All Timezones
+    provider: timeapi
+    price_usd: "0.001"
+    cache_ttl: 604800
+
   # --- UC-093: ApiFlash (Website Screenshot) ---
   - tool_id: screenshot.capture
     name: Website Screenshot

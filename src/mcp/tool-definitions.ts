@@ -1367,6 +1367,31 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // Walk Score — Walkability & Transit Intelligence (UC-062, 1 tool)
   // ---------------------------------------------------------------------------
   // ---------------------------------------------------------------------------
+  // TimeAPI.io — World Clock & Timezone (UC-103, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'worldclock.current',
+    mcpName: 'time.worldclock.current',
+    title: 'Current Time by Timezone',
+    description: 'Get current date, time, and day of week for any IANA timezone. DST-aware. No auth, free, unlimited (TimeAPI.io)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'worldclock.convert',
+    mcpName: 'time.worldclock.convert',
+    title: 'Convert Time Between Timezones',
+    description: 'Convert date/time from one timezone to another. DST-aware. 597 IANA timezones (TimeAPI.io)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'worldclock.zones',
+    mcpName: 'time.worldclock.zones',
+    title: 'List All Timezones',
+    description: 'List all 597 IANA timezone names. Use for timezone validation and discovery (TimeAPI.io)',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
   // ApiFlash — Website Screenshot (UC-093, 1 tool)
   // ---------------------------------------------------------------------------
   {

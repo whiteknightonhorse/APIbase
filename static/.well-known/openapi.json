@@ -14508,6 +14508,219 @@
         ]
       }
     },
+    "/api/v1/tools/worldclock.current/call": {
+      "post": {
+        "operationId": "worldclock_current",
+        "summary": "Current Time by Timezone",
+        "description": "Get current date, time, and day of week for any IANA timezone. DST-aware. No auth, free, unlimited (TimeAPI.io)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "worldclock.current"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "timezone": {
+                    "type": "string",
+                    "description": "IANA timezone name (e.g. \"America/New_York\", \"Europe/London\", \"Asia/Tokyo\", \"UTC\")"
+                  }
+                },
+                "required": [
+                  "timezone"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/worldclock.convert/call": {
+      "post": {
+        "operationId": "worldclock_convert",
+        "summary": "Convert Time Between Timezones",
+        "description": "Convert date/time from one timezone to another. DST-aware. 597 IANA timezones (TimeAPI.io)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "worldclock.convert"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "from_timezone": {
+                    "type": "string",
+                    "description": "Source IANA timezone (e.g. \"America/New_York\")"
+                  },
+                  "datetime": {
+                    "type": "string",
+                    "description": "Date and time to convert in \"YYYY-MM-DD HH:mm:ss\" format (e.g. \"2026-03-20 12:00:00\")"
+                  },
+                  "to_timezone": {
+                    "type": "string",
+                    "description": "Target IANA timezone (e.g. \"Asia/Tokyo\")"
+                  }
+                },
+                "required": [
+                  "from_timezone",
+                  "datetime",
+                  "to_timezone"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/worldclock.zones/call": {
+      "post": {
+        "operationId": "worldclock_zones",
+        "summary": "List All Timezones",
+        "description": "List all 597 IANA timezone names. Use for timezone validation and discovery (TimeAPI.io)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "worldclock.zones"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "description": "No parameters needed — returns all 597 available IANA timezone names"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/screenshot.capture/call": {
       "post": {
         "operationId": "screenshot_capture",
