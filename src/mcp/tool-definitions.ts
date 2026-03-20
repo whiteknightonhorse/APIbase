@@ -1367,6 +1367,35 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // Walk Score — Walkability & Transit Intelligence (UC-062, 1 tool)
   // ---------------------------------------------------------------------------
   // ---------------------------------------------------------------------------
+  // GDELT — Global Events \& News (UC-107, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'gdelt.search',
+    mcpName: 'events.global.search',
+    title: 'Search Global News \& Events (GDELT)',
+    description: 'Search global news articles across 65 languages from 300K+ sources worldwide. Filter by time, language, tone. Returns title, URL, domain, country. 100% free, no auth (GDELT Project)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'gdelt.timeline',
+    mcpName: 'events.global.timeline',
+    title: 'News Mention Timeline (GDELT)',
+    description: 'Track mention volume of any topic over time — see when a keyword spikes in global news coverage. Up to 3 months of data (GDELT Project)',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
+  // NASA FIRMS — Satellite Fire Detection (UC-108, 1 tool)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'firms.fires',
+    mcpName: 'earth.fires.detect',
+    title: 'Detect Fires by Satellite (NASA FIRMS)',
+    description: 'Active fire hotspots detected by NASA satellites (VIIRS, MODIS) — latitude, longitude, brightness, confidence, fire radiative power. Filter by bounding box and days. Near real-time updates (NASA FIRMS)',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
   // TimeAPI.io — World Clock & Timezone (UC-103, 3 tools)
   // ---------------------------------------------------------------------------
   {

@@ -123,6 +123,9 @@ export const appEnvSchema = z.object({
   // NewsData.io (UC-070) — apikey query param, 200 credits/day free, commercial OK
   PROVIDER_KEY_NEWSDATA: z.string().optional().default(''),
 
+  // NASA FIRMS (UC-108) — MAP_KEY, 5K tx/10min
+  PROVIDER_KEY_FIRMS: z.string().optional().default(''),
+
   // ApiFlash Screenshot (UC-093) — access_key query param, 100/month free
   PROVIDER_KEY_APIFLASH: z.string().optional().default(''),
 

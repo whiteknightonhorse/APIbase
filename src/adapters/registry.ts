@@ -47,6 +47,8 @@ import { LangblyAdapter } from './langbly';
 import { ApiSportsAdapter } from './apisports';
 import { ApiFlashAdapter } from './apiflash';
 import { TimeApiAdapter } from './timeapi';
+import { GdeltAdapter } from './gdelt';
+import { FirmsAdapter } from './firms';
 import { ResendAdapter } from './resend';
 import { FedRegisterAdapter } from './fedregister';
 import { CourtListenerAdapter } from './courtlistener';
@@ -223,6 +225,13 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const zbKey = (config as Record<string, unknown>).PROVIDER_KEY_ZEROBOUNCE as string | undefined;
       if (!zbKey) return undefined;
       return getOrCreate('zerobounce', () => new ZeroBounceAdapter(zbKey));
+    }
+    case 'gdelt':
+      return getOrCreate('gdelt', () => new GdeltAdapter());
+    case 'firms': {
+      const firmsKey = (config as Record<string, unknown>).PROVIDER_KEY_FIRMS as string | undefined;
+      if (!firmsKey) return undefined;
+      return getOrCreate('firms', () => new FirmsAdapter(firmsKey));
     }
     case 'worldclock':
       return getOrCreate('timeapi', () => new TimeApiAdapter());

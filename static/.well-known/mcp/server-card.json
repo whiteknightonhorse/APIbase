@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase — The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 219 tools across timezone, screenshots, sports, translation, SMS, image gen, email, social media, legal, OCR, stocks, news, web search, travel, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, real estate, and more.",
+    "description": "Unified MCP gateway to 222 tools across fire detection, global events, timezone, screenshots, sports, translation, SMS, image gen, email, social media, legal, OCR, stocks, news, web search, travel, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, real estate, and more.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -6626,6 +6626,148 @@
         },
         "required": [
           "email"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "events.global.search",
+      "title": "Search Global News & Events (GDELT)",
+      "description": "Search global news articles across 65 languages from 300K+ sources worldwide. Filter by time, language, tone. Returns title, URL, domain, country. 100% free, no auth (GDELT Project)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "minLength": 3,
+            "description": "Search query — keywords, phrases, or boolean (e.g. \"climate change\", \"AI regulation\"). Min 3 chars."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 75,
+            "description": "Number of articles (default 10, max 75)"
+          },
+          "timespan": {
+            "type": "string",
+            "description": "Time window: \"15min\", \"1h\", \"4h\", \"1d\", \"7d\", \"30d\", \"3m\" (default: all recent)"
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "DateDesc",
+              "DateAsc",
+              "ToneDesc",
+              "ToneAsc",
+              "HybridRel"
+            ],
+            "description": "Sort order: DateDesc (newest), ToneDesc (most positive), HybridRel (relevance)"
+          },
+          "language": {
+            "type": "string",
+            "description": "Source language filter (e.g. \"english\", \"spanish\", \"chinese\")"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "events.global.timeline",
+      "title": "News Mention Timeline (GDELT)",
+      "description": "Track mention volume of any topic over time — see when a keyword spikes in global news coverage. Up to 3 months of data (GDELT Project)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "minLength": 3,
+            "description": "Query to track mention volume over time (e.g. \"Bitcoin\", \"artificial intelligence\")"
+          },
+          "timespan": {
+            "type": "string",
+            "description": "Time window: \"1d\", \"7d\", \"30d\", \"3m\" (default: 3 months)"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "earth.fires.detect",
+      "title": "Detect Fires by Satellite (NASA FIRMS)",
+      "description": "Active fire hotspots detected by NASA satellites (VIIRS, MODIS) — latitude, longitude, brightness, confidence, fire radiative power. Filter by bounding box and days. Near real-time updates (NASA FIRMS)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "west": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180,
+            "description": "Western longitude of bounding box (e.g. -125 for California)"
+          },
+          "south": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90,
+            "description": "Southern latitude of bounding box (e.g. 32)"
+          },
+          "east": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180,
+            "description": "Eastern longitude of bounding box (e.g. -114)"
+          },
+          "north": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90,
+            "description": "Northern latitude of bounding box (e.g. 42)"
+          },
+          "days": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "description": "Number of days of data (1-5, default 1)"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "VIIRS_SNPP_NRT",
+              "VIIRS_NOAA20_NRT",
+              "VIIRS_NOAA21_NRT",
+              "MODIS_NRT"
+            ],
+            "description": "Satellite sensor: VIIRS_SNPP_NRT (default, highest resolution), MODIS_NRT (legacy)"
+          }
+        },
+        "required": [
+          "west",
+          "south",
+          "east",
+          "north"
         ],
         "additionalProperties": false
       },

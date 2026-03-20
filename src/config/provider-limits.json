@@ -441,5 +441,23 @@
     "reset_period": "none",
     "docs_url": "https://timeapi.io/swagger/index.html",
     "limit_proof": "Free, no auth required, no documented rate limits"
+  },
+  "gdelt": {
+    "display_name": "GDELT Project",
+    "health_url": "https://api.gdeltproject.org/api/v2/doc/doc?query=test&mode=ArtList&format=json&maxrecords=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.gdeltproject.org/data.html",
+    "limit_proof": "100% free and open. No auth, no documented rate limits."
+  },
+  "firms": {
+    "display_name": "NASA FIRMS",
+    "health_url": "https://firms.modaps.eosdis.nasa.gov/api/data_availability/",
+    "limit_type": "hourly",
+    "free_limit": 5000,
+    "reset_period": "none",
+    "docs_url": "https://firms.modaps.eosdis.nasa.gov/api/",
+    "limit_proof": "5,000 transactions per 10-minute interval. NASA open data."
   }
 }

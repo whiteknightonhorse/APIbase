@@ -1064,6 +1064,26 @@ tools:
     price_usd: "0.025"
     cache_ttl: 86400
 
+  # --- UC-107: GDELT (Global Events & News) ---
+  - tool_id: gdelt.search
+    name: Search Global News
+    provider: gdelt
+    price_usd: "0.001"
+    cache_ttl: 300
+
+  - tool_id: gdelt.timeline
+    name: News Mention Timeline
+    provider: gdelt
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  # --- UC-108: NASA FIRMS (Fire Detection) ---
+  - tool_id: firms.fires
+    name: Detect Fires by Satellite
+    provider: firms
+    price_usd: "0.002"
+    cache_ttl: 300
+
   # --- UC-103: TimeAPI.io (World Clock & Timezone) ---
   - tool_id: worldclock.current
     name: Current Time by Timezone
