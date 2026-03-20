@@ -14508,6 +14508,232 @@
         ]
       }
     },
+    "/api/v1/tools/langbly.translate/call": {
+      "post": {
+        "operationId": "langbly_translate",
+        "summary": "Translate Text (Langbly)",
+        "description": "Translate text between 90+ languages — auto-detects source language, supports batch translation (array of strings), HTML format preservation. Google Translate v2 compatible. $5/1M chars (Langbly)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "langbly.translate"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "object"
+                  },
+                  "target": {
+                    "type": "string",
+                    "description": "Target language code (e.g. \"es\", \"fr\", \"de\", \"ja\", \"zh\", \"ru\", \"ar\")",
+                    "minLength": 2,
+                    "maxLength": 5
+                  },
+                  "source": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 5,
+                    "description": "Source language code (auto-detected if omitted)"
+                  },
+                  "format": {
+                    "type": "string",
+                    "enum": [
+                      "text",
+                      "html"
+                    ],
+                    "description": "Input format: \"text\" (default) or \"html\" (preserves HTML tags)"
+                  }
+                },
+                "required": [
+                  "text",
+                  "target"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/langbly.detect/call": {
+      "post": {
+        "operationId": "langbly_detect",
+        "summary": "Detect Language (Langbly)",
+        "description": "Detect the language of text — returns language code and confidence score. Supports batch detection (Langbly)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "langbly.detect"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "text"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/langbly.languages/call": {
+      "post": {
+        "operationId": "langbly_languages",
+        "summary": "List Supported Languages (Langbly)",
+        "description": "List all 90+ supported translation languages with localized names. Specify display_language to get names in that language (Langbly)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "langbly.languages"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "display_language": {
+                    "type": "string",
+                    "description": "Language code to display names in (e.g. \"en\" returns \"Spanish\", \"es\" returns \"Español\")"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/twilio.lookup/call": {
       "post": {
         "operationId": "twilio_lookup",

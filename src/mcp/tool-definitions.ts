@@ -1367,6 +1367,31 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // Walk Score — Walkability & Transit Intelligence (UC-062, 1 tool)
   // ---------------------------------------------------------------------------
   // ---------------------------------------------------------------------------
+  // Langbly — Translation (UC-087, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'langbly.translate',
+    mcpName: 'translate.text.translate',
+    title: 'Translate Text (Langbly)',
+    description: 'Translate text between 90+ languages — auto-detects source language, supports batch translation (array of strings), HTML format preservation. Google Translate v2 compatible. $5/1M chars (Langbly)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'langbly.detect',
+    mcpName: 'translate.text.detect',
+    title: 'Detect Language (Langbly)',
+    description: 'Detect the language of text — returns language code and confidence score. Supports batch detection (Langbly)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'langbly.languages',
+    mcpName: 'translate.text.languages',
+    title: 'List Supported Languages (Langbly)',
+    description: 'List all 90+ supported translation languages with localized names. Specify display_language to get names in that language (Langbly)',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
   // Twilio — SMS & Phone Lookup (UC-086, 2 tools)
   // ---------------------------------------------------------------------------
   {

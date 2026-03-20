@@ -43,6 +43,7 @@ import { RegulationsAdapter } from './regulations';
 import { MastodonAdapter } from './mastodon';
 import { StabilityAdapter } from './stability';
 import { TwilioAdapter } from './twilio';
+import { LangblyAdapter } from './langbly';
 import { ResendAdapter } from './resend';
 import { FedRegisterAdapter } from './fedregister';
 import { CourtListenerAdapter } from './courtlistener';
@@ -219,6 +220,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const zbKey = (config as Record<string, unknown>).PROVIDER_KEY_ZEROBOUNCE as string | undefined;
       if (!zbKey) return undefined;
       return getOrCreate('zerobounce', () => new ZeroBounceAdapter(zbKey));
+    }
+    case 'langbly': {
+      const lbKey = (config as Record<string, unknown>).PROVIDER_KEY_LANGBLY as string | undefined;
+      if (!lbKey) return undefined;
+      return getOrCreate('langbly', () => new LangblyAdapter(lbKey));
     }
     case 'twilio': {
       const twilioSid = (config as Record<string, unknown>).TWILIO_ACCOUNT_SID as string | undefined;

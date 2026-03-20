@@ -288,6 +288,15 @@
     "docs_url": "https://www.zerobounce.net/email-validation-api-quickstart/",
     "limit_proof": "100 free credits/month, then $39/2,000 credits (no expiry on purchased)"
   },
+  "langbly": {
+    "display_name": "Langbly Translation",
+    "health_url": "https://api.langbly.com/language/translate/v2/languages",
+    "limit_type": "monthly",
+    "free_limit": 500000,
+    "reset_period": "monthly",
+    "docs_url": "https://langbly.com/docs",
+    "limit_proof": "500K free characters/month, then $5/1M characters PAYG"
+  },
   "twilio": {
     "display_name": "Twilio SMS & Phone",
     "health_url": "https://lookups.twilio.com/v2/PhoneNumbers/+14157012311",

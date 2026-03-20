@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase — The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 208 tools across SMS, phone lookup, image generation, email, social media, legal, OCR, stocks, news, web search, travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, real estate, weather, space, gaming, and more. Pay-per-call via x402 micropayments.",
+    "description": "Unified MCP gateway to 211 tools across translation, SMS, image generation, email, social media, legal, OCR, stocks, news, web search, travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, real estate, weather, space, gaming, and more. Pay-per-call via x402 micropayments.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -6627,6 +6627,116 @@
         "required": [
           "email"
         ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "translate.text.translate",
+      "title": "Translate Text (Langbly)",
+      "description": "Translate text between 90+ languages — auto-detects source language, supports batch translation (array of strings), HTML format preservation. Google Translate v2 compatible. $5/1M chars (Langbly)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ],
+            "description": "Text to translate — single string or array of strings for batch translation"
+          },
+          "target": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 5,
+            "description": "Target language code (e.g. \"es\", \"fr\", \"de\", \"ja\", \"zh\", \"ru\", \"ar\")"
+          },
+          "source": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 5,
+            "description": "Source language code (auto-detected if omitted)"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "text",
+              "html"
+            ],
+            "description": "Input format: \"text\" (default) or \"html\" (preserves HTML tags)"
+          }
+        },
+        "required": [
+          "text",
+          "target"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "translate.text.detect",
+      "title": "Detect Language (Langbly)",
+      "description": "Detect the language of text — returns language code and confidence score. Supports batch detection (Langbly)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ],
+            "description": "Text to detect language of — single string or array"
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "translate.text.languages",
+      "title": "List Supported Languages (Langbly)",
+      "description": "List all 90+ supported translation languages with localized names. Specify display_language to get names in that language (Langbly)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "display_language": {
+            "type": "string",
+            "description": "Language code to display names in (e.g. \"en\" returns \"Spanish\", \"es\" returns \"Español\")"
+          }
+        },
         "additionalProperties": false
       },
       "annotations": {
