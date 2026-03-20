@@ -6700,9 +6700,13 @@
       "description": "List all 597 IANA timezone names. Use for timezone validation and discovery (TimeAPI.io)",
       "inputSchema": {
         "type": "object",
-        "properties": {},
-        "additionalProperties": false,
-        "description": "No parameters needed — returns all 597 available IANA timezone names"
+        "properties": {
+          "filter": {
+            "type": "string",
+            "description": "Optional prefix filter for timezone names (e.g. \"America\", \"Europe\", \"Asia\"). Returns all 597 zones if omitted."
+          }
+        },
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,
