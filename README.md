@@ -1,7 +1,7 @@
 # APIbase.pro — The API Hub for AI Agents
 
 > Search flights, find restaurants, discover events, browse movies, geocode addresses, get directions, generate AI marketing pages, compare prices, track status, trade prediction markets, check walkability scores, search US property listings — all via MCP.
-> One endpoint. 217 tools. 52 providers. Pay per call with x402 USDC micropayments on Base.
+> One endpoint. 222 tools. 55 providers. Pay per call with x402 USDC micropayments on Base.
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Health](https://apibase.pro/health/ready)**
 
@@ -9,7 +9,7 @@
 
 ## What is APIbase?
 
-Production MCP server — universal API hub for AI agents. 217 tools across travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, AI marketing, recipes, space/astronomy, gaming, real estate, dev tools, weather, and more. Search flights (Amadeus, Sabre GDS), find restaurants and places (Foursquare), geocode addresses, search places and POI, get directions (Geoapify/OSM), discover events and concerts (Ticketmaster), browse movies and TV shows (TMDB), search music artists, albums, and recordings (MusicBrainz), discover fresh releases (ListenBrainz), find internet radio stations (RadioBrowser), look up nutrition data and drug safety (USDA, OpenFDA, NIH), get exchange rates, economic indicators, and treasury data (ECB, FRED, World Bank, US Treasury), search academic papers and preprints (OpenAlex, arXiv, PubMed, CrossRef), compare US colleges and earnings (College Scorecard), find jobs and salary data (BLS, O*NET, ESCO, CareerJet), check walkability and transit scores (Walk Score), search US property listings and details (RapidAPI/Realtor.com), trade prediction markets (Polymarket), track crypto, check weather — with more providers shipping regularly. One endpoint, pay per call via x402 USDC micropayments. Auto-registration, zero setup. Covers the most popular API categories agents actually need: travel, local services, maps, events, entertainment, music, health, financial data, education, jobs, real estate, and marketing.
+Production MCP server — universal API hub for AI agents. 222 tools across travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, AI marketing, recipes, space/astronomy, gaming, real estate, dev tools, weather, and more. Search flights (Amadeus, Sabre GDS), find restaurants and places (Foursquare), geocode addresses, search places and POI, get directions (Geoapify/OSM), discover events and concerts (Ticketmaster), browse movies and TV shows (TMDB), search music artists, albums, and recordings (MusicBrainz), discover fresh releases (ListenBrainz), find internet radio stations (RadioBrowser), look up nutrition data and drug safety (USDA, OpenFDA, NIH), get exchange rates, economic indicators, and treasury data (ECB, FRED, World Bank, US Treasury), search academic papers and preprints (OpenAlex, arXiv, PubMed, CrossRef), compare US colleges and earnings (College Scorecard), find jobs and salary data (BLS, O*NET, ESCO, CareerJet), check walkability and transit scores (Walk Score), search US property listings and details (RapidAPI/Realtor.com), trade prediction markets (Polymarket), track crypto, check weather — with more providers shipping regularly. One endpoint, pay per call via x402 USDC micropayments. Auto-registration, zero setup. Covers the most popular API categories agents actually need: travel, local services, maps, events, entertainment, music, health, financial data, education, jobs, real estate, and marketing.
 
 **Built for AI agents, not humans.** Every tool is designed for autonomous discovery, authentication, and invocation via the [Model Context Protocol](https://modelcontextprotocol.io).
 
@@ -19,7 +19,7 @@ Production MCP server — universal API hub for AI agents. 217 tools across trav
 
 ### Why agents use APIbase
 
-- **One MCP endpoint** — `https://apibase.pro/mcp` connects to 52 providers
+- **One MCP endpoint** — `https://apibase.pro/mcp` connects to 55 providers
 - **Real-time flight search** — Amadeus + Sabre GDS, 500+ airlines, real prices
 - **Places & restaurants** — Foursquare Places API, 100M+ places in 190+ countries
 - **Pay per call** — x402 micropayments (USDC), no subscriptions, no minimums
@@ -139,7 +139,7 @@ Returns places with names, ratings, categories, distance, hours, price tier, and
 
 ---
 
-## Available Tools (217)
+## Available Tools (222)
 
 ### AIPush — AI Marketing / Page Generation (7 tools)
 
@@ -224,6 +224,32 @@ Generate and decode QR codes via API. Create customizable QR code images (size, 
 |------|-------------|-------|
 | `qrserver.generate` | Generate QR code image URL — customizable size, color, format (PNG/SVG), error correction | $0.001 |
 | `qrserver.read` | Decode QR code from image URL — extract encoded text or URL | $0.001 |
+
+### NWS — US Weather Alerts (2 tools)
+
+Active severe weather alerts for the US from NOAA/National Weather Service — tornado warnings, flood watches, heat advisories, winter storms. Filter by state, severity, event type. US Government open data, unlimited, no auth.
+
+| Tool | Description | Price |
+|------|-------------|-------|
+| `weather_alerts.active` | All active US weather alerts — filter by state, severity, urgency | $0.001 |
+| `weather_alerts.by_area` | Weather alerts for a specific US state | $0.001 |
+
+### Nager.Date — World Public Holidays (2 tools)
+
+Public holidays for 100+ countries — national and regional. Supports any year 2000-2099. Returns date, local name, English name, type. No auth, free, open source.
+
+| Tool | Description | Price |
+|------|-------------|-------|
+| `holidays.by_country` | Public holidays for any country and year | $0.001 |
+| `holidays.next` | Next upcoming public holidays for a country | $0.001 |
+
+### ssl-checker.io — SSL Certificate Check (1 tool)
+
+Check SSL/TLS certificate for any domain — validity, issuer, expiry, days remaining, protocol, HSTS. No auth, free.
+
+| Tool | Description | Price |
+|------|-------------|-------|
+| `ssl.check` | SSL certificate check — validity, issuer, expiry, key size, HSTS | $0.001 |
 
 ### GDELT — Global Events & News (2 tools)
 

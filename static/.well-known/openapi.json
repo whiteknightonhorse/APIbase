@@ -14508,6 +14508,404 @@
         ]
       }
     },
+    "/api/v1/tools/weather_alerts.active/call": {
+      "post": {
+        "operationId": "weather_alerts_active",
+        "summary": "Active US Weather Alerts (NWS)",
+        "description": "Active severe weather alerts for the US — tornado warnings, flood watches, heat advisories, winter storms. Filter by state, severity, event type. US Government open data, unlimited, no auth (NWS/NOAA)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "weather_alerts.active"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "area": {
+                    "type": "string",
+                    "description": "US state code (e.g. \"CA\", \"TX\", \"NY\") or marine zone"
+                  },
+                  "severity": {
+                    "type": "string",
+                    "enum": [
+                      "Extreme",
+                      "Severe",
+                      "Moderate",
+                      "Minor",
+                      "Unknown"
+                    ],
+                    "description": "Alert severity filter"
+                  },
+                  "event": {
+                    "type": "string",
+                    "description": "Event type filter (e.g. \"Tornado Warning\", \"Flood Watch\", \"Heat Advisory\")"
+                  },
+                  "urgency": {
+                    "type": "string",
+                    "enum": [
+                      "Immediate",
+                      "Expected",
+                      "Future",
+                      "Past",
+                      "Unknown"
+                    ],
+                    "description": "Urgency filter"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Max alerts to return (default 10, max 50)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/weather_alerts.by_area/call": {
+      "post": {
+        "operationId": "weather_alerts_by_area",
+        "summary": "Weather Alerts by US State (NWS)",
+        "description": "Active weather alerts for a specific US state — all warnings, watches, and advisories. Returns event, severity, urgency, description, area, timing (NWS/NOAA)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "weather_alerts.by_area"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "type": "string",
+                    "description": "US state code (e.g. \"CA\", \"FL\", \"TX\")",
+                    "minLength": 2,
+                    "maxLength": 2
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Max alerts (default 10, max 50)"
+                  }
+                },
+                "required": [
+                  "state"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/holidays.by_country/call": {
+      "post": {
+        "operationId": "holidays_by_country",
+        "summary": "Public Holidays by Country (Nager.Date)",
+        "description": "Public holidays for any country and year — 100+ countries, national and regional holidays. Returns date, name (local + English), type. No auth, free, open source (Nager.Date)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "holidays.by_country"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "country_code": {
+                    "type": "string",
+                    "description": "ISO 3166-1 alpha-2 country code (e.g. \"US\", \"GB\", \"DE\", \"JP\", \"BR\")",
+                    "minLength": 2,
+                    "maxLength": 2
+                  },
+                  "year": {
+                    "type": "integer",
+                    "minimum": 2000,
+                    "maximum": 2099,
+                    "description": "Year (default 2026). Supports 2000-2099."
+                  }
+                },
+                "required": [
+                  "country_code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/holidays.next/call": {
+      "post": {
+        "operationId": "holidays_next",
+        "summary": "Next Public Holidays (Nager.Date)",
+        "description": "Next upcoming public holidays for a country — useful for scheduling, availability checks, business day calculations. No auth (Nager.Date)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "holidays.next"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "country_code": {
+                    "type": "string",
+                    "description": "ISO 3166-1 alpha-2 country code (e.g. \"US\", \"FR\")",
+                    "minLength": 2,
+                    "maxLength": 2
+                  }
+                },
+                "required": [
+                  "country_code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ssl.check/call": {
+      "post": {
+        "operationId": "ssl_check",
+        "summary": "Check SSL Certificate (ssl-checker.io)",
+        "description": "Check SSL/TLS certificate for any domain — validity, issuer, expiry date, days remaining, protocol, key size, HSTS status. No auth, free (ssl-checker.io)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ssl.check"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "domain": {
+                    "type": "string",
+                    "description": "Domain name to check SSL certificate for (e.g. \"google.com\", \"apibase.pro\"). Do not include https://.",
+                    "minLength": 3
+                  }
+                },
+                "required": [
+                  "domain"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/gdelt.search/call": {
       "post": {
         "operationId": "gdelt_search",
