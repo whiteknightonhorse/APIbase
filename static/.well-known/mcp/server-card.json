@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase — The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 216 tools across screenshots, sports, translation, SMS, image gen, email, social media, legal, OCR, stocks, news, web search, travel, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, real estate, and more.",
+    "description": "Unified MCP gateway to 219 tools across timezone, screenshots, sports, translation, SMS, image gen, email, social media, legal, OCR, stocks, news, web search, travel, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, real estate, and more.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -6628,6 +6628,81 @@
           "email"
         ],
         "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "time.worldclock.current",
+      "title": "Current Time by Timezone",
+      "description": "Get current date, time, and day of week for any IANA timezone. DST-aware. No auth, free, unlimited (TimeAPI.io)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "timezone": {
+            "type": "string",
+            "description": "IANA timezone name (e.g. \"America/New_York\", \"Europe/London\", \"Asia/Tokyo\", \"UTC\")"
+          }
+        },
+        "required": [
+          "timezone"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "time.worldclock.convert",
+      "title": "Convert Time Between Timezones",
+      "description": "Convert date/time from one timezone to another. DST-aware. 597 IANA timezones (TimeAPI.io)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "from_timezone": {
+            "type": "string",
+            "description": "Source IANA timezone (e.g. \"America/New_York\")"
+          },
+          "datetime": {
+            "type": "string",
+            "description": "Date and time to convert in \"YYYY-MM-DD HH:mm:ss\" format (e.g. \"2026-03-20 12:00:00\")"
+          },
+          "to_timezone": {
+            "type": "string",
+            "description": "Target IANA timezone (e.g. \"Asia/Tokyo\")"
+          }
+        },
+        "required": [
+          "from_timezone",
+          "datetime",
+          "to_timezone"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "time.worldclock.zones",
+      "title": "List All Timezones",
+      "description": "List all 597 IANA timezone names. Use for timezone validation and discovery (TimeAPI.io)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false,
+        "description": "No parameters needed — returns all 597 available IANA timezone names"
       },
       "annotations": {
         "readOnlyHint": true,

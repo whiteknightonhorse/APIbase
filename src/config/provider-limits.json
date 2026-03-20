@@ -432,5 +432,14 @@
     "reset_period": "monthly",
     "docs_url": "https://apiflash.com/documentation",
     "limit_proof": "Free plan: 100 screenshots/month, no credit card required"
+  },
+  "timeapi": {
+    "display_name": "TimeAPI.io (World Clock)",
+    "health_url": "https://timeapi.io/api/time/current/zone?timeZone=UTC",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://timeapi.io/swagger/index.html",
+    "limit_proof": "Free, no auth required, no documented rate limits"
   }
 }

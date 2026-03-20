@@ -46,6 +46,7 @@ import { TwilioAdapter } from './twilio';
 import { LangblyAdapter } from './langbly';
 import { ApiSportsAdapter } from './apisports';
 import { ApiFlashAdapter } from './apiflash';
+import { TimeApiAdapter } from './timeapi';
 import { ResendAdapter } from './resend';
 import { FedRegisterAdapter } from './fedregister';
 import { CourtListenerAdapter } from './courtlistener';
@@ -223,6 +224,8 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       if (!zbKey) return undefined;
       return getOrCreate('zerobounce', () => new ZeroBounceAdapter(zbKey));
     }
+    case 'worldclock':
+      return getOrCreate('timeapi', () => new TimeApiAdapter());
     case 'screenshot': {
       const flashKey = (config as Record<string, unknown>).PROVIDER_KEY_APIFLASH as string | undefined;
       if (!flashKey) return undefined;
