@@ -1064,6 +1064,39 @@ tools:
     price_usd: "0.025"
     cache_ttl: 86400
 
+  # --- UC-109: NWS Weather Alerts ---
+  - tool_id: weather_alerts.active
+    name: Active US Weather Alerts
+    provider: nws
+    price_usd: "0.001"
+    cache_ttl: 60
+
+  - tool_id: weather_alerts.by_area
+    name: Weather Alerts by State
+    provider: nws
+    price_usd: "0.001"
+    cache_ttl: 60
+
+  # --- UC-110: Nager.Date Public Holidays ---
+  - tool_id: holidays.by_country
+    name: Public Holidays by Country
+    provider: nagerdate
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: holidays.next
+    name: Next Public Holidays
+    provider: nagerdate
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  # --- UC-119: ssl-checker.io ---
+  - tool_id: ssl.check
+    name: SSL Certificate Check
+    provider: sslchecker
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   # --- UC-107: GDELT (Global Events & News) ---
   - tool_id: gdelt.search
     name: Search Global News

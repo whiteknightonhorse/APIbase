@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase — The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 222 tools across fire detection, global events, timezone, screenshots, sports, translation, SMS, image gen, email, social media, legal, OCR, stocks, news, web search, travel, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, real estate, and more.",
+    "description": "Unified MCP gateway to 227 tools across weather alerts, holidays, SSL certificates, fire detection, global events, timezone, screenshots, sports, translation, SMS, image gen, email, social media, legal, OCR, stocks, news, web search, travel, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, real estate, and more.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -6626,6 +6626,174 @@
         },
         "required": [
           "email"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "weather.alerts.active",
+      "title": "Active US Weather Alerts (NWS)",
+      "description": "Active severe weather alerts for the US — tornado warnings, flood watches, heat advisories, winter storms. Filter by state, severity, event type. US Government open data, unlimited, no auth (NWS/NOAA)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "area": {
+            "type": "string",
+            "description": "US state code (e.g. \"CA\", \"TX\", \"NY\") or marine zone"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "Extreme",
+              "Severe",
+              "Moderate",
+              "Minor",
+              "Unknown"
+            ],
+            "description": "Alert severity filter"
+          },
+          "event": {
+            "type": "string",
+            "description": "Event type filter (e.g. \"Tornado Warning\", \"Flood Watch\", \"Heat Advisory\")"
+          },
+          "urgency": {
+            "type": "string",
+            "enum": [
+              "Immediate",
+              "Expected",
+              "Future",
+              "Past",
+              "Unknown"
+            ],
+            "description": "Urgency filter"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Max alerts to return (default 10, max 50)"
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "weather.alerts.by_state",
+      "title": "Weather Alerts by US State (NWS)",
+      "description": "Active weather alerts for a specific US state — all warnings, watches, and advisories. Returns event, severity, urgency, description, area, timing (NWS/NOAA)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "US state code (e.g. \"CA\", \"FL\", \"TX\")"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Max alerts (default 10, max 50)"
+          }
+        },
+        "required": [
+          "state"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "calendar.holidays.by_country",
+      "title": "Public Holidays by Country (Nager.Date)",
+      "description": "Public holidays for any country and year — 100+ countries, national and regional holidays. Returns date, name (local + English), type. No auth, free, open source (Nager.Date)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "country_code": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "ISO 3166-1 alpha-2 country code (e.g. \"US\", \"GB\", \"DE\", \"JP\", \"BR\")"
+          },
+          "year": {
+            "type": "integer",
+            "minimum": 2000,
+            "maximum": 2099,
+            "description": "Year (default 2026). Supports 2000-2099."
+          }
+        },
+        "required": [
+          "country_code"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "calendar.holidays.next",
+      "title": "Next Public Holidays (Nager.Date)",
+      "description": "Next upcoming public holidays for a country — useful for scheduling, availability checks, business day calculations. No auth (Nager.Date)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "country_code": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "ISO 3166-1 alpha-2 country code (e.g. \"US\", \"FR\")"
+          }
+        },
+        "required": [
+          "country_code"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "web.ssl.check",
+      "title": "Check SSL Certificate (ssl-checker.io)",
+      "description": "Check SSL/TLS certificate for any domain — validity, issuer, expiry date, days remaining, protocol, key size, HSTS status. No auth, free (ssl-checker.io)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "domain": {
+            "type": "string",
+            "minLength": 3,
+            "description": "Domain name to check SSL certificate for (e.g. \"google.com\", \"apibase.pro\"). Do not include https://."
+          }
+        },
+        "required": [
+          "domain"
         ],
         "additionalProperties": false
       },

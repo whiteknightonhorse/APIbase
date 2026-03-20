@@ -48,6 +48,9 @@ import { ApiSportsAdapter } from './apisports';
 import { ApiFlashAdapter } from './apiflash';
 import { TimeApiAdapter } from './timeapi';
 import { GdeltAdapter } from './gdelt';
+import { NwsAdapter } from './nws';
+import { NagerDateAdapter } from './nagerdate';
+import { SslCheckerAdapter } from './sslchecker';
 import { FirmsAdapter } from './firms';
 import { ResendAdapter } from './resend';
 import { FedRegisterAdapter } from './fedregister';
@@ -226,6 +229,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       if (!zbKey) return undefined;
       return getOrCreate('zerobounce', () => new ZeroBounceAdapter(zbKey));
     }
+    case 'weather_alerts':
+      return getOrCreate('nws', () => new NwsAdapter());
+    case 'holidays':
+      return getOrCreate('nagerdate', () => new NagerDateAdapter());
+    case 'ssl':
+      return getOrCreate('sslchecker', () => new SslCheckerAdapter());
     case 'gdelt':
       return getOrCreate('gdelt', () => new GdeltAdapter());
     case 'firms': {

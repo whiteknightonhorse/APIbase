@@ -48,6 +48,9 @@ import { apisportsSchemas } from './apisports.schema';
 import { apiflashSchemas } from './apiflash.schema';
 import { timeapiSchemas } from './timeapi.schema';
 import { gdeltSchemas } from './gdelt.schema';
+import { nwsSchemas } from './nws.schema';
+import { nagerdateSchemas } from './nagerdate.schema';
+import { sslcheckerSchemas } from './sslchecker.schema';
 import { firmsSchemas } from './firms.schema';
 import { resendSchemas } from './resend.schema';
 import { fedregisterSchemas } from './fedregister.schema';
@@ -103,6 +106,9 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...apiflashSchemas,
   ...timeapiSchemas,
   ...gdeltSchemas,
+  ...nwsSchemas,
+  ...nagerdateSchemas,
+  ...sslcheckerSchemas,
   ...firmsSchemas,
   ...resendSchemas,
   ...fedregisterSchemas,

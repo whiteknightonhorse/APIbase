@@ -459,5 +459,32 @@
     "reset_period": "none",
     "docs_url": "https://firms.modaps.eosdis.nasa.gov/api/",
     "limit_proof": "5,000 transactions per 10-minute interval. NASA open data."
+  },
+  "nws": {
+    "display_name": "NWS Weather Alerts",
+    "health_url": "https://api.weather.gov/alerts/active?limit=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.weather.gov/documentation/services-web-api",
+    "limit_proof": "US Government open data, no auth, no rate limits (fair use: 1 req/30s)"
+  },
+  "nagerdate": {
+    "display_name": "Nager.Date Holidays",
+    "health_url": "https://date.nager.at/api/v3/NextPublicHolidays/US",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://date.nager.at/Api",
+    "limit_proof": "Free, no auth, open source, no documented rate limits"
+  },
+  "sslchecker": {
+    "display_name": "ssl-checker.io",
+    "health_url": "https://ssl-checker.io/api/v1/check/google.com",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://ssl-checker.io/",
+    "limit_proof": "Free, no auth, no documented rate limits"
   }
 }

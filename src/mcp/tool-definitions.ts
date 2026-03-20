@@ -1367,6 +1367,53 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // Walk Score — Walkability & Transit Intelligence (UC-062, 1 tool)
   // ---------------------------------------------------------------------------
   // ---------------------------------------------------------------------------
+  // NWS — US Weather Alerts (UC-109, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'weather_alerts.active',
+    mcpName: 'weather.alerts.active',
+    title: 'Active US Weather Alerts (NWS)',
+    description: 'Active severe weather alerts for the US — tornado warnings, flood watches, heat advisories, winter storms. Filter by state, severity, event type. US Government open data, unlimited, no auth (NWS/NOAA)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'weather_alerts.by_area',
+    mcpName: 'weather.alerts.by_state',
+    title: 'Weather Alerts by US State (NWS)',
+    description: 'Active weather alerts for a specific US state — all warnings, watches, and advisories. Returns event, severity, urgency, description, area, timing (NWS/NOAA)',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
+  // Nager.Date — World Public Holidays (UC-110, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'holidays.by_country',
+    mcpName: 'calendar.holidays.by_country',
+    title: 'Public Holidays by Country (Nager.Date)',
+    description: 'Public holidays for any country and year — 100+ countries, national and regional holidays. Returns date, name (local + English), type. No auth, free, open source (Nager.Date)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'holidays.next',
+    mcpName: 'calendar.holidays.next',
+    title: 'Next Public Holidays (Nager.Date)',
+    description: 'Next upcoming public holidays for a country — useful for scheduling, availability checks, business day calculations. No auth (Nager.Date)',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
+  // ssl-checker.io — SSL Certificate Check (UC-119, 1 tool)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'ssl.check',
+    mcpName: 'web.ssl.check',
+    title: 'Check SSL Certificate (ssl-checker.io)',
+    description: 'Check SSL/TLS certificate for any domain — validity, issuer, expiry date, days remaining, protocol, key size, HSTS status. No auth, free (ssl-checker.io)',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
   // GDELT — Global Events \& News (UC-107, 2 tools)
   // ---------------------------------------------------------------------------
   {
