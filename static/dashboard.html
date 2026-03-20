@@ -11,328 +11,97 @@
 <link rel="canonical" href="https://apibase.pro/dashboard">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-
-body{
-  font-family:'JetBrains Mono','Fira Code','Cascadia Code','Courier New',monospace;
-  background:#1a1a2e;
-  color:#b0ffb0;
-  line-height:1.7;
-  padding:1.5rem;
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:flex-start;
-}
-
-.window{
-  max-width:960px;
-  width:100%;
-  background:#0c0c0c;
-  border-radius:10px 10px 8px 8px;
-  border:1px solid #444;
-  box-shadow:
-    0 20px 60px rgba(0,0,0,0.6),
-    0 0 80px rgba(0,255,65,0.04),
-    inset 0 0 80px rgba(0,255,65,0.01);
-  overflow:hidden;
-  position:relative;
-}
-
-/* CRT scanline overlay */
-.window::after{
-  content:'';
-  position:absolute;
-  top:0;left:0;right:0;bottom:0;
-  background:repeating-linear-gradient(
-    0deg,
-    rgba(0,0,0,0.06) 0px,
-    rgba(0,0,0,0.06) 1px,
-    transparent 1px,
-    transparent 3px
-  );
-  pointer-events:none;
-  z-index:2;
-}
-
-/* Animated scanline beam */
-.window::before{
-  content:'';
-  position:absolute;
-  top:-100%;left:0;right:0;
-  height:60px;
-  background:linear-gradient(180deg,transparent 0%,rgba(0,255,65,0.03) 50%,transparent 100%);
-  pointer-events:none;
-  z-index:3;
-  animation:scanline 8s linear infinite;
-}
+body{font-family:'JetBrains Mono','Fira Code','Cascadia Code','Courier New',monospace;background:#1a1a2e;color:#b0ffb0;line-height:1.7;padding:1.5rem;min-height:100vh;display:flex;justify-content:center;align-items:flex-start}
+.window{max-width:960px;width:100%;background:#0c0c0c;border-radius:10px 10px 8px 8px;border:1px solid #444;box-shadow:0 20px 60px rgba(0,0,0,0.6),0 0 80px rgba(0,255,65,0.04),inset 0 0 80px rgba(0,255,65,0.01);overflow:hidden;position:relative}
+.window::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,0.06) 0px,rgba(0,0,0,0.06) 1px,transparent 1px,transparent 3px);pointer-events:none;z-index:2}
+.window::before{content:'';position:absolute;top:-100%;left:0;right:0;height:60px;background:linear-gradient(180deg,transparent 0%,rgba(0,255,65,0.03) 50%,transparent 100%);pointer-events:none;z-index:3;animation:scanline 8s linear infinite}
 @keyframes scanline{0%{top:-60px}100%{top:100%}}
-
-.titlebar{
-  background:linear-gradient(180deg,#3d3d3d 0%,#2a2a2a 100%);
-  padding:10px 14px;
-  display:flex;
-  align-items:center;
-  border-bottom:1px solid #1a1a1a;
-  position:relative;
-  z-index:4;
-}
-
+.titlebar{background:linear-gradient(180deg,#3d3d3d 0%,#2a2a2a 100%);padding:10px 14px;display:flex;align-items:center;border-bottom:1px solid #1a1a1a;position:relative;z-index:4}
 .dots{display:flex;gap:7px;flex-shrink:0}
-.dot{
-  width:13px;height:13px;
-  border-radius:50%;
-  border:1px solid rgba(0,0,0,0.2);
-}
+.dot{width:13px;height:13px;border-radius:50%;border:1px solid rgba(0,0,0,0.2)}
 .dot-red{background:#ff5f56;border-color:#e0443e}
 .dot-yellow{background:#ffbd2e;border-color:#dea123}
 .dot-green{background:#27c93f;border-color:#1aab29}
-
-.titlebar-text{
-  flex:1;
-  text-align:center;
-  color:#999;
-  font-size:0.78rem;
-  font-family:inherit;
-  letter-spacing:0.5px;
-}
-
-.cursor-blink{
-  display:inline-block;
-  width:8px;height:1.1em;
-  background:#999;
-  vertical-align:text-bottom;
-  animation:blink 1s step-end infinite;
-  margin-left:2px;
-}
-
-.container{
-  padding:1.8rem 2rem 2rem;
-  position:relative;
-  z-index:1;
-}
-
-nav{
-  display:flex;
-  flex-wrap:wrap;
-  gap:0.3rem;
-  margin-bottom:1.8rem;
-  padding:0.5rem 0;
-  border-bottom:1px solid #1a3a1a;
-}
-nav::before{content:'[';color:#555}
-nav::after{content:']';color:#555}
-nav .brand{
-  color:#00ff41;
-  font-weight:700;
-  font-size:0.9rem;
-  text-decoration:none;
-  text-shadow:0 0 8px rgba(0,255,65,0.4);
-}
-nav a{
-  color:#00cc33;
-  text-decoration:none;
-  font-size:0.85rem;
-}
-nav a::before{content:' | ';color:#333}
-nav .brand::before{content:''}
-nav a:hover{
-  color:#00ff41;
-  text-shadow:0 0 6px rgba(0,255,65,0.5);
-}
-
-/* Phosphor glow on h1 */
-h1{
-  color:#00ff41;
-  font-size:1.3rem;
-  margin-bottom:1.5rem;
-  line-height:1.5;
-  text-shadow:0 0 10px #00ff41, 0 0 20px #00ff41, 0 0 40px rgba(0,255,65,0.3);
-}
+.titlebar-text{flex:1;text-align:center;color:#999;font-size:0.78rem;font-family:inherit;letter-spacing:0.5px}
+.cursor-blink{display:inline-block;width:8px;height:1.1em;background:#999;vertical-align:text-bottom;animation:blink 1s step-end infinite;margin-left:2px}
+.container{padding:1.8rem 2rem 2rem;position:relative;z-index:1}
+nav{display:flex;flex-wrap:wrap;gap:0.3rem;margin-bottom:1.8rem;padding:0.5rem 0;border-bottom:1px solid #1a3a1a}
+nav::before{content:'[';color:#555}nav::after{content:']';color:#555}
+nav .brand{color:#00ff41;font-weight:700;font-size:0.9rem;text-decoration:none;text-shadow:0 0 8px rgba(0,255,65,0.4)}
+nav a{color:#00cc33;text-decoration:none;font-size:0.85rem}
+nav a::before{content:' | ';color:#333}nav .brand::before{content:''}
+nav a:hover{color:#00ff41;text-shadow:0 0 6px rgba(0,255,65,0.5)}
+h1{color:#00ff41;font-size:1.3rem;margin-bottom:1.5rem;line-height:1.5;text-shadow:0 0 10px #00ff41,0 0 20px #00ff41,0 0 40px rgba(0,255,65,0.3)}
 h1::before{content:'> ';color:#00aa30}
-
-a{color:#00ccff;text-decoration:none}
-a:hover{color:#66ddff;text-shadow:0 0 6px rgba(0,204,255,0.4)}
-
-/* System monitor line (htop style) */
-.system-monitor{
-  margin-bottom:1.2rem;
-  font-size:0.82rem;
-  color:#00ff41;
-  letter-spacing:0.5px;
-}
-.system-monitor::before{
-  content:'>';
-  color:#00aa30;
-  margin-right:6px;
-  animation:blink 1s step-end infinite;
-}
+a{color:#00ccff;text-decoration:none}a:hover{color:#66ddff;text-shadow:0 0 6px rgba(0,204,255,0.4)}
+.system-monitor{margin-bottom:1.2rem;font-size:0.82rem;color:#00ff41;letter-spacing:0.5px}
+.system-monitor::before{content:'>';color:#00aa30;margin-right:6px;animation:blink 1s step-end infinite}
 .system-monitor .label{color:#2a6a2a;font-weight:400}
 .system-monitor .val{color:#00ff41;font-weight:700}
-
-.payment-status{
-  display:flex;
-  gap:1.5rem;
-  flex-wrap:wrap;
-  margin-bottom:1.5rem;
-  padding:0.8rem 1rem;
-  background:#080808;
-  border:1px solid #1a3a1a;
-  border-radius:4px;
-  font-size:0.82rem;
-  color:#a0d8a0;
-  align-items:center;
-}
+.payment-status{display:flex;gap:1.5rem;flex-wrap:wrap;margin-bottom:1.5rem;padding:0.8rem 1rem;background:#080808;border:1px solid #1a3a1a;border-radius:4px;font-size:0.82rem;color:#a0d8a0;align-items:center}
 .payment-status .label{color:#00ff41;font-weight:700;margin-right:0.3rem}
 .payment-status .mode{display:flex;align-items:center;gap:0.4rem}
 .payment-status .separator{color:#333}
 .payment-status .testnet-warn{color:#ff5f56;font-weight:700}
 
-/* ASCII progress bar for refresh */
-.refresh-bar{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:1rem;
-  font-size:0.78rem;
-  color:#2a6a2a;
-  font-family:inherit;
-}
-.refresh-bar .progress{color:#00aa30;letter-spacing:0}
-
-.table-wrap{overflow-x:auto}
-table{
-  width:100%;
-  border-collapse:collapse;
-  font-size:0.82rem;
-  background:#080808;
-}
-th,td{
-  border:1px solid #1a3a1a;
-  padding:0.5rem 0.7rem;
-  text-align:left;
+/* Category filter */
+.cat-filter{margin-bottom:1.2rem;padding:0.6rem 0}
+.cat-filter-label{color:#2a6a2a;font-size:0.72rem;margin-bottom:0.5rem;display:block}
+.cat-tags{display:flex;flex-wrap:wrap;gap:0.4rem}
+.cat-tag{
+  background:#0a1a0a;border:1px solid #1a3a1a;border-radius:3px;
+  padding:0.25rem 0.6rem;font-size:0.72rem;color:#2a6a2a;
+  cursor:pointer;font-family:inherit;transition:all 0.15s;
   white-space:nowrap;
 }
-th{
-  color:#00ff41;
-  background:#0a1a0a;
-  text-shadow:0 0 4px rgba(0,255,65,0.2);
-  position:sticky;
-  top:0;
+.cat-tag:hover{color:#00ff41;border-color:#00aa30;text-shadow:0 0 4px rgba(0,255,65,0.3)}
+.cat-tag.active{
+  color:#00ff41;border-color:#00ff41;background:#0a2a0a;
+  text-shadow:0 0 6px rgba(0,255,65,0.4);font-weight:700;
 }
-td{color:#88bb88}
+.cat-tag .cat-count{color:#006620;margin-left:3px;font-weight:400}
+.cat-tag.active .cat-count{color:#00aa30}
 
-/* Latency-based left border on rows */
+.refresh-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;font-size:0.78rem;color:#2a6a2a;font-family:inherit}
+.refresh-bar .progress{color:#00aa30;letter-spacing:0}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:0.82rem;background:#080808}
+th,td{border:1px solid #1a3a1a;padding:0.5rem 0.7rem;text-align:left;white-space:nowrap}
+th{color:#00ff41;background:#0a1a0a;text-shadow:0 0 4px rgba(0,255,65,0.2);position:sticky;top:0}
+td{color:#88bb88}
 tr.lat-border-green td:first-child{border-left:2px solid #27c93f}
 tr.lat-border-orange td:first-child{border-left:2px solid #ffaa00}
 tr.lat-border-red td:first-child{border-left:2px solid #ff4444}
 tr.lat-border-unknown td:first-child{border-left:2px solid #333}
-
-.status-dot{
-  display:inline-block;
-  width:10px;height:10px;
-  border-radius:50%;
-  margin-right:6px;
-  vertical-align:middle;
-}
+.status-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
 .dot-g{background:#27c93f;box-shadow:0 0 6px rgba(39,201,63,0.6)}
 .dot-o{background:#ff9f43;box-shadow:0 0 6px rgba(255,159,67,0.6)}
 .dot-y{background:#ffbd2e;box-shadow:0 0 6px rgba(255,189,46,0.6)}
 .dot-r{background:#ff5f56;box-shadow:0 0 6px rgba(255,95,86,0.6)}
 .dot-u{background:#555;box-shadow:0 0 4px rgba(85,85,85,0.4)}
 .dot-p{background:#4a9eff;box-shadow:0 0 6px rgba(74,158,255,0.5)}
-
-.lat-green{color:#27c93f}
-.lat-orange{color:#ff9f43}
-.lat-red{color:#ff5f56}
-
-.loading{
-  text-align:center;
-  padding:3rem;
-  color:#2a6a2a;
-  font-size:0.9rem;
-}
-.loading::after{
-  content:'';
-  display:inline-block;
-  width:8px;height:1.1em;
-  background:#00ff41;
-  vertical-align:text-bottom;
-  animation:blink 1s step-end infinite;
-  margin-left:4px;
-}
+.lat-green{color:#27c93f}.lat-orange{color:#ff9f43}.lat-red{color:#ff5f56}
+.loading{text-align:center;padding:3rem;color:#2a6a2a;font-size:0.9rem}
+.loading::after{content:'';display:inline-block;width:8px;height:1.1em;background:#00ff41;vertical-align:text-bottom;animation:blink 1s step-end infinite;margin-left:4px}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-
-.error-msg{
-  text-align:center;
-  padding:2rem;
-  color:#ff5f56;
-  font-size:0.85rem;
-}
-
-/* Extended footer — unix ps style */
-.footer{
-  margin-top:2rem;
-  padding:0.6rem 0;
-  border-top:1px solid #1a3a1a;
-  color:#2a6a2a;
-  font-size:0.72rem;
-  display:flex;
-  flex-direction:column;
-  gap:0.2rem;
-}
-.footer-row{
-  display:flex;
-  justify-content:space-between;
-  flex-wrap:wrap;
-  gap:0.5rem;
-}
+.error-msg{text-align:center;padding:2rem;color:#ff5f56;font-size:0.85rem}
+.footer{margin-top:2rem;padding:0.6rem 0;border-top:1px solid #1a3a1a;color:#2a6a2a;font-size:0.72rem;display:flex;flex-direction:column;gap:0.2rem}
+.footer-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.5rem}
 .footer .online{color:#00aa30}
-
-/* Boot sequence */
-#boot-screen{
-  padding:2rem;
-  font-size:0.82rem;
-  color:#00ff41;
-  min-height:200px;
-  position:relative;
-  z-index:1;
-}
-#boot-screen .line{
-  opacity:0;
-  margin-bottom:2px;
-}
+#boot-screen{padding:2rem;font-size:0.82rem;color:#00ff41;min-height:200px;position:relative;z-index:1}
+#boot-screen .line{opacity:0;margin-bottom:2px}
 #boot-screen .line.visible{opacity:1}
 #boot-screen .ok{color:#27c93f}
 #boot-screen .sys{color:#ffbd2e}
-
-@media(max-width:600px){
-  body{padding:0.5rem}
-  .container{padding:1rem}
-  .titlebar{padding:8px 10px}
-  h1{font-size:1.05rem}
-  h1::before{content:''}
-  table{font-size:0.72rem}
-  th,td{padding:0.35rem}
-  .col-latency{display:none}
-  .system-monitor{font-size:0.72rem}
-  .footer{font-size:0.65rem}
-  nav::before,nav::after{display:none}
-}
+@media(max-width:600px){body{padding:0.5rem}.container{padding:1rem}.titlebar{padding:8px 10px}h1{font-size:1.05rem}h1::before{content:''}table{font-size:0.72rem}th,td{padding:0.35rem}.col-latency{display:none}.system-monitor{font-size:0.72rem}.footer{font-size:0.65rem}nav::before,nav::after{display:none}.cat-tag{font-size:0.65rem;padding:0.2rem 0.4rem}}
 </style>
 </head>
 <body>
 <div class="window">
-
 <div class="titlebar">
-<div class="dots">
-<span class="dot dot-red"></span>
-<span class="dot dot-yellow"></span>
-<span class="dot dot-green"></span>
-</div>
+<div class="dots"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></div>
 <span class="titlebar-text">apibase@prod:~$ cat /srv/apibase/dashboard | live <span class="cursor-blink"></span></span>
 </div>
-
-<!-- Boot sequence (shown once per session) -->
 <div id="boot-screen" style="display:none">
 <div class="line sys">APIBASE OS v1.0.0 — INITIALIZING...</div>
 <div class="line"><span class="ok">[OK]</span> Loading provider registry...</div>
@@ -340,9 +109,7 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
 <div class="line"><span class="ok">[OK]</span> Fetching real-time status data...</div>
 <div class="line sys">SYSTEM READY. Launching dashboard...</div>
 </div>
-
 <div class="container" id="main-content">
-
 <nav>
 <a class="brand" href="/">APIbase.pro</a>
 <a href="/dashboard">Dashboard</a>
@@ -351,35 +118,27 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
 <a href="/privacy">Privacy</a>
 <a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a>
 </nav>
-
 <h1>Provider Status Dashboard</h1>
-
 <div class="system-monitor" id="system-monitor">
 <span class="label">SYSTEM</span>  <span class="label">PRV:</span><span class="val" id="t-providers">--</span>  <span class="label">TOOLS:</span><span class="val" id="t-tools">--</span>  <span class="label">OPS/24H:</span><span class="val" id="t-calls">--</span>  <span class="label">MEM:</span><span class="val">OK</span>  <span class="label">NET:</span><span class="val">ONLINE</span>
 </div>
-
 <div class="payment-status" id="payment-status"></div>
+
+<!-- Category filter -->
+<div class="cat-filter">
+<span class="cat-filter-label">FILTER  /categories</span>
+<div class="cat-tags" id="cat-tags"></div>
+</div>
 
 <div class="refresh-bar">
 <span>Auto-refresh every 60s</span>
 <span class="progress" id="timer">REFRESH  [██████████████████████████████] 60s</span>
 </div>
-
-<div id="dashboard-content">
-<div class="loading">Loading dashboard data</div>
-</div>
-
+<div id="dashboard-content"><div class="loading">Loading dashboard data</div></div>
 <div class="footer">
-<div class="footer-row">
-<span><span class="online">STATUS: ONLINE</span>  |  PID: 1337  |  TTY: pts/0  |  USER: apibase</span>
+<div class="footer-row"><span><span class="online">STATUS: ONLINE</span>  |  PID: 1337  |  TTY: pts/0  |  USER: apibase</span></div>
+<div class="footer-row"><span id="gen-time">Generated: --</span><span id="uptime-counter">Uptime: 0m 0s</span><span>BUILD: v1.0.0</span></div>
 </div>
-<div class="footer-row">
-<span id="gen-time">Generated: --</span>
-<span id="uptime-counter">Uptime: 0m 0s</span>
-<span>BUILD: v1.0.0</span>
-</div>
-</div>
-
 </div>
 </div>
 
@@ -390,158 +149,192 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
   var countdown = 60;
   var intervalId = null;
   var pageLoadTime = Date.now();
+  var currentFilter = 'ALL';
+  var lastData = null;
 
-  // --- Boot sequence (once per session) ---
-  var bootScreen = document.getElementById('boot-screen');
-  var mainContent = document.getElementById('main-content');
+  // --- Provider → Category mapping ---
+  // UPDATE THIS when onboarding new providers (Step 12 in /onboard-provider)
+  var PROVIDER_CATEGORIES = {
+    // Travel
+    'Amadeus': 'Travel', 'Sabre GDS': 'Travel', 'Aviasales': 'Travel',
+    // Finance
+    'Finnhub Stock Market': 'Finance', 'Finance (Multi-Provider)': 'Finance', 'ExchangeRate-API': 'Finance',
+    // Crypto
+    'CoinGecko': 'Crypto', 'Polymarket': 'Crypto', 'Hyperliquid': 'Crypto', 'AsterDEX': 'Crypto',
+    // Search
+    'Serper.dev (Google Search)': 'Search', 'Tavily AI Search': 'Search', 'Exa Semantic Search': 'Search',
+    // News
+    'NewsData.io': 'News', 'GDELT Project': 'News',
+    // Maps
+    'Geoapify (Maps)': 'Maps',
+    // Entertainment
+    'Ticketmaster': 'Entertainment', 'TMDB (Movies)': 'Entertainment', 'RAWG Video Games': 'Entertainment', 'IGDB (Twitch Games)': 'Entertainment', 'Jikan (MyAnimeList)': 'Entertainment',
+    // Music
+    'Music (Multi-Provider)': 'Music',
+    // Health
+    'Health (Multi-Provider)': 'Health',
+    // Education
+    'Education (Multi-Provider)': 'Education',
+    // Jobs
+    'Jobs (Multi-Provider)': 'Jobs',
+    // Legal
+    'Regulations.gov': 'Legal', 'Federal Register': 'Legal', 'CourtListener (Free Law Project)': 'Legal',
+    // Real Estate
+    'Walk Score': 'Real Estate', 'US Real Estate (RapidAPI)': 'Real Estate',
+    // Space
+    'NASA Open APIs': 'Space', 'NASA JPL SSD': 'Space', 'NASA FIRMS': 'Space',
+    // Weather
+    'NWS Weather Alerts': 'Weather', 'OpenWeatherMap': 'Weather',
+    // Earth
+    // Translation
+    'Langbly Translation': 'Translation',
+    // Sports
+    'API-Sports (Multi-Sport)': 'Sports',
+    // Holidays
+    'Nager.Date Holidays': 'Holidays', 'Calendarific': 'Holidays',
+    // AI & Tools
+    'Stability AI': 'AI Tools', 'OCR.space': 'AI Tools', 'ApiFlash Screenshot': 'AI Tools',
+    // Communication
+    'Resend Email': 'Email & SMS', 'Twilio SMS & Phone': 'Email & SMS', 'ZeroBounce': 'Email & SMS',
+    // Social
+    'Mastodon (Fediverse)': 'Social',
+    // E-commerce
+    'Zinc E-commerce': 'E-commerce', 'Diffbot AI Extraction': 'E-commerce',
+    // Domain & SSL
+    'WhoisXML API': 'Domain & SSL', 'ssl-checker.io': 'Domain & SSL',
+    // Barcode & QR
+    'QRServer': 'QR & Barcode', 'UPCitemdb': 'QR & Barcode',
+    // URL
+    'Short.io URL Shortener': 'URL Shortener',
+    // IP
+    'ipapi.is': 'IP Intelligence',
+    // AIPush
+    'AIPush AI Marketing': 'AI Marketing',
+    // Timezone
+    'TimeAPI.io (World Clock)': 'Timezone',
+    // Earthquakes
+    'USGS Earthquake': 'Earthquakes',
+    // Books
+    'Open Library': 'Books',
+    // Foursquare
+    'Foursquare': 'Places',
+    // Spoonacular
+    'Spoonacular Recipe': 'Recipes',
+  };
 
-  if (!sessionStorage.getItem('apibase_booted')) {
-    mainContent.style.opacity = '0';
-    bootScreen.style.display = 'block';
-    var lines = bootScreen.querySelectorAll('.line');
-    var delay = 0;
-    for (var i = 0; i < lines.length; i++) {
-      (function(line, d) {
-        setTimeout(function() { line.classList.add('visible'); }, d);
-      })(lines[i], delay);
-      delay += 400;
-    }
-    setTimeout(function() {
-      bootScreen.style.display = 'none';
-      mainContent.style.transition = 'opacity 0.5s';
-      mainContent.style.opacity = '1';
-      sessionStorage.setItem('apibase_booted', '1');
-    }, delay + 600);
-  } else {
-    bootScreen.style.display = 'none';
-    mainContent.style.opacity = '1';
+  function getCategory(displayName) {
+    return PROVIDER_CATEGORIES[displayName] || 'Other';
   }
 
-  // --- Uptime counter ---
-  setInterval(function() {
-    var elapsed = Math.floor((Date.now() - pageLoadTime) / 1000);
-    var m = Math.floor(elapsed / 60);
-    var s = elapsed % 60;
-    var el = document.getElementById('uptime-counter');
-    if (el) el.textContent = 'Uptime: ' + m + 'm ' + s + 's';
-  }, 1000);
+  // --- Boot sequence ---
+  var bootScreen = document.getElementById('boot-screen');
+  var mainContent = document.getElementById('main-content');
+  if (!sessionStorage.getItem('apibase_booted')) {
+    mainContent.style.opacity = '0'; bootScreen.style.display = 'block';
+    var lines = bootScreen.querySelectorAll('.line'); var delay = 0;
+    for (var i = 0; i < lines.length; i++) { (function(line, d) { setTimeout(function() { line.classList.add('visible'); }, d); })(lines[i], delay); delay += 400; }
+    setTimeout(function() { bootScreen.style.display = 'none'; mainContent.style.transition = 'opacity 0.5s'; mainContent.style.opacity = '1'; sessionStorage.setItem('apibase_booted', '1'); }, delay + 600);
+  } else { bootScreen.style.display = 'none'; mainContent.style.opacity = '1'; }
 
-  // --- ASCII progress bar ---
+  // --- Uptime counter ---
+  setInterval(function() { var e = Math.floor((Date.now() - pageLoadTime) / 1000); var el = document.getElementById('uptime-counter'); if (el) el.textContent = 'Uptime: ' + Math.floor(e/60) + 'm ' + (e%60) + 's'; }, 1000);
+
   function updateProgressBar(sec) {
-    var total = 30;
-    var filled = Math.round((sec / 60) * total);
-    var empty = total - filled;
-    var bar = '';
-    for (var i = 0; i < filled; i++) bar += '\u2588'; // █
-    for (var i = 0; i < empty; i++) bar += '\u2591'; // ░
+    var total = 30, filled = Math.round((sec / 60) * total), empty = total - filled, bar = '';
+    for (var i = 0; i < filled; i++) bar += '\u2588';
+    for (var i = 0; i < empty; i++) bar += '\u2591';
     timerEl.textContent = 'REFRESH  [' + bar + '] ' + sec + 's';
   }
 
   function statusDot(status) {
     var cls = 'dot-u';
-    if (status === 'green') cls = 'dot-g';
-    else if (status === 'orange') cls = 'dot-o';
-    else if (status === 'yellow') cls = 'dot-y';
-    else if (status === 'red') cls = 'dot-r';
+    if (status === 'green') cls = 'dot-g'; else if (status === 'orange') cls = 'dot-o';
+    else if (status === 'yellow') cls = 'dot-y'; else if (status === 'red') cls = 'dot-r';
     else if (status === 'paid') cls = 'dot-p';
     return '<span class="status-dot ' + cls + '"></span>';
   }
-
-  function latencyClass(ms) {
-    if (ms === null || ms === undefined) return '';
-    if (ms < 500) return 'lat-green';
-    if (ms <= 2000) return 'lat-orange';
-    return 'lat-red';
-  }
-
-  function latencyBorderClass(ms) {
-    if (ms === null || ms === undefined) return 'lat-border-unknown';
-    if (ms < 500) return 'lat-border-green';
-    if (ms <= 2000) return 'lat-border-orange';
-    return 'lat-border-red';
-  }
-
-  function formatNum(n) {
-    if (n === null || n === undefined) return '--';
-    return n.toLocaleString();
-  }
-
-  function networkLabel(network) {
-    if (network === 'eip155:8453') return 'Base';
-    if (network === 'eip155:84532') return 'Base Sepolia';
-    return network || '--';
-  }
+  function latencyClass(ms) { if (ms === null || ms === undefined) return ''; if (ms < 500) return 'lat-green'; if (ms <= 2000) return 'lat-orange'; return 'lat-red'; }
+  function latencyBorderClass(ms) { if (ms === null || ms === undefined) return 'lat-border-unknown'; if (ms < 500) return 'lat-border-green'; if (ms <= 2000) return 'lat-border-orange'; return 'lat-border-red'; }
+  function formatNum(n) { if (n === null || n === undefined) return '--'; return n.toLocaleString(); }
+  function networkLabel(network) { if (network === 'eip155:8453') return 'Base'; if (network === 'eip155:84532') return 'Base Sepolia'; return network || '--'; }
+  function escHtml(s) { var d = document.createElement('div'); d.appendChild(document.createTextNode(s)); return d.innerHTML; }
 
   function renderPaymentStatus(data) {
     var el = document.getElementById('payment-status');
     if (!data.payment_system) { el.style.display = 'none'; return; }
-    var ps = data.payment_system;
-    var html = '<span class="label">Payment:</span>';
-    html += '<span class="mode">' + statusDot('green') + 'Mode A Active</span>';
-    html += '<span class="separator">|</span>';
+    var ps = data.payment_system, html = '<span class="label">Payment:</span>';
+    html += '<span class="mode">' + statusDot('green') + 'Mode A Active</span><span class="separator">|</span>';
     var mb = ps.mode_b;
-    if (mb.status === 'unknown') {
-      html += '<span class="mode">' + statusDot('unknown') + 'x402 (Mode B) Checking...</span>';
-    } else {
-      html += '<span class="mode">' + statusDot(mb.status);
-      html += 'x402 (Mode B)';
-      if (mb.latency_ms !== null) html += ' ' + mb.latency_ms + 'ms';
-      if (mb.network) html += ' — ' + mb.network + ' (' + networkLabel(mb.network) + ')';
-      html += '</span>';
-    }
-    if (mb.testnet === true) {
-      html += ' <span class="testnet-warn">TESTNET — mainnet payments will fail</span>';
-    }
+    if (mb.status === 'unknown') { html += '<span class="mode">' + statusDot('unknown') + 'x402 (Mode B) Checking...</span>'; }
+    else { html += '<span class="mode">' + statusDot(mb.status) + 'x402 (Mode B)'; if (mb.latency_ms !== null) html += ' ' + mb.latency_ms + 'ms'; if (mb.network) html += ' — ' + mb.network + ' (' + networkLabel(mb.network) + ')'; html += '</span>'; }
+    if (mb.testnet === true) html += ' <span class="testnet-warn">TESTNET</span>';
     el.innerHTML = html;
   }
 
+  // --- Category filter rendering ---
+  function renderCategoryFilter(data) {
+    var cats = {};
+    for (var i = 0; i < data.providers.length; i++) {
+      var cat = getCategory(data.providers[i].display_name);
+      if (!cats[cat]) cats[cat] = 0;
+      cats[cat]++;
+    }
+    var sorted = Object.keys(cats).sort();
+    var totalProviders = data.providers.length;
+
+    var html = '<span class="cat-tag' + (currentFilter === 'ALL' ? ' active' : '') + '" data-cat="ALL">[ALL] <span class="cat-count">' + totalProviders + '</span></span>';
+    for (var j = 0; j < sorted.length; j++) {
+      var c = sorted[j];
+      html += '<span class="cat-tag' + (currentFilter === c ? ' active' : '') + '" data-cat="' + escHtml(c) + '">' + escHtml(c) + ' <span class="cat-count">' + cats[c] + '</span></span>';
+    }
+    document.getElementById('cat-tags').innerHTML = html;
+
+    // Attach click handlers
+    var tags = document.querySelectorAll('.cat-tag');
+    for (var k = 0; k < tags.length; k++) {
+      tags[k].addEventListener('click', function() {
+        currentFilter = this.getAttribute('data-cat');
+        renderCategoryFilter(lastData);
+        renderTable(lastData);
+      });
+    }
+  }
+
   function renderTable(data) {
+    lastData = data;
     document.getElementById('t-providers').textContent = data.totals.providers;
     document.getElementById('t-tools').textContent = formatNum(data.totals.tools);
     document.getElementById('t-calls').textContent = formatNum(data.totals.calls_24h);
     document.getElementById('gen-time').textContent = 'Generated: ' + new Date(data.generated_at).toLocaleTimeString();
-
     renderPaymentStatus(data);
+    renderCategoryFilter(data);
 
-    var html = '<div class="table-wrap"><table>';
-    html += '<thead><tr>';
-    html += '<th>Provider</th>';
-    html += '<th>Status</th>';
-    html += '<th>Limits</th>';
-    html += '<th>Calls 24h</th>';
-    html += '<th class="col-latency">Avg Latency</th>';
-    html += '<th>Tools</th>';
+    var html = '<div class="table-wrap"><table><thead><tr>';
+    html += '<th>Provider</th><th>Cat</th><th>Status</th><th>Limits</th><th>Calls 24h</th><th class="col-latency">Latency</th><th>Tools</th>';
     html += '</tr></thead><tbody>';
 
+    var visibleCount = 0;
     for (var i = 0; i < data.providers.length; i++) {
       var p = data.providers[i];
+      var cat = getCategory(p.display_name);
+      if (currentFilter !== 'ALL' && cat !== currentFilter) continue;
+      visibleCount++;
       var borderCls = latencyBorderClass(p.health.latency_ms);
       html += '<tr class="' + borderCls + '">';
       html += '<td>' + escHtml(p.display_name) + '</td>';
+      html += '<td style="color:#2a6a2a;font-size:0.72rem">' + escHtml(cat) + '</td>';
       html += '<td>' + statusDot(p.health.status) + (p.health.latency_ms !== null ? p.health.latency_ms + 'ms' : '--') + '</td>';
       html += '<td>' + statusDot(p.limits.status);
-      if (p.limits.type === 'unlimited') {
-        html += 'Unlimited';
-      } else if (p.limits.status === 'paid') {
-        html += 'Paid';
-      } else {
-        html += p.limits.pct_remaining + '%';
-      }
+      if (p.limits.type === 'unlimited') html += 'Unlimited';
+      else if (p.limits.status === 'paid') html += 'Paid';
+      else html += p.limits.pct_remaining + '%';
       html += '</td>';
       html += '<td>' + formatNum(p.calls_24h) + '</td>';
       html += '<td class="col-latency ' + latencyClass(p.avg_latency_ms) + '">' + (p.avg_latency_ms !== null ? p.avg_latency_ms + 'ms' : '--') + '</td>';
-      html += '<td>' + p.tool_count + '</td>';
-      html += '</tr>';
+      html += '<td>' + p.tool_count + '</td></tr>';
     }
-
     html += '</tbody></table></div>';
     content.innerHTML = html;
-  }
-
-  function escHtml(s) {
-    var d = document.createElement('div');
-    d.appendChild(document.createTextNode(s));
-    return d.innerHTML;
   }
 
   function fetchDashboard() {
@@ -549,37 +342,16 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
     xhr.open('GET', '/api/v1/dashboard', true);
     xhr.timeout = 15000;
     xhr.onload = function() {
-      if (xhr.status === 200) {
-        try {
-          var data = JSON.parse(xhr.responseText);
-          renderTable(data);
-        } catch(e) {
-          content.innerHTML = '<div class="error-msg">Failed to parse dashboard data</div>';
-        }
-      } else {
-        content.innerHTML = '<div class="error-msg">Dashboard unavailable (HTTP ' + xhr.status + ')</div>';
-      }
+      if (xhr.status === 200) { try { var data = JSON.parse(xhr.responseText); renderTable(data); } catch(e) { content.innerHTML = '<div class="error-msg">Failed to parse dashboard data</div>'; } }
+      else { content.innerHTML = '<div class="error-msg">Dashboard unavailable (HTTP ' + xhr.status + ')</div>'; }
       countdown = 60;
     };
-    xhr.onerror = function() {
-      content.innerHTML = '<div class="error-msg">Network error — retrying in 60s</div>';
-      countdown = 60;
-    };
-    xhr.ontimeout = function() {
-      content.innerHTML = '<div class="error-msg">Request timeout — retrying in 60s</div>';
-      countdown = 60;
-    };
+    xhr.onerror = function() { content.innerHTML = '<div class="error-msg">Network error — retrying in 60s</div>'; countdown = 60; };
+    xhr.ontimeout = function() { content.innerHTML = '<div class="error-msg">Request timeout — retrying in 60s</div>'; countdown = 60; };
     xhr.send();
   }
 
-  function tick() {
-    countdown--;
-    if (countdown <= 0) {
-      fetchDashboard();
-    }
-    updateProgressBar(countdown);
-  }
-
+  function tick() { countdown--; if (countdown <= 0) fetchDashboard(); updateProgressBar(countdown); }
   fetchDashboard();
   intervalId = setInterval(tick, 1000);
 })();
