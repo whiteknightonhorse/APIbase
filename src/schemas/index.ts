@@ -50,6 +50,7 @@ import { timeapiSchemas } from './timeapi.schema';
 import { gdeltSchemas } from './gdelt.schema';
 import { nwsSchemas } from './nws.schema';
 import { exchangerateSchemas } from './exchangerate.schema';
+import { shortioSchemas } from './shortio.schema';
 import { calendarificSchemas } from './calendarific.schema';
 import { nagerdateSchemas } from './nagerdate.schema';
 import { sslcheckerSchemas } from './sslchecker.schema';
@@ -110,6 +111,7 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...gdeltSchemas,
   ...nwsSchemas,
   ...exchangerateSchemas,
+  ...shortioSchemas,
   ...calendarificSchemas,
   ...nagerdateSchemas,
   ...sslcheckerSchemas,

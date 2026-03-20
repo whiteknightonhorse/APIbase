@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase — The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 230 tools across currency conversion, holidays, weather alerts, fire detection, global events, timezone, screenshots, sports, translation, SMS, image gen, email, social media, legal, OCR, stocks, news, web search, travel, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, real estate, and more.",
+    "description": "Unified MCP gateway to 232 tools across URL shortener, currency conversion, holidays, weather alerts, fire detection, global events, timezone, screenshots, sports, translation, SMS, image gen, email, social media, legal, OCR, stocks, news, web search, travel, and more.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -6626,6 +6626,63 @@
         },
         "required": [
           "email"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "web.url.shorten",
+      "title": "Shorten URL (Short.io)",
+      "description": "Create a short URL from any long URL. Optional custom slug. Returns short link at apibase.short.gy. 1,000 free links/month (Short.io)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Original URL to shorten (e.g. \"https://example.com/very/long/path\")"
+          },
+          "title": {
+            "type": "string",
+            "description": "Optional title/label for the short link"
+          },
+          "slug": {
+            "type": "string",
+            "description": "Custom short path (e.g. \"my-link\" → apibase.short.gy/my-link). Auto-generated if omitted."
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "web.url.stats",
+      "title": "Short URL Stats (Short.io)",
+      "description": "Get click statistics and metadata for a short URL by its path (Short.io)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Short link path (e.g. \"imV5of\" from apibase.short.gy/imV5of)"
+          }
+        },
+        "required": [
+          "path"
         ],
         "additionalProperties": false
       },

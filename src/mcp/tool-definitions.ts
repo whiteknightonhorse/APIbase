@@ -1367,6 +1367,24 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // Walk Score — Walkability & Transit Intelligence (UC-062, 1 tool)
   // ---------------------------------------------------------------------------
   // ---------------------------------------------------------------------------
+  // Short.io — URL Shortener (UC-112, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'shorturl.create',
+    mcpName: 'web.url.shorten',
+    title: 'Shorten URL (Short.io)',
+    description: 'Create a short URL from any long URL. Optional custom slug. Returns short link at apibase.short.gy. 1,000 free links/month (Short.io)',
+    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+  },
+  {
+    toolId: 'shorturl.stats',
+    mcpName: 'web.url.stats',
+    title: 'Short URL Stats (Short.io)',
+    description: 'Get click statistics and metadata for a short URL by its path (Short.io)',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
   // ExchangeRate-API — Currency Conversion (UC-115, 2 tools)
   // ---------------------------------------------------------------------------
   {

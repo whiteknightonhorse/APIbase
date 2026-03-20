@@ -1064,6 +1064,19 @@ tools:
     price_usd: "0.025"
     cache_ttl: 86400
 
+  # --- UC-112: Short.io (URL Shortener) ---
+  - tool_id: shorturl.create
+    name: Shorten URL
+    provider: shortio
+    price_usd: "0.002"
+    cache_ttl: 0
+
+  - tool_id: shorturl.stats
+    name: Short URL Stats
+    provider: shortio
+    price_usd: "0.001"
+    cache_ttl: 300
+
   # --- UC-115: ExchangeRate-API (Currency Conversion) ---
   - tool_id: exchangerate.latest
     name: Latest Exchange Rates

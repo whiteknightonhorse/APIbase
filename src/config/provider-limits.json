@@ -504,5 +504,14 @@
     "reset_period": "monthly",
     "docs_url": "https://calendarific.com/api-documentation",
     "limit_proof": "Free plan: 500 requests/month, 230+ countries"
+  },
+  "shortio": {
+    "display_name": "Short.io URL Shortener",
+    "health_url": "https://api.short.io/links",
+    "limit_type": "monthly",
+    "free_limit": 1000,
+    "reset_period": "monthly",
+    "docs_url": "https://developers.short.io/reference",
+    "limit_proof": "Free plan: 1,000 branded links/month, custom domain included"
   }
 }

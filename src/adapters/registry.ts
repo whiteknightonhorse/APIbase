@@ -50,6 +50,7 @@ import { TimeApiAdapter } from './timeapi';
 import { GdeltAdapter } from './gdelt';
 import { NwsAdapter } from './nws';
 import { ExchangeRateAdapter } from './exchangerate';
+import { ShortIoAdapter } from './shortio';
 import { CalendarificAdapter } from './calendarific';
 import { NagerDateAdapter } from './nagerdate';
 import { SslCheckerAdapter } from './sslchecker';
@@ -230,6 +231,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const zbKey = (config as Record<string, unknown>).PROVIDER_KEY_ZEROBOUNCE as string | undefined;
       if (!zbKey) return undefined;
       return getOrCreate('zerobounce', () => new ZeroBounceAdapter(zbKey));
+    }
+    case 'shorturl': {
+      const sioKey = (config as Record<string, unknown>).PROVIDER_KEY_SHORTIO as string | undefined;
+      if (!sioKey) return undefined;
+      return getOrCreate('shortio', () => new ShortIoAdapter(sioKey));
     }
     case 'exchangerate': {
       const erKey = (config as Record<string, unknown>).PROVIDER_KEY_EXCHANGERATE as string | undefined;
