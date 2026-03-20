@@ -1,38 +1,26 @@
 # APIbase.pro — The API Hub for AI Agents
 
-> Search flights, find restaurants, discover events, browse movies, geocode addresses, get directions, generate AI marketing pages, compare prices, track status, trade prediction markets, check walkability scores, search US property listings — all via MCP.
-> One endpoint. 227 tools. 58 providers. Pay per call with x402 USDC micropayments on Base.
+> One MCP endpoint. 227 tools. 58 providers. Pay per call with x402 USDC on Base.
 
-**[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Health](https://apibase.pro/health/ready)**
-
----
-
-## What is APIbase?
-
-Production MCP server — universal API hub for AI agents. 227 tools across travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, AI marketing, recipes, space/astronomy, gaming, real estate, dev tools, weather, and more. Search flights (Amadeus, Sabre GDS), find restaurants and places (Foursquare), geocode addresses, search places and POI, get directions (Geoapify/OSM), discover events and concerts (Ticketmaster), browse movies and TV shows (TMDB), search music artists, albums, and recordings (MusicBrainz), discover fresh releases (ListenBrainz), find internet radio stations (RadioBrowser), look up nutrition data and drug safety (USDA, OpenFDA, NIH), get exchange rates, economic indicators, and treasury data (ECB, FRED, World Bank, US Treasury), search academic papers and preprints (OpenAlex, arXiv, PubMed, CrossRef), compare US colleges and earnings (College Scorecard), find jobs and salary data (BLS, O*NET, ESCO, CareerJet), check walkability and transit scores (Walk Score), search US property listings and details (RapidAPI/Realtor.com), trade prediction markets (Polymarket), track crypto, check weather — with more providers shipping regularly. One endpoint, pay per call via x402 USDC micropayments. Auto-registration, zero setup. Covers the most popular API categories agents actually need: travel, local services, maps, events, entertainment, music, health, financial data, education, jobs, real estate, and marketing.
-
-**Built for AI agents, not humans.** Every tool is designed for autonomous discovery, authentication, and invocation via the [Model Context Protocol](https://modelcontextprotocol.io).
+**[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Health](https://apibase.pro/health/ready)** | **[Dashboard](https://apibase.pro/dashboard)**
 
 <a href="https://glama.ai/mcp/servers/whiteknightonhorse/APIbase">
   <img width="380" height="200" src="https://glama.ai/mcp/servers/whiteknightonhorse/APIbase/badge?v=2" alt="APIbase MCP server" />
 </a>
 
-### Why agents use APIbase
+---
 
-- **One MCP endpoint** — `https://apibase.pro/mcp` connects to 58 providers
-- **Real-time flight search** — Amadeus + Sabre GDS, 500+ airlines, real prices
-- **Places & restaurants** — Foursquare Places API, 100M+ places in 190+ countries
-- **Pay per call** — x402 micropayments (USDC), no subscriptions, no minimums
-- **Auto-registration** — agents get API keys instantly, zero human setup
-- **Production-grade** — 13-stage pipeline, escrow payments, idempotent operations
+## What is APIbase?
+
+Production MCP server that gives AI agents access to 227 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, translate text, check weather alerts, generate images, send emails, look up holidays, shorten URLs, detect fires by satellite — and 200+ more tools across 20+ categories.
+
+**Built for AI agents, not humans.** Auto-registration, zero setup, pay-per-call via x402 USDC micropayments on Base.
 
 ---
 
 ## Quick Start (30 seconds)
 
-### For Claude Desktop / Cursor / Windsurf
-
-**Option A** — Direct connection (Streamable HTTP):
+### Claude Desktop / Cursor / Windsurf
 
 ```json
 {
@@ -44,7 +32,7 @@ Production MCP server — universal API hub for AI agents. 227 tools across trav
 }
 ```
 
-**Option B** — Via npm package (stdio bridge):
+### Via npm (stdio bridge)
 
 ```json
 {
@@ -57,904 +45,149 @@ Production MCP server — universal API hub for AI agents. 227 tools across trav
 }
 ```
 
-### For any MCP-compatible agent
+### REST API
 
-```
-MCP Endpoint:   https://apibase.pro/mcp
-Tool Catalog:   https://apibase.pro/api/v1/tools
-Discovery:      https://apibase.pro/.well-known/mcp.json
-```
+```bash
+# Register and get API key
+curl -X POST https://apibase.pro/api/v1/agents/register \
+  -H "Content-Type: application/json" \
+  -d '{"agent_name": "my-agent", "agent_version": "1.0.0"}'
 
-### Register and get your API key
-
-```http
-POST /api/v1/agents/register
-Content-Type: application/json
-
-{"agent_name": "my-agent", "agent_version": "1.0.0"}
-```
-
-Returns `api_key` (`ak_live_...`) and `agent_id`. Store the key securely — it is shown once.
-
-### Call tools via MCP
-
-Connect to `https://apibase.pro/mcp` using the MCP protocol (Streamable HTTP transport).
-Authenticate with `Authorization: Bearer ak_live_...`.
-
-All tool calls follow the MCP `tools/call` method.
-
-### Call tools via REST
-
-```http
-POST /api/v1/tools/{tool_id}/call
-Authorization: Bearer ak_live_...
-Content-Type: application/json
-
-{"param1": "value1", "param2": "value2"}
+# Call any tool
+curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
+  -H "Authorization: Bearer ak_live_..." \
+  -H "Content-Type: application/json" \
+  -d '{"symbol": "AAPL"}'
 ```
 
 ---
 
-## Flight Search Example
+## Tool Categories (227 tools, 58 providers)
 
-Ask your AI agent:
+| Category | Tools | Providers | Examples |
+|----------|-------|-----------|----------|
+| **Web Search** | 9 | Serper, Tavily, Exa | Google search, AI search, semantic search |
+| **News & Events** | 7 | NewsData, GDELT, Mastodon | Global news (65 langs), crypto news, trending |
+| **Travel & Flights** | 17 | Amadeus, Sabre, Aviasales | Flight search, pricing, status, airports |
+| **Finance & Stocks** | 16 | Finnhub, CoinGecko, ECB, FRED | Stock quotes, OHLCV, FX rates, economic data |
+| **Currency Conversion** | 2 | ExchangeRate-API | 160+ currencies, real-time conversion |
+| **Maps & Geo** | 7 | Geoapify | Geocode, routing, POI search, isochrone |
+| **Real Estate** | 4 | Walk Score, US Real Estate | Walkability, property listings, details |
+| **Entertainment** | 24 | TMDB, Ticketmaster, RAWG, IGDB, Jikan | Movies, events, games, anime |
+| **Music** | 7 | MusicBrainz, ListenBrainz, RadioBrowser | Artists, albums, radio stations |
+| **Health & Nutrition** | 7 | USDA, OpenFDA, NIH | Food data, drug safety, supplements |
+| **Education & Research** | 7 | OpenAlex, arXiv, PubMed, CrossRef | Papers, colleges, DOI lookup |
+| **Jobs & Career** | 6 | BLS, ESCO, CareerJet | Salary data, occupations, job listings |
+| **Legal & Regulatory** | 8 | Regulations.gov, Federal Register, CourtListener | US regulations, court opinions, executive orders |
+| **Weather & Earth** | 3 | NWS, NASA FIRMS | US weather alerts, satellite fire detection |
+| **Space & Astronomy** | 9 | NASA, JPL | APOD, asteroids, fireballs, solar flares |
+| **Translation** | 3 | Langbly | 90+ languages, language detection |
+| **Sports** | 4 | API-Sports | Football (2000+ leagues), basketball (NBA) |
+| **Holidays & Calendar** | 3 | Nager.Date, Calendarific | 230+ countries, national/religious/observance |
+| **Image Generation** | 1 | Stability AI | Stable Diffusion, 16 style presets |
+| **OCR** | 1 | OCR.space | Text from images/PDFs, 20+ languages |
+| **Email & SMS** | 4 | Resend, Twilio | Send emails, SMS, phone lookup |
+| **URL Shortener** | 2 | Short.io | Custom branded short links + stats |
+| **SSL & Domain** | 5 | WhoisXML, ssl-checker.io | WHOIS, DNS, SSL cert check |
+| **Barcode & QR** | 4 | QRServer, UPCitemdb | Generate/read QR, barcode lookup |
+| **E-commerce** | 8 | Zinc, Diffbot | Product search, web extraction |
+| **AI Marketing** | 7 | AIPush | AI-optimized pages, visibility scores |
+| **World Clock** | 3 | TimeAPI.io | Timezone conversion, 597 IANA zones |
+| **Screenshots** | 1 | ApiFlash | Chrome-based URL capture |
+| **Earthquakes** | 3 | USGS | Global seismic data, real-time feeds |
+| **IP Intelligence** | 2 | ipapi.is | Geolocation, VPN/proxy detection |
+| **Crypto & DeFi** | 26 | CoinGecko, Polymarket, Hyperliquid | Prices, prediction markets, perpetuals |
 
-> "Find the cheapest flights from New York to London next week"
-
-The agent calls `amadeus.flight_search` and gets real-time prices from 500+ airlines:
-
-```json
-{
-  "origin": "JFK",
-  "destination": "LHR",
-  "departure_date": "2026-03-20",
-  "adults": 1,
-  "travel_class": "ECONOMY",
-  "max_results": 5,
-  "currency": "USD"
-}
-```
-
-Returns itineraries with prices, airlines, stops, duration, baggage info — ready for the agent to compare and present.
-
-## Restaurant Search Example
-
-Ask your AI agent:
-
-> "Find the best restaurants near me in Bangkok"
-
-The agent calls `foursquare.place_search` and gets results from 100M+ places worldwide:
-
-```json
-{
-  "query": "restaurant",
-  "near": "Bangkok,Thailand",
-  "sort": "rating",
-  "limit": 5,
-  "open_now": true
-}
-```
-
-Returns places with names, ratings, categories, distance, hours, price tier, and contact info.
+**Full tool catalog with schemas:** [`https://apibase.pro/api/v1/tools`](https://apibase.pro/api/v1/tools)
 
 ---
 
-## Available Tools (227)
-
-### AIPush — AI Marketing / Page Generation (7 tools)
-
-Fully autonomous AI marketing — your agent sets up a website, analyzes the business, and generates AI-optimized pages without any manual dashboard work. The only human step is creating one DNS CNAME record (`reference.yourdomain.com → cname.aipush.app`), and the agent tells you exactly what to create. MIP (Material Intelligence Pipeline) auto-runs on first setup, SSL auto-provisions, billing is covered by x402 micropayments. Pages are structured for AI assistant answer compilation (ChatGPT, Perplexity, Gemini) and published at `reference.{domain}`. Powered by [AIPush](https://aipush.app).
-
-**Agent workflow:** `setup_website` → DNS CNAME (one manual step) → `setup_website` again → poll `website_status` until ready → `generate_page`
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `aipush.setup_website` | Register website, auto-start MIP analysis and SSL provisioning. Returns DNS instructions if CNAME not configured | $1.000 |
-| `aipush.website_status` | Poll readiness: mip_status, cf_hostname_status, billing, page counts | $0.002 |
-| `aipush.generate_page` | Generate one AI-optimized page (requires mip_status='ready' + SSL active) | $0.050 |
-| `aipush.list_pages` | List all published pages for a website | $0.002 |
-| `aipush.page_content` | Get full HTML content of a generated page | $0.003 |
-| `aipush.website_profile` | Get MIP business analysis — competitors, value props, market | $0.010 |
-| `aipush.check_visibility` | AI visibility score — do ChatGPT/Perplexity know your brand? | $0.100 |
-
-### Spoonacular — Recipe / Cooking / Food Data (5 tools)
-
-Search 365K+ recipes with dietary filters, find recipes by ingredients on hand, get full nutrition breakdowns, and analyze custom recipes. Powered by Spoonacular API, 150 free points/day.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `spoonacular.recipe_search` | Search recipes with dietary, cuisine, and meal type filters | $0.003 |
-| `spoonacular.recipe_details` | Full recipe: ingredients, instructions, nutrition, dietary labels | $0.003 |
-| `spoonacular.by_ingredients` | Find recipes using ingredients you have on hand | $0.003 |
-| `spoonacular.ingredient_search` | Search 86K+ ingredients with nutrition data | $0.002 |
-| `spoonacular.analyze_recipe` | Analyze a recipe for nutrition and dietary labels | $0.005 |
-
-### NASA — Space / Astronomy (5 tools)
-
-Astronomy Picture of the Day, near-Earth asteroid tracking, solar flare events, full-disc Earth images from DSCOVR satellite, and 140K+ NASA images/videos. Powered by NASA Open APIs + NASA Image Library. 1,000 req/hour free.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `nasa.apod` | Astronomy Picture of the Day — daily curated space image with expert explanation | $0.001 |
-| `nasa.neo_feed` | Near-Earth asteroid close approaches — size, hazard class, velocity, miss distance | $0.001 |
-| `nasa.donki_flr` | Solar flare events — class, peak time, source region, linked storms (DONKI) | $0.001 |
-| `nasa.epic` | Full-disc Earth images from DSCOVR satellite EPIC camera at Lagrange point L1 | $0.001 |
-| `nasa.image_search` | Search 140K+ NASA images, videos, and audio from missions and telescopes | $0.001 |
-
-### NASA JPL — Solar System Dynamics (4 tools)
-
-Asteroid close approaches, fireball events, small body database, and impact risk assessments from NASA Jet Propulsion Laboratory. Open access, no API key needed. $0 upstream cost.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `jpl.close_approaches` | Upcoming and past asteroid close approaches to Earth | $0.001 |
-| `jpl.fireballs` | Reported fireball (bolide) events — energy, velocity, altitude, coordinates | $0.001 |
-| `jpl.small_body` | Asteroid/comet data by name — orbital elements, physical parameters, discovery info | $0.001 |
-| `jpl.impact_risk` | Asteroid impact risk from Sentry system — probability, Palermo/Torino scale | $0.001 |
-
-### RAWG — Video Games Database (5 tools)
-
-Search 800K+ video games, get details, screenshots, store links, and game series. Filter by genre, platform, release date, and Metacritic score. Powered by RAWG API, unlimited free tier.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `rawg.game_search` | Search 800K+ games — filter by genre, platform, date, Metacritic | $0.001 |
-| `rawg.game_details` | Full game details — description, platforms, developers, Metacritic, requirements | $0.001 |
-| `rawg.screenshots` | Game screenshot images with full resolution URLs | $0.001 |
-| `rawg.store_links` | Purchase/download links — Steam, PlayStation, Xbox, Epic, GOG, Nintendo | $0.001 |
-| `rawg.game_series` | All games in a franchise — sequels, prequels, spin-offs | $0.001 |
-
-### IGDB — Video Games Database by Twitch (5 tools)
-
-Search 280K+ games in IGDB (powered by Twitch), the most comprehensive video game database. Rich relational metadata — genres, platforms, ratings, cover art, developer/publisher info, game media, and platform details. Uses Apicalypse query language. OAuth2 Twitch auth, unlimited free, 4 req/sec.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `igdb.game_search` | Search 280K+ games — genres, platforms, ratings, cover art, release dates | $0.001 |
-| `igdb.game_details` | Full game details — storyline, genres, developers, themes, game modes, similar games | $0.001 |
-| `igdb.company_info` | Game company info by ID or name — developed/published games, country, logos | $0.001 |
-| `igdb.platform_info` | Gaming platform info by ID or name — generation, family, versions, summary | $0.001 |
-| `igdb.game_media` | Cover art, screenshots, and video trailers — image URLs and YouTube video IDs | $0.001 |
-
-### QRServer — QR Code Generator & Reader (2 tools)
-
-Generate and decode QR codes via API. Create customizable QR code images (size, color, format, error correction) and read/decode QR codes from image URLs. Fully free, open access, no API key needed. Powered by goqr.me.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `qrserver.generate` | Generate QR code image URL — customizable size, color, format (PNG/SVG), error correction | $0.001 |
-| `qrserver.read` | Decode QR code from image URL — extract encoded text or URL | $0.001 |
-
-### Short.io — URL Shortener (2 tools)
-
-Shorten any URL with custom branded domain (apibase.short.gy). Optional custom slugs, click tracking. 1,000 free links/month.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `shorturl.create` | Shorten URL — optional custom slug, returns apibase.short.gy link | $0.002 |
-| `shorturl.stats` | Get click stats and metadata for a short URL | $0.001 |
-
-### ExchangeRate-API — Currency Conversion (2 tools)
-
-Exchange rates for 160+ world currencies with real-time conversion. Daily updates on free tier. Returns all rates in one call or converts between any pair. 1,500 free requests/month.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `exchangerate.latest` | Latest rates for 160+ currencies against any base | $0.001 |
-| `exchangerate.convert` | Convert amount between any two currencies | $0.001 |
-
-### Calendarific — Premium World Holidays (1 tool)
-
-Holidays for 230+ countries — national, local, religious, observance. Filter by month, day, type. Wider coverage than Nager.Date. 500 free requests/month.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `calendarific.holidays` | World holidays — 230+ countries, filter by type/month/day | $0.002 |
-
-### NWS — US Weather Alerts (2 tools)
-
-Active severe weather alerts for the US from NOAA/National Weather Service — tornado warnings, flood watches, heat advisories, winter storms. Filter by state, severity, event type. US Government open data, unlimited, no auth.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `weather_alerts.active` | All active US weather alerts — filter by state, severity, urgency | $0.001 |
-| `weather_alerts.by_area` | Weather alerts for a specific US state | $0.001 |
-
-### Nager.Date — World Public Holidays (2 tools)
-
-Public holidays for 100+ countries — national and regional. Supports any year 2000-2099. Returns date, local name, English name, type. No auth, free, open source.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `holidays.by_country` | Public holidays for any country and year | $0.001 |
-| `holidays.next` | Next upcoming public holidays for a country | $0.001 |
-
-### ssl-checker.io — SSL Certificate Check (1 tool)
-
-Check SSL/TLS certificate for any domain — validity, issuer, expiry, days remaining, protocol, HSTS. No auth, free.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `ssl.check` | SSL certificate check — validity, issuer, expiry, key size, HSTS | $0.001 |
-
-### GDELT — Global Events & News (2 tools)
-
-Search global news articles across 65 languages from 300K+ sources worldwide. Track mention volume of any topic over time. 100% free, no auth, no limits. Powered by GDELT Project.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `gdelt.search` | Search global news — 65 languages, 300K+ sources, filter by time/language | $0.001 |
-| `gdelt.timeline` | Track topic mention volume over time — see when keywords spike in news | $0.001 |
-
-### NASA FIRMS — Satellite Fire Detection (1 tool)
-
-Active fire hotspots detected by NASA satellites (VIIRS, MODIS). Near real-time updates. Filter by bounding box, satellite sensor, date range. 5,000 free transactions per 10 minutes. NASA open data.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `firms.fires` | Detect active fires by satellite — coordinates, brightness, confidence, FRP | $0.002 |
-
-### TimeAPI.io — World Clock & Timezone (3 tools)
-
-Current time for any timezone, convert between timezones, list all 597 IANA zones. DST-aware. No auth needed, free, unlimited. Powered by TimeAPI.io.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `worldclock.current` | Current date/time for any IANA timezone — DST-aware | $0.001 |
-| `worldclock.convert` | Convert date/time between any two timezones | $0.001 |
-| `worldclock.zones` | List all 597 IANA timezone names | $0.001 |
-
-### ApiFlash — Website Screenshot (1 tool)
-
-Capture screenshots of any URL using Chrome-based rendering. Supports full-page capture, custom viewport sizes, ad blocking, cookie banner removal, and JS-heavy SPA wait conditions. Returns image URL. 100 free screenshots/month. Powered by ApiFlash.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `screenshot.capture` | Screenshot any URL — PNG/JPEG/WebP, full-page, ad block, cookie removal | $0.005 |
-
-### API-Sports — Football & Basketball (4 tools)
-
-Live football/soccer fixtures, league standings, and basketball scores from 2000+ leagues across 171 countries. Premier League, La Liga, Champions League, NBA, EuroLeague, and more. Live scores updated every 15 seconds. 100 free requests/day per sport. Powered by API-Sports.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `sports.football_fixtures` | Football fixtures, live scores, results — filter by date, league, team | $0.003 |
-| `sports.football_standings` | League standings table — rank, points, wins, goals, form | $0.003 |
-| `sports.football_leagues` | Search football leagues and cups by country or name | $0.002 |
-| `sports.basketball_games` | Basketball games and scores — NBA, EuroLeague, 100+ leagues | $0.003 |
-
-### Langbly — Translation (3 tools)
-
-Translate text between 90+ languages with auto language detection. Google Translate v2 compatible API. Supports batch translation, HTML format preservation, and language listing with localized names. 500K free characters/month, $5/1M after. Powered by Langbly.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `langbly.translate` | Translate text — 90+ languages, auto-detect source, batch support | $0.002 |
-| `langbly.detect` | Detect language of text — returns code and confidence score | $0.001 |
-| `langbly.languages` | List all 90+ supported languages with localized names | $0.001 |
-
-### Twilio — SMS & Phone Lookup (2 tools)
-
-Send SMS messages worldwide and validate/lookup phone numbers. Phone lookup returns format validation, country, carrier name, line type (mobile/landline/VoIP). SMS supports international delivery with delivery status tracking. Trial: $15.50 credit. Powered by Twilio.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `twilio.lookup` | Phone number validation + carrier/line type lookup (E.164 format) | $0.005 |
-| `twilio.send_sms` | Send SMS to any phone worldwide — delivery tracking, status callback | $0.015 |
-
-### Stability AI — Image Generation (1 tool)
-
-Generate images from text prompts using Stable Diffusion. Supports 16 style presets (anime, cinematic, pixel-art, photographic, fantasy-art...), 9 aspect ratios, and negative prompts. Returns base64 PNG data URI. 25 free credits on signup, then PAYG $0.01/credit (~$0.03/image). Powered by Stability AI.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `stability.generate` | Generate image from text — style presets, aspect ratios, negative prompts | $0.070 |
-
-### Resend — Transactional Email (2 tools)
-
-Send transactional emails via API — plain text or HTML body, multiple recipients, delivery tracking. Modern developer-first email API with 99%+ deliverability. 3,000 free emails/month. Powered by Resend.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `resend.send_email` | Send email — text/HTML body, recipients, reply-to, verified domain | $0.003 |
-| `resend.email_status` | Check delivery status of a sent email by ID | $0.001 |
-
-### Mastodon — Fediverse Social Media (2 tools)
-
-Trending posts and hashtags from the Mastodon decentralized social network (Fediverse). Track what's popular on the open, federated social web. No auth needed, $0 upstream, open source (AGPL). Powered by mastodon.social.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `mastodon.trending` | Trending posts — popular content, authors, reblogs, favourites | $0.001 |
-| `mastodon.trending_tags` | Trending hashtags — top topics with daily usage counts | $0.001 |
-
-### Regulations.gov — US Federal Regulatory Data (2 tools)
-
-Search US federal regulatory documents — rules, proposed rules, notices, presidential documents from all federal agencies. Filter by agency (EPA, SEC, FDA...), document type, and date. US government public domain data, free, no API key needed. Powered by Regulations.gov / GSA.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `regulations.search` | Search federal regulatory documents by keyword, agency, type, date | $0.001 |
-| `regulations.document` | Get full regulatory document details — abstract, agency, comments, docket | $0.001 |
-
-### Federal Register — US Federal Rules & Executive Orders (3 tools)
-
-Official daily journal of the US federal government — 90+ years of final rules, proposed rules, notices, and executive orders. Search by keyword, agency, type, date. Public domain, no auth required. Powered by the National Archives.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `fedregister.search` | Search Federal Register by keyword, agency, type, date range | $0.001 |
-| `fedregister.document` | Get full document — abstract, agencies, effective date, PDF, comments | $0.001 |
-| `fedregister.recent` | Latest documents published — filter by type (rules, notices, executive orders) | $0.001 |
-
-### CourtListener — US Case Law (3 tools)
-
-Largest free US case law archive — federal and state court opinions, PACER/RECAP dockets, oral arguments. Search by keyword, court, date range. 7,000+ AI-related opinions. Open data from the Free Law Project (501c3 nonprofit).
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `courtlistener.search` | Search US court opinions — filter by court (scotus, ca9...), date, relevance | $0.002 |
-| `courtlistener.opinion` | Get full court opinion text by ID — author, type, up to 5K chars | $0.002 |
-| `courtlistener.dockets` | Search PACER/RECAP federal court dockets — filings, motions, orders | $0.002 |
-
-### OCR.space — Optical Character Recognition (1 tool)
-
-Extract text from any image or PDF using OCR. Supports 20+ languages including English, Russian, Chinese, Japanese, Korean, Arabic. Handles PNG, JPG, GIF, BMP, PDF, TIFF. 25,000 free requests/month, commercial use permitted. Powered by OCR.space.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `ocr.extract_text` | Extract text from image/PDF URL — 20+ languages, auto-orientation | $0.002 |
-
-### Finnhub — Stock Market Data (5 tools)
-
-Real-time stock quotes, company profiles, OHLCV candlestick charts, company news, and market news. Covers US stocks, ETFs, and major global exchanges. 60 requests/minute free tier (~86,400/day). Powered by Finnhub.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `finnhub.quote` | Real-time stock price — current, change, high/low, open, previous close | $0.001 |
-| `finnhub.company_profile` | Company profile — name, exchange, industry, market cap, logo, website | $0.002 |
-| `finnhub.company_news` | Latest company news — headlines, source, summary, date range filter | $0.002 |
-| `finnhub.candles` | OHLCV candlestick data — 1min to monthly resolution, 30-day default | $0.002 |
-| `finnhub.market_news` | Market news — general, forex, crypto, merger categories | $0.002 |
-
-### NewsData.io — Global News & Crypto News (3 tools)
-
-Real-time news from 180,000+ sources across 200+ countries in 70+ languages. Filter by keyword, country, category, language, source domain, and recency. Dedicated crypto/blockchain news feed with coin-specific filtering. Commercial use explicitly permitted on free tier. Powered by NewsData.io.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `news.latest` | Latest global news — filter by keyword, country, category, language, recency | $0.002 |
-| `news.crypto` | Crypto & blockchain news — filter by coin (Bitcoin, Ethereum...), keyword | $0.002 |
-| `news.sources` | Browse 180K+ news sources by country, language, category | $0.001 |
-
-### Exa — Semantic Web Search & Discovery (3 tools)
-
-Neural/semantic web search powered by a transformer model trained on hyperlinks. Finds conceptually related pages, not just keyword matches. Unique `find_similar` discovers related content from a seed URL. Category filters for companies, research papers, news, people, tweets. 1,000 free requests/month. Powered by Exa (formerly Metaphor).
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `exa.search` | Semantic web search — conceptually related results, relevance scores, highlights | $0.012 |
-| `exa.contents` | Extract clean text from up to 10 URLs — title, author, date, full text | $0.003 |
-| `exa.find_similar` | Find pages semantically similar to a given URL — discover related content | $0.012 |
-
-### Tavily — AI Web Search & Content Extraction (2 tools)
-
-AI-optimized web search built for LLM/agent workflows. Returns synthesized answers + curated results with extracted page content and relevance scores. Also extracts clean readable content from any URL. Purpose-built for RAG pipelines. 1,000 free credits/month. Powered by Tavily.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `tavily.search` | AI web search — synthesized answer + results with extracted content, domain/recency filters | $0.010 |
-| `tavily.extract` | Extract clean content from up to 20 URLs — text, title, author, date | $0.010 |
-
-### Serper.dev — Google Search API (4 tools)
-
-Real-time Google Search results via API — web search, news, images, and shopping. Organic results, knowledge graph, answer box, people also ask, related searches. Supports country and language targeting. PAYG at $0.001/call upstream. Powered by Serper.dev.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `serper.web_search` | Google web search — organic results, knowledge graph, answer box, related searches | $0.002 |
-| `serper.news_search` | Google News — articles with source, date, snippet, time filter (hour/day/week) | $0.002 |
-| `serper.image_search` | Google Images — image URL, thumbnail, dimensions, source domain | $0.002 |
-| `serper.shopping_search` | Google Shopping — products with price, source, rating, delivery info | $0.002 |
-
-### Walk Score — Walkability & Transit Intelligence (1 tool)
-
-Walk Score, Transit Score, and Bike Score (0-100) for any US/Canada address. Industry-standard walkability metric used by 30,000+ websites including Apartments.com, Zillow, and Redfin. Measures walkability to amenities, public transit quality, and cycling infrastructure. Free tier: 5,000 calls/day. Powered by Walk Score (Redfin).
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `walkscore.score` | Walk Score (0-100), Transit Score (0-100), and Bike Score (0-100) for any address | $0.001 |
-
-### US Real Estate — Property Listings & Details (3 tools)
-
-Search active for-sale property listings across the US with filters for city, state, ZIP, price range, bedrooms, bathrooms, sqft, and property type. Get detailed property info including tax history, HOA fees, photos, and days on market. Location autocomplete for finding valid cities and ZIP codes. Millions of MLS listings from Realtor.com data. Free tier: 500K req/month. Powered by RapidAPI.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `usrealestate.for_sale` | Search for-sale listings — filter by city, state, ZIP, price, beds, baths, type | $0.002 |
-| `usrealestate.property_detail` | Full property details — beds, baths, sqft, tax, HOA, photos, sale history | $0.003 |
-| `usrealestate.location_suggest` | Location autocomplete — cities, ZIP codes, addresses with coordinates | $0.001 |
-
-### ZeroBounce — Email Validation (1 tool)
-
-Validate email addresses with 99.6% accuracy — checks deliverability, detects disposable/spam trap/abuse/catch-all addresses, verifies MX records and SMTP provider, reports domain age. Pay-as-you-go credits that never expire. Powered by ZeroBounce.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `email.validate` | Validate email — status, disposable/spam trap flags, MX/SMTP, domain age | $0.025 |
-
-### Open Library — Books / ISBN Lookup (4 tools)
-
-Search 40M+ books, look up by ISBN-10/13, get work details across editions, and author profiles. CC0 public domain data from the Internet Archive. No API key needed.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `books.isbn_lookup` | Look up book by ISBN-10/13 — title, publisher, pages, cover, subjects | $0.001 |
-| `books.search` | Search books by title, author, subject, or ISBN — ratings, covers, editions | $0.001 |
-| `books.work_details` | Get consolidated work metadata across all editions | $0.001 |
-| `books.author` | Get author profile — biography, birth/death dates, photo, Wikipedia | $0.001 |
-
-### Jikan — Anime / Manga Database (5 tools)
-
-Search 28K+ anime and 62K+ manga titles from MyAnimeList. Get details, scores, rankings, character cast with voice actors. MIT licensed, no API key needed. Powered by Jikan (unofficial MAL API).
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `anime.search` | Search anime by title, genre, type, status, rating | $0.001 |
-| `anime.details` | Full anime details — synopsis, score, rank, episodes, studios, genres | $0.001 |
-| `manga.details` | Full manga details — chapters, volumes, authors, score, genres | $0.001 |
-| `anime.characters` | Character cast with Japanese voice actors | $0.001 |
-| `anime.top` | Top-ranked anime — filter by type, airing status, popularity | $0.001 |
-
-### USGS Earthquake — Seismic Intelligence (3 tools)
-
-Real-time global earthquake data from the USGS. Search by location, time, magnitude, and depth. Real-time feeds updated every minute, 100+ years of history, PAGER damage alerts, tsunami flags. US Government open data, no API key needed.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `earthquake.search` | Search earthquakes by location, time, magnitude — PAGER alerts, tsunami flags | $0.001 |
-| `earthquake.feed` | Real-time feed by magnitude threshold (4.5+/2.5+/all) and time window | $0.001 |
-| `earthquake.count` | Count earthquakes matching criteria without full data | $0.001 |
-
-### ipapi.is — IP Intelligence / Geolocation (2 tools)
-
-IP address intelligence with 9 security flags (VPN, Tor, proxy, datacenter, abuser, crawler, bogon, mobile, satellite), geolocation, ASN/company data, and abuse contacts. Bulk lookup up to 100 IPs per call. Free, open access, no API key needed. Powered by ipapi.is.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `ip.lookup` | IP geolocation + 9 security flags + ASN + company + abuse contacts | $0.002 |
-| `ip.bulk_lookup` | Bulk lookup up to 100 IPs — country, city, VPN/Tor/proxy flags, ASN | $0.005 |
-
-### UPCitemdb — Barcode / UPC / Product Lookup (2 tools)
-
-Look up any product by UPC, EAN, GTIN, or ISBN barcode, or search products by name. Returns structured data: title, brand, images, dimensions, weight, category, price range, and marketplace offers. Free, open access, no API key needed. Powered by UPCitemdb.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `upc.lookup` | Look up product by barcode — title, brand, images, offers, price range | $0.002 |
-| `upc.search` | Search products by name — matching items with UPC codes and categories | $0.002 |
-
-### WhoisXML — Domain / WHOIS / DNS Intelligence (4 tools)
-
-WHOIS registration data, DNS records, domain availability, and reverse WHOIS search across 374M+ domains and 7,596 TLDs. Powered by WhoisXML API, 500 free queries.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `whois.lookup` | WHOIS data — registrar, dates, nameservers, registrant, status | $0.005 |
-| `whois.dns_lookup` | DNS records — A, AAAA, MX, NS, SOA, TXT, CNAME, SRV, CAA | $0.003 |
-| `whois.availability` | Check if a domain is available for registration | $0.003 |
-| `whois.reverse` | Find all domains by registrant name, email, or company | $0.008 |
-
-### Diffbot — AI-Powered Web Extraction (4 tools)
-
-Extract structured data from any web page using AI. Product data from any e-commerce URL, article text from any blog or news site, auto-detection of page type, and Knowledge Graph search across billions of entities. No retailer-specific integration needed. Powered by Diffbot AI, 10,000 free credits/month.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `diffbot.product_extract` | Extract product data from any e-commerce URL (any retailer) | $0.003 |
-| `diffbot.page_analyze` | Auto-detect page type and extract structured data | $0.003 |
-| `diffbot.article_extract` | Extract article text, author, date, tags, sentiment | $0.003 |
-| `diffbot.search` | Search Knowledge Graph — products, orgs, people, places | $0.005 |
-
-### Maps / Navigation / Geolocation (7 tools)
-
-Geocode addresses, reverse geocode coordinates, search places and POI, get directions, calculate reachability areas, and geolocate IP addresses. Powered by Geoapify (OSM-based). Free tier 3,000 credits/day, ODbL license — caching and redistribution allowed. $0 upstream cost.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `geo.geocode` | Convert address or place name to coordinates (lat/lon) | $0.002 |
-| `geo.reverse_geocode` | Convert coordinates to structured address | $0.002 |
-| `geo.place_search` | Search POI (restaurants, pharmacies, hotels) near a location | $0.003 |
-| `geo.autocomplete` | Autocomplete suggestions for addresses and places | $0.002 |
-| `geo.routing` | Turn-by-turn directions (drive, walk, bicycle, transit) | $0.005 |
-| `geo.isochrone` | Reachability area — how far you can travel in given time/distance | $0.005 |
-| `geo.ip_geolocation` | Geolocate an IPv4/IPv6 address to country, city, coordinates | $0.002 |
-
-### Finance / Banking / Financial Intelligence (6 tools)
-
-Currency exchange rates, macroeconomic indicators, and banking utilities. 6 free open-data APIs: fawazahmed0 (200+ currencies), Frankfurter/ECB (~33 official fiat), FRED (816K+ US economic series), World Bank (16K+ global indicators), US Treasury Fiscal Data, and OpenIBAN (IBAN validation). All $0 upstream cost.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `finance.exchange_rates` | Exchange rates for 200+ fiat and crypto currencies | $0.002 |
-| `finance.ecb_rates` | Official ECB reference rates for ~33 fiat currencies | $0.002 |
-| `finance.economic_indicator` | FRED data — GDP, CPI, unemployment, interest rates | $0.005 |
-| `finance.country_data` | World Bank data — GDP, population, inflation for 200+ countries | $0.005 |
-| `finance.treasury_data` | US Treasury — interest rates, national debt, gold reserves | $0.003 |
-| `finance.validate_iban` | Validate IBAN and get bank data (BIC, name, city) | $0.001 |
-
-### Health & Nutrition — Government Data APIs (7 tools)
-
-Free government health databases: USDA FoodData Central (350K+ foods, 150 nutrients), OpenFDA (drug adverse events, food recalls, drug labels), and NIH DSLD (200K+ supplement labels). All CC0/public domain.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `health.food_search` | Search 350K+ foods in the USDA database | $0.002 |
-| `health.food_details` | Detailed nutrition data — up to 150 nutrients per food | $0.003 |
-| `health.drug_events` | FDA FAERS drug adverse event reports | $0.003 |
-| `health.food_recalls` | FDA food enforcement and recall reports | $0.002 |
-| `health.drug_labels` | Drug labeling: indications, dosage, warnings, interactions | $0.003 |
-| `health.supplement_search` | Search 200K+ dietary supplement labels (NIH DSLD) | $0.002 |
-| `health.supplement_details` | Full supplement label: ingredients, amounts, daily values | $0.003 |
-
-### Ticketmaster — Events & Entertainment (7 tools)
-
-Discover concerts, sports, theatre, and festivals across 26+ countries. Real-time event data with pricing, venues, and ticket availability.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `ticketmaster.events_search` | Search events by keyword, city, date, or category | $0.003 |
-| `ticketmaster.event_details` | Full event details: dates, venues, prices, images | $0.005 |
-| `ticketmaster.events_nearby` | Find events near geographic coordinates | $0.003 |
-| `ticketmaster.artist_events` | Find events by artist or performer name | $0.005 |
-| `ticketmaster.venue_events` | Get upcoming events at a specific venue | $0.003 |
-| `ticketmaster.events_trending` | Get trending and popular events | $0.003 |
-| `ticketmaster.events_categories` | Get all event classification categories | $0.001 |
-
-### TMDB — Movies & TV Discovery (7 tools)
-
-The world's largest community-maintained entertainment database. 1M+ movies, 218K+ TV shows, 39 languages. Search, discover, get details, find streaming options.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `tmdb.movie_search` | Search movies, TV shows, and people by name | $0.002 |
-| `tmdb.movie_details` | Full movie details: cast, crew, trailers, streaming, budget | $0.005 |
-| `tmdb.movie_discover` | Discover movies or TV by genre, year, rating, language | $0.005 |
-| `tmdb.movie_trending` | Trending movies, TV shows, or people (daily/weekly) | $0.002 |
-| `tmdb.movie_similar` | Movie recommendations based on a movie | $0.003 |
-| `tmdb.movie_person` | Search actors/directors or get full filmography | $0.003 |
-| `tmdb.movie_where_to_watch` | Find streaming, rental, and purchase options by country | $0.003 |
-
-### Music / Audio Discovery (7 tools)
-
-Search artists, albums, songs, and recordings across 50M+ entries (MusicBrainz CC0), discover fresh releases (ListenBrainz CC0), and find 40K+ internet radio stations (RadioBrowser Public Domain). All $0 upstream cost, no API keys needed.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `music.artist_search` | Search 2M+ music artists by name | $0.003 |
-| `music.artist_details` | Artist details: tags, ratings, external links, life span | $0.003 |
-| `music.release_search` | Search albums, singles, EPs across 50M+ recordings | $0.003 |
-| `music.release_details` | Full release: tracklist, artist credits, labels | $0.003 |
-| `music.recording_search` | Search songs by title or artist | $0.003 |
-| `music.fresh_releases` | Discover recently released albums and singles | $0.003 |
-| `music.radio_search` | Search 40K+ internet radio stations by genre, country, language | $0.002 |
-
-### Jobs / Career Intelligence (6 tools)
-
-US salary data, occupation taxonomy, EU skills framework, and global job listings. 4 providers: BLS (US government salary/employment data), O*NET (1,000+ occupations with skills/knowledge/abilities), ESCO (EU Skills/Competences/Occupations in 27 languages), and CareerJet (global job listings across 90+ countries). All $0 upstream cost.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `jobs.salary_data` | US salary/employment timeseries from BLS — wage estimates by occupation and geography | $0.003 |
-| `jobs.occupation_search` | Search O*NET occupation taxonomy — 1,000+ occupations with SOC codes | $0.003 |
-| `jobs.occupation_details` | O*NET occupation details — skills, knowledge, abilities, technology, tasks | $0.003 |
-| `jobs.esco_search` | Search ESCO EU occupations and skills in 27 languages | $0.003 |
-| `jobs.esco_details` | ESCO occupation/skill details — essential skills, ISCO codes, relationships | $0.003 |
-| `jobs.job_search` | Search global job listings — title, salary, company, location across 90+ countries | $0.003 |
-
-### Foursquare — Places & Restaurant Discovery (5 tools)
-
-Search restaurants, hotels, cafes, attractions worldwide. 100M+ places in 190+ countries with ratings, tips, and photos.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `foursquare.place_search` | Search places by query, location, category, with filtering | $0.025 |
-| `foursquare.place_details` | Full details: hours, rating, price, contact, categories | $0.025 |
-| `foursquare.place_tips` | User tips and reviews for a place | $0.030 |
-| `foursquare.place_photos` | Venue photos with size and classification options | $0.030 |
-| `foursquare.autocomplete` | Autocomplete suggestions for places and addresses | $0.020 |
-
-### Amadeus — Flight Search & Travel Data (7 tools)
-
-Real-time flight data from the world's largest GDS. Search flights across 500+ airlines, check live status, find airports.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `amadeus.flight_search` | Real-time flight offers with prices, airlines, stops, duration | $0.035 |
-| `amadeus.flight_price` | Confirm final pricing for a flight offer | $0.020 |
-| `amadeus.flight_status` | Real-time flight status — delays, cancellations, gates | $0.005 |
-| `amadeus.airport_search` | Airport/city search by keyword or IATA code | $0.003 |
-| `amadeus.airport_nearest` | Nearest airports by geographic coordinates | $0.003 |
-| `amadeus.airport_routes` | All direct destinations from an airport | $0.003 |
-| `amadeus.airline_lookup` | Airline details by IATA or ICAO code | $0.002 |
-
-### Sabre GDS — Flight Search & Travel Data (4 tools)
-
-Alternative flight search via Sabre Global Distribution System. Cross-reference prices with Amadeus for best deals.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `sabre.search_flights` | Real-time flight offers with prices between airports | $0.010 |
-| `sabre.destination_finder` | Cheapest flight destinations from an origin airport | $0.005 |
-| `sabre.airline_lookup` | Airline details by IATA or ICAO code | $0.002 |
-| `sabre.travel_themes` | Travel theme categories (beach, skiing, romantic, etc.) | $0.002 |
-
-### Aviasales — Flight Search & Price Intelligence (6 tools)
-
-Search cheap flights, browse price calendars, find popular routes, discover nearby destinations, and look up airport data. Powered by Travelpayouts (Aviasales partner network). Cached prices with up to 24h data freshness, no API key cost for cached endpoints.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `aviasales.search_flights` | Search flights between airports — prices, airlines, stops, booking links | $0.005 |
-| `aviasales.price_calendar` | Flight price calendar — cheapest price for each day on a route | $0.001 |
-| `aviasales.cheap_flights` | Cheapest flights from an origin — direct and connecting | $0.001 |
-| `aviasales.popular_routes` | Popular flight routes from an origin city | $0.001 |
-| `aviasales.nearby_destinations` | Find nearby flight destinations within a radius | $0.001 |
-| `aviasales.airport_lookup` | Airport lookup by name, city, or IATA/ICAO code | $0.001 |
-
-### Polymarket — Prediction Markets (11 tools)
-
-Search, analyze, and trade on prediction markets. Real-time odds, order books, and trading via CLOB.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `polymarket.search` | Search prediction markets | $0.0005 |
-| `polymarket.market_detail` | Market details with probabilities | $0.0005 |
-| `polymarket.prices` | Midpoint price for a token | $0.0005 |
-| `polymarket.price_history` | Historical price data | $0.0005 |
-| `polymarket.get_orderbook` | Order book depth | $0.0005 |
-| `polymarket.trending` | Trending markets by volume | $0.0005 |
-| `polymarket.place_order` | Place a limit order (GTC/GTD/FOK) | $0.001 |
-| `polymarket.cancel_order` | Cancel an open order | $0.001 |
-| `polymarket.open_orders` | Get open orders | $0.0005 |
-| `polymarket.trade_history` | Trade history | $0.0005 |
-| `polymarket.balance` | Balance and allowance | $0.0005 |
-
-### Hyperliquid — DeFi Perpetuals (6 tools)
-
-On-chain perpetual futures exchange. Market data, order books, positions, and account info.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `hyperliquid.market_data` | Market data and funding rates | $0.002 |
-| `hyperliquid.order_book` | Order book depth | $0.003 |
-| `hyperliquid.klines` | Candlestick / OHLCV data | $0.003 |
-| `hyperliquid.positions` | User positions | $0.005 |
-| `hyperliquid.account` | Account summary | $0.005 |
-| `hyperliquid.vault` | Vault details | $0.005 |
-
-### AsterDEX — DeFi Perpetuals (4 tools)
-
-Decentralized perpetual exchange on Asterism. Market data, order books, and candlestick charts.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `aster.exchange_info` | Exchange info and trading pairs | $0.001 |
-| `aster.market_data` | Market data and 24h stats | $0.002 |
-| `aster.order_book` | Order book depth | $0.003 |
-| `aster.klines` | Candlestick / OHLCV data | $0.003 |
-
-### CoinGecko — Crypto Market Data (9 tools)
-
-Real-time and historical crypto data for 10,000+ coins. Prices, market overviews, trending assets, and DEX pool data via GeckoTerminal.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `crypto.get_price` | Real-time prices for any cryptocurrency | $0.001 |
-| `coingecko.get_market` | Market overview with sorting and filtering | $0.001 |
-| `crypto.coin_detail` | Detailed coin info (market data, community, dev stats) | $0.002 |
-| `crypto.price_history` | Historical price charts (up to 365 days) | $0.002 |
-| `crypto.trending` | Currently trending coins on CoinGecko | $0.001 |
-| `crypto.global` | Global crypto market statistics | $0.001 |
-| `crypto.search` | Search coins, exchanges, and categories | $0.001 |
-| `crypto.dex_pools` | DEX liquidity pools via GeckoTerminal | $0.001 |
-| `crypto.token_by_address` | Token info by contract address via GeckoTerminal | $0.001 |
-
-### Education / Academic Research (7 tools)
-
-Search 250M+ academic papers (OpenAlex CC0), compare US colleges and graduate earnings (College Scorecard), search biomedical literature (PubMed/NCBI), find preprints (arXiv CC0), and resolve DOIs (CrossRef CC0). All $0 upstream cost, 5 free open-data providers.
-
-| Tool | Description | Price |
-|------|-------------|-------|
-| `education.paper_search` | Search 250M+ academic papers across all disciplines (OpenAlex) | $0.002 |
-| `education.paper_details` | Full paper details by ID or DOI — authors, citations, abstract (OpenAlex) | $0.002 |
-| `education.college_search` | Search US colleges — admissions, tuition, earnings, completion rates (College Scorecard) | $0.003 |
-| `education.college_details` | Detailed college data by UNITID — costs, outcomes, student demographics (College Scorecard) | $0.003 |
-| `education.pubmed_search` | Search 36M+ biomedical articles — clinical trials, reviews, meta-analyses (PubMed/NCBI) | $0.002 |
-| `education.arxiv_search` | Search 2.4M+ preprints in physics, math, CS, biology (arXiv) | $0.002 |
-| `education.doi_lookup` | Resolve DOI to full publication metadata — authors, journal, citations (CrossRef) | $0.002 |
-
----
-
-## Payment
+## How Payment Works
 
 | Field | Value |
 |-------|-------|
 | Protocol | **x402** (HTTP 402 Payment Required) |
 | Token | USDC on Base |
-| Address | `0x50EbDa9dA5dC19c302Ca059d7B9E06e264936480` |
+| Wallet | `0x50EbDa9dA5dC19c302Ca059d7B9E06e264936480` |
+| Price range | $0.001 – $1.00 per call |
 
-No subscriptions. No minimums. Pay only for what you use.
+No subscriptions. No minimums. Agent pays only for successful calls. Failed provider calls are auto-refunded.
+
+### 13-Stage Pipeline
+
+Every tool call passes through:
+
+```
+AUTH → IDEMPOTENCY → CONTENT_NEG → SCHEMA_VALIDATION → TOOL_STATUS →
+CACHE → RATE_LIMIT → ESCROW → PROVIDER_CALL →
+ESCROW_FINALIZE → LEDGER_WRITE → CACHE_SET → RESPONSE
+```
+
+- **Escrow-first**: USDC locked before provider call, refunded on failure
+- **Idempotent**: same request + same key = same result, no double charges
+- **Cache**: per-tool TTL (5s for stock prices, 7 days for walkability scores)
+- **Fail-closed**: Redis down = reject all, no silent degradation
+
+---
 
 ## Authentication
 
 | Method | Header | Format |
 |--------|--------|--------|
 | API Key | `Authorization` | `Bearer ak_live_<32hex>` |
-| x402 Payment | `X-Payment` | Base64-encoded payment receipt |
+| x402 Payment | `X-Payment` | Base64 payment receipt |
 
-## Response Format
+Auto-registration: agents get API keys instantly on first request. No forms, no approval.
 
-All responses include:
-- `X-Request-ID` header for tracing
-- JSON body with tool-specific `data` field
-- Standard error codes on failure
-
-## Rate Limits
-
-- Per-agent, per-tool token bucket
-- Global tier limits: free (20 req/s), paid (100 req/s)
-- `429` with `Retry-After` header on limit exceeded
-- Redis-backed, fail-closed
+---
 
 ## Error Codes
 
 | HTTP | Code | Meaning |
 |------|------|---------|
-| 400 | `validation_error` | Invalid parameters |
+| 400 | `validation_error` | Invalid parameters (check schema) |
 | 401 | `unauthorized` | Missing or invalid API key |
 | 402 | `payment_required` | x402 payment needed |
 | 404 | `not_found` | Tool or resource not found |
-| 406 | `not_acceptable` | Wrong Accept header (use `application/json`) |
-| 429 | `rate_limited` | Rate limit exceeded |
-| 500 | `internal_error` | Server error |
+| 429 | `rate_limited` | Rate limit exceeded (check `Retry-After`) |
 | 502 | `bad_gateway` | Provider unavailable |
 | 503 | `service_unavailable` | System not ready |
 
+---
+
 ## MCP Discovery
 
-```json
-GET /.well-known/mcp.json
-
-{
-  "name": "APIbase",
-  "protocol": "MCP",
-  "version": "1.0",
-  "mcp_endpoint": "https://apibase.pro/mcp",
-  "authentication": "x402"
-}
 ```
+GET /.well-known/mcp.json → MCP server metadata
+GET /api/v1/tools → Full tool catalog with schemas (all 227 in one response)
+GET /health/ready → System health check
+```
+
+---
 
 ## Integrations
 
-Connect APIbase to any AI platform:
-
-| Platform | Config location | Setup |
-|----------|----------------|-------|
-| **Claude Desktop** | `claude_desktop_config.json` | `"url": "https://apibase.pro/mcp"` |
-| **Cursor** | `.cursor/mcp.json` | `"url": "https://apibase.pro/mcp"` |
-| **Windsurf** | `~/.codeium/windsurf/mcp_config.json` | `"serverUrl": "https://apibase.pro/mcp"` |
-| **VS Code** | `.vscode/settings.json` | `"url": "https://apibase.pro/mcp"` |
-| **Continue.dev** | `~/.continue/config.json` | Streamable HTTP transport |
-| **OpenAI GPT** | GPT Editor > Actions | Import `https://apibase.pro/.well-known/openapi.json` |
-| **OpenClaw** | `~/.openclaw/openclaw.json` | `"url": "https://apibase.pro/mcp"` |
-| **MCP.so** | [mcp.so/server/apibase](https://mcp.so/server/apibase----universal-api-hub-for-ai-agents/whiteknightonhorse) | Listed in directory |
-
-<details>
-<summary>Claude Desktop / Cursor</summary>
-
-```json
-{
-  "mcpServers": {
-    "apibase": {
-      "url": "https://apibase.pro/mcp"
-    }
-  }
-}
-```
-</details>
-
-<details>
-<summary>Windsurf</summary>
-
-```json
-{
-  "mcpServers": {
-    "apibase": {
-      "serverUrl": "https://apibase.pro/mcp"
-    }
-  }
-}
-```
-</details>
-
-<details>
-<summary>VS Code (Copilot)</summary>
-
-```json
-{
-  "mcp": {
-    "servers": {
-      "apibase": {
-        "type": "http",
-        "url": "https://apibase.pro/mcp"
-      }
-    }
-  }
-}
-```
-</details>
-
-<details>
-<summary>Continue.dev</summary>
-
-```json
-{
-  "experimental": {
-    "modelContextProtocolServers": [
-      {
-        "transport": {
-          "type": "streamable-http",
-          "url": "https://apibase.pro/mcp"
-        }
-      }
-    ]
-  }
-}
-```
-</details>
-
-<details>
-<summary>OpenAI GPT Actions</summary>
-
-1. Go to GPT Editor > Actions tab
-2. Click "Import from URL"
-3. Enter: `https://apibase.pro/.well-known/openapi.json`
-4. Set Authentication: API Key, Header `Authorization`, prefix `Bearer`
-5. Save — all tools auto-discovered from spec
-</details>
-
-<details>
-<summary>OpenClaw</summary>
-
-Add to `~/.openclaw/openclaw.json`:
-
-```json
-{
-  "provider": {
-    "mcpServers": {
-      "apibase": {
-        "url": "https://apibase.pro/mcp"
-      }
-    }
-  }
-}
-```
-
-Or via CLI:
-```bash
-openclaw config set provider.mcpServers.apibase.url "https://apibase.pro/mcp"
-```
-</details>
+| Platform | Config |
+|----------|--------|
+| **Claude Desktop** | `"url": "https://apibase.pro/mcp"` |
+| **Cursor** | `"url": "https://apibase.pro/mcp"` |
+| **Windsurf** | `"serverUrl": "https://apibase.pro/mcp"` |
+| **VS Code Copilot** | `"type": "http", "url": "https://apibase.pro/mcp"` |
+| **Continue.dev** | Streamable HTTP: `https://apibase.pro/mcp` |
+| **OpenAI GPT** | Import `https://apibase.pro/.well-known/openapi.json` |
+| **Smithery** | [smithery.ai/servers/apibase-pro/api-hub](https://smithery.ai/servers/apibase-pro/api-hub) |
+| **Glama** | [glama.ai/mcp/servers/whiteknightonhorse/APIbase](https://glama.ai/mcp/servers/whiteknightonhorse/APIbase) |
+| **MCP Registry** | `io.github.whiteknightonhorse/apibase` |
 
 ---
 
 ## Architecture
 
-- **13-stage pipeline**: AUTH → IDEMPOTENCY → SCHEMA_VALIDATION → CACHE → RATE_LIMIT → ESCROW → PROVIDER_CALL → LEDGER → RESPONSE
-- **Fail-closed**: Redis down = reject all requests, no silent degradation
-- **Idempotent**: same request + same key = same result, no double charges
-- **Observable**: Prometheus metrics, Grafana dashboards, structured logging
+- **16 Docker containers**: API, Worker, Outbox, PostgreSQL, Redis, Nginx, Prometheus, Grafana, Loki, Promtail, Alertmanager, exporters
+- **Single Hetzner server** with automated health checks, graceful shutdown, and 27 Prometheus alert rules
+- **PostgreSQL** = source of truth for financial data (append-only ledger)
+- **Redis** = cache, rate limiting, single-flight deduplication
+- **Fail-closed**: any infrastructure failure = reject requests, never pass through
 
 ## Self-Hosting
 
@@ -963,10 +196,6 @@ git clone https://github.com/whiteknightonhorse/APIbase.git
 cp .env.example .env    # configure secrets
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
-
-Requires: Docker, PostgreSQL 16, Redis 7.2, Node.js 20.
-
-16 containers: API, Worker, Outbox, PostgreSQL, Redis, Nginx, Prometheus, Grafana, Loki, Promtail, Alertmanager, and exporters.
 
 ## License
 
