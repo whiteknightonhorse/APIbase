@@ -14682,8 +14682,12 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "properties": {},
-                "description": "No parameters needed — returns all 597 available IANA timezone names"
+                "properties": {
+                  "filter": {
+                    "type": "string",
+                    "description": "Optional prefix filter for timezone names (e.g. \"America\", \"Europe\", \"Asia\"). Returns all 597 zones if omitted."
+                  }
+                }
               }
             }
           }

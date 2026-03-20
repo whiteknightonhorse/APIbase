@@ -10,7 +10,9 @@ const convert = z.object({
   to_timezone: z.string().describe('Target IANA timezone (e.g. "Asia/Tokyo")'),
 }).strip();
 
-const zones = z.object({}).strip().describe('No parameters needed — returns all 597 available IANA timezone names');
+const zones = z.object({
+  filter: z.string().optional().describe('Optional prefix filter for timezone names (e.g. "America", "Europe", "Asia"). Returns all 597 zones if omitted.'),
+}).strip();
 
 export const timeapiSchemas: Record<string, ZodSchema> = {
   'worldclock.current': current,
