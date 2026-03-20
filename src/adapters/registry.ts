@@ -49,6 +49,8 @@ import { ApiFlashAdapter } from './apiflash';
 import { TimeApiAdapter } from './timeapi';
 import { GdeltAdapter } from './gdelt';
 import { NwsAdapter } from './nws';
+import { ExchangeRateAdapter } from './exchangerate';
+import { CalendarificAdapter } from './calendarific';
 import { NagerDateAdapter } from './nagerdate';
 import { SslCheckerAdapter } from './sslchecker';
 import { FirmsAdapter } from './firms';
@@ -228,6 +230,16 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const zbKey = (config as Record<string, unknown>).PROVIDER_KEY_ZEROBOUNCE as string | undefined;
       if (!zbKey) return undefined;
       return getOrCreate('zerobounce', () => new ZeroBounceAdapter(zbKey));
+    }
+    case 'exchangerate': {
+      const erKey = (config as Record<string, unknown>).PROVIDER_KEY_EXCHANGERATE as string | undefined;
+      if (!erKey) return undefined;
+      return getOrCreate('exchangerate', () => new ExchangeRateAdapter(erKey));
+    }
+    case 'calendarific': {
+      const calKey = (config as Record<string, unknown>).PROVIDER_KEY_CALENDARIFIC as string | undefined;
+      if (!calKey) return undefined;
+      return getOrCreate('calendarific', () => new CalendarificAdapter(calKey));
     }
     case 'weather_alerts':
       return getOrCreate('nws', () => new NwsAdapter());

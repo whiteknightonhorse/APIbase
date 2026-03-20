@@ -486,5 +486,23 @@
     "reset_period": "none",
     "docs_url": "https://ssl-checker.io/",
     "limit_proof": "Free, no auth, no documented rate limits"
+  },
+  "exchangerate": {
+    "display_name": "ExchangeRate-API",
+    "health_url": "https://v6.exchangerate-api.com/v6/909dd3f5b68766a1eaf52c97/latest/USD",
+    "limit_type": "monthly",
+    "free_limit": 1500,
+    "reset_period": "monthly",
+    "docs_url": "https://www.exchangerate-api.com/docs/overview",
+    "limit_proof": "Free plan: 1,500 requests/month, daily updates, no credit card"
+  },
+  "calendarific": {
+    "display_name": "Calendarific",
+    "health_url": "https://calendarific.com/api/v2/holidays?api_key=oDjn61EwR9r1WSJhyjAuDuGxPzAGq8xU&country=US&year=2026",
+    "limit_type": "monthly",
+    "free_limit": 500,
+    "reset_period": "monthly",
+    "docs_url": "https://calendarific.com/api-documentation",
+    "limit_proof": "Free plan: 500 requests/month, 230+ countries"
   }
 }

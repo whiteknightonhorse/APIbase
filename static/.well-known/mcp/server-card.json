@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase — The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 227 tools across weather alerts, holidays, SSL certificates, fire detection, global events, timezone, screenshots, sports, translation, SMS, image gen, email, social media, legal, OCR, stocks, news, web search, travel, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, real estate, and more.",
+    "description": "Unified MCP gateway to 230 tools across currency conversion, holidays, weather alerts, fire detection, global events, timezone, screenshots, sports, translation, SMS, image gen, email, social media, legal, OCR, stocks, news, web search, travel, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, real estate, and more.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -6626,6 +6626,120 @@
         },
         "required": [
           "email"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "currency.exchange.latest",
+      "title": "Latest Exchange Rates",
+      "description": "Latest exchange rates for 160+ currencies against any base currency. Updated daily on free tier. Returns all rates in one call (ExchangeRate-API)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "base": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "Base currency code (e.g. \"USD\", \"EUR\", \"GBP\"). Default: USD. Returns rates for 160+ currencies."
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "currency.exchange.convert",
+      "title": "Convert Currency",
+      "description": "Convert amount between any two currencies — 160+ currencies supported. Returns conversion rate and result (ExchangeRate-API)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "Source currency code (e.g. \"USD\")"
+          },
+          "to": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "Target currency code (e.g. \"EUR\")"
+          },
+          "amount": {
+            "type": "number",
+            "description": "Amount to convert (default 1)"
+          }
+        },
+        "required": [
+          "from",
+          "to"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "calendar.holidays.premium",
+      "title": "World Holidays (Calendarific)",
+      "description": "Public holidays for 230+ countries — national, local, religious, observance types. Filter by month, day, type. 100+ years coverage. More countries than Nager.Date (Calendarific)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "country": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "ISO 3166-1 alpha-2 country code (e.g. \"US\", \"GB\", \"DE\", \"JP\", \"IN\", \"BR\")"
+          },
+          "year": {
+            "type": "integer",
+            "minimum": 2000,
+            "maximum": 2049,
+            "description": "Year (default 2026)"
+          },
+          "month": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 12,
+            "description": "Filter by month (1-12)"
+          },
+          "day": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 31,
+            "description": "Filter by day (1-31)"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "national",
+              "local",
+              "religious",
+              "observance"
+            ],
+            "description": "Filter by holiday type"
+          }
+        },
+        "required": [
+          "country"
         ],
         "additionalProperties": false
       },

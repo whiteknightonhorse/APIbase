@@ -49,6 +49,8 @@ import { apiflashSchemas } from './apiflash.schema';
 import { timeapiSchemas } from './timeapi.schema';
 import { gdeltSchemas } from './gdelt.schema';
 import { nwsSchemas } from './nws.schema';
+import { exchangerateSchemas } from './exchangerate.schema';
+import { calendarificSchemas } from './calendarific.schema';
 import { nagerdateSchemas } from './nagerdate.schema';
 import { sslcheckerSchemas } from './sslchecker.schema';
 import { firmsSchemas } from './firms.schema';
@@ -107,6 +109,8 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...timeapiSchemas,
   ...gdeltSchemas,
   ...nwsSchemas,
+  ...exchangerateSchemas,
+  ...calendarificSchemas,
   ...nagerdateSchemas,
   ...sslcheckerSchemas,
   ...firmsSchemas,

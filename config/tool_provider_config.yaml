@@ -1064,6 +1064,26 @@ tools:
     price_usd: "0.025"
     cache_ttl: 86400
 
+  # --- UC-115: ExchangeRate-API (Currency Conversion) ---
+  - tool_id: exchangerate.latest
+    name: Latest Exchange Rates
+    provider: exchangerate
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: exchangerate.convert
+    name: Convert Currency
+    provider: exchangerate
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  # --- UC-111: Calendarific (Premium World Holidays) ---
+  - tool_id: calendarific.holidays
+    name: World Holidays
+    provider: calendarific
+    price_usd: "0.002"
+    cache_ttl: 86400
+
   # --- UC-109: NWS Weather Alerts ---
   - tool_id: weather_alerts.active
     name: Active US Weather Alerts

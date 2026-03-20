@@ -123,6 +123,12 @@ export const appEnvSchema = z.object({
   // NewsData.io (UC-070) — apikey query param, 200 credits/day free, commercial OK
   PROVIDER_KEY_NEWSDATA: z.string().optional().default(''),
 
+  // ExchangeRate-API (UC-115) — key in URL, 1,500/mo free
+  PROVIDER_KEY_EXCHANGERATE: z.string().optional().default(''),
+
+  // Calendarific (UC-111) — api_key query param, 500/mo free
+  PROVIDER_KEY_CALENDARIFIC: z.string().optional().default(''),
+
   // NASA FIRMS (UC-108) — MAP_KEY, 5K tx/10min
   PROVIDER_KEY_FIRMS: z.string().optional().default(''),
 

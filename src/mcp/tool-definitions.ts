@@ -1367,6 +1367,35 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // Walk Score — Walkability & Transit Intelligence (UC-062, 1 tool)
   // ---------------------------------------------------------------------------
   // ---------------------------------------------------------------------------
+  // ExchangeRate-API — Currency Conversion (UC-115, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'exchangerate.latest',
+    mcpName: 'currency.exchange.latest',
+    title: 'Latest Exchange Rates',
+    description: 'Latest exchange rates for 160+ currencies against any base currency. Updated daily on free tier. Returns all rates in one call (ExchangeRate-API)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'exchangerate.convert',
+    mcpName: 'currency.exchange.convert',
+    title: 'Convert Currency',
+    description: 'Convert amount between any two currencies — 160+ currencies supported. Returns conversion rate and result (ExchangeRate-API)',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
+  // Calendarific — Premium World Holidays (UC-111, 1 tool)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'calendarific.holidays',
+    mcpName: 'calendar.holidays.premium',
+    title: 'World Holidays (Calendarific)',
+    description: 'Public holidays for 230+ countries — national, local, religious, observance types. Filter by month, day, type. 100+ years coverage. More countries than Nager.Date (Calendarific)',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
   // NWS — US Weather Alerts (UC-109, 2 tools)
   // ---------------------------------------------------------------------------
   {
