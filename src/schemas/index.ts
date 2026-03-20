@@ -45,6 +45,7 @@ import { stabilitySchemas } from './stability.schema';
 import { twilioSchemas } from './twilio.schema';
 import { langblySchemas } from './langbly.schema';
 import { apisportsSchemas } from './apisports.schema';
+import { apiflashSchemas } from './apiflash.schema';
 import { resendSchemas } from './resend.schema';
 import { fedregisterSchemas } from './fedregister.schema';
 import { courtlistenerSchemas } from './courtlistener.schema';
@@ -96,6 +97,7 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...twilioSchemas,
   ...langblySchemas,
   ...apisportsSchemas,
+  ...apiflashSchemas,
   ...resendSchemas,
   ...fedregisterSchemas,
   ...courtlistenerSchemas,

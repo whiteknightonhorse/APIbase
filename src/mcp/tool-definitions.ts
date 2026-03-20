@@ -1367,6 +1367,17 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // Walk Score — Walkability & Transit Intelligence (UC-062, 1 tool)
   // ---------------------------------------------------------------------------
   // ---------------------------------------------------------------------------
+  // ApiFlash — Website Screenshot (UC-093, 1 tool)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'screenshot.capture',
+    mcpName: 'web.screenshot.capture',
+    title: 'Capture Website Screenshot (ApiFlash)',
+    description: 'Take a screenshot of any URL — returns image URL. Chrome-based rendering, supports full-page capture, custom viewport, ad blocking, cookie banner removal. Waits for JS-heavy SPAs to load (ApiFlash)',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
   // API-Sports — Multi-Sport Data (UC-089, 4 tools)
   // ---------------------------------------------------------------------------
   {

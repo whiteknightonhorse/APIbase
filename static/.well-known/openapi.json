@@ -14508,6 +14508,123 @@
         ]
       }
     },
+    "/api/v1/tools/screenshot.capture/call": {
+      "post": {
+        "operationId": "screenshot_capture",
+        "summary": "Capture Website Screenshot (ApiFlash)",
+        "description": "Take a screenshot of any URL — returns image URL. Chrome-based rendering, supports full-page capture, custom viewport, ad blocking, cookie banner removal. Waits for JS-heavy SPAs to load (ApiFlash)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "screenshot.capture"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "description": "URL of the website to screenshot (e.g. \"https://example.com\")"
+                  },
+                  "format": {
+                    "type": "string",
+                    "enum": [
+                      "png",
+                      "jpeg",
+                      "webp"
+                    ],
+                    "description": "Image format: \"png\" (default), \"jpeg\", or \"webp\""
+                  },
+                  "width": {
+                    "type": "integer",
+                    "minimum": 100,
+                    "maximum": 3840,
+                    "description": "Viewport width in pixels (default 1920, max 3840)"
+                  },
+                  "height": {
+                    "type": "integer",
+                    "minimum": 100,
+                    "maximum": 3840,
+                    "description": "Viewport height in pixels (default 1080)"
+                  },
+                  "full_page": {
+                    "type": "boolean",
+                    "description": "Capture full page scroll height (default false)"
+                  },
+                  "delay": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 10,
+                    "description": "Wait N seconds before capture (0-10, for JS-heavy pages)"
+                  },
+                  "no_ads": {
+                    "type": "boolean",
+                    "description": "Block ads before capture (default false)"
+                  },
+                  "no_cookie_banners": {
+                    "type": "boolean",
+                    "description": "Remove cookie consent banners (default false)"
+                  },
+                  "wait_until": {
+                    "type": "string",
+                    "enum": [
+                      "page_loaded",
+                      "network_idle"
+                    ],
+                    "description": "\"page_loaded\" (default) or \"network_idle\" (wait for all XHR/fetch)"
+                  }
+                },
+                "required": [
+                  "url"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/sports.football_fixtures/call": {
       "post": {
         "operationId": "sports_football_fixtures",
