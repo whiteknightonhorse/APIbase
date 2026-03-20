@@ -47,6 +47,8 @@ import { langblySchemas } from './langbly.schema';
 import { apisportsSchemas } from './apisports.schema';
 import { apiflashSchemas } from './apiflash.schema';
 import { timeapiSchemas } from './timeapi.schema';
+import { gdeltSchemas } from './gdelt.schema';
+import { firmsSchemas } from './firms.schema';
 import { resendSchemas } from './resend.schema';
 import { fedregisterSchemas } from './fedregister.schema';
 import { courtlistenerSchemas } from './courtlistener.schema';
@@ -100,6 +102,8 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...apisportsSchemas,
   ...apiflashSchemas,
   ...timeapiSchemas,
+  ...gdeltSchemas,
+  ...firmsSchemas,
   ...resendSchemas,
   ...fedregisterSchemas,
   ...courtlistenerSchemas,
