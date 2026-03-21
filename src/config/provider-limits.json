@@ -550,6 +550,15 @@
     "docs_url": "https://randomuser.me/documentation",
     "limit_proof": "Fully free, no auth, open source, unlimited"
   },
+  "fatsecret": {
+    "display_name": "FatSecret Nutrition",
+    "health_url": "https://oauth.fatsecret.com/connect/token",
+    "limit_type": "daily",
+    "free_limit": 5000,
+    "reset_period": "daily",
+    "docs_url": "https://platform.fatsecret.com/api-editions",
+    "limit_proof": "Basic plan: 5,000 API calls per day, OAuth 2.0 client credentials"
+  },
   "iqair": {
     "display_name": "IQAir AirVisual",
     "health_url": "http://api.airvisual.com/v2/countries?key=e1fd5771-ced5-4e36-9d18-32a3df9a9d4b",

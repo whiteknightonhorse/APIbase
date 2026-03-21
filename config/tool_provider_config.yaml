@@ -1514,3 +1514,15 @@ tools:
     provider: iqair
     price_usd: "0.002"
     cache_ttl: 300
+
+  # --- UC-126: FatSecret (Nutrition Database) ---
+  - tool_id: fatsecret.food_search
+    name: Search Food Nutrition
+    provider: fatsecret
+    price_usd: "0.002"
+    cache_ttl: 3600
+  - tool_id: fatsecret.food_details
+    name: Food Nutritional Details
+    provider: fatsecret
+    price_usd: "0.002"
+    cache_ttl: 86400

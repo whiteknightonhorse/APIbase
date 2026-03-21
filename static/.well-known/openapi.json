@@ -20320,6 +20320,159 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/fatsecret.food_search/call": {
+      "post": {
+        "operationId": "fatsecret_food_search",
+        "summary": "Search Food Nutrition Database",
+        "description": "Search 2.3M+ food items by name — branded products, restaurant meals, generic foods from 190+ countries. Returns food ID, name, type, brand, and per-serving summary (calories, fat, carbs, protein). Use food_id for detailed nutritional lookup (FatSecret)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fatsecret.food_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Food name to search (e.g. \"chicken breast\", \"banana\", \"greek yogurt\")",
+                    "minLength": 1
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Page number for pagination (default 0)"
+                  },
+                  "max_results": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Results per page (default 20, max 50)"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/fatsecret.food_details/call": {
+      "post": {
+        "operationId": "fatsecret_food_details",
+        "summary": "Food Nutritional Details",
+        "description": "Complete nutritional profile for a food item by FatSecret ID — all serving sizes with calories, total/saturated/trans fat, cholesterol, sodium, potassium, carbs, fiber, sugar, protein, vitamins A/C/D, calcium, iron. 2.3M+ foods (FatSecret)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fatsecret.food_details"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "food_id": {
+                    "type": "string",
+                    "description": "FatSecret food ID from search results (e.g. \"33691\" for chicken breast)",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "food_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

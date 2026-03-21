@@ -1980,4 +1980,22 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description: 'Real-time air quality index (AQI) and weather data for the nearest monitoring station to given GPS coordinates. Returns nearest city, AQI (US + CN), dominant pollutant, PM2.5/PM10/O3 concentrations, temperature, humidity (IQAir AirVisual)',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // FatSecret — Nutrition Database (UC-126, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'fatsecret.food_search',
+    mcpName: 'nutrition.fatsecret.search',
+    title: 'Search Food Nutrition Database',
+    description: 'Search 2.3M+ food items by name — branded products, restaurant meals, generic foods from 190+ countries. Returns food ID, name, type, brand, and per-serving summary (calories, fat, carbs, protein). Use food_id for detailed nutritional lookup (FatSecret)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'fatsecret.food_details',
+    mcpName: 'nutrition.fatsecret.details',
+    title: 'Food Nutritional Details',
+    description: 'Complete nutritional profile for a food item by FatSecret ID — all serving sizes with calories, total/saturated/trans fat, cholesterol, sodium, potassium, carbs, fiber, sugar, protein, vitamins A/C/D, calcium, iron. 2.3M+ foods (FatSecret)',
+    annotations: READ_ONLY,
+  },
 ];

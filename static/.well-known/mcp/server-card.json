@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 241 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 243 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -8672,6 +8672,63 @@
         "required": [
           "lat",
           "lon"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "nutrition.fatsecret.search",
+      "description": "Search 2.3M+ food items by name — branded products, restaurant meals, generic foods from 190+ countries. Returns food ID, name, type, brand, and per-serving summary (calories, fat, carbs, protein). Use food_id for detailed nutritional lookup (FatSecret)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Food name to search (e.g. \"chicken breast\", \"banana\", \"greek yogurt\")",
+            "minLength": 1
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Page number for pagination (default 0)"
+          },
+          "max_results": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Results per page (default 20, max 50)"
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "nutrition.fatsecret.details",
+      "description": "Complete nutritional profile for a food item by FatSecret ID — all serving sizes with calories, total/saturated/trans fat, cholesterol, sodium, potassium, carbs, fiber, sugar, protein, vitamins A/C/D, calcium, iron. 2.3M+ foods (FatSecret)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "food_id": {
+            "type": "string",
+            "description": "FatSecret food ID from search results (e.g. \"33691\" for chicken breast)",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "food_id"
         ]
       },
       "annotations": {

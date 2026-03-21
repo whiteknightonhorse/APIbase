@@ -1,6 +1,6 @@
 # APIbase.pro — The API Hub for AI Agents
 
-> One MCP endpoint. 236 tools. 63 providers. Pay per call with x402 USDC on Base.
+> One MCP endpoint. 238 tools. 64 providers. Pay per call with x402 USDC on Base.
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Health](https://apibase.pro/health/ready)** | **[Dashboard](https://apibase.pro/dashboard)**
 
@@ -12,7 +12,7 @@
 
 ## What is APIbase?
 
-Production MCP server that gives AI agents access to 236 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, translate text, check weather alerts, generate images, send emails, look up holidays, shorten URLs, detect fires by satellite, decode VINs, look up food products — and 200+ more tools across 30+ categories.
+Production MCP server that gives AI agents access to 238 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, translate text, check weather alerts, generate images, send emails, look up holidays, shorten URLs, detect fires by satellite, decode VINs, look up food products — and 200+ more tools across 30+ categories.
 
 **Built for AI agents, not humans.** Auto-registration, zero setup, pay-per-call via x402 USDC micropayments on Base.
 
@@ -62,7 +62,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 
 ---
 
-## Tool Categories (236 tools, 63 providers)
+## Tool Categories (238 tools, 64 providers)
 
 | Category | Tools | Providers | Examples |
 |----------|-------|-----------|----------|
@@ -76,6 +76,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 | **Entertainment** | 24 | TMDB, Ticketmaster, RAWG, IGDB, Jikan | Movies, events, games, anime |
 | **Music** | 7 | MusicBrainz, ListenBrainz, RadioBrowser | Artists, albums, radio stations |
 | **Health & Nutrition** | 7 | USDA, OpenFDA, NIH | Food data, drug safety, supplements |
+| **Nutrition Database** | 2 | FatSecret | 2.3M+ foods, calories, macros, vitamins |
 | **Education & Research** | 7 | OpenAlex, arXiv, PubMed, CrossRef | Papers, colleges, DOI lookup |
 | **Jobs & Career** | 6 | BLS, ESCO, CareerJet | Salary data, occupations, job listings |
 | **Legal & Regulatory** | 8 | Regulations.gov, Federal Register, CourtListener | US regulations, court opinions, executive orders |
@@ -164,7 +165,7 @@ Auto-registration: agents get API keys instantly on first request. No forms, no 
 
 ```
 GET /.well-known/mcp.json → MCP server metadata
-GET /api/v1/tools → Full tool catalog with schemas (all 236 in one response)
+GET /api/v1/tools → Full tool catalog with schemas (all 238 in one response)
 GET /health/ready → System health check
 ```
 
