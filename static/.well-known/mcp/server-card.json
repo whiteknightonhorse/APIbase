@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 243 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 244 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -8729,6 +8729,59 @@
         },
         "required": [
           "food_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "business.hunter.company",
+      "description": "Find professional email addresses and company data for any domain — organization name, industry, employee count, tech stack, social profiles, email pattern, and verified contact emails with confidence scores, positions, departments, seniority levels. 50M+ domains indexed (Hunter.io)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "domain": {
+            "type": "string",
+            "description": "Company domain name (e.g. \"stripe.com\", \"google.com\", \"microsoft.com\")",
+            "minLength": 3
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Max number of emails to return (default 10, max 100)"
+          },
+          "department": {
+            "type": "string",
+            "enum": [
+              "executive",
+              "finance",
+              "hr",
+              "it",
+              "marketing",
+              "operations",
+              "sales",
+              "legal",
+              "management",
+              "communication"
+            ],
+            "description": "Filter by department (e.g. \"engineering\", \"sales\", \"marketing\")"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "personal",
+              "generic"
+            ],
+            "description": "Filter by email type: \"personal\" (name@domain) or \"generic\" (info@domain)"
+          }
+        },
+        "required": [
+          "domain"
         ]
       },
       "annotations": {

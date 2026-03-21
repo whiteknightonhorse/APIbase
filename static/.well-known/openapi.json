@@ -20473,6 +20473,107 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/hunter.company/call": {
+      "post": {
+        "operationId": "hunter_company",
+        "summary": "Company Email & Enrichment by Domain",
+        "description": "Find professional email addresses and company data for any domain — organization name, industry, employee count, tech stack, social profiles, email pattern, and verified contact emails with confidence scores, positions, departments, seniority levels. 50M+ domains indexed (Hunter.io)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hunter.company"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "domain": {
+                    "type": "string",
+                    "description": "Company domain name (e.g. \"stripe.com\", \"google.com\", \"microsoft.com\")",
+                    "minLength": 3
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Max number of emails to return (default 10, max 100)"
+                  },
+                  "department": {
+                    "type": "string",
+                    "enum": [
+                      "executive",
+                      "finance",
+                      "hr",
+                      "it",
+                      "marketing",
+                      "operations",
+                      "sales",
+                      "legal",
+                      "management",
+                      "communication"
+                    ],
+                    "description": "Filter by department (e.g. \"engineering\", \"sales\", \"marketing\")"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "personal",
+                      "generic"
+                    ],
+                    "description": "Filter by email type: \"personal\" (name@domain) or \"generic\" (info@domain)"
+                  }
+                },
+                "required": [
+                  "domain"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

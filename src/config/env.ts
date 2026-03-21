@@ -162,6 +162,9 @@ export const appEnvSchema = z.object({
   // IQAir AirVisual (UC-120) — query param auth, 10,000 calls/month free
   PROVIDER_KEY_IQAIR: z.string().optional().default(''),
 
+  // Hunter.io (UC-128) — query param auth, 50 credits/month free
+  PROVIDER_KEY_HUNTER: z.string().optional().default(''),
+
   // FatSecret (UC-126) — OAuth 2.0 client credentials, 5,000 calls/day free
   FATSECRET_CLIENT_ID: z.string().optional().default(''),
   FATSECRET_CLIENT_SECRET: z.string().optional().default(''),
