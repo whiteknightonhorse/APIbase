@@ -513,5 +513,41 @@
     "reset_period": "monthly",
     "docs_url": "https://developers.short.io/reference",
     "limit_proof": "Free plan: 1,000 branded links/month, custom domain included"
+  },
+  "nhtsa": {
+    "display_name": "NHTSA VIN Decoder",
+    "health_url": "https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvalues/1?format=json",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://vpic.nhtsa.dot.gov/api/",
+    "limit_proof": "US Government open data, no auth, no documented limits"
+  },
+  "restcountries": {
+    "display_name": "REST Countries",
+    "health_url": "https://restcountries.com/v3.1/alpha/US",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://restcountries.com/",
+    "limit_proof": "Fully free, no auth, open source (MPL 2.0)"
+  },
+  "openfoodfacts": {
+    "display_name": "Open Food Facts",
+    "health_url": "https://world.openfoodfacts.org/api/v2/product/3017620422003.json",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://openfoodfacts.github.io/openfoodfacts-server/api/",
+    "limit_proof": "Fully free, no auth, open data (ODbL), 3M+ products"
+  },
+  "randomuser": {
+    "display_name": "RandomUser.me",
+    "health_url": "https://randomuser.me/api/?results=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://randomuser.me/documentation",
+    "limit_proof": "Fully free, no auth, open source, unlimited"
   }
 }

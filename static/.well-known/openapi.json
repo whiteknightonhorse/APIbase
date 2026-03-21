@@ -12232,7 +12232,8 @@
                 "type": "object",
                 "properties": {
                   "id": {
-                    "type": "object"
+                    "type": "integer",
+                    "description": "RAWG game ID (numeric) or slug (e.g. \"grand-theft-auto-v\", 3498)"
                   }
                 },
                 "required": [
@@ -12301,7 +12302,8 @@
                 "type": "object",
                 "properties": {
                   "id": {
-                    "type": "object"
+                    "type": "integer",
+                    "description": "RAWG game ID or slug"
                   },
                   "page": {
                     "type": "integer",
@@ -12381,7 +12383,8 @@
                 "type": "object",
                 "properties": {
                   "id": {
-                    "type": "object"
+                    "type": "integer",
+                    "description": "RAWG game ID or slug"
                   }
                 },
                 "required": [
@@ -12450,7 +12453,8 @@
                 "type": "object",
                 "properties": {
                   "id": {
-                    "type": "object"
+                    "type": "integer",
+                    "description": "RAWG game ID or slug"
                   },
                   "page": {
                     "type": "integer",
@@ -15235,6 +15239,522 @@
         ]
       }
     },
+    "/api/v1/tools/vin.decode/call": {
+      "post": {
+        "operationId": "vin_decode",
+        "summary": "Decode VIN Number (NHTSA)",
+        "description": "Decode a 17-character VIN — make, model, year, body class, engine, fuel type, transmission, plant country. US Government open data, unlimited, no auth (NHTSA)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "vin.decode"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "vin": {
+                    "type": "string",
+                    "description": "17-character Vehicle Identification Number (e.g. \"1HGCM82633A004352\")",
+                    "minLength": 17,
+                    "maxLength": 17
+                  }
+                },
+                "required": [
+                  "vin"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/vin.models/call": {
+      "post": {
+        "operationId": "vin_models",
+        "summary": "Vehicle Models by Make/Year (NHTSA)",
+        "description": "List vehicle models for a make and/or year (e.g. Honda 2024). US Government data (NHTSA)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "vin.models"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "make": {
+                    "type": "string",
+                    "description": "Vehicle make (e.g. \"Honda\", \"Toyota\", \"Ford\")"
+                  },
+                  "year": {
+                    "type": "integer",
+                    "description": "Model year (e.g. 2024)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/country.search/call": {
+      "post": {
+        "operationId": "country_search",
+        "summary": "Search Country by Name",
+        "description": "Search country by name — population, area, capital, languages, currencies, timezones, flag, region, borders. 250+ countries. No auth, free (REST Countries)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "country.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Country name to search (e.g. \"United States\", \"Germany\", \"Japan\")",
+                    "minLength": 2
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/country.by_code/call": {
+      "post": {
+        "operationId": "country_by_code",
+        "summary": "Country by ISO Code",
+        "description": "Get country details by ISO code (US, GB, DE, JP). Returns name, population, area, capital, currencies, languages, flag (REST Countries)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "country.by_code"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "description": "ISO 3166-1 country code — alpha-2 (\"US\") or alpha-3 (\"USA\")",
+                    "minLength": 2,
+                    "maxLength": 3
+                  }
+                },
+                "required": [
+                  "code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/food.barcode/call": {
+      "post": {
+        "operationId": "food_barcode",
+        "summary": "Food Product by Barcode",
+        "description": "Lookup food product by barcode (EAN/UPC) — name, brand, nutrition (calories, fat, carbs, protein per 100g), Nutri-Score, NOVA group, ingredients. 3M+ products (Open Food Facts)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "food.barcode"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "barcode": {
+                    "type": "string",
+                    "description": "Product barcode (EAN-13, UPC-A, etc.) e.g. \"3017620422003\" for Nutella",
+                    "minLength": 8,
+                    "maxLength": 13
+                  }
+                },
+                "required": [
+                  "barcode"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/food.search/call": {
+      "post": {
+        "operationId": "food_search",
+        "summary": "Search Food Products",
+        "description": "Search food products by name — returns matching products with brand, barcode, Nutri-Score, image. 3M+ products worldwide (Open Food Facts)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "food.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Product name to search (e.g. \"nutella\", \"coca cola\", \"organic milk\")",
+                    "minLength": 2
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Results count (default 10, max 50)"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/random.user/call": {
+      "post": {
+        "operationId": "random_user",
+        "summary": "Generate Random User Profile",
+        "description": "Generate realistic random user profiles — name, email, phone, address, age, gender, photo. Filter by nationality and gender. For testing and demo data (RandomUser.me)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "random.user"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "count": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20,
+                    "description": "Number of random users to generate (default 1, max 20)"
+                  },
+                  "nationality": {
+                    "type": "string",
+                    "description": "Nationality filter — comma-separated ISO codes (e.g. \"us\", \"gb,fr,de\")"
+                  },
+                  "gender": {
+                    "type": "string",
+                    "enum": [
+                      "male",
+                      "female"
+                    ],
+                    "description": "Gender filter"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/ssl.check/call": {
       "post": {
         "operationId": "ssl_check",
@@ -16253,7 +16773,8 @@
                 "type": "object",
                 "properties": {
                   "text": {
-                    "type": "object"
+                    "type": "string",
+                    "description": "Text to translate — single string or array of strings for batch translation"
                   },
                   "target": {
                     "type": "string",
@@ -16343,7 +16864,8 @@
                 "type": "object",
                 "properties": {
                   "text": {
-                    "type": "object"
+                    "type": "string",
+                    "description": "Text to detect language of — single string or array"
                   }
                 },
                 "required": [
@@ -16755,7 +17277,8 @@
                 "type": "object",
                 "properties": {
                   "to": {
-                    "type": "object"
+                    "type": "string",
+                    "description": "Recipient email address(es) — single email or array of emails"
                   },
                   "subject": {
                     "type": "string",

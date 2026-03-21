@@ -1,27 +1,10 @@
 {
-  "serverInfo": {
-    "name": "APIbase",
-    "version": "1.0.0",
-    "title": "APIbase — The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 232 tools across URL shortener, currency conversion, holidays, weather alerts, fire detection, global events, timezone, screenshots, sports, translation, SMS, image gen, email, social media, legal, OCR, stocks, news, web search, travel, and more.",
-    "websiteUrl": "https://apibase.pro",
-    "icons": [
-      {
-        "src": "https://apibase.pro/icon.png",
-        "mimeType": "image/png",
-        "sizes": [
-          "256x256"
-        ]
-      }
-    ]
-  },
-  "authentication": {
-    "required": false
-  },
+  "name": "APIbase — The API Hub for AI Agents",
+  "description": "Production MCP server providing 239 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "version": "2.1.0",
   "tools": [
     {
       "name": "weather.conditions.current",
-      "title": "Get Current Weather",
       "description": "Get current weather conditions for a location",
       "inputSchema": {
         "type": "object",
@@ -41,8 +24,7 @@
         },
         "required": [
           "location"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -53,7 +35,6 @@
     },
     {
       "name": "weather.conditions.forecast",
-      "title": "Get Weather Forecast",
       "description": "Get weather forecast for a location",
       "inputSchema": {
         "type": "object",
@@ -82,8 +63,7 @@
         },
         "required": [
           "location"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -94,7 +74,6 @@
     },
     {
       "name": "weather.alerts.get",
-      "title": "Get Weather Alerts",
       "description": "Get active weather alerts for a location",
       "inputSchema": {
         "type": "object",
@@ -106,8 +85,7 @@
         },
         "required": [
           "location"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -118,7 +96,6 @@
     },
     {
       "name": "weather.conditions.history",
-      "title": "Get Historical Weather",
       "description": "Get historical weather data for a location and date",
       "inputSchema": {
         "type": "object",
@@ -143,8 +120,7 @@
         "required": [
           "location",
           "date"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -155,7 +131,6 @@
     },
     {
       "name": "weather.air.quality",
-      "title": "Get Air Quality",
       "description": "Get air quality index for a location",
       "inputSchema": {
         "type": "object",
@@ -171,8 +146,7 @@
         },
         "required": [
           "location"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -183,7 +157,6 @@
     },
     {
       "name": "weather.location.geocode",
-      "title": "Geocode Location",
       "description": "Geocode a location query to coordinates",
       "inputSchema": {
         "type": "object",
@@ -208,8 +181,7 @@
         },
         "required": [
           "query"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -220,7 +192,6 @@
     },
     {
       "name": "weather.conditions.compare",
-      "title": "Compare Weather",
       "description": "Compare weather across multiple locations",
       "inputSchema": {
         "type": "object",
@@ -231,9 +202,9 @@
               "type": "string",
               "description": "City name or coordinates"
             },
+            "description": "List of 2-5 locations to compare",
             "minItems": 2,
-            "maxItems": 5,
-            "description": "List of 2-5 locations to compare"
+            "maxItems": 5
           },
           "units": {
             "type": "string",
@@ -246,8 +217,7 @@
         },
         "required": [
           "locations"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -258,7 +228,6 @@
     },
     {
       "name": "crypto.price.current",
-      "title": "Get Crypto Prices",
       "description": "Get current prices for cryptocurrencies",
       "inputSchema": {
         "type": "object",
@@ -269,8 +238,8 @@
               "type": "string",
               "description": "CoinGecko coin ID (e.g. bitcoin, ethereum)"
             },
-            "maxItems": 50,
-            "description": "List of coin IDs to get prices for"
+            "description": "List of coin IDs to get prices for",
+            "maxItems": 50
           },
           "vs_currencies": {
             "type": "array",
@@ -295,8 +264,7 @@
         },
         "required": [
           "coins"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -307,7 +275,6 @@
     },
     {
       "name": "crypto.market.overview",
-      "title": "Get Crypto Market Data",
       "description": "Get cryptocurrency market data by category",
       "inputSchema": {
         "type": "object",
@@ -348,8 +315,7 @@
             "type": "boolean",
             "description": "Include 7-day sparkline price data"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -360,7 +326,6 @@
     },
     {
       "name": "crypto.coin.detail",
-      "title": "Get Coin Details",
       "description": "Get detailed information about a cryptocurrency",
       "inputSchema": {
         "type": "object",
@@ -384,8 +349,7 @@
         },
         "required": [
           "coin_id"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -396,7 +360,6 @@
     },
     {
       "name": "crypto.price.history",
-      "title": "Get Crypto Price History",
       "description": "Get price history for a cryptocurrency",
       "inputSchema": {
         "type": "object",
@@ -430,8 +393,7 @@
         },
         "required": [
           "coin_id"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -442,7 +404,6 @@
     },
     {
       "name": "crypto.trending.get",
-      "title": "Get Trending Coins",
       "description": "Get trending cryptocurrencies",
       "inputSchema": {
         "type": "object",
@@ -455,8 +416,7 @@
             "type": "boolean",
             "description": "Include trending categories"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -467,7 +427,6 @@
     },
     {
       "name": "crypto.global.stats",
-      "title": "Get Global Crypto Stats",
       "description": "Get global cryptocurrency market statistics",
       "inputSchema": {
         "type": "object",
@@ -476,8 +435,7 @@
             "type": "boolean",
             "description": "Include DeFi-specific global stats"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -488,7 +446,6 @@
     },
     {
       "name": "crypto.dex.pools",
-      "title": "Get DEX Pools",
       "description": "Get DEX liquidity pool data",
       "inputSchema": {
         "type": "object",
@@ -526,8 +483,7 @@
             "maximum": 50,
             "description": "Max number of results (1-50)"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -538,7 +494,6 @@
     },
     {
       "name": "crypto.token.lookup",
-      "title": "Get Token by Address",
       "description": "Get token info by contract address",
       "inputSchema": {
         "type": "object",
@@ -564,8 +519,7 @@
         },
         "required": [
           "contract_address"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -576,7 +530,6 @@
     },
     {
       "name": "crypto.coin.search",
-      "title": "Search Cryptocurrencies",
       "description": "Search for cryptocurrencies by name or symbol",
       "inputSchema": {
         "type": "object",
@@ -588,8 +541,7 @@
         },
         "required": [
           "query"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -600,7 +552,6 @@
     },
     {
       "name": "polymarket.market.search",
-      "title": "Search Prediction Markets",
       "description": "Search prediction markets on Polymarket",
       "inputSchema": {
         "type": "object",
@@ -652,8 +603,7 @@
         },
         "required": [
           "query"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -664,7 +614,6 @@
     },
     {
       "name": "polymarket.market.detail",
-      "title": "Get Market Details",
       "description": "Get detailed info about a prediction market",
       "inputSchema": {
         "type": "object",
@@ -684,8 +633,7 @@
         },
         "required": [
           "market_id"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -696,7 +644,6 @@
     },
     {
       "name": "polymarket.market.prices",
-      "title": "Get Market Price",
       "description": "Get midpoint price for a prediction market token",
       "inputSchema": {
         "type": "object",
@@ -708,8 +655,7 @@
         },
         "required": [
           "token_id"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -720,7 +666,6 @@
     },
     {
       "name": "polymarket.market.history",
-      "title": "Get Market Price History",
       "description": "Get price history for a prediction market",
       "inputSchema": {
         "type": "object",
@@ -747,8 +692,7 @@
         },
         "required": [
           "market_id"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -759,7 +703,6 @@
     },
     {
       "name": "polymarket.market.orderbook",
-      "title": "Get Order Book",
       "description": "Get order book for a prediction market",
       "inputSchema": {
         "type": "object",
@@ -776,8 +719,7 @@
         },
         "required": [
           "market_id"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -788,7 +730,6 @@
     },
     {
       "name": "polymarket.market.trending",
-      "title": "Get Trending Markets",
       "description": "Get trending prediction markets",
       "inputSchema": {
         "type": "object",
@@ -821,8 +762,7 @@
             "maximum": 50,
             "description": "Max number of results (1-50)"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -833,7 +773,6 @@
     },
     {
       "name": "polymarket.trading.place_order",
-      "title": "Place Order",
       "description": "Place a limit order on Polymarket",
       "inputSchema": {
         "type": "object",
@@ -844,9 +783,9 @@
           },
           "price": {
             "type": "number",
+            "description": "Limit price between 0.01 and 0.99",
             "minimum": 0.01,
-            "maximum": 0.99,
-            "description": "Limit price between 0.01 and 0.99"
+            "maximum": 0.99
           },
           "side": {
             "type": "string",
@@ -858,8 +797,8 @@
           },
           "size": {
             "type": "number",
-            "minimum": 1,
-            "description": "Order size in USDC units"
+            "description": "Order size in USDC units",
+            "minimum": 1
           },
           "order_type": {
             "type": "string",
@@ -884,8 +823,7 @@
           "price",
           "side",
           "size"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": false,
@@ -896,7 +834,6 @@
     },
     {
       "name": "polymarket.trading.cancel_order",
-      "title": "Cancel Order",
       "description": "Cancel an open order on Polymarket",
       "inputSchema": {
         "type": "object",
@@ -908,8 +845,7 @@
         },
         "required": [
           "order_id"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": false,
@@ -920,7 +856,6 @@
     },
     {
       "name": "polymarket.trading.open_orders",
-      "title": "Get Open Orders",
       "description": "Get open orders on Polymarket",
       "inputSchema": {
         "type": "object",
@@ -929,8 +864,7 @@
             "type": "string",
             "description": "Filter orders by market condition ID"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -941,7 +875,6 @@
     },
     {
       "name": "polymarket.trading.history",
-      "title": "Get Trade History",
       "description": "Get trade history on Polymarket",
       "inputSchema": {
         "type": "object",
@@ -955,8 +888,7 @@
             "maximum": 100,
             "description": "Max number of results (1-100)"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -967,7 +899,6 @@
     },
     {
       "name": "polymarket.account.balance",
-      "title": "Get Balance",
       "description": "Get balance/allowance on Polymarket",
       "inputSchema": {
         "type": "object",
@@ -980,8 +911,7 @@
             ],
             "description": "Asset type: COLLATERAL (USDC) or CONDITIONAL (outcome tokens)"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -992,22 +922,21 @@
     },
     {
       "name": "sabre.flights.search",
-      "title": "Search Flights (Sabre)",
       "description": "Search for real-time flight offers with prices between airports (Sabre GDS)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "origin": {
             "type": "string",
+            "description": "Origin airport IATA code (e.g. JFK, LAX)",
             "minLength": 3,
-            "maxLength": 3,
-            "description": "Origin airport IATA code (e.g. JFK, LAX)"
+            "maxLength": 3
           },
           "destination": {
             "type": "string",
+            "description": "Destination airport IATA code (e.g. CDG, LHR)",
             "minLength": 3,
-            "maxLength": 3,
-            "description": "Destination airport IATA code (e.g. CDG, LHR)"
+            "maxLength": 3
           },
           "departure_date": {
             "type": "string",
@@ -1021,8 +950,8 @@
             "type": "string",
             "minLength": 2,
             "maxLength": 2,
-            "default": "US",
-            "description": "2-letter country code for pricing (e.g. US, GB)"
+            "description": "2-letter country code for pricing (e.g. US, GB)",
+            "default": "US"
           },
           "limit": {
             "type": "integer",
@@ -1035,8 +964,7 @@
           "origin",
           "destination",
           "departure_date"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -1047,16 +975,15 @@
     },
     {
       "name": "sabre.flights.destinations",
-      "title": "Find Cheap Destinations",
       "description": "Find cheapest flight destinations from an origin airport",
       "inputSchema": {
         "type": "object",
         "properties": {
           "origin": {
             "type": "string",
+            "description": "Origin airport IATA code (e.g. JFK, LAX)",
             "minLength": 3,
-            "maxLength": 3,
-            "description": "Origin airport IATA code (e.g. JFK, LAX)"
+            "maxLength": 3
           },
           "departure_date": {
             "type": "string",
@@ -1070,12 +997,11 @@
             "type": "string",
             "minLength": 2,
             "maxLength": 2,
-            "default": "US",
-            "description": "2-letter country code for pricing (e.g. US, GB)"
+            "description": "2-letter country code for pricing (e.g. US, GB)",
+            "default": "US"
           },
           "max_fare": {
             "type": "number",
-            "exclusiveMinimum": true,
             "minimum": 0,
             "description": "Maximum fare in USD to filter results"
           }
@@ -1084,8 +1010,7 @@
           "origin",
           "departure_date",
           "return_date"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -1096,22 +1021,20 @@
     },
     {
       "name": "sabre.reference.airline",
-      "title": "Airline Lookup (Sabre)",
       "description": "Look up airline details by IATA or ICAO code",
       "inputSchema": {
         "type": "object",
         "properties": {
           "airline_code": {
             "type": "string",
+            "description": "Airline IATA (2-char) or ICAO (3-char) code",
             "minLength": 2,
-            "maxLength": 3,
-            "description": "Airline IATA (2-char) or ICAO (3-char) code"
+            "maxLength": 3
           }
         },
         "required": [
           "airline_code"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -1122,7 +1045,6 @@
     },
     {
       "name": "sabre.reference.themes",
-      "title": "Get Travel Themes",
       "description": "Get travel theme categories (beach, skiing, romantic, etc.)",
       "inputSchema": {
         "type": "object",
@@ -1131,8 +1053,7 @@
             "type": "string",
             "description": "Response locale (e.g. en-US, de-DE)"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -1143,22 +1064,21 @@
     },
     {
       "name": "amadeus.flights.search",
-      "title": "Search Flights (Amadeus)",
       "description": "Search for real-time flight offers between airports with prices, airlines, stops, and duration (Amadeus)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "origin": {
             "type": "string",
+            "description": "Origin airport IATA code (e.g. JFK, LAX)",
             "minLength": 3,
-            "maxLength": 3,
-            "description": "Origin airport IATA code (e.g. JFK, LAX)"
+            "maxLength": 3
           },
           "destination": {
             "type": "string",
+            "description": "Destination airport IATA code (e.g. CDG, LHR)",
             "minLength": 3,
-            "maxLength": 3,
-            "description": "Destination airport IATA code (e.g. CDG, LHR)"
+            "maxLength": 3
           },
           "departure_date": {
             "type": "string",
@@ -1172,8 +1092,8 @@
             "type": "integer",
             "minimum": 1,
             "maximum": 9,
-            "default": 1,
-            "description": "Number of adult passengers (1-9)"
+            "description": "Number of adult passengers (1-9)",
+            "default": 1
           },
           "travel_class": {
             "type": "string",
@@ -1183,35 +1103,34 @@
               "BUSINESS",
               "FIRST"
             ],
-            "default": "ECONOMY",
-            "description": "Cabin class: ECONOMY, PREMIUM_ECONOMY, BUSINESS, or FIRST (default ECONOMY)"
+            "description": "Cabin class: ECONOMY, PREMIUM_ECONOMY, BUSINESS, or FIRST (default ECONOMY)",
+            "default": "ECONOMY"
           },
           "nonstop": {
             "type": "boolean",
-            "default": false,
-            "description": "Only return non-stop flights"
+            "description": "Only return non-stop flights",
+            "default": false
           },
           "max_results": {
             "type": "integer",
             "minimum": 1,
             "maximum": 50,
-            "default": 10,
-            "description": "Max number of flight offers (1-50)"
+            "description": "Max number of flight offers (1-50)",
+            "default": 10
           },
           "currency": {
             "type": "string",
             "minLength": 3,
             "maxLength": 3,
-            "default": "USD",
-            "description": "Price currency ISO code (e.g. USD, EUR)"
+            "description": "Price currency ISO code (e.g. USD, EUR)",
+            "default": "USD"
           }
         },
         "required": [
           "origin",
           "destination",
           "departure_date"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -1222,7 +1141,6 @@
     },
     {
       "name": "amadeus.flights.price",
-      "title": "Confirm Flight Price",
       "description": "Confirm and get final pricing for a flight offer from Amadeus flight search",
       "inputSchema": {
         "type": "object",
@@ -1235,8 +1153,7 @@
         },
         "required": [
           "flight_offer"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -1247,22 +1164,21 @@
     },
     {
       "name": "amadeus.flights.status",
-      "title": "Get Flight Status",
       "description": "Get real-time status of a specific flight — delays, cancellations, gate info (Amadeus)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "carrier_code": {
             "type": "string",
+            "description": "Airline IATA or ICAO code (e.g. AA, UAL)",
             "minLength": 2,
-            "maxLength": 3,
-            "description": "Airline IATA or ICAO code (e.g. AA, UAL)"
+            "maxLength": 3
           },
           "flight_number": {
             "type": "string",
+            "description": "Flight number (e.g. 100, 1234)",
             "minLength": 1,
-            "maxLength": 5,
-            "description": "Flight number (e.g. 100, 1234)"
+            "maxLength": 5
           },
           "date": {
             "type": "string",
@@ -1273,8 +1189,7 @@
           "carrier_code",
           "flight_number",
           "date"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -1285,16 +1200,15 @@
     },
     {
       "name": "amadeus.airports.search",
-      "title": "Search Airports",
       "description": "Search airports and cities by keyword or IATA code with autocomplete (Amadeus)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "keyword": {
             "type": "string",
+            "description": "Airport or city name to search (e.g. London, JFK)",
             "minLength": 1,
-            "maxLength": 100,
-            "description": "Airport or city name to search (e.g. London, JFK)"
+            "maxLength": 100
           },
           "subType": {
             "type": "string",
@@ -1307,8 +1221,7 @@
         },
         "required": [
           "keyword"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -1319,36 +1232,34 @@
     },
     {
       "name": "amadeus.airports.nearest",
-      "title": "Find Nearest Airports",
       "description": "Find nearest airports by geographic coordinates (Amadeus)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "latitude": {
             "type": "number",
+            "description": "Latitude in decimal degrees (-90 to 90)",
             "minimum": -90,
-            "maximum": 90,
-            "description": "Latitude in decimal degrees (-90 to 90)"
+            "maximum": 90
           },
           "longitude": {
             "type": "number",
+            "description": "Longitude in decimal degrees (-180 to 180)",
             "minimum": -180,
-            "maximum": 180,
-            "description": "Longitude in decimal degrees (-180 to 180)"
+            "maximum": 180
           },
           "radius": {
             "type": "integer",
             "minimum": 1,
             "maximum": 500,
-            "default": 500,
-            "description": "Search radius in km (1-500)"
+            "description": "Search radius in km (1-500)",
+            "default": 500
           }
         },
         "required": [
           "latitude",
           "longitude"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -1359,22 +1270,20 @@
     },
     {
       "name": "amadeus.airports.routes",
-      "title": "Get Airport Routes",
       "description": "Get all direct flight destinations from an airport (Amadeus)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "airport_code": {
             "type": "string",
+            "description": "Airport IATA code (e.g. JFK, LAX)",
             "minLength": 3,
-            "maxLength": 3,
-            "description": "Airport IATA code (e.g. JFK, LAX)"
+            "maxLength": 3
           }
         },
         "required": [
           "airport_code"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -1385,22 +1294,20 @@
     },
     {
       "name": "amadeus.reference.airline",
-      "title": "Airline Lookup (Amadeus)",
       "description": "Look up airline details by IATA or ICAO code (Amadeus)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "airline_code": {
             "type": "string",
+            "description": "Airline IATA (2-char) or ICAO (3-char) code",
             "minLength": 2,
-            "maxLength": 3,
-            "description": "Airline IATA (2-char) or ICAO (3-char) code"
+            "maxLength": 3
           }
         },
         "required": [
           "airline_code"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -1411,16 +1318,15 @@
     },
     {
       "name": "aviasales.flights.search",
-      "title": "Search Flights (Aviasales)",
       "description": "Search for flights between airports",
       "inputSchema": {
         "type": "object",
         "properties": {
           "origin": {
             "type": "string",
+            "description": "Departure city or airport IATA code (e.g. MOW, JFK, BKK)",
             "minLength": 2,
-            "maxLength": 4,
-            "description": "Departure city or airport IATA code (e.g. MOW, JFK, BKK)"
+            "maxLength": 4
           },
           "destination": {
             "type": "string",
@@ -1451,8 +1357,7 @@
         },
         "required": [
           "origin"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -1463,22 +1368,21 @@
     },
     {
       "name": "aviasales.flights.calendar",
-      "title": "Flight Price Calendar",
       "description": "Get flight price calendar for a route",
       "inputSchema": {
         "type": "object",
         "properties": {
           "origin": {
             "type": "string",
+            "description": "Departure city or airport IATA code (e.g. MOW, JFK)",
             "minLength": 2,
-            "maxLength": 4,
-            "description": "Departure city or airport IATA code (e.g. MOW, JFK)"
+            "maxLength": 4
           },
           "destination": {
             "type": "string",
+            "description": "Arrival IATA code (e.g. BKK, LON)",
             "minLength": 2,
-            "maxLength": 4,
-            "description": "Arrival IATA code (e.g. BKK, LON)"
+            "maxLength": 4
           },
           "month": {
             "type": "string",
@@ -1494,8 +1398,7 @@
         "required": [
           "origin",
           "destination"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -1506,16 +1409,15 @@
     },
     {
       "name": "aviasales.flights.cheap",
-      "title": "Find Cheap Flights",
       "description": "Find cheapest flights from an origin",
       "inputSchema": {
         "type": "object",
         "properties": {
           "origin": {
             "type": "string",
+            "description": "Departure city or airport IATA code (e.g. MOW, BER)",
             "minLength": 2,
-            "maxLength": 4,
-            "description": "Departure city or airport IATA code (e.g. MOW, BER)"
+            "maxLength": 4
           },
           "destination": {
             "type": "string",
@@ -1540,8 +1442,7 @@
         },
         "required": [
           "origin"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -1552,16 +1453,15 @@
     },
     {
       "name": "aviasales.flights.popular",
-      "title": "Popular Flight Routes",
       "description": "Get popular flight routes from an origin",
       "inputSchema": {
         "type": "object",
         "properties": {
           "origin": {
             "type": "string",
+            "description": "Departure city IATA code (e.g. MOW, NYC, LON)",
             "minLength": 2,
-            "maxLength": 4,
-            "description": "Departure city IATA code (e.g. MOW, NYC, LON)"
+            "maxLength": 4
           },
           "currency": {
             "type": "string",
@@ -1572,8 +1472,7 @@
         },
         "required": [
           "origin"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -1584,22 +1483,21 @@
     },
     {
       "name": "aviasales.flights.nearby",
-      "title": "Nearby Destinations",
       "description": "Find nearby flight destinations",
       "inputSchema": {
         "type": "object",
         "properties": {
           "origin": {
             "type": "string",
+            "description": "Departure city IATA code (e.g. MOW)",
             "minLength": 2,
-            "maxLength": 4,
-            "description": "Departure city IATA code (e.g. MOW)"
+            "maxLength": 4
           },
           "destination": {
             "type": "string",
+            "description": "Target destination IATA code — also searches nearby airports",
             "minLength": 2,
-            "maxLength": 4,
-            "description": "Target destination IATA code — also searches nearby airports"
+            "maxLength": 4
           },
           "depart_date": {
             "type": "string",
@@ -1625,8 +1523,7 @@
         "required": [
           "origin",
           "destination"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -1637,21 +1534,19 @@
     },
     {
       "name": "aviasales.reference.airport",
-      "title": "Airport Lookup",
       "description": "Look up airport by name or code",
       "inputSchema": {
         "type": "object",
         "properties": {
           "query": {
             "type": "string",
-            "minLength": 1,
-            "description": "Airport name, city name, or IATA code to search for (e.g. Bangkok, JFK, Heathrow)"
+            "description": "Airport name, city name, or IATA code to search for (e.g. Bangkok, JFK, Heathrow)",
+            "minLength": 1
           }
         },
         "required": [
           "query"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -1662,7 +1557,6 @@
     },
     {
       "name": "hyperliquid.markets.data",
-      "title": "Hyperliquid Market Data",
       "description": "Get market metadata and mid prices for all perpetual pairs on Hyperliquid",
       "inputSchema": {
         "type": "object",
@@ -1671,8 +1565,7 @@
             "type": "string",
             "description": "Specific coin symbol (e.g. BTC, ETH). Omit for all markets."
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -1683,7 +1576,6 @@
     },
     {
       "name": "hyperliquid.markets.orderbook",
-      "title": "Hyperliquid Order Book",
       "description": "Get L2 order book depth for a perpetual pair on Hyperliquid",
       "inputSchema": {
         "type": "object",
@@ -1705,8 +1597,7 @@
         },
         "required": [
           "coin"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -1717,7 +1608,6 @@
     },
     {
       "name": "hyperliquid.markets.klines",
-      "title": "Hyperliquid Klines",
       "description": "Get candlestick (OHLCV) data for a perpetual pair on Hyperliquid",
       "inputSchema": {
         "type": "object",
@@ -1758,8 +1648,7 @@
         },
         "required": [
           "coin"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -1770,7 +1659,6 @@
     },
     {
       "name": "hyperliquid.account.positions",
-      "title": "Hyperliquid Positions",
       "description": "Get open positions for a user wallet on Hyperliquid",
       "inputSchema": {
         "type": "object",
@@ -1782,8 +1670,7 @@
         },
         "required": [
           "user"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -1794,7 +1681,6 @@
     },
     {
       "name": "hyperliquid.account.summary",
-      "title": "Hyperliquid Account",
       "description": "Get account summary and margin details for a user wallet on Hyperliquid",
       "inputSchema": {
         "type": "object",
@@ -1806,8 +1692,7 @@
         },
         "required": [
           "user"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -1818,7 +1703,6 @@
     },
     {
       "name": "hyperliquid.vaults.details",
-      "title": "Hyperliquid Vault",
       "description": "Get vault details including performance and TVL on Hyperliquid",
       "inputSchema": {
         "type": "object",
@@ -1830,8 +1714,7 @@
         },
         "required": [
           "vault_address"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -1842,7 +1725,6 @@
     },
     {
       "name": "foursquare.places.search",
-      "title": "Search Places",
       "description": "Search for places (restaurants, hotels, cafes, attractions) worldwide by name, category, or location (Foursquare)",
       "inputSchema": {
         "type": "object",
@@ -1889,8 +1771,7 @@
             "type": "boolean",
             "description": "Filter to only places open now"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -1901,7 +1782,6 @@
     },
     {
       "name": "foursquare.places.details",
-      "title": "Get Place Details",
       "description": "Get detailed information about a place — hours, rating, price, contact, categories (Foursquare)",
       "inputSchema": {
         "type": "object",
@@ -1913,8 +1793,7 @@
         },
         "required": [
           "fsq_id"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -1925,7 +1804,6 @@
     },
     {
       "name": "foursquare.places.tips",
-      "title": "Get Place Tips",
       "description": "Get user tips and reviews for a place (Foursquare)",
       "inputSchema": {
         "type": "object",
@@ -1952,8 +1830,7 @@
         },
         "required": [
           "fsq_id"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -1964,7 +1841,6 @@
     },
     {
       "name": "foursquare.places.photos",
-      "title": "Get Place Photos",
       "description": "Get photos for a place with size and classification options (Foursquare)",
       "inputSchema": {
         "type": "object",
@@ -1994,8 +1870,7 @@
         },
         "required": [
           "fsq_id"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -2006,7 +1881,6 @@
     },
     {
       "name": "foursquare.places.autocomplete",
-      "title": "Autocomplete Places",
       "description": "Get autocomplete suggestions for places, addresses, and searches (Foursquare)",
       "inputSchema": {
         "type": "object",
@@ -2038,8 +1912,7 @@
         },
         "required": [
           "query"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -2050,7 +1923,6 @@
     },
     {
       "name": "ticketmaster.events.search",
-      "title": "Search Events",
       "description": "Search for events (concerts, sports, theatre, festivals) by keyword, city, date, or category across 26+ countries (Ticketmaster)",
       "inputSchema": {
         "type": "object",
@@ -2104,8 +1976,7 @@
             "type": "string",
             "description": "Locale for response (e.g. \"en-us\", \"fr-fr\")"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -2116,7 +1987,6 @@
     },
     {
       "name": "ticketmaster.events.details",
-      "title": "Get Event Details",
       "description": "Get full details for an event — dates, venues, prices, images, classifications, seat map (Ticketmaster)",
       "inputSchema": {
         "type": "object",
@@ -2132,8 +2002,7 @@
         },
         "required": [
           "id"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -2144,7 +2013,6 @@
     },
     {
       "name": "ticketmaster.events.nearby",
-      "title": "Find Nearby Events",
       "description": "Find events near geographic coordinates with radius filter (Ticketmaster)",
       "inputSchema": {
         "type": "object",
@@ -2205,8 +2073,7 @@
         },
         "required": [
           "latlong"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -2217,7 +2084,6 @@
     },
     {
       "name": "ticketmaster.events.by_artist",
-      "title": "Get Artist Events",
       "description": "Find events by artist or performer name with optional country and date filters (Ticketmaster)",
       "inputSchema": {
         "type": "object",
@@ -2263,8 +2129,7 @@
             "type": "string",
             "description": "Locale for response (e.g. \"en-us\")"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -2275,7 +2140,6 @@
     },
     {
       "name": "ticketmaster.events.by_venue",
-      "title": "Get Venue Events",
       "description": "Get upcoming events at a specific venue by venue ID (Ticketmaster)",
       "inputSchema": {
         "type": "object",
@@ -2318,8 +2182,7 @@
         },
         "required": [
           "venueId"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -2330,7 +2193,6 @@
     },
     {
       "name": "ticketmaster.events.trending",
-      "title": "Get Trending Events",
       "description": "Get trending and popular events sorted by relevance (Ticketmaster)",
       "inputSchema": {
         "type": "object",
@@ -2360,8 +2222,7 @@
             "type": "string",
             "description": "Locale for response (e.g. \"en-us\")"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -2372,7 +2233,6 @@
     },
     {
       "name": "ticketmaster.events.categories",
-      "title": "Get Event Categories",
       "description": "Get all event classification categories — segments, genres, sub-genres (Ticketmaster)",
       "inputSchema": {
         "type": "object",
@@ -2392,8 +2252,7 @@
             "type": "string",
             "description": "Locale for response (e.g. \"en-us\")"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -2404,7 +2263,6 @@
     },
     {
       "name": "tmdb.movies.search",
-      "title": "Search Movies & TV",
       "description": "Search for movies, TV shows, and people by name across 1M+ titles in 39 languages (TMDB)",
       "inputSchema": {
         "type": "object",
@@ -2430,8 +2288,7 @@
         },
         "required": [
           "query"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -2442,7 +2299,6 @@
     },
     {
       "name": "tmdb.movies.details",
-      "title": "Get Movie Details",
       "description": "Get full movie details — cast, crew, trailers, ratings, streaming providers, runtime, budget, revenue (TMDB)",
       "inputSchema": {
         "type": "object",
@@ -2458,8 +2314,7 @@
         },
         "required": [
           "id"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -2470,7 +2325,6 @@
     },
     {
       "name": "tmdb.movies.discover",
-      "title": "Discover Movies & TV",
       "description": "Discover movies or TV shows by genre, year, rating, language, and sort order (TMDB)",
       "inputSchema": {
         "type": "object",
@@ -2537,8 +2391,7 @@
             "type": "boolean",
             "description": "Include adult content (default false)"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -2549,7 +2402,6 @@
     },
     {
       "name": "tmdb.movies.trending",
-      "title": "Get Trending Movies & TV",
       "description": "Get trending movies, TV shows, or people — daily or weekly (TMDB)",
       "inputSchema": {
         "type": "object",
@@ -2582,8 +2434,7 @@
             "maximum": 500,
             "description": "Page number (1-500, default 1)"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -2594,7 +2445,6 @@
     },
     {
       "name": "tmdb.movies.similar",
-      "title": "Get Similar Movies",
       "description": "Get movie recommendations based on a movie ID — similar genres, themes, cast (TMDB)",
       "inputSchema": {
         "type": "object",
@@ -2616,8 +2466,7 @@
         },
         "required": [
           "id"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -2628,7 +2477,6 @@
     },
     {
       "name": "tmdb.movies.person",
-      "title": "Search Person / Filmography",
       "description": "Search for actors, directors, or crew by name, or get full filmography by person ID (TMDB)",
       "inputSchema": {
         "type": "object",
@@ -2655,8 +2503,7 @@
             "type": "boolean",
             "description": "Include adult content (default false)"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -2667,7 +2514,6 @@
     },
     {
       "name": "tmdb.movies.where_to_watch",
-      "title": "Where to Watch",
       "description": "Find streaming, rental, and purchase options for a movie or TV show by country (TMDB)",
       "inputSchema": {
         "type": "object",
@@ -2687,8 +2533,7 @@
         },
         "required": [
           "id"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -2699,7 +2544,6 @@
     },
     {
       "name": "health.nutrition.food_search",
-      "title": "Search Foods (USDA)",
       "description": "Search 350K+ foods in the USDA FoodData Central database — nutrition facts, ingredients, branded products, and reference foods",
       "inputSchema": {
         "type": "object",
@@ -2736,8 +2580,7 @@
         },
         "required": [
           "query"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -2748,7 +2591,6 @@
     },
     {
       "name": "health.nutrition.food_details",
-      "title": "Get Food Nutrition Details",
       "description": "Get detailed nutrition data for a food item — up to 150 nutrients, portions, serving sizes, ingredients (USDA)",
       "inputSchema": {
         "type": "object",
@@ -2760,8 +2602,7 @@
         },
         "required": [
           "fdc_id"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -2772,7 +2613,6 @@
     },
     {
       "name": "health.safety.drug_events",
-      "title": "Search Drug Adverse Events",
       "description": "Search FDA FAERS database for drug adverse event reports — side effects, reactions, patient demographics (OpenFDA)",
       "inputSchema": {
         "type": "object",
@@ -2795,8 +2635,7 @@
         },
         "required": [
           "search"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -2807,7 +2646,6 @@
     },
     {
       "name": "health.safety.food_recalls",
-      "title": "Search Food Recalls",
       "description": "Search FDA food enforcement and recall reports — contamination, mislabeling, safety alerts (OpenFDA)",
       "inputSchema": {
         "type": "object",
@@ -2836,8 +2674,7 @@
             ],
             "description": "Filter by recall status"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -2848,7 +2685,6 @@
     },
     {
       "name": "health.safety.drug_labels",
-      "title": "Search Drug Labels",
       "description": "Search drug labeling data — indications, dosage, warnings, interactions, contraindications (OpenFDA)",
       "inputSchema": {
         "type": "object",
@@ -2871,8 +2707,7 @@
         },
         "required": [
           "search"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -2883,7 +2718,6 @@
     },
     {
       "name": "health.supplements.search",
-      "title": "Search Dietary Supplements",
       "description": "Search 200K+ dietary supplement labels in the NIH DSLD database — vitamins, minerals, herbal products",
       "inputSchema": {
         "type": "object",
@@ -2906,8 +2740,7 @@
         },
         "required": [
           "query"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -2918,7 +2751,6 @@
     },
     {
       "name": "health.supplements.details",
-      "title": "Get Supplement Label Details",
       "description": "Get full supplement label data — ingredients, amounts per serving, daily values, target groups (NIH DSLD)",
       "inputSchema": {
         "type": "object",
@@ -2930,8 +2762,7 @@
         },
         "required": [
           "dsld_id"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -2942,20 +2773,18 @@
     },
     {
       "name": "finance.currency.rates",
-      "title": "Get Exchange Rates",
       "description": "Get currency exchange rates for 200+ fiat and crypto currencies with optional historical dates (fawazahmed0 CDN)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "base": {
             "type": "string",
+            "description": "Base currency code (e.g. \"usd\", \"eur\", \"btc\"). Lowercase. 200+ currencies supported.",
             "minLength": 2,
-            "maxLength": 10,
-            "description": "Base currency code (e.g. \"usd\", \"eur\", \"btc\"). Lowercase. 200+ currencies supported."
+            "maxLength": 10
           },
           "date": {
             "type": "string",
-            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
             "description": "Historical date in YYYY-MM-DD format. Omit for latest rates."
           },
           "currencies": {
@@ -2970,8 +2799,7 @@
         },
         "required": [
           "base"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -2982,20 +2810,18 @@
     },
     {
       "name": "finance.currency.ecb",
-      "title": "Get ECB Exchange Rates",
       "description": "Get official European Central Bank reference exchange rates for ~33 fiat currencies (Frankfurter/ECB)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "base": {
             "type": "string",
+            "description": "Base currency code, uppercase (e.g. \"USD\", \"EUR\"). ~33 ECB currencies.",
             "minLength": 3,
-            "maxLength": 3,
-            "description": "Base currency code, uppercase (e.g. \"USD\", \"EUR\"). ~33 ECB currencies."
+            "maxLength": 3
           },
           "date": {
             "type": "string",
-            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
             "description": "Historical date in YYYY-MM-DD format. Omit for latest ECB rates."
           },
           "currencies": {
@@ -3010,8 +2836,7 @@
         },
         "required": [
           "base"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -3022,25 +2847,22 @@
     },
     {
       "name": "finance.macro.indicator",
-      "title": "Get Economic Indicator",
       "description": "Get US economic data from 816K+ FRED series — GDP, CPI, unemployment, interest rates, money supply (Federal Reserve)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "series_id": {
             "type": "string",
+            "description": "FRED series ID (e.g. \"GDP\", \"CPIAUCSL\", \"UNRATE\", \"DFF\", \"T10Y2Y\"). Browse at fred.stlouisfed.org.",
             "minLength": 1,
-            "maxLength": 50,
-            "description": "FRED series ID (e.g. \"GDP\", \"CPIAUCSL\", \"UNRATE\", \"DFF\", \"T10Y2Y\"). Browse at fred.stlouisfed.org."
+            "maxLength": 50
           },
           "observation_start": {
             "type": "string",
-            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
             "description": "Start date for observations in YYYY-MM-DD format."
           },
           "observation_end": {
             "type": "string",
-            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
             "description": "End date for observations in YYYY-MM-DD format."
           },
           "limit": {
@@ -3060,8 +2882,7 @@
         },
         "required": [
           "series_id"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -3072,22 +2893,21 @@
     },
     {
       "name": "finance.macro.country",
-      "title": "Get Country Economic Data",
       "description": "Get global development indicators from World Bank — GDP, population, inflation, trade, poverty for 200+ countries",
       "inputSchema": {
         "type": "object",
         "properties": {
           "country_code": {
             "type": "string",
+            "description": "ISO 3166 country code (e.g. \"US\", \"DE\", \"CHN\") or \"all\" for all countries.",
             "minLength": 2,
-            "maxLength": 3,
-            "description": "ISO 3166 country code (e.g. \"US\", \"DE\", \"CHN\") or \"all\" for all countries."
+            "maxLength": 3
           },
           "indicator_id": {
             "type": "string",
+            "description": "World Bank indicator ID (e.g. \"NY.GDP.MKTP.CD\" for GDP, \"SP.POP.TOTL\" for population, \"FP.CPI.TOTL.ZG\" for inflation).",
             "minLength": 1,
-            "maxLength": 100,
-            "description": "World Bank indicator ID (e.g. \"NY.GDP.MKTP.CD\" for GDP, \"SP.POP.TOTL\" for population, \"FP.CPI.TOTL.ZG\" for inflation)."
+            "maxLength": 100
           },
           "date_range": {
             "type": "string",
@@ -3103,8 +2923,7 @@
         "required": [
           "country_code",
           "indicator_id"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -3115,7 +2934,6 @@
     },
     {
       "name": "finance.treasury.data",
-      "title": "Get US Treasury Data",
       "description": "Get US Treasury fiscal data — interest rates on federal debt, national debt, debt outstanding, gold reserves, exchange rates",
       "inputSchema": {
         "type": "object",
@@ -3149,8 +2967,7 @@
         },
         "required": [
           "endpoint"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -3161,22 +2978,20 @@
     },
     {
       "name": "finance.banking.iban",
-      "title": "Validate IBAN",
       "description": "Validate an IBAN number and get associated bank data — BIC/SWIFT code, bank name, city (OpenIBAN)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "iban": {
             "type": "string",
+            "description": "IBAN to validate (e.g. \"DE89370400440532013000\"). Spaces are stripped automatically.",
             "minLength": 15,
-            "maxLength": 34,
-            "description": "IBAN to validate (e.g. \"DE89370400440532013000\"). Spaces are stripped automatically."
+            "maxLength": 34
           }
         },
         "required": [
           "iban"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -3187,7 +3002,6 @@
     },
     {
       "name": "music.artists.search",
-      "title": "Search Music Artists",
       "description": "Search for music artists by name across 2M+ artists — biography, country, tags, aliases (MusicBrainz)",
       "inputSchema": {
         "type": "object",
@@ -3210,8 +3024,7 @@
         },
         "required": [
           "query"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -3222,21 +3035,18 @@
     },
     {
       "name": "music.artists.details",
-      "title": "Get Artist Details",
       "description": "Get detailed artist info by MusicBrainz ID — tags, ratings, external links, life span, area (MusicBrainz)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "mbid": {
             "type": "string",
-            "format": "uuid",
             "description": "MusicBrainz artist ID (UUID format, e.g. \"a74b1b7f-71a5-4011-9441-d0b5e4122711\")"
           }
         },
         "required": [
           "mbid"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -3247,7 +3057,6 @@
     },
     {
       "name": "music.releases.search",
-      "title": "Search Music Releases",
       "description": "Search for albums, singles, and EPs across 50M+ recordings — title, artist, date (MusicBrainz)",
       "inputSchema": {
         "type": "object",
@@ -3270,8 +3079,7 @@
         },
         "required": [
           "query"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -3282,21 +3090,18 @@
     },
     {
       "name": "music.releases.details",
-      "title": "Get Release Details",
       "description": "Get full release details by MusicBrainz ID — artist credits, labels, media formats (MusicBrainz)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "mbid": {
             "type": "string",
-            "format": "uuid",
             "description": "MusicBrainz release ID (UUID format). Returns artist credits and label info"
           }
         },
         "required": [
           "mbid"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -3307,7 +3112,6 @@
     },
     {
       "name": "music.recordings.search",
-      "title": "Search Music Recordings",
       "description": "Search for songs and recordings by title or artist — duration, release history, artist credits (MusicBrainz)",
       "inputSchema": {
         "type": "object",
@@ -3330,8 +3134,7 @@
         },
         "required": [
           "query"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -3342,7 +3145,6 @@
     },
     {
       "name": "music.discover.fresh",
-      "title": "Get Fresh Music Releases",
       "description": "Discover recently released albums and singles from the past N days — trending new music (ListenBrainz)",
       "inputSchema": {
         "type": "object",
@@ -3359,8 +3161,7 @@
             "maximum": 200,
             "description": "Max releases to return (1-200, default 50)"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -3371,7 +3172,6 @@
     },
     {
       "name": "music.radio.search",
-      "title": "Search Radio Stations",
       "description": "Search 40K+ internet radio stations by name, genre, country, or language — streaming URLs, bitrate, codec (RadioBrowser)",
       "inputSchema": {
         "type": "object",
@@ -3430,8 +3230,7 @@
             "type": "boolean",
             "description": "Hide broken/offline stations (recommended: true)"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -3442,7 +3241,6 @@
     },
     {
       "name": "aster.exchange.info",
-      "title": "AsterDEX Exchange Info",
       "description": "Get exchange information and available trading pairs on AsterDEX",
       "inputSchema": {
         "type": "object",
@@ -3451,8 +3249,7 @@
             "type": "string",
             "description": "Trading pair symbol to filter (e.g. BTCUSDT). Omit for all pairs."
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -3463,7 +3260,6 @@
     },
     {
       "name": "aster.markets.ticker",
-      "title": "AsterDEX Market Data",
       "description": "Get 24-hour ticker statistics for trading pairs on AsterDEX",
       "inputSchema": {
         "type": "object",
@@ -3472,8 +3268,7 @@
             "type": "string",
             "description": "Trading pair symbol (e.g. BTCUSDT). Omit for all pairs."
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -3484,7 +3279,6 @@
     },
     {
       "name": "aster.markets.orderbook",
-      "title": "AsterDEX Order Book",
       "description": "Get order book depth for a trading pair on AsterDEX",
       "inputSchema": {
         "type": "object",
@@ -3502,8 +3296,7 @@
         },
         "required": [
           "symbol"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -3514,7 +3307,6 @@
     },
     {
       "name": "aster.markets.klines",
-      "title": "AsterDEX Klines",
       "description": "Get candlestick (OHLCV) data for a trading pair on AsterDEX",
       "inputSchema": {
         "type": "object",
@@ -3561,8 +3353,7 @@
         },
         "required": [
           "symbol"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -3573,7 +3364,6 @@
     },
     {
       "name": "jobs.salary.data",
-      "title": "Get Salary Data",
       "description": "Get US salary and employment timeseries data from BLS — wage estimates, employment counts, occupational statistics by SOC code and geography",
       "inputSchema": {
         "type": "object",
@@ -3582,28 +3372,25 @@
             "type": "array",
             "items": {
               "type": "string",
-              "minLength": 1,
-              "description": "BLS series ID (e.g. \"OEUM0000000000000151252004\")"
+              "description": "BLS series ID (e.g. \"OEUM0000000000000151252004\")",
+              "minLength": 1
             },
+            "description": "BLS timeseries IDs (e.g. [\"OEUM0000000000000151252004\"] for Software Developers mean salary). Encodes occupation code + geography + data type.",
             "minItems": 1,
-            "maxItems": 50,
-            "description": "BLS timeseries IDs (e.g. [\"OEUM0000000000000151252004\"] for Software Developers mean salary). Encodes occupation code + geography + data type."
+            "maxItems": 50
           },
           "start_year": {
             "type": "string",
-            "pattern": "^\\d{4}$",
             "description": "Start year (e.g. \"2020\"). Omit for latest available."
           },
           "end_year": {
             "type": "string",
-            "pattern": "^\\d{4}$",
             "description": "End year (e.g. \"2024\"). Omit for latest available."
           }
         },
         "required": [
           "series_ids"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -3614,16 +3401,15 @@
     },
     {
       "name": "jobs.occupations.search",
-      "title": "Search Occupations",
       "description": "Search O*NET occupation taxonomy by keyword — 1,000+ occupations with SOC codes, titles, and relevance scores",
       "inputSchema": {
         "type": "object",
         "properties": {
           "keyword": {
             "type": "string",
+            "description": "Search keyword for occupations (e.g. \"software developer\", \"nurse\", \"data analyst\").",
             "minLength": 1,
-            "maxLength": 200,
-            "description": "Search keyword for occupations (e.g. \"software developer\", \"nurse\", \"data analyst\")."
+            "maxLength": 200
           },
           "start": {
             "type": "integer",
@@ -3638,8 +3424,7 @@
         },
         "required": [
           "keyword"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -3650,16 +3435,15 @@
     },
     {
       "name": "jobs.occupations.details",
-      "title": "Get Occupation Details",
       "description": "Get detailed occupation info from O*NET by SOC code — overview, skills, knowledge, abilities, technology skills, tasks",
       "inputSchema": {
         "type": "object",
         "properties": {
           "code": {
             "type": "string",
+            "description": "O*NET SOC occupation code (e.g. \"15-1252.00\" for Software Developers). Get codes from occupation_search.",
             "minLength": 1,
-            "maxLength": 20,
-            "description": "O*NET SOC occupation code (e.g. \"15-1252.00\" for Software Developers). Get codes from occupation_search."
+            "maxLength": 20
           },
           "section": {
             "type": "string",
@@ -3675,8 +3459,7 @@
         },
         "required": [
           "code"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -3687,16 +3470,15 @@
     },
     {
       "name": "jobs.skills.search",
-      "title": "Search EU Skills & Occupations",
       "description": "Search ESCO (European Skills/Competences/Occupations) taxonomy — occupations and skills in 27 EU languages",
       "inputSchema": {
         "type": "object",
         "properties": {
           "text": {
             "type": "string",
+            "description": "Search text for EU occupations or skills (e.g. \"software developer\", \"project management\").",
             "minLength": 1,
-            "maxLength": 500,
-            "description": "Search text for EU occupations or skills (e.g. \"software developer\", \"project management\")."
+            "maxLength": 500
           },
           "type": {
             "type": "string",
@@ -3726,8 +3508,7 @@
         },
         "required": [
           "text"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -3738,15 +3519,14 @@
     },
     {
       "name": "jobs.skills.details",
-      "title": "Get EU Skill/Occupation Details",
       "description": "Get ESCO resource details by URI — occupation descriptions, essential/optional skills, ISCO codes, skill relationships",
       "inputSchema": {
         "type": "object",
         "properties": {
           "uri": {
             "type": "string",
-            "minLength": 1,
-            "description": "ESCO resource URI (e.g. \"http://data.europa.eu/esco/occupation/...\"). Get URIs from esco_search."
+            "description": "ESCO resource URI (e.g. \"http://data.europa.eu/esco/occupation/...\"). Get URIs from esco_search.",
+            "minLength": 1
           },
           "type": {
             "type": "string",
@@ -3765,8 +3545,7 @@
         },
         "required": [
           "uri"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -3777,16 +3556,15 @@
     },
     {
       "name": "jobs.listings.search",
-      "title": "Search Job Listings",
       "description": "Search global job listings via CareerJet — title, company, salary, location, contract type across 90+ countries",
       "inputSchema": {
         "type": "object",
         "properties": {
           "keywords": {
             "type": "string",
+            "description": "Job search keywords (e.g. \"software engineer\", \"marketing manager remote\").",
             "minLength": 1,
-            "maxLength": 500,
-            "description": "Job search keywords (e.g. \"software engineer\", \"marketing manager remote\")."
+            "maxLength": 500
           },
           "location": {
             "type": "string",
@@ -3842,8 +3620,7 @@
         },
         "required": [
           "keywords"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -3854,16 +3631,15 @@
     },
     {
       "name": "education.papers.search",
-      "title": "Search Academic Papers",
       "description": "Search 250M+ academic papers across all disciplines — citations, authors, institutions, open access status (OpenAlex)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "query": {
             "type": "string",
+            "description": "Search text for academic papers (e.g. \"machine learning\", \"CRISPR gene editing\").",
             "minLength": 1,
-            "maxLength": 500,
-            "description": "Search text for academic papers (e.g. \"machine learning\", \"CRISPR gene editing\")."
+            "maxLength": 500
           },
           "concept": {
             "type": "string",
@@ -3914,8 +3690,7 @@
         },
         "required": [
           "query"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -3926,22 +3701,20 @@
     },
     {
       "name": "education.papers.details",
-      "title": "Get Paper Details",
       "description": "Get full details for an academic paper by OpenAlex ID or DOI — authors, citations, abstract, references, open access links (OpenAlex)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
+            "description": "OpenAlex work ID (e.g. \"W2741809807\") or DOI (e.g. \"10.1038/nature12373\"). Get IDs from paper_search.",
             "minLength": 1,
-            "maxLength": 200,
-            "description": "OpenAlex work ID (e.g. \"W2741809807\") or DOI (e.g. \"10.1038/nature12373\"). Get IDs from paper_search."
+            "maxLength": 200
           }
         },
         "required": [
           "id"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -3952,7 +3725,6 @@
     },
     {
       "name": "education.colleges.search",
-      "title": "Search US Colleges",
       "description": "Search US colleges and universities — admissions, tuition, enrollment, earnings, completion rates (College Scorecard)",
       "inputSchema": {
         "type": "object",
@@ -3988,8 +3760,7 @@
             "maximum": 50,
             "description": "Number of results to return (1-50). Default: 10."
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -4000,22 +3771,19 @@
     },
     {
       "name": "education.colleges.details",
-      "title": "Get College Details",
       "description": "Get detailed data for a US college by UNITID — admissions rate, costs, student outcomes, earnings after graduation (College Scorecard)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "school_id": {
             "type": "integer",
-            "exclusiveMinimum": true,
-            "minimum": 0,
-            "description": "College Scorecard UNITID (e.g. 166027 for MIT). Get IDs from college_search."
+            "description": "College Scorecard UNITID (e.g. 166027 for MIT). Get IDs from college_search.",
+            "minimum": 0
           }
         },
         "required": [
           "school_id"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -4026,16 +3794,15 @@
     },
     {
       "name": "education.pubmed.search",
-      "title": "Search PubMed",
       "description": "Search 36M+ biomedical and life science articles — clinical trials, reviews, meta-analyses with date and type filters (PubMed/NCBI)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "query": {
             "type": "string",
+            "description": "Search text for biomedical literature (e.g. \"COVID-19 vaccine efficacy\", \"BRCA1 breast cancer\").",
             "minLength": 1,
-            "maxLength": 500,
-            "description": "Search text for biomedical literature (e.g. \"COVID-19 vaccine efficacy\", \"BRCA1 breast cancer\")."
+            "maxLength": 500
           },
           "publication_type": {
             "type": "string",
@@ -4049,12 +3816,10 @@
           },
           "date_from": {
             "type": "string",
-            "pattern": "^\\d{4}\\/\\d{2}\\/\\d{2}$",
             "description": "Start date filter in YYYY/MM/DD format (e.g. \"2023/01/01\")."
           },
           "date_to": {
             "type": "string",
-            "pattern": "^\\d{4}\\/\\d{2}\\/\\d{2}$",
             "description": "End date filter in YYYY/MM/DD format (e.g. \"2024/12/31\")."
           },
           "limit": {
@@ -4066,8 +3831,7 @@
         },
         "required": [
           "query"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -4078,16 +3842,15 @@
     },
     {
       "name": "education.arxiv.search",
-      "title": "Search arXiv Preprints",
       "description": "Search 2.4M+ preprints in physics, math, CS, biology, and more — full text, authors, categories, PDF links (arXiv)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "query": {
             "type": "string",
+            "description": "Search text for preprints (e.g. \"transformer architecture\", \"quantum computing\").",
             "minLength": 1,
-            "maxLength": 500,
-            "description": "Search text for preprints (e.g. \"transformer architecture\", \"quantum computing\")."
+            "maxLength": 500
           },
           "category": {
             "type": "string",
@@ -4117,8 +3880,7 @@
         },
         "required": [
           "query"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -4129,22 +3891,20 @@
     },
     {
       "name": "education.crossref.doi",
-      "title": "Lookup DOI",
       "description": "Resolve a DOI to full publication metadata — title, authors, journal, citations, funding, license (CrossRef)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "doi": {
             "type": "string",
+            "description": "DOI to resolve (e.g. \"10.1038/nature12373\", \"10.1145/3292500.3330648\").",
             "minLength": 3,
-            "maxLength": 200,
-            "description": "DOI to resolve (e.g. \"10.1038/nature12373\", \"10.1145/3292500.3330648\")."
+            "maxLength": 200
           }
         },
         "required": [
           "doi"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -4155,16 +3915,15 @@
     },
     {
       "name": "geo.address.geocode",
-      "title": "Geocode Address",
       "description": "Convert an address, place name, or landmark to geographic coordinates (lat/lon) with structured address data (Geoapify/OSM)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "text": {
             "type": "string",
+            "description": "Address, place name, or landmark to geocode (e.g. \"1600 Pennsylvania Ave, Washington DC\", \"Eiffel Tower\").",
             "minLength": 1,
-            "maxLength": 500,
-            "description": "Address, place name, or landmark to geocode (e.g. \"1600 Pennsylvania Ave, Washington DC\", \"Eiffel Tower\")."
+            "maxLength": 500
           },
           "lang": {
             "type": "string",
@@ -4197,8 +3956,7 @@
         },
         "required": [
           "text"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -4209,22 +3967,21 @@
     },
     {
       "name": "geo.address.reverse",
-      "title": "Reverse Geocode",
       "description": "Convert geographic coordinates (lat/lon) to a structured address — street, city, country, postal code (Geoapify/OSM)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "lat": {
             "type": "number",
+            "description": "Latitude of the point to reverse geocode.",
             "minimum": -90,
-            "maximum": 90,
-            "description": "Latitude of the point to reverse geocode."
+            "maximum": 90
           },
           "lon": {
             "type": "number",
+            "description": "Longitude of the point to reverse geocode.",
             "minimum": -180,
-            "maximum": 180,
-            "description": "Longitude of the point to reverse geocode."
+            "maximum": 180
           },
           "lang": {
             "type": "string",
@@ -4236,8 +3993,7 @@
         "required": [
           "lat",
           "lon"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -4248,28 +4004,27 @@
     },
     {
       "name": "geo.places.search",
-      "title": "Search Places & POI",
       "description": "Search points of interest (restaurants, pharmacies, hotels, attractions) near a location by category and radius (Geoapify/OSM)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "categories": {
             "type": "string",
+            "description": "POI category filter (e.g. \"catering.restaurant\", \"healthcare.pharmacy\", \"tourism.attraction\", \"accommodation.hotel\"). Multiple categories separated by comma.",
             "minLength": 1,
-            "maxLength": 200,
-            "description": "POI category filter (e.g. \"catering.restaurant\", \"healthcare.pharmacy\", \"tourism.attraction\", \"accommodation.hotel\"). Multiple categories separated by comma."
+            "maxLength": 200
           },
           "lat": {
             "type": "number",
+            "description": "Center latitude for the search area.",
             "minimum": -90,
-            "maximum": 90,
-            "description": "Center latitude for the search area."
+            "maximum": 90
           },
           "lon": {
             "type": "number",
+            "description": "Center longitude for the search area.",
             "minimum": -180,
-            "maximum": 180,
-            "description": "Center longitude for the search area."
+            "maximum": 180
           },
           "radius": {
             "type": "integer",
@@ -4294,8 +4049,7 @@
           "categories",
           "lat",
           "lon"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -4306,16 +4060,15 @@
     },
     {
       "name": "geo.address.autocomplete",
-      "title": "Autocomplete Address",
       "description": "Get autocomplete suggestions as you type an address or place name — for real-time search UX (Geoapify/OSM)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "text": {
             "type": "string",
+            "description": "Partial address or place name to autocomplete (e.g. \"1600 Penn\", \"Berlin Bran\").",
             "minLength": 1,
-            "maxLength": 200,
-            "description": "Partial address or place name to autocomplete (e.g. \"1600 Penn\", \"Berlin Bran\")."
+            "maxLength": 200
           },
           "lang": {
             "type": "string",
@@ -4348,8 +4101,7 @@
         },
         "required": [
           "text"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -4360,34 +4112,33 @@
     },
     {
       "name": "geo.navigation.route",
-      "title": "Get Directions",
       "description": "Get turn-by-turn driving, walking, cycling, or transit directions between two points with distance and time (Geoapify/OSM)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "origin_lat": {
             "type": "number",
+            "description": "Start point latitude (e.g. 40.7128)",
             "minimum": -90,
-            "maximum": 90,
-            "description": "Start point latitude (e.g. 40.7128)"
+            "maximum": 90
           },
           "origin_lon": {
             "type": "number",
+            "description": "Start point longitude (e.g. -74.0060)",
             "minimum": -180,
-            "maximum": 180,
-            "description": "Start point longitude (e.g. -74.0060)"
+            "maximum": 180
           },
           "dest_lat": {
             "type": "number",
+            "description": "Destination latitude (e.g. 48.8566)",
             "minimum": -90,
-            "maximum": 90,
-            "description": "Destination latitude (e.g. 48.8566)"
+            "maximum": 90
           },
           "dest_lon": {
             "type": "number",
+            "description": "Destination longitude (e.g. 2.3522)",
             "minimum": -180,
-            "maximum": 180,
-            "description": "Destination longitude (e.g. 2.3522)"
+            "maximum": 180
           },
           "mode": {
             "type": "string",
@@ -4419,8 +4170,7 @@
           "origin_lon",
           "dest_lat",
           "dest_lon"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -4431,22 +4181,21 @@
     },
     {
       "name": "geo.navigation.isochrone",
-      "title": "Get Isochrone",
       "description": "Get reachability area (isochrone) — polygon showing how far you can travel from a point in a given time or distance (Geoapify/OSM)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "lat": {
             "type": "number",
+            "description": "Center point latitude (e.g. 52.5200)",
             "minimum": -90,
-            "maximum": 90,
-            "description": "Center point latitude (e.g. 52.5200)"
+            "maximum": 90
           },
           "lon": {
             "type": "number",
+            "description": "Center point longitude (e.g. 13.4050)",
             "minimum": -180,
-            "maximum": 180,
-            "description": "Center point longitude (e.g. 13.4050)"
+            "maximum": 180
           },
           "mode": {
             "type": "string",
@@ -4473,8 +4222,7 @@
         "required": [
           "lat",
           "lon"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -4485,22 +4233,20 @@
     },
     {
       "name": "geo.ip.geolocation",
-      "title": "IP Geolocation",
       "description": "Geolocate an IP address (IPv4/IPv6) to country, city, coordinates, and network info (Geoapify)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "ip": {
             "type": "string",
+            "description": "IPv4 or IPv6 address to geolocate (e.g. \"8.8.8.8\", \"2001:4860:4860::8888\").",
             "minLength": 7,
-            "maxLength": 45,
-            "description": "IPv4 or IPv6 address to geolocate (e.g. \"8.8.8.8\", \"2001:4860:4860::8888\")."
+            "maxLength": 45
           }
         },
         "required": [
           "ip"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -4511,29 +4257,26 @@
     },
     {
       "name": "aipush.website.setup",
-      "title": "Setup Website for AI Marketing",
       "description": "Register a website for AI marketing. Call with domain + target_url. If DNS is not configured, returns DNS_NOT_VERIFIED with exact CNAME record instructions — relay to user: reference.{domain} → cname.aipush.app. After user creates DNS record, call again. On success: client registered, MIP analysis starts automatically, SSL provisioning begins. Poll website_status until mip_status='ready' and cf_hostname_status='active', then use generate_page. Idempotent (AIPush)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "website_domain": {
             "type": "string",
+            "description": "Domain of the website to register (e.g. \"example.com\", \"myhotel.com\"). Must have a CNAME record: reference.{domain} → cname.aipush.app",
             "minLength": 3,
-            "maxLength": 253,
-            "description": "Domain of the website to register (e.g. \"example.com\", \"myhotel.com\"). Must have a CNAME record: reference.{domain} → cname.aipush.app"
+            "maxLength": 253
           },
           "target_url": {
             "type": "string",
-            "format": "uri",
-            "maxLength": 2048,
-            "description": "Target conversion URL — the single page all generated content will link to (e.g. \"https://example.com/book\", \"https://myhotel.com/reserve\"). Must be on the same domain."
+            "description": "Target conversion URL — the single page all generated content will link to (e.g. \"https://example.com/book\", \"https://myhotel.com/reserve\"). Must be on the same domain.",
+            "maxLength": 2048
           }
         },
         "required": [
           "website_domain",
           "target_url"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": false,
@@ -4544,22 +4287,20 @@
     },
     {
       "name": "aipush.website.status",
-      "title": "Check Website Status",
       "description": "Poll website readiness after setup_website. Returns billing_status, mip_status ('empty'|'pending'|'ready'), cf_hostname_status, cf_ssl_status, pages_total. Gate your workflow: wait for mip_status='ready' AND cf_hostname_status='active' before calling generate_page. Safe to poll repeatedly (AIPush)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "website_domain": {
             "type": "string",
+            "description": "Domain to check status for (e.g. \"example.com\").",
             "minLength": 3,
-            "maxLength": 253,
-            "description": "Domain to check status for (e.g. \"example.com\")."
+            "maxLength": 253
           }
         },
         "required": [
           "website_domain"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -4570,16 +4311,15 @@
     },
     {
       "name": "aipush.pages.generate",
-      "title": "Generate AI Marketing Page",
       "description": "Requires mip_status='ready' and cf_hostname_status='active' (check website_status first). Generates one AI-optimized HTML page structured for AI assistant answer compilation (ChatGPT, Perplexity, Gemini). Page includes decision question, short answer with CTA, comparison, pricing, FAQ. Published at reference.{domain}/{slug}. Optional keyword parameter targets specific search intent (AIPush)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "website_domain": {
             "type": "string",
+            "description": "Domain of the website to generate a page for. Must be set up first via aipush.setup_website.",
             "minLength": 3,
-            "maxLength": 253,
-            "description": "Domain of the website to generate a page for. Must be set up first via aipush.setup_website."
+            "maxLength": 253
           },
           "keyword": {
             "type": "string",
@@ -4590,8 +4330,7 @@
         },
         "required": [
           "website_domain"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": false,
@@ -4602,16 +4341,15 @@
     },
     {
       "name": "aipush.pages.list",
-      "title": "List Generated Pages",
       "description": "List all published AI marketing pages for a website with URLs, titles, and publish dates (AIPush)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "website_domain": {
             "type": "string",
+            "description": "Domain to list pages for (e.g. \"example.com\").",
             "minLength": 3,
-            "maxLength": 253,
-            "description": "Domain to list pages for (e.g. \"example.com\")."
+            "maxLength": 253
           },
           "limit": {
             "type": "integer",
@@ -4627,8 +4365,7 @@
         },
         "required": [
           "website_domain"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -4639,29 +4376,27 @@
     },
     {
       "name": "aipush.pages.content",
-      "title": "Get Page Content",
       "description": "Get full HTML content and metadata of a specific generated page by slug (AIPush)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "website_domain": {
             "type": "string",
+            "description": "Domain the page belongs to (e.g. \"example.com\").",
             "minLength": 3,
-            "maxLength": 253,
-            "description": "Domain the page belongs to (e.g. \"example.com\")."
+            "maxLength": 253
           },
           "slug": {
             "type": "string",
+            "description": "Page slug identifier (e.g. \"best-hotels-bangkok-2026\"). Returned by aipush.list_pages or aipush.generate_page.",
             "minLength": 1,
-            "maxLength": 200,
-            "description": "Page slug identifier (e.g. \"best-hotels-bangkok-2026\"). Returned by aipush.list_pages or aipush.generate_page."
+            "maxLength": 200
           }
         },
         "required": [
           "website_domain",
           "slug"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -4672,22 +4407,20 @@
     },
     {
       "name": "aipush.analysis.profile",
-      "title": "Get Website Business Profile",
       "description": "Get MIP business analysis results — business name, category, location, competitors, value propositions, and market surface data (AIPush)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "website_domain": {
             "type": "string",
+            "description": "Domain to get the MIP business analysis for. Must have completed setup (mip_status = \"ready\").",
             "minLength": 3,
-            "maxLength": 253,
-            "description": "Domain to get the MIP business analysis for. Must have completed setup (mip_status = \"ready\")."
+            "maxLength": 253
           }
         },
         "required": [
           "website_domain"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -4698,22 +4431,20 @@
     },
     {
       "name": "aipush.analysis.visibility",
-      "title": "Check AI Visibility Score",
       "description": "Test whether AI assistants (ChatGPT, Perplexity, Gemini) know about and recommend a brand — returns per-model visibility scores (AIPush)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "website_domain": {
             "type": "string",
+            "description": "Domain to check AI visibility for (e.g. \"example.com\"). Tests whether AI assistants know about and recommend this brand.",
             "minLength": 3,
-            "maxLength": 253,
-            "description": "Domain to check AI visibility for (e.g. \"example.com\"). Tests whether AI assistants know about and recommend this brand."
+            "maxLength": 253
           }
         },
         "required": [
           "website_domain"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -4724,14 +4455,12 @@
     },
     {
       "name": "diffbot.products.extract",
-      "title": "Extract Product Data",
       "description": "Extract structured product data from any e-commerce URL — title, price, brand, specs, images, reviews. Works on any retailer without custom integration (Diffbot)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "url": {
             "type": "string",
-            "format": "uri",
             "description": "Product page URL to extract data from (any e-commerce site)"
           },
           "discussion": {
@@ -4747,8 +4476,7 @@
         },
         "required": [
           "url"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -4759,14 +4487,12 @@
     },
     {
       "name": "diffbot.pages.analyze",
-      "title": "Analyze Web Page",
       "description": "Auto-detect page type (product, article, image, video) and extract structured data from any URL using AI (Diffbot)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "url": {
             "type": "string",
-            "format": "uri",
             "description": "Web page URL to auto-detect type and extract structured data"
           },
           "mode": {
@@ -4797,8 +4523,7 @@
         },
         "required": [
           "url"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -4809,14 +4534,12 @@
     },
     {
       "name": "diffbot.articles.extract",
-      "title": "Extract Article Text",
       "description": "Extract article text, author, date, tags, sentiment, and images from any blog or news URL with multi-page support (Diffbot)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "url": {
             "type": "string",
-            "format": "uri",
             "description": "Article or blog post URL to extract text, author, and metadata"
           },
           "paging": {
@@ -4838,8 +4561,7 @@
         },
         "required": [
           "url"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -4850,7 +4572,6 @@
     },
     {
       "name": "diffbot.knowledge.search",
-      "title": "Search Knowledge Graph",
       "description": "Search Diffbot Knowledge Graph for products, organizations, people, and places — billions of structured entities from the web (Diffbot)",
       "inputSchema": {
         "type": "object",
@@ -4885,8 +4606,7 @@
         },
         "required": [
           "query"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -4897,7 +4617,6 @@
     },
     {
       "name": "whois.domain.lookup",
-      "title": "WHOIS Lookup",
       "description": "Get WHOIS registration data for any domain — registrar, creation/expiry dates, nameservers, registrant contact, status across 374M+ domains and 7,596 TLDs (WhoisXML)",
       "inputSchema": {
         "type": "object",
@@ -4921,8 +4640,7 @@
         },
         "required": [
           "domain"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -4933,7 +4651,6 @@
     },
     {
       "name": "whois.dns.lookup",
-      "title": "DNS Lookup",
       "description": "Get DNS records for a domain — A, AAAA, MX, NS, SOA, TXT, CNAME, SRV, CAA records with TTL and raw data (WhoisXML)",
       "inputSchema": {
         "type": "object",
@@ -4961,8 +4678,7 @@
         },
         "required": [
           "domain"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -4973,7 +4689,6 @@
     },
     {
       "name": "whois.domain.availability",
-      "title": "Check Domain Availability",
       "description": "Check if a domain name is available for registration — fast DNS check or thorough DNS+WHOIS verification (WhoisXML)",
       "inputSchema": {
         "type": "object",
@@ -4993,8 +4708,7 @@
         },
         "required": [
           "domain"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -5005,7 +4719,6 @@
     },
     {
       "name": "whois.domain.reverse",
-      "title": "Reverse WHOIS Search",
       "description": "Find all domains registered by a person, company, or email — reverse WHOIS lookup for OSINT and brand monitoring (WhoisXML)",
       "inputSchema": {
         "type": "object",
@@ -5017,8 +4730,7 @@
         },
         "required": [
           "keyword"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -5029,7 +4741,6 @@
     },
     {
       "name": "spoonacular.recipes.search",
-      "title": "Search Recipes",
       "description": "Search 365K+ recipes with dietary filters (vegan, keto, gluten-free), cuisine, meal type, and max prep time — includes nutrition data per result (Spoonacular)",
       "inputSchema": {
         "type": "object",
@@ -5069,8 +4780,7 @@
             "minimum": 0,
             "description": "Offset for pagination (default 0)"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -5081,7 +4791,6 @@
     },
     {
       "name": "spoonacular.recipes.details",
-      "title": "Get Recipe Details",
       "description": "Get full recipe details by ID — ingredients, step-by-step instructions, nutrition facts, dietary labels, prep time, servings, and price per serving (Spoonacular)",
       "inputSchema": {
         "type": "object",
@@ -5093,8 +4802,7 @@
         },
         "required": [
           "id"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -5105,7 +4813,6 @@
     },
     {
       "name": "spoonacular.recipes.by_ingredients",
-      "title": "Find Recipes by Ingredients",
       "description": "Find recipes using ingredients you have on hand — shows used/missing ingredients count, ranked by ingredient match (Spoonacular)",
       "inputSchema": {
         "type": "object",
@@ -5133,8 +4840,7 @@
         },
         "required": [
           "ingredients"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -5145,7 +4851,6 @@
     },
     {
       "name": "spoonacular.ingredients.search",
-      "title": "Search Ingredients",
       "description": "Search 86K+ food ingredients with nutrition data — sortable by calories, protein, fat, or carbs (Spoonacular)",
       "inputSchema": {
         "type": "object",
@@ -5181,8 +4886,7 @@
         },
         "required": [
           "query"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -5193,7 +4897,6 @@
     },
     {
       "name": "spoonacular.recipes.analyze",
-      "title": "Analyze Recipe Nutrition",
       "description": "Analyze a recipe by title and ingredient list — returns full nutrition breakdown, dietary labels, and caloric distribution (Spoonacular)",
       "inputSchema": {
         "type": "object",
@@ -5222,8 +4925,7 @@
         "required": [
           "title",
           "ingredients"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -5234,7 +4936,6 @@
     },
     {
       "name": "nasa.astronomy.apod",
-      "title": "Astronomy Picture of the Day",
       "description": "Get NASA Astronomy Picture of the Day — daily curated space image or video with expert explanation, dating back to 1995 (NASA APOD)",
       "inputSchema": {
         "type": "object",
@@ -5247,8 +4948,7 @@
             "type": "boolean",
             "description": "Return thumbnail URL for video APOD entries (default false)"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -5259,7 +4959,6 @@
     },
     {
       "name": "nasa.asteroids.feed",
-      "title": "Near-Earth Asteroids Feed",
       "description": "Get near-Earth asteroid close approaches for a date range — size estimates, hazard classification, velocity, miss distance (NASA NeoWs)",
       "inputSchema": {
         "type": "object",
@@ -5275,8 +4974,7 @@
         },
         "required": [
           "start_date"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -5287,7 +4985,6 @@
     },
     {
       "name": "nasa.space_weather.flares",
-      "title": "Solar Flare Events",
       "description": "Get solar flare events from the Space Weather Database — class, peak time, source region, linked CMEs and geomagnetic storms (NASA DONKI)",
       "inputSchema": {
         "type": "object",
@@ -5300,8 +4997,7 @@
             "type": "string",
             "description": "End date in YYYY-MM-DD format (default: today)"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -5312,7 +5008,6 @@
     },
     {
       "name": "nasa.earth.epic",
-      "title": "Earth Camera (EPIC)",
       "description": "Get full-disc Earth images from the DSCOVR satellite EPIC camera — daily natural color photos from Lagrange point L1, 1.5M km away (NASA EPIC)",
       "inputSchema": {
         "type": "object",
@@ -5321,8 +5016,7 @@
             "type": "string",
             "description": "Date in YYYY-MM-DD format (default: most recent available). Returns DSCOVR EPIC Earth images for that date"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -5333,7 +5027,6 @@
     },
     {
       "name": "nasa.media.search",
-      "title": "Search NASA Images & Videos",
       "description": "Search NASA Image and Video Library — 140K+ images, videos, and audio from missions, telescopes, and events with metadata and download links (NASA)",
       "inputSchema": {
         "type": "object",
@@ -5367,8 +5060,7 @@
         },
         "required": [
           "q"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -5379,7 +5071,6 @@
     },
     {
       "name": "jpl.asteroids.approaches",
-      "title": "Asteroid Close Approaches",
       "description": "Get upcoming and past asteroid close approaches to Earth — distance, velocity, size, sorted by date or distance (NASA JPL)",
       "inputSchema": {
         "type": "object",
@@ -5418,8 +5109,7 @@
             "maximum": 100,
             "description": "Maximum number of results (default 20, max 100)"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -5430,7 +5120,6 @@
     },
     {
       "name": "jpl.events.fireballs",
-      "title": "Fireball Events",
       "description": "Get reported fireball (bolide) events — atmospheric entry energy, velocity, altitude, geographic coordinates (NASA JPL CNEOS)",
       "inputSchema": {
         "type": "object",
@@ -5464,8 +5153,7 @@
             "maximum": 100,
             "description": "Maximum number of results (default 20, max 100)"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -5476,7 +5164,6 @@
     },
     {
       "name": "jpl.bodies.lookup",
-      "title": "Small Body Lookup",
       "description": "Look up asteroid or comet data by name/designation — orbital elements, physical parameters, discovery info, hazard classification (NASA JPL SBDB)",
       "inputSchema": {
         "type": "object",
@@ -5493,8 +5180,7 @@
             "type": "boolean",
             "description": "Include physical parameters like diameter, albedo, rotation period (default true)"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -5505,7 +5191,6 @@
     },
     {
       "name": "jpl.asteroids.sentry",
-      "title": "Asteroid Impact Risk (Sentry)",
       "description": "Get asteroid impact risk assessments from the Sentry monitoring system — impact probability, Palermo/Torino scale, size estimates (NASA JPL)",
       "inputSchema": {
         "type": "object",
@@ -5526,8 +5211,7 @@
             "type": "number",
             "description": "Minimum impact probability (e.g. 1e-7)"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -5538,7 +5222,6 @@
     },
     {
       "name": "rawg.games.search",
-      "title": "Search Video Games",
       "description": "Search 800K+ video games — filter by genre, platform, release date, Metacritic score, with ratings, screenshots, and store links (RAWG)",
       "inputSchema": {
         "type": "object",
@@ -5578,8 +5261,7 @@
             "minimum": 1,
             "description": "Page number for pagination (default 1)"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -5590,27 +5272,18 @@
     },
     {
       "name": "rawg.games.details",
-      "title": "Get Game Details",
       "description": "Get full game details by ID or slug — description, platforms, genres, developers, publishers, ratings, Metacritic score, system requirements (RAWG)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "string"
-              }
-            ],
+            "type": "integer",
             "description": "RAWG game ID (numeric) or slug (e.g. \"grand-theft-auto-v\", 3498)"
           }
         },
         "required": [
           "id"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -5621,20 +5294,12 @@
     },
     {
       "name": "rawg.games.screenshots",
-      "title": "Get Game Screenshots",
       "description": "Get screenshot images for a game — full resolution URLs with dimensions (RAWG)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "string"
-              }
-            ],
+            "type": "integer",
             "description": "RAWG game ID or slug"
           },
           "page": {
@@ -5651,8 +5316,7 @@
         },
         "required": [
           "id"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -5663,27 +5327,18 @@
     },
     {
       "name": "rawg.games.stores",
-      "title": "Get Game Store Links",
       "description": "Get purchase/download links for a game across stores — Steam, PlayStation Store, Xbox, Epic, GOG, Nintendo (RAWG)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "string"
-              }
-            ],
+            "type": "integer",
             "description": "RAWG game ID or slug"
           }
         },
         "required": [
           "id"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -5694,20 +5349,12 @@
     },
     {
       "name": "rawg.games.series",
-      "title": "Get Game Series",
       "description": "Get all games in the same series/franchise — sequels, prequels, and spin-offs with ratings and release dates (RAWG)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "string"
-              }
-            ],
+            "type": "integer",
             "description": "RAWG game ID or slug"
           },
           "page": {
@@ -5724,8 +5371,7 @@
         },
         "required": [
           "id"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -5736,7 +5382,6 @@
     },
     {
       "name": "igdb.games.search",
-      "title": "Search Games (IGDB)",
       "description": "Search 280K+ games in IGDB (Twitch) — rich metadata with genres, platforms, ratings, cover art, and release dates",
       "inputSchema": {
         "type": "object",
@@ -5754,8 +5399,7 @@
         },
         "required": [
           "query"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -5766,7 +5410,6 @@
     },
     {
       "name": "igdb.games.details",
-      "title": "Get Game Details (IGDB)",
       "description": "Get full game details by IGDB ID — storyline, genres, platforms, developers, publishers, themes, game modes, similar games, and websites",
       "inputSchema": {
         "type": "object",
@@ -5778,8 +5421,7 @@
         },
         "required": [
           "id"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -5790,7 +5432,6 @@
     },
     {
       "name": "igdb.companies.info",
-      "title": "Get Company Info (IGDB)",
       "description": "Look up game companies by ID or search by name — description, country, developed/published game IDs, logos, and websites",
       "inputSchema": {
         "type": "object",
@@ -5809,8 +5450,7 @@
             "maximum": 50,
             "description": "Maximum number of results when searching by query (default 10, max 50)"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -5821,7 +5461,6 @@
     },
     {
       "name": "igdb.platforms.info",
-      "title": "Get Platform Info (IGDB)",
       "description": "Look up gaming platforms by ID or search by name — abbreviation, generation, platform family, versions, and summary",
       "inputSchema": {
         "type": "object",
@@ -5840,8 +5479,7 @@
             "maximum": 50,
             "description": "Maximum number of results when searching by query (default 10, max 50)"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -5852,7 +5490,6 @@
     },
     {
       "name": "igdb.games.media",
-      "title": "Get Game Media (IGDB)",
       "description": "Get cover art, screenshots, and video trailers for a game — image URLs with dimensions and YouTube video IDs",
       "inputSchema": {
         "type": "object",
@@ -5864,8 +5501,7 @@
         },
         "required": [
           "id"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -5876,7 +5512,6 @@
     },
     {
       "name": "qrserver.qr.generate",
-      "title": "Generate QR Code",
       "description": "Generate a QR code image URL from text or URL — customizable size, color, background, format (PNG/SVG), error correction level. Returns direct image URL (goqr.me)",
       "inputSchema": {
         "type": "object",
@@ -5924,8 +5559,7 @@
         },
         "required": [
           "data"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -5936,21 +5570,18 @@
     },
     {
       "name": "qrserver.qr.read",
-      "title": "Read QR Code",
       "description": "Decode a QR code from an image URL — extracts the encoded text or URL from any QR code image (goqr.me)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "fileurl": {
             "type": "string",
-            "format": "uri",
             "description": "URL of an image containing a QR code to decode (required)"
           }
         },
         "required": [
           "fileurl"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -5961,7 +5592,6 @@
     },
     {
       "name": "upc.products.lookup",
-      "title": "Product Barcode Lookup",
       "description": "Look up a product by UPC, EAN, GTIN, or ISBN barcode — returns title, brand, images, dimensions, weight, category, price range, and marketplace offers (UPCitemdb)",
       "inputSchema": {
         "type": "object",
@@ -5973,8 +5603,7 @@
         },
         "required": [
           "upc"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -5985,7 +5614,6 @@
     },
     {
       "name": "upc.products.search",
-      "title": "Product Search by Name",
       "description": "Search products by name, brand, or description — returns matching items with UPC codes, images, categories, and price ranges (UPCitemdb)",
       "inputSchema": {
         "type": "object",
@@ -6017,8 +5645,7 @@
         },
         "required": [
           "query"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -6029,7 +5656,6 @@
     },
     {
       "name": "ip.intelligence.lookup",
-      "title": "IP Address Lookup",
       "description": "Look up any IP address — geolocation (country, city, coordinates), 9 security flags (VPN, Tor, proxy, datacenter, abuser, crawler, bogon, mobile, satellite), ASN, company info, abuse contacts (ipapi.is)",
       "inputSchema": {
         "type": "object",
@@ -6041,8 +5667,7 @@
         },
         "required": [
           "ip"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -6053,7 +5678,6 @@
     },
     {
       "name": "ip.intelligence.bulk",
-      "title": "Bulk IP Lookup",
       "description": "Look up multiple IP addresses in one call (max 100) — country, city, VPN/Tor/proxy flags, ASN, and organization for each IP (ipapi.is)",
       "inputSchema": {
         "type": "object",
@@ -6063,15 +5687,14 @@
             "items": {
               "type": "string"
             },
+            "description": "Array of IPv4/IPv6 addresses to look up in bulk (max 100 per request)",
             "minItems": 1,
-            "maxItems": 100,
-            "description": "Array of IPv4/IPv6 addresses to look up in bulk (max 100 per request)"
+            "maxItems": 100
           }
         },
         "required": [
           "ips"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -6082,7 +5705,6 @@
     },
     {
       "name": "earthquake.events.search",
-      "title": "Search Earthquakes",
       "description": "Search global earthquakes by time, location, magnitude, and depth — returns magnitude, coordinates, tsunami flags, PAGER alerts, and felt reports. 100+ years of data, updated every minute (USGS)",
       "inputSchema": {
         "type": "object",
@@ -6155,8 +5777,7 @@
             ],
             "description": "PAGER alert level filter: green (no damage), yellow, orange, red (significant damage/casualties)"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -6167,7 +5788,6 @@
     },
     {
       "name": "earthquake.events.feed",
-      "title": "Real-Time Earthquake Feed",
       "description": "Get real-time earthquake feed by magnitude threshold (significant/4.5+/2.5+/1.0+/all) and time window (hour/day/week/month) — updated every minute (USGS)",
       "inputSchema": {
         "type": "object",
@@ -6193,8 +5813,7 @@
             ],
             "description": "Time window: \"hour\", \"day\" (default), \"week\", or \"month\""
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -6205,7 +5824,6 @@
     },
     {
       "name": "earthquake.events.count",
-      "title": "Count Earthquakes",
       "description": "Count earthquakes matching search criteria without returning full data — useful for statistics and monitoring thresholds (USGS)",
       "inputSchema": {
         "type": "object",
@@ -6244,8 +5862,7 @@
             "maximum": 20001.6,
             "description": "Search radius in kilometers from lat/lon center"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -6256,7 +5873,6 @@
     },
     {
       "name": "anime.titles.search",
-      "title": "Search Anime",
       "description": "Search 28K+ anime titles by name, genre, type, status, and rating — scores, episodes, studios, seasons (MyAnimeList via Jikan)",
       "inputSchema": {
         "type": "object",
@@ -6339,8 +5955,7 @@
             "maximum": 25,
             "description": "Results per page (default: 10, max: 25)"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -6351,7 +5966,6 @@
     },
     {
       "name": "anime.titles.details",
-      "title": "Get Anime Details",
       "description": "Get full anime details by MAL ID — synopsis, score, rank, episodes, studios, genres, themes, demographics, rating (MyAnimeList via Jikan)",
       "inputSchema": {
         "type": "object",
@@ -6363,8 +5977,7 @@
         },
         "required": [
           "id"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -6375,7 +5988,6 @@
     },
     {
       "name": "anime.manga.details",
-      "title": "Get Manga Details",
       "description": "Get full manga details by MAL ID — synopsis, chapters, volumes, authors, score, rank, genres (MyAnimeList via Jikan)",
       "inputSchema": {
         "type": "object",
@@ -6387,8 +5999,7 @@
         },
         "required": [
           "id"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -6399,7 +6010,6 @@
     },
     {
       "name": "anime.titles.characters",
-      "title": "Get Anime Characters",
       "description": "Get character cast and Japanese voice actors for an anime — names, roles (main/supporting), images (MyAnimeList via Jikan)",
       "inputSchema": {
         "type": "object",
@@ -6411,8 +6021,7 @@
         },
         "required": [
           "id"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -6423,7 +6032,6 @@
     },
     {
       "name": "anime.titles.top",
-      "title": "Top Anime Rankings",
       "description": "Get top-ranked anime by score — filter by type (TV/movie/OVA), status (airing/upcoming), or popularity (MyAnimeList via Jikan)",
       "inputSchema": {
         "type": "object",
@@ -6464,8 +6072,7 @@
             "maximum": 25,
             "description": "Results per page (default: 10, max: 25)"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -6476,7 +6083,6 @@
     },
     {
       "name": "books.editions.isbn",
-      "title": "ISBN Book Lookup",
       "description": "Look up a book by ISBN-10 or ISBN-13 — title, author, publisher, pages, cover image, subjects. 40M+ books (Open Library / Internet Archive)",
       "inputSchema": {
         "type": "object",
@@ -6488,8 +6094,7 @@
         },
         "required": [
           "isbn"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -6500,7 +6105,6 @@
     },
     {
       "name": "books.catalog.search",
-      "title": "Search Books",
       "description": "Search 40M+ books by title, author, subject, or ISBN — ratings, cover images, edition counts, publish year (Open Library / Internet Archive)",
       "inputSchema": {
         "type": "object",
@@ -6549,8 +6153,7 @@
             "maximum": 100,
             "description": "Results per page (default: 10, max: 100)"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -6561,7 +6164,6 @@
     },
     {
       "name": "books.works.details",
-      "title": "Get Book Work Details",
       "description": "Get consolidated work metadata across all editions by Open Library Work ID — description, subjects, authors, cover, first publish date (Open Library)",
       "inputSchema": {
         "type": "object",
@@ -6573,8 +6175,7 @@
         },
         "required": [
           "olid"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -6585,7 +6186,6 @@
     },
     {
       "name": "books.authors.details",
-      "title": "Get Author Details",
       "description": "Get author profile by Open Library Author ID — biography, birth/death dates, photo, Wikipedia link (Open Library / Internet Archive)",
       "inputSchema": {
         "type": "object",
@@ -6597,8 +6197,7 @@
         },
         "required": [
           "olid"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -6609,14 +6208,12 @@
     },
     {
       "name": "email.validation.check",
-      "title": "Validate Email Address",
       "description": "Validate an email address — checks deliverability, detects disposable/spam trap/abuse/catch-all addresses, MX records, SMTP provider, domain age. 99.6% accuracy (ZeroBounce)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "email": {
             "type": "string",
-            "format": "email",
             "description": "Email address to validate (e.g. \"user@example.com\")"
           },
           "ip_address": {
@@ -6626,8 +6223,7 @@
         },
         "required": [
           "email"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -6638,14 +6234,12 @@
     },
     {
       "name": "web.url.shorten",
-      "title": "Shorten URL (Short.io)",
       "description": "Create a short URL from any long URL. Optional custom slug. Returns short link at apibase.short.gy. 1,000 free links/month (Short.io)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "url": {
             "type": "string",
-            "format": "uri",
             "description": "Original URL to shorten (e.g. \"https://example.com/very/long/path\")"
           },
           "title": {
@@ -6659,8 +6253,7 @@
         },
         "required": [
           "url"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": false,
@@ -6671,7 +6264,6 @@
     },
     {
       "name": "web.url.stats",
-      "title": "Short URL Stats (Short.io)",
       "description": "Get click statistics and metadata for a short URL by its path (Short.io)",
       "inputSchema": {
         "type": "object",
@@ -6683,8 +6275,7 @@
         },
         "required": [
           "path"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -6695,7 +6286,6 @@
     },
     {
       "name": "currency.exchange.latest",
-      "title": "Latest Exchange Rates",
       "description": "Latest exchange rates for 160+ currencies against any base currency. Updated daily on free tier. Returns all rates in one call (ExchangeRate-API)",
       "inputSchema": {
         "type": "object",
@@ -6706,8 +6296,7 @@
             "maxLength": 3,
             "description": "Base currency code (e.g. \"USD\", \"EUR\", \"GBP\"). Default: USD. Returns rates for 160+ currencies."
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -6718,22 +6307,21 @@
     },
     {
       "name": "currency.exchange.convert",
-      "title": "Convert Currency",
       "description": "Convert amount between any two currencies — 160+ currencies supported. Returns conversion rate and result (ExchangeRate-API)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "from": {
             "type": "string",
+            "description": "Source currency code (e.g. \"USD\")",
             "minLength": 3,
-            "maxLength": 3,
-            "description": "Source currency code (e.g. \"USD\")"
+            "maxLength": 3
           },
           "to": {
             "type": "string",
+            "description": "Target currency code (e.g. \"EUR\")",
             "minLength": 3,
-            "maxLength": 3,
-            "description": "Target currency code (e.g. \"EUR\")"
+            "maxLength": 3
           },
           "amount": {
             "type": "number",
@@ -6743,8 +6331,7 @@
         "required": [
           "from",
           "to"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -6755,16 +6342,15 @@
     },
     {
       "name": "calendar.holidays.premium",
-      "title": "World Holidays (Calendarific)",
       "description": "Public holidays for 230+ countries — national, local, religious, observance types. Filter by month, day, type. 100+ years coverage. More countries than Nager.Date (Calendarific)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "country": {
             "type": "string",
+            "description": "ISO 3166-1 alpha-2 country code (e.g. \"US\", \"GB\", \"DE\", \"JP\", \"IN\", \"BR\")",
             "minLength": 2,
-            "maxLength": 2,
-            "description": "ISO 3166-1 alpha-2 country code (e.g. \"US\", \"GB\", \"DE\", \"JP\", \"IN\", \"BR\")"
+            "maxLength": 2
           },
           "year": {
             "type": "integer",
@@ -6797,8 +6383,7 @@
         },
         "required": [
           "country"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -6809,7 +6394,6 @@
     },
     {
       "name": "weather.alerts.active",
-      "title": "Active US Weather Alerts (NWS)",
       "description": "Active severe weather alerts for the US — tornado warnings, flood watches, heat advisories, winter storms. Filter by state, severity, event type. US Government open data, unlimited, no auth (NWS/NOAA)",
       "inputSchema": {
         "type": "object",
@@ -6850,8 +6434,7 @@
             "maximum": 50,
             "description": "Max alerts to return (default 10, max 50)"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -6862,16 +6445,15 @@
     },
     {
       "name": "weather.alerts.by_state",
-      "title": "Weather Alerts by US State (NWS)",
       "description": "Active weather alerts for a specific US state — all warnings, watches, and advisories. Returns event, severity, urgency, description, area, timing (NWS/NOAA)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "state": {
             "type": "string",
+            "description": "US state code (e.g. \"CA\", \"FL\", \"TX\")",
             "minLength": 2,
-            "maxLength": 2,
-            "description": "US state code (e.g. \"CA\", \"FL\", \"TX\")"
+            "maxLength": 2
           },
           "limit": {
             "type": "integer",
@@ -6882,8 +6464,7 @@
         },
         "required": [
           "state"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -6894,16 +6475,15 @@
     },
     {
       "name": "calendar.holidays.by_country",
-      "title": "Public Holidays by Country (Nager.Date)",
       "description": "Public holidays for any country and year — 100+ countries, national and regional holidays. Returns date, name (local + English), type. No auth, free, open source (Nager.Date)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "country_code": {
             "type": "string",
+            "description": "ISO 3166-1 alpha-2 country code (e.g. \"US\", \"GB\", \"DE\", \"JP\", \"BR\")",
             "minLength": 2,
-            "maxLength": 2,
-            "description": "ISO 3166-1 alpha-2 country code (e.g. \"US\", \"GB\", \"DE\", \"JP\", \"BR\")"
+            "maxLength": 2
           },
           "year": {
             "type": "integer",
@@ -6914,8 +6494,7 @@
         },
         "required": [
           "country_code"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -6926,22 +6505,200 @@
     },
     {
       "name": "calendar.holidays.next",
-      "title": "Next Public Holidays (Nager.Date)",
       "description": "Next upcoming public holidays for a country — useful for scheduling, availability checks, business day calculations. No auth (Nager.Date)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "country_code": {
             "type": "string",
+            "description": "ISO 3166-1 alpha-2 country code (e.g. \"US\", \"FR\")",
             "minLength": 2,
-            "maxLength": 2,
-            "description": "ISO 3166-1 alpha-2 country code (e.g. \"US\", \"FR\")"
+            "maxLength": 2
           }
         },
         "required": [
           "country_code"
-        ],
-        "additionalProperties": false
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "vehicle.vin.decode",
+      "description": "Decode a 17-character VIN — make, model, year, body class, engine, fuel type, transmission, plant country. US Government open data, unlimited, no auth (NHTSA)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "vin": {
+            "type": "string",
+            "description": "17-character Vehicle Identification Number (e.g. \"1HGCM82633A004352\")",
+            "minLength": 17,
+            "maxLength": 17
+          }
+        },
+        "required": [
+          "vin"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "vehicle.vin.models",
+      "description": "List vehicle models for a make and/or year (e.g. Honda 2024). US Government data (NHTSA)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "make": {
+            "type": "string",
+            "description": "Vehicle make (e.g. \"Honda\", \"Toyota\", \"Ford\")"
+          },
+          "year": {
+            "type": "integer",
+            "description": "Model year (e.g. 2024)"
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "world.country.search",
+      "description": "Search country by name — population, area, capital, languages, currencies, timezones, flag, region, borders. 250+ countries. No auth, free (REST Countries)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Country name to search (e.g. \"United States\", \"Germany\", \"Japan\")",
+            "minLength": 2
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "world.country.code",
+      "description": "Get country details by ISO code (US, GB, DE, JP). Returns name, population, area, capital, currencies, languages, flag (REST Countries)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "ISO 3166-1 country code — alpha-2 (\"US\") or alpha-3 (\"USA\")",
+            "minLength": 2,
+            "maxLength": 3
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "food.product.barcode",
+      "description": "Lookup food product by barcode (EAN/UPC) — name, brand, nutrition (calories, fat, carbs, protein per 100g), Nutri-Score, NOVA group, ingredients. 3M+ products (Open Food Facts)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "barcode": {
+            "type": "string",
+            "description": "Product barcode (EAN-13, UPC-A, etc.) e.g. \"3017620422003\" for Nutella",
+            "minLength": 8,
+            "maxLength": 13
+          }
+        },
+        "required": [
+          "barcode"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "food.product.search",
+      "description": "Search food products by name — returns matching products with brand, barcode, Nutri-Score, image. 3M+ products worldwide (Open Food Facts)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Product name to search (e.g. \"nutella\", \"coca cola\", \"organic milk\")",
+            "minLength": 2
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Results count (default 10, max 50)"
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "test.random.user",
+      "description": "Generate realistic random user profiles — name, email, phone, address, age, gender, photo. Filter by nationality and gender. For testing and demo data (RandomUser.me)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "Number of random users to generate (default 1, max 20)"
+          },
+          "nationality": {
+            "type": "string",
+            "description": "Nationality filter — comma-separated ISO codes (e.g. \"us\", \"gb,fr,de\")"
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "male",
+              "female"
+            ],
+            "description": "Gender filter"
+          }
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -6952,21 +6709,19 @@
     },
     {
       "name": "web.ssl.check",
-      "title": "Check SSL Certificate (ssl-checker.io)",
       "description": "Check SSL/TLS certificate for any domain — validity, issuer, expiry date, days remaining, protocol, key size, HSTS status. No auth, free (ssl-checker.io)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "domain": {
             "type": "string",
-            "minLength": 3,
-            "description": "Domain name to check SSL certificate for (e.g. \"google.com\", \"apibase.pro\"). Do not include https://."
+            "description": "Domain name to check SSL certificate for (e.g. \"google.com\", \"apibase.pro\"). Do not include https://.",
+            "minLength": 3
           }
         },
         "required": [
           "domain"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -6977,15 +6732,14 @@
     },
     {
       "name": "events.global.search",
-      "title": "Search Global News & Events (GDELT)",
       "description": "Search global news articles across 65 languages from 300K+ sources worldwide. Filter by time, language, tone. Returns title, URL, domain, country. 100% free, no auth (GDELT Project)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "query": {
             "type": "string",
-            "minLength": 3,
-            "description": "Search query — keywords, phrases, or boolean (e.g. \"climate change\", \"AI regulation\"). Min 3 chars."
+            "description": "Search query — keywords, phrases, or boolean (e.g. \"climate change\", \"AI regulation\"). Min 3 chars.",
+            "minLength": 3
           },
           "limit": {
             "type": "integer",
@@ -7015,8 +6769,7 @@
         },
         "required": [
           "query"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -7027,15 +6780,14 @@
     },
     {
       "name": "events.global.timeline",
-      "title": "News Mention Timeline (GDELT)",
       "description": "Track mention volume of any topic over time — see when a keyword spikes in global news coverage. Up to 3 months of data (GDELT Project)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "query": {
             "type": "string",
-            "minLength": 3,
-            "description": "Query to track mention volume over time (e.g. \"Bitcoin\", \"artificial intelligence\")"
+            "description": "Query to track mention volume over time (e.g. \"Bitcoin\", \"artificial intelligence\")",
+            "minLength": 3
           },
           "timespan": {
             "type": "string",
@@ -7044,8 +6796,7 @@
         },
         "required": [
           "query"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -7056,34 +6807,33 @@
     },
     {
       "name": "earth.fires.detect",
-      "title": "Detect Fires by Satellite (NASA FIRMS)",
       "description": "Active fire hotspots detected by NASA satellites (VIIRS, MODIS) — latitude, longitude, brightness, confidence, fire radiative power. Filter by bounding box and days. Near real-time updates (NASA FIRMS)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "west": {
             "type": "number",
+            "description": "Western longitude of bounding box (e.g. -125 for California)",
             "minimum": -180,
-            "maximum": 180,
-            "description": "Western longitude of bounding box (e.g. -125 for California)"
+            "maximum": 180
           },
           "south": {
             "type": "number",
+            "description": "Southern latitude of bounding box (e.g. 32)",
             "minimum": -90,
-            "maximum": 90,
-            "description": "Southern latitude of bounding box (e.g. 32)"
+            "maximum": 90
           },
           "east": {
             "type": "number",
+            "description": "Eastern longitude of bounding box (e.g. -114)",
             "minimum": -180,
-            "maximum": 180,
-            "description": "Eastern longitude of bounding box (e.g. -114)"
+            "maximum": 180
           },
           "north": {
             "type": "number",
+            "description": "Northern latitude of bounding box (e.g. 42)",
             "minimum": -90,
-            "maximum": 90,
-            "description": "Northern latitude of bounding box (e.g. 42)"
+            "maximum": 90
           },
           "days": {
             "type": "integer",
@@ -7107,8 +6857,7 @@
           "south",
           "east",
           "north"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -7119,7 +6868,6 @@
     },
     {
       "name": "time.worldclock.current",
-      "title": "Current Time by Timezone",
       "description": "Get current date, time, and day of week for any IANA timezone. DST-aware. No auth, free, unlimited (TimeAPI.io)",
       "inputSchema": {
         "type": "object",
@@ -7131,8 +6879,7 @@
         },
         "required": [
           "timezone"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -7143,7 +6890,6 @@
     },
     {
       "name": "time.worldclock.convert",
-      "title": "Convert Time Between Timezones",
       "description": "Convert date/time from one timezone to another. DST-aware. 597 IANA timezones (TimeAPI.io)",
       "inputSchema": {
         "type": "object",
@@ -7165,8 +6911,7 @@
           "from_timezone",
           "datetime",
           "to_timezone"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -7177,7 +6922,6 @@
     },
     {
       "name": "time.worldclock.zones",
-      "title": "List All Timezones",
       "description": "List all 597 IANA timezone names. Use for timezone validation and discovery (TimeAPI.io)",
       "inputSchema": {
         "type": "object",
@@ -7186,8 +6930,7 @@
             "type": "string",
             "description": "Optional prefix filter for timezone names (e.g. \"America\", \"Europe\", \"Asia\"). Returns all 597 zones if omitted."
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -7198,14 +6941,12 @@
     },
     {
       "name": "web.screenshot.capture",
-      "title": "Capture Website Screenshot (ApiFlash)",
       "description": "Take a screenshot of any URL — returns image URL. Chrome-based rendering, supports full-page capture, custom viewport, ad blocking, cookie banner removal. Waits for JS-heavy SPAs to load (ApiFlash)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "url": {
             "type": "string",
-            "format": "uri",
             "description": "URL of the website to screenshot (e.g. \"https://example.com\")"
           },
           "format": {
@@ -7258,8 +6999,7 @@
         },
         "required": [
           "url"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -7270,7 +7010,6 @@
     },
     {
       "name": "sports.football.fixtures",
-      "title": "Football/Soccer Fixtures & Scores",
       "description": "Football/soccer fixtures, live scores, and results — filter by date, league (Premier League, La Liga, Champions League...), team. 2000+ leagues, 171 countries. 362+ fixtures per day (API-Sports)",
       "inputSchema": {
         "type": "object",
@@ -7295,8 +7034,7 @@
             "type": "boolean",
             "description": "Set to true to get only live/in-play fixtures"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -7307,7 +7045,6 @@
     },
     {
       "name": "sports.football.standings",
-      "title": "Football League Standings",
       "description": "League table/standings — rank, points, wins, draws, losses, goals for/against. All major leagues: Premier League (39), La Liga (140), Bundesliga (78), Serie A (135), Ligue 1 (61) (API-Sports)",
       "inputSchema": {
         "type": "object",
@@ -7323,8 +7060,7 @@
         },
         "required": [
           "league"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -7335,7 +7071,6 @@
     },
     {
       "name": "sports.football.leagues",
-      "title": "Search Football Leagues",
       "description": "Search football leagues and cups by country or name. Returns league ID, name, type (league/cup), country, logo. Use IDs for fixtures and standings queries (API-Sports)",
       "inputSchema": {
         "type": "object",
@@ -7348,8 +7083,7 @@
             "type": "string",
             "description": "Search league by name (e.g. \"Premier\", \"Champions\")"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -7360,7 +7094,6 @@
     },
     {
       "name": "sports.basketball.games",
-      "title": "Basketball Games & Scores",
       "description": "Basketball games and scores — NBA, EuroLeague, and 100+ leagues worldwide. Filter by date, league, season, team. Live and historical data (API-Sports)",
       "inputSchema": {
         "type": "object",
@@ -7381,8 +7114,7 @@
             "type": "integer",
             "description": "Team ID to filter games"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -7393,30 +7125,19 @@
     },
     {
       "name": "translate.text.translate",
-      "title": "Translate Text (Langbly)",
       "description": "Translate text between 90+ languages — auto-detects source language, supports batch translation (array of strings), HTML format preservation. Google Translate v2 compatible. $5/1M chars (Langbly)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "text": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              }
-            ],
+            "type": "string",
             "description": "Text to translate — single string or array of strings for batch translation"
           },
           "target": {
             "type": "string",
+            "description": "Target language code (e.g. \"es\", \"fr\", \"de\", \"ja\", \"zh\", \"ru\", \"ar\")",
             "minLength": 2,
-            "maxLength": 5,
-            "description": "Target language code (e.g. \"es\", \"fr\", \"de\", \"ja\", \"zh\", \"ru\", \"ar\")"
+            "maxLength": 5
           },
           "source": {
             "type": "string",
@@ -7436,8 +7157,7 @@
         "required": [
           "text",
           "target"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -7448,30 +7168,18 @@
     },
     {
       "name": "translate.text.detect",
-      "title": "Detect Language (Langbly)",
       "description": "Detect the language of text — returns language code and confidence score. Supports batch detection (Langbly)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "text": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              }
-            ],
+            "type": "string",
             "description": "Text to detect language of — single string or array"
           }
         },
         "required": [
           "text"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -7482,7 +7190,6 @@
     },
     {
       "name": "translate.text.languages",
-      "title": "List Supported Languages (Langbly)",
       "description": "List all 90+ supported translation languages with localized names. Specify display_language to get names in that language (Langbly)",
       "inputSchema": {
         "type": "object",
@@ -7491,8 +7198,7 @@
             "type": "string",
             "description": "Language code to display names in (e.g. \"en\" returns \"Spanish\", \"es\" returns \"Español\")"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -7503,15 +7209,14 @@
     },
     {
       "name": "phone.twilio.lookup",
-      "title": "Phone Number Lookup (Twilio)",
       "description": "Validate and look up phone number info — format validation, country, national format. Optional: carrier name, line type (mobile/landline/VoIP), caller name CNAM (Twilio)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "phone_number": {
             "type": "string",
-            "minLength": 1,
-            "description": "Phone number in E.164 format (e.g. \"+14157012311\", \"+442071234567\")"
+            "description": "Phone number in E.164 format (e.g. \"+14157012311\", \"+442071234567\")",
+            "minLength": 1
           },
           "include_carrier": {
             "type": "boolean",
@@ -7524,8 +7229,7 @@
         },
         "required": [
           "phone_number"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -7536,34 +7240,32 @@
     },
     {
       "name": "phone.twilio.sms",
-      "title": "Send SMS (Twilio)",
       "description": "Send SMS message to any phone number worldwide. Requires a Twilio phone number as sender. Returns message SID and delivery status. $0.0083/SMS US outbound (Twilio)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "to": {
             "type": "string",
-            "minLength": 1,
-            "description": "Recipient phone number in E.164 format (e.g. \"+14155551234\")"
+            "description": "Recipient phone number in E.164 format (e.g. \"+14155551234\")",
+            "minLength": 1
           },
           "from": {
             "type": "string",
-            "minLength": 1,
-            "description": "Sender phone number — must be a Twilio number you own (e.g. \"+15551234567\")"
+            "description": "Sender phone number — must be a Twilio number you own (e.g. \"+15551234567\")",
+            "minLength": 1
           },
           "body": {
             "type": "string",
+            "description": "SMS message text (max 1600 chars, splits into multiple segments if >160)",
             "minLength": 1,
-            "maxLength": 1600,
-            "description": "SMS message text (max 1600 chars, splits into multiple segments if >160)"
+            "maxLength": 1600
           }
         },
         "required": [
           "to",
           "from",
           "body"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": false,
@@ -7574,16 +7276,15 @@
     },
     {
       "name": "ai.image.generate",
-      "title": "Generate Image (Stability AI)",
       "description": "Generate images from text prompts using Stable Diffusion — supports style presets (anime, cinematic, pixel-art, photographic...), aspect ratios, negative prompts. Returns base64 PNG data URI. Powered by Stability AI",
       "inputSchema": {
         "type": "object",
         "properties": {
           "prompt": {
             "type": "string",
+            "description": "Text prompt describing the image to generate (e.g. \"a futuristic city at sunset, cyberpunk style, detailed\")",
             "minLength": 1,
-            "maxLength": 10000,
-            "description": "Text prompt describing the image to generate (e.g. \"a futuristic city at sunset, cyberpunk style, detailed\")"
+            "maxLength": 10000
           },
           "negative_prompt": {
             "type": "string",
@@ -7629,8 +7330,7 @@
         },
         "required": [
           "prompt"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -7641,31 +7341,18 @@
     },
     {
       "name": "email.transactional.send",
-      "title": "Send Email (Resend)",
       "description": "Send transactional email — plain text or HTML body, multiple recipients, reply-to. Requires verified sender domain. 3,000 free emails/month (Resend)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "to": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "email"
-              },
-              {
-                "type": "array",
-                "items": {
-                  "type": "string",
-                  "format": "email"
-                }
-              }
-            ],
+            "type": "string",
             "description": "Recipient email address(es) — single email or array of emails"
           },
           "subject": {
             "type": "string",
-            "minLength": 1,
-            "description": "Email subject line"
+            "description": "Email subject line",
+            "minLength": 1
           },
           "text": {
             "type": "string",
@@ -7681,15 +7368,13 @@
           },
           "reply_to": {
             "type": "string",
-            "format": "email",
             "description": "Reply-to email address"
           }
         },
         "required": [
           "to",
           "subject"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": false,
@@ -7700,7 +7385,6 @@
     },
     {
       "name": "email.transactional.status",
-      "title": "Check Email Status (Resend)",
       "description": "Check delivery status of a sent email by ID — last event, timestamps (Resend)",
       "inputSchema": {
         "type": "object",
@@ -7712,8 +7396,7 @@
         },
         "required": [
           "email_id"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -7724,7 +7407,6 @@
     },
     {
       "name": "social.mastodon.trending",
-      "title": "Trending Mastodon Posts",
       "description": "Trending posts on Mastodon (Fediverse) — popular content across the decentralized social network. Returns post text, author, reblogs, favourites, replies. No auth needed, $0 upstream (Mastodon.social)",
       "inputSchema": {
         "type": "object",
@@ -7735,8 +7417,7 @@
             "maximum": 40,
             "description": "Number of trending posts to return (default 10, max 40)"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -7747,7 +7428,6 @@
     },
     {
       "name": "social.mastodon.tags",
-      "title": "Trending Mastodon Hashtags",
       "description": "Trending hashtags on Mastodon — top topics with usage counts. Track social media trends on the decentralized network. No auth needed (Mastodon.social)",
       "inputSchema": {
         "type": "object",
@@ -7758,8 +7438,7 @@
             "maximum": 20,
             "description": "Number of trending hashtags to return (default 10, max 20)"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -7770,7 +7449,6 @@
     },
     {
       "name": "legal.regulations.search",
-      "title": "Search US Federal Regulations",
       "description": "Search US federal regulatory documents — rules, proposed rules, notices, presidential documents. Filter by agency (EPA, SEC, FDA...), document type, date. 7,500+ results for \"artificial intelligence\" (Regulations.gov)",
       "inputSchema": {
         "type": "object",
@@ -7813,8 +7491,7 @@
             ],
             "description": "Sort order (default: -postedDate, newest first)"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -7825,7 +7502,6 @@
     },
     {
       "name": "legal.regulations.document",
-      "title": "Get Regulatory Document Details",
       "description": "Get full details of a US federal regulatory document by ID — title, abstract, agency, comment count, docket, dates. Public domain (Regulations.gov)",
       "inputSchema": {
         "type": "object",
@@ -7837,8 +7513,7 @@
         },
         "required": [
           "document_id"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -7849,7 +7524,6 @@
     },
     {
       "name": "legal.fedregister.search",
-      "title": "Search Federal Register",
       "description": "Search the US Federal Register — final rules, proposed rules, notices, executive orders. Filter by agency, type, date. 90+ years of official federal government records (Federal Register)",
       "inputSchema": {
         "type": "object",
@@ -7891,8 +7565,7 @@
             ],
             "description": "Sort order (default: newest)"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -7903,7 +7576,6 @@
     },
     {
       "name": "legal.fedregister.document",
-      "title": "Get Federal Register Document",
       "description": "Get full Federal Register document by number — title, abstract, agencies, effective date, PDF link, comment deadline (Federal Register)",
       "inputSchema": {
         "type": "object",
@@ -7915,8 +7587,7 @@
         },
         "required": [
           "document_number"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -7927,7 +7598,6 @@
     },
     {
       "name": "legal.fedregister.recent",
-      "title": "Recent Federal Register Documents",
       "description": "Latest documents published in the Federal Register — filter by type (rules, proposed rules, notices, presidential). No search query needed (Federal Register)",
       "inputSchema": {
         "type": "object",
@@ -7948,8 +7618,7 @@
             "maximum": 20,
             "description": "Number of results (default 10, max 20)"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -7960,7 +7629,6 @@
     },
     {
       "name": "legal.caselaw.search",
-      "title": "Search US Court Opinions",
       "description": "Search US federal and state court opinions — filter by court (scotus, ca9, dcd...), date range, relevance. Largest free US case law archive. 7,000+ AI-related opinions (CourtListener / Free Law Project)",
       "inputSchema": {
         "type": "object",
@@ -8007,8 +7675,7 @@
         },
         "required": [
           "query"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -8019,7 +7686,6 @@
     },
     {
       "name": "legal.caselaw.opinion",
-      "title": "Get Court Opinion Text",
       "description": "Get full text of a US court opinion by ID — author, type, date, download URL. Up to 5,000 characters of opinion text (CourtListener)",
       "inputSchema": {
         "type": "object",
@@ -8031,8 +7697,7 @@
         },
         "required": [
           "opinion_id"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -8043,7 +7708,6 @@
     },
     {
       "name": "legal.caselaw.dockets",
-      "title": "Search Court Dockets (RECAP)",
       "description": "Search PACER/RECAP federal court dockets — case filings, motions, orders. Filter by court. From the RECAP Archive (CourtListener / Free Law Project)",
       "inputSchema": {
         "type": "object",
@@ -8065,8 +7729,7 @@
         },
         "required": [
           "query"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -8077,14 +7740,12 @@
     },
     {
       "name": "ai.ocr.extract",
-      "title": "Extract Text from Image (OCR)",
       "description": "Extract text from any image or PDF URL using OCR — supports 20+ languages including English, Russian, Chinese, Japanese, Korean, Arabic. Returns recognized text. Handles PNG, JPG, GIF, BMP, PDF, TIFF (OCR.space)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "url": {
             "type": "string",
-            "format": "uri",
             "description": "URL of the image or PDF to extract text from (PNG, JPG, GIF, BMP, PDF, TIFF supported)"
           },
           "language": {
@@ -8133,8 +7794,7 @@
         },
         "required": [
           "url"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -8145,22 +7805,20 @@
     },
     {
       "name": "stocks.market.quote",
-      "title": "Real-Time Stock Quote",
       "description": "Real-time stock price quote — current price, change, percent change, day high/low, open, previous close. Supports US stocks, ETFs, and major global exchanges (Finnhub)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "symbol": {
             "type": "string",
+            "description": "Stock ticker symbol (e.g. \"AAPL\", \"GOOGL\", \"TSLA\", \"MSFT\")",
             "minLength": 1,
-            "maxLength": 10,
-            "description": "Stock ticker symbol (e.g. \"AAPL\", \"GOOGL\", \"TSLA\", \"MSFT\")"
+            "maxLength": 10
           }
         },
         "required": [
           "symbol"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -8171,22 +7829,20 @@
     },
     {
       "name": "stocks.company.profile",
-      "title": "Company Profile",
       "description": "Company profile by ticker — name, exchange, industry, country, market cap, shares outstanding, IPO date, logo, website (Finnhub)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "symbol": {
             "type": "string",
+            "description": "Stock ticker symbol (e.g. \"AAPL\")",
             "minLength": 1,
-            "maxLength": 10,
-            "description": "Stock ticker symbol (e.g. \"AAPL\")"
+            "maxLength": 10
           }
         },
         "required": [
           "symbol"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -8197,16 +7853,15 @@
     },
     {
       "name": "stocks.company.news",
-      "title": "Company News",
       "description": "Latest news articles about a specific company — headline, source, summary, date, image. Filter by date range (Finnhub)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "symbol": {
             "type": "string",
+            "description": "Stock ticker symbol (e.g. \"AAPL\")",
             "minLength": 1,
-            "maxLength": 10,
-            "description": "Stock ticker symbol (e.g. \"AAPL\")"
+            "maxLength": 10
           },
           "from": {
             "type": "string",
@@ -8219,8 +7874,7 @@
         },
         "required": [
           "symbol"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -8231,16 +7885,15 @@
     },
     {
       "name": "stocks.market.candles",
-      "title": "Stock Price Candles (OHLCV)",
       "description": "Historical OHLCV candlestick data — open, high, low, close, volume with configurable resolution (1min to monthly). Use for charting and technical analysis (Finnhub)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "symbol": {
             "type": "string",
+            "description": "Stock ticker symbol (e.g. \"AAPL\")",
             "minLength": 1,
-            "maxLength": 10,
-            "description": "Stock ticker symbol (e.g. \"AAPL\")"
+            "maxLength": 10
           },
           "resolution": {
             "type": "string",
@@ -8267,8 +7920,7 @@
         },
         "required": [
           "symbol"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -8279,7 +7931,6 @@
     },
     {
       "name": "stocks.market.news",
-      "title": "Market News",
       "description": "General market news — categories: general, forex, crypto, merger. Top headlines with source, summary, and images (Finnhub)",
       "inputSchema": {
         "type": "object",
@@ -8294,8 +7945,7 @@
             ],
             "description": "News category: \"general\" (default), \"forex\", \"crypto\", \"merger\""
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -8306,7 +7956,6 @@
     },
     {
       "name": "news.global.latest",
-      "title": "Latest Global News",
       "description": "Latest news from 180,000+ sources across 200+ countries in 70+ languages. Filter by keyword, country, category, language, domain, and recency. Returns title, link, description, source, sentiment, keywords (NewsData.io)",
       "inputSchema": {
         "type": "object",
@@ -8341,8 +7990,7 @@
             "maximum": 50,
             "description": "Number of articles to return (default 10, max 50)"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -8353,7 +8001,6 @@
     },
     {
       "name": "news.crypto.latest",
-      "title": "Crypto & Blockchain News",
       "description": "Cryptocurrency and blockchain news feed — filter by coin (Bitcoin, Ethereum, Solana...), keyword, language. Dedicated crypto news index from specialized sources (NewsData.io)",
       "inputSchema": {
         "type": "object",
@@ -8376,8 +8023,7 @@
             "maximum": 50,
             "description": "Number of articles (default 10, max 50)"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -8388,7 +8034,6 @@
     },
     {
       "name": "news.global.sources",
-      "title": "News Sources Directory",
       "description": "Browse available news sources — filter by country, language, and category. Returns source name, URL, categories, and languages covered. 180,000+ sources indexed (NewsData.io)",
       "inputSchema": {
         "type": "object",
@@ -8405,8 +8050,7 @@
             "type": "string",
             "description": "Category to filter sources (e.g. \"technology\", \"business\")"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -8417,15 +8061,14 @@
     },
     {
       "name": "search.semantic.web",
-      "title": "Semantic Web Search (Exa)",
       "description": "Neural/semantic web search — finds conceptually related pages, not just keyword matches. Supports category filters (company, research paper, news, people, tweet), domain filtering, date range. Returns relevance scores and highlighted excerpts (Exa)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "query": {
             "type": "string",
-            "minLength": 1,
-            "description": "Natural language search query — Exa finds semantically related pages, not just keyword matches"
+            "description": "Natural language search query — Exa finds semantically related pages, not just keyword matches",
+            "minLength": 1
           },
           "num_results": {
             "type": "integer",
@@ -8486,8 +8129,7 @@
         },
         "required": [
           "query"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -8498,7 +8140,6 @@
     },
     {
       "name": "search.semantic.contents",
-      "title": "Extract Page Content (Exa)",
       "description": "Extract clean text content from up to 10 URLs — returns title, author, published date, full text. Use for feeding web pages into agent context (Exa)",
       "inputSchema": {
         "type": "object",
@@ -8506,18 +8147,16 @@
           "urls": {
             "type": "array",
             "items": {
-              "type": "string",
-              "format": "uri"
+              "type": "string"
             },
+            "description": "URLs to extract content from (1-10). Returns clean text, title, author, date.",
             "minItems": 1,
-            "maxItems": 10,
-            "description": "URLs to extract content from (1-10). Returns clean text, title, author, date."
+            "maxItems": 10
           }
         },
         "required": [
           "urls"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -8528,14 +8167,12 @@
     },
     {
       "name": "search.semantic.similar",
-      "title": "Find Similar Pages (Exa)",
       "description": "Find web pages semantically similar to a given URL — discover related content, competitors, alternatives without knowing what to search for. Unique capability for research agents (Exa)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "url": {
             "type": "string",
-            "format": "uri",
             "description": "Reference URL — Exa finds pages semantically similar to this one"
           },
           "num_results": {
@@ -8559,8 +8196,7 @@
         },
         "required": [
           "url"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -8571,15 +8207,14 @@
     },
     {
       "name": "search.ai.web",
-      "title": "AI Web Search (Tavily)",
       "description": "AI-optimized web search — returns synthesized answer + curated results with extracted page content and relevance scores. Built for LLM/agent RAG pipelines. Supports domain filtering and recency (Tavily)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "query": {
             "type": "string",
-            "minLength": 1,
-            "description": "Search query — Tavily returns AI-synthesized answer + curated results with extracted content"
+            "description": "Search query — Tavily returns AI-synthesized answer + curated results with extracted content",
+            "minLength": 1
           },
           "search_depth": {
             "type": "string",
@@ -8621,8 +8256,7 @@
         },
         "required": [
           "query"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -8633,7 +8267,6 @@
     },
     {
       "name": "search.ai.extract",
-      "title": "Extract Web Page Content (Tavily)",
       "description": "Extract clean readable content from up to 20 URLs — returns text, title, author, published date. Eliminates scraping. Perfect for feeding web pages into agent context windows (Tavily)",
       "inputSchema": {
         "type": "object",
@@ -8641,18 +8274,16 @@
           "urls": {
             "type": "array",
             "items": {
-              "type": "string",
-              "format": "uri"
+              "type": "string"
             },
+            "description": "URLs to extract clean content from (1-20 URLs). Returns readable text, title, author, date.",
             "minItems": 1,
-            "maxItems": 20,
-            "description": "URLs to extract clean content from (1-20 URLs). Returns readable text, title, author, date."
+            "maxItems": 20
           }
         },
         "required": [
           "urls"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -8663,15 +8294,14 @@
     },
     {
       "name": "search.google.web",
-      "title": "Google Web Search",
       "description": "Real-time Google web search results — organic listings, knowledge graph, answer box, people also ask, related searches. Supports country and language targeting. Powered by Serper.dev",
       "inputSchema": {
         "type": "object",
         "properties": {
           "q": {
             "type": "string",
-            "minLength": 1,
-            "description": "Search query (e.g. \"best restaurants in Berlin\", \"how does MCP protocol work\")"
+            "description": "Search query (e.g. \"best restaurants in Berlin\", \"how does MCP protocol work\")",
+            "minLength": 1
           },
           "gl": {
             "type": "string",
@@ -8697,8 +8327,7 @@
         },
         "required": [
           "q"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -8709,15 +8338,14 @@
     },
     {
       "name": "search.google.news",
-      "title": "Google News Search",
       "description": "Real-time Google News articles — title, source, date, snippet, image. Filter by time (past hour/day/week/month). Global coverage in 70+ languages (Serper.dev)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "q": {
             "type": "string",
-            "minLength": 1,
-            "description": "News search query (e.g. \"AI agents\", \"Base network\")"
+            "description": "News search query (e.g. \"AI agents\", \"Base network\")",
+            "minLength": 1
           },
           "gl": {
             "type": "string",
@@ -8742,8 +8370,7 @@
         },
         "required": [
           "q"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -8754,15 +8381,14 @@
     },
     {
       "name": "search.google.images",
-      "title": "Google Image Search",
       "description": "Google Image search results — image URL, thumbnail, dimensions, source domain. Search any visual content worldwide (Serper.dev)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "q": {
             "type": "string",
-            "minLength": 1,
-            "description": "Image search query (e.g. \"golden gate bridge sunset\")"
+            "description": "Image search query (e.g. \"golden gate bridge sunset\")",
+            "minLength": 1
           },
           "gl": {
             "type": "string",
@@ -8778,8 +8404,7 @@
         },
         "required": [
           "q"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -8790,15 +8415,14 @@
     },
     {
       "name": "search.google.shopping",
-      "title": "Google Shopping Search",
       "description": "Google Shopping product listings — title, price, source, rating, delivery info, product images. Compare prices across retailers (Serper.dev)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "q": {
             "type": "string",
-            "minLength": 1,
-            "description": "Product search query (e.g. \"macbook pro 16 inch\", \"wireless headphones\")"
+            "description": "Product search query (e.g. \"macbook pro 16 inch\", \"wireless headphones\")",
+            "minLength": 1
           },
           "gl": {
             "type": "string",
@@ -8814,8 +8438,7 @@
         },
         "required": [
           "q"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -8826,7 +8449,6 @@
     },
     {
       "name": "realestate.listings.for_sale",
-      "title": "Search US Properties For Sale",
       "description": "Search active for-sale property listings across the US — filter by city, state, ZIP, price range, bedrooms, bathrooms, sqft, property type. Returns address, price, specs, photos. Millions of MLS listings (RapidAPI / Realtor.com data)",
       "inputSchema": {
         "type": "object",
@@ -8903,8 +8525,7 @@
             "minimum": 0,
             "description": "Pagination offset (default 0)"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "annotations": {
         "readOnlyHint": true,
@@ -8915,7 +8536,6 @@
     },
     {
       "name": "realestate.property.details",
-      "title": "Get US Property Details",
       "description": "Detailed property information by property ID — beds, baths, sqft, year built, lot size, tax assessment, HOA, days on market, photos, last sale price/date. Use for_sale search first to get property_id (RapidAPI / Realtor.com data)",
       "inputSchema": {
         "type": "object",
@@ -8927,8 +8547,7 @@
         },
         "required": [
           "property_id"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -8939,21 +8558,19 @@
     },
     {
       "name": "realestate.location.suggest",
-      "title": "US Real Estate Location Search",
       "description": "Autocomplete location search for US real estate — returns matching cities, ZIP codes, and addresses with coordinates. Use to find valid city/state codes for property searches (RapidAPI / Realtor.com data)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "query": {
             "type": "string",
-            "minLength": 2,
-            "description": "Location search query — city name, address, or ZIP code (e.g. \"Austin TX\", \"90210\")"
+            "description": "Location search query — city name, address, or ZIP code (e.g. \"Austin TX\", \"90210\")",
+            "minLength": 2
           }
         },
         "required": [
           "query"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -8964,7 +8581,6 @@
     },
     {
       "name": "realestate.walkscore.score",
-      "title": "Get Walk Score, Transit Score & Bike Score",
       "description": "Walk Score (0-100), Transit Score (0-100), and Bike Score (0-100) for any US/Canada address. Measures walkability to amenities, public transit quality, and cycling infrastructure. Industry-standard walkability metric used by 30,000+ websites (Walk Score / Redfin)",
       "inputSchema": {
         "type": "object",
@@ -8975,23 +8591,22 @@
           },
           "latitude": {
             "type": "number",
+            "description": "Latitude of the address (-90 to 90). Use geo.geocode to get coordinates.",
             "minimum": -90,
-            "maximum": 90,
-            "description": "Latitude of the address (-90 to 90). Use geo.geocode to get coordinates."
+            "maximum": 90
           },
           "longitude": {
             "type": "number",
+            "description": "Longitude of the address (-180 to 180). Use geo.geocode to get coordinates.",
             "minimum": -180,
-            "maximum": 180,
-            "description": "Longitude of the address (-180 to 180). Use geo.geocode to get coordinates."
+            "maximum": 180
           }
         },
         "required": [
           "address",
           "latitude",
           "longitude"
-        ],
-        "additionalProperties": false
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
@@ -9003,41 +8618,54 @@
   ],
   "prompts": [
     {
-      "name": "find_cheapest_flight",
-      "description": "Search flights",
+      "name": "discover-tools",
+      "description": "Find the right APIbase tools for a task. Describes available categories, search strategies, and tool selection criteria.",
       "arguments": [
         {
-          "name": "origin",
-          "description": "IATA",
-          "required": true
-        },
-        {
-          "name": "destination",
-          "description": "IATA",
-          "required": true
-        },
-        {
-          "name": "date",
-          "description": "YYYY-MM-DD",
+          "name": "task",
+          "description": "What you want to accomplish (e.g. \"find flights from NYC to London\")",
           "required": true
         }
       ]
     },
     {
-      "name": "crypto_market_overview",
-      "description": "Crypto overview"
+      "name": "api-workflow",
+      "description": "Design a multi-step API workflow combining multiple APIbase tools. Returns execution plan with tool sequence, data flow, and error handling.",
+      "arguments": [
+        {
+          "name": "goal",
+          "description": "End-to-end goal (e.g. \"plan a trip to Tokyo with flights, weather, and local events\")",
+          "required": true
+        },
+        {
+          "name": "budget",
+          "description": "Optional USDC budget constraint for the workflow",
+          "required": false
+        }
+      ]
     },
     {
-      "name": "prediction_market_research",
-      "description": "Polymarket",
+      "name": "x402-payment-guide",
+      "description": "Explains x402 USDC micropayment flow for APIbase. Covers wallet setup on Base, payment headers, escrow mechanics, and refund policy.",
       "arguments": [
         {
           "name": "topic",
-          "description": "Topic",
-          "required": true
+          "description": "Specific payment topic (e.g. \"setup\", \"escrow\", \"refunds\", \"pricing\")",
+          "required": false
         }
       ]
     }
   ],
-  "resources": []
+  "resources": [
+    {
+      "name": "tool-catalog",
+      "description": "Full tool catalog with schemas, pricing, and provider info",
+      "uri": "https://apibase.pro/api/v1/tools"
+    },
+    {
+      "name": "health-status",
+      "description": "System health check",
+      "uri": "https://apibase.pro/health/ready"
+    }
+  ]
 }

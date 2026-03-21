@@ -54,6 +54,10 @@ import { ShortIoAdapter } from './shortio';
 import { CalendarificAdapter } from './calendarific';
 import { NagerDateAdapter } from './nagerdate';
 import { SslCheckerAdapter } from './sslchecker';
+import { NhtsaAdapter } from './nhtsa';
+import { RestCountriesAdapter } from './restcountries';
+import { OpenFoodFactsAdapter } from './openfoodfacts';
+import { RandomUserAdapter } from './randomuser';
 import { FirmsAdapter } from './firms';
 import { ResendAdapter } from './resend';
 import { FedRegisterAdapter } from './fedregister';
@@ -251,6 +255,14 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       return getOrCreate('nws', () => new NwsAdapter());
     case 'holidays':
       return getOrCreate('nagerdate', () => new NagerDateAdapter());
+    case 'vin':
+      return getOrCreate('nhtsa', () => new NhtsaAdapter());
+    case 'country':
+      return getOrCreate('restcountries', () => new RestCountriesAdapter());
+    case 'food':
+      return getOrCreate('openfoodfacts', () => new OpenFoodFactsAdapter());
+    case 'random':
+      return getOrCreate('randomuser', () => new RandomUserAdapter());
     case 'ssl':
       return getOrCreate('sslchecker', () => new SslCheckerAdapter());
     case 'gdelt':
