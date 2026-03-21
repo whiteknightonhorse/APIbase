@@ -58,6 +58,7 @@ import { nhtsaSchemas } from './nhtsa.schema';
 import { restcountriesSchemas } from './restcountries.schema';
 import { openfoodfactsSchemas } from './openfoodfacts.schema';
 import { randomuserSchemas } from './randomuser.schema';
+import { iqairSchemas } from './iqair.schema';
 import { firmsSchemas } from './firms.schema';
 import { resendSchemas } from './resend.schema';
 import { fedregisterSchemas } from './fedregister.schema';
@@ -123,6 +124,7 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...restcountriesSchemas,
   ...openfoodfactsSchemas,
   ...randomuserSchemas,
+  ...iqairSchemas,
   ...firmsSchemas,
   ...resendSchemas,
   ...fedregisterSchemas,

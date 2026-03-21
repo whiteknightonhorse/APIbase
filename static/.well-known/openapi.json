@@ -20158,6 +20158,168 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/airquality.city/call": {
+      "post": {
+        "operationId": "airquality_city",
+        "summary": "Air Quality by City",
+        "description": "Real-time air quality index (AQI US + CN), pollutant concentrations (PM2.5, PM10, O3, NO2, SO2, CO), dominant pollutant, temperature, humidity, wind speed for any city worldwide. 30,000+ monitoring stations across 10,000+ cities (IQAir AirVisual)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "airquality.city"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "city": {
+                    "type": "string",
+                    "description": "City name (e.g. \"Los Angeles\", \"London\", \"Tokyo\")",
+                    "minLength": 1
+                  },
+                  "state": {
+                    "type": "string",
+                    "description": "State or province (e.g. \"California\", \"England\", \"Tokyo\")",
+                    "minLength": 1
+                  },
+                  "country": {
+                    "type": "string",
+                    "description": "Country name (e.g. \"USA\", \"UK\", \"Japan\")",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "city",
+                  "state",
+                  "country"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/airquality.nearest/call": {
+      "post": {
+        "operationId": "airquality_nearest",
+        "summary": "Air Quality by Coordinates",
+        "description": "Real-time air quality index (AQI) and weather data for the nearest monitoring station to given GPS coordinates. Returns nearest city, AQI (US + CN), dominant pollutant, PM2.5/PM10/O3 concentrations, temperature, humidity (IQAir AirVisual)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "airquality.nearest"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "lat": {
+                    "type": "number",
+                    "description": "Latitude (-90 to 90, e.g. 34.0522)",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "lon": {
+                    "type": "number",
+                    "description": "Longitude (-180 to 180, e.g. -118.2437)",
+                    "minimum": -180,
+                    "maximum": 180
+                  }
+                },
+                "required": [
+                  "lat",
+                  "lon"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {
