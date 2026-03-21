@@ -60,6 +60,7 @@ import { OpenFoodFactsAdapter } from './openfoodfacts';
 import { RandomUserAdapter } from './randomuser';
 import { IqairAdapter } from './iqair';
 import { FatSecretAdapter } from './fatsecret';
+import { HunterAdapter } from './hunter';
 import { FirmsAdapter } from './firms';
 import { ResendAdapter } from './resend';
 import { FedRegisterAdapter } from './fedregister';
@@ -359,6 +360,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const iqairKey = (config as Record<string, unknown>).PROVIDER_KEY_IQAIR as string | undefined;
       if (!iqairKey) return undefined;
       return getOrCreate('iqair', () => new IqairAdapter(iqairKey));
+    }
+    case 'hunter': {
+      const hunterKey = (config as Record<string, unknown>).PROVIDER_KEY_HUNTER as string | undefined;
+      if (!hunterKey) return undefined;
+      return getOrCreate('hunter', () => new HunterAdapter(hunterKey));
     }
     case 'fatsecret': {
       const fsId = (config as Record<string, unknown>).FATSECRET_CLIENT_ID as string | undefined;

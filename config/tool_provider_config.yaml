@@ -1526,3 +1526,10 @@ tools:
     provider: fatsecret
     price_usd: "0.002"
     cache_ttl: 86400
+
+  # --- UC-128: Hunter.io (Company Enrichment) ---
+  - tool_id: hunter.company
+    name: Company Email & Enrichment
+    provider: hunter
+    price_usd: "0.005"
+    cache_ttl: 3600

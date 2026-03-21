@@ -1998,4 +1998,15 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description: 'Complete nutritional profile for a food item by FatSecret ID — all serving sizes with calories, total/saturated/trans fat, cholesterol, sodium, potassium, carbs, fiber, sugar, protein, vitamins A/C/D, calcium, iron. 2.3M+ foods (FatSecret)',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // Hunter.io — Company Enrichment (UC-128, 1 tool)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'hunter.company',
+    mcpName: 'business.hunter.company',
+    title: 'Company Email & Enrichment by Domain',
+    description: 'Find professional email addresses and company data for any domain — organization name, industry, employee count, tech stack, social profiles, email pattern, and verified contact emails with confidence scores, positions, departments, seniority levels. 50M+ domains indexed (Hunter.io)',
+    annotations: READ_ONLY,
+  },
 ];

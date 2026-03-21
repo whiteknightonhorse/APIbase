@@ -1,6 +1,6 @@
 # APIbase.pro — The API Hub for AI Agents
 
-> One MCP endpoint. 238 tools. 64 providers. Pay per call with x402 USDC on Base.
+> One MCP endpoint. 239 tools. 65 providers. Pay per call with x402 USDC on Base.
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Health](https://apibase.pro/health/ready)** | **[Dashboard](https://apibase.pro/dashboard)**
 
@@ -12,7 +12,7 @@
 
 ## What is APIbase?
 
-Production MCP server that gives AI agents access to 238 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, translate text, check weather alerts, generate images, send emails, look up holidays, shorten URLs, detect fires by satellite, decode VINs, look up food products — and 200+ more tools across 30+ categories.
+Production MCP server that gives AI agents access to 239 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, translate text, check weather alerts, generate images, send emails, look up holidays, shorten URLs, detect fires by satellite, decode VINs, look up food products — and 200+ more tools across 30+ categories.
 
 **Built for AI agents, not humans.** Auto-registration, zero setup, pay-per-call via x402 USDC micropayments on Base.
 
@@ -62,7 +62,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 
 ---
 
-## Tool Categories (238 tools, 64 providers)
+## Tool Categories (239 tools, 65 providers)
 
 | Category | Tools | Providers | Examples |
 |----------|-------|-----------|----------|
@@ -92,6 +92,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 | **URL Shortener** | 2 | Short.io | Custom branded short links + stats |
 | **SSL & Domain** | 5 | WhoisXML, ssl-checker.io | WHOIS, DNS, SSL cert check |
 | **Barcode & QR** | 4 | QRServer, UPCitemdb | Generate/read QR, barcode lookup |
+| **Business Intel** | 1 | Hunter.io | Company emails, enrichment, 50M+ domains |
 | **E-commerce** | 8 | Zinc, Diffbot | Product search, web extraction |
 | **AI Marketing** | 7 | AIPush | AI-optimized pages, visibility scores |
 | **World Clock** | 3 | TimeAPI.io | Timezone conversion, 597 IANA zones |
@@ -165,7 +166,7 @@ Auto-registration: agents get API keys instantly on first request. No forms, no 
 
 ```
 GET /.well-known/mcp.json → MCP server metadata
-GET /api/v1/tools → Full tool catalog with schemas (all 238 in one response)
+GET /api/v1/tools → Full tool catalog with schemas (all 239 in one response)
 GET /health/ready → System health check
 ```
 
