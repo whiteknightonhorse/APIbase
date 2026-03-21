@@ -122,6 +122,7 @@ export function zodToJsonSchema(schema: z.ZodTypeAny): Record<string, unknown> {
   // ZodUnion (e.g. z.union([z.string(), z.array(z.string())]))
   if (schema instanceof z.ZodUnion) {
     // Use first variant as representative type, carry description from union
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const options = (schema._def as any).options as z.ZodTypeAny[];
     const result = options.length > 0 ? zodToJsonSchema(options[0]) : { type: 'string' };
     if (schema.description && !result.description) {
