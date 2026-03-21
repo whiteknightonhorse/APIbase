@@ -43,7 +43,7 @@ export class IqairAdapter extends BaseAdapter {
     }
   }
 
-  parseResponse(raw: ProviderRawResponse, req: ProviderRequest): ProviderRawResponse {
+  parseResponse(raw: ProviderRawResponse, _req: ProviderRequest): ProviderRawResponse {
     const body =
       typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body;
 
