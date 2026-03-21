@@ -1450,6 +1450,71 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   },
 
   // ---------------------------------------------------------------------------
+  // NHTSA — US Vehicle VIN Decoder (UC-121, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'vin.decode',
+    mcpName: 'vehicle.vin.decode',
+    title: 'Decode VIN Number (NHTSA)',
+    description: 'Decode a 17-character VIN — make, model, year, body class, engine, fuel type, transmission, plant country. US Government open data, unlimited, no auth (NHTSA)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'vin.models',
+    mcpName: 'vehicle.vin.models',
+    title: 'Vehicle Models by Make/Year (NHTSA)',
+    description: 'List vehicle models for a make and/or year (e.g. Honda 2024). US Government data (NHTSA)',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
+  // REST Countries — Country Information (UC-122, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'country.search',
+    mcpName: 'world.country.search',
+    title: 'Search Country by Name',
+    description: 'Search country by name — population, area, capital, languages, currencies, timezones, flag, region, borders. 250+ countries. No auth, free (REST Countries)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'country.by_code',
+    mcpName: 'world.country.code',
+    title: 'Country by ISO Code',
+    description: 'Get country details by ISO code (US, GB, DE, JP). Returns name, population, area, capital, currencies, languages, flag (REST Countries)',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
+  // Open Food Facts — Food Product Database (UC-123, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'food.barcode',
+    mcpName: 'food.product.barcode',
+    title: 'Food Product by Barcode',
+    description: 'Lookup food product by barcode (EAN/UPC) — name, brand, nutrition (calories, fat, carbs, protein per 100g), Nutri-Score, NOVA group, ingredients. 3M+ products (Open Food Facts)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'food.search',
+    mcpName: 'food.product.search',
+    title: 'Search Food Products',
+    description: 'Search food products by name — returns matching products with brand, barcode, Nutri-Score, image. 3M+ products worldwide (Open Food Facts)',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
+  // RandomUser.me — Random User Generator (UC-124, 1 tool)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'random.user',
+    mcpName: 'test.random.user',
+    title: 'Generate Random User Profile',
+    description: 'Generate realistic random user profiles — name, email, phone, address, age, gender, photo. Filter by nationality and gender. For testing and demo data (RandomUser.me)',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
   // ssl-checker.io — SSL Certificate Check (UC-119, 1 tool)
   // ---------------------------------------------------------------------------
   {

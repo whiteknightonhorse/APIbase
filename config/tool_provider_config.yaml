@@ -1123,6 +1123,52 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-121: NHTSA VIN Decoder ---
+  - tool_id: vin.decode
+    name: Decode VIN Number
+    provider: nhtsa
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: vin.models
+    name: Vehicle Models by Make
+    provider: nhtsa
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  # --- UC-122: REST Countries ---
+  - tool_id: country.search
+    name: Search Country
+    provider: restcountries
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: country.by_code
+    name: Country by Code
+    provider: restcountries
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  # --- UC-123: Open Food Facts ---
+  - tool_id: food.barcode
+    name: Food Product by Barcode
+    provider: openfoodfacts
+    price_usd: "0.001"
+    cache_ttl: 604800
+
+  - tool_id: food.search
+    name: Search Food Products
+    provider: openfoodfacts
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  # --- UC-124: RandomUser.me ---
+  - tool_id: random.user
+    name: Generate Random User
+    provider: randomuser
+    price_usd: "0.001"
+    cache_ttl: 0
+
   # --- UC-119: ssl-checker.io ---
   - tool_id: ssl.check
     name: SSL Certificate Check

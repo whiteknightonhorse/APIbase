@@ -54,6 +54,10 @@ import { shortioSchemas } from './shortio.schema';
 import { calendarificSchemas } from './calendarific.schema';
 import { nagerdateSchemas } from './nagerdate.schema';
 import { sslcheckerSchemas } from './sslchecker.schema';
+import { nhtsaSchemas } from './nhtsa.schema';
+import { restcountriesSchemas } from './restcountries.schema';
+import { openfoodfactsSchemas } from './openfoodfacts.schema';
+import { randomuserSchemas } from './randomuser.schema';
 import { firmsSchemas } from './firms.schema';
 import { resendSchemas } from './resend.schema';
 import { fedregisterSchemas } from './fedregister.schema';
@@ -115,6 +119,10 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...calendarificSchemas,
   ...nagerdateSchemas,
   ...sslcheckerSchemas,
+  ...nhtsaSchemas,
+  ...restcountriesSchemas,
+  ...openfoodfactsSchemas,
+  ...randomuserSchemas,
   ...firmsSchemas,
   ...resendSchemas,
   ...fedregisterSchemas,

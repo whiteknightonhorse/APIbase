@@ -119,6 +119,17 @@ export function zodToJsonSchema(schema: z.ZodTypeAny): Record<string, unknown> {
     return result;
   }
 
+  // ZodUnion (e.g. z.union([z.string(), z.array(z.string())]))
+  if (schema instanceof z.ZodUnion) {
+    // Use first variant as representative type, carry description from union
+    const options = (schema._def as any).options as z.ZodTypeAny[];
+    const result = options.length > 0 ? zodToJsonSchema(options[0]) : { type: 'string' };
+    if (schema.description && !result.description) {
+      result.description = schema.description;
+    }
+    return result;
+  }
+
   // ZodUnknown (e.g. z.unknown() inside z.record(z.unknown()))
   if (schema instanceof z.ZodUnknown) {
     return {};
