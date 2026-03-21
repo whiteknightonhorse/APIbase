@@ -159,6 +159,9 @@ export const appEnvSchema = z.object({
   // Walk Score (UC-062) — query param auth, 5,000 calls/day free
   PROVIDER_KEY_WALKSCORE: z.string().optional().default(''),
 
+  // IQAir AirVisual (UC-120) — query param auth, 10,000 calls/month free
+  PROVIDER_KEY_IQAIR: z.string().optional().default(''),
+
   // Polymarket trading — Phase 2 (UC-001 §3-§8)
   POLYMARKET_WALLET_ADDRESS: z.string().startsWith('0x').optional().default(''),
   POLYMARKET_PRIVATE_KEY: z.string().optional().default(''),

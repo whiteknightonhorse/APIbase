@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 239 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 241 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -8606,6 +8606,72 @@
           "address",
           "latitude",
           "longitude"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "environment.airquality.city",
+      "description": "Real-time air quality index (AQI US + CN), pollutant concentrations (PM2.5, PM10, O3, NO2, SO2, CO), dominant pollutant, temperature, humidity, wind speed for any city worldwide. 30,000+ monitoring stations across 10,000+ cities (IQAir AirVisual)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "city": {
+            "type": "string",
+            "description": "City name (e.g. \"Los Angeles\", \"London\", \"Tokyo\")",
+            "minLength": 1
+          },
+          "state": {
+            "type": "string",
+            "description": "State or province (e.g. \"California\", \"England\", \"Tokyo\")",
+            "minLength": 1
+          },
+          "country": {
+            "type": "string",
+            "description": "Country name (e.g. \"USA\", \"UK\", \"Japan\")",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "city",
+          "state",
+          "country"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "environment.airquality.nearest",
+      "description": "Real-time air quality index (AQI) and weather data for the nearest monitoring station to given GPS coordinates. Returns nearest city, AQI (US + CN), dominant pollutant, PM2.5/PM10/O3 concentrations, temperature, humidity (IQAir AirVisual)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number",
+            "description": "Latitude (-90 to 90, e.g. 34.0522)",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "lon": {
+            "type": "number",
+            "description": "Longitude (-180 to 180, e.g. -118.2437)",
+            "minimum": -180,
+            "maximum": 180
+          }
+        },
+        "required": [
+          "lat",
+          "lon"
         ]
       },
       "annotations": {

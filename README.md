@@ -1,6 +1,6 @@
 # APIbase.pro — The API Hub for AI Agents
 
-> One MCP endpoint. 234 tools. 62 providers. Pay per call with x402 USDC on Base.
+> One MCP endpoint. 236 tools. 63 providers. Pay per call with x402 USDC on Base.
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Health](https://apibase.pro/health/ready)** | **[Dashboard](https://apibase.pro/dashboard)**
 
@@ -62,7 +62,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 
 ---
 
-## Tool Categories (234 tools, 62 providers)
+## Tool Categories (236 tools, 63 providers)
 
 | Category | Tools | Providers | Examples |
 |----------|-------|-----------|----------|
@@ -79,6 +79,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 | **Education & Research** | 7 | OpenAlex, arXiv, PubMed, CrossRef | Papers, colleges, DOI lookup |
 | **Jobs & Career** | 6 | BLS, ESCO, CareerJet | Salary data, occupations, job listings |
 | **Legal & Regulatory** | 8 | Regulations.gov, Federal Register, CourtListener | US regulations, court opinions, executive orders |
+| **Air Quality** | 2 | IQAir AirVisual | AQI, pollutants (PM2.5/O3), 30K+ stations |
 | **Weather & Earth** | 3 | NWS, NASA FIRMS | US weather alerts, satellite fire detection |
 | **Space & Astronomy** | 9 | NASA, JPL | APOD, asteroids, fireballs, solar flares |
 | **Translation** | 3 | Langbly | 90+ languages, language detection |

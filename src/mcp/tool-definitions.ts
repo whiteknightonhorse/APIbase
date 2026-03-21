@@ -1962,4 +1962,22 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description: 'Walk Score (0-100), Transit Score (0-100), and Bike Score (0-100) for any US/Canada address. Measures walkability to amenities, public transit quality, and cycling infrastructure. Industry-standard walkability metric used by 30,000+ websites (Walk Score / Redfin)',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // IQAir AirVisual — Air Quality (UC-120, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'airquality.city',
+    mcpName: 'environment.airquality.city',
+    title: 'Air Quality by City',
+    description: 'Real-time air quality index (AQI US + CN), pollutant concentrations (PM2.5, PM10, O3, NO2, SO2, CO), dominant pollutant, temperature, humidity, wind speed for any city worldwide. 30,000+ monitoring stations across 10,000+ cities (IQAir AirVisual)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'airquality.nearest',
+    mcpName: 'environment.airquality.nearest',
+    title: 'Air Quality by Coordinates',
+    description: 'Real-time air quality index (AQI) and weather data for the nearest monitoring station to given GPS coordinates. Returns nearest city, AQI (US + CN), dominant pollutant, PM2.5/PM10/O3 concentrations, temperature, humidity (IQAir AirVisual)',
+    annotations: READ_ONLY,
+  },
 ];

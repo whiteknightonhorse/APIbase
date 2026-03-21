@@ -549,5 +549,14 @@
     "reset_period": "none",
     "docs_url": "https://randomuser.me/documentation",
     "limit_proof": "Fully free, no auth, open source, unlimited"
+  },
+  "iqair": {
+    "display_name": "IQAir AirVisual",
+    "health_url": "http://api.airvisual.com/v2/countries?key=e1fd5771-ced5-4e36-9d18-32a3df9a9d4b",
+    "limit_type": "monthly",
+    "free_limit": 10000,
+    "reset_period": "monthly",
+    "docs_url": "https://api-docs.iqair.com/",
+    "limit_proof": "Community plan: 10,000 calls/month, real-time AQI + weather"
   }
 }

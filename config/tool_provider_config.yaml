@@ -1502,3 +1502,15 @@ tools:
     provider: walkscore
     price_usd: "0.001"
     cache_ttl: 604800
+
+  # --- UC-120: IQAir AirVisual (Air Quality) ---
+  - tool_id: airquality.city
+    name: Air Quality by City
+    provider: iqair
+    price_usd: "0.002"
+    cache_ttl: 300
+  - tool_id: airquality.nearest
+    name: Air Quality by Coordinates
+    provider: iqair
+    price_usd: "0.002"
+    cache_ttl: 300
