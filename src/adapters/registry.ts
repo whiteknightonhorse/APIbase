@@ -63,6 +63,7 @@ import { FatSecretAdapter } from './fatsecret';
 import { HunterAdapter } from './hunter';
 import { AutoDevAdapter } from './autodev';
 import { GeocodioAdapter } from './geocodio';
+import { PodcastIndexAdapter } from './podcastindex';
 import { FirmsAdapter } from './firms';
 import { ResendAdapter } from './resend';
 import { FedRegisterAdapter } from './fedregister';
@@ -362,6 +363,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const iqairKey = (config as Record<string, unknown>).PROVIDER_KEY_IQAIR as string | undefined;
       if (!iqairKey) return undefined;
       return getOrCreate('iqair', () => new IqairAdapter(iqairKey));
+    }
+    case 'podcast': {
+      const piKey = (config as Record<string, unknown>).PROVIDER_KEY_PODCASTINDEX as string | undefined;
+      const piSecret = (config as Record<string, unknown>).PROVIDER_SECRET_PODCASTINDEX as string | undefined;
+      if (!piKey || !piSecret) return undefined;
+      return getOrCreate('podcastindex', () => new PodcastIndexAdapter(piKey, piSecret));
     }
     case 'geocodio': {
       const geocodioKey = (config as Record<string, unknown>).PROVIDER_KEY_GEOCODIO as string | undefined;

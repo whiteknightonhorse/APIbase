@@ -20546,6 +20546,322 @@
         ]
       }
     },
+    "/api/v1/tools/podcast.search/call": {
+      "post": {
+        "operationId": "podcast_search",
+        "summary": "Search Podcasts",
+        "description": "Search 4M+ podcasts by keyword — returns title, author, description, artwork, episode count, language, categories, RSS feed URL. Open directory covering all languages and countries (PodcastIndex)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "podcast.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "q": {
+                    "type": "string",
+                    "description": "Search term or phrase (e.g. \"artificial intelligence\", \"Lex Fridman\", \"true crime\")",
+                    "minLength": 2
+                  },
+                  "max": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Max results to return (default 20, max 100)"
+                  },
+                  "lang": {
+                    "type": "string",
+                    "description": "Filter by language code (e.g. \"en\", \"de\", \"es\", \"ja\")"
+                  },
+                  "cat": {
+                    "type": "string",
+                    "description": "Filter by category name (e.g. \"Technology\", \"News\", \"Comedy\", \"Business\")"
+                  }
+                },
+                "required": [
+                  "q"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/podcast.trending/call": {
+      "post": {
+        "operationId": "podcast_trending",
+        "summary": "Trending Podcasts",
+        "description": "Currently trending podcasts globally — ranked by recent episode engagement. Filter by language and category. Returns title, author, artwork, trending score, episode count (PodcastIndex)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "podcast.trending"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "max": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Number of trending podcasts (default 20, max 100)"
+                  },
+                  "lang": {
+                    "type": "string",
+                    "description": "Filter by language code (e.g. \"en\")"
+                  },
+                  "cat": {
+                    "type": "string",
+                    "description": "Filter by category (e.g. \"Technology\", \"News\")"
+                  },
+                  "since": {
+                    "type": "integer",
+                    "description": "Unix timestamp — only include podcasts with new episodes since this time"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/podcast.episodes/call": {
+      "post": {
+        "operationId": "podcast_episodes",
+        "summary": "Podcast Episodes",
+        "description": "List recent episodes for a podcast by feed ID — title, description, publish date, audio URL, duration, season/episode numbers. Use feed ID from search or trending results (PodcastIndex)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "podcast.episodes"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "PodcastIndex feed ID (from search or trending results)"
+                  },
+                  "max": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Number of episodes to return (default 20, max 100)"
+                  },
+                  "since": {
+                    "type": "integer",
+                    "description": "Unix timestamp — only return episodes published after this time"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/podcast.by_feed/call": {
+      "post": {
+        "operationId": "podcast_by_feed",
+        "summary": "Podcast Details by Feed ID",
+        "description": "Full metadata for a single podcast — title, author, description, RSS URL, artwork, language, categories, episode count, last update time, funding links (PodcastIndex)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "podcast.by_feed"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "PodcastIndex feed ID to retrieve full metadata for"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/geocodio.geocode/call": {
       "post": {
         "operationId": "geocodio_geocode",

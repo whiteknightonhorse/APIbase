@@ -2016,6 +2016,38 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // ---------------------------------------------------------------------------
   // Geocodio — US/Canada Address Geocoding (UC-131, 2 tools)
   // ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // PodcastIndex — Podcast Directory (UC-141, 4 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'podcast.search',
+    mcpName: 'media.podcast.search',
+    title: 'Search Podcasts',
+    description: 'Search 4M+ podcasts by keyword — returns title, author, description, artwork, episode count, language, categories, RSS feed URL. Open directory covering all languages and countries (PodcastIndex)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'podcast.trending',
+    mcpName: 'media.podcast.trending',
+    title: 'Trending Podcasts',
+    description: 'Currently trending podcasts globally — ranked by recent episode engagement. Filter by language and category. Returns title, author, artwork, trending score, episode count (PodcastIndex)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'podcast.episodes',
+    mcpName: 'media.podcast.episodes',
+    title: 'Podcast Episodes',
+    description: 'List recent episodes for a podcast by feed ID — title, description, publish date, audio URL, duration, season/episode numbers. Use feed ID from search or trending results (PodcastIndex)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'podcast.by_feed',
+    mcpName: 'media.podcast.details',
+    title: 'Podcast Details by Feed ID',
+    description: 'Full metadata for a single podcast — title, author, description, RSS URL, artwork, language, categories, episode count, last update time, funding links (PodcastIndex)',
+    annotations: READ_ONLY,
+  },
+
   {
     toolId: 'geocodio.geocode',
     mcpName: 'address.geocodio.geocode',

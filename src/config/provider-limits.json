@@ -550,6 +550,15 @@
     "docs_url": "https://randomuser.me/documentation",
     "limit_proof": "Fully free, no auth, open source, unlimited"
   },
+  "podcastindex": {
+    "display_name": "PodcastIndex",
+    "health_url": "https://api.podcastindex.org/api/1.0/stats/current",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://podcastindex-org.github.io/docs-api/",
+    "limit_proof": "Fully free, open-source, community-maintained, no usage limits (fair use)"
+  },
   "geocodio": {
     "display_name": "Geocodio",
     "health_url": "https://api.geocod.io/v1.7/geocode?q=test&api_key=06f48f40f99b9f9049f2422587b96618f1b1644",
