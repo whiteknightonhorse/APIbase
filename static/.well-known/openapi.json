@@ -20546,6 +20546,167 @@
         ]
       }
     },
+    "/api/v1/tools/europeana.search/call": {
+      "post": {
+        "operationId": "europeana_search",
+        "summary": "Search European Cultural Heritage",
+        "description": "Search 50M+ cultural heritage objects across 4,000 institutions in 36 European countries — paintings, photographs, books, maps, 3D objects, music, film. Multilingual (24 languages). Filter by country, media type. Returns title, creator, thumbnail, provider, year (Europeana)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "europeana.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search term (e.g. \"Rembrandt\", \"Mona Lisa\", \"medieval manuscript\", \"Art Nouveau poster\")",
+                    "minLength": 1
+                  },
+                  "rows": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Number of results to return (default 12, max 100)"
+                  },
+                  "start": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Start position for pagination (default 1)"
+                  },
+                  "media": {
+                    "type": "boolean",
+                    "description": "Only return items with media (images/video/audio) — default false"
+                  },
+                  "country": {
+                    "type": "string",
+                    "description": "Filter by country (e.g. \"Netherlands\", \"France\", \"Italy\", \"Germany\")"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/europeana.record/call": {
+      "post": {
+        "operationId": "europeana_record",
+        "summary": "Cultural Heritage Object Details",
+        "description": "Full metadata for a single cultural heritage object — title, creator, description, date, language, source, rights, high-res image URL, provider institution, landing page. Use ID from search results (Europeana)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "europeana.record"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Europeana record ID from search results (e.g. \"/09102/_GNM_693983\" or \"09102/_GNM_693983\")",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/convert.to_pdf/call": {
       "post": {
         "operationId": "convert_to_pdf",

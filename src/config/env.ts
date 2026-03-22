@@ -162,6 +162,9 @@ export const appEnvSchema = z.object({
   // IQAir AirVisual (UC-120) — query param auth, 10,000 calls/month free
   PROVIDER_KEY_IQAIR: z.string().optional().default(''),
 
+  // Europeana (UC-161) — EU cultural heritage, unlimited free
+  PROVIDER_KEY_EUROPEANA: z.string().optional().default(''),
+
   // ConvertAPI (UC-148) — file conversion, 250 free conversions
   PROVIDER_KEY_CONVERTAPI: z.string().optional().default(''),
 

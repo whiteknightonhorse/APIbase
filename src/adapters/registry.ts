@@ -66,6 +66,7 @@ import { GeocodioAdapter } from './geocodio';
 import { PodcastIndexAdapter } from './podcastindex';
 import { Api2PdfAdapter } from './api2pdf';
 import { ConvertApiAdapter } from './convertapi';
+import { EuropeanaAdapter } from './europeana';
 import { FirmsAdapter } from './firms';
 import { ResendAdapter } from './resend';
 import { FedRegisterAdapter } from './fedregister';
@@ -365,6 +366,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const iqairKey = (config as Record<string, unknown>).PROVIDER_KEY_IQAIR as string | undefined;
       if (!iqairKey) return undefined;
       return getOrCreate('iqair', () => new IqairAdapter(iqairKey));
+    }
+    case 'europeana': {
+      const euKey = (config as Record<string, unknown>).PROVIDER_KEY_EUROPEANA as string | undefined;
+      if (!euKey) return undefined;
+      return getOrCreate('europeana', () => new EuropeanaAdapter(euKey));
     }
     case 'convert': {
       const convertKey = (config as Record<string, unknown>).PROVIDER_KEY_CONVERTAPI as string | undefined;

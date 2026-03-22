@@ -66,6 +66,7 @@ import { geocodioSchemas } from './geocodio.schema';
 import { podcastindexSchemas } from './podcastindex.schema';
 import { api2pdfSchemas } from './api2pdf.schema';
 import { convertapiSchemas } from './convertapi.schema';
+import { europeanaSchemas } from './europeana.schema';
 import { firmsSchemas } from './firms.schema';
 import { resendSchemas } from './resend.schema';
 import { fedregisterSchemas } from './fedregister.schema';
@@ -139,6 +140,7 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...podcastindexSchemas,
   ...api2pdfSchemas,
   ...convertapiSchemas,
+  ...europeanaSchemas,
   ...firmsSchemas,
   ...resendSchemas,
   ...fedregisterSchemas,

@@ -2025,6 +2025,24 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // ---------------------------------------------------------------------------
   // ConvertAPI — File Format Conversion (UC-148, 3 tools)
   // ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // Europeana — European Cultural Heritage (UC-161, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'europeana.search',
+    mcpName: 'culture.europeana.search',
+    title: 'Search European Cultural Heritage',
+    description: 'Search 50M+ cultural heritage objects across 4,000 institutions in 36 European countries — paintings, photographs, books, maps, 3D objects, music, film. Multilingual (24 languages). Filter by country, media type. Returns title, creator, thumbnail, provider, year (Europeana)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'europeana.record',
+    mcpName: 'culture.europeana.record',
+    title: 'Cultural Heritage Object Details',
+    description: 'Full metadata for a single cultural heritage object — title, creator, description, date, language, source, rights, high-res image URL, provider institution, landing page. Use ID from search results (Europeana)',
+    annotations: READ_ONLY,
+  },
+
   {
     toolId: 'convert.to_pdf',
     mcpName: 'document.convert.to_pdf',

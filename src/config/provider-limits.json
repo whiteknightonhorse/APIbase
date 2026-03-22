@@ -550,6 +550,15 @@
     "docs_url": "https://randomuser.me/documentation",
     "limit_proof": "Fully free, no auth, open source, unlimited"
   },
+  "europeana": {
+    "display_name": "Europeana",
+    "health_url": "https://api.europeana.eu/record/v2/search.json?query=test&rows=1&wskey=nomacyto",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://pro.europeana.eu/page/search",
+    "limit_proof": "EU-funded, permanently free for all read APIs, no volume cap"
+  },
   "convertapi": {
     "display_name": "ConvertAPI",
     "health_url": "https://v2.convertapi.com/info",
