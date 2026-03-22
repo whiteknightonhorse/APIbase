@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 254 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 257 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -8753,6 +8753,142 @@
         },
         "required": [
           "vin"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "document.convert.to_pdf",
+      "description": "Convert Word (DOCX), Excel (XLSX), PowerPoint (PPTX), HTML, Markdown, RTF, ODT, or images (JPG/PNG/SVG) to PDF. Provide source file as URL. Custom page size and orientation. 200+ format pairs supported (ConvertAPI)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "source_url": {
+            "type": "string",
+            "description": "Publicly accessible URL of the source file to convert (e.g. \"https://example.com/report.docx\")"
+          },
+          "from_format": {
+            "type": "string",
+            "enum": [
+              "docx",
+              "xlsx",
+              "pptx",
+              "html",
+              "md",
+              "jpg",
+              "png",
+              "svg",
+              "rtf",
+              "odt",
+              "txt"
+            ],
+            "description": "Source file format"
+          },
+          "page_size": {
+            "type": "string",
+            "enum": [
+              "a4",
+              "letter",
+              "legal",
+              "a3",
+              "a5"
+            ],
+            "description": "PDF page size (default \"a4\")"
+          },
+          "orientation": {
+            "type": "string",
+            "enum": [
+              "portrait",
+              "landscape"
+            ],
+            "description": "Page orientation (default \"portrait\")"
+          }
+        },
+        "required": [
+          "source_url",
+          "from_format"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "document.convert.from_pdf",
+      "description": "Convert PDF to Word (DOCX), Excel (XLSX), PowerPoint (PPTX), plain text (TXT), or images (JPG/PNG per page). Optional page range selection. Provide PDF as URL (ConvertAPI)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "source_url": {
+            "type": "string",
+            "description": "Publicly accessible URL of the PDF to convert (e.g. \"https://example.com/doc.pdf\")"
+          },
+          "to_format": {
+            "type": "string",
+            "enum": [
+              "docx",
+              "xlsx",
+              "pptx",
+              "txt",
+              "jpg",
+              "png"
+            ],
+            "description": "Target format to convert PDF into"
+          },
+          "pages": {
+            "type": "string",
+            "description": "Page range to convert (e.g. \"1-5\", \"1,3,5\", default \"all\")"
+          }
+        },
+        "required": [
+          "source_url",
+          "to_format"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "document.convert.web_to_pdf",
+      "description": "Render any web page URL to PDF with full JavaScript execution — custom viewport width, lazy content loading, wait delay. Returns PDF download URL (ConvertAPI)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "Web page URL to render as PDF (e.g. \"https://example.com\")"
+          },
+          "viewport_width": {
+            "type": "integer",
+            "minimum": 320,
+            "maximum": 3840,
+            "description": "Browser viewport width in pixels (default 1280)"
+          },
+          "delay": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 30,
+            "description": "Seconds to wait after page load before capturing (default 0)"
+          },
+          "load_lazy_content": {
+            "type": "boolean",
+            "description": "Scroll page to trigger lazy-loaded images (default false)"
+          }
+        },
+        "required": [
+          "url"
         ]
       },
       "annotations": {

@@ -2022,6 +2022,31 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // ---------------------------------------------------------------------------
   // API2PDF — PDF Generation (UC-146, 3 tools)
   // ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // ConvertAPI — File Format Conversion (UC-148, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'convert.to_pdf',
+    mcpName: 'document.convert.to_pdf',
+    title: 'Convert Document to PDF',
+    description: 'Convert Word (DOCX), Excel (XLSX), PowerPoint (PPTX), HTML, Markdown, RTF, ODT, or images (JPG/PNG/SVG) to PDF. Provide source file as URL. Custom page size and orientation. 200+ format pairs supported (ConvertAPI)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'convert.from_pdf',
+    mcpName: 'document.convert.from_pdf',
+    title: 'Convert PDF to Other Format',
+    description: 'Convert PDF to Word (DOCX), Excel (XLSX), PowerPoint (PPTX), plain text (TXT), or images (JPG/PNG per page). Optional page range selection. Provide PDF as URL (ConvertAPI)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'convert.web_to_pdf',
+    mcpName: 'document.convert.web_to_pdf',
+    title: 'Web Page to PDF (ConvertAPI)',
+    description: 'Render any web page URL to PDF with full JavaScript execution — custom viewport width, lazy content loading, wait delay. Returns PDF download URL (ConvertAPI)',
+    annotations: READ_ONLY,
+  },
+
   {
     toolId: 'pdf.from_html',
     mcpName: 'document.pdf.from_html',

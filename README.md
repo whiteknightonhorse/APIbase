@@ -1,6 +1,6 @@
 # APIbase.pro — The API Hub for AI Agents
 
-> One MCP endpoint. 249 tools. 69 providers. Pay per call with x402 USDC on Base.
+> One MCP endpoint. 252 tools. 70 providers. Pay per call with x402 USDC on Base.
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Health](https://apibase.pro/health/ready)** | **[Dashboard](https://apibase.pro/dashboard)**
 
@@ -12,7 +12,7 @@
 
 ## What is APIbase?
 
-Production MCP server that gives AI agents access to 249 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, translate text, check weather alerts, generate images, send emails, look up holidays, shorten URLs, detect fires by satellite, decode VINs, look up food products — and 200+ more tools across 30+ categories.
+Production MCP server that gives AI agents access to 252 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, translate text, check weather alerts, generate images, send emails, look up holidays, shorten URLs, detect fires by satellite, decode VINs, look up food products — and 200+ more tools across 30+ categories.
 
 **Built for AI agents, not humans.** Auto-registration, zero setup, pay-per-call via x402 USDC micropayments on Base.
 
@@ -62,7 +62,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 
 ---
 
-## Tool Categories (249 tools, 69 providers)
+## Tool Categories (252 tools, 70 providers)
 
 | Category | Tools | Providers | Examples |
 |----------|-------|-----------|----------|
@@ -90,7 +90,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 | **Holidays & Calendar** | 3 | Nager.Date, Calendarific | 230+ countries, national/religious/observance |
 | **Image Generation** | 1 | Stability AI | Stable Diffusion, 16 style presets |
 | **OCR** | 1 | OCR.space | Text from images/PDFs, 20+ languages |
-| **PDF Generation** | 3 | API2PDF | HTML/URL to PDF, merge PDFs (Chrome) |
+| **PDF & Documents** | 6 | API2PDF, ConvertAPI | HTML/URL to PDF, DOCX↔PDF, 200+ formats |
 | **Email & SMS** | 4 | Resend, Twilio | Send emails, SMS, phone lookup |
 | **URL Shortener** | 2 | Short.io | Custom branded short links + stats |
 | **SSL & Domain** | 5 | WhoisXML, ssl-checker.io | WHOIS, DNS, SSL cert check |
@@ -169,7 +169,7 @@ Auto-registration: agents get API keys instantly on first request. No forms, no 
 
 ```
 GET /.well-known/mcp.json → MCP server metadata
-GET /api/v1/tools → Full tool catalog with schemas (all 249 in one response)
+GET /api/v1/tools → Full tool catalog with schemas (all 252 in one response)
 GET /health/ready → System health check
 ```
 

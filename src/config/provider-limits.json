@@ -550,6 +550,15 @@
     "docs_url": "https://randomuser.me/documentation",
     "limit_proof": "Fully free, no auth, open source, unlimited"
   },
+  "convertapi": {
+    "display_name": "ConvertAPI",
+    "health_url": "https://v2.convertapi.com/info",
+    "limit_type": "credits",
+    "free_limit": 250,
+    "reset_period": "none",
+    "docs_url": "https://www.convertapi.com/prices",
+    "limit_proof": "250 free trial conversions, credit top-up PAYG, 15+ years in service"
+  },
   "api2pdf": {
     "display_name": "API2PDF",
     "health_url": "https://v2.api2pdf.com",

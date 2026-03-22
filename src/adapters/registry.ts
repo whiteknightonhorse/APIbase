@@ -65,6 +65,7 @@ import { AutoDevAdapter } from './autodev';
 import { GeocodioAdapter } from './geocodio';
 import { PodcastIndexAdapter } from './podcastindex';
 import { Api2PdfAdapter } from './api2pdf';
+import { ConvertApiAdapter } from './convertapi';
 import { FirmsAdapter } from './firms';
 import { ResendAdapter } from './resend';
 import { FedRegisterAdapter } from './fedregister';
@@ -364,6 +365,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const iqairKey = (config as Record<string, unknown>).PROVIDER_KEY_IQAIR as string | undefined;
       if (!iqairKey) return undefined;
       return getOrCreate('iqair', () => new IqairAdapter(iqairKey));
+    }
+    case 'convert': {
+      const convertKey = (config as Record<string, unknown>).PROVIDER_KEY_CONVERTAPI as string | undefined;
+      if (!convertKey) return undefined;
+      return getOrCreate('convertapi', () => new ConvertApiAdapter(convertKey));
     }
     case 'pdf': {
       const pdfKey = (config as Record<string, unknown>).PROVIDER_KEY_API2PDF as string | undefined;
