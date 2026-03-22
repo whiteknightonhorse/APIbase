@@ -67,6 +67,7 @@ import { podcastindexSchemas } from './podcastindex.schema';
 import { api2pdfSchemas } from './api2pdf.schema';
 import { convertapiSchemas } from './convertapi.schema';
 import { europeanaSchemas } from './europeana.schema';
+import { articSchemas } from './artic.schema';
 import { firmsSchemas } from './firms.schema';
 import { resendSchemas } from './resend.schema';
 import { fedregisterSchemas } from './fedregister.schema';
@@ -141,6 +142,7 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...api2pdfSchemas,
   ...convertapiSchemas,
   ...europeanaSchemas,
+  ...articSchemas,
   ...firmsSchemas,
   ...resendSchemas,
   ...fedregisterSchemas,

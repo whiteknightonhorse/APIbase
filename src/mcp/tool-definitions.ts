@@ -2028,6 +2028,31 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // ---------------------------------------------------------------------------
   // Europeana — European Cultural Heritage (UC-161, 2 tools)
   // ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // Art Institute of Chicago — ARTIC (UC-162, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'artic.search',
+    mcpName: 'culture.artic.search',
+    title: 'Search Art Institute of Chicago',
+    description: 'Search 120,000+ artworks at the Art Institute of Chicago — paintings, sculptures, photographs, prints, textiles. Returns title, artist, date, medium, dimensions, IIIF image URL, public domain status. Covers all periods and regions (ARTIC)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'artic.artwork',
+    mcpName: 'culture.artic.artwork',
+    title: 'Artwork Details (ARTIC)',
+    description: 'Full details for a single artwork — title, artist, date, medium, dimensions, credit line, place of origin, department, provenance, exhibition history, high-res IIIF image URL. Use artwork ID from search results (ARTIC)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'artic.artist',
+    mcpName: 'culture.artic.artist',
+    title: 'Search Artists (ARTIC)',
+    description: 'Search artists and makers in the Art Institute of Chicago collection — name, birth/death dates, biography. Find artist IDs for cross-referencing with artwork search (ARTIC)',
+    annotations: READ_ONLY,
+  },
+
   {
     toolId: 'europeana.search',
     mcpName: 'culture.europeana.search',

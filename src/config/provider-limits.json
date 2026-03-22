@@ -550,6 +550,15 @@
     "docs_url": "https://randomuser.me/documentation",
     "limit_proof": "Fully free, no auth, open source, unlimited"
   },
+  "artic": {
+    "display_name": "Art Institute of Chicago",
+    "health_url": "https://api.artic.edu/api/v1/artworks?limit=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://api.artic.edu/docs/",
+    "limit_proof": "Fully free, no auth, open access, no documented rate limits"
+  },
   "europeana": {
     "display_name": "Europeana",
     "health_url": "https://api.europeana.eu/record/v2/search.json?query=test&rows=1&wskey=nomacyto",
