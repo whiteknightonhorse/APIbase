@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 244 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 245 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -8729,6 +8729,30 @@
         },
         "required": [
           "food_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "vehicle.autodev.vin_decode",
+      "description": "Decode any VIN worldwide (100+ countries) — make, model, year, trim, engine, transmission, drive type, body style, origin country, manufacturer. Covers EU, Asia, and other markets beyond US-only NHTSA. Static data cached 24h (Auto.dev)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "vin": {
+            "type": "string",
+            "description": "17-character Vehicle Identification Number (e.g. \"WP0AF2A99KS165242\" for Porsche, \"WBAFR7C51BC603689\" for BMW)",
+            "minLength": 17,
+            "maxLength": 17
+          }
+        },
+        "required": [
+          "vin"
         ]
       },
       "annotations": {

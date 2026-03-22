@@ -2002,6 +2002,17 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // ---------------------------------------------------------------------------
   // Hunter.io — Company Enrichment (UC-128, 1 tool)
   // ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // Auto.dev — Global VIN Decoder (UC-127, 1 tool)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'autodev.vin_decode',
+    mcpName: 'vehicle.autodev.vin_decode',
+    title: 'Global VIN Decode (Auto.dev)',
+    description: 'Decode any VIN worldwide (100+ countries) — make, model, year, trim, engine, transmission, drive type, body style, origin country, manufacturer. Covers EU, Asia, and other markets beyond US-only NHTSA. Static data cached 24h (Auto.dev)',
+    annotations: READ_ONLY,
+  },
+
   {
     toolId: 'hunter.company',
     mcpName: 'business.hunter.company',

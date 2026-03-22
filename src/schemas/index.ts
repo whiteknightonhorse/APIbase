@@ -61,6 +61,7 @@ import { randomuserSchemas } from './randomuser.schema';
 import { iqairSchemas } from './iqair.schema';
 import { fatsecretSchemas } from './fatsecret.schema';
 import { hunterSchemas } from './hunter.schema';
+import { autodevSchemas } from './autodev.schema';
 import { firmsSchemas } from './firms.schema';
 import { resendSchemas } from './resend.schema';
 import { fedregisterSchemas } from './fedregister.schema';
@@ -129,6 +130,7 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...iqairSchemas,
   ...fatsecretSchemas,
   ...hunterSchemas,
+  ...autodevSchemas,
   ...firmsSchemas,
   ...resendSchemas,
   ...fedregisterSchemas,
