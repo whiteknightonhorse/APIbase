@@ -2013,6 +2013,24 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     annotations: READ_ONLY,
   },
 
+  // ---------------------------------------------------------------------------
+  // Geocodio — US/Canada Address Geocoding (UC-131, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'geocodio.geocode',
+    mcpName: 'address.geocodio.geocode',
+    title: 'Geocode US/Canada Address',
+    description: 'Forward geocode a US or Canada address to coordinates — returns lat/lng, parsed address components (street, city, state, ZIP, county), accuracy type (rooftop/range/street), and data source. USPS-standardized results with Census data (Geocodio)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'geocodio.reverse',
+    mcpName: 'address.geocodio.reverse',
+    title: 'Reverse Geocode Coordinates (US/Canada)',
+    description: 'Reverse geocode latitude/longitude to a US or Canada address — returns formatted address, parsed components (street, city, state, ZIP, county), accuracy type, and source. Supports multiple results ranked by proximity (Geocodio)',
+    annotations: READ_ONLY,
+  },
+
   {
     toolId: 'hunter.company',
     mcpName: 'business.hunter.company',

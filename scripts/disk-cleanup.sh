@@ -27,9 +27,17 @@ else
     log "INFO  WAL directory $WAL_DIR does not exist, skipping"
 fi
 
-# 2) Docker dangling image prune
+# 2) Docker cleanup — dangling images + build cache + old unused images
 pruned=$(docker image prune -f 2>/dev/null | tail -1)
-log "INFO  Docker prune: $pruned"
+log "INFO  Docker dangling prune: $pruned"
+
+# 2b) Build cache cleanup (biggest disk hog — can grow to 30-40GB)
+cache_pruned=$(docker builder prune --all --force 2>/dev/null | tail -1)
+log "INFO  Docker build cache prune: $cache_pruned"
+
+# 2c) Remove unused images older than 48h (keeps currently running + recently built)
+old_pruned=$(docker image prune -a --filter "until=48h" --force 2>/dev/null | tail -1)
+log "INFO  Docker old image prune (>48h): $old_pruned"
 
 # 3) /tmp cleanup — files older than 7 days
 tmp_count=$(find /tmp -type f -mtime +$TMP_MAX_AGE_DAYS 2>/dev/null | wc -l)
@@ -47,11 +55,30 @@ if [ -f /var/log/syslog.1 ]; then
     fi
 fi
 
-# 5) Disk usage alert
+# 5) Disk usage check — escalate cleanup if needed
 usage=$(df / --output=pcent | tail -1 | tr -d ' %')
 if [ "$usage" -ge "$CRIT_THRESHOLD" ]; then
-    log "CRIT  Disk usage ${usage}% >= ${CRIT_THRESHOLD}% — immediate attention required"
-    exit 1
+    log "CRIT  Disk usage ${usage}% >= ${CRIT_THRESHOLD}% — running emergency cleanup"
+
+    # Emergency: prune ALL unused images (not just >48h)
+    docker image prune -a --force 2>/dev/null | tail -1 | xargs -I{} log "INFO  Emergency image prune: {}" || true
+
+    # Emergency: clean Docker logs (can grow huge)
+    find /var/lib/docker/containers/ -name "*-json.log" -size +50M -exec truncate -s 10M {} \; 2>/dev/null || true
+    log "INFO  Truncated Docker container logs >50MB"
+
+    # Emergency: clean old journal logs
+    journalctl --vacuum-size=100M 2>/dev/null || true
+    log "INFO  Vacuumed journald to 100MB"
+
+    # Re-check
+    usage_after=$(df / --output=pcent | tail -1 | tr -d ' %')
+    if [ "$usage_after" -ge "$CRIT_THRESHOLD" ]; then
+        log "CRIT  Disk still at ${usage_after}% after emergency cleanup — manual intervention needed"
+        exit 1
+    else
+        log "INFO  Emergency cleanup successful: ${usage}% → ${usage_after}%"
+    fi
 elif [ "$usage" -ge "$WARN_THRESHOLD" ]; then
     log "WARN  Disk usage ${usage}% >= ${WARN_THRESHOLD}%"
 else

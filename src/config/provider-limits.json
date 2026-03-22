@@ -550,6 +550,15 @@
     "docs_url": "https://randomuser.me/documentation",
     "limit_proof": "Fully free, no auth, open source, unlimited"
   },
+  "geocodio": {
+    "display_name": "Geocodio",
+    "health_url": "https://api.geocod.io/v1.7/geocode?q=test&api_key=06f48f40f99b9f9049f2422587b96618f1b1644",
+    "limit_type": "daily",
+    "free_limit": 2500,
+    "reset_period": "daily",
+    "docs_url": "https://www.geocod.io/docs/",
+    "limit_proof": "2,500 free lookups/day, $0.001/lookup above free tier, no CC required"
+  },
   "autodev": {
     "display_name": "Auto.dev",
     "health_url": "https://api.auto.dev/vin/WP0AF2A99KS165242",

@@ -162,6 +162,9 @@ export const appEnvSchema = z.object({
   // IQAir AirVisual (UC-120) — query param auth, 10,000 calls/month free
   PROVIDER_KEY_IQAIR: z.string().optional().default(''),
 
+  // Geocodio (UC-131) — query param auth, 2,500 lookups/day free
+  PROVIDER_KEY_GEOCODIO: z.string().optional().default(''),
+
   // Auto.dev (UC-127) — query param auth, 1,000 calls/month free
   PROVIDER_KEY_AUTODEV: z.string().optional().default(''),
 
