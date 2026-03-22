@@ -550,6 +550,15 @@
     "docs_url": "https://randomuser.me/documentation",
     "limit_proof": "Fully free, no auth, open source, unlimited"
   },
+  "autodev": {
+    "display_name": "Auto.dev",
+    "health_url": "https://api.auto.dev/vin/WP0AF2A99KS165242",
+    "limit_type": "monthly",
+    "free_limit": 1000,
+    "reset_period": "monthly",
+    "docs_url": "https://docs.auto.dev/v2/products/vin-decode",
+    "limit_proof": "Starter plan: 1,000 free API calls/month, 5 req/sec, usage-based data fees after"
+  },
   "hunter": {
     "display_name": "Hunter.io",
     "health_url": "https://api.hunter.io/v2/account?api_key=7f7c60c7d0d3de8b191a7a1a5a3f6cbbf5f3e945",

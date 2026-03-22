@@ -20474,6 +20474,78 @@
         ]
       }
     },
+    "/api/v1/tools/autodev.vin_decode/call": {
+      "post": {
+        "operationId": "autodev_vin_decode",
+        "summary": "Global VIN Decode (Auto.dev)",
+        "description": "Decode any VIN worldwide (100+ countries) — make, model, year, trim, engine, transmission, drive type, body style, origin country, manufacturer. Covers EU, Asia, and other markets beyond US-only NHTSA. Static data cached 24h (Auto.dev)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "autodev.vin_decode"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "vin": {
+                    "type": "string",
+                    "description": "17-character Vehicle Identification Number (e.g. \"WP0AF2A99KS165242\" for Porsche, \"WBAFR7C51BC603689\" for BMW)",
+                    "minLength": 17,
+                    "maxLength": 17
+                  }
+                },
+                "required": [
+                  "vin"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/hunter.company/call": {
       "post": {
         "operationId": "hunter_company",

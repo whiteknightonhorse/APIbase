@@ -1,6 +1,6 @@
 # APIbase.pro — The API Hub for AI Agents
 
-> One MCP endpoint. 239 tools. 65 providers. Pay per call with x402 USDC on Base.
+> One MCP endpoint. 240 tools. 66 providers. Pay per call with x402 USDC on Base.
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Health](https://apibase.pro/health/ready)** | **[Dashboard](https://apibase.pro/dashboard)**
 
@@ -12,7 +12,7 @@
 
 ## What is APIbase?
 
-Production MCP server that gives AI agents access to 239 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, translate text, check weather alerts, generate images, send emails, look up holidays, shorten URLs, detect fires by satellite, decode VINs, look up food products — and 200+ more tools across 30+ categories.
+Production MCP server that gives AI agents access to 240 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, translate text, check weather alerts, generate images, send emails, look up holidays, shorten URLs, detect fires by satellite, decode VINs, look up food products — and 200+ more tools across 30+ categories.
 
 **Built for AI agents, not humans.** Auto-registration, zero setup, pay-per-call via x402 USDC micropayments on Base.
 
@@ -62,7 +62,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 
 ---
 
-## Tool Categories (239 tools, 65 providers)
+## Tool Categories (240 tools, 66 providers)
 
 | Category | Tools | Providers | Examples |
 |----------|-------|-----------|----------|
@@ -99,7 +99,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 | **Screenshots** | 1 | ApiFlash | Chrome-based URL capture |
 | **Earthquakes** | 3 | USGS | Global seismic data, real-time feeds |
 | **IP Intelligence** | 2 | ipapi.is | Geolocation, VPN/proxy detection |
-| **Vehicle Data** | 2 | NHTSA | VIN decoder, vehicle models by make/year |
+| **Vehicle Data** | 3 | NHTSA, Auto.dev | VIN decoder (US + global 100+ countries) |
 | **Country Data** | 2 | REST Countries | Country search, ISO code lookup |
 | **Food Products** | 2 | Open Food Facts | Barcode lookup, product search (3M+ products) |
 | **Test Data** | 1 | RandomUser.me | Random user profiles for testing |
@@ -166,7 +166,7 @@ Auto-registration: agents get API keys instantly on first request. No forms, no 
 
 ```
 GET /.well-known/mcp.json → MCP server metadata
-GET /api/v1/tools → Full tool catalog with schemas (all 239 in one response)
+GET /api/v1/tools → Full tool catalog with schemas (all 240 in one response)
 GET /health/ready → System health check
 ```
 
