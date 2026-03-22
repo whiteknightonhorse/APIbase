@@ -20546,6 +20546,168 @@
         ]
       }
     },
+    "/api/v1/tools/geocodio.geocode/call": {
+      "post": {
+        "operationId": "geocodio_geocode",
+        "summary": "Geocode US/Canada Address",
+        "description": "Forward geocode a US or Canada address to coordinates — returns lat/lng, parsed address components (street, city, state, ZIP, county), accuracy type (rooftop/range/street), and data source. USPS-standardized results with Census data (Geocodio)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "geocodio.geocode"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "address": {
+                    "type": "string",
+                    "description": "US or Canada address to geocode (e.g. \"1600 Pennsylvania Ave NW, Washington DC\", \"350 5th Ave, New York, NY 10118\")",
+                    "minLength": 3
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20,
+                    "description": "Max results to return (default 5, max 20)"
+                  }
+                },
+                "required": [
+                  "address"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/geocodio.reverse/call": {
+      "post": {
+        "operationId": "geocodio_reverse",
+        "summary": "Reverse Geocode Coordinates (US/Canada)",
+        "description": "Reverse geocode latitude/longitude to a US or Canada address — returns formatted address, parsed components (street, city, state, ZIP, county), accuracy type, and source. Supports multiple results ranked by proximity (Geocodio)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "geocodio.reverse"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "lat": {
+                    "type": "number",
+                    "description": "Latitude (24-72 range for US/Canada, e.g. 38.8976)",
+                    "minimum": 24,
+                    "maximum": 72
+                  },
+                  "lon": {
+                    "type": "number",
+                    "description": "Longitude (negative for Western Hemisphere, e.g. -77.0365)",
+                    "minimum": -180,
+                    "maximum": -50
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20,
+                    "description": "Max results to return (default 5, max 20)"
+                  }
+                },
+                "required": [
+                  "lat",
+                  "lon"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/hunter.company/call": {
       "post": {
         "operationId": "hunter_company",
