@@ -2019,6 +2019,31 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // ---------------------------------------------------------------------------
   // PodcastIndex — Podcast Directory (UC-141, 4 tools)
   // ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // API2PDF — PDF Generation (UC-146, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'pdf.from_html',
+    mcpName: 'document.pdf.from_html',
+    title: 'HTML to PDF',
+    description: 'Convert HTML content to a PDF document using headless Chrome — full CSS + JavaScript rendering, custom page size, margins, headers/footers, background colors. Returns a temporary download URL for the generated PDF (API2PDF)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'pdf.from_url',
+    mcpName: 'document.pdf.from_url',
+    title: 'URL to PDF',
+    description: 'Capture any web page URL as a PDF using headless Chrome with full JS rendering — perfect for archiving pages, generating reports from dashboards, or creating printable snapshots. Returns temporary PDF download URL (API2PDF)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'pdf.merge',
+    mcpName: 'document.pdf.merge',
+    title: 'Merge PDFs',
+    description: 'Merge 2-20 PDF documents (provided as URLs) into a single combined PDF. Preserves page order. Returns temporary download URL for the merged result (API2PDF)',
+    annotations: READ_ONLY,
+  },
+
   {
     toolId: 'podcast.search',
     mcpName: 'media.podcast.search',

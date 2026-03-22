@@ -1527,6 +1527,23 @@ tools:
     price_usd: "0.002"
     cache_ttl: 86400
 
+  # --- UC-146: API2PDF (PDF Generation) ---
+  - tool_id: pdf.from_html
+    name: HTML to PDF
+    provider: api2pdf
+    price_usd: "0.005"
+    cache_ttl: 0
+  - tool_id: pdf.from_url
+    name: URL to PDF
+    provider: api2pdf
+    price_usd: "0.005"
+    cache_ttl: 0
+  - tool_id: pdf.merge
+    name: Merge PDFs
+    provider: api2pdf
+    price_usd: "0.005"
+    cache_ttl: 0
+
   # --- UC-141: PodcastIndex (Podcast Directory) ---
   - tool_id: podcast.search
     name: Search Podcasts

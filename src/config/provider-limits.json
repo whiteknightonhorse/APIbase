@@ -550,6 +550,16 @@
     "docs_url": "https://randomuser.me/documentation",
     "limit_proof": "Fully free, no auth, open source, unlimited"
   },
+  "api2pdf": {
+    "display_name": "API2PDF",
+    "health_url": "https://v2.api2pdf.com",
+    "limit_type": "credits",
+    "free_limit": 100,
+    "reset_period": "none",
+    "paid_balance": true,
+    "docs_url": "https://www.api2pdf.com/documentation/v2",
+    "limit_proof": "$1.00 starting balance, ~$0.0003/page generation, $1/month base fee"
+  },
   "podcastindex": {
     "display_name": "PodcastIndex",
     "health_url": "https://api.podcastindex.org/api/1.0/stats/current",

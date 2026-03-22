@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 251 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 254 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -8753,6 +8753,154 @@
         },
         "required": [
           "vin"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "document.pdf.from_html",
+      "description": "Convert HTML content to a PDF document using headless Chrome — full CSS + JavaScript rendering, custom page size, margins, headers/footers, background colors. Returns a temporary download URL for the generated PDF (API2PDF)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "html": {
+            "type": "string",
+            "description": "HTML content to convert to PDF (full document or fragment, e.g. \"<h1>Report</h1><p>Content here</p>\")",
+            "minLength": 1
+          },
+          "fileName": {
+            "type": "string",
+            "description": "Output filename (e.g. \"report.pdf\")"
+          },
+          "options": {
+            "type": "object",
+            "properties": {
+              "landscape": {
+                "type": "boolean",
+                "description": "Landscape orientation (default false)"
+              },
+              "printBackground": {
+                "type": "boolean",
+                "description": "Render background colors and images (default true)"
+              },
+              "displayHeaderFooter": {
+                "type": "boolean",
+                "description": "Show header/footer (default false)"
+              },
+              "headerTemplate": {
+                "type": "string",
+                "description": "HTML template for page header"
+              },
+              "footerTemplate": {
+                "type": "string",
+                "description": "HTML template for page footer"
+              },
+              "paperWidth": {
+                "type": "number",
+                "description": "Page width in inches (default 8.27 for A4)"
+              },
+              "paperHeight": {
+                "type": "number",
+                "description": "Page height in inches (default 11.69 for A4)"
+              },
+              "marginTop": {
+                "type": "number",
+                "description": "Top margin in inches (default 0.4)"
+              },
+              "marginBottom": {
+                "type": "number",
+                "description": "Bottom margin in inches (default 0.4)"
+              }
+            },
+            "description": "PDF rendering options (page size, margins, header/footer)"
+          }
+        },
+        "required": [
+          "html"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "document.pdf.from_url",
+      "description": "Capture any web page URL as a PDF using headless Chrome with full JS rendering — perfect for archiving pages, generating reports from dashboards, or creating printable snapshots. Returns temporary PDF download URL (API2PDF)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "URL to capture as PDF (e.g. \"https://example.com/report\")"
+          },
+          "fileName": {
+            "type": "string",
+            "description": "Output filename (e.g. \"snapshot.pdf\")"
+          },
+          "options": {
+            "type": "object",
+            "properties": {
+              "landscape": {
+                "type": "boolean",
+                "description": "Landscape orientation (default false)"
+              },
+              "printBackground": {
+                "type": "boolean",
+                "description": "Render background colors (default true)"
+              },
+              "paperWidth": {
+                "type": "number",
+                "description": "Page width in inches"
+              },
+              "paperHeight": {
+                "type": "number",
+                "description": "Page height in inches"
+              }
+            },
+            "description": "PDF rendering options"
+          }
+        },
+        "required": [
+          "url"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "document.pdf.merge",
+      "description": "Merge 2-20 PDF documents (provided as URLs) into a single combined PDF. Preserves page order. Returns temporary download URL for the merged result (API2PDF)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "urls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Ordered list of PDF URLs to merge (2-20 URLs)",
+            "minItems": 2,
+            "maxItems": 20
+          },
+          "fileName": {
+            "type": "string",
+            "description": "Output filename for merged PDF (e.g. \"combined.pdf\")"
+          }
+        },
+        "required": [
+          "urls"
         ]
       },
       "annotations": {
