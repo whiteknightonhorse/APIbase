@@ -367,7 +367,10 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
       html += '<td style="color:#2a6a2a;font-size:0.72rem">' + escHtml(cat) + '</td>';
       html += '<td>' + statusDot(p.health.status) + (p.health.latency_ms !== null ? p.health.latency_ms + 'ms' : '--') + '</td>';
       html += '<td>' + statusDot(p.limits.status);
-      if (p.limits.type === 'unlimited') html += 'Unlimited';
+      if (p.balance && p.balance.balance_usd !== null) {
+        var balColor = p.balance.balance_usd > 10 ? '#00ff41' : p.balance.balance_usd > 0 ? '#ffaa00' : '#ff4444';
+        html += '<span style="color:' + balColor + ';font-weight:bold">$' + p.balance.balance_usd.toFixed(2) + '</span>';
+      } else if (p.limits.type === 'unlimited') html += 'Unlimited';
       else if (p.limits.status === 'paid') html += 'Paid';
       else html += formatNum(p.limits.used) + '/' + formatNum(p.limits.free_limit) + ' (' + p.limits.pct_remaining + '%)';
       html += '</td>';
