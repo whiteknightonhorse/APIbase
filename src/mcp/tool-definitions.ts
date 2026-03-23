@@ -2034,6 +2034,31 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // ---------------------------------------------------------------------------
   // Bluesky AT Protocol — Decentralized Social (UC-171, 3 tools)
   // ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // SEC EDGAR — US Company Filings (UC-173, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'edgar.company_search',
+    mcpName: 'finance.edgar.company_search',
+    title: 'Search SEC Companies',
+    description: 'Search US public companies and SEC filings by name, ticker, or keyword. Returns company name, CIK number, form type, filing date. Covers all companies registered with the US Securities and Exchange Commission (SEC EDGAR)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'edgar.filings',
+    mcpName: 'finance.edgar.filings',
+    title: 'SEC Company Filings',
+    description: 'List recent SEC filings for a company by CIK number — 10-K (annual), 10-Q (quarterly), 8-K (events), proxy statements. Returns form type, filing date, document URL, description. Up to 1000 filings per company (SEC EDGAR)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'edgar.company_facts',
+    mcpName: 'finance.edgar.company_facts',
+    title: 'SEC Financial Facts (XBRL)',
+    description: 'XBRL financial facts for a US public company — revenue, net income, assets, liabilities, equity, EPS, cash, operating income. Returns last 5 reporting periods per metric with form type and date. Structured data from 10-K/10-Q filings (SEC EDGAR)',
+    annotations: READ_ONLY,
+  },
+
   {
     toolId: 'bluesky.search_posts',
     mcpName: 'social.bluesky.search',
