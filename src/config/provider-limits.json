@@ -550,6 +550,15 @@
     "docs_url": "https://randomuser.me/documentation",
     "limit_proof": "Fully free, no auth, open source, unlimited"
   },
+  "cloudflare": {
+    "display_name": "Cloudflare",
+    "health_url": "https://api.cloudflare.com/client/v4/user",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://developers.cloudflare.com/api/",
+    "limit_proof": "Free plan unlimited API, 1200 req/5min rate limit, 330+ global PoPs"
+  },
   "vatcomply": {
     "display_name": "VATcomply",
     "health_url": "https://api.vatcomply.com/rates",

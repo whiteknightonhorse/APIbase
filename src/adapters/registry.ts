@@ -74,6 +74,7 @@ import { CompaniesHouseAdapter } from './companies-house';
 import { GleifAdapter } from './gleif';
 import { AssemblyAIAdapter } from './assemblyai';
 import { VatcomplyAdapter } from './vatcomply';
+import { CloudflareAdapter } from './cloudflare';
 import { FirmsAdapter } from './firms';
 import { ResendAdapter } from './resend';
 import { FedRegisterAdapter } from './fedregister';
@@ -373,6 +374,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const iqairKey = (config as Record<string, unknown>).PROVIDER_KEY_IQAIR as string | undefined;
       if (!iqairKey) return undefined;
       return getOrCreate('iqair', () => new IqairAdapter(iqairKey));
+    }
+    case 'cloudflare': {
+      const cfKey = (config as Record<string, unknown>).CLOUDFLARE_API_KEY as string | undefined;
+      const cfEmail = (config as Record<string, unknown>).CLOUDFLARE_EMAIL as string | undefined;
+      if (!cfKey || !cfEmail) return undefined;
+      return getOrCreate('cloudflare', () => new CloudflareAdapter(cfKey, cfEmail));
     }
     case 'vatcomply':
       return getOrCreate('vatcomply', () => new VatcomplyAdapter());

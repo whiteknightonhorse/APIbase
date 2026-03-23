@@ -20546,6 +20546,529 @@
         ]
       }
     },
+    "/api/v1/tools/cloudflare.zones_list/call": {
+      "post": {
+        "operationId": "cloudflare_zones_list",
+        "summary": "List Cloudflare Zones (Domains)",
+        "description": "List all domains (zones) managed in Cloudflare — zone ID, domain name, status (active/pending), plan, nameservers. Filter by domain name or status. Zone ID needed for all other Cloudflare tools (Cloudflare)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cloudflare.zones_list"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Filter by domain name (e.g. \"example.com\")"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "active",
+                      "pending",
+                      "initializing",
+                      "moved",
+                      "deleted"
+                    ],
+                    "description": "Filter by zone status"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Results per page (default 20, max 50)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/cloudflare.dns_list/call": {
+      "post": {
+        "operationId": "cloudflare_dns_list",
+        "summary": "List DNS Records",
+        "description": "List all DNS records for a Cloudflare zone — A, AAAA, CNAME, MX, TXT, NS records with name, content, TTL, proxy status. Filter by type or name (Cloudflare)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cloudflare.dns_list"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "zone_id": {
+                    "type": "string",
+                    "description": "Cloudflare Zone ID (from zones_list results)",
+                    "minLength": 1
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "A",
+                      "AAAA",
+                      "CNAME",
+                      "MX",
+                      "TXT",
+                      "NS",
+                      "SRV",
+                      "CAA"
+                    ],
+                    "description": "Filter by record type"
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Filter by record name (e.g. \"www.example.com\")"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Results per page (default 50, max 100)"
+                  }
+                },
+                "required": [
+                  "zone_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/cloudflare.dns_create/call": {
+      "post": {
+        "operationId": "cloudflare_dns_create",
+        "summary": "Create DNS Record",
+        "description": "Create a new DNS record (A, AAAA, CNAME, MX, TXT) for a Cloudflare zone. Set content (IP/hostname), TTL, and CDN proxy status. Returns new record ID (Cloudflare)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cloudflare.dns_create"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "zone_id": {
+                    "type": "string",
+                    "description": "Cloudflare Zone ID",
+                    "minLength": 1
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "A",
+                      "AAAA",
+                      "CNAME",
+                      "MX",
+                      "TXT",
+                      "NS",
+                      "SRV",
+                      "CAA"
+                    ],
+                    "description": "DNS record type"
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Record name — subdomain or \"@\" for root (e.g. \"www\", \"api\", \"@\")",
+                    "minLength": 1
+                  },
+                  "content": {
+                    "type": "string",
+                    "description": "Record value — IP address for A/AAAA, hostname for CNAME, text for TXT",
+                    "minLength": 1
+                  },
+                  "ttl": {
+                    "type": "integer",
+                    "description": "TTL in seconds (1 = automatic, 60-86400 for manual)"
+                  },
+                  "proxied": {
+                    "type": "boolean",
+                    "description": "Enable Cloudflare CDN proxy (default false). True = orange cloud, hides origin IP"
+                  },
+                  "priority": {
+                    "type": "integer",
+                    "description": "Priority for MX records (e.g. 10, 20)"
+                  }
+                },
+                "required": [
+                  "zone_id",
+                  "type",
+                  "name",
+                  "content"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/cloudflare.dns_delete/call": {
+      "post": {
+        "operationId": "cloudflare_dns_delete",
+        "summary": "Delete DNS Record",
+        "description": "Delete a DNS record from a Cloudflare zone by record ID. Removes the record immediately (Cloudflare)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cloudflare.dns_delete"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "zone_id": {
+                    "type": "string",
+                    "description": "Cloudflare Zone ID",
+                    "minLength": 1
+                  },
+                  "record_id": {
+                    "type": "string",
+                    "description": "DNS record ID to delete (from dns_list results)",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "zone_id",
+                  "record_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/cloudflare.zone_analytics/call": {
+      "post": {
+        "operationId": "cloudflare_zone_analytics",
+        "summary": "Zone Traffic Analytics",
+        "description": "Traffic analytics for a Cloudflare zone — total requests, cached vs uncached, bandwidth, threats blocked, page views. Supports custom time ranges (last 24h, 7 days, etc.) (Cloudflare)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cloudflare.zone_analytics"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "zone_id": {
+                    "type": "string",
+                    "description": "Cloudflare Zone ID",
+                    "minLength": 1
+                  },
+                  "since": {
+                    "type": "integer",
+                    "description": "Minutes ago to start from (e.g. -1440 for last 24h, -10080 for last 7 days)"
+                  }
+                },
+                "required": [
+                  "zone_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/cloudflare.purge_cache/call": {
+      "post": {
+        "operationId": "cloudflare_purge_cache",
+        "summary": "Purge CDN Cache",
+        "description": "Purge Cloudflare CDN cache — all cached files or specific URLs (max 30). Forces CDN to fetch fresh content from origin server (Cloudflare)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cloudflare.purge_cache"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "zone_id": {
+                    "type": "string",
+                    "description": "Cloudflare Zone ID",
+                    "minLength": 1
+                  },
+                  "purge_everything": {
+                    "type": "boolean",
+                    "description": "Purge all cached files (default false)"
+                  },
+                  "files": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Specific URLs to purge (max 30)"
+                  }
+                },
+                "required": [
+                  "zone_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/vatcomply.validate/call": {
       "post": {
         "operationId": "vatcomply_validate",

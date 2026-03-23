@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 279 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 285 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -8759,6 +8759,241 @@
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "infra.cloudflare.zones_list",
+      "description": "List all domains (zones) managed in Cloudflare — zone ID, domain name, status (active/pending), plan, nameservers. Filter by domain name or status. Zone ID needed for all other Cloudflare tools (Cloudflare)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Filter by domain name (e.g. \"example.com\")"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "pending",
+              "initializing",
+              "moved",
+              "deleted"
+            ],
+            "description": "Filter by zone status"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Results per page (default 20, max 50)"
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "infra.cloudflare.dns_list",
+      "description": "List all DNS records for a Cloudflare zone — A, AAAA, CNAME, MX, TXT, NS records with name, content, TTL, proxy status. Filter by type or name (Cloudflare)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "zone_id": {
+            "type": "string",
+            "description": "Cloudflare Zone ID (from zones_list results)",
+            "minLength": 1
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "A",
+              "AAAA",
+              "CNAME",
+              "MX",
+              "TXT",
+              "NS",
+              "SRV",
+              "CAA"
+            ],
+            "description": "Filter by record type"
+          },
+          "name": {
+            "type": "string",
+            "description": "Filter by record name (e.g. \"www.example.com\")"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Results per page (default 50, max 100)"
+          }
+        },
+        "required": [
+          "zone_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "infra.cloudflare.dns_create",
+      "description": "Create a new DNS record (A, AAAA, CNAME, MX, TXT) for a Cloudflare zone. Set content (IP/hostname), TTL, and CDN proxy status. Returns new record ID (Cloudflare)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "zone_id": {
+            "type": "string",
+            "description": "Cloudflare Zone ID",
+            "minLength": 1
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "A",
+              "AAAA",
+              "CNAME",
+              "MX",
+              "TXT",
+              "NS",
+              "SRV",
+              "CAA"
+            ],
+            "description": "DNS record type"
+          },
+          "name": {
+            "type": "string",
+            "description": "Record name — subdomain or \"@\" for root (e.g. \"www\", \"api\", \"@\")",
+            "minLength": 1
+          },
+          "content": {
+            "type": "string",
+            "description": "Record value — IP address for A/AAAA, hostname for CNAME, text for TXT",
+            "minLength": 1
+          },
+          "ttl": {
+            "type": "integer",
+            "description": "TTL in seconds (1 = automatic, 60-86400 for manual)"
+          },
+          "proxied": {
+            "type": "boolean",
+            "description": "Enable Cloudflare CDN proxy (default false). True = orange cloud, hides origin IP"
+          },
+          "priority": {
+            "type": "integer",
+            "description": "Priority for MX records (e.g. 10, 20)"
+          }
+        },
+        "required": [
+          "zone_id",
+          "type",
+          "name",
+          "content"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "infra.cloudflare.dns_delete",
+      "description": "Delete a DNS record from a Cloudflare zone by record ID. Removes the record immediately (Cloudflare)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "zone_id": {
+            "type": "string",
+            "description": "Cloudflare Zone ID",
+            "minLength": 1
+          },
+          "record_id": {
+            "type": "string",
+            "description": "DNS record ID to delete (from dns_list results)",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "zone_id",
+          "record_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "infra.cloudflare.zone_analytics",
+      "description": "Traffic analytics for a Cloudflare zone — total requests, cached vs uncached, bandwidth, threats blocked, page views. Supports custom time ranges (last 24h, 7 days, etc.) (Cloudflare)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "zone_id": {
+            "type": "string",
+            "description": "Cloudflare Zone ID",
+            "minLength": 1
+          },
+          "since": {
+            "type": "integer",
+            "description": "Minutes ago to start from (e.g. -1440 for last 24h, -10080 for last 7 days)"
+          }
+        },
+        "required": [
+          "zone_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "infra.cloudflare.purge_cache",
+      "description": "Purge Cloudflare CDN cache — all cached files or specific URLs (max 30). Forces CDN to fetch fresh content from origin server (Cloudflare)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "zone_id": {
+            "type": "string",
+            "description": "Cloudflare Zone ID",
+            "minLength": 1
+          },
+          "purge_everything": {
+            "type": "boolean",
+            "description": "Purge all cached files (default false)"
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Specific URLs to purge (max 30)"
+          }
+        },
+        "required": [
+          "zone_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
         "openWorldHint": true
       }
     },
