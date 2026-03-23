@@ -68,6 +68,7 @@ import { api2pdfSchemas } from './api2pdf.schema';
 import { convertapiSchemas } from './convertapi.schema';
 import { europeanaSchemas } from './europeana.schema';
 import { articSchemas } from './artic.schema';
+import { blueskySchemas } from './bluesky.schema';
 import { firmsSchemas } from './firms.schema';
 import { resendSchemas } from './resend.schema';
 import { fedregisterSchemas } from './fedregister.schema';
@@ -143,6 +144,7 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...convertapiSchemas,
   ...europeanaSchemas,
   ...articSchemas,
+  ...blueskySchemas,
   ...firmsSchemas,
   ...resendSchemas,
   ...fedregisterSchemas,

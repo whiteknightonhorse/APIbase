@@ -2031,6 +2031,31 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // ---------------------------------------------------------------------------
   // Art Institute of Chicago — ARTIC (UC-162, 3 tools)
   // ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // Bluesky AT Protocol — Decentralized Social (UC-171, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'bluesky.search_posts',
+    mcpName: 'social.bluesky.search',
+    title: 'Search Bluesky Posts',
+    description: 'Search posts across the Bluesky decentralized social network by keyword. Returns post text, author handle, display name, like/repost/reply counts, timestamps. Sort by relevance or latest. Filter by language (AT Protocol / Bluesky)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bluesky.profile',
+    mcpName: 'social.bluesky.profile',
+    title: 'Bluesky User Profile',
+    description: 'Get a Bluesky user profile — display name, bio, avatar URL, follower/following/post counts, account creation date. Lookup by handle (e.g. "jay.bsky.team") (AT Protocol / Bluesky)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bluesky.feed',
+    mcpName: 'social.bluesky.feed',
+    title: 'Bluesky User Feed',
+    description: 'Get recent posts from a Bluesky user by handle — post text, timestamps, like/repost counts. Up to 100 posts per request (AT Protocol / Bluesky)',
+    annotations: READ_ONLY,
+  },
+
   {
     toolId: 'artic.search',
     mcpName: 'culture.artic.search',

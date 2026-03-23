@@ -68,6 +68,7 @@ import { Api2PdfAdapter } from './api2pdf';
 import { ConvertApiAdapter } from './convertapi';
 import { EuropeanaAdapter } from './europeana';
 import { ArticAdapter } from './artic';
+import { BlueskyAdapter } from './bluesky';
 import { FirmsAdapter } from './firms';
 import { ResendAdapter } from './resend';
 import { FedRegisterAdapter } from './fedregister';
@@ -367,6 +368,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const iqairKey = (config as Record<string, unknown>).PROVIDER_KEY_IQAIR as string | undefined;
       if (!iqairKey) return undefined;
       return getOrCreate('iqair', () => new IqairAdapter(iqairKey));
+    }
+    case 'bluesky': {
+      const bsHandle = (config as Record<string, unknown>).BLUESKY_HANDLE as string | undefined;
+      const bsPassword = (config as Record<string, unknown>).BLUESKY_APP_PASSWORD as string | undefined;
+      if (!bsHandle || !bsPassword) return undefined;
+      return getOrCreate('bluesky', () => new BlueskyAdapter(bsHandle, bsPassword));
     }
     case 'artic':
       return getOrCreate('artic', () => new ArticAdapter());

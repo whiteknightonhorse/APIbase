@@ -20546,6 +20546,243 @@
         ]
       }
     },
+    "/api/v1/tools/bluesky.search_posts/call": {
+      "post": {
+        "operationId": "bluesky_search_posts",
+        "summary": "Search Bluesky Posts",
+        "description": "Search posts across the Bluesky decentralized social network by keyword. Returns post text, author handle, display name, like/repost/reply counts, timestamps. Sort by relevance or latest. Filter by language (AT Protocol / Bluesky)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bluesky.search_posts"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "q": {
+                    "type": "string",
+                    "description": "Search query for Bluesky posts (e.g. \"MCP server\", \"AI agents\", \"Claude\")",
+                    "minLength": 1
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Max results (default 25, max 100)"
+                  },
+                  "sort": {
+                    "type": "string",
+                    "enum": [
+                      "top",
+                      "latest"
+                    ],
+                    "description": "Sort order: \"top\" (relevance) or \"latest\" (chronological)"
+                  },
+                  "lang": {
+                    "type": "string",
+                    "description": "Filter by language code (e.g. \"en\", \"ja\", \"pt\")"
+                  }
+                },
+                "required": [
+                  "q"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/bluesky.profile/call": {
+      "post": {
+        "operationId": "bluesky_profile",
+        "summary": "Bluesky User Profile",
+        "description": "Get a Bluesky user profile — display name, bio, avatar URL, follower/following/post counts, account creation date. Lookup by handle (e.g. \"jay.bsky.team\") (AT Protocol / Bluesky)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bluesky.profile"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "handle": {
+                    "type": "string",
+                    "description": "Bluesky handle (e.g. \"jay.bsky.team\", \"pfrazee.com\", \"apibase.bsky.social\")",
+                    "minLength": 3
+                  }
+                },
+                "required": [
+                  "handle"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/bluesky.feed/call": {
+      "post": {
+        "operationId": "bluesky_feed",
+        "summary": "Bluesky User Feed",
+        "description": "Get recent posts from a Bluesky user by handle — post text, timestamps, like/repost counts. Up to 100 posts per request (AT Protocol / Bluesky)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bluesky.feed"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "handle": {
+                    "type": "string",
+                    "description": "Bluesky handle to get posts from (e.g. \"jay.bsky.team\")",
+                    "minLength": 3
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Number of posts to return (default 20, max 100)"
+                  }
+                },
+                "required": [
+                  "handle"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/artic.search/call": {
       "post": {
         "operationId": "artic_search",

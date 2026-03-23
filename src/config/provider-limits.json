@@ -550,6 +550,15 @@
     "docs_url": "https://randomuser.me/documentation",
     "limit_proof": "Fully free, no auth, open source, unlimited"
   },
+  "bluesky": {
+    "display_name": "Bluesky (AT Protocol)",
+    "health_url": "https://bsky.social/xrpc/com.atproto.identity.resolveHandle?handle=apibase.bsky.social",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://docs.bsky.app/",
+    "limit_proof": "Free, 3000 req/5min per IP, no cost, AT Protocol open standard"
+  },
   "artic": {
     "display_name": "Art Institute of Chicago",
     "health_url": "https://api.artic.edu/api/v1/artworks?limit=1",
