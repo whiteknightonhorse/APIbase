@@ -45,6 +45,15 @@ a{color:#00ccff;text-decoration:none}a:hover{color:#66ddff;text-shadow:0 0 6px r
 .payment-status .testnet-warn{color:#ff5f56;font-weight:700}
 
 /* Category filter */
+.search-bar{margin-bottom:0.8rem;position:relative}
+.search-input{width:100%;background:#0a0a0a;border:1px solid #1a3a1a;color:#00ff41;font-family:inherit;font-size:0.85rem;padding:0.6rem 0.8rem 0.6rem 2.2rem;border-radius:4px;outline:none;transition:border-color 0.2s,box-shadow 0.2s}
+.search-input:focus{border-color:#00aa30;box-shadow:0 0 8px rgba(0,255,65,0.15)}
+.search-input::placeholder{color:#1a4a1a}
+.search-icon{position:absolute;left:0.7rem;top:50%;transform:translateY(-50%);color:#1a5a1a;font-size:0.85rem;pointer-events:none}
+.search-info{font-size:0.7rem;margin-top:0.3rem;min-height:1.1em}
+.search-info .found{color:#00aa30}
+.search-info .not-found{color:#ff4444}
+.search-info .hint{color:#1a4a1a}
 .cat-filter{margin-bottom:1.2rem;padding:0.6rem 0}
 .cat-filter-label{color:#2a6a2a;font-size:0.72rem;margin-bottom:0.5rem;display:block}
 .cat-tags{display:flex;flex-wrap:wrap;gap:0.4rem}
@@ -129,6 +138,13 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
 <span class="label">SYSTEM</span>  <span class="label">PRV:</span><span class="val" id="t-providers">--</span>  <span class="label">TOOLS:</span><span class="val" id="t-tools">--</span>  <span class="label">OPS/24H:</span><span class="val" id="t-calls">--</span>  <span class="label">MEM:</span><span class="val">OK</span>  <span class="label">NET:</span><span class="val">ONLINE</span>
 </div>
 <div class="payment-status" id="payment-status"></div>
+
+<!-- Search bar -->
+<div class="search-bar">
+<span class="search-icon">$</span>
+<input type="text" class="search-input" id="search-input" placeholder="grep provider or category... (e.g. cloudflare, finance, dns)" autocomplete="off" spellcheck="false">
+<div class="search-info" id="search-info"><span class="hint">Search by provider name, category, or tool prefix</span></div>
+</div>
 
 <!-- Category filter -->
 <div class="cat-filter">
@@ -355,11 +371,18 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
     html += '<th>Provider</th><th>Cat</th><th>Status</th><th>Limits</th><th>Calls 24h</th><th class="col-latency">Latency</th><th>Tools</th>';
     html += '</tr></thead><tbody>';
 
+    var searchTerm = (document.getElementById('search-input').value || '').toLowerCase().trim();
     var visibleCount = 0;
+    var totalMatched = 0;
     for (var i = 0; i < data.providers.length; i++) {
       var p = data.providers[i];
       var cat = getCategory(p.display_name);
       if (currentFilter !== 'ALL' && cat !== currentFilter) continue;
+      if (searchTerm) {
+        var haystack = (p.display_name + ' ' + p.provider + ' ' + cat).toLowerCase();
+        if (haystack.indexOf(searchTerm) === -1) continue;
+      }
+      totalMatched++;
       visibleCount++;
       var borderCls = latencyBorderClass(p.health.latency_ms);
       html += '<tr class="' + borderCls + '">';
@@ -382,6 +405,18 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
     }
     html += '</tbody></table></div>';
     content.innerHTML = html;
+
+    // Update search info
+    var infoEl = document.getElementById('search-info');
+    if (searchTerm) {
+      if (visibleCount > 0) {
+        infoEl.innerHTML = '<span class="found">Found ' + visibleCount + ' provider' + (visibleCount !== 1 ? 's' : '') + ' matching "' + escHtml(searchTerm) + '"</span>';
+      } else {
+        infoEl.innerHTML = '<span class="not-found">No providers found for "' + escHtml(searchTerm) + '" — try a different keyword</span>';
+      }
+    } else {
+      infoEl.innerHTML = '<span class="hint">Search by provider name, category, or tool prefix</span>';
+    }
   }
 
   function fetchDashboard() {
@@ -401,6 +436,19 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
   function tick() { countdown--; if (countdown <= 0) fetchDashboard(); updateProgressBar(countdown); }
   fetchDashboard();
   intervalId = setInterval(tick, 1000);
+
+  // Search input — live filter on keyup
+  var searchInput = document.getElementById('search-input');
+  var searchDebounce = null;
+  searchInput.addEventListener('input', function() {
+    clearTimeout(searchDebounce);
+    searchDebounce = setTimeout(function() {
+      if (lastData) renderTable(lastData);
+    }, 150);
+  });
+  searchInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') { searchInput.value = ''; if (lastData) renderTable(lastData); }
+  });
 })();
 </script>
 </body>
