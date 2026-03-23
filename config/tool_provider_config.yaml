@@ -1527,6 +1527,33 @@ tools:
     price_usd: "0.002"
     cache_ttl: 86400
 
+  # --- UC-202: NameSilo (Domain Registration) — EXCLUSIVE ---
+  - tool_id: namesilo.domain_check
+    name: Check Domain Availability
+    provider: namesilo
+    price_usd: "0.001"
+    cache_ttl: 60
+  - tool_id: namesilo.domain_register
+    name: Register Domain Name
+    provider: namesilo
+    price_usd: "21.00"
+    cache_ttl: 0
+  - tool_id: namesilo.domain_list
+    name: List Registered Domains
+    provider: namesilo
+    price_usd: "0.001"
+    cache_ttl: 300
+  - tool_id: namesilo.domain_info
+    name: Domain Details
+    provider: namesilo
+    price_usd: "0.001"
+    cache_ttl: 300
+  - tool_id: namesilo.get_prices
+    name: Domain TLD Pricing
+    provider: namesilo
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   # --- UC-201: Cloudflare (DNS, CDN, Infrastructure) — EXCLUSIVE ---
   - tool_id: cloudflare.zones_list
     name: List Cloudflare Zones

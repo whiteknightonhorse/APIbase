@@ -75,6 +75,7 @@ import { GleifAdapter } from './gleif';
 import { AssemblyAIAdapter } from './assemblyai';
 import { VatcomplyAdapter } from './vatcomply';
 import { CloudflareAdapter } from './cloudflare';
+import { NameSiloAdapter } from './namesilo';
 import { FirmsAdapter } from './firms';
 import { ResendAdapter } from './resend';
 import { FedRegisterAdapter } from './fedregister';
@@ -374,6 +375,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const iqairKey = (config as Record<string, unknown>).PROVIDER_KEY_IQAIR as string | undefined;
       if (!iqairKey) return undefined;
       return getOrCreate('iqair', () => new IqairAdapter(iqairKey));
+    }
+    case 'namesilo': {
+      const nsKey = (config as Record<string, unknown>).PROVIDER_KEY_NAMESILO as string | undefined;
+      if (!nsKey) return undefined;
+      return getOrCreate('namesilo', () => new NameSiloAdapter(nsKey));
     }
     case 'cloudflare': {
       const cfKey = (config as Record<string, unknown>).CLOUDFLARE_API_KEY as string | undefined;

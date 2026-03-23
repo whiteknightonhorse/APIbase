@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 285 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 290 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -8754,6 +8754,123 @@
         "required": [
           "vin"
         ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "domain.namesilo.check",
+      "description": "Check if domain names are available for registration. Returns availability status, registration price, and renewal price per domain. Supports all TLDs (.com, .io, .dev, .app, .ai, etc.) (NameSilo)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "domains": {
+            "type": "string",
+            "description": "Comma-separated domain names to check availability (e.g. \"example.com,mysite.io,startup.dev\")",
+            "minLength": 3
+          }
+        },
+        "required": [
+          "domains"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "domain.namesilo.register",
+      "description": "Purchase and register a domain name (1-10 years). Includes free WHOIS privacy protection. Domain is registered instantly. Prices: .com ~$21, .org ~$12, .dev ~$18, .io ~$42 (NameSilo)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "domain": {
+            "type": "string",
+            "description": "Domain name to register (e.g. \"mybusiness.com\")",
+            "minLength": 3
+          },
+          "years": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10,
+            "description": "Registration period in years (default 1, max 10)"
+          },
+          "private": {
+            "type": "boolean",
+            "description": "Enable free WHOIS privacy (default true)"
+          }
+        },
+        "required": [
+          "domain"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "domain.namesilo.list",
+      "description": "List all domains registered in the account with expiry dates and status (NameSilo)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "filter": {
+            "type": "string",
+            "description": "Optional keyword to filter domain list"
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "domain.namesilo.info",
+      "description": "Get detailed info for a domain — nameservers, creation/expiry dates, lock status, auto-renew setting, WHOIS contact (NameSilo)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "domain": {
+            "type": "string",
+            "description": "Domain name to get details for (e.g. \"example.com\")",
+            "minLength": 3
+          }
+        },
+        "required": [
+          "domain"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "domain.namesilo.prices",
+      "description": "Get current registration, renewal, and transfer prices for popular TLDs (.com, .net, .org, .io, .dev, .app, .ai, .co, .xyz, .tech, etc.) (NameSilo)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "tld": {
+            "type": "string",
+            "description": "Optional TLD to filter (e.g. \"com\", \"io\"). Omit for all popular TLDs"
+          }
+        }
       },
       "annotations": {
         "readOnlyHint": true,

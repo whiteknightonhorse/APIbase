@@ -2052,6 +2052,45 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // ---------------------------------------------------------------------------
   // Cloudflare — DNS, CDN & Infrastructure (UC-201, 6 tools) — EXCLUSIVE
   // ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // NameSilo — Domain Registration (UC-202, 5 tools) — EXCLUSIVE
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'namesilo.domain_check',
+    mcpName: 'domain.namesilo.check',
+    title: 'Check Domain Availability',
+    description: 'Check if domain names are available for registration. Returns availability status, registration price, and renewal price per domain. Supports all TLDs (.com, .io, .dev, .app, .ai, etc.) (NameSilo)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'namesilo.domain_register',
+    mcpName: 'domain.namesilo.register',
+    title: 'Register Domain Name',
+    description: 'Purchase and register a domain name (1-10 years). Includes free WHOIS privacy protection. Domain is registered instantly. Prices: .com ~$21, .org ~$12, .dev ~$18, .io ~$42 (NameSilo)',
+    annotations: TRADING,
+  },
+  {
+    toolId: 'namesilo.domain_list',
+    mcpName: 'domain.namesilo.list',
+    title: 'List Registered Domains',
+    description: 'List all domains registered in the account with expiry dates and status (NameSilo)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'namesilo.domain_info',
+    mcpName: 'domain.namesilo.info',
+    title: 'Domain Details',
+    description: 'Get detailed info for a domain — nameservers, creation/expiry dates, lock status, auto-renew setting, WHOIS contact (NameSilo)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'namesilo.get_prices',
+    mcpName: 'domain.namesilo.prices',
+    title: 'Domain TLD Pricing',
+    description: 'Get current registration, renewal, and transfer prices for popular TLDs (.com, .net, .org, .io, .dev, .app, .ai, .co, .xyz, .tech, etc.) (NameSilo)',
+    annotations: READ_ONLY,
+  },
+
   {
     toolId: 'cloudflare.zones_list',
     mcpName: 'infra.cloudflare.zones_list',
