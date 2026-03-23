@@ -69,6 +69,7 @@ import { ConvertApiAdapter } from './convertapi';
 import { EuropeanaAdapter } from './europeana';
 import { ArticAdapter } from './artic';
 import { BlueskyAdapter } from './bluesky';
+import { EdgarAdapter } from './edgar';
 import { FirmsAdapter } from './firms';
 import { ResendAdapter } from './resend';
 import { FedRegisterAdapter } from './fedregister';
@@ -369,6 +370,8 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       if (!iqairKey) return undefined;
       return getOrCreate('iqair', () => new IqairAdapter(iqairKey));
     }
+    case 'edgar':
+      return getOrCreate('edgar', () => new EdgarAdapter());
     case 'bluesky': {
       const bsHandle = (config as Record<string, unknown>).BLUESKY_HANDLE as string | undefined;
       const bsPassword = (config as Record<string, unknown>).BLUESKY_APP_PASSWORD as string | undefined;

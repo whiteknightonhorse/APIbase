@@ -550,6 +550,15 @@
     "docs_url": "https://randomuser.me/documentation",
     "limit_proof": "Fully free, no auth, open source, unlimited"
   },
+  "edgar": {
+    "display_name": "SEC EDGAR",
+    "health_url": "https://data.sec.gov/submissions/CIK0000320193.json",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.sec.gov/about/developer-resources",
+    "limit_proof": "US Government open data, no auth, 10 req/sec rate limit"
+  },
   "bluesky": {
     "display_name": "Bluesky (AT Protocol)",
     "health_url": "https://bsky.social/xrpc/com.atproto.identity.resolveHandle?handle=apibase.bsky.social",

@@ -69,6 +69,7 @@ import { convertapiSchemas } from './convertapi.schema';
 import { europeanaSchemas } from './europeana.schema';
 import { articSchemas } from './artic.schema';
 import { blueskySchemas } from './bluesky.schema';
+import { edgarSchemas } from './edgar.schema';
 import { firmsSchemas } from './firms.schema';
 import { resendSchemas } from './resend.schema';
 import { fedregisterSchemas } from './fedregister.schema';
@@ -145,6 +146,7 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...europeanaSchemas,
   ...articSchemas,
   ...blueskySchemas,
+  ...edgarSchemas,
   ...firmsSchemas,
   ...resendSchemas,
   ...fedregisterSchemas,

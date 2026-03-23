@@ -1527,6 +1527,23 @@ tools:
     price_usd: "0.002"
     cache_ttl: 86400
 
+  # --- UC-173: SEC EDGAR (US Company Filings) ---
+  - tool_id: edgar.company_search
+    name: Search SEC Companies
+    provider: edgar
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: edgar.filings
+    name: SEC Company Filings
+    provider: edgar
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: edgar.company_facts
+    name: SEC Financial Facts (XBRL)
+    provider: edgar
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   # --- UC-171: Bluesky AT Protocol (Decentralized Social) ---
   - tool_id: bluesky.search_posts
     name: Search Bluesky Posts
