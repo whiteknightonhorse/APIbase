@@ -550,6 +550,15 @@
     "docs_url": "https://randomuser.me/documentation",
     "limit_proof": "Fully free, no auth, open source, unlimited"
   },
+  "companieshouse": {
+    "display_name": "Companies House (UK)",
+    "health_url": "https://api.company-information.service.gov.uk/search/companies?q=test&items_per_page=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://developer.company-information.service.gov.uk/",
+    "limit_proof": "UK Government free API, 600 req/5min rate limit"
+  },
   "edgar": {
     "display_name": "SEC EDGAR",
     "health_url": "https://data.sec.gov/submissions/CIK0000320193.json",

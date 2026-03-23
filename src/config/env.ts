@@ -162,6 +162,9 @@ export const appEnvSchema = z.object({
   // IQAir AirVisual (UC-120) — query param auth, 10,000 calls/month free
   PROVIDER_KEY_IQAIR: z.string().optional().default(''),
 
+  // Companies House (UC-174) — UK company registry, Basic Auth
+  PROVIDER_KEY_COMPANIES_HOUSE: z.string().optional().default(''),
+
   // Bluesky (UC-171) — AT Protocol, app-password auth
   BLUESKY_HANDLE: z.string().optional().default(''),
   BLUESKY_APP_PASSWORD: z.string().optional().default(''),

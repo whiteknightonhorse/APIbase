@@ -2037,6 +2037,24 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // ---------------------------------------------------------------------------
   // SEC EDGAR — US Company Filings (UC-173, 3 tools)
   // ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // Companies House — UK Company Registry (UC-174, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'ukcompany.search',
+    mcpName: 'business.ukcompany.search',
+    title: 'Search UK Companies',
+    description: 'Search the UK Companies House registry by name — returns company number, name, type (plc/ltd), status (active/dissolved), incorporation date, registered address. Covers all companies registered under the Companies Act (Companies House UK Gov)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ukcompany.details',
+    mcpName: 'business.ukcompany.details',
+    title: 'UK Company Details',
+    description: 'Full details for a UK company by Companies House number — company name, type, status, SIC codes, registered address, accounts due date, confirmation statement due, charges, insolvency history (Companies House UK Gov)',
+    annotations: READ_ONLY,
+  },
+
   {
     toolId: 'edgar.company_search',
     mcpName: 'finance.edgar.company_search',

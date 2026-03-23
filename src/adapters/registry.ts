@@ -70,6 +70,7 @@ import { EuropeanaAdapter } from './europeana';
 import { ArticAdapter } from './artic';
 import { BlueskyAdapter } from './bluesky';
 import { EdgarAdapter } from './edgar';
+import { CompaniesHouseAdapter } from './companies-house';
 import { FirmsAdapter } from './firms';
 import { ResendAdapter } from './resend';
 import { FedRegisterAdapter } from './fedregister';
@@ -369,6 +370,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const iqairKey = (config as Record<string, unknown>).PROVIDER_KEY_IQAIR as string | undefined;
       if (!iqairKey) return undefined;
       return getOrCreate('iqair', () => new IqairAdapter(iqairKey));
+    }
+    case 'ukcompany': {
+      const chKey = (config as Record<string, unknown>).PROVIDER_KEY_COMPANIES_HOUSE as string | undefined;
+      if (!chKey) return undefined;
+      return getOrCreate('companies-house', () => new CompaniesHouseAdapter(chKey));
     }
     case 'edgar':
       return getOrCreate('edgar', () => new EdgarAdapter());

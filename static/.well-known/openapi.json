@@ -20546,6 +20546,154 @@
         ]
       }
     },
+    "/api/v1/tools/ukcompany.search/call": {
+      "post": {
+        "operationId": "ukcompany_search",
+        "summary": "Search UK Companies",
+        "description": "Search the UK Companies House registry by name — returns company number, name, type (plc/ltd), status (active/dissolved), incorporation date, registered address. Covers all companies registered under the Companies Act (Companies House UK Gov)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ukcompany.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Company name to search (e.g. \"Barclays\", \"Tesco\", \"ARM Holdings\")",
+                    "minLength": 1
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Max results (default 10, max 100)"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ukcompany.details/call": {
+      "post": {
+        "operationId": "ukcompany_details",
+        "summary": "UK Company Details",
+        "description": "Full details for a UK company by Companies House number — company name, type, status, SIC codes, registered address, accounts due date, confirmation statement due, charges, insolvency history (Companies House UK Gov)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ukcompany.details"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_number": {
+                    "type": "string",
+                    "description": "UK Companies House number (e.g. \"00048839\" for Barclays, \"00445790\" for Tesco). Get from search results",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "company_number"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/edgar.company_search/call": {
       "post": {
         "operationId": "edgar_company_search",

@@ -1527,6 +1527,18 @@ tools:
     price_usd: "0.002"
     cache_ttl: 86400
 
+  # --- UC-174: Companies House (UK Company Registry) ---
+  - tool_id: ukcompany.search
+    name: Search UK Companies
+    provider: companieshouse
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: ukcompany.details
+    name: UK Company Details
+    provider: companieshouse
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   # --- UC-173: SEC EDGAR (US Company Filings) ---
   - tool_id: edgar.company_search
     name: Search SEC Companies
