@@ -73,6 +73,7 @@ import { EdgarAdapter } from './edgar';
 import { CompaniesHouseAdapter } from './companies-house';
 import { GleifAdapter } from './gleif';
 import { AssemblyAIAdapter } from './assemblyai';
+import { VatcomplyAdapter } from './vatcomply';
 import { FirmsAdapter } from './firms';
 import { ResendAdapter } from './resend';
 import { FedRegisterAdapter } from './fedregister';
@@ -373,6 +374,8 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       if (!iqairKey) return undefined;
       return getOrCreate('iqair', () => new IqairAdapter(iqairKey));
     }
+    case 'vatcomply':
+      return getOrCreate('vatcomply', () => new VatcomplyAdapter());
     case 'transcribe': {
       const aaiKey = (config as Record<string, unknown>).PROVIDER_KEY_ASSEMBLYAI as string | undefined;
       if (!aaiKey) return undefined;

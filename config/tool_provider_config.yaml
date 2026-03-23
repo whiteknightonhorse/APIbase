@@ -1527,6 +1527,23 @@ tools:
     price_usd: "0.002"
     cache_ttl: 86400
 
+  # --- UC-185: VATcomply (EU VAT + ECB Rates) ---
+  - tool_id: vatcomply.validate
+    name: Validate EU VAT Number
+    provider: vatcomply
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: vatcomply.rates
+    name: EU VAT Rates
+    provider: vatcomply
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: vatcomply.currencies
+    name: ECB Exchange Rates
+    provider: vatcomply
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   # --- UC-179: AssemblyAI (Speech-to-Text) ---
   - tool_id: transcribe.submit
     name: Submit Audio Transcription

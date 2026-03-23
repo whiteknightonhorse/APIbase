@@ -65,6 +65,12 @@ a{color:#00ccff;text-decoration:none}a:hover{color:#66ddff;text-shadow:0 0 6px r
 .refresh-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;font-size:0.78rem;color:#2a6a2a;font-family:inherit}
 .refresh-bar .progress{color:#00aa30;letter-spacing:0}
 .table-wrap{overflow-x:auto}
+*::-webkit-scrollbar{width:8px;height:8px}
+*::-webkit-scrollbar-track{background:#0c0c0c;border:1px solid #1a3a1a}
+*::-webkit-scrollbar-thumb{background:#1a5a1a;border-radius:4px;border:1px solid #0c0c0c}
+*::-webkit-scrollbar-thumb:hover{background:#00ff41}
+*::-webkit-scrollbar-corner{background:#0c0c0c}
+*{scrollbar-width:thin;scrollbar-color:#1a5a1a #0c0c0c}
 table{width:100%;border-collapse:collapse;font-size:0.82rem;background:#080808}
 th,td{border:1px solid #1a3a1a;padding:0.5rem 0.7rem;text-align:left;white-space:nowrap}
 th{color:#00ff41;background:#0a1a0a;text-shadow:0 0 4px rgba(0,255,65,0.2);position:sticky;top:0}
@@ -225,6 +231,8 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
     'IQAir AirVisual': 'Air Quality',
     // Nutrition
     'FatSecret Nutrition': 'Nutrition',
+    // Tax / VAT
+    'VATcomply': 'Tax & VAT',
     // Audio / Speech
     'AssemblyAI': 'Audio & Speech',
     // Company Data

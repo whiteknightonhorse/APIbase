@@ -550,6 +550,15 @@
     "docs_url": "https://randomuser.me/documentation",
     "limit_proof": "Fully free, no auth, open source, unlimited"
   },
+  "vatcomply": {
+    "display_name": "VATcomply",
+    "health_url": "https://api.vatcomply.com/rates",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.vatcomply.com/documentation",
+    "limit_proof": "Free, open source (MIT), no auth, no limits, 2 req/sec rate limit"
+  },
   "assemblyai": {
     "display_name": "AssemblyAI",
     "health_url": "https://api.assemblyai.com/v2/transcript",

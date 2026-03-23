@@ -20546,6 +20546,213 @@
         ]
       }
     },
+    "/api/v1/tools/vatcomply.validate/call": {
+      "post": {
+        "operationId": "vatcomply_validate",
+        "summary": "Validate EU VAT Number",
+        "description": "Validate a European VAT number via VIES — returns validity status, company name, and registered address. Supports all 27 EU member states + UK. Format: country prefix + number (e.g. DE123456789) (VATcomply, open source)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "vatcomply.validate"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "vat_number": {
+                    "type": "string",
+                    "description": "EU VAT number with country prefix (e.g. \"DE123456789\", \"FR12345678901\", \"GB123456789\")",
+                    "minLength": 4
+                  }
+                },
+                "required": [
+                  "vat_number"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/vatcomply.rates/call": {
+      "post": {
+        "operationId": "vatcomply_rates",
+        "summary": "EU VAT Rates by Country",
+        "description": "Get current VAT rates for EU countries — standard rate, reduced rates, super-reduced rate, parking rate. Query one country or all 27 EU members. Sourced from EU TEDB (VATcomply)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "vatcomply.rates"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "country_code": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2,
+                    "description": "ISO 3166-1 alpha-2 country code for specific country VAT rates (e.g. \"DE\", \"FR\", \"IT\"). Omit for all EU countries"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/vatcomply.currencies/call": {
+      "post": {
+        "operationId": "vatcomply_currencies",
+        "summary": "ECB Currency Exchange Rates",
+        "description": "Current ECB reference exchange rates for 30+ currencies (USD, GBP, JPY, CHF, etc.) plus currency metadata — symbol, decimal places, issuing countries (VATcomply / ECB)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "vatcomply.currencies"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "filter": {
+                    "type": "string",
+                    "description": "Optional currency code filter (e.g. \"USD\", \"GBP\"). Omit for all currencies"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/transcribe.submit/call": {
       "post": {
         "operationId": "transcribe_submit",

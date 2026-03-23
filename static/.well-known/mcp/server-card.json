@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 276 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 279 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -8754,6 +8754,69 @@
         "required": [
           "vin"
         ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "tax.vatcomply.validate",
+      "description": "Validate a European VAT number via VIES — returns validity status, company name, and registered address. Supports all 27 EU member states + UK. Format: country prefix + number (e.g. DE123456789) (VATcomply, open source)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "vat_number": {
+            "type": "string",
+            "description": "EU VAT number with country prefix (e.g. \"DE123456789\", \"FR12345678901\", \"GB123456789\")",
+            "minLength": 4
+          }
+        },
+        "required": [
+          "vat_number"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "tax.vatcomply.rates",
+      "description": "Get current VAT rates for EU countries — standard rate, reduced rates, super-reduced rate, parking rate. Query one country or all 27 EU members. Sourced from EU TEDB (VATcomply)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "country_code": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "ISO 3166-1 alpha-2 country code for specific country VAT rates (e.g. \"DE\", \"FR\", \"IT\"). Omit for all EU countries"
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "tax.vatcomply.currencies",
+      "description": "Current ECB reference exchange rates for 30+ currencies (USD, GBP, JPY, CHF, etc.) plus currency metadata — symbol, decimal places, issuing countries (VATcomply / ECB)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "filter": {
+            "type": "string",
+            "description": "Optional currency code filter (e.g. \"USD\", \"GBP\"). Omit for all currencies"
+          }
+        }
       },
       "annotations": {
         "readOnlyHint": true,

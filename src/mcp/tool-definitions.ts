@@ -2046,6 +2046,31 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // ---------------------------------------------------------------------------
   // AssemblyAI — Speech-to-Text (UC-179, 3 tools)
   // ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // VATcomply — EU VAT Validation + Rates (UC-185, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'vatcomply.validate',
+    mcpName: 'tax.vatcomply.validate',
+    title: 'Validate EU VAT Number',
+    description: 'Validate a European VAT number via VIES — returns validity status, company name, and registered address. Supports all 27 EU member states + UK. Format: country prefix + number (e.g. DE123456789) (VATcomply, open source)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'vatcomply.rates',
+    mcpName: 'tax.vatcomply.rates',
+    title: 'EU VAT Rates by Country',
+    description: 'Get current VAT rates for EU countries — standard rate, reduced rates, super-reduced rate, parking rate. Query one country or all 27 EU members. Sourced from EU TEDB (VATcomply)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'vatcomply.currencies',
+    mcpName: 'tax.vatcomply.currencies',
+    title: 'ECB Currency Exchange Rates',
+    description: 'Current ECB reference exchange rates for 30+ currencies (USD, GBP, JPY, CHF, etc.) plus currency metadata — symbol, decimal places, issuing countries (VATcomply / ECB)',
+    annotations: READ_ONLY,
+  },
+
   {
     toolId: 'transcribe.submit',
     mcpName: 'audio.transcribe.submit',
