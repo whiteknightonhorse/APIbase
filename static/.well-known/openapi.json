@@ -20546,6 +20546,232 @@
         ]
       }
     },
+    "/api/v1/tools/transcribe.submit/call": {
+      "post": {
+        "operationId": "transcribe_submit",
+        "summary": "Submit Audio for Transcription",
+        "description": "Submit an audio file URL for speech-to-text transcription. Returns a transcript_id to check status and retrieve results. Supports MP3, WAV, M4A, FLAC, OGG, WebM. 99 languages auto-detected. Optional speaker diarization (AssemblyAI)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "transcribe.submit"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "audio_url": {
+                    "type": "string",
+                    "description": "Publicly accessible URL of the audio file to transcribe (MP3, WAV, M4A, FLAC, OGG, WebM)"
+                  },
+                  "model": {
+                    "type": "string",
+                    "enum": [
+                      "universal-2",
+                      "universal-3-pro"
+                    ],
+                    "description": "Speech model: \"universal-2\" (default, fast, 99 languages) or \"universal-3-pro\" (highest accuracy, promptable)"
+                  },
+                  "language_code": {
+                    "type": "string",
+                    "description": "Language code (e.g. \"en\", \"es\", \"de\", \"fr\", \"ja\"). Auto-detected if omitted"
+                  },
+                  "speaker_labels": {
+                    "type": "boolean",
+                    "description": "Enable speaker diarization — detect who said what (default false)"
+                  }
+                },
+                "required": [
+                  "audio_url"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/transcribe.status/call": {
+      "post": {
+        "operationId": "transcribe_status",
+        "summary": "Check Transcription Status",
+        "description": "Check the status of a transcription job by transcript_id — queued, processing, completed, or error. Returns audio duration when completed (AssemblyAI)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "transcribe.status"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "transcript_id": {
+                    "type": "string",
+                    "description": "Transcript ID returned from transcribe.submit (e.g. \"aa8f42b3-e81e-453a-b010-a074ae76403b\")"
+                  }
+                },
+                "required": [
+                  "transcript_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/transcribe.result/call": {
+      "post": {
+        "operationId": "transcribe_result",
+        "summary": "Get Transcription Result",
+        "description": "Retrieve the completed transcription text, word count, confidence score, detected language, and speaker labels (if diarization was enabled). Use transcript_id from submit (AssemblyAI)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "transcribe.result"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "transcript_id": {
+                    "type": "string",
+                    "description": "Transcript ID to get the completed transcription text for"
+                  }
+                },
+                "required": [
+                  "transcript_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/lei.search/call": {
       "post": {
         "operationId": "lei_search",

@@ -162,6 +162,9 @@ export const appEnvSchema = z.object({
   // IQAir AirVisual (UC-120) — query param auth, 10,000 calls/month free
   PROVIDER_KEY_IQAIR: z.string().optional().default(''),
 
+  // AssemblyAI (UC-179) — speech-to-text, $50 free credits
+  PROVIDER_KEY_ASSEMBLYAI: z.string().optional().default(''),
+
   // Companies House (UC-174) — UK company registry, Basic Auth
   PROVIDER_KEY_COMPANIES_HOUSE: z.string().optional().default(''),
 

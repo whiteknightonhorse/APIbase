@@ -2043,6 +2043,31 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // ---------------------------------------------------------------------------
   // GLEIF LEI — Global Legal Entity Identifiers (UC-175, 3 tools)
   // ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // AssemblyAI — Speech-to-Text (UC-179, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'transcribe.submit',
+    mcpName: 'audio.transcribe.submit',
+    title: 'Submit Audio for Transcription',
+    description: 'Submit an audio file URL for speech-to-text transcription. Returns a transcript_id to check status and retrieve results. Supports MP3, WAV, M4A, FLAC, OGG, WebM. 99 languages auto-detected. Optional speaker diarization (AssemblyAI)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'transcribe.status',
+    mcpName: 'audio.transcribe.status',
+    title: 'Check Transcription Status',
+    description: 'Check the status of a transcription job by transcript_id — queued, processing, completed, or error. Returns audio duration when completed (AssemblyAI)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'transcribe.result',
+    mcpName: 'audio.transcribe.result',
+    title: 'Get Transcription Result',
+    description: 'Retrieve the completed transcription text, word count, confidence score, detected language, and speaker labels (if diarization was enabled). Use transcript_id from submit (AssemblyAI)',
+    annotations: READ_ONLY,
+  },
+
   {
     toolId: 'lei.search',
     mcpName: 'business.lei.search',

@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 273 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 276 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -8753,6 +8753,88 @@
         },
         "required": [
           "vin"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "audio.transcribe.submit",
+      "description": "Submit an audio file URL for speech-to-text transcription. Returns a transcript_id to check status and retrieve results. Supports MP3, WAV, M4A, FLAC, OGG, WebM. 99 languages auto-detected. Optional speaker diarization (AssemblyAI)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "audio_url": {
+            "type": "string",
+            "description": "Publicly accessible URL of the audio file to transcribe (MP3, WAV, M4A, FLAC, OGG, WebM)"
+          },
+          "model": {
+            "type": "string",
+            "enum": [
+              "universal-2",
+              "universal-3-pro"
+            ],
+            "description": "Speech model: \"universal-2\" (default, fast, 99 languages) or \"universal-3-pro\" (highest accuracy, promptable)"
+          },
+          "language_code": {
+            "type": "string",
+            "description": "Language code (e.g. \"en\", \"es\", \"de\", \"fr\", \"ja\"). Auto-detected if omitted"
+          },
+          "speaker_labels": {
+            "type": "boolean",
+            "description": "Enable speaker diarization — detect who said what (default false)"
+          }
+        },
+        "required": [
+          "audio_url"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "audio.transcribe.status",
+      "description": "Check the status of a transcription job by transcript_id — queued, processing, completed, or error. Returns audio duration when completed (AssemblyAI)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "transcript_id": {
+            "type": "string",
+            "description": "Transcript ID returned from transcribe.submit (e.g. \"aa8f42b3-e81e-453a-b010-a074ae76403b\")"
+          }
+        },
+        "required": [
+          "transcript_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "audio.transcribe.result",
+      "description": "Retrieve the completed transcription text, word count, confidence score, detected language, and speaker labels (if diarization was enabled). Use transcript_id from submit (AssemblyAI)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "transcript_id": {
+            "type": "string",
+            "description": "Transcript ID to get the completed transcription text for"
+          }
+        },
+        "required": [
+          "transcript_id"
         ]
       },
       "annotations": {

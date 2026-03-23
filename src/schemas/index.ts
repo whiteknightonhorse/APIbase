@@ -72,6 +72,7 @@ import { blueskySchemas } from './bluesky.schema';
 import { edgarSchemas } from './edgar.schema';
 import { companiesHouseSchemas } from './companies-house.schema';
 import { gleifSchemas } from './gleif.schema';
+import { assemblyaiSchemas } from './assemblyai.schema';
 import { firmsSchemas } from './firms.schema';
 import { resendSchemas } from './resend.schema';
 import { fedregisterSchemas } from './fedregister.schema';
@@ -151,6 +152,7 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...edgarSchemas,
   ...companiesHouseSchemas,
   ...gleifSchemas,
+  ...assemblyaiSchemas,
   ...firmsSchemas,
   ...resendSchemas,
   ...fedregisterSchemas,

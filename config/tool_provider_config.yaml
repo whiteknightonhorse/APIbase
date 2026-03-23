@@ -1527,6 +1527,23 @@ tools:
     price_usd: "0.002"
     cache_ttl: 86400
 
+  # --- UC-179: AssemblyAI (Speech-to-Text) ---
+  - tool_id: transcribe.submit
+    name: Submit Audio Transcription
+    provider: assemblyai
+    price_usd: "0.01"
+    cache_ttl: 0
+  - tool_id: transcribe.status
+    name: Transcription Status
+    provider: assemblyai
+    price_usd: "0.003"
+    cache_ttl: 0
+  - tool_id: transcribe.result
+    name: Transcription Result
+    provider: assemblyai
+    price_usd: "0.005"
+    cache_ttl: 3600
+
   # --- UC-175: GLEIF LEI (Global Legal Entity Identifiers) ---
   - tool_id: lei.search
     name: Search Global Legal Entities

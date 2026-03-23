@@ -550,6 +550,16 @@
     "docs_url": "https://randomuser.me/documentation",
     "limit_proof": "Fully free, no auth, open source, unlimited"
   },
+  "assemblyai": {
+    "display_name": "AssemblyAI",
+    "health_url": "https://api.assemblyai.com/v2/transcript",
+    "limit_type": "credits",
+    "free_limit": 5000,
+    "reset_period": "none",
+    "paid_balance": true,
+    "docs_url": "https://www.assemblyai.com/docs",
+    "limit_proof": "$50 free credits (185hr batch / 333hr streaming), then $0.15/hr PAYG"
+  },
   "gleif": {
     "display_name": "GLEIF LEI Registry",
     "health_url": "https://api.gleif.org/api/v1/lei-records?page%5Bsize%5D=1",

@@ -72,6 +72,7 @@ import { BlueskyAdapter } from './bluesky';
 import { EdgarAdapter } from './edgar';
 import { CompaniesHouseAdapter } from './companies-house';
 import { GleifAdapter } from './gleif';
+import { AssemblyAIAdapter } from './assemblyai';
 import { FirmsAdapter } from './firms';
 import { ResendAdapter } from './resend';
 import { FedRegisterAdapter } from './fedregister';
@@ -371,6 +372,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const iqairKey = (config as Record<string, unknown>).PROVIDER_KEY_IQAIR as string | undefined;
       if (!iqairKey) return undefined;
       return getOrCreate('iqair', () => new IqairAdapter(iqairKey));
+    }
+    case 'transcribe': {
+      const aaiKey = (config as Record<string, unknown>).PROVIDER_KEY_ASSEMBLYAI as string | undefined;
+      if (!aaiKey) return undefined;
+      return getOrCreate('assemblyai', () => new AssemblyAIAdapter(aaiKey));
     }
     case 'lei':
       return getOrCreate('gleif', () => new GleifAdapter());
