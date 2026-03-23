@@ -30,11 +30,18 @@ interface ProviderLimits {
   status: 'green' | 'orange' | 'yellow' | 'red' | 'paid';
 }
 
+interface ProviderBalance {
+  balance_usd: number | null;
+  currency: string;
+  last_check: string | null;
+}
+
 interface ProviderDashboardEntry {
   provider: string;
   display_name: string;
   health: ProviderHealth;
   limits: ProviderLimits;
+  balance: ProviderBalance | null;
   usage: {
     calls_today: number;
     calls_this_month: number;
@@ -191,11 +198,18 @@ export async function getDashboardData(): Promise<DashboardResponse> {
       limits = buildDefaultLimits(providerName, { today: callsToday, month: callsThisMonth, total: callsTotal });
     }
 
+    // Fetch real balance for paid providers (cached in Redis 5min)
+    let balance: ProviderBalance | null = null;
+    if (cfg?.paid_balance) {
+      balance = await fetchProviderBalance(providerName, redis);
+    }
+
     providers.push({
       provider: providerName,
       display_name: displayName,
       health,
       limits,
+      balance,
       usage: {
         calls_today: callsToday,
         calls_this_month: callsThisMonth,
@@ -324,4 +338,66 @@ function computeLimitStatus(pctRemaining: number): ProviderLimits['status'] {
   if (pctRemaining < 25) return 'yellow';
   if (pctRemaining < 50) return 'orange';
   return 'green';
+}
+
+// ---------------------------------------------------------------------------
+// Real-time balance fetching for paid providers
+// ---------------------------------------------------------------------------
+
+const BALANCE_CACHE_TTL = 300; // 5 minutes
+
+type RedisClient = Awaited<ReturnType<typeof ensureRedisConnected>>;
+
+async function fetchProviderBalance(
+  providerName: string,
+  redis: RedisClient | null,
+): Promise<ProviderBalance | null> {
+  const cacheKey = `provider:balance:${providerName}`;
+
+  // Check Redis cache first
+  if (redis) {
+    try {
+      const cached = await redis.get(cacheKey);
+      if (cached) return JSON.parse(cached);
+    } catch { /* non-fatal */ }
+  }
+
+  // Fetch real balance from upstream
+  let balance: ProviderBalance | null = null;
+  try {
+    balance = await fetchBalanceUpstream(providerName);
+  } catch { /* non-fatal — return null */ }
+
+  // Cache result
+  if (balance && redis) {
+    try {
+      await redis.set(cacheKey, JSON.stringify(balance), 'EX', BALANCE_CACHE_TTL);
+    } catch { /* non-fatal */ }
+  }
+
+  return balance;
+}
+
+async function fetchBalanceUpstream(providerName: string): Promise<ProviderBalance | null> {
+  const cfg = limitsConfig[providerName as keyof typeof limitsConfig] as Record<string, unknown> | undefined;
+  if (!cfg) return null;
+
+  switch (providerName) {
+    case 'namesilo': {
+      const key = process.env.PROVIDER_KEY_NAMESILO;
+      if (!key) return null;
+      const res = await fetch(`https://www.namesilo.com/api/getAccountBalance?version=1&type=json&key=${key}`, { signal: AbortSignal.timeout(5000) });
+      const data = (await res.json()) as { reply: { balance: string } };
+      return { balance_usd: parseFloat(data.reply.balance), currency: 'USD', last_check: new Date().toISOString() };
+    }
+    case 'zerobounce': {
+      const key = process.env.PROVIDER_KEY_ZEROBOUNCE;
+      if (!key) return null;
+      const res = await fetch(`https://api.zerobounce.net/v2/getcredits?api_key=${key}`, { signal: AbortSignal.timeout(5000) });
+      const data = (await res.json()) as { Credits: string };
+      return { balance_usd: parseInt(data.Credits, 10), currency: 'credits', last_check: new Date().toISOString() };
+    }
+    default:
+      return null;
+  }
 }
