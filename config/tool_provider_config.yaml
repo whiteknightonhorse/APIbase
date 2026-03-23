@@ -1527,6 +1527,23 @@ tools:
     price_usd: "0.002"
     cache_ttl: 86400
 
+  # --- UC-171: Bluesky AT Protocol (Decentralized Social) ---
+  - tool_id: bluesky.search_posts
+    name: Search Bluesky Posts
+    provider: bluesky
+    price_usd: "0.001"
+    cache_ttl: 60
+  - tool_id: bluesky.profile
+    name: Bluesky User Profile
+    provider: bluesky
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: bluesky.feed
+    name: Bluesky User Feed
+    provider: bluesky
+    price_usd: "0.001"
+    cache_ttl: 60
+
   # --- UC-162: Art Institute of Chicago (ARTIC) ---
   - tool_id: artic.search
     name: Search Artworks (ARTIC)
