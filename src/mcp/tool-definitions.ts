@@ -2040,6 +2040,31 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // ---------------------------------------------------------------------------
   // Companies House — UK Company Registry (UC-174, 2 tools)
   // ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // GLEIF LEI — Global Legal Entity Identifiers (UC-175, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'lei.search',
+    mcpName: 'business.lei.search',
+    title: 'Search Global Legal Entities (LEI)',
+    description: 'Search 2.5M+ legal entities worldwide by name — companies, funds, government bodies across 200+ countries. Returns LEI code, name, country, city, status, entity category. Filter by country. CC0 open data (GLEIF)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'lei.lookup',
+    mcpName: 'business.lei.lookup',
+    title: 'LEI Entity Details',
+    description: 'Full details for a legal entity by 20-character LEI code — legal name, registered address, headquarters, legal form, registration date, renewal date, status. Use LEI from search results (GLEIF)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'lei.relationships',
+    mcpName: 'business.lei.relationships',
+    title: 'LEI Parent Company Relationship',
+    description: 'Find the direct parent company of a legal entity by LEI code — returns parent LEI, relationship type, and status. Useful for corporate ownership chain analysis (GLEIF)',
+    annotations: READ_ONLY,
+  },
+
   {
     toolId: 'ukcompany.search',
     mcpName: 'business.ukcompany.search',

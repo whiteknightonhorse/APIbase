@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 270 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 273 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -8753,6 +8753,89 @@
         },
         "required": [
           "vin"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "business.lei.search",
+      "description": "Search 2.5M+ legal entities worldwide by name — companies, funds, government bodies across 200+ countries. Returns LEI code, name, country, city, status, entity category. Filter by country. CC0 open data (GLEIF)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Legal entity name to search (e.g. \"Apple\", \"Goldman Sachs\", \"Toyota Motor\")",
+            "minLength": 1
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Max results (default 10, max 100)"
+          },
+          "country": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "Filter by ISO 3166-1 alpha-2 country code (e.g. \"US\", \"GB\", \"JP\", \"DE\")"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "business.lei.lookup",
+      "description": "Full details for a legal entity by 20-character LEI code — legal name, registered address, headquarters, legal form, registration date, renewal date, status. Use LEI from search results (GLEIF)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "lei": {
+            "type": "string",
+            "description": "20-character Legal Entity Identifier code (e.g. \"HWUPKR0MPOU8FGXBT394\" for Apple Inc)",
+            "minLength": 20,
+            "maxLength": 20
+          }
+        },
+        "required": [
+          "lei"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "business.lei.relationships",
+      "description": "Find the direct parent company of a legal entity by LEI code — returns parent LEI, relationship type, and status. Useful for corporate ownership chain analysis (GLEIF)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "lei": {
+            "type": "string",
+            "description": "LEI code to find parent company relationship for",
+            "minLength": 20,
+            "maxLength": 20
+          }
+        },
+        "required": [
+          "lei"
         ]
       },
       "annotations": {

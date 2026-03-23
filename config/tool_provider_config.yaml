@@ -1527,6 +1527,23 @@ tools:
     price_usd: "0.002"
     cache_ttl: 86400
 
+  # --- UC-175: GLEIF LEI (Global Legal Entity Identifiers) ---
+  - tool_id: lei.search
+    name: Search Global Legal Entities
+    provider: gleif
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: lei.lookup
+    name: LEI Entity Details
+    provider: gleif
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: lei.relationships
+    name: LEI Parent Company
+    provider: gleif
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   # --- UC-174: Companies House (UK Company Registry) ---
   - tool_id: ukcompany.search
     name: Search UK Companies
