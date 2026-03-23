@@ -35,6 +35,11 @@ interface ProviderDashboardEntry {
   display_name: string;
   health: ProviderHealth;
   limits: ProviderLimits;
+  usage: {
+    calls_today: number;
+    calls_this_month: number;
+    calls_total: number;
+  };
   calls_24h: number;
   avg_latency_ms: number | null;
   tool_count: number;
@@ -88,22 +93,31 @@ export async function getDashboardData(): Promise<DashboardResponse> {
 
   const prisma = getPrisma();
 
-  // Single aggregate query: tools per provider + 24h call stats
+  // Single aggregate query: tools per provider + 24h + period-aware call stats
   const providerStats: Array<{
     provider: string;
     tool_count: bigint;
     calls_24h: bigint;
+    calls_today: bigint;
+    calls_this_month: bigint;
+    calls_total: bigint;
+    paid_calls_24h: bigint;
+    revenue_24h: number | null;
     avg_latency_ms: number | null;
   }> = await prisma.$queryRawUnsafe(`
     SELECT
       t.provider,
       COUNT(DISTINCT t.tool_id) AS tool_count,
-      COUNT(el.execution_id) AS calls_24h,
-      ROUND(AVG(el.latency_ms))::integer AS avg_latency_ms
+      COUNT(el.execution_id) FILTER (WHERE el.created_at >= NOW() - INTERVAL '24 hours') AS calls_24h,
+      COUNT(el.execution_id) FILTER (WHERE el.created_at >= date_trunc('day', NOW())) AS calls_today,
+      COUNT(el.execution_id) FILTER (WHERE el.created_at >= date_trunc('month', NOW())) AS calls_this_month,
+      COUNT(el.execution_id) AS calls_total,
+      COUNT(el.execution_id) FILTER (WHERE el.billing_status = 'PAID' AND el.created_at >= NOW() - INTERVAL '24 hours') AS paid_calls_24h,
+      SUM(el.cost_usd) FILTER (WHERE el.created_at >= NOW() - INTERVAL '24 hours')::numeric AS revenue_24h,
+      ROUND(AVG(el.latency_ms) FILTER (WHERE el.created_at >= NOW() - INTERVAL '24 hours'))::integer AS avg_latency_ms
     FROM tools t
     LEFT JOIN execution_ledger el
       ON el.tool_id = t.tool_id
-      AND el.created_at >= NOW() - INTERVAL '24 hours'
       AND el.status IN ('success', 'shared_success', 'provider_success')
     WHERE t.status != 'unavailable'
     GROUP BY t.provider
@@ -128,6 +142,9 @@ export async function getDashboardData(): Promise<DashboardResponse> {
     const displayName = cfg?.display_name || providerName;
     const toolCount = Number(row.tool_count);
     const calls24h = Number(row.calls_24h);
+    const callsToday = Number(row.calls_today);
+    const callsThisMonth = Number(row.calls_this_month);
+    const callsTotal = Number(row.calls_total);
     const avgLatency = row.avg_latency_ms;
 
     totalTools += toolCount;
@@ -165,13 +182,13 @@ export async function getDashboardData(): Promise<DashboardResponse> {
             status: limitsData.limit_status as ProviderLimits['status'] || 'green',
           };
         } else {
-          limits = buildDefaultLimits(providerName, calls24h);
+          limits = buildDefaultLimits(providerName, { today: callsToday, month: callsThisMonth, total: callsTotal });
         }
       } catch {
-        limits = buildDefaultLimits(providerName, calls24h);
+        limits = buildDefaultLimits(providerName, { today: callsToday, month: callsThisMonth, total: callsTotal });
       }
     } else {
-      limits = buildDefaultLimits(providerName, calls24h);
+      limits = buildDefaultLimits(providerName, { today: callsToday, month: callsThisMonth, total: callsTotal });
     }
 
     providers.push({
@@ -179,6 +196,11 @@ export async function getDashboardData(): Promise<DashboardResponse> {
       display_name: displayName,
       health,
       limits,
+      usage: {
+        calls_today: callsToday,
+        calls_this_month: callsThisMonth,
+        calls_total: callsTotal,
+      },
       calls_24h: calls24h,
       avg_latency_ms: avgLatency,
       tool_count: toolCount,
@@ -238,13 +260,16 @@ export async function getDashboardData(): Promise<DashboardResponse> {
   return response;
 }
 
-function buildDefaultLimits(providerName: string, used: number): ProviderLimits {
+function buildDefaultLimits(
+  providerName: string,
+  counts: { today: number; month: number; total: number },
+): ProviderLimits {
   const cfg = limitsConfig[providerName];
   if (!cfg || cfg.limit_type === 'unlimited') {
     return {
       type: 'unlimited',
       free_limit: 0,
-      used,
+      used: counts.total,
       remaining: 0,
       pct_remaining: 100,
       status: 'green',
@@ -256,14 +281,31 @@ function buildDefaultLimits(providerName: string, used: number): ProviderLimits 
     return {
       type: cfg.limit_type,
       free_limit: 0,
-      used,
+      used: counts.total,
       remaining: 0,
       pct_remaining: 0,
       status: 'paid',
     };
   }
 
+  // Pick the right counter based on reset period
   const freeLimit = cfg.free_limit;
+  let used: number;
+  switch (cfg.reset_period) {
+    case 'daily':
+      used = counts.today;
+      break;
+    case 'monthly':
+      used = counts.month;
+      break;
+    case 'hourly':
+      used = counts.today; // approximate — hourly is too granular for dashboard
+      break;
+    default:
+      // 'none' (credits) or unknown — use total
+      used = counts.total;
+  }
+
   const remaining = Math.max(0, freeLimit - used);
   const pctRemaining = freeLimit > 0 ? Math.round((remaining / freeLimit) * 100) : 100;
 

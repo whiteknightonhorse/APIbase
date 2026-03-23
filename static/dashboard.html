@@ -358,9 +358,11 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
       html += '<td>' + statusDot(p.limits.status);
       if (p.limits.type === 'unlimited') html += 'Unlimited';
       else if (p.limits.status === 'paid') html += 'Paid';
-      else html += p.limits.pct_remaining + '%';
+      else html += formatNum(p.limits.used) + '/' + formatNum(p.limits.free_limit) + ' (' + p.limits.pct_remaining + '%)';
       html += '</td>';
-      html += '<td>' + formatNum(p.calls_24h) + '</td>';
+      html += '<td>' + formatNum(p.calls_24h);
+      if (p.usage && p.usage.calls_total > 0) html += ' <span style="opacity:0.5;font-size:0.85em">/ ' + formatNum(p.usage.calls_total) + ' total</span>';
+      html += '</td>';
       html += '<td class="col-latency ' + latencyClass(p.avg_latency_ms) + '">' + (p.avg_latency_ms !== null ? p.avg_latency_ms + 'ms' : '--') + '</td>';
       html += '<td>' + p.tool_count + '</td></tr>';
     }
