@@ -2049,6 +2049,52 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // ---------------------------------------------------------------------------
   // VATcomply — EU VAT Validation + Rates (UC-185, 3 tools)
   // ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // Cloudflare — DNS, CDN & Infrastructure (UC-201, 6 tools) — EXCLUSIVE
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'cloudflare.zones_list',
+    mcpName: 'infra.cloudflare.zones_list',
+    title: 'List Cloudflare Zones (Domains)',
+    description: 'List all domains (zones) managed in Cloudflare — zone ID, domain name, status (active/pending), plan, nameservers. Filter by domain name or status. Zone ID needed for all other Cloudflare tools (Cloudflare)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'cloudflare.dns_list',
+    mcpName: 'infra.cloudflare.dns_list',
+    title: 'List DNS Records',
+    description: 'List all DNS records for a Cloudflare zone — A, AAAA, CNAME, MX, TXT, NS records with name, content, TTL, proxy status. Filter by type or name (Cloudflare)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'cloudflare.dns_create',
+    mcpName: 'infra.cloudflare.dns_create',
+    title: 'Create DNS Record',
+    description: 'Create a new DNS record (A, AAAA, CNAME, MX, TXT) for a Cloudflare zone. Set content (IP/hostname), TTL, and CDN proxy status. Returns new record ID (Cloudflare)',
+    annotations: TRADING,
+  },
+  {
+    toolId: 'cloudflare.dns_delete',
+    mcpName: 'infra.cloudflare.dns_delete',
+    title: 'Delete DNS Record',
+    description: 'Delete a DNS record from a Cloudflare zone by record ID. Removes the record immediately (Cloudflare)',
+    annotations: CANCEL,
+  },
+  {
+    toolId: 'cloudflare.zone_analytics',
+    mcpName: 'infra.cloudflare.zone_analytics',
+    title: 'Zone Traffic Analytics',
+    description: 'Traffic analytics for a Cloudflare zone — total requests, cached vs uncached, bandwidth, threats blocked, page views. Supports custom time ranges (last 24h, 7 days, etc.) (Cloudflare)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'cloudflare.purge_cache',
+    mcpName: 'infra.cloudflare.purge_cache',
+    title: 'Purge CDN Cache',
+    description: 'Purge Cloudflare CDN cache — all cached files or specific URLs (max 30). Forces CDN to fetch fresh content from origin server (Cloudflare)',
+    annotations: TRADING,
+  },
+
   {
     toolId: 'vatcomply.validate',
     mcpName: 'tax.vatcomply.validate',

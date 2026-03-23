@@ -1527,6 +1527,38 @@ tools:
     price_usd: "0.002"
     cache_ttl: 86400
 
+  # --- UC-201: Cloudflare (DNS, CDN, Infrastructure) — EXCLUSIVE ---
+  - tool_id: cloudflare.zones_list
+    name: List Cloudflare Zones
+    provider: cloudflare
+    price_usd: "0.001"
+    cache_ttl: 300
+  - tool_id: cloudflare.dns_list
+    name: List DNS Records
+    provider: cloudflare
+    price_usd: "0.001"
+    cache_ttl: 60
+  - tool_id: cloudflare.dns_create
+    name: Create DNS Record
+    provider: cloudflare
+    price_usd: "0.005"
+    cache_ttl: 0
+  - tool_id: cloudflare.dns_delete
+    name: Delete DNS Record
+    provider: cloudflare
+    price_usd: "0.005"
+    cache_ttl: 0
+  - tool_id: cloudflare.zone_analytics
+    name: Zone Traffic Analytics
+    provider: cloudflare
+    price_usd: "0.003"
+    cache_ttl: 300
+  - tool_id: cloudflare.purge_cache
+    name: Purge CDN Cache
+    provider: cloudflare
+    price_usd: "0.005"
+    cache_ttl: 0
+
   # --- UC-185: VATcomply (EU VAT + ECB Rates) ---
   - tool_id: vatcomply.validate
     name: Validate EU VAT Number

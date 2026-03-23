@@ -172,6 +172,10 @@ export const appEnvSchema = z.object({
   BLUESKY_HANDLE: z.string().optional().default(''),
   BLUESKY_APP_PASSWORD: z.string().optional().default(''),
 
+  // Cloudflare (UC-201) — DNS, CDN, infrastructure management
+  CLOUDFLARE_API_KEY: z.string().optional().default(''),
+  CLOUDFLARE_EMAIL: z.string().optional().default(''),
+
   // Europeana (UC-161) — EU cultural heritage, unlimited free
   PROVIDER_KEY_EUROPEANA: z.string().optional().default(''),
 
