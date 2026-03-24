@@ -175,6 +175,9 @@ export const appEnvSchema = z.object({
   // NameSilo (UC-202) — domain registration, pre-funded balance
   PROVIDER_KEY_NAMESILO: z.string().optional().default(''),
 
+  // Telegram Bot API (UC-204) — messaging, unlimited free
+  TELEGRAM_BOT_TOKEN: z.string().optional().default(''),
+
   // Cloudflare (UC-201) — DNS, CDN, infrastructure management
   CLOUDFLARE_API_KEY: z.string().optional().default(''),
   CLOUDFLARE_EMAIL: z.string().optional().default(''),

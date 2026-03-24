@@ -77,6 +77,7 @@ import { vatcomplySchemas } from './vatcomply.schema';
 import { cloudflareSchemas } from './cloudflare.schema';
 import { namesiloSchemas } from './namesilo.schema';
 import { clinicaltrialsSchemas } from './clinicaltrials.schema';
+import { telegramSchemas } from './telegram.schema';
 import { firmsSchemas } from './firms.schema';
 import { resendSchemas } from './resend.schema';
 import { fedregisterSchemas } from './fedregister.schema';
@@ -161,6 +162,7 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...cloudflareSchemas,
   ...namesiloSchemas,
   ...clinicaltrialsSchemas,
+  ...telegramSchemas,
   ...firmsSchemas,
   ...resendSchemas,
   ...fedregisterSchemas,

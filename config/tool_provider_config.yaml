@@ -1527,6 +1527,33 @@ tools:
     price_usd: "0.002"
     cache_ttl: 86400
 
+  # --- UC-204: Telegram Bot API (Messaging) — EXCLUSIVE ---
+  - tool_id: telegram.send_message
+    name: Send Telegram Message
+    provider: telegram
+    price_usd: "0.001"
+    cache_ttl: 0
+  - tool_id: telegram.send_photo
+    name: Send Telegram Photo
+    provider: telegram
+    price_usd: "0.001"
+    cache_ttl: 0
+  - tool_id: telegram.send_document
+    name: Send Telegram Document
+    provider: telegram
+    price_usd: "0.001"
+    cache_ttl: 0
+  - tool_id: telegram.get_updates
+    name: Get Telegram Updates
+    provider: telegram
+    price_usd: "0.001"
+    cache_ttl: 0
+  - tool_id: telegram.get_chat
+    name: Get Telegram Chat Info
+    provider: telegram
+    price_usd: "0.001"
+    cache_ttl: 300
+
   # --- UC-203: ClinicalTrials.gov (Clinical Research) — EXCLUSIVE ---
   - tool_id: clinical.search
     name: Search Clinical Trials
