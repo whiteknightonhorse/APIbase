@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 298 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 302 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -8754,6 +8754,106 @@
         "required": [
           "vin"
         ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "infra.browser.create_session",
+      "description": "Create a managed headless browser session on Browserbase infrastructure. Returns session ID and WebSocket connect URL for Puppeteer/Playwright. Choose region (US/EU/Asia) and optional residential proxy. Sessions auto-expire after 5 minutes of inactivity (Browserbase)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "proxy": {
+            "type": "boolean",
+            "description": "Use residential proxy for the session (default false)"
+          },
+          "region": {
+            "type": "string",
+            "enum": [
+              "us-west-2",
+              "us-east-1",
+              "eu-central-1",
+              "ap-southeast-1"
+            ],
+            "description": "Browser region (default us-west-2)"
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "infra.browser.session_status",
+      "description": "Check the status of a Browserbase session — running, completed, error, timed out. Returns CPU usage, memory, proxy bytes, start/end times (Browserbase)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "description": "Browserbase session ID (from create_session result)",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "session_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "infra.browser.session_content",
+      "description": "Get files downloaded during a browser session — screenshots, PDFs, extracted data (Browserbase)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "description": "Session ID to get downloads/content from",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "session_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "infra.browser.list_sessions",
+      "description": "List active or recent browser sessions — filter by status (running, completed, error). Returns session IDs, regions, start times (Browserbase)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "RUNNING",
+              "ERROR",
+              "TIMED_OUT",
+              "COMPLETED"
+            ],
+            "description": "Filter by session status (default RUNNING)"
+          }
+        }
       },
       "annotations": {
         "readOnlyHint": true,

@@ -175,6 +175,10 @@ export const appEnvSchema = z.object({
   // NameSilo (UC-202) — domain registration, pre-funded balance
   PROVIDER_KEY_NAMESILO: z.string().optional().default(''),
 
+  // Browserbase (UC-205) — managed browser sessions
+  BROWSERBASE_API_KEY: z.string().optional().default(''),
+  BROWSERBASE_PROJECT_ID: z.string().optional().default(''),
+
   // Telegram Bot API (UC-204) — messaging, unlimited free
   TELEGRAM_BOT_TOKEN: z.string().optional().default(''),
 

@@ -1527,6 +1527,28 @@ tools:
     price_usd: "0.002"
     cache_ttl: 86400
 
+  # --- UC-205: Browserbase (Managed Browser Sessions) — EXCLUSIVE ---
+  - tool_id: browser.create_session
+    name: Create Browser Session
+    provider: browserbase
+    price_usd: "0.01"
+    cache_ttl: 0
+  - tool_id: browser.session_status
+    name: Browser Session Status
+    provider: browserbase
+    price_usd: "0.001"
+    cache_ttl: 0
+  - tool_id: browser.session_content
+    name: Browser Session Downloads
+    provider: browserbase
+    price_usd: "0.001"
+    cache_ttl: 0
+  - tool_id: browser.list_sessions
+    name: List Browser Sessions
+    provider: browserbase
+    price_usd: "0.001"
+    cache_ttl: 60
+
   # --- UC-204: Telegram Bot API (Messaging) — EXCLUSIVE ---
   - tool_id: telegram.send_message
     name: Send Telegram Message

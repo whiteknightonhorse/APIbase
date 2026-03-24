@@ -2061,6 +2061,38 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // ---------------------------------------------------------------------------
   // Telegram Bot API — Messaging (UC-204, 5 tools) — EXCLUSIVE
   // ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // Browserbase — Managed Browser Sessions (UC-205, 4 tools) — EXCLUSIVE
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'browser.create_session',
+    mcpName: 'infra.browser.create_session',
+    title: 'Create Browser Session',
+    description: 'Create a managed headless browser session on Browserbase infrastructure. Returns session ID and WebSocket connect URL for Puppeteer/Playwright. Choose region (US/EU/Asia) and optional residential proxy. Sessions auto-expire after 5 minutes of inactivity (Browserbase)',
+    annotations: TRADING,
+  },
+  {
+    toolId: 'browser.session_status',
+    mcpName: 'infra.browser.session_status',
+    title: 'Browser Session Status',
+    description: 'Check the status of a Browserbase session — running, completed, error, timed out. Returns CPU usage, memory, proxy bytes, start/end times (Browserbase)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'browser.session_content',
+    mcpName: 'infra.browser.session_content',
+    title: 'Browser Session Downloads',
+    description: 'Get files downloaded during a browser session — screenshots, PDFs, extracted data (Browserbase)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'browser.list_sessions',
+    mcpName: 'infra.browser.list_sessions',
+    title: 'List Browser Sessions',
+    description: 'List active or recent browser sessions — filter by status (running, completed, error). Returns session IDs, regions, start times (Browserbase)',
+    annotations: READ_ONLY,
+  },
+
   {
     toolId: 'telegram.send_message',
     mcpName: 'messaging.telegram.send_message',
