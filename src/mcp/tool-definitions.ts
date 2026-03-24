@@ -2058,6 +2058,45 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // ---------------------------------------------------------------------------
   // ClinicalTrials.gov — Clinical Research Database (UC-203, 3 tools) — EXCLUSIVE
   // ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // Telegram Bot API — Messaging (UC-204, 5 tools) — EXCLUSIVE
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'telegram.send_message',
+    mcpName: 'messaging.telegram.send_message',
+    title: 'Send Telegram Message',
+    description: 'Send a text message to a Telegram user or group chat. Supports Markdown (*bold*, _italic_, `code`, [link](url)) and HTML formatting. Max 4096 chars. Perfect for alerts, notifications, reports (Telegram Bot API)',
+    annotations: TRADING,
+  },
+  {
+    toolId: 'telegram.send_photo',
+    mcpName: 'messaging.telegram.send_photo',
+    title: 'Send Telegram Photo',
+    description: 'Send a photo to a Telegram chat with optional caption. Provide image URL — supports JPG, PNG, GIF up to 10MB (Telegram Bot API)',
+    annotations: TRADING,
+  },
+  {
+    toolId: 'telegram.send_document',
+    mcpName: 'messaging.telegram.send_document',
+    title: 'Send Telegram Document',
+    description: 'Send a file/document to a Telegram chat — PDF, CSV, ZIP, any format up to 50MB. Perfect for sending reports, data exports, generated files (Telegram Bot API)',
+    annotations: TRADING,
+  },
+  {
+    toolId: 'telegram.get_updates',
+    mcpName: 'messaging.telegram.get_updates',
+    title: 'Get Telegram Updates',
+    description: 'Get recent incoming messages and events for the bot — new messages, user info, chat type. Use offset to get only new updates since last check (Telegram Bot API)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'telegram.get_chat',
+    mcpName: 'messaging.telegram.get_chat',
+    title: 'Get Telegram Chat Info',
+    description: 'Get info about a Telegram chat — title, type (private/group/supergroup/channel), description, member count, invite link, username (Telegram Bot API)',
+    annotations: READ_ONLY,
+  },
+
   {
     toolId: 'clinical.search',
     mcpName: 'health.clinical.search',

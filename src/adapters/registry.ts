@@ -77,6 +77,7 @@ import { VatcomplyAdapter } from './vatcomply';
 import { CloudflareAdapter } from './cloudflare';
 import { NameSiloAdapter } from './namesilo';
 import { ClinicalTrialsAdapter } from './clinicaltrials';
+import { TelegramAdapter } from './telegram';
 import { FirmsAdapter } from './firms';
 import { ResendAdapter } from './resend';
 import { FedRegisterAdapter } from './fedregister';
@@ -376,6 +377,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const iqairKey = (config as Record<string, unknown>).PROVIDER_KEY_IQAIR as string | undefined;
       if (!iqairKey) return undefined;
       return getOrCreate('iqair', () => new IqairAdapter(iqairKey));
+    }
+    case 'telegram': {
+      const tgToken = (config as Record<string, unknown>).TELEGRAM_BOT_TOKEN as string | undefined;
+      if (!tgToken) return undefined;
+      return getOrCreate('telegram', () => new TelegramAdapter(tgToken));
     }
     case 'clinical':
       return getOrCreate('clinicaltrials', () => new ClinicalTrialsAdapter());

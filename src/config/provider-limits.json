@@ -550,6 +550,15 @@
     "docs_url": "https://randomuser.me/documentation",
     "limit_proof": "Fully free, no auth, open source, unlimited"
   },
+  "telegram": {
+    "display_name": "Telegram Bot API",
+    "health_url": "https://api.telegram.org/bot8527577746:AAGIGDcrSiWg42-QTbLPfps0wjP_fJm3gE0/getMe",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://core.telegram.org/bots/api",
+    "limit_proof": "Unlimited free, 30 msg/sec per chat, 900M+ Telegram users"
+  },
   "clinicaltrials": {
     "display_name": "ClinicalTrials.gov",
     "health_url": "https://clinicaltrials.gov/api/v2/stats/size",

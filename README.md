@@ -1,6 +1,6 @@
 # APIbase.pro — The API Hub for AI Agents
 
-> One MCP endpoint. 288 tools. 81 providers. Pay per call with x402 USDC on Base.
+> One MCP endpoint. 293 tools. 82 providers. Pay per call with x402 USDC on Base.
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Health](https://apibase.pro/health/ready)** | **[Dashboard](https://apibase.pro/dashboard)**
 
@@ -12,7 +12,7 @@
 
 ## What is APIbase?
 
-Production MCP server that gives AI agents access to 288 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, translate text, check weather alerts, generate images, send emails, look up holidays, shorten URLs, detect fires by satellite, decode VINs, look up food products — and 200+ more tools across 30+ categories.
+Production MCP server that gives AI agents access to 293 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, translate text, check weather alerts, generate images, send emails, look up holidays, shorten URLs, detect fires by satellite, decode VINs, look up food products — and 200+ more tools across 30+ categories.
 
 **Built for AI agents, not humans.** Auto-registration, zero setup, pay-per-call via x402 USDC micropayments on Base.
 
@@ -62,7 +62,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 
 ---
 
-## Tool Categories (288 tools, 81 providers)
+## Tool Categories (293 tools, 82 providers)
 
 | Category | Tools | Providers | Examples |
 |----------|-------|-----------|----------|
@@ -98,6 +98,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 | **Speech-to-Text** | 3 | AssemblyAI | Transcribe audio, 99 languages, diarization |
 | **PDF & Documents** | 6 | API2PDF, ConvertAPI | HTML/URL to PDF, DOCX↔PDF, 200+ formats |
 | **Email & SMS** | 4 | Resend, Twilio | Send emails, SMS, phone lookup |
+| **Messaging** | 5 | Telegram | Send messages, photos, documents via bot |
 | **URL Shortener** | 2 | Short.io | Custom branded short links + stats |
 | **SSL & Domain** | 5 | WhoisXML, ssl-checker.io | WHOIS, DNS, SSL cert check |
 | **Barcode & QR** | 4 | QRServer, UPCitemdb | Generate/read QR, barcode lookup |
@@ -177,7 +178,7 @@ Auto-registration: agents get API keys instantly on first request. No forms, no 
 
 ```
 GET /.well-known/mcp.json → MCP server metadata
-GET /api/v1/tools → Full tool catalog with schemas (all 288 in one response)
+GET /api/v1/tools → Full tool catalog with schemas (all 293 in one response)
 GET /health/ready → System health check
 ```
 
