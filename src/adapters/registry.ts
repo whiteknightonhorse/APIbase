@@ -78,6 +78,7 @@ import { CloudflareAdapter } from './cloudflare';
 import { NameSiloAdapter } from './namesilo';
 import { ClinicalTrialsAdapter } from './clinicaltrials';
 import { TelegramAdapter } from './telegram';
+import { BrowserbaseAdapter } from './browserbase';
 import { FirmsAdapter } from './firms';
 import { ResendAdapter } from './resend';
 import { FedRegisterAdapter } from './fedregister';
@@ -377,6 +378,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const iqairKey = (config as Record<string, unknown>).PROVIDER_KEY_IQAIR as string | undefined;
       if (!iqairKey) return undefined;
       return getOrCreate('iqair', () => new IqairAdapter(iqairKey));
+    }
+    case 'browser': {
+      const bbKey = (config as Record<string, unknown>).BROWSERBASE_API_KEY as string | undefined;
+      const bbProject = (config as Record<string, unknown>).BROWSERBASE_PROJECT_ID as string | undefined;
+      if (!bbKey || !bbProject) return undefined;
+      return getOrCreate('browserbase', () => new BrowserbaseAdapter(bbKey, bbProject));
     }
     case 'telegram': {
       const tgToken = (config as Record<string, unknown>).TELEGRAM_BOT_TOKEN as string | undefined;

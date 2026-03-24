@@ -550,6 +550,15 @@
     "docs_url": "https://randomuser.me/documentation",
     "limit_proof": "Fully free, no auth, open source, unlimited"
   },
+  "browserbase": {
+    "display_name": "Browserbase",
+    "health_url": "https://www.browserbase.com/v1/sessions",
+    "limit_type": "monthly",
+    "free_limit": 100,
+    "reset_period": "monthly",
+    "docs_url": "https://docs.browserbase.com/",
+    "limit_proof": "Hobby plan: 100 sessions/month free, no CC required"
+  },
   "telegram": {
     "display_name": "Telegram Bot API",
     "health_url": "https://api.telegram.org/bot8527577746:AAGIGDcrSiWg42-QTbLPfps0wjP_fJm3gE0/getMe",
