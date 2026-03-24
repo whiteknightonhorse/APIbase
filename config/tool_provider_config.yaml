@@ -1527,6 +1527,23 @@ tools:
     price_usd: "0.002"
     cache_ttl: 86400
 
+  # --- UC-207: Pexels (Stock Photos & Videos) ---
+  - tool_id: pexels.search_photos
+    name: Search Pexels Stock Photos
+    provider: pexels
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: pexels.search_videos
+    name: Search Pexels Stock Videos
+    provider: pexels
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: pexels.curated
+    name: Pexels Curated Photos
+    provider: pexels
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   # --- UC-205: Browserbase (Managed Browser Sessions) — EXCLUSIVE ---
   - tool_id: browser.create_session
     name: Create Browser Session

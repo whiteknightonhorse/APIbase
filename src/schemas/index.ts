@@ -79,6 +79,7 @@ import { namesiloSchemas } from './namesilo.schema';
 import { clinicaltrialsSchemas } from './clinicaltrials.schema';
 import { telegramSchemas } from './telegram.schema';
 import { browserbaseSchemas } from './browserbase.schema';
+import { pexelsSchemas } from './pexels.schema';
 import { firmsSchemas } from './firms.schema';
 import { resendSchemas } from './resend.schema';
 import { fedregisterSchemas } from './fedregister.schema';
@@ -165,6 +166,7 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...clinicaltrialsSchemas,
   ...telegramSchemas,
   ...browserbaseSchemas,
+  ...pexelsSchemas,
   ...firmsSchemas,
   ...resendSchemas,
   ...fedregisterSchemas,

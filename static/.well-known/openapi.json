@@ -20546,6 +20546,279 @@
         ]
       }
     },
+    "/api/v1/tools/pexels.search_photos/call": {
+      "post": {
+        "operationId": "pexels_search_photos",
+        "summary": "Search Pexels Stock Photos",
+        "description": "Search curated free stock photos by keyword — filter by orientation (landscape/portrait/square), color, size. Returns multiple resolutions (original to tiny), photographer name, Pexels URL. Free for commercial use (Pexels)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pexels.search_photos"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search term (e.g. \"sunset beach\", \"office meeting\", \"technology\")",
+                    "minLength": 1
+                  },
+                  "orientation": {
+                    "type": "string",
+                    "enum": [
+                      "landscape",
+                      "portrait",
+                      "square"
+                    ],
+                    "description": "Photo orientation filter"
+                  },
+                  "color": {
+                    "type": "string",
+                    "description": "Color filter (e.g. \"red\", \"blue\", \"green\", \"yellow\", \"orange\", \"white\", \"black\")"
+                  },
+                  "size": {
+                    "type": "string",
+                    "enum": [
+                      "large",
+                      "medium",
+                      "small"
+                    ],
+                    "description": "Minimum photo size"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 80,
+                    "description": "Results per page (default 10, max 80)"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Page number for pagination"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/pexels.search_videos/call": {
+      "post": {
+        "operationId": "pexels_search_videos",
+        "summary": "Search Pexels Stock Videos",
+        "description": "Search free stock videos by keyword — returns HD/SD video files with dimensions, duration, download URLs. Free for commercial use (Pexels)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pexels.search_videos"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search term for videos (e.g. \"nature timelapse\", \"city traffic\", \"cooking\")",
+                    "minLength": 1
+                  },
+                  "orientation": {
+                    "type": "string",
+                    "enum": [
+                      "landscape",
+                      "portrait",
+                      "square"
+                    ],
+                    "description": "Video orientation"
+                  },
+                  "size": {
+                    "type": "string",
+                    "enum": [
+                      "large",
+                      "medium",
+                      "small"
+                    ],
+                    "description": "Minimum video size"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 80,
+                    "description": "Results per page (default 10, max 80)"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/pexels.curated/call": {
+      "post": {
+        "operationId": "pexels_curated",
+        "summary": "Pexels Curated Photos",
+        "description": "Hand-picked high-quality curated photos from Pexels — updated daily. Returns photographer, multiple sizes, Pexels URL. Perfect for featured images and hero sections (Pexels)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pexels.curated"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 80,
+                    "description": "Number of curated photos (default 10, max 80)"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Page number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/browser.create_session/call": {
       "post": {
         "operationId": "browser_create_session",

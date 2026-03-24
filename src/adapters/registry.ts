@@ -79,6 +79,7 @@ import { NameSiloAdapter } from './namesilo';
 import { ClinicalTrialsAdapter } from './clinicaltrials';
 import { TelegramAdapter } from './telegram';
 import { BrowserbaseAdapter } from './browserbase';
+import { PexelsAdapter } from './pexels';
 import { FirmsAdapter } from './firms';
 import { ResendAdapter } from './resend';
 import { FedRegisterAdapter } from './fedregister';
@@ -378,6 +379,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const iqairKey = (config as Record<string, unknown>).PROVIDER_KEY_IQAIR as string | undefined;
       if (!iqairKey) return undefined;
       return getOrCreate('iqair', () => new IqairAdapter(iqairKey));
+    }
+    case 'pexels': {
+      const pxKey = (config as Record<string, unknown>).PROVIDER_KEY_PEXELS as string | undefined;
+      if (!pxKey) return undefined;
+      return getOrCreate('pexels', () => new PexelsAdapter(pxKey));
     }
     case 'browser': {
       const bbKey = (config as Record<string, unknown>).BROWSERBASE_API_KEY as string | undefined;

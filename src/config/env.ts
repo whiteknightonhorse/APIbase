@@ -175,6 +175,9 @@ export const appEnvSchema = z.object({
   // NameSilo (UC-202) — domain registration, pre-funded balance
   PROVIDER_KEY_NAMESILO: z.string().optional().default(''),
 
+  // Pexels (UC-207) — stock photos & videos
+  PROVIDER_KEY_PEXELS: z.string().optional().default(''),
+
   // Browserbase (UC-205) — managed browser sessions
   BROWSERBASE_API_KEY: z.string().optional().default(''),
   BROWSERBASE_PROJECT_ID: z.string().optional().default(''),

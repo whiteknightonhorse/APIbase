@@ -550,6 +550,15 @@
     "docs_url": "https://randomuser.me/documentation",
     "limit_proof": "Fully free, no auth, open source, unlimited"
   },
+  "pexels": {
+    "display_name": "Pexels",
+    "health_url": "https://api.pexels.com/v1/curated?per_page=1",
+    "limit_type": "monthly",
+    "free_limit": 20000,
+    "reset_period": "monthly",
+    "docs_url": "https://www.pexels.com/api/documentation/",
+    "limit_proof": "200 req/hour, 20,000/month. Free for commercial use."
+  },
   "browserbase": {
     "display_name": "Browserbase",
     "health_url": "https://www.browserbase.com/v1/sessions",

@@ -2064,6 +2064,31 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // ---------------------------------------------------------------------------
   // Browserbase — Managed Browser Sessions (UC-205, 4 tools) — EXCLUSIVE
   // ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // Pexels — Stock Photos & Videos (UC-207, 3 tools) — EXCLUSIVE
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'pexels.search_photos',
+    mcpName: 'media.pexels.search_photos',
+    title: 'Search Pexels Stock Photos',
+    description: 'Search curated free stock photos by keyword — filter by orientation (landscape/portrait/square), color, size. Returns multiple resolutions (original to tiny), photographer name, Pexels URL. Free for commercial use (Pexels)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'pexels.search_videos',
+    mcpName: 'media.pexels.search_videos',
+    title: 'Search Pexels Stock Videos',
+    description: 'Search free stock videos by keyword — returns HD/SD video files with dimensions, duration, download URLs. Free for commercial use (Pexels)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'pexels.curated',
+    mcpName: 'media.pexels.curated',
+    title: 'Pexels Curated Photos',
+    description: 'Hand-picked high-quality curated photos from Pexels — updated daily. Returns photographer, multiple sizes, Pexels URL. Perfect for featured images and hero sections (Pexels)',
+    annotations: READ_ONLY,
+  },
+
   {
     toolId: 'browser.create_session',
     mcpName: 'infra.browser.create_session',
