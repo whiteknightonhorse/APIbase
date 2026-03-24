@@ -2055,6 +2055,31 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // ---------------------------------------------------------------------------
   // NameSilo — Domain Registration (UC-202, 5 tools) — EXCLUSIVE
   // ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // ClinicalTrials.gov — Clinical Research Database (UC-203, 3 tools) — EXCLUSIVE
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'clinical.search',
+    mcpName: 'health.clinical.search',
+    title: 'Search Clinical Trials',
+    description: 'Search 577,000+ clinical trials worldwide — filter by condition (cancer, diabetes), intervention (drug name), sponsor, status (recruiting/completed), phase. Returns NCT ID, title, status, conditions, interventions, sponsor, enrollment. US National Library of Medicine (ClinicalTrials.gov)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'clinical.study',
+    mcpName: 'health.clinical.study',
+    title: 'Clinical Trial Details',
+    description: 'Full details for a clinical trial by NCT ID — protocol, conditions, interventions with dosing, eligibility criteria (age, sex), primary/secondary outcomes, sponsor, enrollment, phase, study design, dates, results if available (ClinicalTrials.gov)',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'clinical.stats',
+    mcpName: 'health.clinical.stats',
+    title: 'Clinical Trials Database Stats',
+    description: 'Total number of registered clinical studies in the ClinicalTrials.gov database (577,000+ as of March 2026) (ClinicalTrials.gov)',
+    annotations: READ_ONLY,
+  },
+
   {
     toolId: 'namesilo.domain_check',
     mcpName: 'domain.namesilo.check',

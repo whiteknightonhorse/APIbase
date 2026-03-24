@@ -550,6 +550,15 @@
     "docs_url": "https://randomuser.me/documentation",
     "limit_proof": "Fully free, no auth, open source, unlimited"
   },
+  "clinicaltrials": {
+    "display_name": "ClinicalTrials.gov",
+    "health_url": "https://clinicaltrials.gov/api/v2/stats/size",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://clinicaltrials.gov/data-api/api",
+    "limit_proof": "US Government NLM, fully open, no auth, 577K+ clinical studies"
+  },
   "namesilo": {
     "display_name": "NameSilo Domains",
     "health_url": "https://www.namesilo.com/api/getPrices?version=1&type=json&key=24d6378783ea6df4e8c56f331",

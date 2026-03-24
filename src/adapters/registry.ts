@@ -76,6 +76,7 @@ import { AssemblyAIAdapter } from './assemblyai';
 import { VatcomplyAdapter } from './vatcomply';
 import { CloudflareAdapter } from './cloudflare';
 import { NameSiloAdapter } from './namesilo';
+import { ClinicalTrialsAdapter } from './clinicaltrials';
 import { FirmsAdapter } from './firms';
 import { ResendAdapter } from './resend';
 import { FedRegisterAdapter } from './fedregister';
@@ -376,6 +377,8 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       if (!iqairKey) return undefined;
       return getOrCreate('iqair', () => new IqairAdapter(iqairKey));
     }
+    case 'clinical':
+      return getOrCreate('clinicaltrials', () => new ClinicalTrialsAdapter());
     case 'namesilo': {
       const nsKey = (config as Record<string, unknown>).PROVIDER_KEY_NAMESILO as string | undefined;
       if (!nsKey) return undefined;

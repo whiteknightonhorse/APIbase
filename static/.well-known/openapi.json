@@ -20546,6 +20546,238 @@
         ]
       }
     },
+    "/api/v1/tools/clinical.search/call": {
+      "post": {
+        "operationId": "clinical_search",
+        "summary": "Search Clinical Trials",
+        "description": "Search 577,000+ clinical trials worldwide — filter by condition (cancer, diabetes), intervention (drug name), sponsor, status (recruiting/completed), phase. Returns NCT ID, title, status, conditions, interventions, sponsor, enrollment. US National Library of Medicine (ClinicalTrials.gov)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "clinical.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search term (e.g. \"diabetes\", \"pembrolizumab\", \"Pfizer COVID vaccine\")"
+                  },
+                  "condition": {
+                    "type": "string",
+                    "description": "Filter by medical condition (e.g. \"Breast Cancer\", \"Alzheimer\", \"Type 2 Diabetes\")"
+                  },
+                  "intervention": {
+                    "type": "string",
+                    "description": "Filter by drug/device/procedure name (e.g. \"aspirin\", \"pacemaker\", \"chemotherapy\")"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "RECRUITING",
+                      "COMPLETED",
+                      "ACTIVE_NOT_RECRUITING",
+                      "NOT_YET_RECRUITING",
+                      "TERMINATED",
+                      "WITHDRAWN",
+                      "SUSPENDED"
+                    ],
+                    "description": "Filter by trial status"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Results per page (default 10, max 100)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/clinical.study/call": {
+      "post": {
+        "operationId": "clinical_study",
+        "summary": "Clinical Trial Details",
+        "description": "Full details for a clinical trial by NCT ID — protocol, conditions, interventions with dosing, eligibility criteria (age, sex), primary/secondary outcomes, sponsor, enrollment, phase, study design, dates, results if available (ClinicalTrials.gov)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "clinical.study"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nct_id": {
+                    "type": "string",
+                    "description": "NCT identifier (e.g. \"NCT03491410\", \"NCT04368728\"). Get from search results",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "nct_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/clinical.stats/call": {
+      "post": {
+        "operationId": "clinical_stats",
+        "summary": "Clinical Trials Database Stats",
+        "description": "Total number of registered clinical studies in the ClinicalTrials.gov database (577,000+ as of March 2026) (ClinicalTrials.gov)",
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "clinical.stats"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "filter": {
+                    "type": "string",
+                    "description": "Optional — currently returns total database statistics"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment required (x402)"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/namesilo.domain_check/call": {
       "post": {
         "operationId": "namesilo_domain_check",

@@ -1527,6 +1527,23 @@ tools:
     price_usd: "0.002"
     cache_ttl: 86400
 
+  # --- UC-203: ClinicalTrials.gov (Clinical Research) — EXCLUSIVE ---
+  - tool_id: clinical.search
+    name: Search Clinical Trials
+    provider: clinicaltrials
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: clinical.study
+    name: Clinical Trial Details
+    provider: clinicaltrials
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: clinical.stats
+    name: Clinical Trials Stats
+    provider: clinicaltrials
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   # --- UC-202: NameSilo (Domain Registration) — EXCLUSIVE ---
   - tool_id: namesilo.domain_check
     name: Check Domain Availability
