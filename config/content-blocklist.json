@@ -1,0 +1,43 @@
+{
+  "version": "1.0",
+  "updated": "2026-03-24",
+  "description": "Content moderation blocklist for outbound messaging (Telegram, Google Ads, etc.). Matches are case-insensitive.",
+
+  "prohibited_exact": [
+    "child porn", "child pornography", "cp links", "csam",
+    "buy cocaine", "buy heroin", "buy meth", "buy fentanyl", "buy mdma", "buy lsd",
+    "sell drugs", "drug dealer", "drug supplier",
+    "buy gun", "buy weapon", "buy firearm", "buy ammo", "buy explosives",
+    "hire hitman", "hire assassin",
+    "isis recruitment", "join isis", "join al qaeda", "jihad recruitment",
+    "human trafficking", "buy slaves", "sell organs", "organ trafficking",
+    "fake passport", "fake id card", "fake diploma", "buy fake documents",
+    "credit card dumps", "stolen credit cards", "carding forum",
+    "ransomware for sale", "buy malware", "ddos for hire", "ddos service",
+    "suicide method", "how to kill yourself", "suicide instructions"
+  ],
+
+  "prohibited_patterns": [
+    "(?:child|minor|underage|kid)\\s*(?:sex|nude|naked|porn|exploit)",
+    "(?:buy|sell|selling|order|ship|shipping|deliver|delivering)\\s*(?:cocaine|heroin|fentanyl|methamphetamine|ketamine|ghb|rohypnol)",
+    "(?:buy|sell|order)\\s*(?:ak-?47|ar-?15|glock|pistol|rifle|shotgun|grenade|c4|semtex|detonator)",
+    "(?:isis|isil|al.?qaeda|boko.?haram|taliban)\\s*(?:join|recruit|support|donate|fight)",
+    "(?:sex|nude|naked)\\s*(?:child|minor|underage|teen|boy|girl)\\s*(?:pic|video|photo|cam)",
+    "(?:kill|murder|assassinate|bomb|attack)\\s*(?:president|politician|school|church|mosque|synagogue)",
+    "(?:buy|sell|forge|fake)\\s*(?:passport|identity|license|diploma|certificate|document)"
+  ],
+
+  "prohibited_urls": [
+    ".onion",
+    "bit.ly",
+    "tinyurl.com",
+    "t.co"
+  ],
+
+  "warning_keywords": [
+    "gambling", "casino", "betting", "poker",
+    "viagra", "cialis", "pharmacy", "prescription",
+    "crypto investment", "guaranteed returns", "double your money",
+    "get rich quick", "mlm", "pyramid scheme"
+  ]
+}
