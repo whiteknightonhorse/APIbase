@@ -21,6 +21,13 @@ export const escrowFinalizeStage: Stage = {
       return ok(ctx);
     }
 
+    // MPP on-chain payment — already settled at Tempo verification time (no facilitator)
+    if (ctx.mppPaid && ctx.providerCalled && ctx.providerResponse) {
+      ctx.billingStatus = 'PAID';
+      ctx.finalCost = ctx.toolPrice ?? 0;
+      return ok(ctx);
+    }
+
     // Cache hits had no escrow — handled by LEDGER_WRITE (§12.173)
     if (ctx.cacheHit) {
       return ok(ctx);

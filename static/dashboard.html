@@ -49,7 +49,7 @@ a{color:#00ccff;text-decoration:none}a:hover{color:#66ddff;text-shadow:0 0 6px r
 .search-input{width:100%;background:#0a0a0a;border:1px solid #1a3a1a;color:#00ff41;font-family:inherit;font-size:0.85rem;padding:0.6rem 2rem 0.6rem 1.6rem;border-radius:4px;outline:none;transition:border-color 0.2s,box-shadow 0.2s}
 .search-input:focus{border-color:#00aa30;box-shadow:0 0 12px rgba(0,255,65,0.2)}
 .search-input::placeholder{color:#1a4a1a}
-.search-icon{position:absolute;left:0.5rem;top:50%;transform:translateY(-50%);color:#1a5a1a;font-size:0.85rem;pointer-events:none}
+.search-icon{position:absolute;left:0.5rem;top:0;bottom:0;display:flex;align-items:center;color:#1a5a1a;font-size:0.85rem;pointer-events:none}
 .search-info{font-size:0.7rem;margin-top:0.3rem;min-height:1.1em}
 .search-info .found{color:#00aa30}
 .search-info .not-found{color:#ff4444}
@@ -57,7 +57,7 @@ a{color:#00ccff;text-decoration:none}a:hover{color:#66ddff;text-shadow:0 0 6px r
 .cat-filter-toggle{cursor:pointer;user-select:none}
 .cat-filter-toggle:hover{color:#00ff41}
 .cat-tags.collapsed{display:none}
-tr:hover td{background:rgba(0,255,65,0.04)}
+tr:hover td{background:rgba(0,255,65,0.07)}
 .empty-state{text-align:center;padding:2rem;color:#1a5a1a;font-size:0.82rem;border:1px dashed #1a3a1a;margin:1rem 0}
 .health-summary{margin-bottom:0.5rem;font-size:0.75rem}
 .health-summary .h-green{color:#00ff41}
@@ -131,7 +131,7 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
 <div id="boot-screen" style="display:none">
 <div class="line sys">APIBASE OS v1.0.0 — INITIALIZING...</div>
 <div class="line"><span class="ok">[OK]</span> Loading provider registry...</div>
-<div class="line"><span class="ok">[OK]</span> Connecting to payment layer (x402/Base)...</div>
+<div class="line"><span class="ok">[OK]</span> Connecting to payment layer (x402/Base + MPP/Tempo)...</div>
 <div class="line"><span class="ok">[OK]</span> Fetching real-time status data...</div>
 <div class="line sys">SYSTEM READY. Launching dashboard...</div>
 </div>
@@ -338,6 +338,8 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
     if (mb.status === 'unknown') { html += '<span class="mode">' + statusDot('unknown') + 'x402 (Mode B) Checking...</span>'; }
     else { html += '<span class="mode">' + statusDot(mb.status) + 'x402 (Mode B)'; if (mb.latency_ms !== null) html += ' ' + mb.latency_ms + 'ms'; if (mb.network) html += ' — ' + mb.network + ' (' + networkLabel(mb.network) + ')'; html += '</span>'; }
     if (mb.testnet === true) html += ' <span class="testnet-warn">TESTNET</span>';
+    html += '<span class="separator">|</span>';
+    html += '<span class="mode">' + statusDot('green') + 'MPP (Mode C) — Tempo/USDC</span>';
     el.innerHTML = html;
   }
 
@@ -397,7 +399,7 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
     if (hUnknown > 0) html += '<span class="h-grey">PENDING:' + hUnknown + '</span>';
     html += '</div>';
 
-    html += '<div class="latency-legend">STATUS: <span style="color:#00ff41">●</span> healthy  <span style="color:#ffaa00">●</span> slow  <span style="color:#ff4444">●</span> down  <span style="color:#555">●</span> pending</div>';
+    html += '<div class="latency-legend">STATUS: <span style="color:#27c93f">●</span> healthy  <span style="color:#ff9f43">●</span> slow  <span style="color:#ff5f56">●</span> down  <span style="color:#555">●</span> pending</div>';
 
     html += '<div class="table-wrap"><table><thead><tr>';
     html += '<th>Provider</th><th>Cat</th><th>Status</th><th>Limits</th><th>Calls 24h</th><th>Tools</th>';

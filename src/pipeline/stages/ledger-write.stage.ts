@@ -29,8 +29,8 @@ export const ledgerWriteStage: Stage = {
       return ok(ctx);
     }
 
-    // x402 on-chain payment — write ledger entry (no escrow was created) (§8.9, §AP-9)
-    if (ctx.x402Paid && ctx.billingStatus === 'PAID') {
+    // On-chain payment (x402 or MPP) — write ledger entry (no escrow was created) (§8.9, §AP-9)
+    if ((ctx.x402Paid || ctx.mppPaid) && ctx.billingStatus === 'PAID') {
       if (ctx.agentId && ctx.toolId && ctx.executionId) {
         await writeX402Entry({
           executionId: ctx.executionId,
@@ -39,7 +39,7 @@ export const ledgerWriteStage: Stage = {
           idempotencyKey: ctx.idempotencyKey,
           requestId: ctx.requestId,
           cost: ctx.finalCost ?? ctx.toolPrice ?? 0,
-          payer: ctx.x402Payer ?? 'unknown',
+          payer: ctx.mppPaid ? (ctx.mppPayer ?? 'tempo-agent') : (ctx.x402Payer ?? 'unknown'),
           providerLatencyMs: ctx.providerDurationMs,
         });
       }

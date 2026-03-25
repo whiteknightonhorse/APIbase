@@ -16,7 +16,7 @@ echo "[entrypoint] Starting service: ${SERVICE_NAME}"
 # Only the API container runs migrations and seeds (§12.194)
 if [ "$SERVICE_NAME" = "api" ]; then
     echo "[entrypoint] Running Prisma migrations..."
-    npx prisma migrate deploy
+    ./node_modules/.bin/prisma migrate deploy
 
     echo "[entrypoint] Creating partitions..."
     # Partition creation is handled by the migration's DO block on first run.

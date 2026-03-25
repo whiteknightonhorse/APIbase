@@ -4,6 +4,7 @@ import { createPipelineContext } from '../pipeline/types';
 import { runPipeline } from '../pipeline/pipeline';
 import { logger } from '../config/logger';
 import { buildPaymentRequiredResponse } from '../middleware/x402.middleware';
+import { buildMppChallengeHeader } from '../middleware/mpp.middleware';
 
 /**
  * REST tool execution endpoint (thin wrapper around 13-stage pipeline).
@@ -39,6 +40,12 @@ executeRouter.post(
         ctx.x402PaymentHeader = (req.headers['x-payment'] as string | undefined) ?? (req.headers['payment-signature'] as string | undefined) ?? '';
       }
 
+      if (req.mppPayment?.verified) {
+        ctx.mppPaid = true;
+        ctx.mppPayer = req.mppPayment.payer;
+        ctx.mppMethod = req.mppPayment.method;
+      }
+
       const result = await runPipeline(ctx);
 
       if (result.ok) {
@@ -52,6 +59,17 @@ executeRouter.post(
         const priceUsd = (result.error.extra?.price_usd as number) ?? 0;
         const priceVersion = (result.error.extra?.price_version as number) ?? 1;
         const body = buildPaymentRequiredResponse(toolId, priceUsd, priceVersion, requestId);
+
+        // Dual-rail: add MPP WWW-Authenticate header alongside x402 body
+        const mppHeader = await buildMppChallengeHeader(
+          toolId,
+          priceUsd,
+          `${req.protocol}://${req.get('host')}${req.originalUrl}`,
+        );
+        if (mppHeader) {
+          res.setHeader('WWW-Authenticate', mppHeader);
+        }
+
         res.status(402).json(body);
         return;
       }

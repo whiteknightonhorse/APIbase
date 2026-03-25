@@ -10,7 +10,7 @@ WORKDIR /app
 
 # Install dependencies first (layer cache)
 COPY package.json package-lock.json ./
-RUN npm ci --ignore-scripts
+RUN npm ci --ignore-scripts --legacy-peer-deps
 
 # Copy Prisma schema and generate client
 COPY prisma/ ./prisma/
@@ -29,10 +29,11 @@ FROM node:20-alpine AS deps
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm ci --omit=dev --ignore-scripts
+RUN npm ci --omit=dev --ignore-scripts --legacy-peer-deps && \
+    npm install --no-save --legacy-peer-deps prisma@6
 
 COPY prisma/ ./prisma/
-RUN npx prisma generate
+RUN ./node_modules/.bin/prisma generate
 
 # ---------------------------------------------------------------------------
 # Stage 3: Runtime
