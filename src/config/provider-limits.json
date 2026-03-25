@@ -550,6 +550,24 @@
     "docs_url": "https://randomuser.me/documentation",
     "limit_proof": "Fully free, no auth, open source, unlimited"
   },
+  "walkscore": {
+    "display_name": "Walk Score",
+    "health_url": "https://api.walkscore.com/score?format=json&lat=47.6085&lon=-122.3295",
+    "limit_type": "daily",
+    "free_limit": 5000,
+    "reset_period": "daily",
+    "docs_url": "https://www.walkscore.com/professional/api.php",
+    "limit_proof": "5,000 calls/day free, Walk+Transit+Bike scores for US/Canada"
+  },
+  "usrealestate": {
+    "display_name": "US Real Estate",
+    "health_url": "https://realtor-com4.p.rapidapi.com/properties/list",
+    "limit_type": "monthly",
+    "free_limit": 500000,
+    "reset_period": "monthly",
+    "docs_url": "https://rapidapi.com/apidojo/api/realtor",
+    "limit_proof": "500K req/month free BASIC plan via RapidAPI"
+  },
   "pexels": {
     "display_name": "Pexels",
     "health_url": "https://api.pexels.com/v1/curated?per_page=1",

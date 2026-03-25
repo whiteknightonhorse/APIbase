@@ -46,14 +46,25 @@ a{color:#00ccff;text-decoration:none}a:hover{color:#66ddff;text-shadow:0 0 6px r
 
 /* Category filter */
 .search-bar{margin-bottom:0.8rem;position:relative}
-.search-input{width:100%;background:#0a0a0a;border:1px solid #1a3a1a;color:#00ff41;font-family:inherit;font-size:0.85rem;padding:0.6rem 0.8rem 0.6rem 2.2rem;border-radius:4px;outline:none;transition:border-color 0.2s,box-shadow 0.2s}
-.search-input:focus{border-color:#00aa30;box-shadow:0 0 8px rgba(0,255,65,0.15)}
+.search-input{width:100%;background:#0a0a0a;border:1px solid #1a3a1a;color:#00ff41;font-family:inherit;font-size:0.85rem;padding:0.6rem 2rem 0.6rem 1.6rem;border-radius:4px;outline:none;transition:border-color 0.2s,box-shadow 0.2s}
+.search-input:focus{border-color:#00aa30;box-shadow:0 0 12px rgba(0,255,65,0.2)}
 .search-input::placeholder{color:#1a4a1a}
-.search-icon{position:absolute;left:0.7rem;top:50%;transform:translateY(-50%);color:#1a5a1a;font-size:0.85rem;pointer-events:none}
+.search-icon{position:absolute;left:0.5rem;top:50%;transform:translateY(-50%);color:#1a5a1a;font-size:0.85rem;pointer-events:none}
 .search-info{font-size:0.7rem;margin-top:0.3rem;min-height:1.1em}
 .search-info .found{color:#00aa30}
 .search-info .not-found{color:#ff4444}
 .search-info .hint{color:#1a4a1a}
+.cat-filter-toggle{cursor:pointer;user-select:none}
+.cat-filter-toggle:hover{color:#00ff41}
+.cat-tags.collapsed{display:none}
+tr:hover td{background:rgba(0,255,65,0.04)}
+.empty-state{text-align:center;padding:2rem;color:#1a5a1a;font-size:0.82rem;border:1px dashed #1a3a1a;margin:1rem 0}
+.health-summary{margin-bottom:0.5rem;font-size:0.75rem}
+.health-summary .h-green{color:#00ff41}
+.health-summary .h-orange{color:#ffaa00}
+.health-summary .h-red{color:#ff4444}
+.health-summary .h-grey{color:#555}
+.latency-legend{font-size:0.65rem;color:#2a6a2a;margin-bottom:0.5rem}
 .cat-filter{margin-bottom:1.2rem;padding:0.6rem 0}
 .cat-filter-label{color:#2a6a2a;font-size:0.72rem;margin-bottom:0.5rem;display:block}
 .cat-tags{display:flex;flex-wrap:wrap;gap:0.4rem}
@@ -142,14 +153,14 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
 <!-- Search bar -->
 <div class="search-bar">
 <span class="search-icon">$</span>
-<input type="text" class="search-input" id="search-input" placeholder="grep provider or category... (e.g. cloudflare, finance, dns)" autocomplete="off" spellcheck="false">
+<input type="text" class="search-input" id="search-input" placeholder="grep provider or category... (e.g. cloudflare, finance, domain)" autocomplete="off" spellcheck="false">
 <div class="search-info" id="search-info"><span class="hint">Search by provider name, category, or tool prefix</span></div>
 </div>
 
-<!-- Category filter -->
+<!-- Category filter (collapsible) -->
 <div class="cat-filter">
-<span class="cat-filter-label">FILTER  /categories</span>
-<div class="cat-tags" id="cat-tags"></div>
+<span class="cat-filter-label cat-filter-toggle" id="cat-toggle">FILTER  /categories <span id="cat-count-label">[--]</span> ▶</span>
+<div class="cat-tags collapsed" id="cat-tags"></div>
 </div>
 
 <div class="refresh-bar">
@@ -176,61 +187,62 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
 
   // --- Provider → Category mapping ---
   // UPDATE THIS when onboarding new providers (Step 12 in /onboard-provider)
+  // PROVIDER_CATEGORIES — keyed by EXACT display_name from API
+  // Last verified: 2026-03-25 against /api/v1/dashboard
   var PROVIDER_CATEGORIES = {
     // Travel
-    'Amadeus': 'Travel', 'Sabre GDS': 'Travel', 'Aviasales': 'Travel',
+    'Amadeus': 'Travel', 'Sabre GDS': 'Travel', 'Aviasales / Travelpayouts': 'Travel',
     // Finance
-    'Finnhub Stock Market': 'Finance', 'Finance (Multi-Provider)': 'Finance', 'ExchangeRate-API': 'Finance',
+    'Finnhub Stock Market': 'Finance', 'Finance / Banking': 'Finance', 'ExchangeRate-API': 'Finance', 'SEC EDGAR': 'Finance',
     // Crypto
     'CoinGecko': 'Crypto', 'Polymarket': 'Crypto', 'Hyperliquid': 'Crypto', 'AsterDEX': 'Crypto',
     // Search
     'Serper.dev (Google Search)': 'Search', 'Tavily AI Search': 'Search', 'Exa Semantic Search': 'Search',
     // News
     'NewsData.io': 'News', 'GDELT Project': 'News',
-    // Maps
-    'Geoapify (Maps)': 'Maps',
+    // Maps & Geo
+    'Maps / Geolocation': 'Maps', 'Geocodio': 'Maps',
     // Entertainment
-    'Ticketmaster': 'Entertainment', 'TMDB (Movies)': 'Entertainment', 'RAWG Video Games': 'Entertainment', 'IGDB (Twitch Games)': 'Entertainment', 'Jikan (MyAnimeList)': 'Entertainment',
+    'Ticketmaster': 'Entertainment', 'TMDB': 'Entertainment', 'RAWG Video Games': 'Entertainment', 'IGDB Video Games': 'Entertainment', 'Jikan / MyAnimeList': 'Entertainment',
     // Music
-    'Music (Multi-Provider)': 'Music',
+    'Music / Audio': 'Music',
     // Health
-    'Health (Multi-Provider)': 'Health',
+    'Health & Nutrition': 'Health', 'FatSecret Nutrition': 'Health', 'Spoonacular Recipe': 'Health',
     // Education
-    'Education (Multi-Provider)': 'Education',
+    'Education / Research': 'Education',
     // Jobs
-    'Jobs (Multi-Provider)': 'Jobs',
+    'Jobs / Career': 'Jobs',
     // Legal
     'Regulations.gov': 'Legal', 'Federal Register': 'Legal', 'CourtListener (Free Law Project)': 'Legal',
     // Real Estate
-    'Walk Score': 'Real Estate', 'US Real Estate (RapidAPI)': 'Real Estate',
+    'walkscore': 'Real Estate', 'usrealestate': 'Real Estate',
     // Space
     'NASA Open APIs': 'Space', 'NASA JPL SSD': 'Space', 'NASA FIRMS': 'Space',
     // Weather
     'NWS Weather Alerts': 'Weather', 'OpenWeatherMap': 'Weather',
-    // Earth
     // Translation
     'Langbly Translation': 'Translation',
     // Sports
     'API-Sports (Multi-Sport)': 'Sports',
     // Holidays
     'Nager.Date Holidays': 'Holidays', 'Calendarific': 'Holidays',
-    // AI & Tools
+    // AI Tools
     'Stability AI': 'AI Tools', 'OCR.space': 'AI Tools', 'ApiFlash Screenshot': 'AI Tools',
-    // Communication
+    // Email & SMS
     'Resend Email': 'Email & SMS', 'Twilio SMS & Phone': 'Email & SMS', 'ZeroBounce': 'Email & SMS',
     // Social
-    'Mastodon (Fediverse)': 'Social',
+    'Mastodon (Fediverse)': 'Social', 'Bluesky (AT Protocol)': 'Social',
     // E-commerce
-    'Zinc E-commerce': 'E-commerce', 'Diffbot AI Extraction': 'E-commerce',
+    'Diffbot AI Extraction': 'E-commerce',
     // Domain & SSL
-    'WhoisXML API': 'Domain & SSL', 'ssl-checker.io': 'Domain & SSL',
-    // Barcode & QR
+    'WhoisXML': 'Domain & SSL', 'ssl-checker.io': 'Domain & SSL',
+    // QR & Barcode
     'QRServer': 'QR & Barcode', 'UPCitemdb': 'QR & Barcode',
     // URL
     'Short.io URL Shortener': 'URL Shortener',
     // IP
     'ipapi.is': 'IP Intelligence',
-    // AIPush
+    // AI Marketing
     'AIPush AI Marketing': 'AI Marketing',
     // Timezone
     'TimeAPI.io (World Clock)': 'Timezone',
@@ -238,48 +250,40 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
     'USGS Earthquake': 'Earthquakes',
     // Books
     'Open Library': 'Books',
-    // Batch 7
-    'NHTSA VIN Decoder': 'Vehicle',
+    // Vehicle
+    'NHTSA VIN Decoder': 'Vehicle', 'Auto.dev': 'Vehicle',
+    // Country Data
     'REST Countries': 'Country Data',
+    // Food
     'Open Food Facts': 'Food Products',
+    // Test Data
     'RandomUser.me': 'Test Data',
     // Air Quality
     'IQAir AirVisual': 'Air Quality',
-    // Nutrition
-    'FatSecret Nutrition': 'Nutrition',
     // Stock Media
     'Pexels': 'Stock Media',
     // Browser
-    'Browserbase': 'Browser Infrastructure',
+    'Browserbase': 'Browser',
     // Messaging
     'Telegram Bot API': 'Messaging',
     // Clinical Research
     'ClinicalTrials.gov': 'Clinical Research',
-    // Domain & Infrastructure
+    // Domain Registration
     'NameSilo Domains': 'Domain Registration',
+    // Infrastructure
     'Cloudflare': 'Infrastructure',
-    // Tax / VAT
+    // Tax & VAT
     'VATcomply': 'Tax & VAT',
-    // Audio / Speech
+    // Audio & Speech
     'AssemblyAI': 'Audio & Speech',
     // Company Data
-    'GLEIF LEI Registry': 'Company Data',
-    'Companies House (UK)': 'Company Data',
-    'SEC EDGAR': 'Finance',
-    // Social
-    'Bluesky (AT Protocol)': 'Social',
+    'GLEIF LEI Registry': 'Company Data', 'Companies House (UK)': 'Company Data',
     // Art & Culture
-    'Art Institute of Chicago': 'Art & Culture',
-    'Europeana': 'Art & Culture',
-    // Documents
-    'ConvertAPI': 'PDF & Documents',
-    'API2PDF': 'PDF & Documents',
+    'Art Institute of Chicago': 'Art & Culture', 'Europeana': 'Art & Culture',
+    // PDF & Documents
+    'ConvertAPI': 'PDF & Documents', 'API2PDF': 'PDF & Documents',
     // Podcasts
     'PodcastIndex': 'Podcasts',
-    // Address
-    'Geocodio': 'Address & Postal',
-    // Vehicle
-    'Auto.dev': 'Vehicle',
     // Business
     'Hunter.io': 'Business',
     // Foursquare
@@ -354,6 +358,7 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
       html += '<span class="cat-tag' + (currentFilter === c ? ' active' : '') + '" data-cat="' + escHtml(c) + '">' + escHtml(c) + ' <span class="cat-count">' + cats[c] + '</span></span>';
     }
     document.getElementById('cat-tags').innerHTML = html;
+    document.getElementById('cat-count-label').textContent = '[' + sorted.length + ']';
 
     // Attach click handlers
     var tags = document.querySelectorAll('.cat-tag');
@@ -375,8 +380,27 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
     renderPaymentStatus(data);
     renderCategoryFilter(data);
 
-    var html = '<div class="table-wrap"><table><thead><tr>';
-    html += '<th>Provider</th><th>Cat</th><th>Status</th><th>Limits</th><th>Calls 24h</th><th class="col-latency">Latency</th><th>Tools</th>';
+    // Health summary counts
+    var hGreen = 0, hOrange = 0, hRed = 0, hUnknown = 0;
+    for (var h = 0; h < data.providers.length; h++) {
+      var hs = data.providers[h].health.status;
+      if (hs === 'green') hGreen++;
+      else if (hs === 'orange') hOrange++;
+      else if (hs === 'red') hRed++;
+      else hUnknown++;
+    }
+
+    var html = '<div class="health-summary">';
+    html += '<span class="h-green">HEALTHY:' + hGreen + '</span>  ';
+    if (hOrange > 0) html += '<span class="h-orange">WARN:' + hOrange + '</span>  ';
+    if (hRed > 0) html += '<span class="h-red">CRIT:' + hRed + '</span>  ';
+    if (hUnknown > 0) html += '<span class="h-grey">PENDING:' + hUnknown + '</span>';
+    html += '</div>';
+
+    html += '<div class="latency-legend">STATUS: <span style="color:#00ff41">●</span> healthy  <span style="color:#ffaa00">●</span> slow  <span style="color:#ff4444">●</span> down  <span style="color:#555">●</span> pending</div>';
+
+    html += '<div class="table-wrap"><table><thead><tr>';
+    html += '<th>Provider</th><th>Cat</th><th>Status</th><th>Limits</th><th>Calls 24h</th><th>Tools</th>';
     html += '</tr></thead><tbody>';
 
     var searchTerm = (document.getElementById('search-input').value || '').toLowerCase().trim();
@@ -396,7 +420,7 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
       html += '<tr class="' + borderCls + '">';
       html += '<td>' + escHtml(p.display_name) + '</td>';
       html += '<td style="color:#2a6a2a;font-size:0.72rem">' + escHtml(cat) + '</td>';
-      html += '<td>' + statusDot(p.health.status) + (p.health.latency_ms !== null ? p.health.latency_ms + 'ms' : '--') + '</td>';
+      html += '<td>' + statusDot(p.health.status) + (p.health.latency_ms !== null ? p.health.latency_ms + 'ms' : (p.health.status === 'unknown' ? '<span style="color:#333">pending</span>' : 'OK')) + '</td>';
       html += '<td>' + statusDot(p.limits.status);
       if (p.balance && p.balance.balance_usd !== null) {
         var balColor = p.balance.balance_usd > 10 ? '#00ff41' : p.balance.balance_usd > 0 ? '#ffaa00' : '#ff4444';
@@ -408,9 +432,13 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
       html += '<td>' + formatNum(p.calls_24h);
       if (p.usage && p.usage.calls_total > 0) html += ' <span style="opacity:0.5;font-size:0.85em">/ ' + formatNum(p.usage.calls_total) + ' total</span>';
       html += '</td>';
-      html += '<td class="col-latency ' + latencyClass(p.avg_latency_ms) + '">' + (p.avg_latency_ms !== null ? p.avg_latency_ms + 'ms' : '--') + '</td>';
       html += '<td>' + p.tool_count + '</td></tr>';
     }
+
+    if (visibleCount === 0) {
+      html += '<tr><td colspan="6" class="empty-state">$ grep "' + escHtml(searchTerm || currentFilter) + '" /providers<br>0 results. No match found.</td></tr>';
+    }
+
     html += '</tbody></table></div>';
     content.innerHTML = html;
 
@@ -456,6 +484,19 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
   });
   searchInput.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') { searchInput.value = ''; if (lastData) renderTable(lastData); }
+  });
+
+  // Category filter toggle (collapsed by default)
+  document.getElementById('cat-toggle').addEventListener('click', function() {
+    var tags = document.getElementById('cat-tags');
+    var label = this;
+    if (tags.classList.contains('collapsed')) {
+      tags.classList.remove('collapsed');
+      label.innerHTML = label.innerHTML.replace('▶', '▼');
+    } else {
+      tags.classList.add('collapsed');
+      label.innerHTML = label.innerHTML.replace('▼', '▶');
+    }
   });
 })();
 </script>
