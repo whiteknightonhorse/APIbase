@@ -6,6 +6,7 @@ import { createHealthServer, updateHeartbeatTimestamp } from './health';
 import { run as runReconciliation } from '../jobs/reconciliation.job';
 import { run as runProviderHealth } from '../jobs/provider-health.job';
 import { run as runX402Health } from '../jobs/x402-health.job';
+import { run as runPartitionCreate } from '../jobs/partition-create.job';
 
 /**
  * Worker process entry point (§12.194, §12.244).
@@ -144,7 +145,44 @@ const x402HealthTask = cron.schedule('0 * * * *', () => {
 // Run x402 health once at startup after 10s delay
 setTimeout(() => { runX402HealthSafe().catch(() => {}); }, 10_000);
 
-logger.info('Worker started — heartbeat + reconciliation + provider-health + x402-health cron active');
+// Schedule partition creation daily at 23:00 UTC (§12.244 job #1)
+async function runPartitionCreateSafe(): Promise<void> {
+  try { await runPartitionCreate(); }
+  catch (err) { logger.error({ err, job: 'partition-create' }, 'Partition creation failed'); }
+}
+const partitionCreateTask = cron.schedule('0 23 * * *', () => {
+  runPartitionCreateSafe().catch(() => {});
+});
+
+// Create partitions for next 7 days at startup (catch up after restart/missed crons)
+setTimeout(async () => {
+  try {
+    const { PrismaClient } = await import('@prisma/client');
+    const db = new PrismaClient();
+    const tables = ['execution_ledger', 'outbox', 'request_metrics'];
+    for (let dayOffset = 0; dayOffset <= 7; dayOffset++) {
+      const d = new Date();
+      d.setUTCDate(d.getUTCDate() + dayOffset);
+      d.setUTCHours(0, 0, 0, 0);
+      const next = new Date(d);
+      next.setUTCDate(next.getUTCDate() + 1);
+      const suffix = `${d.getUTCFullYear()}_${String(d.getUTCMonth() + 1).padStart(2, '0')}_${String(d.getUTCDate()).padStart(2, '0')}`;
+      const from = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`;
+      const to = `${next.getUTCFullYear()}-${String(next.getUTCMonth() + 1).padStart(2, '0')}-${String(next.getUTCDate()).padStart(2, '0')}`;
+      for (const table of tables) {
+        await db.$executeRawUnsafe(
+          `CREATE TABLE IF NOT EXISTS "${table}_${suffix}" PARTITION OF "${table}" FOR VALUES FROM ('${from}') TO ('${to}')`,
+        ).catch(() => {}); // ignore if already exists
+      }
+    }
+    await db.$disconnect();
+    logger.info({ job: 'partition-create', days: 8 }, 'Startup partition catch-up complete (today + 7 days)');
+  } catch (err) {
+    logger.error({ err, job: 'partition-create' }, 'Startup partition catch-up failed');
+  }
+}, 5_000);
+
+logger.info('Worker started — heartbeat + reconciliation + provider-health + x402-health + partition-create cron active');
 
 // ---------------------------------------------------------------------------
 // Graceful shutdown (§12.230 — 60s stop_grace_period)
@@ -156,6 +194,7 @@ function shutdown(signal: string): void {
   reconciliationTask.stop();
   providerHealthTask.stop();
   x402HealthTask.stop();
+  partitionCreateTask.stop();
 
   if (heartbeatTimer) {
     clearInterval(heartbeatTimer);
