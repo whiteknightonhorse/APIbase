@@ -1,13 +1,10 @@
 import type { Request, Response, NextFunction } from 'express';
-import type { IncomingMessage, ServerResponse } from 'node:http';
 import { getMppConfig } from '../config/mpp.config';
 import { logger } from '../config/logger';
 import { AppError, ErrorCode } from '../types/errors';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let mppxInstance: any = null;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let nodeListener: ((req: IncomingMessage, res: ServerResponse) => Promise<any>) | null = null;
 let initPromise: Promise<void> | null = null;
 
 async function ensureMppx(): Promise<void> {
@@ -27,8 +24,6 @@ async function ensureMppx(): Promise<void> {
     realm: cfg.realm,
   });
 
-  // Create a NodeListener that handles the full charge flow correctly
-  nodeListener = Mppx.toNodeListener(mppxInstance.charge({ amount: '0.001' }));
 }
 
 function getMppxInstance() {
