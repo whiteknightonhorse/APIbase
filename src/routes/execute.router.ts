@@ -65,7 +65,7 @@ executeRouter.post(
         const mppHeader = await buildMppChallengeHeader(
           toolId,
           priceUsd,
-          `${req.protocol}://${req.get('host')}${req.originalUrl}`,
+          `https://${req.get('host')}${req.originalUrl}`,
         );
         if (mppHeader) {
           res.setHeader('WWW-Authenticate', mppHeader);

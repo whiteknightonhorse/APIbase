@@ -29,5 +29,9 @@ declare module 'mppx/server' {
         withReceipt(response: Response): Response;
       }>;
     };
+    toNodeListener(handler: (request: Request) => Promise<unknown>): (
+      req: import('node:http').IncomingMessage,
+      res: import('node:http').ServerResponse,
+    ) => Promise<unknown>;
   };
 }
