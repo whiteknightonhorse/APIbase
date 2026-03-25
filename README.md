@@ -1,6 +1,6 @@
 # APIbase.pro — The API Hub for AI Agents
 
-> One MCP endpoint. 300 tools. 84 providers. Pay per call with x402 USDC on Base.
+> One MCP endpoint. 300 tools. 84 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Health](https://apibase.pro/health/ready)** | **[Dashboard](https://apibase.pro/dashboard)**
 
@@ -14,7 +14,7 @@
 
 Production MCP server that gives AI agents access to 300 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, translate text, check weather alerts, generate images, send emails, look up holidays, shorten URLs, detect fires by satellite, decode VINs, look up food products — and 200+ more tools across 30+ categories.
 
-**Built for AI agents, not humans.** Auto-registration, zero setup, pay-per-call via x402 USDC micropayments on Base.
+**Built for AI agents, not humans.** Auto-registration, zero setup, pay-per-call via x402 USDC micropayments on Base or MPP (Machine Payments Protocol) on Tempo.
 
 ---
 
@@ -125,11 +125,28 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 
 ## How Payment Works
 
+APIbase supports **dual payment rails** — agents can pay using either protocol:
+
+### x402 (USDC on Base)
+
 | Field | Value |
 |-------|-------|
 | Protocol | **x402** (HTTP 402 Payment Required) |
 | Token | USDC on Base |
 | Wallet | `0x50EbDa9dA5dC19c302Ca059d7B9E06e264936480` |
+| Price range | $0.001 – $1.00 per call |
+
+### MPP (Machine Payments Protocol)
+
+| Field | Value |
+|-------|-------|
+| Protocol | **MPP** (IETF draft-ryan-httpauth-payment) |
+| Token | USDC on Tempo (chain 4217) |
+| Wallet | `0x183fFa1335EB66858EebCb86F651f70632821f8d` |
+| USDC contract | `0x20C000000000000000000000b9537d11c60E8b50` |
+| SDK | `mppx` (npm) |
+| Agent setup | [wallet.tempo.xyz](https://wallet.tempo.xyz) — one link, connected |
+| Discovery | [mpp.dev/services](https://mpp.dev/services) |
 | Price range | $0.001 – $1.00 per call |
 
 No subscriptions. No minimums. Agent pays only for successful calls. Failed provider calls are auto-refunded.
@@ -157,6 +174,7 @@ ESCROW_FINALIZE → LEDGER_WRITE → CACHE_SET → RESPONSE
 |--------|--------|--------|
 | API Key | `Authorization` | `Bearer ak_live_<32hex>` |
 | x402 Payment | `X-Payment` | Base64 payment receipt |
+| MPP Payment | `Authorization` | MPP bearer token (via `mppx` SDK) |
 
 Auto-registration: agents get API keys instantly on first request. No forms, no approval.
 
@@ -168,7 +186,7 @@ Auto-registration: agents get API keys instantly on first request. No forms, no 
 |------|------|---------|
 | 400 | `validation_error` | Invalid parameters (check schema) |
 | 401 | `unauthorized` | Missing or invalid API key |
-| 402 | `payment_required` | x402 payment needed |
+| 402 | `payment_required` | x402 or MPP payment needed |
 | 404 | `not_found` | Tool or resource not found |
 | 429 | `rate_limited` | Rate limit exceeded (check `Retry-After`) |
 | 502 | `bad_gateway` | Provider unavailable |

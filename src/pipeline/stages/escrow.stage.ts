@@ -12,8 +12,9 @@ export const escrowStage: Stage = {
   name: 'ESCROW',
 
   async execute(ctx) {
-    // On-chain x402 payment verified by middleware — skip balance deduction (§8.6)
-    if (ctx.x402Paid) {
+    // On-chain payment verified by middleware — skip balance deduction (§8.6)
+    // Supports both x402 (Base/USDC) and MPP (Tempo/USDC)
+    if (ctx.x402Paid || ctx.mppPaid) {
       return ok(ctx);
     }
 

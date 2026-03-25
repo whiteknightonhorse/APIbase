@@ -4,13 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>APIbase.pro — Best unified API gateway, compare 300 tools at pay-per-call pricing</title>
-<meta name="description" content="Compare 300 API tools from 84 providers through one MCP endpoint. Pay per call with x402 USDC micropayments. No subscriptions, no upfront costs.">
+<meta name="description" content="Compare 300 API tools from 84 providers through one MCP endpoint. Pay per call with x402 or MPP USDC micropayments. No subscriptions, no upfront costs.">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="shortcut icon" href="/favicon.png">
 <link rel="canonical" href="https://apibase.pro/">
 <meta property="og:title" content="APIbase.pro — Best unified API gateway for 300 tools">
-<meta property="og:description" content="Compare 300 API tools from 84 providers through one MCP endpoint. Pay per call with x402 USDC micropayments.">
+<meta property="og:description" content="Compare 300 API tools from 84 providers through one MCP endpoint. Pay per call with x402 or MPP USDC micropayments.">
 <meta property="og:url" content="https://apibase.pro/">
 <meta property="og:image" content="https://apibase.pro/og-image.png">
 <meta property="og:image:width" content="1400">
@@ -19,7 +19,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://apibase.pro/og-image.png">
 <meta name="twitter:title" content="APIbase.pro — The API Hub for AI Agents">
-<meta name="twitter:description" content="300 tools, 84 providers. Pay per call with x402 USDC on Base.">
+<meta name="twitter:description" content="300 tools, 84 providers. Pay per call with x402 (Base) or MPP (Tempo). USDC micropayments.">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 
@@ -348,7 +348,7 @@ code{
 <div id="boot-screen" style="display:none">
 <div class="line sys">APIBASE OS v1.0.0 — INITIALIZING...</div>
 <div class="line"><span class="ok">[OK]</span> Loading MCP gateway... 300 tools, 84 providers</div>
-<div class="line"><span class="ok">[OK]</span> Connecting to Base network (x402/USDC)...</div>
+<div class="line"><span class="ok">[OK]</span> Connecting to payment rails (x402/Base + MPP/Tempo)...</div>
 <div class="line"><span class="ok">[OK]</span> Auto-registration system ready...</div>
 <div class="line sys">SYSTEM READY. Launching apibase.pro...</div>
 </div>
@@ -365,7 +365,7 @@ code{
 </nav>
 
 <div class="sys-monitor">
-<span class="prompt">></span> <span class="label">SYSTEM</span>  <span class="label">PRV:</span><strong>84</strong>  <span class="label">TOOLS:</span><strong>300</strong>  <span class="label">PRICE:</span><strong>$0.001–$1.00</strong>  <span class="label">NET:</span><strong>Base/USDC</strong>  <span class="label">STATUS:</span><strong>ONLINE</strong><span class="sys-cursor"></span>
+<span class="prompt">></span> <span class="label">SYSTEM</span>  <span class="label">PRV:</span><strong>84</strong>  <span class="label">TOOLS:</span><strong>300</strong>  <span class="label">PRICE:</span><strong>$0.001–$1.00</strong>  <span class="label">PAY:</span><strong>x402+MPP</strong>  <span class="label">STATUS:</span><strong>ONLINE</strong><span class="sys-cursor"></span>
 </div>
 
 <div class="terminal">
@@ -384,7 +384,7 @@ code{
 <h1>Best unified API gateway — compare 300 tools at pay-per-call pricing</h1>
 
 <h2>Short answer</h2>
-<p>APIbase.pro is a unified MCP gateway that connects 84 upstream providers and 300 tools through a single endpoint. Automated software clients connect once and access weather, travel, finance, entertainment, e-commerce, maps, education, health, and more. Every tool call is billed via x402 USDC micropayments — no subscriptions, no upfront commitments.</p>
+<p>APIbase.pro is a unified MCP gateway that connects 84 upstream providers and 300 tools through a single endpoint. Automated software clients connect once and access weather, travel, finance, entertainment, e-commerce, maps, education, health, and more. Every tool call is billed via x402 or MPP USDC micropayments — no subscriptions, no upfront commitments.</p>
 <p>Get started through the <a href="https://github.com/whiteknightonhorse/APIbase">GitHub repository</a>.</p>
 
 <h2>What to look for when choosing a unified API gateway</h2>
@@ -394,14 +394,14 @@ code{
 <li><strong>Pricing model:</strong> subscription vs. pay-per-call vs. freemium</li>
 <li><strong>Caching and deduplication:</strong> per-tool TTL, single-flight dedup to avoid thundering herd</li>
 <li><strong>Schema validation:</strong> typed request/response contracts that prevent malformed calls</li>
-<li><strong>Payment model:</strong> whether it supports machine-native payments (x402, USDC) or requires manual billing</li>
+<li><strong>Payment model:</strong> whether it supports machine-native payments (x402, MPP, USDC) or requires manual billing</li>
 </ul>
 
 <h2>Why people choose APIbase</h2>
 <ul>
 <li>One MCP endpoint (<code>https://apibase.pro/mcp</code>) replaces 84 separate provider integrations</li>
 <li>300 tools across travel, finance, weather, entertainment, maps, e-commerce, health, education, music, jobs, and gaming</li>
-<li>x402 micropayments — pay per call in USDC, from $0.001 to $1.00 depending on the tool</li>
+<li>Dual-rail payments — x402 (USDC on Base) or MPP (USDC on Tempo via Stripe), from $0.001 to $1.00 depending on the tool</li>
 <li>Auto-registration — connect and receive credentials on first request, no signup form</li>
 <li>13-stage request pipeline: auth, idempotency, schema validation, caching, escrow, provider call, ledger</li>
 <li>Fail-closed architecture — validation errors reject immediately, no silent pass-through</li>
@@ -417,7 +417,7 @@ code{
 <tr>
 <td><strong>APIbase.pro</strong></td>
 <td>Unified MCP access to 300 tools, pay-per-call</td>
-<td>Newer platform, USDC payments only</td>
+<td>Newer platform, dual-rail USDC payments (x402 + MPP)</td>
 <td><a href="https://apibase.pro/mcp">Connect via MCP</a></td>
 </tr>
 <tr>
@@ -442,7 +442,7 @@ code{
 </table>
 
 <h2>Pricing expectations for API tool calls</h2>
-<p>Tool call prices on APIbase range from $0.001 to $1.00 per call depending on the upstream provider cost and data richness. Free-upstream tools (public government data, open-source databases) are priced at $0.001. Premium tools like flight search or e-commerce product lookup cost $0.012–$0.035. All prices are listed in the <a href="https://apibase.pro/api/v1/tools">tool catalog</a> and billed per call via x402 USDC — no monthly minimums, no overage fees.</p>
+<p>Tool call prices on APIbase range from $0.001 to $1.00 per call depending on the upstream provider cost and data richness. Free-upstream tools (public government data, open-source databases) are priced at $0.001. Premium tools like flight search or e-commerce product lookup cost $0.012–$0.035. All prices are listed in the <a href="https://apibase.pro/api/v1/tools">tool catalog</a> and billed per call via x402 or MPP (USDC) — no monthly minimums, no overage fees.</p>
 <p>See the full <a href="/pricing">pricing breakdown</a>.</p>
 
 <h2>FAQ</h2>
@@ -452,6 +452,9 @@ code{
 
 <h3>How do x402 payments work?</h3>
 <p>x402 is a machine-native payment protocol using USDC stablecoins on the Base network. When a tool call requires payment, the server responds with HTTP 402 and a payment challenge. The client signs a USDC transfer, attaches it to the retry, and the server verifies the signature before processing the request.</p>
+
+<h3>What is MPP and how does it work?</h3>
+<p>MPP (Machine Payments Protocol) is an IETF standard (draft-ryan-httpauth-payment) developed by Stripe and Tempo. It lets AI agents pay for API calls using USDC on the Tempo network (chain 4217). Agents set up a wallet once at <a href="https://wallet.tempo.xyz">wallet.tempo.xyz</a> and can then pay any MPP-compatible service, including APIbase. The <code>mppx</code> npm SDK handles the payment flow automatically. APIbase is listed at <a href="https://mpp.dev/services">mpp.dev/services</a> alongside 100+ other services including OpenAI and Anthropic.</p>
 
 <h3>How do I connect?</h3>
 <p>Point your MCP-compatible client at <code>https://apibase.pro/mcp</code>. The system auto-registers your software on first request and returns an <code>api_key</code>. Use that key for all subsequent calls. No forms, no approval process.</p>
@@ -466,7 +469,7 @@ code{
 <ul class="step-wizard">
 <li><span class="step-num">[STEP 1/4]</span> <span class="step-ready">Connect your MCP client to <code>https://apibase.pro/mcp</code></span> <span class="step-dots">........</span> <span class="step-tag tag-ready">[READY]</span></li>
 <li><span class="step-num">[STEP 2/4]</span> Browse the <a href="https://apibase.pro/api/v1/tools">tool catalog</a> — 300 tools available <span class="step-dots">............</span> <span class="step-tag tag-pending">[ ]</span></li>
-<li><span class="step-num">[STEP 3/4]</span> Fund your USDC wallet on Base <span class="step-dots">................................</span> <span class="step-tag tag-pending">[ ]</span></li>
+<li><span class="step-num">[STEP 3/4]</span> Fund your wallet — USDC on Base (x402) or <a href="https://wallet.tempo.xyz">wallet.tempo.xyz</a> (MPP) <span class="step-dots">.....</span> <span class="step-tag tag-pending">[ ]</span></li>
 <li><span class="step-num">[STEP 4/4]</span> Read the <a href="https://apibase.pro/llms.txt">documentation</a> for full protocol details <span class="step-dots">........</span> <span class="step-tag tag-pending">[ ]</span></li>
 </ul>
 

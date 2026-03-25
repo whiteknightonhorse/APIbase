@@ -10,6 +10,7 @@ import { agentsRouter } from '../routes/agents.router';
 import { AppError, ErrorCode } from '../types/errors';
 import { createMcpRouter } from '../mcp/server';
 import { x402Middleware } from '../middleware/x402.middleware';
+import { mppMiddleware } from '../middleware/mpp.middleware';
 import { x402Router } from '../routes/x402.router';
 import { onboardRouter } from '../routes/onboard.router';
 import { executeRouter } from '../routes/execute.router';
@@ -56,8 +57,9 @@ export function createApp(): express.Express {
   // --- Smart Onboarding Form (§6.12, §AP-10 — before content-type enforcement) ---
   app.use(onboardRouter);
 
-  // --- x402 payment verification (before pipeline, §8.6) ---
+  // --- Payment verification — dual rail: x402 + MPP (before pipeline, §8.6) ---
   app.use(x402Middleware);
+  app.use(mppMiddleware);
 
   // --- Content-type enforcement (JSON-only for API routes) ---
   app.use(contentTypeMiddleware);

@@ -108,6 +108,9 @@ export interface PipelineContext {
   x402Paid?: boolean;
   x402Payer?: string;
   x402PaymentHeader?: string;
+  mppPaid?: boolean;
+  mppPayer?: string;
+  mppMethod?: string;
 
   // PROVIDER_CALL stage
   providerResponse?: NormalizedResponse;

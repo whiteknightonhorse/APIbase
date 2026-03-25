@@ -215,6 +215,13 @@ export const appEnvSchema = z.object({
   FATSECRET_CLIENT_ID: z.string().optional().default(''),
   FATSECRET_CLIENT_SECRET: z.string().optional().default(''),
 
+  // Tempo MPP — Machine Payments Protocol (dual-rail with x402)
+  MPP_ENABLED: z.string().optional().default('false'),
+  MPP_SECRET_KEY: z.string().optional().default(''),
+  TEMPO_WALLET_ADDRESS: z.string().optional().default(''),
+  MPP_REALM: z.string().optional().default('apibase.pro'),
+  MPP_TESTNET: z.string().optional().default('false'),
+
   // Polymarket trading — Phase 2 (UC-001 §3-§8)
   POLYMARKET_WALLET_ADDRESS: z.string().startsWith('0x').optional().default(''),
   POLYMARKET_PRIVATE_KEY: z.string().optional().default(''),

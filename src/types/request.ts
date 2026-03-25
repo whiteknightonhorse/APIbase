@@ -18,6 +18,14 @@ export interface X402PaymentInfo {
   scheme: string;
 }
 
+export interface MppPaymentInfo {
+  verified: boolean;
+  payer: string;
+  amount: string;
+  txHash: string;
+  method: string;
+}
+
 // Extend Express Request type globally
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -29,6 +37,7 @@ declare global {
       idempotencyKey?: string;
       toolId?: string;
       x402Payment?: X402PaymentInfo;
+      mppPayment?: MppPaymentInfo;
     }
   }
 }
