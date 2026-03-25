@@ -221,6 +221,16 @@ tempo wallet login
 tempo request https://apibase.pro/api/v1/tools/nasa.apod/call -X POST --json '{}'
 ```
 
+**Using AgentCash (one command):**
+
+```bash
+# Try any tool instantly
+npx agentcash try https://apibase.pro
+
+# Add all APIbase tools to your agent
+npx agentcash add https://apibase.pro
+```
+
 **Note:** When `mppx` retries with `Authorization: Payment`, it replaces the original `Bearer` header. To preserve agent identity, also send your API key via `X-API-Key` header — the server accepts both.
 
 ---
