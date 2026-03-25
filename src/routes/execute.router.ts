@@ -31,6 +31,7 @@ executeRouter.post(
         'x-request-id': requestId,
         'x-idempotency-key': req.headers['x-idempotency-key'] as string | undefined,
         'x-payment': req.headers['x-payment'] as string | undefined,
+        'x-api-key': req.headers['x-api-key'] as string | undefined,
       });
       ctx.toolId = toolId;
 

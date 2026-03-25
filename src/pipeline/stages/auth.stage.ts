@@ -75,6 +75,43 @@ export const authStage: Stage = {
     }
 
     const parts = headerValue.split(' ');
+
+    // MPP Payment credential — Authorization: Payment replaces Bearer per MPP spec.
+    // Agent identified via X-API-Key header or auto-registered by Tempo wallet address.
+    if (parts[0] === 'Payment') {
+      // Try X-API-Key header as alternative auth (agent sends both API key + MPP payment)
+      const xApiKey = ctx.headers['x-api-key'];
+      const apiKeyAlt = Array.isArray(xApiKey) ? xApiKey[0] : xApiKey;
+
+      if (apiKeyAlt && isValidApiKeyFormat(apiKeyAlt)) {
+        const keyHash = hashApiKey(apiKeyAlt);
+        const agent = await lookupAgentWithCache(keyHash);
+        if (agent && agent.status === 'active') {
+          return ok({
+            ...ctx,
+            agentId: agent.agent_id,
+            tier: agent.tier as PipelineContext['tier'],
+          });
+        }
+      }
+
+      // MPP payment without API key — payment IS authentication (per MPP spec)
+      if (ctx.mppPaid) {
+        return ok({
+          ...ctx,
+          agentId: `mpp_${ctx.mppPayer || 'anonymous'}`,
+          tier: 'paid' as PipelineContext['tier'],
+        });
+      }
+
+      // Authorization: Payment present but not verified — reject
+      return err<PipelineError>({
+        code: 401,
+        error: 'unauthorized',
+        message: 'Invalid MPP payment credential',
+      });
+    }
+
     if (parts.length !== 2 || parts[0] !== 'Bearer') {
       return err<PipelineError>({
         code: 401,
