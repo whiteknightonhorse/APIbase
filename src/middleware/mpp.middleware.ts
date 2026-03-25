@@ -52,6 +52,13 @@ export function mppMiddleware(req: Request, _res: Response, next: NextFunction):
     return;
   }
 
+  // Validate credential is not empty
+  const credential = authHeader.substring('Payment '.length).trim();
+  if (!credential) {
+    next(new AppError(ErrorCode.BAD_REQUEST, 'MPP payment credential must not be empty'));
+    return;
+  }
+
   verifyMppPayment(req)
     .then(() => next())
     .catch(next);

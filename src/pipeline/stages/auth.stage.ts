@@ -1,4 +1,5 @@
 import { type Stage, type PipelineContext, type PipelineError, ok, err } from '../types';
+import { createHash } from 'node:crypto';
 import { hashApiKey, isValidApiKeyFormat } from '../../services/api-key.service';
 import { getPrisma } from '../../services/prisma.service';
 import { ensureRedisConnected } from '../../services/redis.service';
@@ -59,6 +60,59 @@ async function lookupAgentWithCache(keyHash: string): Promise<CachedAgent | null
   return cached;
 }
 
+/**
+ * Ensure an agent record exists for an MPP payer (Tempo wallet address).
+ * Uses deterministic api_key_hash derived from wallet address for upsert.
+ * Creates agent on first payment, reuses on subsequent payments.
+ */
+async function ensureMppAgent(walletAddress: string): Promise<CachedAgent> {
+  // Deterministic hash from wallet address — acts as unique key
+  const mppKeyHash = createHash('sha256').update(`mpp:${walletAddress}`).digest('hex');
+  const cacheKey = `agent:${mppKeyHash}`;
+
+  // Check Redis cache first
+  try {
+    const r = await ensureRedisConnected();
+    const raw = await r.get(cacheKey);
+    if (raw) return JSON.parse(raw) as CachedAgent;
+  } catch { /* fall through to PG */ }
+
+  const db = getPrisma();
+
+  // Check PG
+  const existing = await db.agent.findUnique({
+    where: { api_key_hash: mppKeyHash },
+    select: { agent_id: true, tier: true, status: true },
+  });
+
+  if (existing) {
+    const cached: CachedAgent = { agent_id: existing.agent_id, tier: existing.tier, status: existing.status };
+    ensureRedisConnected()
+      .then((r) => r.set(cacheKey, JSON.stringify(cached), 'EX', AUTH_CACHE_TTL_SECONDS))
+      .catch(() => {});
+    return cached;
+  }
+
+  // Create new MPP agent
+  const newAgent = await db.agent.create({
+    data: {
+      api_key_hash: mppKeyHash,
+      tier: 'paid',
+      status: 'active',
+    },
+    select: { agent_id: true, tier: true, status: true },
+  });
+
+  logger.info({ agent_id: newAgent.agent_id, wallet: walletAddress }, 'Auto-registered MPP agent by Tempo wallet');
+
+  const cached: CachedAgent = { agent_id: newAgent.agent_id, tier: newAgent.tier, status: newAgent.status };
+  ensureRedisConnected()
+    .then((r) => r.set(cacheKey, JSON.stringify(cached), 'EX', AUTH_CACHE_TTL_SECONDS))
+    .catch(() => {});
+
+  return cached;
+}
+
 export const authStage: Stage = {
   name: 'AUTH',
 
@@ -96,11 +150,14 @@ export const authStage: Stage = {
       }
 
       // MPP payment without API key — payment IS authentication (per MPP spec)
+      // Auto-register agent by Tempo wallet address (upsert into agents table)
       if (ctx.mppPaid) {
+        const walletAddr = ctx.mppPayer || 'mpp-anonymous';
+        const mppAgent = await ensureMppAgent(walletAddr);
         return ok({
           ...ctx,
-          agentId: `mpp_${ctx.mppPayer || 'anonymous'}`,
-          tier: 'paid' as PipelineContext['tier'],
+          agentId: mppAgent.agent_id,
+          tier: mppAgent.tier as PipelineContext['tier'],
         });
       }
 
