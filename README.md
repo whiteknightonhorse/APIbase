@@ -174,9 +174,54 @@ ESCROW_FINALIZE → LEDGER_WRITE → CACHE_SET → RESPONSE
 |--------|--------|--------|
 | API Key | `Authorization` | `Bearer ak_live_<32hex>` |
 | x402 Payment | `X-Payment` | Base64 payment receipt |
-| MPP Payment | `Authorization` | MPP bearer token (via `mppx` SDK) |
+| MPP Payment | `Authorization` | `Payment <credential>` (via `mppx` SDK) |
 
 Auto-registration: agents get API keys instantly on first request. No forms, no approval.
+
+### MPP Payment Flow (important for agent developers)
+
+MPP uses a **challenge–credential–receipt** cycle. You MUST follow the full flow:
+
+```
+1. Agent → POST /api/v1/tools/{tool}/call (with Authorization: Bearer <key>)
+2. Server → 402 + WWW-Authenticate: Payment id="...", method="tempo", request="..."
+3. Agent signs payment on Tempo → retries with Authorization: Payment <credential>
+4. Server verifies on-chain → 200 + Payment-Receipt header + tool result
+```
+
+**Critical:** Each 402 challenge is unique (HMAC-bound to the request URL, amount, and timestamp). You cannot reuse a credential from one challenge on a different endpoint or after expiry. The `mppx` SDK handles this automatically.
+
+**Using mppx SDK (recommended):**
+
+```typescript
+import { Mppx, tempo } from 'mppx/client'
+
+// mppx auto-handles the full 402 → pay → retry cycle
+const mppx = Mppx.create({
+  methods: [tempo({ account: myTempoWallet })],
+})
+
+// This single call handles: request → 402 → sign → pay → retry → 200
+const response = await fetch('https://apibase.pro/api/v1/tools/nasa.apod/call', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer ak_live_<your_key>',  // API key for agent identity
+    'X-API-Key': 'ak_live_<your_key>',             // Preserved when mppx replaces Authorization
+  },
+  body: JSON.stringify({}),
+})
+```
+
+**Using Tempo CLI:**
+
+```bash
+curl -fsSL https://tempo.xyz/install | bash
+tempo wallet login
+tempo request https://apibase.pro/api/v1/tools/nasa.apod/call -X POST --json '{}'
+```
+
+**Note:** When `mppx` retries with `Authorization: Payment`, it replaces the original `Bearer` header. To preserve agent identity, also send your API key via `X-API-Key` header — the server accepts both.
 
 ---
 
