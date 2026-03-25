@@ -9,9 +9,19 @@
 
 import { writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { readFileSync } from 'node:fs';
 import { TOOL_DEFINITIONS } from '../src/mcp/tool-definitions';
 import { toolSchemas } from '../src/schemas/index';
 import { zodToJsonSchema } from '../src/utils/zod-to-json-schema';
+import { parse } from 'yaml';
+
+// Load tool prices from config
+const yamlContent = readFileSync(resolve(__dirname, '..', 'config', 'tool_provider_config.yaml'), 'utf-8');
+const toolConfigs: Array<{ tool_id: string; price_usd: string }> = parse(yamlContent)?.tools ?? [];
+const priceMap = new Map<string, number>();
+for (const tc of toolConfigs) {
+  priceMap.set(tc.tool_id, parseFloat(tc.price_usd) || 0);
+}
 
 // ---------------------------------------------------------------------------
 // Generate OpenAPI 3.1 document
@@ -93,11 +103,20 @@ function generate(): void {
     const operationId = def.toolId.replace(/\./g, '_');
     const inputSchema = schema ? zodToJsonSchema(schema) : { type: 'object' };
 
+    const price = priceMap.get(def.toolId) ?? 0;
+    const priceStr = price.toFixed(6);
+
+    // x-payment-info for MPPScan/AgentCash discovery
+    const xPaymentInfo: Record<string, unknown> = price > 0
+      ? { pricingMode: 'fixed', price: priceStr, protocols: ['x402', 'mpp'] }
+      : { pricingMode: 'fixed', price: '0.000000', protocols: ['x402', 'mpp'] };
+
     const pathEntry: OpenApiPath = {
       post: {
         operationId,
         summary: def.title || def.description,
         description: def.description,
+        ...({ 'x-payment-info': xPaymentInfo } as Record<string, unknown>),
         parameters: [
           {
             name: 'toolId',
@@ -118,7 +137,7 @@ function generate(): void {
           '200': { description: 'Tool execution result' },
           '400': { description: 'Validation error' },
           '401': { description: 'Unauthorized — missing or invalid API key' },
-          '402': { description: 'Payment required (x402)' },
+          '402': { description: 'Payment Required' },
           '404': { description: 'Tool not found' },
           '429': { description: 'Rate limit exceeded' },
           '500': { description: 'Internal server error' },
@@ -137,12 +156,16 @@ function generate(): void {
       title: 'APIbase — Universal API Hub for AI Agents',
       version: '1.0.0',
       description:
-        'APIbase aggregates, normalizes, and provides APIs from hundreds of businesses in a unified format optimized for AI agent consumption. Search flights, trade prediction markets, check weather, and more — all via a single REST API or MCP endpoint.',
+        'APIbase aggregates, normalizes, and provides APIs from hundreds of businesses in a unified format optimized for AI agent consumption. Search flights, trade prediction markets, check weather, and more — all via a single REST API or MCP endpoint. Supports dual-rail payments: x402 (USDC on Base) and MPP (USDC on Tempo).',
+      'x-guidance': 'Use POST /api/v1/tools/{tool_id}/call to invoke any tool. Send Authorization: Bearer <api_key> header. Tool catalog at GET /api/v1/tools. MCP endpoint at /mcp. Payment: 402 responses include both x402 body and WWW-Authenticate: Payment header (MPP). Agent auto-registers on first request.',
       contact: {
         name: 'APIbase',
         url: 'https://apibase.pro',
       },
     },
+    'x-discovery': {
+      ownershipProofs: ['dns:apibase.pro'],
+    } as Record<string, unknown>,
     servers: [
       {
         url: 'https://apibase.pro',
