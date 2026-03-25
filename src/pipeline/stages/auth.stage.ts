@@ -120,11 +120,27 @@ export const authStage: Stage = {
     const authHeader = ctx.headers['authorization'];
     const headerValue = Array.isArray(authHeader) ? authHeader[0] : authHeader;
 
+    // Fallback: if no Authorization header, check X-API-Key (MPP agents use this)
     if (!headerValue) {
+      const xApiKey = ctx.headers['x-api-key'];
+      const apiKeyFallback = Array.isArray(xApiKey) ? xApiKey[0] : xApiKey;
+
+      if (apiKeyFallback && isValidApiKeyFormat(apiKeyFallback)) {
+        const keyHash = hashApiKey(apiKeyFallback);
+        const agent = await lookupAgentWithCache(keyHash);
+        if (agent && agent.status === 'active') {
+          return ok({
+            ...ctx,
+            agentId: agent.agent_id,
+            tier: agent.tier as PipelineContext['tier'],
+          });
+        }
+      }
+
       return err<PipelineError>({
         code: 401,
         error: 'unauthorized',
-        message: 'Missing Authorization header',
+        message: 'Missing Authorization header. Send Authorization: Bearer <api_key> or X-API-Key: <api_key>',
       });
     }
 
