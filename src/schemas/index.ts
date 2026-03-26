@@ -90,6 +90,7 @@ import { whoSchemas } from './who.schema';
 import { gdacsSchemas } from './gdacs.schema';
 import { rateapiSchemas } from './rateapi.schema';
 import { twitterapiSchemas } from './twitterapi.schema';
+import { currentsSchemas } from './currents.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -183,4 +184,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...gdacsSchemas,
   ...rateapiSchemas,
   ...twitterapiSchemas,
+  ...currentsSchemas,
 };

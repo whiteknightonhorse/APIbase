@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase — The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 327 tools. Dual-rail: x402 + MPP.",
+    "description": "Unified MCP gateway to 330 tools. Dual-rail: x402 + MPP.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -12229,6 +12229,108 @@
           "woeid": {
             "type": "integer",
             "description": "Where On Earth ID for location-specific trends (1=worldwide, 23424977=US, 23424975=UK, 23424856=Japan)"
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "currents.news.latest",
+      "title": "Latest Global News",
+      "description": "Get latest breaking news from 70+ countries in 18+ languages. Returns full article text, author, source URL, and publication time. Filter by language, country, and category (technology, business, health, sports, science, finance, world).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "language": {
+            "type": "string",
+            "description": "ISO 639-1 language code (e.g. \"en\", \"de\", \"fr\", \"ja\", \"zh\"). Default: all languages"
+          },
+          "country": {
+            "type": "string",
+            "description": "ISO 3166-1 alpha-2 country code (e.g. \"US\", \"GB\", \"DE\", \"JP\")"
+          },
+          "category": {
+            "type": "string",
+            "description": "News category filter (e.g. \"technology\", \"business\", \"health\", \"sports\", \"science\", \"entertainment\", \"finance\", \"world\")"
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "description": "Number of articles to return, max 200 (default 10)"
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "currents.news.search",
+      "title": "Search Global News",
+      "description": "Search news articles by keyword across 70+ countries and 18+ languages. Returns full article text with Boolean operator support. Filter by language, country, category, and date range.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "keywords": {
+            "type": "string",
+            "description": "Search keywords — supports Boolean operators (e.g. \"AI agents\", \"climate AND policy\")"
+          },
+          "language": {
+            "type": "string",
+            "description": "ISO 639-1 language code (e.g. \"en\", \"es\", \"ar\")"
+          },
+          "country": {
+            "type": "string",
+            "description": "ISO 3166-1 alpha-2 country code"
+          },
+          "start_date": {
+            "type": "string",
+            "description": "Start date in ISO 8601 format (e.g. \"2026-03-01T00:00:00+00:00\")"
+          },
+          "end_date": {
+            "type": "string",
+            "description": "End date in ISO 8601 format"
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "description": "Number of articles to return, max 200 (default 10)"
+          }
+        },
+        "required": [
+          "keywords"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "currents.news.categories",
+      "title": "News Categories List",
+      "description": "List all 46 available news categories: technology, business, health, sports, science, entertainment, finance, world, politics, and more. Use to discover valid category values for filtering.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locale": {
+            "type": "string",
+            "description": "Response locale (default: en)"
           }
         },
         "additionalProperties": false

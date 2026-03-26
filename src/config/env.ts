@@ -228,6 +228,9 @@ export const appEnvSchema = z.object({
   // TwitterAPI.io (UC-198) — Twitter/X data, pay-per-call
   PROVIDER_KEY_TWITTERAPI: z.string().optional().default(''),
 
+  // Currents API (UC-210) — global news 70+ countries
+  PROVIDER_KEY_CURRENTS: z.string().optional().default(''),
+
   // Polymarket trading — Phase 2 (UC-001 §3-§8)
   POLYMARKET_WALLET_ADDRESS: z.string().startsWith('0x').optional().default(''),
   POLYMARKET_PRIVATE_KEY: z.string().optional().default(''),

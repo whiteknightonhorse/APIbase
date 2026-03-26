@@ -769,6 +769,15 @@
     "docs_url": "https://api-docs.iqair.com/",
     "limit_proof": "Community plan: 10,000 calls/month, real-time AQI + weather"
   },
+  "currents": {
+    "display_name": "Currents API (Global News)",
+    "health_url": "https://api.currentsapi.services/v1/available/categories",
+    "limit_type": "daily",
+    "free_limit": 20,
+    "reset_period": "daily",
+    "docs_url": "https://currentsapi.services/en/docs",
+    "limit_proof": "Free plan: 20 requests/day, paid plans from $9/mo (300/day)"
+  },
   "twitterapi": {
     "display_name": "TwitterAPI.io (X/Twitter)",
     "health_url": "https://api.twitterapi.io/twitter/trends?woeid=1",

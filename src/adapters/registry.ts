@@ -90,6 +90,7 @@ import { WhoAdapter } from './who';
 import { GdacsAdapter } from './gdacs';
 import { RateApiAdapter } from './rateapi';
 import { TwitterApiAdapter } from './twitterapi';
+import { CurrentsAdapter } from './currents';
 import { config } from '../config';
 
 /**
@@ -493,6 +494,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const rateKey = (config as Record<string, unknown>).PROVIDER_KEY_RATEAPI as string | undefined;
       if (!rateKey) return undefined;
       return getOrCreate('rateapi', () => new RateApiAdapter(rateKey));
+    }
+    case 'currents': {
+      const currKey = (config as Record<string, unknown>).PROVIDER_KEY_CURRENTS as string | undefined;
+      if (!currKey) return undefined;
+      return getOrCreate('currents', () => new CurrentsAdapter(currKey));
     }
     case 'twitterapi': {
       const twKey = (config as Record<string, unknown>).PROVIDER_KEY_TWITTERAPI as string | undefined;

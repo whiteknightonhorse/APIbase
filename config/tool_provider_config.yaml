@@ -1998,3 +1998,20 @@ tools:
     provider: twitterapi
     price_usd: "0.002"
     cache_ttl: 60
+
+  # --- UC-210: Currents API (Global News) ---
+  - tool_id: currents.latest
+    name: Latest Global News
+    provider: currents
+    price_usd: "0.002"
+    cache_ttl: 120
+  - tool_id: currents.search
+    name: Search News
+    provider: currents
+    price_usd: "0.002"
+    cache_ttl: 120
+  - tool_id: currents.categories
+    name: News Categories
+    provider: currents
+    price_usd: "0.001"
+    cache_ttl: 86400

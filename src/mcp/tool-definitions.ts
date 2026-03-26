@@ -2678,4 +2678,27 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description: 'Get current trending topics on Twitter/X. Filter by location using WOEID (Where On Earth ID). Returns trend name, search query, and rank. 1=worldwide, 23424977=US, 23424975=UK.',
     annotations: READ_ONLY,
   },
+
+  // Currents API (3) — UC-210
+  {
+    toolId: 'currents.latest',
+    mcpName: 'currents.news.latest',
+    title: 'Latest Global News',
+    description: 'Get latest breaking news from 70+ countries in 18+ languages. Returns full article text, author, source URL, and publication time. Filter by language, country, and category (technology, business, health, sports, science, finance, world).',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'currents.search',
+    mcpName: 'currents.news.search',
+    title: 'Search Global News',
+    description: 'Search news articles by keyword across 70+ countries and 18+ languages. Returns full article text with Boolean operator support. Filter by language, country, category, and date range.',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'currents.categories',
+    mcpName: 'currents.news.categories',
+    title: 'News Categories List',
+    description: 'List all 46 available news categories: technology, business, health, sports, science, entertainment, finance, world, politics, and more. Use to discover valid category values for filtering.',
+    annotations: READ_ONLY,
+  },
 ];
