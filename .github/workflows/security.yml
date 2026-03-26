@@ -1,0 +1,86 @@
+name: Security Audit
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 4 * * 1' # Weekly Monday 04:00 UTC
+
+jobs:
+  audit:
+    name: Dependency Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts --legacy-peer-deps
+
+      - name: npm audit (production)
+        run: npm audit --production --audit-level=high || true
+
+      - name: Check for known vulnerabilities
+        run: |
+          echo "=== High/Critical vulnerabilities ==="
+          VULNS=$(npm audit --production --json 2>/dev/null | node -e "
+            const d=require('fs').readFileSync('/dev/stdin','utf8');
+            try { const j=JSON.parse(d); console.log(j.metadata?.vulnerabilities?.high||0,j.metadata?.vulnerabilities?.critical||0); }
+            catch { console.log('0 0'); }
+          ")
+          HIGH=$(echo $VULNS | cut -d' ' -f1)
+          CRIT=$(echo $VULNS | cut -d' ' -f2)
+          echo "High: $HIGH, Critical: $CRIT"
+          if [ "$CRIT" -gt 0 ]; then
+            echo "::error::Critical vulnerabilities found!"
+            exit 1
+          fi
+
+  typecheck:
+    name: Type Safety
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts --legacy-peer-deps
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: TypeScript strict check
+        run: npx tsc --noEmit
+
+  lint:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts --legacy-peer-deps
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: ESLint
+        run: npm run lint
