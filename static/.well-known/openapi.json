@@ -28212,6 +28212,331 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/disease.covid_global/call": {
+      "post": {
+        "operationId": "disease_covid_global",
+        "summary": "Global COVID-19 Statistics",
+        "description": "Get aggregated global COVID-19 statistics: total cases (704M+), deaths, recoveries, active cases, critical cases, cases/deaths per million, tests administered, and affected countries count. Data from Worldometers and OWID.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "disease.covid_global"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "yesterday": {
+                    "type": "boolean",
+                    "description": "Return yesterday's data instead of today's (default false)"
+                  },
+                  "twoDaysAgo": {
+                    "type": "boolean",
+                    "description": "Return data from two days ago for comparison (default false)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/disease.covid_country/call": {
+      "post": {
+        "operationId": "disease_covid_country",
+        "summary": "Country COVID-19 Statistics",
+        "description": "Get COVID-19 statistics for a specific country by name or ISO code. Returns cases, deaths, recoveries, active, critical, per-million rates, tests, population, and flag. Covers 215+ countries and territories.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "disease.covid_country"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "country": {
+                    "type": "string",
+                    "description": "Country name, ISO2 code, or ISO3 code (e.g. \"United States\", \"US\", \"USA\", \"Germany\", \"DE\")"
+                  },
+                  "yesterday": {
+                    "type": "boolean",
+                    "description": "Return yesterday's data instead of today's (default false)"
+                  },
+                  "strict": {
+                    "type": "boolean",
+                    "description": "Use strict name matching instead of fuzzy search (default false)"
+                  }
+                },
+                "required": [
+                  "country"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/disease.covid_history/call": {
+      "post": {
+        "operationId": "disease_covid_history",
+        "summary": "Historical COVID-19 Data",
+        "description": "Get historical time-series COVID-19 data for a country or globally. Returns daily case, death, and recovery counts. Useful for trend analysis and longitudinal research. Data from Johns Hopkins CSSE.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "disease.covid_history"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "country": {
+                    "type": "string",
+                    "description": "Country name, ISO2/ISO3 code, or \"all\" for global aggregate (default \"all\")"
+                  },
+                  "lastdays": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 1500,
+                    "description": "Number of most recent days to return (default 30, max ~1500 for full history)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/disease.influenza/call": {
+      "post": {
+        "operationId": "disease_influenza",
+        "summary": "US Influenza Surveillance (CDC)",
+        "description": "Get US influenza surveillance data from CDC FluView. Returns weekly ILI (influenza-like illness) activity levels by age group, positive test rates by influenza type (A/B), and national summary. Updated weekly.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "disease.influenza"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "source": {
+                    "type": "string",
+                    "enum": [
+                      "ilinet",
+                      "usil"
+                    ],
+                    "description": "Data source: \"ilinet\" for ILI network data or \"usil\" for US ILI summary (default \"ilinet\")"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

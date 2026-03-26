@@ -2542,4 +2542,34 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description: 'Query the FDIC failed bank list. Returns 4,100+ historical bank failures with failure date, assets at closure, acquiring institution, and estimated loss to the Deposit Insurance Fund. Covers all failures since 1934.',
     annotations: READ_ONLY,
   },
+
+  // disease.sh (4) — UC-192
+  {
+    toolId: 'disease.covid_global',
+    mcpName: 'disease.covid.global',
+    title: 'Global COVID-19 Statistics',
+    description: 'Get aggregated global COVID-19 statistics: total cases (704M+), deaths, recoveries, active cases, critical cases, cases/deaths per million, tests administered, and affected countries count. Data from Worldometers and OWID.',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'disease.covid_country',
+    mcpName: 'disease.covid.country',
+    title: 'Country COVID-19 Statistics',
+    description: 'Get COVID-19 statistics for a specific country by name or ISO code. Returns cases, deaths, recoveries, active, critical, per-million rates, tests, population, and flag. Covers 215+ countries and territories.',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'disease.covid_history',
+    mcpName: 'disease.covid.history',
+    title: 'Historical COVID-19 Data',
+    description: 'Get historical time-series COVID-19 data for a country or globally. Returns daily case, death, and recovery counts. Useful for trend analysis and longitudinal research. Data from Johns Hopkins CSSE.',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'disease.influenza',
+    mcpName: 'disease.influenza.cdc',
+    title: 'US Influenza Surveillance (CDC)',
+    description: 'Get US influenza surveillance data from CDC FluView. Returns weekly ILI (influenza-like illness) activity levels by age group, positive test rates by influenza type (A/B), and national summary. Updated weekly.',
+    annotations: READ_ONLY,
+  },
 ];

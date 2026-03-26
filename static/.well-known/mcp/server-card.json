@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase — The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 309 tools across travel, places, maps, events, entertainment, music, health, finance, banking, education, jobs, e-commerce, recipes, domain intelligence, AI marketing, weather, space/astronomy, gaming, and more. Dual-rail payments: x402 (USDC on Base) + MPP (USDC on Tempo/Stripe).",
+    "description": "Unified MCP gateway to 313 tools across travel, finance, banking, health, disease data, education, jobs, entertainment, maps, legal, weather, space, and more. Dual-rail payments: x402 (USDC on Base) + MPP (USDC on Tempo/Stripe).",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -11586,6 +11586,115 @@
         "idempotentHint": true,
         "openWorldHint": true
       }
+    },
+    {
+      "name": "disease.covid.global",
+      "title": "Global COVID-19 Statistics",
+      "description": "Get aggregated global COVID-19 statistics: total cases (704M+), deaths, recoveries, active cases, critical cases, cases/deaths per million, tests administered, and affected countries count. Data from Worldometers and OWID.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "yesterday": {
+            "type": "boolean",
+            "description": "Return yesterday's data instead of today's (default false)"
+          },
+          "twoDaysAgo": {
+            "type": "boolean",
+            "description": "Return data from two days ago for comparison (default false)"
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "disease.covid.country",
+      "title": "Country COVID-19 Statistics",
+      "description": "Get COVID-19 statistics for a specific country by name or ISO code. Returns cases, deaths, recoveries, active, critical, per-million rates, tests, population, and flag. Covers 215+ countries and territories.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "country": {
+            "type": "string",
+            "description": "Country name, ISO2 code, or ISO3 code (e.g. \"United States\", \"US\", \"USA\", \"Germany\", \"DE\")"
+          },
+          "yesterday": {
+            "type": "boolean",
+            "description": "Return yesterday's data instead of today's (default false)"
+          },
+          "strict": {
+            "type": "boolean",
+            "description": "Use strict name matching instead of fuzzy search (default false)"
+          }
+        },
+        "required": [
+          "country"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "disease.covid.history",
+      "title": "Historical COVID-19 Data",
+      "description": "Get historical time-series COVID-19 data for a country or globally. Returns daily case, death, and recovery counts. Useful for trend analysis and longitudinal research. Data from Johns Hopkins CSSE.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "country": {
+            "type": "string",
+            "description": "Country name, ISO2/ISO3 code, or \"all\" for global aggregate (default \"all\")"
+          },
+          "lastdays": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1500,
+            "description": "Number of most recent days to return (default 30, max ~1500 for full history)"
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "disease.influenza.cdc",
+      "title": "US Influenza Surveillance (CDC)",
+      "description": "Get US influenza surveillance data from CDC FluView. Returns weekly ILI (influenza-like illness) activity levels by age group, positive test rates by influenza type (A/B), and national summary. Updated weekly.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "ilinet",
+              "usil"
+            ],
+            "description": "Data source: \"ilinet\" for ILI network data or \"usil\" for US ILI summary (default \"ilinet\")"
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
     }
   ],
   "prompts": [
@@ -11595,17 +11704,17 @@
       "arguments": [
         {
           "name": "origin",
-          "description": "Origin airport IATA code (e.g. JFK)",
+          "description": "Origin airport IATA code",
           "required": true
         },
         {
           "name": "destination",
-          "description": "Destination airport IATA code (e.g. CDG)",
+          "description": "Destination airport IATA code",
           "required": true
         },
         {
           "name": "date",
-          "description": "Departure date in YYYY-MM-DD format",
+          "description": "Departure date YYYY-MM-DD",
           "required": true
         }
       ]
@@ -11620,7 +11729,7 @@
       "arguments": [
         {
           "name": "topic",
-          "description": "Topic to research (e.g. US election, Bitcoin price)",
+          "description": "Topic to research",
           "required": true
         }
       ]

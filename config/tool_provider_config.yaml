@@ -1898,3 +1898,25 @@ tools:
     provider: fdic
     price_usd: "0.001"
     cache_ttl: 3600
+
+  # --- UC-192: disease.sh ---
+  - tool_id: disease.covid_global
+    name: Global COVID-19 Stats
+    provider: disease
+    price_usd: "0.001"
+    cache_ttl: 300
+  - tool_id: disease.covid_country
+    name: Country COVID-19 Stats
+    provider: disease
+    price_usd: "0.001"
+    cache_ttl: 300
+  - tool_id: disease.covid_history
+    name: Historical COVID-19 Data
+    provider: disease
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: disease.influenza
+    name: US Influenza CDC Data
+    provider: disease
+    price_usd: "0.001"
+    cache_ttl: 3600
