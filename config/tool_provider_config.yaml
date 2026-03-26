@@ -1920,3 +1920,20 @@ tools:
     provider: disease
     price_usd: "0.001"
     cache_ttl: 3600
+
+  # --- UC-193: WHO Global Health Observatory ---
+  - tool_id: who.indicators
+    name: WHO Health Indicators
+    provider: who
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: who.data
+    name: WHO Health Data
+    provider: who
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: who.countries
+    name: WHO Member Countries
+    provider: who
+    price_usd: "0.001"
+    cache_ttl: 86400

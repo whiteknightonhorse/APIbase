@@ -2572,4 +2572,27 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description: 'Get US influenza surveillance data from CDC FluView. Returns weekly ILI (influenza-like illness) activity levels by age group, positive test rates by influenza type (A/B), and national summary. Updated weekly.',
     annotations: READ_ONLY,
   },
+
+  // WHO GHO (3) — UC-193
+  {
+    toolId: 'who.indicators',
+    mcpName: 'who.health.indicators',
+    title: 'WHO Health Indicators List',
+    description: 'List 1,000+ WHO Global Health Observatory indicators: life expectancy, mortality rates, disease burden, immunization, nutrition, mental health, environmental health. Returns indicator codes for use with who.data.',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'who.data',
+    mcpName: 'who.health.data',
+    title: 'WHO Health Data by Indicator',
+    description: 'Retrieve WHO health data for a specific indicator, optionally filtered by country and year range. Returns values for up to 194 countries spanning multiple decades. Official UN member state reporting data.',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'who.countries',
+    mcpName: 'who.health.countries',
+    title: 'WHO Member Countries',
+    description: 'List all 194 WHO member countries and territories with codes and names. Use returned country codes with who.data to filter health indicators by country.',
+    annotations: READ_ONLY,
+  },
 ];
