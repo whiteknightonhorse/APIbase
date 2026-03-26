@@ -1954,3 +1954,25 @@ tools:
     provider: gdacs
     price_usd: "0.001"
     cache_ttl: 3600
+
+  # --- UC-197: RateAPI (MCP-native US Lending Rates) ---
+  - tool_id: rateapi.mortgage
+    name: Mortgage Rate Decision
+    provider: rateapi
+    price_usd: "0.002"
+    cache_ttl: 300
+  - tool_id: rateapi.auto_loan
+    name: Auto Loan Rate Decision
+    provider: rateapi
+    price_usd: "0.002"
+    cache_ttl: 300
+  - tool_id: rateapi.heloc
+    name: HELOC Rate Decision
+    provider: rateapi
+    price_usd: "0.002"
+    cache_ttl: 300
+  - tool_id: rateapi.personal_loan
+    name: Personal Loan Rate Decision
+    provider: rateapi
+    price_usd: "0.002"
+    cache_ttl: 300

@@ -2618,4 +2618,34 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description: 'Query the GDACS historical disaster archive from 2000 onwards. Filter by date range, event type, country, and alert level. Returns past earthquakes, cyclones, floods, and volcanoes for disaster frequency analysis and regional risk assessment.',
     annotations: READ_ONLY,
   },
+
+  // RateAPI (4) — UC-197
+  {
+    toolId: 'rateapi.mortgage',
+    mcpName: 'rateapi.lending.mortgage',
+    title: 'US Mortgage Rate Decision',
+    description: 'Get AI-powered mortgage rate decision from 4,300+ US lenders. Returns recommended actions, current APR rates, estimated monthly payments, and confidence scores. Supports 30yr/15yr fixed and ARM products. Filter by state, amount, and credit tier.',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'rateapi.auto_loan',
+    mcpName: 'rateapi.lending.auto',
+    title: 'US Auto Loan Rate Decision',
+    description: 'Get auto loan rate decision for new and used vehicles from US lenders. Returns recommended financing actions, APR rates by term (24-72 months), and estimated monthly payments. Filter by vehicle type and credit tier.',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'rateapi.heloc',
+    mcpName: 'rateapi.lending.heloc',
+    title: 'US HELOC Rate Decision',
+    description: 'Get Home Equity Line of Credit (HELOC) rate decision. Returns current HELOC APR rates, recommended actions, and lender comparisons. Filter by combined loan-to-value ratio (CLTV), state, and credit score tier.',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'rateapi.personal_loan',
+    mcpName: 'rateapi.lending.personal',
+    title: 'US Personal Loan Rate Decision',
+    description: 'Get personal loan rate decision from US lenders. Returns recommended financing actions, APR rates by term and amount, and monthly payment estimates. Filter by loan amount, term, and credit score tier.',
+    annotations: READ_ONLY,
+  },
 ];

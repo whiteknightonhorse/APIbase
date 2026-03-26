@@ -222,6 +222,9 @@ export const appEnvSchema = z.object({
   MPP_REALM: z.string().optional().default('apibase.pro'),
   MPP_TESTNET: z.string().optional().default('false'),
 
+  // RateAPI (UC-197) — MCP-native US lending rates
+  PROVIDER_KEY_RATEAPI: z.string().optional().default(''),
+
   // Polymarket trading — Phase 2 (UC-001 §3-§8)
   POLYMARKET_WALLET_ADDRESS: z.string().startsWith('0x').optional().default(''),
   POLYMARKET_PRIVATE_KEY: z.string().optional().default(''),

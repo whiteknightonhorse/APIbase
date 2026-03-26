@@ -29098,6 +29098,419 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/rateapi.mortgage/call": {
+      "post": {
+        "operationId": "rateapi_mortgage",
+        "summary": "US Mortgage Rate Decision",
+        "description": "Get AI-powered mortgage rate decision from 4,300+ US lenders. Returns recommended actions, current APR rates, estimated monthly payments, and confidence scores. Supports 30yr/15yr fixed and ARM products. Filter by state, amount, and credit tier.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "rateapi.mortgage"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2,
+                    "description": "Two-letter US state code (e.g. \"CA\", \"NY\", \"TX\")"
+                  },
+                  "amount": {
+                    "type": "number",
+                    "minimum": 10000,
+                    "description": "Loan amount in USD (e.g. 400000 for a $400K mortgage)"
+                  },
+                  "term_months": {
+                    "type": "integer",
+                    "description": "Loan term in months: 180 (15yr), 360 (30yr), or custom"
+                  },
+                  "rate_type": {
+                    "type": "string",
+                    "enum": [
+                      "fixed",
+                      "adjustable"
+                    ],
+                    "description": "Rate type: \"fixed\" or \"adjustable\" (ARM)"
+                  },
+                  "intent": {
+                    "type": "string",
+                    "enum": [
+                      "purchase",
+                      "refinance"
+                    ],
+                    "description": "Loan intent: \"purchase\" for buying or \"refinance\""
+                  },
+                  "credit_score": {
+                    "type": "string",
+                    "enum": [
+                      "excellent",
+                      "good",
+                      "fair",
+                      "poor"
+                    ],
+                    "description": "Credit score tier for rate filtering"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/rateapi.auto_loan/call": {
+      "post": {
+        "operationId": "rateapi_auto_loan",
+        "summary": "US Auto Loan Rate Decision",
+        "description": "Get auto loan rate decision for new and used vehicles from US lenders. Returns recommended financing actions, APR rates by term (24-72 months), and estimated monthly payments. Filter by vehicle type and credit tier.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "rateapi.auto_loan"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2,
+                    "description": "Two-letter US state code"
+                  },
+                  "amount": {
+                    "type": "number",
+                    "minimum": 1000,
+                    "description": "Loan amount in USD (e.g. 35000)"
+                  },
+                  "term_months": {
+                    "type": "string",
+                    "enum": [
+                      "24",
+                      "36",
+                      "48",
+                      "60",
+                      "72"
+                    ],
+                    "description": "Loan term: 24, 36, 48, 60, or 72 months"
+                  },
+                  "vehicle_type": {
+                    "type": "string",
+                    "enum": [
+                      "new",
+                      "used"
+                    ],
+                    "description": "Vehicle type: \"new\" or \"used\""
+                  },
+                  "credit_score": {
+                    "type": "string",
+                    "enum": [
+                      "excellent",
+                      "good",
+                      "fair",
+                      "poor"
+                    ],
+                    "description": "Credit score tier"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/rateapi.heloc/call": {
+      "post": {
+        "operationId": "rateapi_heloc",
+        "summary": "US HELOC Rate Decision",
+        "description": "Get Home Equity Line of Credit (HELOC) rate decision. Returns current HELOC APR rates, recommended actions, and lender comparisons. Filter by combined loan-to-value ratio (CLTV), state, and credit score tier.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "rateapi.heloc"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2,
+                    "description": "Two-letter US state code"
+                  },
+                  "cltv": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 95,
+                    "description": "Combined loan-to-value ratio (0-95)"
+                  },
+                  "credit_score": {
+                    "type": "string",
+                    "enum": [
+                      "excellent",
+                      "good",
+                      "fair",
+                      "poor"
+                    ],
+                    "description": "Credit score tier"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/rateapi.personal_loan/call": {
+      "post": {
+        "operationId": "rateapi_personal_loan",
+        "summary": "US Personal Loan Rate Decision",
+        "description": "Get personal loan rate decision from US lenders. Returns recommended financing actions, APR rates by term and amount, and monthly payment estimates. Filter by loan amount, term, and credit score tier.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "rateapi.personal_loan"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "number",
+                    "minimum": 1000,
+                    "description": "Loan amount in USD (e.g. 10000)"
+                  },
+                  "term_months": {
+                    "type": "string",
+                    "enum": [
+                      "12",
+                      "24",
+                      "36",
+                      "48",
+                      "60"
+                    ],
+                    "description": "Loan term: 12, 24, 36, 48, or 60 months"
+                  },
+                  "credit_score": {
+                    "type": "string",
+                    "enum": [
+                      "excellent",
+                      "good",
+                      "fair",
+                      "poor"
+                    ],
+                    "description": "Credit score tier"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {
