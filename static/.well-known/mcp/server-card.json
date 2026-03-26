@@ -2,7 +2,7 @@
   "serverInfo": {
     "name": "APIbase",
     "version": "1.0.0",
-    "title": "APIbase — The API Hub for AI Agents",
+    "title": "APIbase \u2014 The API Hub for AI Agents",
     "description": "Unified MCP gateway to 332 tools. Dual-rail: x402 + MPP.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
@@ -1248,7 +1248,7 @@
     {
       "name": "amadeus.flights.status",
       "title": "Get Flight Status",
-      "description": "Get real-time status of a specific flight — delays, cancellations, gate info (Amadeus)",
+      "description": "Get real-time status of a specific flight \u2014 delays, cancellations, gate info (Amadeus)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -1599,7 +1599,7 @@
             "type": "string",
             "minLength": 2,
             "maxLength": 4,
-            "description": "Target destination IATA code — also searches nearby airports"
+            "description": "Target destination IATA code \u2014 also searches nearby airports"
           },
           "depart_date": {
             "type": "string",
@@ -1902,7 +1902,7 @@
     {
       "name": "foursquare.places.details",
       "title": "Get Place Details",
-      "description": "Get detailed information about a place — hours, rating, price, contact, categories (Foursquare)",
+      "description": "Get detailed information about a place \u2014 hours, rating, price, contact, categories (Foursquare)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2117,7 +2117,7 @@
     {
       "name": "ticketmaster.events.details",
       "title": "Get Event Details",
-      "description": "Get full details for an event — dates, venues, prices, images, classifications, seat map (Ticketmaster)",
+      "description": "Get full details for an event \u2014 dates, venues, prices, images, classifications, seat map (Ticketmaster)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2373,7 +2373,7 @@
     {
       "name": "ticketmaster.events.categories",
       "title": "Get Event Categories",
-      "description": "Get all event classification categories — segments, genres, sub-genres (Ticketmaster)",
+      "description": "Get all event classification categories \u2014 segments, genres, sub-genres (Ticketmaster)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2443,7 +2443,7 @@
     {
       "name": "tmdb.movies.details",
       "title": "Get Movie Details",
-      "description": "Get full movie details — cast, crew, trailers, ratings, streaming providers, runtime, budget, revenue (TMDB)",
+      "description": "Get full movie details \u2014 cast, crew, trailers, ratings, streaming providers, runtime, budget, revenue (TMDB)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2550,7 +2550,7 @@
     {
       "name": "tmdb.movies.trending",
       "title": "Get Trending Movies & TV",
-      "description": "Get trending movies, TV shows, or people — daily or weekly (TMDB)",
+      "description": "Get trending movies, TV shows, or people \u2014 daily or weekly (TMDB)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2595,7 +2595,7 @@
     {
       "name": "tmdb.movies.similar",
       "title": "Get Similar Movies",
-      "description": "Get movie recommendations based on a movie ID — similar genres, themes, cast (TMDB)",
+      "description": "Get movie recommendations based on a movie ID \u2014 similar genres, themes, cast (TMDB)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2700,7 +2700,7 @@
     {
       "name": "health.nutrition.food_search",
       "title": "Search Foods (USDA)",
-      "description": "Search 350K+ foods in the USDA FoodData Central database — nutrition facts, ingredients, branded products, and reference foods",
+      "description": "Search 350K+ foods in the USDA FoodData Central database \u2014 nutrition facts, ingredients, branded products, and reference foods",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2749,7 +2749,7 @@
     {
       "name": "health.nutrition.food_details",
       "title": "Get Food Nutrition Details",
-      "description": "Get detailed nutrition data for a food item — up to 150 nutrients, portions, serving sizes, ingredients (USDA)",
+      "description": "Get detailed nutrition data for a food item \u2014 up to 150 nutrients, portions, serving sizes, ingredients (USDA)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2773,7 +2773,7 @@
     {
       "name": "health.safety.drug_events",
       "title": "Search Drug Adverse Events",
-      "description": "Search FDA FAERS database for drug adverse event reports — side effects, reactions, patient demographics (OpenFDA)",
+      "description": "Search FDA FAERS database for drug adverse event reports \u2014 side effects, reactions, patient demographics (OpenFDA)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2808,7 +2808,7 @@
     {
       "name": "health.safety.food_recalls",
       "title": "Search Food Recalls",
-      "description": "Search FDA food enforcement and recall reports — contamination, mislabeling, safety alerts (OpenFDA)",
+      "description": "Search FDA food enforcement and recall reports \u2014 contamination, mislabeling, safety alerts (OpenFDA)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2849,7 +2849,7 @@
     {
       "name": "health.safety.drug_labels",
       "title": "Search Drug Labels",
-      "description": "Search drug labeling data — indications, dosage, warnings, interactions, contraindications (OpenFDA)",
+      "description": "Search drug labeling data \u2014 indications, dosage, warnings, interactions, contraindications (OpenFDA)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2884,7 +2884,7 @@
     {
       "name": "health.supplements.search",
       "title": "Search Dietary Supplements",
-      "description": "Search 200K+ dietary supplement labels in the NIH DSLD database — vitamins, minerals, herbal products",
+      "description": "Search 200K+ dietary supplement labels in the NIH DSLD database \u2014 vitamins, minerals, herbal products",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -2919,7 +2919,7 @@
     {
       "name": "health.supplements.details",
       "title": "Get Supplement Label Details",
-      "description": "Get full supplement label data — ingredients, amounts per serving, daily values, target groups (NIH DSLD)",
+      "description": "Get full supplement label data \u2014 ingredients, amounts per serving, daily values, target groups (NIH DSLD)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3023,7 +3023,7 @@
     {
       "name": "finance.macro.indicator",
       "title": "Get Economic Indicator",
-      "description": "Get US economic data from 816K+ FRED series — GDP, CPI, unemployment, interest rates, money supply (Federal Reserve)",
+      "description": "Get US economic data from 816K+ FRED series \u2014 GDP, CPI, unemployment, interest rates, money supply (Federal Reserve)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3073,7 +3073,7 @@
     {
       "name": "finance.macro.country",
       "title": "Get Country Economic Data",
-      "description": "Get global development indicators from World Bank — GDP, population, inflation, trade, poverty for 200+ countries",
+      "description": "Get global development indicators from World Bank \u2014 GDP, population, inflation, trade, poverty for 200+ countries",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3116,7 +3116,7 @@
     {
       "name": "finance.treasury.data",
       "title": "Get US Treasury Data",
-      "description": "Get US Treasury fiscal data — interest rates on federal debt, national debt, debt outstanding, gold reserves, exchange rates",
+      "description": "Get US Treasury fiscal data \u2014 interest rates on federal debt, national debt, debt outstanding, gold reserves, exchange rates",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3162,7 +3162,7 @@
     {
       "name": "finance.banking.iban",
       "title": "Validate IBAN",
-      "description": "Validate an IBAN number and get associated bank data — BIC/SWIFT code, bank name, city (OpenIBAN)",
+      "description": "Validate an IBAN number and get associated bank data \u2014 BIC/SWIFT code, bank name, city (OpenIBAN)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3188,7 +3188,7 @@
     {
       "name": "music.artists.search",
       "title": "Search Music Artists",
-      "description": "Search for music artists by name across 2M+ artists — biography, country, tags, aliases (MusicBrainz)",
+      "description": "Search for music artists by name across 2M+ artists \u2014 biography, country, tags, aliases (MusicBrainz)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3223,7 +3223,7 @@
     {
       "name": "music.artists.details",
       "title": "Get Artist Details",
-      "description": "Get detailed artist info by MusicBrainz ID — tags, ratings, external links, life span, area (MusicBrainz)",
+      "description": "Get detailed artist info by MusicBrainz ID \u2014 tags, ratings, external links, life span, area (MusicBrainz)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3248,7 +3248,7 @@
     {
       "name": "music.releases.search",
       "title": "Search Music Releases",
-      "description": "Search for albums, singles, and EPs across 50M+ recordings — title, artist, date (MusicBrainz)",
+      "description": "Search for albums, singles, and EPs across 50M+ recordings \u2014 title, artist, date (MusicBrainz)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3283,7 +3283,7 @@
     {
       "name": "music.releases.details",
       "title": "Get Release Details",
-      "description": "Get full release details by MusicBrainz ID — artist credits, labels, media formats (MusicBrainz)",
+      "description": "Get full release details by MusicBrainz ID \u2014 artist credits, labels, media formats (MusicBrainz)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3308,7 +3308,7 @@
     {
       "name": "music.recordings.search",
       "title": "Search Music Recordings",
-      "description": "Search for songs and recordings by title or artist — duration, release history, artist credits (MusicBrainz)",
+      "description": "Search for songs and recordings by title or artist \u2014 duration, release history, artist credits (MusicBrainz)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3343,7 +3343,7 @@
     {
       "name": "music.discover.fresh",
       "title": "Get Fresh Music Releases",
-      "description": "Discover recently released albums and singles from the past N days — trending new music (ListenBrainz)",
+      "description": "Discover recently released albums and singles from the past N days \u2014 trending new music (ListenBrainz)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3372,7 +3372,7 @@
     {
       "name": "music.radio.search",
       "title": "Search Radio Stations",
-      "description": "Search 40K+ internet radio stations by name, genre, country, or language — streaming URLs, bitrate, codec (RadioBrowser)",
+      "description": "Search 40K+ internet radio stations by name, genre, country, or language \u2014 streaming URLs, bitrate, codec (RadioBrowser)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3574,7 +3574,7 @@
     {
       "name": "jobs.salary.data",
       "title": "Get Salary Data",
-      "description": "Get US salary and employment timeseries data from BLS — wage estimates, employment counts, occupational statistics by SOC code and geography",
+      "description": "Get US salary and employment timeseries data from BLS \u2014 wage estimates, employment counts, occupational statistics by SOC code and geography",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3615,7 +3615,7 @@
     {
       "name": "jobs.occupations.search",
       "title": "Search Occupations",
-      "description": "Search O*NET occupation taxonomy by keyword — 1,000+ occupations with SOC codes, titles, and relevance scores",
+      "description": "Search O*NET occupation taxonomy by keyword \u2014 1,000+ occupations with SOC codes, titles, and relevance scores",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3651,7 +3651,7 @@
     {
       "name": "jobs.occupations.details",
       "title": "Get Occupation Details",
-      "description": "Get detailed occupation info from O*NET by SOC code — overview, skills, knowledge, abilities, technology skills, tasks",
+      "description": "Get detailed occupation info from O*NET by SOC code \u2014 overview, skills, knowledge, abilities, technology skills, tasks",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3688,7 +3688,7 @@
     {
       "name": "jobs.skills.search",
       "title": "Search EU Skills & Occupations",
-      "description": "Search ESCO (European Skills/Competences/Occupations) taxonomy — occupations and skills in 27 EU languages",
+      "description": "Search ESCO (European Skills/Competences/Occupations) taxonomy \u2014 occupations and skills in 27 EU languages",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3739,7 +3739,7 @@
     {
       "name": "jobs.skills.details",
       "title": "Get EU Skill/Occupation Details",
-      "description": "Get ESCO resource details by URI — occupation descriptions, essential/optional skills, ISCO codes, skill relationships",
+      "description": "Get ESCO resource details by URI \u2014 occupation descriptions, essential/optional skills, ISCO codes, skill relationships",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3778,7 +3778,7 @@
     {
       "name": "jobs.listings.search",
       "title": "Search Job Listings",
-      "description": "Search global job listings via CareerJet — title, company, salary, location, contract type across 90+ countries",
+      "description": "Search global job listings via CareerJet \u2014 title, company, salary, location, contract type across 90+ countries",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3855,7 +3855,7 @@
     {
       "name": "education.papers.search",
       "title": "Search Academic Papers",
-      "description": "Search 250M+ academic papers across all disciplines — citations, authors, institutions, open access status (OpenAlex)",
+      "description": "Search 250M+ academic papers across all disciplines \u2014 citations, authors, institutions, open access status (OpenAlex)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3927,7 +3927,7 @@
     {
       "name": "education.papers.details",
       "title": "Get Paper Details",
-      "description": "Get full details for an academic paper by OpenAlex ID or DOI — authors, citations, abstract, references, open access links (OpenAlex)",
+      "description": "Get full details for an academic paper by OpenAlex ID or DOI \u2014 authors, citations, abstract, references, open access links (OpenAlex)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -3953,7 +3953,7 @@
     {
       "name": "education.colleges.search",
       "title": "Search US Colleges",
-      "description": "Search US colleges and universities — admissions, tuition, enrollment, earnings, completion rates (College Scorecard)",
+      "description": "Search US colleges and universities \u2014 admissions, tuition, enrollment, earnings, completion rates (College Scorecard)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4001,7 +4001,7 @@
     {
       "name": "education.colleges.details",
       "title": "Get College Details",
-      "description": "Get detailed data for a US college by UNITID — admissions rate, costs, student outcomes, earnings after graduation (College Scorecard)",
+      "description": "Get detailed data for a US college by UNITID \u2014 admissions rate, costs, student outcomes, earnings after graduation (College Scorecard)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4027,7 +4027,7 @@
     {
       "name": "education.pubmed.search",
       "title": "Search PubMed",
-      "description": "Search 36M+ biomedical and life science articles — clinical trials, reviews, meta-analyses with date and type filters (PubMed/NCBI)",
+      "description": "Search 36M+ biomedical and life science articles \u2014 clinical trials, reviews, meta-analyses with date and type filters (PubMed/NCBI)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4079,7 +4079,7 @@
     {
       "name": "education.arxiv.search",
       "title": "Search arXiv Preprints",
-      "description": "Search 2.4M+ preprints in physics, math, CS, biology, and more — full text, authors, categories, PDF links (arXiv)",
+      "description": "Search 2.4M+ preprints in physics, math, CS, biology, and more \u2014 full text, authors, categories, PDF links (arXiv)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4130,7 +4130,7 @@
     {
       "name": "education.crossref.doi",
       "title": "Lookup DOI",
-      "description": "Resolve a DOI to full publication metadata — title, authors, journal, citations, funding, license (CrossRef)",
+      "description": "Resolve a DOI to full publication metadata \u2014 title, authors, journal, citations, funding, license (CrossRef)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4210,7 +4210,7 @@
     {
       "name": "geo.address.reverse",
       "title": "Reverse Geocode",
-      "description": "Convert geographic coordinates (lat/lon) to a structured address — street, city, country, postal code (Geoapify/OSM)",
+      "description": "Convert geographic coordinates (lat/lon) to a structured address \u2014 street, city, country, postal code (Geoapify/OSM)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4307,7 +4307,7 @@
     {
       "name": "geo.address.autocomplete",
       "title": "Autocomplete Address",
-      "description": "Get autocomplete suggestions as you type an address or place name — for real-time search UX (Geoapify/OSM)",
+      "description": "Get autocomplete suggestions as you type an address or place name \u2014 for real-time search UX (Geoapify/OSM)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4432,7 +4432,7 @@
     {
       "name": "geo.navigation.isochrone",
       "title": "Get Isochrone",
-      "description": "Get reachability area (isochrone) — polygon showing how far you can travel from a point in a given time or distance (Geoapify/OSM)",
+      "description": "Get reachability area (isochrone) \u2014 polygon showing how far you can travel from a point in a given time or distance (Geoapify/OSM)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4512,7 +4512,7 @@
     {
       "name": "aipush.website.setup",
       "title": "Setup Website for AI Marketing",
-      "description": "Register a website for AI marketing. Call with domain + target_url. If DNS is not configured, returns DNS_NOT_VERIFIED with exact CNAME record instructions — relay to user: reference.{domain} → cname.aipush.app. After user creates DNS record, call again. On success: client registered, MIP analysis starts automatically, SSL provisioning begins. Poll website_status until mip_status='ready' and cf_hostname_status='active', then use generate_page. Idempotent (AIPush)",
+      "description": "Register a website for AI marketing. Call with domain + target_url. If DNS is not configured, returns DNS_NOT_VERIFIED with exact CNAME record instructions \u2014 relay to user: reference.{domain} \u2192 cname.aipush.app. After user creates DNS record, call again. On success: client registered, MIP analysis starts automatically, SSL provisioning begins. Poll website_status until mip_status='ready' and cf_hostname_status='active', then use generate_page. Idempotent (AIPush)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4520,13 +4520,13 @@
             "type": "string",
             "minLength": 3,
             "maxLength": 253,
-            "description": "Domain of the website to register (e.g. \"example.com\", \"myhotel.com\"). Must have a CNAME record: reference.{domain} → cname.aipush.app"
+            "description": "Domain of the website to register (e.g. \"example.com\", \"myhotel.com\"). Must have a CNAME record: reference.{domain} \u2192 cname.aipush.app"
           },
           "target_url": {
             "type": "string",
             "format": "uri",
             "maxLength": 2048,
-            "description": "Target conversion URL — the single page all generated content will link to (e.g. \"https://example.com/book\", \"https://myhotel.com/reserve\"). Must be on the same domain."
+            "description": "Target conversion URL \u2014 the single page all generated content will link to (e.g. \"https://example.com/book\", \"https://myhotel.com/reserve\"). Must be on the same domain."
           }
         },
         "required": [
@@ -4673,7 +4673,7 @@
     {
       "name": "aipush.analysis.profile",
       "title": "Get Website Business Profile",
-      "description": "Get MIP business analysis results — business name, category, location, competitors, value propositions, and market surface data (AIPush)",
+      "description": "Get MIP business analysis results \u2014 business name, category, location, competitors, value propositions, and market surface data (AIPush)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4699,7 +4699,7 @@
     {
       "name": "aipush.analysis.visibility",
       "title": "Check AI Visibility Score",
-      "description": "Test whether AI assistants (ChatGPT, Perplexity, Gemini) know about and recommend a brand — returns per-model visibility scores (AIPush)",
+      "description": "Test whether AI assistants (ChatGPT, Perplexity, Gemini) know about and recommend a brand \u2014 returns per-model visibility scores (AIPush)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4725,7 +4725,7 @@
     {
       "name": "diffbot.products.extract",
       "title": "Extract Product Data",
-      "description": "Extract structured product data from any e-commerce URL — title, price, brand, specs, images, reviews. Works on any retailer without custom integration (Diffbot)",
+      "description": "Extract structured product data from any e-commerce URL \u2014 title, price, brand, specs, images, reviews. Works on any retailer without custom integration (Diffbot)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4851,13 +4851,13 @@
     {
       "name": "diffbot.knowledge.search",
       "title": "Search Knowledge Graph",
-      "description": "Search Diffbot Knowledge Graph for products, organizations, people, and places — billions of structured entities from the web (Diffbot)",
+      "description": "Search Diffbot Knowledge Graph for products, organizations, people, and places \u2014 billions of structured entities from the web (Diffbot)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "query": {
             "type": "string",
-            "description": "Diffbot Knowledge Graph query (DQL) — e.g. \"type:Product title:iPhone\""
+            "description": "Diffbot Knowledge Graph query (DQL) \u2014 e.g. \"type:Product title:iPhone\""
           },
           "type": {
             "type": "string",
@@ -4898,7 +4898,7 @@
     {
       "name": "whois.domain.lookup",
       "title": "WHOIS Lookup",
-      "description": "Get WHOIS registration data for any domain — registrar, creation/expiry dates, nameservers, registrant contact, status across 374M+ domains and 7,596 TLDs (WhoisXML)",
+      "description": "Get WHOIS registration data for any domain \u2014 registrar, creation/expiry dates, nameservers, registrant contact, status across 374M+ domains and 7,596 TLDs (WhoisXML)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4934,7 +4934,7 @@
     {
       "name": "whois.dns.lookup",
       "title": "DNS Lookup",
-      "description": "Get DNS records for a domain — A, AAAA, MX, NS, SOA, TXT, CNAME, SRV, CAA records with TTL and raw data (WhoisXML)",
+      "description": "Get DNS records for a domain \u2014 A, AAAA, MX, NS, SOA, TXT, CNAME, SRV, CAA records with TTL and raw data (WhoisXML)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -4974,7 +4974,7 @@
     {
       "name": "whois.domain.availability",
       "title": "Check Domain Availability",
-      "description": "Check if a domain name is available for registration — fast DNS check or thorough DNS+WHOIS verification (WhoisXML)",
+      "description": "Check if a domain name is available for registration \u2014 fast DNS check or thorough DNS+WHOIS verification (WhoisXML)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5006,13 +5006,13 @@
     {
       "name": "whois.domain.reverse",
       "title": "Reverse WHOIS Search",
-      "description": "Find all domains registered by a person, company, or email — reverse WHOIS lookup for OSINT and brand monitoring (WhoisXML)",
+      "description": "Find all domains registered by a person, company, or email \u2014 reverse WHOIS lookup for OSINT and brand monitoring (WhoisXML)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "keyword": {
             "type": "string",
-            "description": "Search keyword to find domains — registrant name, email, company, or address (e.g. \"John Smith\", \"acme.com\")"
+            "description": "Search keyword to find domains \u2014 registrant name, email, company, or address (e.g. \"John Smith\", \"acme.com\")"
           }
         },
         "required": [
@@ -5030,7 +5030,7 @@
     {
       "name": "spoonacular.recipes.search",
       "title": "Search Recipes",
-      "description": "Search 365K+ recipes with dietary filters (vegan, keto, gluten-free), cuisine, meal type, and max prep time — includes nutrition data per result (Spoonacular)",
+      "description": "Search 365K+ recipes with dietary filters (vegan, keto, gluten-free), cuisine, meal type, and max prep time \u2014 includes nutrition data per result (Spoonacular)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5040,7 +5040,7 @@
           },
           "cuisine": {
             "type": "string",
-            "description": "Cuisine filter — comma-separated (e.g. \"italian\", \"mexican,chinese\")"
+            "description": "Cuisine filter \u2014 comma-separated (e.g. \"italian\", \"mexican,chinese\")"
           },
           "diet": {
             "type": "string",
@@ -5048,7 +5048,7 @@
           },
           "intolerances": {
             "type": "string",
-            "description": "Intolerances filter — comma-separated (e.g. \"dairy,gluten,peanut,shellfish\")"
+            "description": "Intolerances filter \u2014 comma-separated (e.g. \"dairy,gluten,peanut,shellfish\")"
           },
           "type": {
             "type": "string",
@@ -5082,7 +5082,7 @@
     {
       "name": "spoonacular.recipes.details",
       "title": "Get Recipe Details",
-      "description": "Get full recipe details by ID — ingredients, step-by-step instructions, nutrition facts, dietary labels, prep time, servings, and price per serving (Spoonacular)",
+      "description": "Get full recipe details by ID \u2014 ingredients, step-by-step instructions, nutrition facts, dietary labels, prep time, servings, and price per serving (Spoonacular)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5106,7 +5106,7 @@
     {
       "name": "spoonacular.recipes.by_ingredients",
       "title": "Find Recipes by Ingredients",
-      "description": "Find recipes using ingredients you have on hand — shows used/missing ingredients count, ranked by ingredient match (Spoonacular)",
+      "description": "Find recipes using ingredients you have on hand \u2014 shows used/missing ingredients count, ranked by ingredient match (Spoonacular)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5146,7 +5146,7 @@
     {
       "name": "spoonacular.ingredients.search",
       "title": "Search Ingredients",
-      "description": "Search 86K+ food ingredients with nutrition data — sortable by calories, protein, fat, or carbs (Spoonacular)",
+      "description": "Search 86K+ food ingredients with nutrition data \u2014 sortable by calories, protein, fat, or carbs (Spoonacular)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5194,7 +5194,7 @@
     {
       "name": "spoonacular.recipes.analyze",
       "title": "Analyze Recipe Nutrition",
-      "description": "Analyze a recipe by title and ingredient list — returns full nutrition breakdown, dietary labels, and caloric distribution (Spoonacular)",
+      "description": "Analyze a recipe by title and ingredient list \u2014 returns full nutrition breakdown, dietary labels, and caloric distribution (Spoonacular)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5235,7 +5235,7 @@
     {
       "name": "nasa.astronomy.apod",
       "title": "Astronomy Picture of the Day",
-      "description": "Get NASA Astronomy Picture of the Day — daily curated space image or video with expert explanation, dating back to 1995 (NASA APOD)",
+      "description": "Get NASA Astronomy Picture of the Day \u2014 daily curated space image or video with expert explanation, dating back to 1995 (NASA APOD)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5260,7 +5260,7 @@
     {
       "name": "nasa.asteroids.feed",
       "title": "Near-Earth Asteroids Feed",
-      "description": "Get near-Earth asteroid close approaches for a date range — size estimates, hazard classification, velocity, miss distance (NASA NeoWs)",
+      "description": "Get near-Earth asteroid close approaches for a date range \u2014 size estimates, hazard classification, velocity, miss distance (NASA NeoWs)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5288,7 +5288,7 @@
     {
       "name": "nasa.space_weather.flares",
       "title": "Solar Flare Events",
-      "description": "Get solar flare events from the Space Weather Database — class, peak time, source region, linked CMEs and geomagnetic storms (NASA DONKI)",
+      "description": "Get solar flare events from the Space Weather Database \u2014 class, peak time, source region, linked CMEs and geomagnetic storms (NASA DONKI)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5313,7 +5313,7 @@
     {
       "name": "nasa.earth.epic",
       "title": "Earth Camera (EPIC)",
-      "description": "Get full-disc Earth images from the DSCOVR satellite EPIC camera — daily natural color photos from Lagrange point L1, 1.5M km away (NASA EPIC)",
+      "description": "Get full-disc Earth images from the DSCOVR satellite EPIC camera \u2014 daily natural color photos from Lagrange point L1, 1.5M km away (NASA EPIC)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5334,7 +5334,7 @@
     {
       "name": "nasa.media.search",
       "title": "Search NASA Images & Videos",
-      "description": "Search NASA Image and Video Library — 140K+ images, videos, and audio from missions, telescopes, and events with metadata and download links (NASA)",
+      "description": "Search NASA Image and Video Library \u2014 140K+ images, videos, and audio from missions, telescopes, and events with metadata and download links (NASA)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5380,7 +5380,7 @@
     {
       "name": "jpl.asteroids.approaches",
       "title": "Asteroid Close Approaches",
-      "description": "Get upcoming and past asteroid close approaches to Earth — distance, velocity, size, sorted by date or distance (NASA JPL)",
+      "description": "Get upcoming and past asteroid close approaches to Earth \u2014 distance, velocity, size, sorted by date or distance (NASA JPL)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5431,7 +5431,7 @@
     {
       "name": "jpl.events.fireballs",
       "title": "Fireball Events",
-      "description": "Get reported fireball (bolide) events — atmospheric entry energy, velocity, altitude, geographic coordinates (NASA JPL CNEOS)",
+      "description": "Get reported fireball (bolide) events \u2014 atmospheric entry energy, velocity, altitude, geographic coordinates (NASA JPL CNEOS)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5477,13 +5477,13 @@
     {
       "name": "jpl.bodies.lookup",
       "title": "Small Body Lookup",
-      "description": "Look up asteroid or comet data by name/designation — orbital elements, physical parameters, discovery info, hazard classification (NASA JPL SBDB)",
+      "description": "Look up asteroid or comet data by name/designation \u2014 orbital elements, physical parameters, discovery info, hazard classification (NASA JPL SBDB)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "sstr": {
             "type": "string",
-            "description": "Search string — asteroid/comet name or designation (e.g. \"Apophis\", \"2024 YR4\", \"Halley\")"
+            "description": "Search string \u2014 asteroid/comet name or designation (e.g. \"Apophis\", \"2024 YR4\", \"Halley\")"
           },
           "des": {
             "type": "string",
@@ -5506,7 +5506,7 @@
     {
       "name": "jpl.asteroids.sentry",
       "title": "Asteroid Impact Risk (Sentry)",
-      "description": "Get asteroid impact risk assessments from the Sentry monitoring system — impact probability, Palermo/Torino scale, size estimates (NASA JPL)",
+      "description": "Get asteroid impact risk assessments from the Sentry monitoring system \u2014 impact probability, Palermo/Torino scale, size estimates (NASA JPL)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5516,7 +5516,7 @@
           },
           "h_max": {
             "type": "number",
-            "description": "Maximum absolute magnitude H — filter for larger objects"
+            "description": "Maximum absolute magnitude H \u2014 filter for larger objects"
           },
           "ps_min": {
             "type": "number",
@@ -5539,7 +5539,7 @@
     {
       "name": "rawg.games.search",
       "title": "Search Video Games",
-      "description": "Search 800K+ video games — filter by genre, platform, release date, Metacritic score, with ratings, screenshots, and store links (RAWG)",
+      "description": "Search 800K+ video games \u2014 filter by genre, platform, release date, Metacritic score, with ratings, screenshots, and store links (RAWG)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5549,11 +5549,11 @@
           },
           "genres": {
             "type": "string",
-            "description": "Filter by genre IDs — comma-separated (e.g. \"4\" for action, \"5\" for RPG, \"4,5\" for both)"
+            "description": "Filter by genre IDs \u2014 comma-separated (e.g. \"4\" for action, \"5\" for RPG, \"4,5\" for both)"
           },
           "platforms": {
             "type": "string",
-            "description": "Filter by platform IDs — comma-separated (e.g. \"4\" for PC, \"187\" for PS5, \"186\" for Xbox Series)"
+            "description": "Filter by platform IDs \u2014 comma-separated (e.g. \"4\" for PC, \"187\" for PS5, \"186\" for Xbox Series)"
           },
           "dates": {
             "type": "string",
@@ -5591,7 +5591,7 @@
     {
       "name": "rawg.games.details",
       "title": "Get Game Details",
-      "description": "Get full game details by ID or slug — description, platforms, genres, developers, publishers, ratings, Metacritic score, system requirements (RAWG)",
+      "description": "Get full game details by ID or slug \u2014 description, platforms, genres, developers, publishers, ratings, Metacritic score, system requirements (RAWG)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5622,7 +5622,7 @@
     {
       "name": "rawg.games.screenshots",
       "title": "Get Game Screenshots",
-      "description": "Get screenshot images for a game — full resolution URLs with dimensions (RAWG)",
+      "description": "Get screenshot images for a game \u2014 full resolution URLs with dimensions (RAWG)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5664,7 +5664,7 @@
     {
       "name": "rawg.games.stores",
       "title": "Get Game Store Links",
-      "description": "Get purchase/download links for a game across stores — Steam, PlayStation Store, Xbox, Epic, GOG, Nintendo (RAWG)",
+      "description": "Get purchase/download links for a game across stores \u2014 Steam, PlayStation Store, Xbox, Epic, GOG, Nintendo (RAWG)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5695,7 +5695,7 @@
     {
       "name": "rawg.games.series",
       "title": "Get Game Series",
-      "description": "Get all games in the same series/franchise — sequels, prequels, and spin-offs with ratings and release dates (RAWG)",
+      "description": "Get all games in the same series/franchise \u2014 sequels, prequels, and spin-offs with ratings and release dates (RAWG)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5737,7 +5737,7 @@
     {
       "name": "igdb.games.search",
       "title": "Search Games (IGDB)",
-      "description": "Search 280K+ games in IGDB (Twitch) — rich metadata with genres, platforms, ratings, cover art, and release dates",
+      "description": "Search 280K+ games in IGDB (Twitch) \u2014 rich metadata with genres, platforms, ratings, cover art, and release dates",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5767,7 +5767,7 @@
     {
       "name": "igdb.games.details",
       "title": "Get Game Details (IGDB)",
-      "description": "Get full game details by IGDB ID — storyline, genres, platforms, developers, publishers, themes, game modes, similar games, and websites",
+      "description": "Get full game details by IGDB ID \u2014 storyline, genres, platforms, developers, publishers, themes, game modes, similar games, and websites",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5791,7 +5791,7 @@
     {
       "name": "igdb.companies.info",
       "title": "Get Company Info (IGDB)",
-      "description": "Look up game companies by ID or search by name — description, country, developed/published game IDs, logos, and websites",
+      "description": "Look up game companies by ID or search by name \u2014 description, country, developed/published game IDs, logos, and websites",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5822,7 +5822,7 @@
     {
       "name": "igdb.platforms.info",
       "title": "Get Platform Info (IGDB)",
-      "description": "Look up gaming platforms by ID or search by name — abbreviation, generation, platform family, versions, and summary",
+      "description": "Look up gaming platforms by ID or search by name \u2014 abbreviation, generation, platform family, versions, and summary",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5853,7 +5853,7 @@
     {
       "name": "igdb.games.media",
       "title": "Get Game Media (IGDB)",
-      "description": "Get cover art, screenshots, and video trailers for a game — image URLs with dimensions and YouTube video IDs",
+      "description": "Get cover art, screenshots, and video trailers for a game \u2014 image URLs with dimensions and YouTube video IDs",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5877,7 +5877,7 @@
     {
       "name": "qrserver.qr.generate",
       "title": "Generate QR Code",
-      "description": "Generate a QR code image URL from text or URL — customizable size, color, background, format (PNG/SVG), error correction level. Returns direct image URL (goqr.me)",
+      "description": "Generate a QR code image URL from text or URL \u2014 customizable size, color, background, format (PNG/SVG), error correction level. Returns direct image URL (goqr.me)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5919,7 +5919,7 @@
               "Q",
               "H"
             ],
-            "description": "Error correction level: L (7%), M (15%), Q (25%), H (30%) — higher allows more damage tolerance (default: \"L\")"
+            "description": "Error correction level: L (7%), M (15%), Q (25%), H (30%) \u2014 higher allows more damage tolerance (default: \"L\")"
           }
         },
         "required": [
@@ -5937,7 +5937,7 @@
     {
       "name": "qrserver.qr.read",
       "title": "Read QR Code",
-      "description": "Decode a QR code from an image URL — extracts the encoded text or URL from any QR code image (goqr.me)",
+      "description": "Decode a QR code from an image URL \u2014 extracts the encoded text or URL from any QR code image (goqr.me)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5962,7 +5962,7 @@
     {
       "name": "upc.products.lookup",
       "title": "Product Barcode Lookup",
-      "description": "Look up a product by UPC, EAN, GTIN, or ISBN barcode — returns title, brand, images, dimensions, weight, category, price range, and marketplace offers (UPCitemdb)",
+      "description": "Look up a product by UPC, EAN, GTIN, or ISBN barcode \u2014 returns title, brand, images, dimensions, weight, category, price range, and marketplace offers (UPCitemdb)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -5986,7 +5986,7 @@
     {
       "name": "upc.products.search",
       "title": "Product Search by Name",
-      "description": "Search products by name, brand, or description — returns matching items with UPC codes, images, categories, and price ranges (UPCitemdb)",
+      "description": "Search products by name, brand, or description \u2014 returns matching items with UPC codes, images, categories, and price ranges (UPCitemdb)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -6030,7 +6030,7 @@
     {
       "name": "ip.intelligence.lookup",
       "title": "IP Address Lookup",
-      "description": "Look up any IP address — geolocation (country, city, coordinates), 9 security flags (VPN, Tor, proxy, datacenter, abuser, crawler, bogon, mobile, satellite), ASN, company info, abuse contacts (ipapi.is)",
+      "description": "Look up any IP address \u2014 geolocation (country, city, coordinates), 9 security flags (VPN, Tor, proxy, datacenter, abuser, crawler, bogon, mobile, satellite), ASN, company info, abuse contacts (ipapi.is)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -6054,7 +6054,7 @@
     {
       "name": "ip.intelligence.bulk",
       "title": "Bulk IP Lookup",
-      "description": "Look up multiple IP addresses in one call (max 100) — country, city, VPN/Tor/proxy flags, ASN, and organization for each IP (ipapi.is)",
+      "description": "Look up multiple IP addresses in one call (max 100) \u2014 country, city, VPN/Tor/proxy flags, ASN, and organization for each IP (ipapi.is)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -6083,7 +6083,7 @@
     {
       "name": "earthquake.events.search",
       "title": "Search Earthquakes",
-      "description": "Search global earthquakes by time, location, magnitude, and depth — returns magnitude, coordinates, tsunami flags, PAGER alerts, and felt reports. 100+ years of data, updated every minute (USGS)",
+      "description": "Search global earthquakes by time, location, magnitude, and depth \u2014 returns magnitude, coordinates, tsunami flags, PAGER alerts, and felt reports. 100+ years of data, updated every minute (USGS)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -6168,7 +6168,7 @@
     {
       "name": "earthquake.events.feed",
       "title": "Real-Time Earthquake Feed",
-      "description": "Get real-time earthquake feed by magnitude threshold (significant/4.5+/2.5+/1.0+/all) and time window (hour/day/week/month) — updated every minute (USGS)",
+      "description": "Get real-time earthquake feed by magnitude threshold (significant/4.5+/2.5+/1.0+/all) and time window (hour/day/week/month) \u2014 updated every minute (USGS)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -6206,7 +6206,7 @@
     {
       "name": "earthquake.events.count",
       "title": "Count Earthquakes",
-      "description": "Count earthquakes matching search criteria without returning full data — useful for statistics and monitoring thresholds (USGS)",
+      "description": "Count earthquakes matching search criteria without returning full data \u2014 useful for statistics and monitoring thresholds (USGS)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -6257,7 +6257,7 @@
     {
       "name": "anime.titles.search",
       "title": "Search Anime",
-      "description": "Search 28K+ anime titles by name, genre, type, status, and rating — scores, episodes, studios, seasons (MyAnimeList via Jikan)",
+      "description": "Search 28K+ anime titles by name, genre, type, status, and rating \u2014 scores, episodes, studios, seasons (MyAnimeList via Jikan)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -6352,7 +6352,7 @@
     {
       "name": "anime.titles.details",
       "title": "Get Anime Details",
-      "description": "Get full anime details by MAL ID — synopsis, score, rank, episodes, studios, genres, themes, demographics, rating (MyAnimeList via Jikan)",
+      "description": "Get full anime details by MAL ID \u2014 synopsis, score, rank, episodes, studios, genres, themes, demographics, rating (MyAnimeList via Jikan)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -6376,7 +6376,7 @@
     {
       "name": "anime.manga.details",
       "title": "Get Manga Details",
-      "description": "Get full manga details by MAL ID — synopsis, chapters, volumes, authors, score, rank, genres (MyAnimeList via Jikan)",
+      "description": "Get full manga details by MAL ID \u2014 synopsis, chapters, volumes, authors, score, rank, genres (MyAnimeList via Jikan)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -6400,7 +6400,7 @@
     {
       "name": "anime.titles.characters",
       "title": "Get Anime Characters",
-      "description": "Get character cast and Japanese voice actors for an anime — names, roles (main/supporting), images (MyAnimeList via Jikan)",
+      "description": "Get character cast and Japanese voice actors for an anime \u2014 names, roles (main/supporting), images (MyAnimeList via Jikan)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -6424,7 +6424,7 @@
     {
       "name": "anime.titles.top",
       "title": "Top Anime Rankings",
-      "description": "Get top-ranked anime by score — filter by type (TV/movie/OVA), status (airing/upcoming), or popularity (MyAnimeList via Jikan)",
+      "description": "Get top-ranked anime by score \u2014 filter by type (TV/movie/OVA), status (airing/upcoming), or popularity (MyAnimeList via Jikan)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -6477,7 +6477,7 @@
     {
       "name": "books.editions.isbn",
       "title": "ISBN Book Lookup",
-      "description": "Look up a book by ISBN-10 or ISBN-13 — title, author, publisher, pages, cover image, subjects. 40M+ books (Open Library / Internet Archive)",
+      "description": "Look up a book by ISBN-10 or ISBN-13 \u2014 title, author, publisher, pages, cover image, subjects. 40M+ books (Open Library / Internet Archive)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -6501,7 +6501,7 @@
     {
       "name": "books.catalog.search",
       "title": "Search Books",
-      "description": "Search 40M+ books by title, author, subject, or ISBN — ratings, cover images, edition counts, publish year (Open Library / Internet Archive)",
+      "description": "Search 40M+ books by title, author, subject, or ISBN \u2014 ratings, cover images, edition counts, publish year (Open Library / Internet Archive)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -6562,7 +6562,7 @@
     {
       "name": "books.works.details",
       "title": "Get Book Work Details",
-      "description": "Get consolidated work metadata across all editions by Open Library Work ID — description, subjects, authors, cover, first publish date (Open Library)",
+      "description": "Get consolidated work metadata across all editions by Open Library Work ID \u2014 description, subjects, authors, cover, first publish date (Open Library)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -6586,7 +6586,7 @@
     {
       "name": "books.authors.details",
       "title": "Get Author Details",
-      "description": "Get author profile by Open Library Author ID — biography, birth/death dates, photo, Wikipedia link (Open Library / Internet Archive)",
+      "description": "Get author profile by Open Library Author ID \u2014 biography, birth/death dates, photo, Wikipedia link (Open Library / Internet Archive)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -6610,7 +6610,7 @@
     {
       "name": "email.validation.check",
       "title": "Validate Email Address",
-      "description": "Validate an email address — checks deliverability, detects disposable/spam trap/abuse/catch-all addresses, MX records, SMTP provider, domain age. 99.6% accuracy (ZeroBounce)",
+      "description": "Validate an email address \u2014 checks deliverability, detects disposable/spam trap/abuse/catch-all addresses, MX records, SMTP provider, domain age. 99.6% accuracy (ZeroBounce)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -6654,7 +6654,7 @@
           },
           "slug": {
             "type": "string",
-            "description": "Custom short path (e.g. \"my-link\" → apibase.short.gy/my-link). Auto-generated if omitted."
+            "description": "Custom short path (e.g. \"my-link\" \u2192 apibase.short.gy/my-link). Auto-generated if omitted."
           }
         },
         "required": [
@@ -6719,7 +6719,7 @@
     {
       "name": "currency.exchange.convert",
       "title": "Convert Currency",
-      "description": "Convert amount between any two currencies — 160+ currencies supported. Returns conversion rate and result (ExchangeRate-API)",
+      "description": "Convert amount between any two currencies \u2014 160+ currencies supported. Returns conversion rate and result (ExchangeRate-API)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -6756,7 +6756,7 @@
     {
       "name": "calendar.holidays.premium",
       "title": "World Holidays (Calendarific)",
-      "description": "Public holidays for 230+ countries — national, local, religious, observance types. Filter by month, day, type. 100+ years coverage. More countries than Nager.Date (Calendarific)",
+      "description": "Public holidays for 230+ countries \u2014 national, local, religious, observance types. Filter by month, day, type. 100+ years coverage. More countries than Nager.Date (Calendarific)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -6810,7 +6810,7 @@
     {
       "name": "weather.alerts.active",
       "title": "Active US Weather Alerts (NWS)",
-      "description": "Active severe weather alerts for the US — tornado warnings, flood watches, heat advisories, winter storms. Filter by state, severity, event type. US Government open data, unlimited, no auth (NWS/NOAA)",
+      "description": "Active severe weather alerts for the US \u2014 tornado warnings, flood watches, heat advisories, winter storms. Filter by state, severity, event type. US Government open data, unlimited, no auth (NWS/NOAA)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -6863,7 +6863,7 @@
     {
       "name": "weather.alerts.by_state",
       "title": "Weather Alerts by US State (NWS)",
-      "description": "Active weather alerts for a specific US state — all warnings, watches, and advisories. Returns event, severity, urgency, description, area, timing (NWS/NOAA)",
+      "description": "Active weather alerts for a specific US state \u2014 all warnings, watches, and advisories. Returns event, severity, urgency, description, area, timing (NWS/NOAA)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -6895,7 +6895,7 @@
     {
       "name": "calendar.holidays.by_country",
       "title": "Public Holidays by Country (Nager.Date)",
-      "description": "Public holidays for any country and year — 100+ countries, national and regional holidays. Returns date, name (local + English), type. No auth, free, open source (Nager.Date)",
+      "description": "Public holidays for any country and year \u2014 100+ countries, national and regional holidays. Returns date, name (local + English), type. No auth, free, open source (Nager.Date)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -6927,7 +6927,7 @@
     {
       "name": "calendar.holidays.next",
       "title": "Next Public Holidays (Nager.Date)",
-      "description": "Next upcoming public holidays for a country — useful for scheduling, availability checks, business day calculations. No auth (Nager.Date)",
+      "description": "Next upcoming public holidays for a country \u2014 useful for scheduling, availability checks, business day calculations. No auth (Nager.Date)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -6953,7 +6953,7 @@
     {
       "name": "vehicle.vin.decode",
       "title": "Decode VIN Number (NHTSA)",
-      "description": "Decode a 17-character VIN — make, model, year, body class, engine, fuel type, transmission, plant country. US Government open data, unlimited, no auth (NHTSA)",
+      "description": "Decode a 17-character VIN \u2014 make, model, year, body class, engine, fuel type, transmission, plant country. US Government open data, unlimited, no auth (NHTSA)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -7004,7 +7004,7 @@
     {
       "name": "world.country.search",
       "title": "Search Country by Name",
-      "description": "Search country by name — population, area, capital, languages, currencies, timezones, flag, region, borders. 250+ countries. No auth, free (REST Countries)",
+      "description": "Search country by name \u2014 population, area, capital, languages, currencies, timezones, flag, region, borders. 250+ countries. No auth, free (REST Countries)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -7037,7 +7037,7 @@
             "type": "string",
             "minLength": 2,
             "maxLength": 3,
-            "description": "ISO 3166-1 country code — alpha-2 (\"US\") or alpha-3 (\"USA\")"
+            "description": "ISO 3166-1 country code \u2014 alpha-2 (\"US\") or alpha-3 (\"USA\")"
           }
         },
         "required": [
@@ -7055,7 +7055,7 @@
     {
       "name": "food.product.barcode",
       "title": "Food Product by Barcode",
-      "description": "Lookup food product by barcode (EAN/UPC) — name, brand, nutrition (calories, fat, carbs, protein per 100g), Nutri-Score, NOVA group, ingredients. 3M+ products (Open Food Facts)",
+      "description": "Lookup food product by barcode (EAN/UPC) \u2014 name, brand, nutrition (calories, fat, carbs, protein per 100g), Nutri-Score, NOVA group, ingredients. 3M+ products (Open Food Facts)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -7081,7 +7081,7 @@
     {
       "name": "food.product.search",
       "title": "Search Food Products",
-      "description": "Search food products by name — returns matching products with brand, barcode, Nutri-Score, image. 3M+ products worldwide (Open Food Facts)",
+      "description": "Search food products by name \u2014 returns matching products with brand, barcode, Nutri-Score, image. 3M+ products worldwide (Open Food Facts)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -7112,7 +7112,7 @@
     {
       "name": "test.random.user",
       "title": "Generate Random User Profile",
-      "description": "Generate realistic random user profiles — name, email, phone, address, age, gender, photo. Filter by nationality and gender. For testing and demo data (RandomUser.me)",
+      "description": "Generate realistic random user profiles \u2014 name, email, phone, address, age, gender, photo. Filter by nationality and gender. For testing and demo data (RandomUser.me)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -7124,7 +7124,7 @@
           },
           "nationality": {
             "type": "string",
-            "description": "Nationality filter — comma-separated ISO codes (e.g. \"us\", \"gb,fr,de\")"
+            "description": "Nationality filter \u2014 comma-separated ISO codes (e.g. \"us\", \"gb,fr,de\")"
           },
           "gender": {
             "type": "string",
@@ -7147,7 +7147,7 @@
     {
       "name": "web.ssl.check",
       "title": "Check SSL Certificate (ssl-checker.io)",
-      "description": "Check SSL/TLS certificate for any domain — validity, issuer, expiry date, days remaining, protocol, key size, HSTS status. No auth, free (ssl-checker.io)",
+      "description": "Check SSL/TLS certificate for any domain \u2014 validity, issuer, expiry date, days remaining, protocol, key size, HSTS status. No auth, free (ssl-checker.io)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -7179,7 +7179,7 @@
           "query": {
             "type": "string",
             "minLength": 3,
-            "description": "Search query — keywords, phrases, or boolean (e.g. \"climate change\", \"AI regulation\"). Min 3 chars."
+            "description": "Search query \u2014 keywords, phrases, or boolean (e.g. \"climate change\", \"AI regulation\"). Min 3 chars."
           },
           "limit": {
             "type": "integer",
@@ -7222,7 +7222,7 @@
     {
       "name": "events.global.timeline",
       "title": "News Mention Timeline (GDELT)",
-      "description": "Track mention volume of any topic over time — see when a keyword spikes in global news coverage. Up to 3 months of data (GDELT Project)",
+      "description": "Track mention volume of any topic over time \u2014 see when a keyword spikes in global news coverage. Up to 3 months of data (GDELT Project)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -7251,7 +7251,7 @@
     {
       "name": "earth.fires.detect",
       "title": "Detect Fires by Satellite (NASA FIRMS)",
-      "description": "Active fire hotspots detected by NASA satellites (VIIRS, MODIS) — latitude, longitude, brightness, confidence, fire radiative power. Filter by bounding box and days. Near real-time updates (NASA FIRMS)",
+      "description": "Active fire hotspots detected by NASA satellites (VIIRS, MODIS) \u2014 latitude, longitude, brightness, confidence, fire radiative power. Filter by bounding box and days. Near real-time updates (NASA FIRMS)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -7393,7 +7393,7 @@
     {
       "name": "web.screenshot.capture",
       "title": "Capture Website Screenshot (ApiFlash)",
-      "description": "Take a screenshot of any URL — returns image URL. Chrome-based rendering, supports full-page capture, custom viewport, ad blocking, cookie banner removal. Waits for JS-heavy SPAs to load (ApiFlash)",
+      "description": "Take a screenshot of any URL \u2014 returns image URL. Chrome-based rendering, supports full-page capture, custom viewport, ad blocking, cookie banner removal. Waits for JS-heavy SPAs to load (ApiFlash)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -7465,7 +7465,7 @@
     {
       "name": "sports.football.fixtures",
       "title": "Football/Soccer Fixtures & Scores",
-      "description": "Football/soccer fixtures, live scores, and results — filter by date, league (Premier League, La Liga, Champions League...), team. 2000+ leagues, 171 countries. 362+ fixtures per day (API-Sports)",
+      "description": "Football/soccer fixtures, live scores, and results \u2014 filter by date, league (Premier League, La Liga, Champions League...), team. 2000+ leagues, 171 countries. 362+ fixtures per day (API-Sports)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -7502,7 +7502,7 @@
     {
       "name": "sports.football.standings",
       "title": "Football League Standings",
-      "description": "League table/standings — rank, points, wins, draws, losses, goals for/against. All major leagues: Premier League (39), La Liga (140), Bundesliga (78), Serie A (135), Ligue 1 (61) (API-Sports)",
+      "description": "League table/standings \u2014 rank, points, wins, draws, losses, goals for/against. All major leagues: Premier League (39), La Liga (140), Bundesliga (78), Serie A (135), Ligue 1 (61) (API-Sports)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -7555,7 +7555,7 @@
     {
       "name": "sports.basketball.games",
       "title": "Basketball Games & Scores",
-      "description": "Basketball games and scores — NBA, EuroLeague, and 100+ leagues worldwide. Filter by date, league, season, team. Live and historical data (API-Sports)",
+      "description": "Basketball games and scores \u2014 NBA, EuroLeague, and 100+ leagues worldwide. Filter by date, league, season, team. Live and historical data (API-Sports)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -7588,7 +7588,7 @@
     {
       "name": "translate.text.translate",
       "title": "Translate Text (Langbly)",
-      "description": "Translate text between 90+ languages — auto-detects source language, supports batch translation (array of strings), HTML format preservation. Google Translate v2 compatible. $5/1M chars (Langbly)",
+      "description": "Translate text between 90+ languages \u2014 auto-detects source language, supports batch translation (array of strings), HTML format preservation. Google Translate v2 compatible. $5/1M chars (Langbly)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -7604,7 +7604,7 @@
                 }
               }
             ],
-            "description": "Text to translate — single string or array of strings for batch translation"
+            "description": "Text to translate \u2014 single string or array of strings for batch translation"
           },
           "target": {
             "type": "string",
@@ -7643,7 +7643,7 @@
     {
       "name": "translate.text.detect",
       "title": "Detect Language (Langbly)",
-      "description": "Detect the language of text — returns language code and confidence score. Supports batch detection (Langbly)",
+      "description": "Detect the language of text \u2014 returns language code and confidence score. Supports batch detection (Langbly)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -7659,7 +7659,7 @@
                 }
               }
             ],
-            "description": "Text to detect language of — single string or array"
+            "description": "Text to detect language of \u2014 single string or array"
           }
         },
         "required": [
@@ -7683,7 +7683,7 @@
         "properties": {
           "display_language": {
             "type": "string",
-            "description": "Language code to display names in (e.g. \"en\" returns \"Spanish\", \"es\" returns \"Español\")"
+            "description": "Language code to display names in (e.g. \"en\" returns \"Spanish\", \"es\" returns \"Espa\u00f1ol\")"
           }
         },
         "additionalProperties": false
@@ -7698,7 +7698,7 @@
     {
       "name": "phone.twilio.lookup",
       "title": "Phone Number Lookup (Twilio)",
-      "description": "Validate and look up phone number info — format validation, country, national format. Optional: carrier name, line type (mobile/landline/VoIP), caller name CNAM (Twilio)",
+      "description": "Validate and look up phone number info \u2014 format validation, country, national format. Optional: carrier name, line type (mobile/landline/VoIP), caller name CNAM (Twilio)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -7743,7 +7743,7 @@
           "from": {
             "type": "string",
             "minLength": 1,
-            "description": "Sender phone number — must be a Twilio number you own (e.g. \"+15551234567\")"
+            "description": "Sender phone number \u2014 must be a Twilio number you own (e.g. \"+15551234567\")"
           },
           "body": {
             "type": "string",
@@ -7769,7 +7769,7 @@
     {
       "name": "ai.image.generate",
       "title": "Generate Image (Stability AI)",
-      "description": "Generate images from text prompts using Stable Diffusion — supports style presets (anime, cinematic, pixel-art, photographic...), aspect ratios, negative prompts. Returns base64 PNG data URI. Powered by Stability AI",
+      "description": "Generate images from text prompts using Stable Diffusion \u2014 supports style presets (anime, cinematic, pixel-art, photographic...), aspect ratios, negative prompts. Returns base64 PNG data URI. Powered by Stability AI",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -7836,7 +7836,7 @@
     {
       "name": "email.transactional.send",
       "title": "Send Email (Resend)",
-      "description": "Send transactional email — plain text or HTML body, multiple recipients, reply-to. Requires verified sender domain. 3,000 free emails/month (Resend)",
+      "description": "Send transactional email \u2014 plain text or HTML body, multiple recipients, reply-to. Requires verified sender domain. 3,000 free emails/month (Resend)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -7854,7 +7854,7 @@
                 }
               }
             ],
-            "description": "Recipient email address(es) — single email or array of emails"
+            "description": "Recipient email address(es) \u2014 single email or array of emails"
           },
           "subject": {
             "type": "string",
@@ -7895,7 +7895,7 @@
     {
       "name": "email.transactional.status",
       "title": "Check Email Status (Resend)",
-      "description": "Check delivery status of a sent email by ID — last event, timestamps (Resend)",
+      "description": "Check delivery status of a sent email by ID \u2014 last event, timestamps (Resend)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -7919,7 +7919,7 @@
     {
       "name": "social.mastodon.trending",
       "title": "Trending Mastodon Posts",
-      "description": "Trending posts on Mastodon (Fediverse) — popular content across the decentralized social network. Returns post text, author, reblogs, favourites, replies. No auth needed, $0 upstream (Mastodon.social)",
+      "description": "Trending posts on Mastodon (Fediverse) \u2014 popular content across the decentralized social network. Returns post text, author, reblogs, favourites, replies. No auth needed, $0 upstream (Mastodon.social)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -7942,7 +7942,7 @@
     {
       "name": "social.mastodon.tags",
       "title": "Trending Mastodon Hashtags",
-      "description": "Trending hashtags on Mastodon — top topics with usage counts. Track social media trends on the decentralized network. No auth needed (Mastodon.social)",
+      "description": "Trending hashtags on Mastodon \u2014 top topics with usage counts. Track social media trends on the decentralized network. No auth needed (Mastodon.social)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -7965,7 +7965,7 @@
     {
       "name": "legal.regulations.search",
       "title": "Search US Federal Regulations",
-      "description": "Search US federal regulatory documents — rules, proposed rules, notices, presidential documents. Filter by agency (EPA, SEC, FDA...), document type, date. 7,500+ results for \"artificial intelligence\" (Regulations.gov)",
+      "description": "Search US federal regulatory documents \u2014 rules, proposed rules, notices, presidential documents. Filter by agency (EPA, SEC, FDA...), document type, date. 7,500+ results for \"artificial intelligence\" (Regulations.gov)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -8020,7 +8020,7 @@
     {
       "name": "legal.regulations.document",
       "title": "Get Regulatory Document Details",
-      "description": "Get full details of a US federal regulatory document by ID — title, abstract, agency, comment count, docket, dates. Public domain (Regulations.gov)",
+      "description": "Get full details of a US federal regulatory document by ID \u2014 title, abstract, agency, comment count, docket, dates. Public domain (Regulations.gov)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -8044,7 +8044,7 @@
     {
       "name": "legal.fedregister.search",
       "title": "Search Federal Register",
-      "description": "Search the US Federal Register — final rules, proposed rules, notices, executive orders. Filter by agency, type, date. 90+ years of official federal government records (Federal Register)",
+      "description": "Search the US Federal Register \u2014 final rules, proposed rules, notices, executive orders. Filter by agency, type, date. 90+ years of official federal government records (Federal Register)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -8098,7 +8098,7 @@
     {
       "name": "legal.fedregister.document",
       "title": "Get Federal Register Document",
-      "description": "Get full Federal Register document by number — title, abstract, agencies, effective date, PDF link, comment deadline (Federal Register)",
+      "description": "Get full Federal Register document by number \u2014 title, abstract, agencies, effective date, PDF link, comment deadline (Federal Register)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -8122,7 +8122,7 @@
     {
       "name": "legal.fedregister.recent",
       "title": "Recent Federal Register Documents",
-      "description": "Latest documents published in the Federal Register — filter by type (rules, proposed rules, notices, presidential). No search query needed (Federal Register)",
+      "description": "Latest documents published in the Federal Register \u2014 filter by type (rules, proposed rules, notices, presidential). No search query needed (Federal Register)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -8155,7 +8155,7 @@
     {
       "name": "legal.caselaw.search",
       "title": "Search US Court Opinions",
-      "description": "Search US federal and state court opinions — filter by court (scotus, ca9, dcd...), date range, relevance. Largest free US case law archive. 7,000+ AI-related opinions (CourtListener / Free Law Project)",
+      "description": "Search US federal and state court opinions \u2014 filter by court (scotus, ca9, dcd...), date range, relevance. Largest free US case law archive. 7,000+ AI-related opinions (CourtListener / Free Law Project)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -8214,7 +8214,7 @@
     {
       "name": "legal.caselaw.opinion",
       "title": "Get Court Opinion Text",
-      "description": "Get full text of a US court opinion by ID — author, type, date, download URL. Up to 5,000 characters of opinion text (CourtListener)",
+      "description": "Get full text of a US court opinion by ID \u2014 author, type, date, download URL. Up to 5,000 characters of opinion text (CourtListener)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -8238,7 +8238,7 @@
     {
       "name": "legal.caselaw.dockets",
       "title": "Search Court Dockets (RECAP)",
-      "description": "Search PACER/RECAP federal court dockets — case filings, motions, orders. Filter by court. From the RECAP Archive (CourtListener / Free Law Project)",
+      "description": "Search PACER/RECAP federal court dockets \u2014 case filings, motions, orders. Filter by court. From the RECAP Archive (CourtListener / Free Law Project)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -8272,7 +8272,7 @@
     {
       "name": "ai.ocr.extract",
       "title": "Extract Text from Image (OCR)",
-      "description": "Extract text from any image or PDF URL using OCR — supports 20+ languages including English, Russian, Chinese, Japanese, Korean, Arabic. Returns recognized text. Handles PNG, JPG, GIF, BMP, PDF, TIFF (OCR.space)",
+      "description": "Extract text from any image or PDF URL using OCR \u2014 supports 20+ languages including English, Russian, Chinese, Japanese, Korean, Arabic. Returns recognized text. Handles PNG, JPG, GIF, BMP, PDF, TIFF (OCR.space)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -8318,7 +8318,7 @@
               "PDF",
               "TIFF"
             ],
-            "description": "File type hint — set if URL has no extension or content-type is wrong"
+            "description": "File type hint \u2014 set if URL has no extension or content-type is wrong"
           },
           "detect_orientation": {
             "type": "boolean",
@@ -8340,7 +8340,7 @@
     {
       "name": "stocks.market.quote",
       "title": "Real-Time Stock Quote",
-      "description": "Real-time stock price quote — current price, change, percent change, day high/low, open, previous close. Supports US stocks, ETFs, and major global exchanges (Finnhub)",
+      "description": "Real-time stock price quote \u2014 current price, change, percent change, day high/low, open, previous close. Supports US stocks, ETFs, and major global exchanges (Finnhub)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -8366,7 +8366,7 @@
     {
       "name": "stocks.company.profile",
       "title": "Company Profile",
-      "description": "Company profile by ticker — name, exchange, industry, country, market cap, shares outstanding, IPO date, logo, website (Finnhub)",
+      "description": "Company profile by ticker \u2014 name, exchange, industry, country, market cap, shares outstanding, IPO date, logo, website (Finnhub)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -8392,7 +8392,7 @@
     {
       "name": "stocks.company.news",
       "title": "Company News",
-      "description": "Latest news articles about a specific company — headline, source, summary, date, image. Filter by date range (Finnhub)",
+      "description": "Latest news articles about a specific company \u2014 headline, source, summary, date, image. Filter by date range (Finnhub)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -8426,7 +8426,7 @@
     {
       "name": "stocks.market.candles",
       "title": "Stock Price Candles (OHLCV)",
-      "description": "Historical OHLCV candlestick data — open, high, low, close, volume with configurable resolution (1min to monthly). Use for charting and technical analysis (Finnhub)",
+      "description": "Historical OHLCV candlestick data \u2014 open, high, low, close, volume with configurable resolution (1min to monthly). Use for charting and technical analysis (Finnhub)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -8474,7 +8474,7 @@
     {
       "name": "stocks.market.news",
       "title": "Market News",
-      "description": "General market news — categories: general, forex, crypto, merger. Top headlines with source, summary, and images (Finnhub)",
+      "description": "General market news \u2014 categories: general, forex, crypto, merger. Top headlines with source, summary, and images (Finnhub)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -8548,7 +8548,7 @@
     {
       "name": "news.crypto.latest",
       "title": "Crypto & Blockchain News",
-      "description": "Cryptocurrency and blockchain news feed — filter by coin (Bitcoin, Ethereum, Solana...), keyword, language. Dedicated crypto news index from specialized sources (NewsData.io)",
+      "description": "Cryptocurrency and blockchain news feed \u2014 filter by coin (Bitcoin, Ethereum, Solana...), keyword, language. Dedicated crypto news index from specialized sources (NewsData.io)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -8583,7 +8583,7 @@
     {
       "name": "news.global.sources",
       "title": "News Sources Directory",
-      "description": "Browse available news sources — filter by country, language, and category. Returns source name, URL, categories, and languages covered. 180,000+ sources indexed (NewsData.io)",
+      "description": "Browse available news sources \u2014 filter by country, language, and category. Returns source name, URL, categories, and languages covered. 180,000+ sources indexed (NewsData.io)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -8612,14 +8612,14 @@
     {
       "name": "search.semantic.web",
       "title": "Semantic Web Search (Exa)",
-      "description": "Neural/semantic web search — finds conceptually related pages, not just keyword matches. Supports category filters (company, research paper, news, people, tweet), domain filtering, date range. Returns relevance scores and highlighted excerpts (Exa)",
+      "description": "Neural/semantic web search \u2014 finds conceptually related pages, not just keyword matches. Supports category filters (company, research paper, news, people, tweet), domain filtering, date range. Returns relevance scores and highlighted excerpts (Exa)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "query": {
             "type": "string",
             "minLength": 1,
-            "description": "Natural language search query — Exa finds semantically related pages, not just keyword matches"
+            "description": "Natural language search query \u2014 Exa finds semantically related pages, not just keyword matches"
           },
           "num_results": {
             "type": "integer",
@@ -8671,7 +8671,7 @@
           },
           "include_text": {
             "type": "boolean",
-            "description": "Include full extracted page text in results (default false — saves tokens)"
+            "description": "Include full extracted page text in results (default false \u2014 saves tokens)"
           },
           "include_highlights": {
             "type": "boolean",
@@ -8693,7 +8693,7 @@
     {
       "name": "search.semantic.contents",
       "title": "Extract Page Content (Exa)",
-      "description": "Extract clean text content from up to 10 URLs — returns title, author, published date, full text. Use for feeding web pages into agent context (Exa)",
+      "description": "Extract clean text content from up to 10 URLs \u2014 returns title, author, published date, full text. Use for feeding web pages into agent context (Exa)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -8723,14 +8723,14 @@
     {
       "name": "search.semantic.similar",
       "title": "Find Similar Pages (Exa)",
-      "description": "Find web pages semantically similar to a given URL — discover related content, competitors, alternatives without knowing what to search for. Unique capability for research agents (Exa)",
+      "description": "Find web pages semantically similar to a given URL \u2014 discover related content, competitors, alternatives without knowing what to search for. Unique capability for research agents (Exa)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "url": {
             "type": "string",
             "format": "uri",
-            "description": "Reference URL — Exa finds pages semantically similar to this one"
+            "description": "Reference URL \u2014 Exa finds pages semantically similar to this one"
           },
           "num_results": {
             "type": "integer",
@@ -8766,14 +8766,14 @@
     {
       "name": "search.ai.web",
       "title": "AI Web Search (Tavily)",
-      "description": "AI-optimized web search — returns synthesized answer + curated results with extracted page content and relevance scores. Built for LLM/agent RAG pipelines. Supports domain filtering and recency (Tavily)",
+      "description": "AI-optimized web search \u2014 returns synthesized answer + curated results with extracted page content and relevance scores. Built for LLM/agent RAG pipelines. Supports domain filtering and recency (Tavily)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "query": {
             "type": "string",
             "minLength": 1,
-            "description": "Search query — Tavily returns AI-synthesized answer + curated results with extracted content"
+            "description": "Search query \u2014 Tavily returns AI-synthesized answer + curated results with extracted content"
           },
           "search_depth": {
             "type": "string",
@@ -8810,7 +8810,7 @@
           "days": {
             "type": "integer",
             "minimum": 1,
-            "description": "Recency filter — only include results from the last N days"
+            "description": "Recency filter \u2014 only include results from the last N days"
           }
         },
         "required": [
@@ -8828,7 +8828,7 @@
     {
       "name": "search.ai.extract",
       "title": "Extract Web Page Content (Tavily)",
-      "description": "Extract clean readable content from up to 20 URLs — returns text, title, author, published date. Eliminates scraping. Perfect for feeding web pages into agent context windows (Tavily)",
+      "description": "Extract clean readable content from up to 20 URLs \u2014 returns text, title, author, published date. Eliminates scraping. Perfect for feeding web pages into agent context windows (Tavily)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -8858,7 +8858,7 @@
     {
       "name": "search.google.web",
       "title": "Google Web Search",
-      "description": "Real-time Google web search results — organic listings, knowledge graph, answer box, people also ask, related searches. Supports country and language targeting. Powered by Serper.dev",
+      "description": "Real-time Google web search results \u2014 organic listings, knowledge graph, answer box, people also ask, related searches. Supports country and language targeting. Powered by Serper.dev",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -8904,7 +8904,7 @@
     {
       "name": "search.google.news",
       "title": "Google News Search",
-      "description": "Real-time Google News articles — title, source, date, snippet, image. Filter by time (past hour/day/week/month). Global coverage in 70+ languages (Serper.dev)",
+      "description": "Real-time Google News articles \u2014 title, source, date, snippet, image. Filter by time (past hour/day/week/month). Global coverage in 70+ languages (Serper.dev)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -8949,7 +8949,7 @@
     {
       "name": "search.google.images",
       "title": "Google Image Search",
-      "description": "Google Image search results — image URL, thumbnail, dimensions, source domain. Search any visual content worldwide (Serper.dev)",
+      "description": "Google Image search results \u2014 image URL, thumbnail, dimensions, source domain. Search any visual content worldwide (Serper.dev)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -8985,7 +8985,7 @@
     {
       "name": "search.google.shopping",
       "title": "Google Shopping Search",
-      "description": "Google Shopping product listings — title, price, source, rating, delivery info, product images. Compare prices across retailers (Serper.dev)",
+      "description": "Google Shopping product listings \u2014 title, price, source, rating, delivery info, product images. Compare prices across retailers (Serper.dev)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -9021,7 +9021,7 @@
     {
       "name": "realestate.listings.for_sale",
       "title": "Search US Properties For Sale",
-      "description": "Search active for-sale property listings across the US — filter by city, state, ZIP, price range, bedrooms, bathrooms, sqft, property type. Returns address, price, specs, photos. Millions of MLS listings (RapidAPI / Realtor.com data)",
+      "description": "Search active for-sale property listings across the US \u2014 filter by city, state, ZIP, price range, bedrooms, bathrooms, sqft, property type. Returns address, price, specs, photos. Millions of MLS listings (RapidAPI / Realtor.com data)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -9110,7 +9110,7 @@
     {
       "name": "realestate.property.details",
       "title": "Get US Property Details",
-      "description": "Detailed property information by property ID — beds, baths, sqft, year built, lot size, tax assessment, HOA, days on market, photos, last sale price/date. Use for_sale search first to get property_id (RapidAPI / Realtor.com data)",
+      "description": "Detailed property information by property ID \u2014 beds, baths, sqft, year built, lot size, tax assessment, HOA, days on market, photos, last sale price/date. Use for_sale search first to get property_id (RapidAPI / Realtor.com data)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -9134,14 +9134,14 @@
     {
       "name": "realestate.location.suggest",
       "title": "US Real Estate Location Search",
-      "description": "Autocomplete location search for US real estate — returns matching cities, ZIP codes, and addresses with coordinates. Use to find valid city/state codes for property searches (RapidAPI / Realtor.com data)",
+      "description": "Autocomplete location search for US real estate \u2014 returns matching cities, ZIP codes, and addresses with coordinates. Use to find valid city/state codes for property searches (RapidAPI / Realtor.com data)",
       "inputSchema": {
         "type": "object",
         "properties": {
           "query": {
             "type": "string",
             "minLength": 2,
-            "description": "Location search query — city name, address, or ZIP code (e.g. \"Austin TX\", \"90210\")"
+            "description": "Location search query \u2014 city name, address, or ZIP code (e.g. \"Austin TX\", \"90210\")"
           }
         },
         "required": [
@@ -9267,7 +9267,7 @@
     {
       "name": "nutrition.fatsecret.search",
       "title": "Search Food Nutrition Database",
-      "description": "Search 2.3M+ food items by name — branded products, restaurant meals, generic foods from 190+ countries. Returns food ID, name, type, brand, and per-serving summary (calories, fat, carbs, protein). Use food_id for detailed nutritional lookup (FatSecret)",
+      "description": "Search 2.3M+ food items by name \u2014 branded products, restaurant meals, generic foods from 190+ countries. Returns food ID, name, type, brand, and per-serving summary (calories, fat, carbs, protein). Use food_id for detailed nutritional lookup (FatSecret)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -9303,7 +9303,7 @@
     {
       "name": "nutrition.fatsecret.details",
       "title": "Food Nutritional Details",
-      "description": "Complete nutritional profile for a food item by FatSecret ID — all serving sizes with calories, total/saturated/trans fat, cholesterol, sodium, potassium, carbs, fiber, sugar, protein, vitamins A/C/D, calcium, iron. 2.3M+ foods (FatSecret)",
+      "description": "Complete nutritional profile for a food item by FatSecret ID \u2014 all serving sizes with calories, total/saturated/trans fat, cholesterol, sodium, potassium, carbs, fiber, sugar, protein, vitamins A/C/D, calcium, iron. 2.3M+ foods (FatSecret)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -9328,7 +9328,7 @@
     {
       "name": "vehicle.autodev.vin_decode",
       "title": "Global VIN Decode (Auto.dev)",
-      "description": "Decode any VIN worldwide (100+ countries) — make, model, year, trim, engine, transmission, drive type, body style, origin country, manufacturer. Covers EU, Asia, and other markets beyond US-only NHTSA. Static data cached 24h (Auto.dev)",
+      "description": "Decode any VIN worldwide (100+ countries) \u2014 make, model, year, trim, engine, transmission, drive type, body style, origin country, manufacturer. Covers EU, Asia, and other markets beyond US-only NHTSA. Static data cached 24h (Auto.dev)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -9354,7 +9354,7 @@
     {
       "name": "media.pexels.search_photos",
       "title": "Search Pexels Stock Photos",
-      "description": "Search curated free stock photos by keyword — filter by orientation (landscape/portrait/square), color, size. Returns multiple resolutions (original to tiny), photographer name, Pexels URL. Free for commercial use (Pexels)",
+      "description": "Search curated free stock photos by keyword \u2014 filter by orientation (landscape/portrait/square), color, size. Returns multiple resolutions (original to tiny), photographer name, Pexels URL. Free for commercial use (Pexels)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -9412,7 +9412,7 @@
     {
       "name": "media.pexels.search_videos",
       "title": "Search Pexels Stock Videos",
-      "description": "Search free stock videos by keyword — returns HD/SD video files with dimensions, duration, download URLs. Free for commercial use (Pexels)",
+      "description": "Search free stock videos by keyword \u2014 returns HD/SD video files with dimensions, duration, download URLs. Free for commercial use (Pexels)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -9461,7 +9461,7 @@
     {
       "name": "media.pexels.curated",
       "title": "Pexels Curated Photos",
-      "description": "Hand-picked high-quality curated photos from Pexels — updated daily. Returns photographer, multiple sizes, Pexels URL. Perfect for featured images and hero sections (Pexels)",
+      "description": "Hand-picked high-quality curated photos from Pexels \u2014 updated daily. Returns photographer, multiple sizes, Pexels URL. Perfect for featured images and hero sections (Pexels)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -9520,7 +9520,7 @@
     {
       "name": "infra.browser.session_status",
       "title": "Browser Session Status",
-      "description": "Check the status of a Browserbase session — running, completed, error, timed out. Returns CPU usage, memory, proxy bytes, start/end times (Browserbase)",
+      "description": "Check the status of a Browserbase session \u2014 running, completed, error, timed out. Returns CPU usage, memory, proxy bytes, start/end times (Browserbase)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -9545,7 +9545,7 @@
     {
       "name": "infra.browser.session_content",
       "title": "Browser Session Downloads",
-      "description": "Get files downloaded during a browser session — screenshots, PDFs, extracted data (Browserbase)",
+      "description": "Get files downloaded during a browser session \u2014 screenshots, PDFs, extracted data (Browserbase)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -9570,7 +9570,7 @@
     {
       "name": "infra.browser.list_sessions",
       "title": "List Browser Sessions",
-      "description": "List active or recent browser sessions — filter by status (running, completed, error). Returns session IDs, regions, start times (Browserbase)",
+      "description": "List active or recent browser sessions \u2014 filter by status (running, completed, error). Returns session IDs, regions, start times (Browserbase)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -9647,7 +9647,7 @@
     {
       "name": "messaging.telegram.send_photo",
       "title": "Send Telegram Photo",
-      "description": "Send a photo to a Telegram chat with optional caption. Provide image URL — supports JPG, PNG, GIF up to 10MB (Telegram Bot API)",
+      "description": "Send a photo to a Telegram chat with optional caption. Provide image URL \u2014 supports JPG, PNG, GIF up to 10MB (Telegram Bot API)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -9688,7 +9688,7 @@
     {
       "name": "messaging.telegram.send_document",
       "title": "Send Telegram Document",
-      "description": "Send a file/document to a Telegram chat — PDF, CSV, ZIP, any format up to 50MB. Perfect for sending reports, data exports, generated files (Telegram Bot API)",
+      "description": "Send a file/document to a Telegram chat \u2014 PDF, CSV, ZIP, any format up to 50MB. Perfect for sending reports, data exports, generated files (Telegram Bot API)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -9705,7 +9705,7 @@
           },
           "document": {
             "type": "string",
-            "description": "Document URL (https://...) — PDF, CSV, ZIP, etc."
+            "description": "Document URL (https://...) \u2014 PDF, CSV, ZIP, etc."
           },
           "caption": {
             "type": "string",
@@ -9729,7 +9729,7 @@
     {
       "name": "messaging.telegram.get_updates",
       "title": "Get Telegram Updates",
-      "description": "Get recent incoming messages and events for the bot — new messages, user info, chat type. Use offset to get only new updates since last check (Telegram Bot API)",
+      "description": "Get recent incoming messages and events for the bot \u2014 new messages, user info, chat type. Use offset to get only new updates since last check (Telegram Bot API)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -9741,7 +9741,7 @@
           },
           "offset": {
             "type": "integer",
-            "description": "Update ID offset — pass last update_id + 1 to get only new updates"
+            "description": "Update ID offset \u2014 pass last update_id + 1 to get only new updates"
           }
         },
         "additionalProperties": false
@@ -9756,7 +9756,7 @@
     {
       "name": "messaging.telegram.get_chat",
       "title": "Get Telegram Chat Info",
-      "description": "Get info about a Telegram chat — title, type (private/group/supergroup/channel), description, member count, invite link, username (Telegram Bot API)",
+      "description": "Get info about a Telegram chat \u2014 title, type (private/group/supergroup/channel), description, member count, invite link, username (Telegram Bot API)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -9787,7 +9787,7 @@
     {
       "name": "health.clinical.search",
       "title": "Search Clinical Trials",
-      "description": "Search 577,000+ clinical trials worldwide — filter by condition (cancer, diabetes), intervention (drug name), sponsor, status (recruiting/completed), phase. Returns NCT ID, title, status, conditions, interventions, sponsor, enrollment. US National Library of Medicine (ClinicalTrials.gov)",
+      "description": "Search 577,000+ clinical trials worldwide \u2014 filter by condition (cancer, diabetes), intervention (drug name), sponsor, status (recruiting/completed), phase. Returns NCT ID, title, status, conditions, interventions, sponsor, enrollment. US National Library of Medicine (ClinicalTrials.gov)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -9835,7 +9835,7 @@
     {
       "name": "health.clinical.study",
       "title": "Clinical Trial Details",
-      "description": "Full details for a clinical trial by NCT ID — protocol, conditions, interventions with dosing, eligibility criteria (age, sex), primary/secondary outcomes, sponsor, enrollment, phase, study design, dates, results if available (ClinicalTrials.gov)",
+      "description": "Full details for a clinical trial by NCT ID \u2014 protocol, conditions, interventions with dosing, eligibility criteria (age, sex), primary/secondary outcomes, sponsor, enrollment, phase, study design, dates, results if available (ClinicalTrials.gov)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -9866,7 +9866,7 @@
         "properties": {
           "filter": {
             "type": "string",
-            "description": "Optional — currently returns total database statistics"
+            "description": "Optional \u2014 currently returns total database statistics"
           }
         },
         "additionalProperties": false
@@ -9962,7 +9962,7 @@
     {
       "name": "domain.namesilo.info",
       "title": "Domain Details",
-      "description": "Get detailed info for a domain — nameservers, creation/expiry dates, lock status, auto-renew setting, WHOIS contact (NameSilo)",
+      "description": "Get detailed info for a domain \u2014 nameservers, creation/expiry dates, lock status, auto-renew setting, WHOIS contact (NameSilo)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -10008,7 +10008,7 @@
     {
       "name": "infra.cloudflare.zones_list",
       "title": "List Cloudflare Zones (Domains)",
-      "description": "List all domains (zones) managed in Cloudflare — zone ID, domain name, status (active/pending), plan, nameservers. Filter by domain name or status. Zone ID needed for all other Cloudflare tools (Cloudflare)",
+      "description": "List all domains (zones) managed in Cloudflare \u2014 zone ID, domain name, status (active/pending), plan, nameservers. Filter by domain name or status. Zone ID needed for all other Cloudflare tools (Cloudflare)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -10046,7 +10046,7 @@
     {
       "name": "infra.cloudflare.dns_list",
       "title": "List DNS Records",
-      "description": "List all DNS records for a Cloudflare zone — A, AAAA, CNAME, MX, TXT, NS records with name, content, TTL, proxy status. Filter by type or name (Cloudflare)",
+      "description": "List all DNS records for a Cloudflare zone \u2014 A, AAAA, CNAME, MX, TXT, NS records with name, content, TTL, proxy status. Filter by type or name (Cloudflare)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -10121,12 +10121,12 @@
           "name": {
             "type": "string",
             "minLength": 1,
-            "description": "Record name — subdomain or \"@\" for root (e.g. \"www\", \"api\", \"@\")"
+            "description": "Record name \u2014 subdomain or \"@\" for root (e.g. \"www\", \"api\", \"@\")"
           },
           "content": {
             "type": "string",
             "minLength": 1,
-            "description": "Record value — IP address for A/AAAA, hostname for CNAME, text for TXT"
+            "description": "Record value \u2014 IP address for A/AAAA, hostname for CNAME, text for TXT"
           },
           "ttl": {
             "type": "integer",
@@ -10190,7 +10190,7 @@
     {
       "name": "infra.cloudflare.zone_analytics",
       "title": "Zone Traffic Analytics",
-      "description": "Traffic analytics for a Cloudflare zone — total requests, cached vs uncached, bandwidth, threats blocked, page views. Supports custom time ranges (last 24h, 7 days, etc.) (Cloudflare)",
+      "description": "Traffic analytics for a Cloudflare zone \u2014 total requests, cached vs uncached, bandwidth, threats blocked, page views. Supports custom time ranges (last 24h, 7 days, etc.) (Cloudflare)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -10219,7 +10219,7 @@
     {
       "name": "infra.cloudflare.purge_cache",
       "title": "Purge CDN Cache",
-      "description": "Purge Cloudflare CDN cache — all cached files or specific URLs (max 30). Forces CDN to fetch fresh content from origin server (Cloudflare)",
+      "description": "Purge Cloudflare CDN cache \u2014 all cached files or specific URLs (max 30). Forces CDN to fetch fresh content from origin server (Cloudflare)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -10256,7 +10256,7 @@
     {
       "name": "tax.vatcomply.validate",
       "title": "Validate EU VAT Number",
-      "description": "Validate a European VAT number via VIES — returns validity status, company name, and registered address. Supports all 27 EU member states + UK. Format: country prefix + number (e.g. DE123456789) (VATcomply, open source)",
+      "description": "Validate a European VAT number via VIES \u2014 returns validity status, company name, and registered address. Supports all 27 EU member states + UK. Format: country prefix + number (e.g. DE123456789) (VATcomply, open source)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -10281,7 +10281,7 @@
     {
       "name": "tax.vatcomply.rates",
       "title": "EU VAT Rates by Country",
-      "description": "Get current VAT rates for EU countries — standard rate, reduced rates, super-reduced rate, parking rate. Query one country or all 27 EU members. Sourced from EU TEDB (VATcomply)",
+      "description": "Get current VAT rates for EU countries \u2014 standard rate, reduced rates, super-reduced rate, parking rate. Query one country or all 27 EU members. Sourced from EU TEDB (VATcomply)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -10304,7 +10304,7 @@
     {
       "name": "tax.vatcomply.currencies",
       "title": "ECB Currency Exchange Rates",
-      "description": "Current ECB reference exchange rates for 30+ currencies (USD, GBP, JPY, CHF, etc.) plus currency metadata — symbol, decimal places, issuing countries (VATcomply / ECB)",
+      "description": "Current ECB reference exchange rates for 30+ currencies (USD, GBP, JPY, CHF, etc.) plus currency metadata \u2014 symbol, decimal places, issuing countries (VATcomply / ECB)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -10348,7 +10348,7 @@
           },
           "speaker_labels": {
             "type": "boolean",
-            "description": "Enable speaker diarization — detect who said what (default false)"
+            "description": "Enable speaker diarization \u2014 detect who said what (default false)"
           }
         },
         "required": [
@@ -10366,7 +10366,7 @@
     {
       "name": "audio.transcribe.status",
       "title": "Check Transcription Status",
-      "description": "Check the status of a transcription job by transcript_id — queued, processing, completed, or error. Returns audio duration when completed (AssemblyAI)",
+      "description": "Check the status of a transcription job by transcript_id \u2014 queued, processing, completed, or error. Returns audio duration when completed (AssemblyAI)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -10414,7 +10414,7 @@
     {
       "name": "business.lei.search",
       "title": "Search Global Legal Entities (LEI)",
-      "description": "Search 2.5M+ legal entities worldwide by name — companies, funds, government bodies across 200+ countries. Returns LEI code, name, country, city, status, entity category. Filter by country. CC0 open data (GLEIF)",
+      "description": "Search 2.5M+ legal entities worldwide by name \u2014 companies, funds, government bodies across 200+ countries. Returns LEI code, name, country, city, status, entity category. Filter by country. CC0 open data (GLEIF)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -10451,7 +10451,7 @@
     {
       "name": "business.lei.lookup",
       "title": "LEI Entity Details",
-      "description": "Full details for a legal entity by 20-character LEI code — legal name, registered address, headquarters, legal form, registration date, renewal date, status. Use LEI from search results (GLEIF)",
+      "description": "Full details for a legal entity by 20-character LEI code \u2014 legal name, registered address, headquarters, legal form, registration date, renewal date, status. Use LEI from search results (GLEIF)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -10477,7 +10477,7 @@
     {
       "name": "business.lei.relationships",
       "title": "LEI Parent Company Relationship",
-      "description": "Find the direct parent company of a legal entity by LEI code — returns parent LEI, relationship type, and status. Useful for corporate ownership chain analysis (GLEIF)",
+      "description": "Find the direct parent company of a legal entity by LEI code \u2014 returns parent LEI, relationship type, and status. Useful for corporate ownership chain analysis (GLEIF)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -10503,7 +10503,7 @@
     {
       "name": "business.ukcompany.search",
       "title": "Search UK Companies",
-      "description": "Search the UK Companies House registry by name — returns company number, name, type (plc/ltd), status (active/dissolved), incorporation date, registered address. Covers all companies registered under the Companies Act (Companies House UK Gov)",
+      "description": "Search the UK Companies House registry by name \u2014 returns company number, name, type (plc/ltd), status (active/dissolved), incorporation date, registered address. Covers all companies registered under the Companies Act (Companies House UK Gov)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -10534,7 +10534,7 @@
     {
       "name": "business.ukcompany.details",
       "title": "UK Company Details",
-      "description": "Full details for a UK company by Companies House number — company name, type, status, SIC codes, registered address, accounts due date, confirmation statement due, charges, insolvency history (Companies House UK Gov)",
+      "description": "Full details for a UK company by Companies House number \u2014 company name, type, status, SIC codes, registered address, accounts due date, confirmation statement due, charges, insolvency history (Companies House UK Gov)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -10590,7 +10590,7 @@
     {
       "name": "finance.edgar.filings",
       "title": "SEC Company Filings",
-      "description": "List recent SEC filings for a company by CIK number — 10-K (annual), 10-Q (quarterly), 8-K (events), proxy statements. Returns form type, filing date, document URL, description. Up to 1000 filings per company (SEC EDGAR)",
+      "description": "List recent SEC filings for a company by CIK number \u2014 10-K (annual), 10-Q (quarterly), 8-K (events), proxy statements. Returns form type, filing date, document URL, description. Up to 1000 filings per company (SEC EDGAR)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -10615,7 +10615,7 @@
     {
       "name": "finance.edgar.company_facts",
       "title": "SEC Financial Facts (XBRL)",
-      "description": "XBRL financial facts for a US public company — revenue, net income, assets, liabilities, equity, EPS, cash, operating income. Returns last 5 reporting periods per metric with form type and date. Structured data from 10-K/10-Q filings (SEC EDGAR)",
+      "description": "XBRL financial facts for a US public company \u2014 revenue, net income, assets, liabilities, equity, EPS, cash, operating income. Returns last 5 reporting periods per metric with form type and date. Structured data from 10-K/10-Q filings (SEC EDGAR)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -10683,7 +10683,7 @@
     {
       "name": "social.bluesky.profile",
       "title": "Bluesky User Profile",
-      "description": "Get a Bluesky user profile — display name, bio, avatar URL, follower/following/post counts, account creation date. Lookup by handle (e.g. \"jay.bsky.team\") (AT Protocol / Bluesky)",
+      "description": "Get a Bluesky user profile \u2014 display name, bio, avatar URL, follower/following/post counts, account creation date. Lookup by handle (e.g. \"jay.bsky.team\") (AT Protocol / Bluesky)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -10708,7 +10708,7 @@
     {
       "name": "social.bluesky.feed",
       "title": "Bluesky User Feed",
-      "description": "Get recent posts from a Bluesky user by handle — post text, timestamps, like/repost counts. Up to 100 posts per request (AT Protocol / Bluesky)",
+      "description": "Get recent posts from a Bluesky user by handle \u2014 post text, timestamps, like/repost counts. Up to 100 posts per request (AT Protocol / Bluesky)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -10739,7 +10739,7 @@
     {
       "name": "culture.artic.search",
       "title": "Search Art Institute of Chicago",
-      "description": "Search 120,000+ artworks at the Art Institute of Chicago — paintings, sculptures, photographs, prints, textiles. Returns title, artist, date, medium, dimensions, IIIF image URL, public domain status. Covers all periods and regions (ARTIC)",
+      "description": "Search 120,000+ artworks at the Art Institute of Chicago \u2014 paintings, sculptures, photographs, prints, textiles. Returns title, artist, date, medium, dimensions, IIIF image URL, public domain status. Covers all periods and regions (ARTIC)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -10775,7 +10775,7 @@
     {
       "name": "culture.artic.artwork",
       "title": "Artwork Details (ARTIC)",
-      "description": "Full details for a single artwork — title, artist, date, medium, dimensions, credit line, place of origin, department, provenance, exhibition history, high-res IIIF image URL. Use artwork ID from search results (ARTIC)",
+      "description": "Full details for a single artwork \u2014 title, artist, date, medium, dimensions, credit line, place of origin, department, provenance, exhibition history, high-res IIIF image URL. Use artwork ID from search results (ARTIC)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -10799,7 +10799,7 @@
     {
       "name": "culture.artic.artist",
       "title": "Search Artists (ARTIC)",
-      "description": "Search artists and makers in the Art Institute of Chicago collection — name, birth/death dates, biography. Find artist IDs for cross-referencing with artwork search (ARTIC)",
+      "description": "Search artists and makers in the Art Institute of Chicago collection \u2014 name, birth/death dates, biography. Find artist IDs for cross-referencing with artwork search (ARTIC)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -10830,7 +10830,7 @@
     {
       "name": "culture.europeana.search",
       "title": "Search European Cultural Heritage",
-      "description": "Search 50M+ cultural heritage objects across 4,000 institutions in 36 European countries — paintings, photographs, books, maps, 3D objects, music, film. Multilingual (24 languages). Filter by country, media type. Returns title, creator, thumbnail, provider, year (Europeana)",
+      "description": "Search 50M+ cultural heritage objects across 4,000 institutions in 36 European countries \u2014 paintings, photographs, books, maps, 3D objects, music, film. Multilingual (24 languages). Filter by country, media type. Returns title, creator, thumbnail, provider, year (Europeana)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -10852,7 +10852,7 @@
           },
           "media": {
             "type": "boolean",
-            "description": "Only return items with media (images/video/audio) — default false"
+            "description": "Only return items with media (images/video/audio) \u2014 default false"
           },
           "country": {
             "type": "string",
@@ -10874,7 +10874,7 @@
     {
       "name": "culture.europeana.record",
       "title": "Cultural Heritage Object Details",
-      "description": "Full metadata for a single cultural heritage object — title, creator, description, date, language, source, rights, high-res image URL, provider institution, landing page. Use ID from search results (Europeana)",
+      "description": "Full metadata for a single cultural heritage object \u2014 title, creator, description, date, language, source, rights, high-res image URL, provider institution, landing page. Use ID from search results (Europeana)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -11003,7 +11003,7 @@
     {
       "name": "document.convert.web_to_pdf",
       "title": "Web Page to PDF (ConvertAPI)",
-      "description": "Render any web page URL to PDF with full JavaScript execution — custom viewport width, lazy content loading, wait delay. Returns PDF download URL (ConvertAPI)",
+      "description": "Render any web page URL to PDF with full JavaScript execution \u2014 custom viewport width, lazy content loading, wait delay. Returns PDF download URL (ConvertAPI)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -11044,7 +11044,7 @@
     {
       "name": "document.pdf.from_html",
       "title": "HTML to PDF",
-      "description": "Convert HTML content to a PDF document using headless Chrome — full CSS + JavaScript rendering, custom page size, margins, headers/footers, background colors. Returns a temporary download URL for the generated PDF (API2PDF)",
+      "description": "Convert HTML content to a PDF document using headless Chrome \u2014 full CSS + JavaScript rendering, custom page size, margins, headers/footers, background colors. Returns a temporary download URL for the generated PDF (API2PDF)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -11116,7 +11116,7 @@
     {
       "name": "document.pdf.from_url",
       "title": "URL to PDF",
-      "description": "Capture any web page URL as a PDF using headless Chrome with full JS rendering — perfect for archiving pages, generating reports from dashboards, or creating printable snapshots. Returns temporary PDF download URL (API2PDF)",
+      "description": "Capture any web page URL as a PDF using headless Chrome with full JS rendering \u2014 perfect for archiving pages, generating reports from dashboards, or creating printable snapshots. Returns temporary PDF download URL (API2PDF)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -11202,7 +11202,7 @@
     {
       "name": "media.podcast.search",
       "title": "Search Podcasts",
-      "description": "Search 4M+ podcasts by keyword — returns title, author, description, artwork, episode count, language, categories, RSS feed URL. Open directory covering all languages and countries (PodcastIndex)",
+      "description": "Search 4M+ podcasts by keyword \u2014 returns title, author, description, artwork, episode count, language, categories, RSS feed URL. Open directory covering all languages and countries (PodcastIndex)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -11241,7 +11241,7 @@
     {
       "name": "media.podcast.trending",
       "title": "Trending Podcasts",
-      "description": "Currently trending podcasts globally — ranked by recent episode engagement. Filter by language and category. Returns title, author, artwork, trending score, episode count (PodcastIndex)",
+      "description": "Currently trending podcasts globally \u2014 ranked by recent episode engagement. Filter by language and category. Returns title, author, artwork, trending score, episode count (PodcastIndex)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -11261,7 +11261,7 @@
           },
           "since": {
             "type": "integer",
-            "description": "Unix timestamp — only include podcasts with new episodes since this time"
+            "description": "Unix timestamp \u2014 only include podcasts with new episodes since this time"
           }
         },
         "additionalProperties": false
@@ -11276,7 +11276,7 @@
     {
       "name": "media.podcast.episodes",
       "title": "Podcast Episodes",
-      "description": "List recent episodes for a podcast by feed ID — title, description, publish date, audio URL, duration, season/episode numbers. Use feed ID from search or trending results (PodcastIndex)",
+      "description": "List recent episodes for a podcast by feed ID \u2014 title, description, publish date, audio URL, duration, season/episode numbers. Use feed ID from search or trending results (PodcastIndex)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -11292,7 +11292,7 @@
           },
           "since": {
             "type": "integer",
-            "description": "Unix timestamp — only return episodes published after this time"
+            "description": "Unix timestamp \u2014 only return episodes published after this time"
           }
         },
         "required": [
@@ -11310,7 +11310,7 @@
     {
       "name": "media.podcast.details",
       "title": "Podcast Details by Feed ID",
-      "description": "Full metadata for a single podcast — title, author, description, RSS URL, artwork, language, categories, episode count, last update time, funding links (PodcastIndex)",
+      "description": "Full metadata for a single podcast \u2014 title, author, description, RSS URL, artwork, language, categories, episode count, last update time, funding links (PodcastIndex)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -11334,7 +11334,7 @@
     {
       "name": "address.geocodio.geocode",
       "title": "Geocode US/Canada Address",
-      "description": "Forward geocode a US or Canada address to coordinates — returns lat/lng, parsed address components (street, city, state, ZIP, county), accuracy type (rooftop/range/street), and data source. USPS-standardized results with Census data (Geocodio)",
+      "description": "Forward geocode a US or Canada address to coordinates \u2014 returns lat/lng, parsed address components (street, city, state, ZIP, county), accuracy type (rooftop/range/street), and data source. USPS-standardized results with Census data (Geocodio)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -11365,7 +11365,7 @@
     {
       "name": "address.geocodio.reverse",
       "title": "Reverse Geocode Coordinates (US/Canada)",
-      "description": "Reverse geocode latitude/longitude to a US or Canada address — returns formatted address, parsed components (street, city, state, ZIP, county), accuracy type, and source. Supports multiple results ranked by proximity (Geocodio)",
+      "description": "Reverse geocode latitude/longitude to a US or Canada address \u2014 returns formatted address, parsed components (street, city, state, ZIP, county), accuracy type, and source. Supports multiple results ranked by proximity (Geocodio)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -11404,7 +11404,7 @@
     {
       "name": "business.hunter.company",
       "title": "Company Email & Enrichment by Domain",
-      "description": "Find professional email addresses and company data for any domain — organization name, industry, employee count, tech stack, social profiles, email pattern, and verified contact emails with confidence scores, positions, departments, seniority levels. 50M+ domains indexed (Hunter.io)",
+      "description": "Find professional email addresses and company data for any domain \u2014 organization name, industry, employee count, tech stack, social profiles, email pattern, and verified contact emails with confidence scores, positions, departments, seniority levels. 50M+ domains indexed (Hunter.io)",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -12139,7 +12139,7 @@
         "properties": {
           "query": {
             "type": "string",
-            "description": "Search query — keywords, hashtags, or advanced operators (e.g. \"AI agents\", \"#crypto\", \"from:elonmusk\")"
+            "description": "Search query \u2014 keywords, hashtags, or advanced operators (e.g. \"AI agents\", \"#crypto\", \"from:elonmusk\")"
           },
           "sort_order": {
             "type": "string",
@@ -12284,7 +12284,7 @@
         "properties": {
           "keywords": {
             "type": "string",
-            "description": "Search keywords — supports Boolean operators (e.g. \"AI agents\", \"climate AND policy\")"
+            "description": "Search keywords \u2014 supports Boolean operators (e.g. \"AI agents\", \"climate AND policy\")"
           },
           "language": {
             "type": "string",
@@ -12441,6 +12441,22 @@
           "name": "topic",
           "description": "Topic",
           "required": true
+        }
+      ]
+    },
+    {
+      "name": "discover_tools",
+      "description": "Browse 332 tools by category or task description. Returns relevant tools without loading all definitions into context.",
+      "arguments": [
+        {
+          "name": "task",
+          "description": "Describe what you want to do (e.g. 'search flights from NYC to London')",
+          "required": false
+        },
+        {
+          "name": "category",
+          "description": "Filter by category: travel, weather, finance, crypto, search, news, location, health, entertainment, education, jobs, space, social, legal, business, developer, media, infrastructure, messaging, marketing, world",
+          "required": false
         }
       ]
     }

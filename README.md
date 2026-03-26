@@ -265,10 +265,16 @@ npx agentcash add https://apibase.pro
 ## MCP Discovery
 
 ```
-GET /.well-known/mcp.json → MCP server metadata
-GET /api/v1/tools → Full tool catalog with schemas (all 327 in one response)
-GET /health/ready → System health check
+GET  /.well-known/mcp.json    → MCP server metadata
+GET  /api/v1/tools             → Full tool catalog (all 332 tools in one response)
+GET  /health/ready             → System health check
+POST /mcp  prompts/get discover_tools  → Browse 332 tools by category or task (progressive disclosure)
 ```
+
+**Progressive disclosure:** Instead of loading all 332 tool schemas into context, agents can call the `discover_tools` prompt to find relevant tools first:
+- `discover_tools` (no args) → 21 categories with tool counts
+- `discover_tools category="travel"` → 17 travel tools
+- `discover_tools task="check earthquake near Tokyo"` → matching tools ranked by relevance
 
 ---
 

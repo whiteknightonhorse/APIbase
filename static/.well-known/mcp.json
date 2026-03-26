@@ -3,9 +3,17 @@
   "protocol": "MCP",
   "version": "1.0",
   "mcp_endpoint": "https://apibase.pro/mcp",
-  "tools_endpoint": "https://apibase.pro/api/tools",
+  "tools_endpoint": "https://apibase.pro/api/v1/tools",
+  "tools_count": 332,
   "capabilities_endpoint": "https://apibase.pro/.well-known/ai-capabilities.json",
   "authentication": "x402",
   "documentation": "https://apibase.pro/ai.txt",
-  "status": "active"
+  "status": "active",
+  "prompts": [
+    "find_cheapest_flight",
+    "crypto_market_overview",
+    "prediction_market_research",
+    "discover_tools"
+  ],
+  "discovery_hint": "Call prompt 'discover_tools' to browse 332 tools by category or task instead of loading all schemas into context."
 }
