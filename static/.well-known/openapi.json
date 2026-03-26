@@ -29845,7 +29845,7 @@
         "description": "Get latest breaking news from 70+ countries in 18+ languages. Returns full article text, author, source URL, and publication time. Filter by language, country, and category (technology, business, health, sports, science, finance, world).",
         "x-payment-info": {
           "pricingMode": "fixed",
-          "price": "0.000000",
+          "price": "0.002000",
           "protocols": [
             "x402",
             "mpp"
@@ -29934,7 +29934,7 @@
         "description": "Search news articles by keyword across 70+ countries and 18+ languages. Returns full article text with Boolean operator support. Filter by language, country, category, and date range.",
         "x-payment-info": {
           "pricingMode": "fixed",
-          "price": "0.000000",
+          "price": "0.002000",
           "protocols": [
             "x402",
             "mpp"
@@ -30034,7 +30034,7 @@
         "description": "List all 46 available news categories: technology, business, health, sports, science, entertainment, finance, world, politics, and more. Use to discover valid category values for filtering.",
         "x-payment-info": {
           "pricingMode": "fixed",
-          "price": "0.000000",
+          "price": "0.001000",
           "protocols": [
             "x402",
             "mpp"
@@ -30065,6 +30065,178 @@
                     "description": "Response locale (default: en)"
                   }
                 }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/iban.validate/call": {
+      "post": {
+        "operationId": "iban_validate",
+        "summary": "Validate IBAN + Bank Details",
+        "description": "Validate an IBAN and retrieve associated bank info: BIC/SWIFT code, bank name, address, country, currency, and SEPA membership. Supports 80+ IBAN-enabled countries including EU, UK, and MENA. Returns validation result with detailed breakdown.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "iban.validate"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "iban": {
+                    "type": "string",
+                    "description": "IBAN to validate (e.g. \"DE89370400440532013000\", \"GB29NWBK60161331926819\"). Spaces allowed, auto-stripped."
+                  }
+                },
+                "required": [
+                  "iban"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/iban.calculate/call": {
+      "post": {
+        "operationId": "iban_calculate",
+        "summary": "Calculate IBAN from Bank Details",
+        "description": "Calculate a valid IBAN from domestic bank routing details: country code, bank code, account number, and optional branch code. Returns the computed IBAN with correct checksum. Useful for payment automation.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "iban.calculate"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "country_code": {
+                    "type": "string",
+                    "description": "ISO 3166-1 alpha-2 country code (e.g. \"DE\", \"GB\", \"FR\", \"NL\")",
+                    "minLength": 2,
+                    "maxLength": 2
+                  },
+                  "bank_code": {
+                    "type": "string",
+                    "description": "Domestic bank code (e.g. \"37040044\" for Germany, \"NWBK\" for UK)"
+                  },
+                  "account_number": {
+                    "type": "string",
+                    "description": "Account number in domestic format"
+                  },
+                  "branch_code": {
+                    "type": "string",
+                    "description": "Branch/sort code if required by the country (e.g. \"601613\" for UK)"
+                  }
+                },
+                "required": [
+                  "country_code",
+                  "bank_code",
+                  "account_number"
+                ]
               }
             }
           }

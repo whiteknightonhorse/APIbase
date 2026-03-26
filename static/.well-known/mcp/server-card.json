@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase — The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 330 tools. Dual-rail: x402 + MPP.",
+    "description": "Unified MCP gateway to 332 tools. Dual-rail: x402 + MPP.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -12333,6 +12333,70 @@
             "description": "Response locale (default: en)"
           }
         },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "iban.banking.validate",
+      "title": "Validate IBAN + Bank Details",
+      "description": "Validate an IBAN and retrieve associated bank info: BIC/SWIFT code, bank name, address, country, currency, and SEPA membership. Supports 80+ IBAN-enabled countries including EU, UK, and MENA. Returns validation result with detailed breakdown.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "iban": {
+            "type": "string",
+            "description": "IBAN to validate (e.g. \"DE89370400440532013000\", \"GB29NWBK60161331926819\"). Spaces allowed, auto-stripped."
+          }
+        },
+        "required": [
+          "iban"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "iban.banking.calculate",
+      "title": "Calculate IBAN from Bank Details",
+      "description": "Calculate a valid IBAN from domestic bank routing details: country code, bank code, account number, and optional branch code. Returns the computed IBAN with correct checksum. Useful for payment automation.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "country_code": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "ISO 3166-1 alpha-2 country code (e.g. \"DE\", \"GB\", \"FR\", \"NL\")"
+          },
+          "bank_code": {
+            "type": "string",
+            "description": "Domestic bank code (e.g. \"37040044\" for Germany, \"NWBK\" for UK)"
+          },
+          "account_number": {
+            "type": "string",
+            "description": "Account number in domestic format"
+          },
+          "branch_code": {
+            "type": "string",
+            "description": "Branch/sort code if required by the country (e.g. \"601613\" for UK)"
+          }
+        },
+        "required": [
+          "country_code",
+          "bank_code",
+          "account_number"
+        ],
         "additionalProperties": false
       },
       "annotations": {

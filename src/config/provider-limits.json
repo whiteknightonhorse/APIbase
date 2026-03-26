@@ -769,6 +769,15 @@
     "docs_url": "https://api-docs.iqair.com/",
     "limit_proof": "Community plan: 10,000 calls/month, real-time AQI + weather"
   },
+  "ibanapi": {
+    "display_name": "IBANAPI",
+    "health_url": "https://api.ibanapi.com/v1/validate/DE89370400440532013000",
+    "limit_type": "monthly",
+    "free_limit": 120,
+    "reset_period": "monthly",
+    "docs_url": "https://ibanapi.com/documentation",
+    "limit_proof": "100 basic + 20 bank credits per 30 days free"
+  },
   "currents": {
     "display_name": "Currents API (Global News)",
     "health_url": "https://api.currentsapi.services/v1/available/categories",
