@@ -2,13 +2,13 @@
   "platform": "APIbase",
   "version": "2.0",
   "updated_at": "2026-03-26T00:00:00Z",
-  "tools_count": 332,
+  "tools_count": 327,
   "providers_count": 92,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
     "prompt_name": "discover_tools",
-    "description": "Call discover_tools to browse 332 tools by category or task instead of loading all schemas into context.",
+    "description": "Call discover_tools to browse 327 tools by category or task instead of loading all schemas into context.",
     "examples": [
       {"args": {}, "result": "21 categories with tool counts"},
       {"args": {"category": "travel"}, "result": "17 travel tools (amadeus, aviasales, sabre)"},
