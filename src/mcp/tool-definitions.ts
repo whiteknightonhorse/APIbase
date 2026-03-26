@@ -2648,4 +2648,34 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description: 'Get personal loan rate decision from US lenders. Returns recommended financing actions, APR rates by term and amount, and monthly payment estimates. Filter by loan amount, term, and credit score tier.',
     annotations: READ_ONLY,
   },
+
+  // TwitterAPI.io (4) — UC-198
+  {
+    toolId: 'twitter.search',
+    mcpName: 'twitter.tweets.search',
+    title: 'Search Twitter/X Tweets',
+    description: 'Search Twitter/X tweets by keyword, hashtag, or advanced query. Returns tweet text, author info, engagement metrics (likes, retweets, replies, views), and timestamps. 96% cheaper than official X API. Covers recent tweets.',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'twitter.user',
+    mcpName: 'twitter.users.profile',
+    title: 'Twitter/X User Profile',
+    description: 'Get a Twitter/X user profile by username. Returns display name, bio, follower/following count, tweet count, verified status, profile image, location, and account creation date.',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'twitter.followers',
+    mcpName: 'twitter.users.followers',
+    title: 'Twitter/X User Followers',
+    description: 'Get paginated follower list for a Twitter/X user. Returns follower profiles with username, display name, bio, follower count, and verified status. Supports cursor pagination.',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'twitter.trending',
+    mcpName: 'twitter.trends.worldwide',
+    title: 'Twitter/X Trending Topics',
+    description: 'Get current trending topics on Twitter/X. Filter by location using WOEID (Where On Earth ID). Returns trend name, search query, and rank. 1=worldwide, 23424977=US, 23424975=UK.',
+    annotations: READ_ONLY,
+  },
 ];

@@ -89,6 +89,7 @@ import { DiseaseAdapter } from './disease';
 import { WhoAdapter } from './who';
 import { GdacsAdapter } from './gdacs';
 import { RateApiAdapter } from './rateapi';
+import { TwitterApiAdapter } from './twitterapi';
 import { config } from '../config';
 
 /**
@@ -492,6 +493,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const rateKey = (config as Record<string, unknown>).PROVIDER_KEY_RATEAPI as string | undefined;
       if (!rateKey) return undefined;
       return getOrCreate('rateapi', () => new RateApiAdapter(rateKey));
+    }
+    case 'twitterapi': {
+      const twKey = (config as Record<string, unknown>).PROVIDER_KEY_TWITTERAPI as string | undefined;
+      if (!twKey) return undefined;
+      return getOrCreate('twitterapi', () => new TwitterApiAdapter(twKey));
     }
     default:
       return undefined;

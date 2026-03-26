@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase — The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 323 tools. Dual-rail: x402 + MPP.",
+    "description": "Unified MCP gateway to 327 tools. Dual-rail: x402 + MPP.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -12129,21 +12129,131 @@
         "idempotentHint": true,
         "openWorldHint": true
       }
+    },
+    {
+      "name": "twitter.tweets.search",
+      "title": "Search Twitter/X Tweets",
+      "description": "Search Twitter/X tweets by keyword, hashtag, or advanced query. Returns tweet text, author info, engagement metrics (likes, retweets, replies, views), and timestamps. 96% cheaper than official X API. Covers recent tweets.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query — keywords, hashtags, or advanced operators (e.g. \"AI agents\", \"#crypto\", \"from:elonmusk\")"
+          },
+          "sort_order": {
+            "type": "string",
+            "enum": [
+              "recency",
+              "relevancy"
+            ],
+            "description": "Sort order: \"recency\" for latest first, \"relevancy\" for most relevant (default recency)"
+          },
+          "cursor": {
+            "type": "string",
+            "description": "Pagination cursor from previous response (for next page of results)"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "twitter.users.profile",
+      "title": "Twitter/X User Profile",
+      "description": "Get a Twitter/X user profile by username. Returns display name, bio, follower/following count, tweet count, verified status, profile image, location, and account creation date.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "Twitter/X username without @ (e.g. \"elonmusk\", \"OpenAI\")"
+          },
+          "user_id": {
+            "type": "string",
+            "description": "Twitter/X numeric user ID as alternative to username"
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "twitter.users.followers",
+      "title": "Twitter/X User Followers",
+      "description": "Get paginated follower list for a Twitter/X user. Returns follower profiles with username, display name, bio, follower count, and verified status. Supports cursor pagination.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "Twitter/X username to get followers for (without @)"
+          },
+          "cursor": {
+            "type": "string",
+            "description": "Pagination cursor from previous response"
+          }
+        },
+        "required": [
+          "username"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "twitter.trends.worldwide",
+      "title": "Twitter/X Trending Topics",
+      "description": "Get current trending topics on Twitter/X. Filter by location using WOEID (Where On Earth ID). Returns trend name, search query, and rank. 1=worldwide, 23424977=US, 23424975=UK.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "woeid": {
+            "type": "integer",
+            "description": "Where On Earth ID for location-specific trends (1=worldwide, 23424977=US, 23424975=UK, 23424856=Japan)"
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
     }
   ],
   "prompts": [
     {
       "name": "find_cheapest_flight",
-      "description": "Search for cheapest flights",
+      "description": "Search flights",
       "arguments": [
         {
           "name": "origin",
-          "description": "Origin IATA",
+          "description": "IATA",
           "required": true
         },
         {
           "name": "destination",
-          "description": "Dest IATA",
+          "description": "IATA",
           "required": true
         },
         {
@@ -12159,7 +12269,7 @@
     },
     {
       "name": "prediction_market_research",
-      "description": "Polymarket research",
+      "description": "Polymarket",
       "arguments": [
         {
           "name": "topic",

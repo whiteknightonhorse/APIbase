@@ -1976,3 +1976,25 @@ tools:
     provider: rateapi
     price_usd: "0.002"
     cache_ttl: 300
+
+  # --- UC-198: TwitterAPI.io (Twitter/X Data) ---
+  - tool_id: twitter.search
+    name: Search Tweets
+    provider: twitterapi
+    price_usd: "0.002"
+    cache_ttl: 60
+  - tool_id: twitter.user
+    name: User Profile
+    provider: twitterapi
+    price_usd: "0.002"
+    cache_ttl: 300
+  - tool_id: twitter.followers
+    name: User Followers
+    provider: twitterapi
+    price_usd: "0.003"
+    cache_ttl: 300
+  - tool_id: twitter.trending
+    name: Trending Topics
+    provider: twitterapi
+    price_usd: "0.002"
+    cache_ttl: 60
