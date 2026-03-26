@@ -1,6 +1,6 @@
 # APIbase.pro — The API Hub for AI Agents
 
-> One MCP endpoint. 325 tools. 91 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
+> One MCP endpoint. 327 tools. 92 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Health](https://apibase.pro/health/ready)** | **[Dashboard](https://apibase.pro/dashboard)**
 
@@ -12,7 +12,7 @@
 
 ## What is APIbase?
 
-Production MCP server that gives AI agents access to 325 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, translate text, check weather alerts, generate images, send emails, look up holidays, shorten URLs, detect fires by satellite, decode VINs, look up food products — and 200+ more tools across 30+ categories.
+Production MCP server that gives AI agents access to 327 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, translate text, check weather alerts, generate images, send emails, look up holidays, shorten URLs, detect fires by satellite, decode VINs, look up food products — and 200+ more tools across 30+ categories.
 
 **Built for AI agents, not humans.** Auto-registration, zero setup, pay-per-call via x402 USDC micropayments on Base or MPP (Machine Payments Protocol) on Tempo.
 
@@ -62,7 +62,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 
 ---
 
-## Tool Categories (325 tools, 91 providers)
+## Tool Categories (327 tools, 92 providers)
 
 | Category | Tools | Providers | Examples |
 |----------|-------|-----------|----------|
@@ -71,7 +71,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 | **Social** | 7 | Bluesky, TwitterAPI.io | Search posts, profiles, feeds (AT Protocol, X/Twitter) |
 | **Travel & Flights** | 17 | Amadeus, Sabre, Aviasales | Flight search, pricing, status, airports |
 | **Finance & Stocks** | 16 | Finnhub, CoinGecko, ECB, FRED | Stock quotes, OHLCV, FX rates, economic data |
-| **Banking Data** | 4 | FDIC BankFind | US bank financials, branch locations, institution search |
+| **Banking Data** | 6 | FDIC BankFind, IBANAPI | US bank financials, branch locations, institution search, IBAN validation |
 | **Company Data** | 8 | SEC EDGAR, Companies House, GLEIF | US filings + UK registry + global LEI (200+ countries) |
 | **Currency Conversion** | 2 | ExchangeRate-API | 160+ currencies, real-time conversion |
 | **Tax & VAT** | 3 | VATcomply | EU VAT validation, rates, ECB exchange rates |
@@ -259,7 +259,7 @@ npx agentcash add https://apibase.pro
 
 ```
 GET /.well-known/mcp.json → MCP server metadata
-GET /api/v1/tools → Full tool catalog with schemas (all 325 in one response)
+GET /api/v1/tools → Full tool catalog with schemas (all 327 in one response)
 GET /health/ready → System health check
 ```
 

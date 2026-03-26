@@ -91,6 +91,7 @@ import { GdacsAdapter } from './gdacs';
 import { RateApiAdapter } from './rateapi';
 import { TwitterApiAdapter } from './twitterapi';
 import { CurrentsAdapter } from './currents';
+import { IbanApiAdapter } from './ibanapi';
 import { config } from '../config';
 
 /**
@@ -494,6 +495,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const rateKey = (config as Record<string, unknown>).PROVIDER_KEY_RATEAPI as string | undefined;
       if (!rateKey) return undefined;
       return getOrCreate('rateapi', () => new RateApiAdapter(rateKey));
+    }
+    case 'ibanapi': {
+      const ibanKey = (config as Record<string, unknown>).PROVIDER_KEY_IBANAPI as string | undefined;
+      if (!ibanKey) return undefined;
+      return getOrCreate('ibanapi', () => new IbanApiAdapter(ibanKey));
     }
     case 'currents': {
       const currKey = (config as Record<string, unknown>).PROVIDER_KEY_CURRENTS as string | undefined;

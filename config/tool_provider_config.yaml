@@ -2015,3 +2015,15 @@ tools:
     provider: currents
     price_usd: "0.001"
     cache_ttl: 86400
+
+  # --- UC-212: IBANAPI (IBAN Validation + Bank ID) ---
+  - tool_id: iban.validate
+    name: Validate IBAN
+    provider: ibanapi
+    price_usd: "0.002"
+    cache_ttl: 86400
+  - tool_id: iban.calculate
+    name: Calculate IBAN
+    provider: ibanapi
+    price_usd: "0.002"
+    cache_ttl: 86400

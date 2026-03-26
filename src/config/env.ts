@@ -231,6 +231,9 @@ export const appEnvSchema = z.object({
   // Currents API (UC-210) — global news 70+ countries
   PROVIDER_KEY_CURRENTS: z.string().optional().default(''),
 
+  // IBANAPI (UC-212) — IBAN validation + bank identification
+  PROVIDER_KEY_IBANAPI: z.string().optional().default(''),
+
   // Polymarket trading — Phase 2 (UC-001 §3-§8)
   POLYMARKET_WALLET_ADDRESS: z.string().startsWith('0x').optional().default(''),
   POLYMARKET_PRIVATE_KEY: z.string().optional().default(''),

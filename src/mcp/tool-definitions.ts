@@ -2701,4 +2701,20 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description: 'List all 46 available news categories: technology, business, health, sports, science, entertainment, finance, world, politics, and more. Use to discover valid category values for filtering.',
     annotations: READ_ONLY,
   },
+
+  // IBANAPI (2) — UC-212
+  {
+    toolId: 'iban.validate',
+    mcpName: 'iban.banking.validate',
+    title: 'Validate IBAN + Bank Details',
+    description: 'Validate an IBAN and retrieve associated bank info: BIC/SWIFT code, bank name, address, country, currency, and SEPA membership. Supports 80+ IBAN-enabled countries including EU, UK, and MENA. Returns validation result with detailed breakdown.',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'iban.calculate',
+    mcpName: 'iban.banking.calculate',
+    title: 'Calculate IBAN from Bank Details',
+    description: 'Calculate a valid IBAN from domestic bank routing details: country code, bank code, account number, and optional branch code. Returns the computed IBAN with correct checksum. Useful for payment automation.',
+    annotations: READ_ONLY,
+  },
 ];
