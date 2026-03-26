@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase \u2014 The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 332 tools. Dual-rail: x402 + MPP.",
+    "description": "Unified MCP gateway to 327 tools. Dual-rail: x402 + MPP.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -12446,7 +12446,7 @@
     },
     {
       "name": "discover_tools",
-      "description": "Browse 332 tools by category or task description. Returns relevant tools without loading all definitions into context.",
+      "description": "Browse 327 tools by category or task description. Returns relevant tools without loading all definitions into context.",
       "arguments": [
         {
           "name": "task",

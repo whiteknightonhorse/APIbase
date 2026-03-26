@@ -4,7 +4,8 @@
   "version": "1.0",
   "mcp_endpoint": "https://apibase.pro/mcp",
   "tools_endpoint": "https://apibase.pro/api/v1/tools",
-  "tools_count": 332,
+  "tools_count": 327,
+  "categories_count": 21,
   "capabilities_endpoint": "https://apibase.pro/.well-known/ai-capabilities.json",
   "authentication": "x402",
   "documentation": "https://apibase.pro/ai.txt",
@@ -15,5 +16,5 @@
     "prediction_market_research",
     "discover_tools"
   ],
-  "discovery_hint": "Call prompt 'discover_tools' to browse 332 tools by category or task instead of loading all schemas into context."
+  "discovery_hint": "Call prompt 'discover_tools' to browse tools by category or task instead of loading all schemas into context."
 }
