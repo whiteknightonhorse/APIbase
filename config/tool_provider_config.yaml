@@ -1937,3 +1937,20 @@ tools:
     provider: who
     price_usd: "0.001"
     cache_ttl: 86400
+
+  # --- UC-194: GDACS UN Disaster Alerts ---
+  - tool_id: gdacs.alerts
+    name: Global Disaster Alerts
+    provider: gdacs
+    price_usd: "0.001"
+    cache_ttl: 300
+  - tool_id: gdacs.events
+    name: Disaster Event Details
+    provider: gdacs
+    price_usd: "0.001"
+    cache_ttl: 300
+  - tool_id: gdacs.history
+    name: Historical Disasters
+    provider: gdacs
+    price_usd: "0.001"
+    cache_ttl: 3600

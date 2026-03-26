@@ -769,6 +769,15 @@
     "docs_url": "https://api-docs.iqair.com/",
     "limit_proof": "Community plan: 10,000 calls/month, real-time AQI + weather"
   },
+  "gdacs": {
+    "display_name": "GDACS (UN Disaster Alerts)",
+    "health_url": "https://www.gdacs.org/gdacsapi/api/events/geteventlist/SEARCH?limit=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.gdacs.org/Knowledge/api.aspx",
+    "limit_proof": "UN/EC open data, no auth required, no documented rate limits"
+  },
   "who": {
     "display_name": "WHO Global Health Observatory",
     "health_url": "https://ghoapi.azureedge.net/api/Indicator?$top=1",

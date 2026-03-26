@@ -87,6 +87,7 @@ import { courtlistenerSchemas } from './courtlistener.schema';
 import { fdicSchemas } from './fdic.schema';
 import { diseaseSchemas } from './disease.schema';
 import { whoSchemas } from './who.schema';
+import { gdacsSchemas } from './gdacs.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -177,4 +178,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...fdicSchemas,
   ...diseaseSchemas,
   ...whoSchemas,
+  ...gdacsSchemas,
 };

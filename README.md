@@ -1,6 +1,6 @@
 # APIbase.pro — The API Hub for AI Agents
 
-> One MCP endpoint. 311 tools. 87 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
+> One MCP endpoint. 314 tools. 88 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Health](https://apibase.pro/health/ready)** | **[Dashboard](https://apibase.pro/dashboard)**
 
@@ -12,7 +12,7 @@
 
 ## What is APIbase?
 
-Production MCP server that gives AI agents access to 311 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, translate text, check weather alerts, generate images, send emails, look up holidays, shorten URLs, detect fires by satellite, decode VINs, look up food products — and 200+ more tools across 30+ categories.
+Production MCP server that gives AI agents access to 314 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, translate text, check weather alerts, generate images, send emails, look up holidays, shorten URLs, detect fires by satellite, decode VINs, look up food products — and 200+ more tools across 30+ categories.
 
 **Built for AI agents, not humans.** Auto-registration, zero setup, pay-per-call via x402 USDC micropayments on Base or MPP (Machine Payments Protocol) on Tempo.
 
@@ -62,7 +62,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 
 ---
 
-## Tool Categories (311 tools, 87 providers)
+## Tool Categories (314 tools, 88 providers)
 
 | Category | Tools | Providers | Examples |
 |----------|-------|-----------|----------|
@@ -114,6 +114,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 | **Infrastructure** | 6 | Cloudflare | DNS management, CDN cache, traffic analytics |
 | **Browser** | 4 | Browserbase | Managed browser sessions, screenshots, scraping |
 | **Earthquakes** | 3 | USGS | Global seismic data, real-time feeds |
+| **Disasters** | 3 | GDACS | UN global disaster alerts (earthquakes, floods, hurricanes, volcanoes) |
 | **IP Intelligence** | 2 | ipapi.is | Geolocation, VPN/proxy detection |
 | **Vehicle Data** | 3 | NHTSA, Auto.dev | VIN decoder (US + global 100+ countries) |
 | **Country Data** | 2 | REST Countries | Country search, ISO code lookup |
@@ -122,6 +123,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 | **Crypto & DeFi** | 26 | CoinGecko, Polymarket, Hyperliquid | Prices, prediction markets, perpetuals |
 
 **Full tool catalog with schemas:** [`https://apibase.pro/api/v1/tools`](https://apibase.pro/api/v1/tools)
+
 
 ---
 
@@ -255,7 +257,7 @@ npx agentcash add https://apibase.pro
 
 ```
 GET /.well-known/mcp.json → MCP server metadata
-GET /api/v1/tools → Full tool catalog with schemas (all 311 in one response)
+GET /api/v1/tools → Full tool catalog with schemas (all 314 in one response)
 GET /health/ready → System health check
 ```
 

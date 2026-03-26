@@ -28795,6 +28795,309 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/gdacs.alerts/call": {
+      "post": {
+        "operationId": "gdacs_alerts",
+        "summary": "Global Disaster Alerts (UN)",
+        "description": "Get current and recent global disaster alerts from the UN GDACS system. Returns earthquakes, tropical cyclones, floods, volcanoes, droughts, and tsunamis with color-coded severity (Green/Orange/Red), affected country, coordinates, and population impact estimates.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "gdacs.alerts"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "event_type": {
+                    "type": "string",
+                    "enum": [
+                      "EQ",
+                      "TC",
+                      "FL",
+                      "VO",
+                      "DR",
+                      "TS"
+                    ],
+                    "description": "Filter by disaster type: EQ=earthquake, TC=tropical cyclone, FL=flood, VO=volcano, DR=drought, TS=tsunami"
+                  },
+                  "alert_level": {
+                    "type": "string",
+                    "enum": [
+                      "Green",
+                      "Orange",
+                      "Red"
+                    ],
+                    "description": "Minimum alert level filter: Green (low), Orange (medium), Red (high impact)"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Number of events to return, max 50 (default 10)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/gdacs.events/call": {
+      "post": {
+        "operationId": "gdacs_events",
+        "summary": "Disaster Event Details",
+        "description": "Get detailed information for a specific GDACS disaster event by ID. Returns event name, alert level with justification, affected population at each severity level, coordinates, geometry for mapping, source agency, and situation report links.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "gdacs.events"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "event_id": {
+                    "type": "integer",
+                    "description": "GDACS event ID (obtain via gdacs.alerts)"
+                  },
+                  "event_type": {
+                    "type": "string",
+                    "enum": [
+                      "EQ",
+                      "TC",
+                      "FL",
+                      "VO",
+                      "DR",
+                      "TS"
+                    ],
+                    "description": "Event type code: EQ=earthquake, TC=tropical cyclone, FL=flood, VO=volcano, DR=drought, TS=tsunami"
+                  }
+                },
+                "required": [
+                  "event_id",
+                  "event_type"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/gdacs.history/call": {
+      "post": {
+        "operationId": "gdacs_history",
+        "summary": "Historical Disaster Archive",
+        "description": "Query the GDACS historical disaster archive from 2000 onwards. Filter by date range, event type, country, and alert level. Returns past earthquakes, cyclones, floods, and volcanoes for disaster frequency analysis and regional risk assessment.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "gdacs.history"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "date_from": {
+                    "type": "string",
+                    "description": "Start date in YYYY-MM-DD format (e.g. \"2024-01-01\")"
+                  },
+                  "date_to": {
+                    "type": "string",
+                    "description": "End date in YYYY-MM-DD format (e.g. \"2024-12-31\")"
+                  },
+                  "event_type": {
+                    "type": "string",
+                    "enum": [
+                      "EQ",
+                      "TC",
+                      "FL",
+                      "VO",
+                      "DR",
+                      "TS"
+                    ],
+                    "description": "Filter by disaster type"
+                  },
+                  "country": {
+                    "type": "string",
+                    "description": "ISO 3166-1 alpha-3 country code (e.g. \"JPN\", \"PHL\", \"USA\", \"IDN\")"
+                  },
+                  "alert_level": {
+                    "type": "string",
+                    "enum": [
+                      "Green",
+                      "Orange",
+                      "Red"
+                    ],
+                    "description": "Minimum alert level filter"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Number of events to return, max 50 (default 10)"
+                  }
+                },
+                "required": [
+                  "date_from",
+                  "date_to"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {
