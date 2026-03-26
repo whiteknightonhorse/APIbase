@@ -88,6 +88,7 @@ import { fdicSchemas } from './fdic.schema';
 import { diseaseSchemas } from './disease.schema';
 import { whoSchemas } from './who.schema';
 import { gdacsSchemas } from './gdacs.schema';
+import { rateapiSchemas } from './rateapi.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -179,4 +180,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...diseaseSchemas,
   ...whoSchemas,
   ...gdacsSchemas,
+  ...rateapiSchemas,
 };

@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase — The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 319 tools. Dual-rail: x402 + MPP.",
+    "description": "Unified MCP gateway to 323 tools. Dual-rail: x402 + MPP.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -11932,12 +11932,209 @@
         "idempotentHint": true,
         "openWorldHint": true
       }
+    },
+    {
+      "name": "rateapi.lending.mortgage",
+      "title": "US Mortgage Rate Decision",
+      "description": "Get AI-powered mortgage rate decision from 4,300+ US lenders. Returns recommended actions, current APR rates, estimated monthly payments, and confidence scores. Supports 30yr/15yr fixed and ARM products. Filter by state, amount, and credit tier.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "Two-letter US state code (e.g. \"CA\", \"NY\", \"TX\")"
+          },
+          "amount": {
+            "type": "number",
+            "minimum": 10000,
+            "description": "Loan amount in USD (e.g. 400000 for a $400K mortgage)"
+          },
+          "term_months": {
+            "type": "integer",
+            "description": "Loan term in months: 180 (15yr), 360 (30yr), or custom"
+          },
+          "rate_type": {
+            "type": "string",
+            "enum": [
+              "fixed",
+              "adjustable"
+            ],
+            "description": "Rate type: \"fixed\" or \"adjustable\" (ARM)"
+          },
+          "intent": {
+            "type": "string",
+            "enum": [
+              "purchase",
+              "refinance"
+            ],
+            "description": "Loan intent: \"purchase\" for buying or \"refinance\""
+          },
+          "credit_score": {
+            "type": "string",
+            "enum": [
+              "excellent",
+              "good",
+              "fair",
+              "poor"
+            ],
+            "description": "Credit score tier for rate filtering"
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "rateapi.lending.auto",
+      "title": "US Auto Loan Rate Decision",
+      "description": "Get auto loan rate decision for new and used vehicles from US lenders. Returns recommended financing actions, APR rates by term (24-72 months), and estimated monthly payments. Filter by vehicle type and credit tier.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "Two-letter US state code"
+          },
+          "amount": {
+            "type": "number",
+            "minimum": 1000,
+            "description": "Loan amount in USD (e.g. 35000)"
+          },
+          "term_months": {
+            "type": "string",
+            "enum": [
+              "24",
+              "36",
+              "48",
+              "60",
+              "72"
+            ],
+            "description": "Loan term: 24, 36, 48, 60, or 72 months"
+          },
+          "vehicle_type": {
+            "type": "string",
+            "enum": [
+              "new",
+              "used"
+            ],
+            "description": "Vehicle type: \"new\" or \"used\""
+          },
+          "credit_score": {
+            "type": "string",
+            "enum": [
+              "excellent",
+              "good",
+              "fair",
+              "poor"
+            ],
+            "description": "Credit score tier"
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "rateapi.lending.heloc",
+      "title": "US HELOC Rate Decision",
+      "description": "Get Home Equity Line of Credit (HELOC) rate decision. Returns current HELOC APR rates, recommended actions, and lender comparisons. Filter by combined loan-to-value ratio (CLTV), state, and credit score tier.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "Two-letter US state code"
+          },
+          "cltv": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 95,
+            "description": "Combined loan-to-value ratio (0-95)"
+          },
+          "credit_score": {
+            "type": "string",
+            "enum": [
+              "excellent",
+              "good",
+              "fair",
+              "poor"
+            ],
+            "description": "Credit score tier"
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "rateapi.lending.personal",
+      "title": "US Personal Loan Rate Decision",
+      "description": "Get personal loan rate decision from US lenders. Returns recommended financing actions, APR rates by term and amount, and monthly payment estimates. Filter by loan amount, term, and credit score tier.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number",
+            "minimum": 1000,
+            "description": "Loan amount in USD (e.g. 10000)"
+          },
+          "term_months": {
+            "type": "string",
+            "enum": [
+              "12",
+              "24",
+              "36",
+              "48",
+              "60"
+            ],
+            "description": "Loan term: 12, 24, 36, 48, or 60 months"
+          },
+          "credit_score": {
+            "type": "string",
+            "enum": [
+              "excellent",
+              "good",
+              "fair",
+              "poor"
+            ],
+            "description": "Credit score tier"
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
     }
   ],
   "prompts": [
     {
       "name": "find_cheapest_flight",
-      "description": "Search for the cheapest flights",
+      "description": "Search for cheapest flights",
       "arguments": [
         {
           "name": "origin",
@@ -11951,14 +12148,14 @@
         },
         {
           "name": "date",
-          "description": "Date YYYY-MM-DD",
+          "description": "Date",
           "required": true
         }
       ]
     },
     {
       "name": "crypto_market_overview",
-      "description": "Crypto market overview"
+      "description": "Crypto overview"
     },
     {
       "name": "prediction_market_research",

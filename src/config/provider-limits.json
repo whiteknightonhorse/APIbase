@@ -769,6 +769,15 @@
     "docs_url": "https://api-docs.iqair.com/",
     "limit_proof": "Community plan: 10,000 calls/month, real-time AQI + weather"
   },
+  "rateapi": {
+    "display_name": "RateAPI (US Lending Rates)",
+    "health_url": "https://api.rateapi.dev/v1/decisions",
+    "limit_type": "monthly",
+    "free_limit": 50,
+    "reset_period": "monthly",
+    "docs_url": "https://rateapi.dev",
+    "limit_proof": "Free tier: 50 requests/month, MCP-native API for AI agents"
+  },
   "gdacs": {
     "display_name": "GDACS (UN Disaster Alerts)",
     "health_url": "https://www.gdacs.org/gdacsapi/api/events/geteventlist/SEARCH?limit=1",
