@@ -1,187 +1,41 @@
 {
   "platform": "APIbase",
-  "version": "1.0",
-  "updated_at": "2026-03-08T00:00:00Z",
-  "capabilities": [
-    {
-      "id": "current_weather",
-      "description": "Retrieve real-time weather conditions for any location worldwide",
-      "category": "environment",
-      "tools": ["weather.get_current"]
-    },
-    {
-      "id": "weather_forecast",
-      "description": "Get multi-day weather forecasts for any location",
-      "category": "environment",
-      "tools": ["weather.get_forecast"]
-    },
-    {
-      "id": "weather_alerts",
-      "description": "Get active severe weather alerts and warnings for a location",
-      "category": "environment",
-      "tools": ["weather.get_alerts"]
-    },
-    {
-      "id": "weather_history",
-      "description": "Access historical weather data for any location and date",
-      "category": "environment",
-      "tools": ["weather.get_history"]
-    },
-    {
-      "id": "air_quality",
-      "description": "Get air quality index and pollution data for any location",
-      "category": "environment",
-      "tools": ["weather.air_quality"]
-    },
-    {
-      "id": "location_geocoding",
-      "description": "Convert location names to geographic coordinates",
-      "category": "environment",
-      "tools": ["weather.geocode"]
-    },
-    {
-      "id": "weather_comparison",
-      "description": "Compare weather conditions across multiple locations simultaneously",
-      "category": "environment",
-      "tools": ["weather.compare"]
-    },
-    {
-      "id": "crypto_pricing",
-      "description": "Fetch real-time cryptocurrency prices and market data",
-      "category": "finance",
-      "tools": ["crypto.get_price"]
-    },
-    {
-      "id": "crypto_market_overview",
-      "description": "Get cryptocurrency market data by category with rankings",
-      "category": "finance",
-      "tools": ["coingecko.get_market"]
-    },
-    {
-      "id": "crypto_coin_analysis",
-      "description": "Get detailed information about a specific cryptocurrency including description, links, and stats",
-      "category": "finance",
-      "tools": ["crypto.coin_detail"]
-    },
-    {
-      "id": "crypto_price_history",
-      "description": "Access historical price data and charts for cryptocurrencies",
-      "category": "finance",
-      "tools": ["crypto.price_history"]
-    },
-    {
-      "id": "crypto_trending",
-      "description": "Discover trending and popular cryptocurrencies",
-      "category": "finance",
-      "tools": ["crypto.trending"]
-    },
-    {
-      "id": "crypto_global_stats",
-      "description": "Get global cryptocurrency market statistics and dominance data",
-      "category": "finance",
-      "tools": ["crypto.global"]
-    },
-    {
-      "id": "dex_liquidity",
-      "description": "Access decentralized exchange liquidity pool data and analytics",
-      "category": "finance",
-      "tools": ["crypto.dex_pools"]
-    },
-    {
-      "id": "token_lookup",
-      "description": "Look up token information by smart contract address on any supported chain",
-      "category": "finance",
-      "tools": ["crypto.token_by_address"]
-    },
-    {
-      "id": "crypto_search",
-      "description": "Search for cryptocurrencies by name, symbol, or keyword",
-      "category": "finance",
-      "tools": ["crypto.search"]
-    },
-    {
-      "id": "prediction_market_search",
-      "description": "Search and discover prediction markets on Polymarket",
-      "category": "markets",
-      "tools": ["polymarket.search"]
-    },
-    {
-      "id": "prediction_market_detail",
-      "description": "Get detailed information about a specific prediction market including outcomes and volumes",
-      "category": "markets",
-      "tools": ["polymarket.market_detail"]
-    },
-    {
-      "id": "prediction_market_prices",
-      "description": "Get current outcome prices for prediction markets",
-      "category": "markets",
-      "tools": ["polymarket.prices"]
-    },
-    {
-      "id": "prediction_market_history",
-      "description": "Access historical price data for prediction market outcomes",
-      "category": "markets",
-      "tools": ["polymarket.price_history"]
-    },
-    {
-      "id": "prediction_market_orderbook",
-      "description": "Get real-time order book depth for prediction markets",
-      "category": "markets",
-      "tools": ["polymarket.get_orderbook"]
-    },
-    {
-      "id": "prediction_market_trending",
-      "description": "Discover trending and high-volume prediction markets",
-      "category": "markets",
-      "tools": ["polymarket.trending"]
-    },
-    {
-      "id": "prediction_market_leaderboard",
-      "description": "Get top trader rankings and performance on Polymarket",
-      "category": "markets",
-      "tools": ["polymarket.leaderboard"]
-    },
-    {
-      "id": "flight_search",
-      "description": "Search for flights between airports with pricing and schedule data",
-      "category": "travel",
-      "tools": ["aviasales.search_flights"]
-    },
-    {
-      "id": "flight_price_calendar",
-      "description": "View flight price calendar to find cheapest travel dates for a route",
-      "category": "travel",
-      "tools": ["aviasales.price_calendar"]
-    },
-    {
-      "id": "cheap_flights",
-      "description": "Find the cheapest available flights from any origin airport",
-      "category": "travel",
-      "tools": ["aviasales.cheap_flights"]
-    },
-    {
-      "id": "popular_routes",
-      "description": "Discover popular flight routes and destinations from any origin",
-      "category": "travel",
-      "tools": ["aviasales.popular_routes"]
-    },
-    {
-      "id": "hotel_search",
-      "description": "Search for hotels in any city with pricing and availability",
-      "category": "travel",
-      "tools": ["aviasales.hotel_search"]
-    },
-    {
-      "id": "nearby_destinations",
-      "description": "Find nearby travel destinations reachable by air from any location",
-      "category": "travel",
-      "tools": ["aviasales.nearby_destinations"]
-    },
-    {
-      "id": "airport_lookup",
-      "description": "Look up airport information by name, city, or IATA code",
-      "category": "travel",
-      "tools": ["aviasales.airport_lookup"]
-    }
+  "version": "2.0",
+  "updated_at": "2026-03-26T00:00:00Z",
+  "tools_count": 332,
+  "providers_count": 92,
+  "mcp_endpoint": "https://apibase.pro/mcp",
+  "discovery": {
+    "method": "MCP prompt",
+    "prompt_name": "discover_tools",
+    "description": "Call discover_tools to browse 332 tools by category or task instead of loading all schemas into context.",
+    "examples": [
+      {"args": {}, "result": "21 categories with tool counts"},
+      {"args": {"category": "travel"}, "result": "17 travel tools (amadeus, aviasales, sabre)"},
+      {"args": {"task": "search flights from NYC"}, "result": "top matching tools ranked by relevance"}
+    ]
+  },
+  "categories": [
+    {"name": "travel", "tools": 17, "providers": "Amadeus, Aviasales, Sabre", "examples": "flight search, pricing, airport lookup"},
+    {"name": "weather", "tools": 11, "providers": "OpenWeatherMap, NWS, IQAir", "examples": "current weather, forecast, alerts, air quality"},
+    {"name": "finance", "tools": 26, "providers": "Finnhub, FRED, FDIC, ECB, RateAPI, IBAN", "examples": "stock quotes, FX rates, economic data, mortgage rates"},
+    {"name": "crypto", "tools": 30, "providers": "CoinGecko, Polymarket, Hyperliquid, AsterDEX", "examples": "prices, markets, prediction markets, DeFi"},
+    {"name": "search", "tools": 9, "providers": "Serper, Tavily, Exa", "examples": "web search, news search, semantic search"},
+    {"name": "news", "tools": 8, "providers": "NewsData, GDELT, Currents", "examples": "latest news, global events, crypto news"},
+    {"name": "location", "tools": 18, "providers": "Geoapify, Geocodio, Foursquare, Walk Score, Realtor", "examples": "geocoding, places, routing, real estate"},
+    {"name": "health", "tools": 24, "providers": "USDA, OpenFDA, WHO, FatSecret, Spoonacular, ClinicalTrials", "examples": "nutrition, drug safety, clinical trials, recipes"},
+    {"name": "entertainment", "tools": 44, "providers": "TMDB, Ticketmaster, RAWG, IGDB, Jikan, MusicBrainz, PodcastIndex, API-Sports", "examples": "movies, events, games, anime, music, podcasts, sports"},
+    {"name": "education", "tools": 11, "providers": "OpenAlex, arXiv, PubMed, Open Library, College Scorecard", "examples": "papers, books, colleges"},
+    {"name": "jobs", "tools": 6, "providers": "BLS, O*NET, ESCO, CareerJet", "examples": "salary data, occupations, job listings"},
+    {"name": "space", "tools": 10, "providers": "NASA, JPL, FIRMS", "examples": "astronomy, asteroids, fire detection"},
+    {"name": "social", "tools": 9, "providers": "Mastodon, Bluesky, Twitter/X", "examples": "trending posts, profiles, search"},
+    {"name": "legal", "tools": 8, "providers": "Regulations.gov, Federal Register, CourtListener", "examples": "regulations, court opinions, federal rules"},
+    {"name": "business", "tools": 6, "providers": "GLEIF, Companies House, Hunter.io", "examples": "LEI lookup, UK companies, email enrichment"},
+    {"name": "developer", "tools": 28, "providers": "QRServer, WhoisXML, TimeAPI, NHTSA, Langbly, ConvertAPI, API2PDF", "examples": "QR codes, WHOIS, VIN decode, translation, PDF generation"},
+    {"name": "media", "tools": 14, "providers": "Pexels, Stability AI, OCR.space, ARTIC, Europeana, AssemblyAI", "examples": "stock photos, image generation, OCR, art, transcription"},
+    {"name": "infrastructure", "tools": 15, "providers": "Cloudflare, NameSilo, Browserbase", "examples": "DNS, domains, browser automation"},
+    {"name": "messaging", "tools": 10, "providers": "Telegram, Twilio, Resend, ZeroBounce", "examples": "SMS, email, chat, email validation"},
+    {"name": "marketing", "tools": 11, "providers": "AIPush, Diffbot", "examples": "AI marketing pages, web extraction"},
+    {"name": "world", "tools": 17, "providers": "REST Countries, Nager.Date, GDACS, VATcomply, Open Food Facts", "examples": "countries, holidays, disasters, VAT, food products"}
   ]
 }

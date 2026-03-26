@@ -9,5 +9,6 @@ export interface McpToolDefinition {
   mcpName?: string;
   description: string;
   title?: string;
+  category?: string;
   annotations?: ToolAnnotations;
 }

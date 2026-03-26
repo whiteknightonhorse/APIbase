@@ -1,51 +1,52 @@
 # ai.txt — APIbase.pro
 # Universal API Hub for AI Agents
-# Last updated: 2026-03-07
+# Last updated: 2026-03-26
 
 ## Identity
 Name: APIbase
 URL: https://apibase.pro
 Type: API aggregation platform for AI agents
-Protocols: MCP, A2A, x402, OpenAPI 3.1
+Protocol: MCP (Model Context Protocol)
+Payment: x402 (USDC on Base) + MPP (Machine Payments Protocol)
+Tools: 332 across 21 categories
 
 ## What We Do
-APIbase aggregates APIs from hundreds of businesses into a single,
-normalized, machine-readable format. Any AI agent can discover,
-access, and pay for APIs through one entry point.
+APIbase aggregates 332 API tools from 92+ providers into a single MCP endpoint.
+Any AI agent can discover, call, and pay for tools through one entry point.
 
 ## For AI Agents — Quick Start
-1. GET https://apibase.pro/.well-known/mcp.json → MCP tools list
-2. GET https://apibase.pro/.well-known/agent.json → A2A Agent Card
-3. POST https://apibase.pro/api/v1/discover {"query": "describe your task"} → matching APIs
-4. POST https://apibase.pro/api/v1/agents/register → register your agent
-5. GET https://apibase.pro/.well-known/openapi.json → full OpenAPI spec
+1. Connect: POST https://apibase.pro/mcp (Streamable HTTP, MCP protocol)
+2. Discover: Call prompt "discover_tools" → browse 332 tools by category or task
+3. Call tools: tools/call with any tool name → pipeline handles auth, payment, caching
+4. Full catalog: GET https://apibase.pro/api/v1/tools → all 332 tools with JSON schemas
 
-## API Categories
-travel, food, finance, insurance, legal, medical, e-commerce,
-logistics, compute, data, services, utilities
+## Progressive Disclosure (recommended for 332+ tools)
+Instead of loading all tool schemas into context, use the discover_tools prompt:
+- discover_tools (no args) → 21 categories with tool counts
+- discover_tools category="travel" → 17 travel tools (amadeus, aviasales, sabre)
+- discover_tools task="find flights from NYC" → relevant tools ranked by keyword match
+All 332 tools remain callable regardless of discovery — prompt is advisory only.
+
+## Categories (21)
+travel, weather, finance, crypto, search, news, location, health,
+entertainment, education, jobs, space, social, legal, business,
+developer, media, infrastructure, messaging, marketing, world
 
 ## Authentication
-Type: OAuth 2.1 with Dynamic Client Registration
-Register: POST /api/v1/agents/register
-Docs: /api/v1/docs/auth
+Auto-registration: first request creates agent credentials automatically.
+API key format: ak_live_<32 hex> in Authorization: Bearer header.
 
 ## Payments
 Protocol: x402 (HTTP 402 Payment Required)
-Tokens: USDC, USDT
-Networks: Base, Polygon, Solana
-Details: /.well-known/x402-payment.json
+Token: USDC on Base mainnet
+Prices: $0.001–$0.035 per call (tool-dependent)
+Details: https://apibase.pro/.well-known/x402-payment.json
 
-## Formats
-- MCP Tool Definitions (for Claude, ChatGPT, Gemini agents)
-- OpenAPI 3.1 Spec (for HTTP-based agents)
-- A2A Agent Cards (for multi-agent systems)
-- JSON-LD (Schema.org structured data)
-
-## Rate Limits
-Default: 1000 requests/hour (unauthenticated)
-Authenticated: based on KYA verification level
-Headers: X-RateLimit-Limit, X-RateLimit-Remaining, Retry-After
+## Discovery Endpoints
+- MCP: https://apibase.pro/mcp
+- Tool catalog: https://apibase.pro/api/v1/tools
+- OpenAPI: https://apibase.pro/.well-known/openapi.json
+- Health: https://apibase.pro/health/ready
 
 ## Contact
-Agent support: POST /api/v1/support
-GitHub: https://github.com/apibase-pro/apibase
+GitHub: https://github.com/whiteknightonhorse/APIbase
