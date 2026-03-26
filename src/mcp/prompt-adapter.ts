@@ -14,16 +14,7 @@ import type { McpToolDefinition } from './types';
 /*  discover_tools — progressive disclosure helper                    */
 /* ------------------------------------------------------------------ */
 
-const CATEGORIES = [
-  'travel', 'weather', 'finance', 'crypto', 'search', 'news',
-  'location', 'health', 'entertainment', 'education', 'jobs',
-  'space', 'social', 'legal', 'business', 'developer', 'media',
-  'infrastructure', 'messaging', 'marketing', 'world',
-] as const;
-
-type Category = (typeof CATEGORIES)[number];
-
-/** Build category → tool[] index once at startup. */
+/** Build category → tool[] index once at startup. Categories auto-derived from tool definitions. */
 function buildCategoryIndex(): Map<string, McpToolDefinition[]> {
   const idx = new Map<string, McpToolDefinition[]>();
   for (const t of TOOL_DEFINITIONS) {
@@ -36,6 +27,9 @@ function buildCategoryIndex(): Map<string, McpToolDefinition[]> {
 }
 
 const categoryIndex = buildCategoryIndex();
+
+/** Sorted category names — auto-derived, no hardcoded list. */
+const CATEGORIES = [...categoryIndex.keys()].sort();
 
 /** Simple keyword scoring: count keyword hits in title + description + category. */
 function scoreByTask(tool: McpToolDefinition, keywords: string[]): number {
