@@ -87,6 +87,7 @@ import { CourtListenerAdapter } from './courtlistener';
 import { FdicAdapter } from './fdic';
 import { DiseaseAdapter } from './disease';
 import { WhoAdapter } from './who';
+import { GdacsAdapter } from './gdacs';
 import { config } from '../config';
 
 /**
@@ -484,6 +485,8 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       return getOrCreate('disease', () => new DiseaseAdapter());
     case 'who':
       return getOrCreate('who', () => new WhoAdapter());
+    case 'gdacs':
+      return getOrCreate('gdacs', () => new GdacsAdapter());
     default:
       return undefined;
   }

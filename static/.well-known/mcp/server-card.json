@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase — The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 316 tools. Dual-rail: x402 + MPP.",
+    "description": "Unified MCP gateway to 319 tools. Dual-rail: x402 + MPP.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -11783,6 +11783,147 @@
             "description": "Number of countries to return, max 200 (default 50)"
           }
         },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "gdacs.disasters.alerts",
+      "title": "Global Disaster Alerts (UN)",
+      "description": "Get current and recent global disaster alerts from the UN GDACS system. Returns earthquakes, tropical cyclones, floods, volcanoes, droughts, and tsunamis with color-coded severity (Green/Orange/Red), affected country, coordinates, and population impact estimates.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "event_type": {
+            "type": "string",
+            "enum": [
+              "EQ",
+              "TC",
+              "FL",
+              "VO",
+              "DR",
+              "TS"
+            ],
+            "description": "Filter by disaster type: EQ=earthquake, TC=tropical cyclone, FL=flood, VO=volcano, DR=drought, TS=tsunami"
+          },
+          "alert_level": {
+            "type": "string",
+            "enum": [
+              "Green",
+              "Orange",
+              "Red"
+            ],
+            "description": "Minimum alert level filter: Green (low), Orange (medium), Red (high impact)"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of events to return, max 50 (default 10)"
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "gdacs.disasters.details",
+      "title": "Disaster Event Details",
+      "description": "Get detailed information for a specific GDACS disaster event by ID. Returns event name, alert level with justification, affected population at each severity level, coordinates, geometry for mapping, source agency, and situation report links.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "event_id": {
+            "type": "integer",
+            "description": "GDACS event ID (obtain via gdacs.alerts)"
+          },
+          "event_type": {
+            "type": "string",
+            "enum": [
+              "EQ",
+              "TC",
+              "FL",
+              "VO",
+              "DR",
+              "TS"
+            ],
+            "description": "Event type code: EQ=earthquake, TC=tropical cyclone, FL=flood, VO=volcano, DR=drought, TS=tsunami"
+          }
+        },
+        "required": [
+          "event_id",
+          "event_type"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "gdacs.disasters.history",
+      "title": "Historical Disaster Archive",
+      "description": "Query the GDACS historical disaster archive from 2000 onwards. Filter by date range, event type, country, and alert level. Returns past earthquakes, cyclones, floods, and volcanoes for disaster frequency analysis and regional risk assessment.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "date_from": {
+            "type": "string",
+            "description": "Start date in YYYY-MM-DD format (e.g. \"2024-01-01\")"
+          },
+          "date_to": {
+            "type": "string",
+            "description": "End date in YYYY-MM-DD format (e.g. \"2024-12-31\")"
+          },
+          "event_type": {
+            "type": "string",
+            "enum": [
+              "EQ",
+              "TC",
+              "FL",
+              "VO",
+              "DR",
+              "TS"
+            ],
+            "description": "Filter by disaster type"
+          },
+          "country": {
+            "type": "string",
+            "description": "ISO 3166-1 alpha-3 country code (e.g. \"JPN\", \"PHL\", \"USA\", \"IDN\")"
+          },
+          "alert_level": {
+            "type": "string",
+            "enum": [
+              "Green",
+              "Orange",
+              "Red"
+            ],
+            "description": "Minimum alert level filter"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of events to return, max 50 (default 10)"
+          }
+        },
+        "required": [
+          "date_from",
+          "date_to"
+        ],
         "additionalProperties": false
       },
       "annotations": {

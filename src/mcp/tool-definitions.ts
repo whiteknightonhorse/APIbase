@@ -2595,4 +2595,27 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description: 'List all 194 WHO member countries and territories with codes and names. Use returned country codes with who.data to filter health indicators by country.',
     annotations: READ_ONLY,
   },
+
+  // GDACS (3) — UC-194
+  {
+    toolId: 'gdacs.alerts',
+    mcpName: 'gdacs.disasters.alerts',
+    title: 'Global Disaster Alerts (UN)',
+    description: 'Get current and recent global disaster alerts from the UN GDACS system. Returns earthquakes, tropical cyclones, floods, volcanoes, droughts, and tsunamis with color-coded severity (Green/Orange/Red), affected country, coordinates, and population impact estimates.',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'gdacs.events',
+    mcpName: 'gdacs.disasters.details',
+    title: 'Disaster Event Details',
+    description: 'Get detailed information for a specific GDACS disaster event by ID. Returns event name, alert level with justification, affected population at each severity level, coordinates, geometry for mapping, source agency, and situation report links.',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'gdacs.history',
+    mcpName: 'gdacs.disasters.history',
+    title: 'Historical Disaster Archive',
+    description: 'Query the GDACS historical disaster archive from 2000 onwards. Filter by date range, event type, country, and alert level. Returns past earthquakes, cyclones, floods, and volcanoes for disaster frequency analysis and regional risk assessment.',
+    annotations: READ_ONLY,
+  },
 ];
