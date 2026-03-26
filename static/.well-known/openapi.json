@@ -27865,6 +27865,353 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/fdic.search/call": {
+      "post": {
+        "operationId": "fdic_search",
+        "summary": "Search FDIC-Insured Banks",
+        "description": "Search 4,300+ FDIC-insured US financial institutions by name, city, state, or charter type. Returns bank name, FDIC certificate number, total assets, deposits, and location. Official US Government data.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fdic.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Partial or full institution name to search (e.g. \"Chase\", \"Wells Fargo\")"
+                  },
+                  "city": {
+                    "type": "string",
+                    "description": "City name filter (e.g. \"New York\", \"San Francisco\")"
+                  },
+                  "state": {
+                    "type": "string",
+                    "description": "US state name filter (e.g. \"California\", \"New York\")"
+                  },
+                  "charter_class": {
+                    "type": "string",
+                    "enum": [
+                      "N",
+                      "SM",
+                      "NM",
+                      "SB",
+                      "OI"
+                    ],
+                    "description": "Charter type: N=national, SM=state member, NM=state nonmember, SB=savings bank, OI=OCC-supervised"
+                  },
+                  "active": {
+                    "type": "boolean",
+                    "description": "Filter by active status. Default true (only active institutions)"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Number of results to return, max 50 (default 10)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/fdic.details/call": {
+      "post": {
+        "operationId": "fdic_details",
+        "summary": "Bank Institution Details",
+        "description": "Get full regulatory profile for an FDIC-insured bank by certificate number. Returns address, charter class, regulator, assets, deposits, branches, established date, insurance date, and coordinates.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fdic.details"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cert": {
+                    "type": "integer",
+                    "description": "FDIC certificate number uniquely identifying the institution (obtain via fdic.search)"
+                  }
+                },
+                "required": [
+                  "cert"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/fdic.financials/call": {
+      "post": {
+        "operationId": "fdic_financials",
+        "summary": "Bank Financial Reports",
+        "description": "Retrieve quarterly Call Report financial data for an FDIC-insured institution. Returns total assets, deposits, equity, net income, ROA, ROE, net interest margin, and efficiency ratio.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fdic.financials"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cert": {
+                    "type": "integer",
+                    "description": "FDIC certificate number for the institution"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20,
+                    "description": "Number of quarterly periods to return, max 20 (default 4)"
+                  }
+                },
+                "required": [
+                  "cert"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/fdic.failures/call": {
+      "post": {
+        "operationId": "fdic_failures",
+        "summary": "Failed Bank List",
+        "description": "Query the FDIC failed bank list. Returns 4,100+ historical bank failures with failure date, assets at closure, acquiring institution, and estimated loss to the Deposit Insurance Fund. Covers all failures since 1934.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fdic.failures"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "type": "string",
+                    "description": "Two-letter US state code filter (e.g. \"CA\", \"NY\", \"TX\")"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Number of results to return, max 50 (default 10)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

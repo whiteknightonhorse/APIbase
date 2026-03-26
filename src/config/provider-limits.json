@@ -768,5 +768,14 @@
     "reset_period": "monthly",
     "docs_url": "https://api-docs.iqair.com/",
     "limit_proof": "Community plan: 10,000 calls/month, real-time AQI + weather"
+  },
+  "fdic": {
+    "display_name": "FDIC BankFind",
+    "health_url": "https://api.fdic.gov/banks/institutions?limit=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://api.fdic.gov/banks/docs",
+    "limit_proof": "US Government open data, no auth required, no documented rate limits"
   }
 }

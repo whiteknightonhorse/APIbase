@@ -1876,3 +1876,25 @@ tools:
     provider: hunter
     price_usd: "0.005"
     cache_ttl: 3600
+
+  # --- UC-191: FDIC BankFind ---
+  - tool_id: fdic.search
+    name: Search FDIC Banks
+    provider: fdic
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: fdic.details
+    name: Bank Details
+    provider: fdic
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: fdic.financials
+    name: Bank Financial Reports
+    provider: fdic
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: fdic.failures
+    name: Failed Bank List
+    provider: fdic
+    price_usd: "0.001"
+    cache_ttl: 3600

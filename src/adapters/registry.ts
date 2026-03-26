@@ -84,6 +84,7 @@ import { FirmsAdapter } from './firms';
 import { ResendAdapter } from './resend';
 import { FedRegisterAdapter } from './fedregister';
 import { CourtListenerAdapter } from './courtlistener';
+import { FdicAdapter } from './fdic';
 import { config } from '../config';
 
 /**
@@ -475,6 +476,8 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       if (!fsId || !fsSecret) return undefined;
       return getOrCreate('fatsecret', () => new FatSecretAdapter(fsId, fsSecret));
     }
+    case 'fdic':
+      return getOrCreate('fdic', () => new FdicAdapter());
     default:
       return undefined;
   }

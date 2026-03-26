@@ -2512,4 +2512,34 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description: 'Find professional email addresses and company data for any domain — organization name, industry, employee count, tech stack, social profiles, email pattern, and verified contact emails with confidence scores, positions, departments, seniority levels. 50M+ domains indexed (Hunter.io)',
     annotations: READ_ONLY,
   },
+
+  // FDIC BankFind (4) — UC-191
+  {
+    toolId: 'fdic.search',
+    mcpName: 'fdic.institutions.search',
+    title: 'Search FDIC-Insured Banks',
+    description: 'Search 4,300+ FDIC-insured US financial institutions by name, city, state, or charter type. Returns bank name, FDIC certificate number, total assets, deposits, and location. Official US Government data.',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'fdic.details',
+    mcpName: 'fdic.institutions.details',
+    title: 'Bank Institution Details',
+    description: 'Get full regulatory profile for an FDIC-insured bank by certificate number. Returns address, charter class, regulator, assets, deposits, branches, established date, insurance date, and coordinates.',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'fdic.financials',
+    mcpName: 'fdic.institutions.financials',
+    title: 'Bank Financial Reports',
+    description: 'Retrieve quarterly Call Report financial data for an FDIC-insured institution. Returns total assets, deposits, equity, net income, ROA, ROE, net interest margin, and efficiency ratio.',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'fdic.failures',
+    mcpName: 'fdic.institutions.failures',
+    title: 'Failed Bank List',
+    description: 'Query the FDIC failed bank list. Returns 4,100+ historical bank failures with failure date, assets at closure, acquiring institution, and estimated loss to the Deposit Insurance Fund. Covers all failures since 1934.',
+    annotations: READ_ONLY,
+  },
 ];

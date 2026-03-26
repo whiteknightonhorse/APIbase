@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase — The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 305 tools across travel, places, maps, events, entertainment, music, health, finance, education, jobs, e-commerce, recipes, domain intelligence, AI marketing, weather, space/astronomy, gaming, and more. Dual-rail payments: x402 (USDC on Base) + MPP (USDC on Tempo/Stripe).",
+    "description": "Unified MCP gateway to 309 tools across travel, places, maps, events, entertainment, music, health, finance, banking, education, jobs, e-commerce, recipes, domain intelligence, AI marketing, weather, space/astronomy, gaming, and more. Dual-rail payments: x402 (USDC on Base) + MPP (USDC on Tempo/Stripe).",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -11447,6 +11447,137 @@
         "required": [
           "domain"
         ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "fdic.institutions.search",
+      "title": "Search FDIC-Insured Banks",
+      "description": "Search 4,300+ FDIC-insured US financial institutions by name, city, state, or charter type. Returns bank name, FDIC certificate number, total assets, deposits, and location. Official US Government data.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Partial or full institution name to search (e.g. \"Chase\", \"Wells Fargo\")"
+          },
+          "city": {
+            "type": "string",
+            "description": "City name filter (e.g. \"New York\", \"San Francisco\")"
+          },
+          "state": {
+            "type": "string",
+            "description": "US state name filter (e.g. \"California\", \"New York\")"
+          },
+          "charter_class": {
+            "type": "string",
+            "enum": [
+              "N",
+              "SM",
+              "NM",
+              "SB",
+              "OI"
+            ],
+            "description": "Charter type: N=national, SM=state member, NM=state nonmember, SB=savings bank, OI=OCC-supervised"
+          },
+          "active": {
+            "type": "boolean",
+            "description": "Filter by active status. Default true (only active institutions)"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of results to return, max 50 (default 10)"
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "fdic.institutions.details",
+      "title": "Bank Institution Details",
+      "description": "Get full regulatory profile for an FDIC-insured bank by certificate number. Returns address, charter class, regulator, assets, deposits, branches, established date, insurance date, and coordinates.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "cert": {
+            "type": "integer",
+            "description": "FDIC certificate number uniquely identifying the institution (obtain via fdic.search)"
+          }
+        },
+        "required": [
+          "cert"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "fdic.institutions.financials",
+      "title": "Bank Financial Reports",
+      "description": "Retrieve quarterly Call Report financial data for an FDIC-insured institution. Returns total assets, deposits, equity, net income, ROA, ROE, net interest margin, and efficiency ratio.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "cert": {
+            "type": "integer",
+            "description": "FDIC certificate number for the institution"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "Number of quarterly periods to return, max 20 (default 4)"
+          }
+        },
+        "required": [
+          "cert"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "fdic.institutions.failures",
+      "title": "Failed Bank List",
+      "description": "Query the FDIC failed bank list. Returns 4,100+ historical bank failures with failure date, assets at closure, acquiring institution, and estimated loss to the Deposit Insurance Fund. Covers all failures since 1934.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string",
+            "description": "Two-letter US state code filter (e.g. \"CA\", \"NY\", \"TX\")"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of results to return, max 50 (default 10)"
+          }
+        },
         "additionalProperties": false
       },
       "annotations": {
