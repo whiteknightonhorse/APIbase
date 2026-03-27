@@ -31,22 +31,37 @@ const categoryIndex = buildCategoryIndex();
 /** Sorted category names — auto-derived, no hardcoded list. */
 const CATEGORIES = [...categoryIndex.keys()].sort();
 
-/** Simple keyword scoring: count keyword hits in title + description + category. */
+/** Minimal stemmer — strip common English suffixes for search matching. */
+function stem(word: string): string {
+  if (word.endsWith('ies') && word.length > 4) return word.slice(0, -3) + 'y';
+  if (word.endsWith('es') && word.length > 3) return word.slice(0, -2);
+  if (word.endsWith('s') && !word.endsWith('ss') && word.length > 3) return word.slice(0, -1);
+  if (word.endsWith('ing') && word.length > 5) return word.slice(0, -3);
+  if (word.endsWith('ed') && word.length > 4) return word.slice(0, -2);
+  return word;
+}
+
+/** Weighted keyword scoring: title=3, toolId/mcpName=2, description=1, category=1. */
 function scoreByTask(tool: McpToolDefinition, keywords: string[]): number {
-  const haystack = [
-    tool.title ?? '',
-    tool.description,
-    tool.category ?? '',
-    tool.toolId,
-  ].join(' ').toLowerCase();
+  const title = (tool.title ?? '').toLowerCase();
+  const toolId = tool.toolId.toLowerCase();
+  const mcpName = (tool.mcpName ?? '').toLowerCase();
+  const desc = tool.description.toLowerCase();
+  const cat = (tool.category ?? '').toLowerCase();
+
   let score = 0;
   for (const kw of keywords) {
-    if (haystack.includes(kw)) score++;
+    const stemmed = stem(kw);
+    if (title.includes(kw) || title.includes(stemmed))                       score += 3;
+    if (toolId.includes(kw) || toolId.includes(stemmed)
+     || mcpName.includes(kw) || mcpName.includes(stemmed))                   score += 2;
+    if (desc.includes(kw) || desc.includes(stemmed))                          score += 1;
+    if (cat.includes(kw) || cat.includes(stemmed))                             score += 1;
   }
   return score;
 }
 
-/** Extract meaningful keywords from a task description. */
+/** Extract meaningful keywords from a task description. Returns both original and stemmed forms. */
 function extractKeywords(task: string): string[] {
   const stopwords = new Set([
     'a', 'an', 'the', 'is', 'are', 'was', 'were', 'be', 'been',
@@ -56,13 +71,21 @@ function extractKeywords(task: string): string[] {
     'has', 'have', 'had', 'i', 'me', 'my', 'we', 'our', 'you',
     'your', 'he', 'she', 'they', 'them', 'this', 'that', 'what',
     'which', 'how', 'get', 'find', 'search', 'look', 'up', 'about',
-    'some', 'any', 'all', 'want', 'need',
+    'some', 'any', 'all', 'want', 'need', 'near',
   ]);
-  return task
+  const words = task
     .toLowerCase()
     .replace(/[^a-z0-9\s]/g, ' ')
     .split(/\s+/)
     .filter(w => w.length > 1 && !stopwords.has(w));
+  // Deduplicate: include both original and stemmed forms
+  const unique = new Set<string>();
+  for (const w of words) {
+    unique.add(w);
+    const s = stem(w);
+    if (s !== w) unique.add(s);
+  }
+  return [...unique];
 }
 
 const MAX_RESULTS = 18;
@@ -70,48 +93,85 @@ const MAX_RESULTS = 18;
 /** Format a tool entry for text output. */
 function formatTool(t: McpToolDefinition): string {
   const name = t.mcpName ?? t.toolId;
-  return `- ${name}: ${t.description.slice(0, 120)}`;
+  const desc = t.description.length > 120
+    ? t.description.slice(0, 117) + '...'
+    : t.description;
+  return `- ${name}: ${desc}`;
 }
 
 /** Produce the discover_tools response text. */
 function discoverTools(args: { task?: string; category?: string }): string {
-  // --- Filter by category ---
-  if (args.category) {
-    const cat = args.category.toLowerCase().trim();
-    const tools = categoryIndex.get(cat);
+  const task = args.task?.trim() || undefined;
+  const category = args.category?.trim().toLowerCase() || undefined;
+
+  // --- Category + task: filter by category, then rank by task ---
+  if (category && task) {
+    const tools = categoryIndex.get(category);
     if (!tools || tools.length === 0) {
       return [
-        `No tools found for category "${cat}".`,
+        `No tools found for category "${category}".`,
         '',
         `Available categories: ${CATEGORIES.join(', ')}`,
       ].join('\n');
     }
-    const lines = [`Tools in "${cat}" (${tools.length}):`, ''];
-    for (const t of tools.slice(0, MAX_RESULTS)) lines.push(formatTool(t));
-    if (tools.length > MAX_RESULTS) lines.push(`... and ${tools.length - MAX_RESULTS} more`);
+    const keywords = extractKeywords(task);
+    if (keywords.length === 0) {
+      // Fall through to category-only display
+      return formatCategoryResult(category, tools);
+    }
+    const scored = tools
+      .map(t => ({ tool: t, score: scoreByTask(t, keywords) }))
+      .filter(s => s.score > 0)
+      .sort((a, b) => b.score - a.score || (a.tool.title?.length ?? 99) - (b.tool.title?.length ?? 99))
+      .slice(0, MAX_RESULTS);
+
+    if (scored.length === 0) {
+      return [
+        `No tools in "${category}" matched "${task}".`,
+        '',
+        `All ${tools.length} tools in this category:`,
+        ...tools.slice(0, MAX_RESULTS).map(formatTool),
+        ...(tools.length > MAX_RESULTS ? [`... and ${tools.length - MAX_RESULTS} more`] : []),
+      ].join('\n');
+    }
+    const lines = [`Tools in "${category}" for "${task}" (${scored.length}):`, ''];
+    for (const s of scored) lines.push(formatTool(s.tool));
     return lines.join('\n');
   }
 
-  // --- Keyword search by task ---
-  if (args.task) {
-    const keywords = extractKeywords(args.task);
+  // --- Category only ---
+  if (category) {
+    const tools = categoryIndex.get(category);
+    if (!tools || tools.length === 0) {
+      return [
+        `No tools found for category "${category}".`,
+        '',
+        `Available categories: ${CATEGORIES.join(', ')}`,
+      ].join('\n');
+    }
+    return formatCategoryResult(category, tools);
+  }
+
+  // --- Task only: keyword search across all tools ---
+  if (task) {
+    const keywords = extractKeywords(task);
     if (keywords.length === 0) {
       return 'Could not extract keywords from task. Try a more specific description or use category filter.';
     }
     const scored = TOOL_DEFINITIONS
       .map(t => ({ tool: t, score: scoreByTask(t, keywords) }))
       .filter(s => s.score > 0)
-      .sort((a, b) => b.score - a.score)
+      .sort((a, b) => b.score - a.score || (a.tool.title?.length ?? 99) - (b.tool.title?.length ?? 99))
       .slice(0, MAX_RESULTS);
 
     if (scored.length === 0) {
       return [
-        `No tools matched "${args.task}".`,
+        `No tools matched "${task}".`,
         '',
         `Try browsing by category: ${CATEGORIES.join(', ')}`,
       ].join('\n');
     }
-    const lines = [`Tools for "${args.task}" (top ${scored.length}):`, ''];
+    const lines = [`Tools for "${task}" (top ${scored.length}):`, ''];
     for (const s of scored) lines.push(formatTool(s.tool));
     return lines.join('\n');
   }
@@ -127,6 +187,16 @@ function discoverTools(args: { task?: string; category?: string }): string {
   }
   lines.push('', 'Use discover_tools with category="<name>" or task="<description>" to find relevant tools.');
   lines.push('All tools remain callable via tools/call regardless of discovery.');
+  return lines.join('\n');
+}
+
+/** Format category listing with truncation hint. */
+function formatCategoryResult(category: string, tools: McpToolDefinition[]): string {
+  const lines = [`Tools in "${category}" (${tools.length}):`, ''];
+  for (const t of tools.slice(0, MAX_RESULTS)) lines.push(formatTool(t));
+  if (tools.length > MAX_RESULTS) {
+    lines.push(`... and ${tools.length - MAX_RESULTS} more — combine with task= to narrow results`);
+  }
   return lines.join('\n');
 }
 
