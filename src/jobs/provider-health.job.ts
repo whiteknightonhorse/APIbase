@@ -54,8 +54,13 @@ export async function run(redis: Redis): Promise<void> {
   const cfg = limitsConfig[providerName];
   if (!cfg) return;
 
-  // 1. Health check
-  const healthResult = await checkHealth(cfg.health_url, providerName);
+  // 1. Health check — substitute TOKEN_FROM_ENV with real env var
+  let healthUrl = cfg.health_url;
+  if (healthUrl.includes('TOKEN_FROM_ENV') && providerName === 'telegram') {
+    const token = process.env.TELEGRAM_BOT_TOKEN ?? '';
+    healthUrl = healthUrl.replace('TOKEN_FROM_ENV', token);
+  }
+  const healthResult = await checkHealth(healthUrl, providerName);
 
   // Write health to Redis
   await redis.hmset(`provider:health:${providerName}`, {
