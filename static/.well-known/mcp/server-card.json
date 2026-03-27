@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase \u2014 The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 340 tools. Dual-rail: x402 + MPP.",
+    "description": "Unified MCP gateway to 345 tools. Dual-rail: x402 + MPP.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -12398,6 +12398,409 @@
           "account_number"
         ],
         "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ev.charging.details",
+      "title": "EV Charging Station Details",
+      "description": "Get full details for a specific EV charging station by ID \u2014 address, GPS coordinates, all connectors with type/power/status, network operator, usage cost, verification date, number of charging points. Use station ID from search or nearby results (Open Charge Map)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Open Charge Map station ID \u2014 get from search or nearby results"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ev.charging.nearby",
+      "title": "Nearby EV Chargers",
+      "description": "Find the nearest EV charging stations to GPS coordinates within a radius (default 5km). Returns stations sorted by distance with connector types, power levels, and availability status. Filter by minimum power kW and connector type for DC fast charging (Open Charge Map)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "latitude": {
+            "type": "number",
+            "description": "GPS latitude of your location (e.g. 40.7128)"
+          },
+          "longitude": {
+            "type": "number",
+            "description": "GPS longitude of your location (e.g. -74.0060)"
+          },
+          "radius": {
+            "type": "number",
+            "description": "Search radius in KM (default 5)"
+          },
+          "min_power_kw": {
+            "type": "number",
+            "description": "Minimum charger power in kW (e.g. 50 for DC fast charging)"
+          },
+          "connection_type_id": {
+            "type": "integer",
+            "description": "Filter by connector type (25=Type 2, 33=CCS, 2=CHAdeMO)"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Maximum results (1-50, default 10)"
+          }
+        },
+        "required": [
+          "latitude",
+          "longitude"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ev.charging.search",
+      "title": "Search EV Charging Stations",
+      "description": "Search 300K+ EV charging stations worldwide by location, country, operator, connector type, and power level. Returns station address, GPS coordinates, connectors (Type 2, CCS, CHAdeMO), power kW, operator, status. Filter by min power for fast charging. Largest open EV charging database (Open Charge Map)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "country_code": {
+            "type": "string",
+            "description": "ISO 2-letter country code to filter by (e.g. \"US\", \"GB\", \"DE\")"
+          },
+          "latitude": {
+            "type": "number",
+            "description": "Latitude for location-based search (e.g. 51.5074)"
+          },
+          "longitude": {
+            "type": "number",
+            "description": "Longitude for location-based search (e.g. -0.1278)"
+          },
+          "distance": {
+            "type": "number",
+            "description": "Search radius in distance_unit (default KM)"
+          },
+          "distance_unit": {
+            "type": "string",
+            "enum": [
+              "KM",
+              "Miles"
+            ],
+            "description": "Distance unit: KM or Miles (default KM)"
+          },
+          "operator_id": {
+            "type": "integer",
+            "description": "Filter by charging network operator ID"
+          },
+          "connection_type_id": {
+            "type": "integer",
+            "description": "Filter by connector type (e.g. 25=Type 2, 33=CCS, 2=CHAdeMO)"
+          },
+          "min_power_kw": {
+            "type": "number",
+            "description": "Minimum charger power in kW (e.g. 50 for fast charging)"
+          },
+          "status_type_id": {
+            "type": "integer",
+            "description": "Filter by status (50=Operational, 100=Not Operational)"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Maximum results to return (1-100, default 20)"
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "security.ipqs.email_check",
+      "title": "Email Fraud Detection",
+      "description": "Validate email for fraud risk \u2014 checks deliverability, disposable/temporary providers, honeypot traps, spam traps, leaked credentials, catch-all detection. Returns fraud score (0-100), SMTP verification, domain age, and abuse history. Goes beyond basic validation (IPQualityScore)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Email address to validate and check for fraud (e.g. \"user@example.com\")"
+          },
+          "fast": {
+            "type": "boolean",
+            "description": "Skip SMTP verification for faster response (default false)"
+          },
+          "abuse_strictness": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2,
+            "description": "Abuse detection sensitivity 0-2 (0=low, 2=aggressive)"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "security.ipqs.ip_check",
+      "title": "IP Fraud Detection",
+      "description": "Check any IP address for fraud signals \u2014 proxy, VPN, Tor, bot, crawler detection with fraud score (0-100). Returns geolocation (country, city, ISP, ASN), abuse velocity, connection type, and 9+ risk indicators. Essential for e-commerce fraud prevention (IPQualityScore)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ip": {
+            "type": "string",
+            "description": "IPv4 or IPv6 address to check (e.g. \"8.8.8.8\", \"2001:4860:4860::8888\")"
+          },
+          "strictness": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3,
+            "description": "Detection strictness 0-3 (0=least strict, 3=most aggressive). Higher catches more fraud but may flag legitimate users"
+          },
+          "allow_public_access_points": {
+            "type": "boolean",
+            "description": "Allow public WiFi/library IPs to pass without penalty (default false)"
+          }
+        },
+        "required": [
+          "ip"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "security.ipqs.phone_check",
+      "title": "Phone Fraud Detection",
+      "description": "Check phone number for fraud risk \u2014 detects VOIP, prepaid, risky numbers, carrier info, line type (mobile/landline/VOIP), active status, leaked data. Returns fraud score (0-100) and geographic location. Supports international numbers with country filter (IPQualityScore)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string",
+            "description": "Phone number to check in E.164 or national format (e.g. \"+12125551234\", \"2125551234\")"
+          },
+          "country": {
+            "type": "string",
+            "description": "ISO 2-letter country code for national format numbers (e.g. \"US\", \"GB\")"
+          },
+          "strictness": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2,
+            "description": "Fraud detection strictness 0-2"
+          }
+        },
+        "required": [
+          "phone"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "security.ipqs.url_check",
+      "title": "URL Malware Scanner",
+      "description": "Scan any URL for malware, phishing, suspicious content, adult content, spamming, and domain parking. Returns risk score (0-100), domain reputation, domain age, IP address, HTTP status. Protects agents from visiting malicious URLs (IPQualityScore)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "Full URL to scan for malware, phishing, and threats (e.g. \"https://example.com/page\")"
+          },
+          "strictness": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2,
+            "description": "Scanning strictness 0-2 (0=least strict, 2=most aggressive)"
+          }
+        },
+        "required": [
+          "url"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "chemistry.pubchem.bioassays",
+      "title": "Bioassay Summary",
+      "description": "Get bioactivity assay results for a compound \u2014 active/inactive counts, tested targets, assay types. Shows how the compound performed in biological tests across thousands of assays (PubChem / NCBI)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "cid": {
+            "type": "integer",
+            "description": "PubChem Compound ID (CID) \u2014 returns bioactivity assay results (active/inactive counts, targets)"
+          }
+        },
+        "required": [
+          "cid"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "chemistry.pubchem.properties",
+      "title": "Compound Properties",
+      "description": "Get full physical and chemical properties for a compound by PubChem CID \u2014 molecular formula, weight, SMILES, InChI, InChIKey, XLogP, H-bond donors/acceptors, exact mass, topological polar surface area, complexity, charge, heavy atom count (PubChem / NCBI)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "cid": {
+            "type": "integer",
+            "description": "PubChem Compound ID (CID) \u2014 get from compound_search results"
+          }
+        },
+        "required": [
+          "cid"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "chemistry.pubchem.search",
+      "title": "Search Chemical Compounds",
+      "description": "Search 100M+ chemical compounds by name, formula, or SMILES string. Returns CID, molecular formula, weight, IUPAC name, SMILES, InChI, XLogP, H-bond donors/acceptors, exact mass, and complexity. The largest public chemical database (PubChem / NCBI)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Compound name, formula, or SMILES string (e.g. \"aspirin\", \"C9H8O4\", \"CC(=O)OC1=CC=CC=C1C(=O)O\")"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "Maximum results to return (1-20, default 5)"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "chemistry.pubchem.synonyms",
+      "title": "Compound Synonyms",
+      "description": "Get all known names, CAS registry numbers, trade names, and identifiers for a chemical compound by PubChem CID. Returns up to 50 synonyms from a database of millions of name variants (PubChem / NCBI)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "cid": {
+            "type": "integer",
+            "description": "PubChem Compound ID (CID) \u2014 returns all known names, CAS numbers, trade names"
+          }
+        },
+        "required": [
+          "cid"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "chemistry.pubchem.hazards",
+      "title": "Chemical Hazard Data (GHS)",
+      "description": "Get GHS (Globally Harmonized System) hazard classification for a compound \u2014 signal words (Danger/Warning), hazard statements (H-codes), precautionary statements (P-codes), pictograms. Essential for chemical safety assessments (PubChem / NCBI)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "cid": {
+            "type": "integer",
+            "description": "PubChem Compound ID (CID) \u2014 returns GHS hazard classification, pictograms, signal words"
+          }
+        },
+        "required": [
+          "cid"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "chemistry.pubchem.structure",
+      "title": "Structure Lookup",
+      "description": "Look up a compound by name or identifier and get its chemical structure representations \u2014 SMILES (isomeric + canonical), InChI, InChIKey, molecular formula, and molecular weight. Convert between chemical identifier formats (PubChem / NCBI)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Compound name or identifier (e.g. \"caffeine\", \"50-78-2\") \u2014 returns SMILES, InChI, InChIKey, formula"
+          }
+        },
+        "required": [
+          "name"
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
