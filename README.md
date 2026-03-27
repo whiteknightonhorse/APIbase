@@ -1,6 +1,6 @@
 # APIbase.pro — The API Hub for AI Agents
 
-> One MCP endpoint. 336 tools. 94 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
+> One MCP endpoint. 340 tools. 95 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Health](https://apibase.pro/health/ready)** | **[Dashboard](https://apibase.pro/dashboard)**
 
@@ -19,7 +19,7 @@
 
 ## What is APIbase?
 
-Production MCP server that gives AI agents access to 336 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, translate text, check weather alerts, generate images, send emails, look up holidays, shorten URLs, detect fires by satellite, decode VINs, look up chemical compounds, find EV chargers — and 250+ more tools across 30+ categories.
+Production MCP server that gives AI agents access to 340 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, translate text, check weather alerts, generate images, send emails, look up holidays, shorten URLs, detect fires by satellite, decode VINs, look up chemical compounds, find EV chargers — and 250+ more tools across 30+ categories.
 
 **Built for AI agents, not humans.** Auto-registration, zero setup, pay-per-call via x402 USDC micropayments on Base or MPP (Machine Payments Protocol) on Tempo.
 
@@ -69,7 +69,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 
 ---
 
-## Tool Categories (336 tools, 94 providers)
+## Tool Categories (340 tools, 95 providers)
 
 | Category | Tools | Providers | Examples |
 |----------|-------|-----------|----------|
@@ -93,6 +93,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 | **Health & Nutrition** | 7 | USDA, OpenFDA, NIH | Food data, drug safety, supplements |
 | **Chemistry** | 6 | PubChem (NCBI) | 100M+ compounds, properties, hazards, bioassays, structures |
 | **EV Charging** | 3 | Open Charge Map | 300K+ charging stations worldwide, connectors, power levels |
+| **Fraud Detection** | 4 | IPQualityScore | IP/email/URL/phone fraud scoring, VPN/proxy/bot detection |
 | **Disease Data** | 7 | disease.sh, WHO GHO | COVID/Influenza global disease statistics, WHO global health data |
 | **Clinical Trials** | 3 | ClinicalTrials.gov | 577K+ trials, drug research, recruiting |
 | **Nutrition Database** | 2 | FatSecret | 2.3M+ foods, calories, macros, vitamins |
@@ -268,9 +269,9 @@ npx agentcash add https://apibase.pro
 
 ```
 GET  /.well-known/mcp.json    → MCP server metadata
-GET  /api/v1/tools             → Full tool catalog (all 336 tools in one response)
+GET  /api/v1/tools             → Full tool catalog (all 340 tools in one response)
 GET  /health/ready             → System health check
-POST /mcp  prompts/get discover_tools  → Browse 336 tools by category or task (progressive disclosure)
+POST /mcp  prompts/get discover_tools  → Browse 340 tools by category or task (progressive disclosure)
 ```
 
 **Progressive disclosure:** Instead of loading all 333 tool schemas into context, agents can call the `discover_tools` prompt to find relevant tools first:

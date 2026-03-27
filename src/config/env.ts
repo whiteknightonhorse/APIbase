@@ -240,6 +240,9 @@ export const appEnvSchema = z.object({
   // Open Charge Map (UC-214) — EV charging stations, unlimited free
   PROVIDER_KEY_OPENCHARGEMAP: z.string().optional().default(''),
 
+  // IPQualityScore (UC-217) — fraud detection, 1K lookups/month free
+  PROVIDER_KEY_IPQS: z.string().optional().default(''),
+
   // Polymarket trading — Phase 2 (UC-001 §3-§8)
   POLYMARKET_WALLET_ADDRESS: z.string().startsWith('0x').optional().default(''),
   POLYMARKET_PRIVATE_KEY: z.string().optional().default(''),

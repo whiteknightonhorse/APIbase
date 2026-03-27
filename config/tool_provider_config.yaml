@@ -2076,3 +2076,25 @@ tools:
     provider: openchargemap
     price_usd: "0.001"
     cache_ttl: 3600
+
+  # --- UC-217: IPQualityScore (Fraud Detection) ---
+  - tool_id: ipqs.ip_check
+    name: IP Fraud Detection
+    provider: ipqs
+    price_usd: "0.003"
+    cache_ttl: 300
+  - tool_id: ipqs.email_check
+    name: Email Fraud Detection
+    provider: ipqs
+    price_usd: "0.003"
+    cache_ttl: 3600
+  - tool_id: ipqs.url_check
+    name: URL Malware Scanner
+    provider: ipqs
+    price_usd: "0.003"
+    cache_ttl: 3600
+  - tool_id: ipqs.phone_check
+    name: Phone Fraud Detection
+    provider: ipqs
+    price_usd: "0.003"
+    cache_ttl: 3600

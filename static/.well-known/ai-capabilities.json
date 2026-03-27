@@ -2,8 +2,8 @@
   "platform": "APIbase",
   "version": "2.0",
   "updated_at": "2026-03-26T00:00:00Z",
-  "tools_count": 336,
-  "providers_count": 94,
+  "tools_count": 340,
+  "providers_count": 95,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
@@ -121,8 +121,8 @@
     },
     {
       "name": "developer",
-      "tools": 28,
-      "providers": "QRServer, WhoisXML, TimeAPI, NHTSA, Langbly, ConvertAPI, API2PDF",
+      "tools": 32,
+      "providers": "QRServer, WhoisXML, TimeAPI, NHTSA, Langbly, ConvertAPI, API2PDF, IPQualityScore",
       "examples": "QR codes, WHOIS, VIN decode, translation, PDF generation"
     },
     {

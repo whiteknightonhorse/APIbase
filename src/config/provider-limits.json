@@ -859,5 +859,14 @@
     "reset_period": "none",
     "docs_url": "https://openchargemap.org/site/develop/api",
     "limit_proof": "Open data project, CC license, unlimited with free API key registration"
+  },
+  "ipqs": {
+    "display_name": "IPQualityScore",
+    "health_url": "https://ipqualityscore.com/api/json/ip/test/8.8.8.8",
+    "limit_type": "monthly",
+    "free_limit": 1000,
+    "reset_period": "monthly",
+    "docs_url": "https://www.ipqualityscore.com/documentation/overview",
+    "limit_proof": "Free plan: 1,000 lookups/month (35/day), shared across all endpoints"
   }
 }

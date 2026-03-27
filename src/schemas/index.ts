@@ -94,6 +94,7 @@ import { currentsSchemas } from './currents.schema';
 import { ibanapiSchemas } from './ibanapi.schema';
 import { pubchemSchemas } from './pubchem.schema';
 import { openchargemapSchemas } from './openchargemap.schema';
+import { ipqsSchemas } from './ipqs.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -191,4 +192,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...ibanapiSchemas,
   ...pubchemSchemas,
   ...openchargemapSchemas,
+  ...ipqsSchemas,
 };

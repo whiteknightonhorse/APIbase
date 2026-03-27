@@ -94,6 +94,7 @@ import { CurrentsAdapter } from './currents';
 import { IbanApiAdapter } from './ibanapi';
 import { PubchemAdapter } from './pubchem';
 import { OpenChargeMapAdapter } from './openchargemap';
+import { IpqsAdapter } from './ipqs';
 import { config } from '../config';
 
 /**
@@ -521,6 +522,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const ocmKey = (config as Record<string, unknown>).PROVIDER_KEY_OPENCHARGEMAP as string | undefined;
       if (!ocmKey) return undefined;
       return getOrCreate('openchargemap', () => new OpenChargeMapAdapter(ocmKey));
+    }
+    case 'ipqs': {
+      const ipqsKey = (config as Record<string, unknown>).PROVIDER_KEY_IPQS as string | undefined;
+      if (!ipqsKey) return undefined;
+      return getOrCreate('ipqs', () => new IpqsAdapter(ipqsKey));
     }
     default:
       return undefined;

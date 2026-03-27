@@ -31043,6 +31043,354 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/ipqs.ip_check/call": {
+      "post": {
+        "operationId": "ipqs_ip_check",
+        "summary": "IP Fraud & Proxy Detection",
+        "description": "Check any IP address for fraud signals — proxy, VPN, Tor, bot, crawler detection with fraud score (0-100). Returns geolocation (country, city, ISP, ASN), abuse velocity, connection type, and 9+ risk indicators. Essential for e-commerce fraud prevention (IPQualityScore)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ipqs.ip_check"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ip": {
+                    "type": "string",
+                    "description": "IPv4 or IPv6 address to check (e.g. \"8.8.8.8\", \"2001:4860:4860::8888\")"
+                  },
+                  "strictness": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 3,
+                    "description": "Detection strictness 0-3 (0=least strict, 3=most aggressive). Higher catches more fraud but may flag legitimate users"
+                  },
+                  "allow_public_access_points": {
+                    "type": "boolean",
+                    "description": "Allow public WiFi/library IPs to pass without penalty (default false)"
+                  }
+                },
+                "required": [
+                  "ip"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ipqs.email_check/call": {
+      "post": {
+        "operationId": "ipqs_email_check",
+        "summary": "Email Fraud Detection",
+        "description": "Validate email for fraud risk — checks deliverability, disposable/temporary providers, honeypot traps, spam traps, leaked credentials, catch-all detection. Returns fraud score (0-100), SMTP verification, domain age, and abuse history. Goes beyond basic validation (IPQualityScore)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ipqs.email_check"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "description": "Email address to validate and check for fraud (e.g. \"user@example.com\")"
+                  },
+                  "fast": {
+                    "type": "boolean",
+                    "description": "Skip SMTP verification for faster response (default false)"
+                  },
+                  "abuse_strictness": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2,
+                    "description": "Abuse detection sensitivity 0-2 (0=low, 2=aggressive)"
+                  }
+                },
+                "required": [
+                  "email"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ipqs.url_check/call": {
+      "post": {
+        "operationId": "ipqs_url_check",
+        "summary": "URL Malware & Phishing Scanner",
+        "description": "Scan any URL for malware, phishing, suspicious content, adult content, spamming, and domain parking. Returns risk score (0-100), domain reputation, domain age, IP address, HTTP status. Protects agents from visiting malicious URLs (IPQualityScore)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ipqs.url_check"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "description": "Full URL to scan for malware, phishing, and threats (e.g. \"https://example.com/page\")"
+                  },
+                  "strictness": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2,
+                    "description": "Scanning strictness 0-2 (0=least strict, 2=most aggressive)"
+                  }
+                },
+                "required": [
+                  "url"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ipqs.phone_check/call": {
+      "post": {
+        "operationId": "ipqs_phone_check",
+        "summary": "Phone Number Fraud Detection",
+        "description": "Check phone number for fraud risk — detects VOIP, prepaid, risky numbers, carrier info, line type (mobile/landline/VOIP), active status, leaked data. Returns fraud score (0-100) and geographic location. Supports international numbers with country filter (IPQualityScore)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ipqs.phone_check"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "phone": {
+                    "type": "string",
+                    "description": "Phone number to check in E.164 or national format (e.g. \"+12125551234\", \"2125551234\")"
+                  },
+                  "country": {
+                    "type": "string",
+                    "description": "ISO 2-letter country code for national format numbers (e.g. \"US\", \"GB\")"
+                  },
+                  "strictness": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2,
+                    "description": "Fraud detection strictness 0-2"
+                  }
+                },
+                "required": [
+                  "phone"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

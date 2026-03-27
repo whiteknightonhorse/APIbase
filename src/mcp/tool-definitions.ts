@@ -3125,4 +3125,38 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'location',
     annotations: READ_ONLY,
   },
+
+  // IPQualityScore — Fraud Detection (UC-217, 4 tools)
+  {
+    toolId: 'ipqs.ip_check',
+    mcpName: 'security.ipqs.ip_check',
+    title: 'IP Fraud & Proxy Detection',
+    description: 'Check any IP address for fraud signals — proxy, VPN, Tor, bot, crawler detection with fraud score (0-100). Returns geolocation (country, city, ISP, ASN), abuse velocity, connection type, and 9+ risk indicators. Essential for e-commerce fraud prevention (IPQualityScore)',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ipqs.email_check',
+    mcpName: 'security.ipqs.email_check',
+    title: 'Email Fraud Detection',
+    description: 'Validate email for fraud risk — checks deliverability, disposable/temporary providers, honeypot traps, spam traps, leaked credentials, catch-all detection. Returns fraud score (0-100), SMTP verification, domain age, and abuse history. Goes beyond basic validation (IPQualityScore)',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ipqs.url_check',
+    mcpName: 'security.ipqs.url_check',
+    title: 'URL Malware & Phishing Scanner',
+    description: 'Scan any URL for malware, phishing, suspicious content, adult content, spamming, and domain parking. Returns risk score (0-100), domain reputation, domain age, IP address, HTTP status. Protects agents from visiting malicious URLs (IPQualityScore)',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ipqs.phone_check',
+    mcpName: 'security.ipqs.phone_check',
+    title: 'Phone Number Fraud Detection',
+    description: 'Check phone number for fraud risk — detects VOIP, prepaid, risky numbers, carrier info, line type (mobile/landline/VOIP), active status, leaked data. Returns fraud score (0-100) and geographic location. Supports international numbers with country filter (IPQualityScore)',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
 ];
