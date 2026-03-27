@@ -3099,4 +3099,30 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'health',
     annotations: READ_ONLY,
   },
+
+  // Open Charge Map — EV Charging Stations (UC-214, 3 tools)
+  {
+    toolId: 'evcharge.search',
+    mcpName: 'ev.charging.search',
+    title: 'Search EV Charging Stations',
+    description: 'Search 300K+ EV charging stations worldwide by location, country, operator, connector type, and power level. Returns station address, GPS coordinates, connectors (Type 2, CCS, CHAdeMO), power kW, operator, status. Filter by min power for fast charging. Largest open EV charging database (Open Charge Map)',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'evcharge.details',
+    mcpName: 'ev.charging.details',
+    title: 'EV Charging Station Details',
+    description: 'Get full details for a specific EV charging station by ID — address, GPS coordinates, all connectors with type/power/status, network operator, usage cost, verification date, number of charging points. Use station ID from search or nearby results (Open Charge Map)',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'evcharge.nearby',
+    mcpName: 'ev.charging.nearby',
+    title: 'Find Nearby EV Chargers',
+    description: 'Find the nearest EV charging stations to GPS coordinates within a radius (default 5km). Returns stations sorted by distance with connector types, power levels, and availability status. Filter by minimum power kW and connector type for DC fast charging (Open Charge Map)',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
 ];

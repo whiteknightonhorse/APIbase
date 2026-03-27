@@ -30747,6 +30747,302 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/evcharge.search/call": {
+      "post": {
+        "operationId": "evcharge_search",
+        "summary": "Search EV Charging Stations",
+        "description": "Search 300K+ EV charging stations worldwide by location, country, operator, connector type, and power level. Returns station address, GPS coordinates, connectors (Type 2, CCS, CHAdeMO), power kW, operator, status. Filter by min power for fast charging. Largest open EV charging database (Open Charge Map)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "evcharge.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "country_code": {
+                    "type": "string",
+                    "description": "ISO 2-letter country code to filter by (e.g. \"US\", \"GB\", \"DE\")"
+                  },
+                  "latitude": {
+                    "type": "number",
+                    "description": "Latitude for location-based search (e.g. 51.5074)"
+                  },
+                  "longitude": {
+                    "type": "number",
+                    "description": "Longitude for location-based search (e.g. -0.1278)"
+                  },
+                  "distance": {
+                    "type": "number",
+                    "description": "Search radius in distance_unit (default KM)"
+                  },
+                  "distance_unit": {
+                    "type": "string",
+                    "enum": [
+                      "KM",
+                      "Miles"
+                    ],
+                    "description": "Distance unit: KM or Miles (default KM)"
+                  },
+                  "operator_id": {
+                    "type": "integer",
+                    "description": "Filter by charging network operator ID"
+                  },
+                  "connection_type_id": {
+                    "type": "integer",
+                    "description": "Filter by connector type (e.g. 25=Type 2, 33=CCS, 2=CHAdeMO)"
+                  },
+                  "min_power_kw": {
+                    "type": "number",
+                    "description": "Minimum charger power in kW (e.g. 50 for fast charging)"
+                  },
+                  "status_type_id": {
+                    "type": "integer",
+                    "description": "Filter by status (50=Operational, 100=Not Operational)"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum results to return (1-100, default 20)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/evcharge.details/call": {
+      "post": {
+        "operationId": "evcharge_details",
+        "summary": "EV Charging Station Details",
+        "description": "Get full details for a specific EV charging station by ID — address, GPS coordinates, all connectors with type/power/status, network operator, usage cost, verification date, number of charging points. Use station ID from search or nearby results (Open Charge Map)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "evcharge.details"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "Open Charge Map station ID — get from search or nearby results"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/evcharge.nearby/call": {
+      "post": {
+        "operationId": "evcharge_nearby",
+        "summary": "Find Nearby EV Chargers",
+        "description": "Find the nearest EV charging stations to GPS coordinates within a radius (default 5km). Returns stations sorted by distance with connector types, power levels, and availability status. Filter by minimum power kW and connector type for DC fast charging (Open Charge Map)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "evcharge.nearby"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "latitude": {
+                    "type": "number",
+                    "description": "GPS latitude of your location (e.g. 40.7128)"
+                  },
+                  "longitude": {
+                    "type": "number",
+                    "description": "GPS longitude of your location (e.g. -74.0060)"
+                  },
+                  "radius": {
+                    "type": "number",
+                    "description": "Search radius in KM (default 5)"
+                  },
+                  "min_power_kw": {
+                    "type": "number",
+                    "description": "Minimum charger power in kW (e.g. 50 for DC fast charging)"
+                  },
+                  "connection_type_id": {
+                    "type": "integer",
+                    "description": "Filter by connector type (25=Type 2, 33=CCS, 2=CHAdeMO)"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum results (1-50, default 10)"
+                  }
+                },
+                "required": [
+                  "latitude",
+                  "longitude"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

@@ -93,6 +93,7 @@ import { TwitterApiAdapter } from './twitterapi';
 import { CurrentsAdapter } from './currents';
 import { IbanApiAdapter } from './ibanapi';
 import { PubchemAdapter } from './pubchem';
+import { OpenChargeMapAdapter } from './openchargemap';
 import { config } from '../config';
 
 /**
@@ -515,6 +516,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'pubchem': {
       const ncbiKey = (config as Record<string, unknown>).PROVIDER_KEY_NCBI as string || '';
       return getOrCreate('pubchem', () => new PubchemAdapter(ncbiKey));
+    }
+    case 'openchargemap': {
+      const ocmKey = (config as Record<string, unknown>).PROVIDER_KEY_OPENCHARGEMAP as string | undefined;
+      if (!ocmKey) return undefined;
+      return getOrCreate('openchargemap', () => new OpenChargeMapAdapter(ocmKey));
     }
     default:
       return undefined;

@@ -2059,3 +2059,20 @@ tools:
     provider: pubchem
     price_usd: "0.001"
     cache_ttl: 86400
+
+  # --- UC-214: Open Charge Map (EV Charging Stations) ---
+  - tool_id: evcharge.search
+    name: Search EV Charging Stations
+    provider: openchargemap
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: evcharge.details
+    name: EV Charging Station Details
+    provider: openchargemap
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: evcharge.nearby
+    name: Nearby EV Chargers
+    provider: openchargemap
+    price_usd: "0.001"
+    cache_ttl: 3600

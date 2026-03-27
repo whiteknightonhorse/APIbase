@@ -850,5 +850,14 @@
     "reset_period": "none",
     "docs_url": "https://pubchem.ncbi.nlm.nih.gov/docs/pug-rest",
     "limit_proof": "US Government open data (NIH/NLM). No auth required. Recommend \u22645 req/sec without key, 10 req/sec with NCBI API key."
+  },
+  "openchargemap": {
+    "display_name": "Open Charge Map (EV)",
+    "health_url": "https://api.openchargemap.io/v3/poi/?maxresults=1&compact=true&latitude=51.5&longitude=-0.1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://openchargemap.org/site/develop/api",
+    "limit_proof": "Open data project, CC license, unlimited with free API key registration"
   }
 }
