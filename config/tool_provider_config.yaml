@@ -2027,3 +2027,35 @@ tools:
     provider: ibanapi
     price_usd: "0.002"
     cache_ttl: 86400
+
+  # --- UC-213: PubChem Chemical Compound Database ---
+  - tool_id: pubchem.compound_search
+    name: Search Chemical Compounds
+    provider: pubchem
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: pubchem.compound_properties
+    name: Compound Properties
+    provider: pubchem
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: pubchem.compound_synonyms
+    name: Compound Synonyms
+    provider: pubchem
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: pubchem.hazard_data
+    name: Chemical Hazard Data (GHS)
+    provider: pubchem
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: pubchem.bioassay_summary
+    name: Bioassay Summary
+    provider: pubchem
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: pubchem.structure_lookup
+    name: Structure Lookup
+    provider: pubchem
+    price_usd: "0.001"
+    cache_ttl: 86400

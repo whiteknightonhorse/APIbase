@@ -92,6 +92,7 @@ import { rateapiSchemas } from './rateapi.schema';
 import { twitterapiSchemas } from './twitterapi.schema';
 import { currentsSchemas } from './currents.schema';
 import { ibanapiSchemas } from './ibanapi.schema';
+import { pubchemSchemas } from './pubchem.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -187,4 +188,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...twitterapiSchemas,
   ...currentsSchemas,
   ...ibanapiSchemas,
+  ...pubchemSchemas,
 };
