@@ -7,9 +7,7 @@ import {
 import type {
   PubchemPropertyResponse,
   PubchemSynonymsResponse,
-  PubchemCidListResponse,
   PubchemPugViewResponse,
-  PubchemAutocompleteResponse,
 } from './types';
 
 /**
