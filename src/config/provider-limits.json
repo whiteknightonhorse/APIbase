@@ -841,5 +841,14 @@
     "reset_period": "none",
     "docs_url": "https://api.fdic.gov/banks/docs",
     "limit_proof": "US Government open data, no auth required, no documented rate limits"
+  },
+  "pubchem": {
+    "display_name": "PubChem (NCBI)",
+    "health_url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/aspirin/property/MolecularFormula/JSON",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://pubchem.ncbi.nlm.nih.gov/docs/pug-rest",
+    "limit_proof": "US Government open data (NIH/NLM). No auth required. Recommend \u22645 req/sec without key, 10 req/sec with NCBI API key."
   }
 }

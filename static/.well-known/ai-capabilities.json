@@ -2,40 +2,158 @@
   "platform": "APIbase",
   "version": "2.0",
   "updated_at": "2026-03-26T00:00:00Z",
-  "tools_count": 327,
-  "providers_count": 92,
+  "tools_count": 333,
+  "providers_count": 93,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
     "prompt_name": "discover_tools",
     "description": "Call discover_tools to browse 327 tools by category or task instead of loading all schemas into context.",
     "examples": [
-      {"args": {}, "result": "21 categories with tool counts"},
-      {"args": {"category": "travel"}, "result": "17 travel tools (amadeus, aviasales, sabre)"},
-      {"args": {"task": "search flights from NYC"}, "result": "top matching tools ranked by relevance"}
+      {
+        "args": {},
+        "result": "21 categories with tool counts"
+      },
+      {
+        "args": {
+          "category": "travel"
+        },
+        "result": "17 travel tools (amadeus, aviasales, sabre)"
+      },
+      {
+        "args": {
+          "task": "search flights from NYC"
+        },
+        "result": "top matching tools ranked by relevance"
+      }
     ]
   },
   "categories": [
-    {"name": "travel", "tools": 17, "providers": "Amadeus, Aviasales, Sabre", "examples": "flight search, pricing, airport lookup"},
-    {"name": "weather", "tools": 11, "providers": "OpenWeatherMap, NWS, IQAir", "examples": "current weather, forecast, alerts, air quality"},
-    {"name": "finance", "tools": 26, "providers": "Finnhub, FRED, FDIC, ECB, RateAPI, IBAN", "examples": "stock quotes, FX rates, economic data, mortgage rates"},
-    {"name": "crypto", "tools": 30, "providers": "CoinGecko, Polymarket, Hyperliquid, AsterDEX", "examples": "prices, markets, prediction markets, DeFi"},
-    {"name": "search", "tools": 9, "providers": "Serper, Tavily, Exa", "examples": "web search, news search, semantic search"},
-    {"name": "news", "tools": 8, "providers": "NewsData, GDELT, Currents", "examples": "latest news, global events, crypto news"},
-    {"name": "location", "tools": 18, "providers": "Geoapify, Geocodio, Foursquare, Walk Score, Realtor", "examples": "geocoding, places, routing, real estate"},
-    {"name": "health", "tools": 24, "providers": "USDA, OpenFDA, WHO, FatSecret, Spoonacular, ClinicalTrials", "examples": "nutrition, drug safety, clinical trials, recipes"},
-    {"name": "entertainment", "tools": 44, "providers": "TMDB, Ticketmaster, RAWG, IGDB, Jikan, MusicBrainz, PodcastIndex, API-Sports", "examples": "movies, events, games, anime, music, podcasts, sports"},
-    {"name": "education", "tools": 11, "providers": "OpenAlex, arXiv, PubMed, Open Library, College Scorecard", "examples": "papers, books, colleges"},
-    {"name": "jobs", "tools": 6, "providers": "BLS, O*NET, ESCO, CareerJet", "examples": "salary data, occupations, job listings"},
-    {"name": "space", "tools": 10, "providers": "NASA, JPL, FIRMS", "examples": "astronomy, asteroids, fire detection"},
-    {"name": "social", "tools": 9, "providers": "Mastodon, Bluesky, Twitter/X", "examples": "trending posts, profiles, search"},
-    {"name": "legal", "tools": 8, "providers": "Regulations.gov, Federal Register, CourtListener", "examples": "regulations, court opinions, federal rules"},
-    {"name": "business", "tools": 6, "providers": "GLEIF, Companies House, Hunter.io", "examples": "LEI lookup, UK companies, email enrichment"},
-    {"name": "developer", "tools": 28, "providers": "QRServer, WhoisXML, TimeAPI, NHTSA, Langbly, ConvertAPI, API2PDF", "examples": "QR codes, WHOIS, VIN decode, translation, PDF generation"},
-    {"name": "media", "tools": 14, "providers": "Pexels, Stability AI, OCR.space, ARTIC, Europeana, AssemblyAI", "examples": "stock photos, image generation, OCR, art, transcription"},
-    {"name": "infrastructure", "tools": 15, "providers": "Cloudflare, NameSilo, Browserbase", "examples": "DNS, domains, browser automation"},
-    {"name": "messaging", "tools": 10, "providers": "Telegram, Twilio, Resend, ZeroBounce", "examples": "SMS, email, chat, email validation"},
-    {"name": "marketing", "tools": 11, "providers": "AIPush, Diffbot", "examples": "AI marketing pages, web extraction"},
-    {"name": "world", "tools": 17, "providers": "REST Countries, Nager.Date, GDACS, VATcomply, Open Food Facts", "examples": "countries, holidays, disasters, VAT, food products"}
+    {
+      "name": "travel",
+      "tools": 17,
+      "providers": "Amadeus, Aviasales, Sabre",
+      "examples": "flight search, pricing, airport lookup"
+    },
+    {
+      "name": "weather",
+      "tools": 11,
+      "providers": "OpenWeatherMap, NWS, IQAir",
+      "examples": "current weather, forecast, alerts, air quality"
+    },
+    {
+      "name": "finance",
+      "tools": 26,
+      "providers": "Finnhub, FRED, FDIC, ECB, RateAPI, IBAN",
+      "examples": "stock quotes, FX rates, economic data, mortgage rates"
+    },
+    {
+      "name": "crypto",
+      "tools": 30,
+      "providers": "CoinGecko, Polymarket, Hyperliquid, AsterDEX",
+      "examples": "prices, markets, prediction markets, DeFi"
+    },
+    {
+      "name": "search",
+      "tools": 9,
+      "providers": "Serper, Tavily, Exa",
+      "examples": "web search, news search, semantic search"
+    },
+    {
+      "name": "news",
+      "tools": 8,
+      "providers": "NewsData, GDELT, Currents",
+      "examples": "latest news, global events, crypto news"
+    },
+    {
+      "name": "location",
+      "tools": 18,
+      "providers": "Geoapify, Geocodio, Foursquare, Walk Score, Realtor",
+      "examples": "geocoding, places, routing, real estate"
+    },
+    {
+      "name": "health",
+      "tools": 30,
+      "providers": "USDA, OpenFDA, WHO, FatSecret, Spoonacular, ClinicalTrials, PubChem",
+      "examples": "nutrition, drug safety, clinical trials, recipes"
+    },
+    {
+      "name": "entertainment",
+      "tools": 44,
+      "providers": "TMDB, Ticketmaster, RAWG, IGDB, Jikan, MusicBrainz, PodcastIndex, API-Sports",
+      "examples": "movies, events, games, anime, music, podcasts, sports"
+    },
+    {
+      "name": "education",
+      "tools": 11,
+      "providers": "OpenAlex, arXiv, PubMed, Open Library, College Scorecard",
+      "examples": "papers, books, colleges"
+    },
+    {
+      "name": "jobs",
+      "tools": 6,
+      "providers": "BLS, O*NET, ESCO, CareerJet",
+      "examples": "salary data, occupations, job listings"
+    },
+    {
+      "name": "space",
+      "tools": 10,
+      "providers": "NASA, JPL, FIRMS",
+      "examples": "astronomy, asteroids, fire detection"
+    },
+    {
+      "name": "social",
+      "tools": 9,
+      "providers": "Mastodon, Bluesky, Twitter/X",
+      "examples": "trending posts, profiles, search"
+    },
+    {
+      "name": "legal",
+      "tools": 8,
+      "providers": "Regulations.gov, Federal Register, CourtListener",
+      "examples": "regulations, court opinions, federal rules"
+    },
+    {
+      "name": "business",
+      "tools": 6,
+      "providers": "GLEIF, Companies House, Hunter.io",
+      "examples": "LEI lookup, UK companies, email enrichment"
+    },
+    {
+      "name": "developer",
+      "tools": 28,
+      "providers": "QRServer, WhoisXML, TimeAPI, NHTSA, Langbly, ConvertAPI, API2PDF",
+      "examples": "QR codes, WHOIS, VIN decode, translation, PDF generation"
+    },
+    {
+      "name": "media",
+      "tools": 14,
+      "providers": "Pexels, Stability AI, OCR.space, ARTIC, Europeana, AssemblyAI",
+      "examples": "stock photos, image generation, OCR, art, transcription"
+    },
+    {
+      "name": "infrastructure",
+      "tools": 15,
+      "providers": "Cloudflare, NameSilo, Browserbase",
+      "examples": "DNS, domains, browser automation"
+    },
+    {
+      "name": "messaging",
+      "tools": 10,
+      "providers": "Telegram, Twilio, Resend, ZeroBounce",
+      "examples": "SMS, email, chat, email validation"
+    },
+    {
+      "name": "marketing",
+      "tools": 11,
+      "providers": "AIPush, Diffbot",
+      "examples": "AI marketing pages, web extraction"
+    },
+    {
+      "name": "world",
+      "tools": 17,
+      "providers": "REST Countries, Nager.Date, GDACS, VATcomply, Open Food Facts",
+      "examples": "countries, holidays, disasters, VAT, food products"
+    }
   ]
 }

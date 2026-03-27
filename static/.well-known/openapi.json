@@ -30273,6 +30273,480 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/pubchem.compound_search/call": {
+      "post": {
+        "operationId": "pubchem_compound_search",
+        "summary": "Search Chemical Compounds",
+        "description": "Search 100M+ chemical compounds by name, formula, or SMILES string. Returns CID, molecular formula, weight, IUPAC name, SMILES, InChI, XLogP, H-bond donors/acceptors, exact mass, and complexity. The largest public chemical database (PubChem / NCBI)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pubchem.compound_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Compound name, formula, or SMILES string (e.g. \"aspirin\", \"C9H8O4\", \"CC(=O)OC1=CC=CC=C1C(=O)O\")"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20,
+                    "description": "Maximum results to return (1-20, default 5)"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/pubchem.compound_properties/call": {
+      "post": {
+        "operationId": "pubchem_compound_properties",
+        "summary": "Chemical Compound Properties",
+        "description": "Get full physical and chemical properties for a compound by PubChem CID — molecular formula, weight, SMILES, InChI, InChIKey, XLogP, H-bond donors/acceptors, exact mass, topological polar surface area, complexity, charge, heavy atom count (PubChem / NCBI)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pubchem.compound_properties"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cid": {
+                    "type": "integer",
+                    "description": "PubChem Compound ID (CID) — get from compound_search results"
+                  }
+                },
+                "required": [
+                  "cid"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/pubchem.compound_synonyms/call": {
+      "post": {
+        "operationId": "pubchem_compound_synonyms",
+        "summary": "Compound Synonyms & Identifiers",
+        "description": "Get all known names, CAS registry numbers, trade names, and identifiers for a chemical compound by PubChem CID. Returns up to 50 synonyms from a database of millions of name variants (PubChem / NCBI)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pubchem.compound_synonyms"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cid": {
+                    "type": "integer",
+                    "description": "PubChem Compound ID (CID) — returns all known names, CAS numbers, trade names"
+                  }
+                },
+                "required": [
+                  "cid"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/pubchem.hazard_data/call": {
+      "post": {
+        "operationId": "pubchem_hazard_data",
+        "summary": "Chemical Hazard Classification (GHS)",
+        "description": "Get GHS (Globally Harmonized System) hazard classification for a compound — signal words (Danger/Warning), hazard statements (H-codes), precautionary statements (P-codes), pictograms. Essential for chemical safety assessments (PubChem / NCBI)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pubchem.hazard_data"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cid": {
+                    "type": "integer",
+                    "description": "PubChem Compound ID (CID) — returns GHS hazard classification, pictograms, signal words"
+                  }
+                },
+                "required": [
+                  "cid"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/pubchem.bioassay_summary/call": {
+      "post": {
+        "operationId": "pubchem_bioassay_summary",
+        "summary": "Compound Bioactivity Summary",
+        "description": "Get bioactivity assay results for a compound — active/inactive counts, tested targets, assay types. Shows how the compound performed in biological tests across thousands of assays (PubChem / NCBI)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pubchem.bioassay_summary"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cid": {
+                    "type": "integer",
+                    "description": "PubChem Compound ID (CID) — returns bioactivity assay results (active/inactive counts, targets)"
+                  }
+                },
+                "required": [
+                  "cid"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/pubchem.structure_lookup/call": {
+      "post": {
+        "operationId": "pubchem_structure_lookup",
+        "summary": "Chemical Structure Lookup",
+        "description": "Look up a compound by name or identifier and get its chemical structure representations — SMILES (isomeric + canonical), InChI, InChIKey, molecular formula, and molecular weight. Convert between chemical identifier formats (PubChem / NCBI)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pubchem.structure_lookup"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Compound name or identifier (e.g. \"caffeine\", \"50-78-2\") — returns SMILES, InChI, InChIKey, formula"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

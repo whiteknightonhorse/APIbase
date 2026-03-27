@@ -234,6 +234,9 @@ export const appEnvSchema = z.object({
   // IBANAPI (UC-212) — IBAN validation + bank identification
   PROVIDER_KEY_IBANAPI: z.string().optional().default(''),
 
+  // PubChem / NCBI (UC-213) — optional, raises rate limit from 5 to 10 req/sec
+  PROVIDER_KEY_NCBI: z.string().optional().default(''),
+
   // Polymarket trading — Phase 2 (UC-001 §3-§8)
   POLYMARKET_WALLET_ADDRESS: z.string().startsWith('0x').optional().default(''),
   POLYMARKET_PRIVATE_KEY: z.string().optional().default(''),

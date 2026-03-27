@@ -92,6 +92,7 @@ import { RateApiAdapter } from './rateapi';
 import { TwitterApiAdapter } from './twitterapi';
 import { CurrentsAdapter } from './currents';
 import { IbanApiAdapter } from './ibanapi';
+import { PubchemAdapter } from './pubchem';
 import { config } from '../config';
 
 /**
@@ -510,6 +511,10 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const twKey = (config as Record<string, unknown>).PROVIDER_KEY_TWITTERAPI as string | undefined;
       if (!twKey) return undefined;
       return getOrCreate('twitterapi', () => new TwitterApiAdapter(twKey));
+    }
+    case 'pubchem': {
+      const ncbiKey = (config as Record<string, unknown>).PROVIDER_KEY_NCBI as string || '';
+      return getOrCreate('pubchem', () => new PubchemAdapter(ncbiKey));
     }
     default:
       return undefined;

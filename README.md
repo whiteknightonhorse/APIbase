@@ -1,6 +1,6 @@
 # APIbase.pro — The API Hub for AI Agents
 
-> One MCP endpoint. 327 tools. 92 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
+> One MCP endpoint. 333 tools. 93 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Health](https://apibase.pro/health/ready)** | **[Dashboard](https://apibase.pro/dashboard)**
 
@@ -69,7 +69,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 
 ---
 
-## Tool Categories (327 tools, 92 providers)
+## Tool Categories (333 tools, 93 providers)
 
 | Category | Tools | Providers | Examples |
 |----------|-------|-----------|----------|
@@ -91,6 +91,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 | **Music** | 7 | MusicBrainz, ListenBrainz, RadioBrowser | Artists, albums, radio stations |
 | **Podcasts** | 4 | PodcastIndex | Search 4M+ podcasts, trending, episodes |
 | **Health & Nutrition** | 7 | USDA, OpenFDA, NIH | Food data, drug safety, supplements |
+| **Chemistry** | 6 | PubChem (NCBI) | 100M+ compounds, properties, hazards, bioassays, structures |
 | **Disease Data** | 7 | disease.sh, WHO GHO | COVID/Influenza global disease statistics, WHO global health data |
 | **Clinical Trials** | 3 | ClinicalTrials.gov | 577K+ trials, drug research, recruiting |
 | **Nutrition Database** | 2 | FatSecret | 2.3M+ foods, calories, macros, vitamins |
@@ -266,12 +267,12 @@ npx agentcash add https://apibase.pro
 
 ```
 GET  /.well-known/mcp.json    → MCP server metadata
-GET  /api/v1/tools             → Full tool catalog (all 327 tools in one response)
+GET  /api/v1/tools             → Full tool catalog (all 333 tools in one response)
 GET  /health/ready             → System health check
-POST /mcp  prompts/get discover_tools  → Browse 327 tools by category or task (progressive disclosure)
+POST /mcp  prompts/get discover_tools  → Browse 333 tools by category or task (progressive disclosure)
 ```
 
-**Progressive disclosure:** Instead of loading all 327 tool schemas into context, agents can call the `discover_tools` prompt to find relevant tools first:
+**Progressive disclosure:** Instead of loading all 333 tool schemas into context, agents can call the `discover_tools` prompt to find relevant tools first:
 - `discover_tools` (no args) → 21 categories with tool counts
 - `discover_tools category="travel"` → 17 travel tools
 - `discover_tools task="check earthquake near Tokyo"` → matching tools ranked by relevance
