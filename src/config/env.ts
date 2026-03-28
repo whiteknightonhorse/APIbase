@@ -243,6 +243,9 @@ export const appEnvSchema = z.object({
   // IPQualityScore (UC-217) — fraud detection, 1K lookups/month free
   PROVIDER_KEY_IPQS: z.string().optional().default(''),
 
+  // Predictive Pre-fetching (F8) — fire-and-forget cache warming
+  PREFETCH_ENABLED: z.string().optional().default('false'),
+
   // Polymarket trading — Phase 2 (UC-001 §3-§8)
   POLYMARKET_WALLET_ADDRESS: z.string().startsWith('0x').optional().default(''),
   POLYMARKET_PRIVATE_KEY: z.string().optional().default(''),

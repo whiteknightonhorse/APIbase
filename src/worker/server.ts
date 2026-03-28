@@ -7,6 +7,7 @@ import { run as runReconciliation } from '../jobs/reconciliation.job';
 import { run as runProviderHealth } from '../jobs/provider-health.job';
 import { run as runX402Health } from '../jobs/x402-health.job';
 import { run as runPartitionCreate } from '../jobs/partition-create.job';
+import { run as runToolQuality } from '../jobs/tool-quality.job';
 
 /**
  * Worker process entry point (§12.194, §12.244).
@@ -95,6 +96,26 @@ async function runProviderHealthSafe(): Promise<void> {
   }
 }
 
+let toolQualityRunning = false;
+
+async function runToolQualitySafe(): Promise<void> {
+  if (toolQualityRunning) {
+    return;
+  }
+  toolQualityRunning = true;
+  try {
+    const r = getRedis();
+    if (r.status === 'wait') {
+      await r.connect();
+    }
+    await runToolQuality(r);
+  } catch (err) {
+    logger.error({ err }, 'Tool quality job failed');
+  } finally {
+    toolQualityRunning = false;
+  }
+}
+
 let x402HealthRunning = false;
 
 async function runX402HealthSafe(): Promise<void> {
@@ -141,6 +162,14 @@ const providerHealthTask = cron.schedule('*/2 * * * *', () => {
 const x402HealthTask = cron.schedule('0 * * * *', () => {
   runX402HealthSafe().catch(() => {});
 });
+
+// Schedule tool quality index every 10 min (F5)
+const toolQualityTask = cron.schedule('*/10 * * * *', () => {
+  runToolQualitySafe().catch(() => {});
+});
+
+// Run tool quality once at startup after 15s delay
+setTimeout(() => { runToolQualitySafe().catch(() => {}); }, 15_000);
 
 // Run x402 health once at startup after 10s delay
 setTimeout(() => { runX402HealthSafe().catch(() => {}); }, 10_000);
@@ -195,6 +224,7 @@ function shutdown(signal: string): void {
   providerHealthTask.stop();
   x402HealthTask.stop();
   partitionCreateTask.stop();
+  toolQualityTask.stop();
 
   if (heartbeatTimer) {
     clearInterval(heartbeatTimer);

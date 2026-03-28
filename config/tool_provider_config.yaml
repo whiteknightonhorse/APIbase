@@ -2098,3 +2098,39 @@ tools:
     provider: ipqs
     price_usd: "0.003"
     cache_ttl: 3600
+
+  # --- F4: Account Analytics (internal, $0) ---
+  - tool_id: account.usage
+    name: Usage Summary
+    provider: account
+    price_usd: "0"
+    cache_ttl: 60
+  - tool_id: account.tools
+    name: Per-Tool Usage Breakdown
+    provider: account
+    price_usd: "0"
+    cache_ttl: 60
+  - tool_id: account.timeseries
+    name: Usage Time Series
+    provider: account
+    price_usd: "0"
+    cache_ttl: 60
+
+  # --- F5: Platform Quality Index (internal, $0) ---
+  - tool_id: platform.tool_quality
+    name: Tool Quality Metrics
+    provider: platform
+    price_usd: "0"
+    cache_ttl: 60
+  - tool_id: platform.tool_rankings
+    name: Tool Quality Rankings
+    provider: platform
+    price_usd: "0"
+    cache_ttl: 60
+
+  # --- F1: Batch API (wrapper $0, sub-calls billed individually) ---
+  - tool_id: platform.call_batch
+    name: Batch Tool Calls
+    provider: platform
+    price_usd: "0"
+    cache_ttl: 0

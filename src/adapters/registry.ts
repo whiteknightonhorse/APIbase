@@ -95,6 +95,8 @@ import { IbanApiAdapter } from './ibanapi';
 import { PubchemAdapter } from './pubchem';
 import { OpenChargeMapAdapter } from './openchargemap';
 import { IpqsAdapter } from './ipqs';
+import { AccountAdapter } from './account';
+import { PlatformAdapter } from './platform';
 import { config } from '../config';
 
 /**
@@ -528,6 +530,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       if (!ipqsKey) return undefined;
       return getOrCreate('ipqs', () => new IpqsAdapter(ipqsKey));
     }
+    case 'account':
+      // Internal adapter — queries execution_ledger for agent analytics (F4)
+      return getOrCreate('account', () => new AccountAdapter());
+    case 'platform':
+      // Internal adapter — tool quality index + batch API (F1, F5)
+      return getOrCreate('platform', () => new PlatformAdapter());
     default:
       return undefined;
   }

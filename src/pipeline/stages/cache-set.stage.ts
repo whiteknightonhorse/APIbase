@@ -1,6 +1,7 @@
 import { type Stage, ok } from '../types';
 import { setCache, releaseLock } from '../../services/cache.service';
 import { logger } from '../../config/logger';
+import { enqueuePrefetch } from '../../services/prefetch.service';
 
 /**
  * CACHE_SET stage (§12.43 stage 12, §12.127).
@@ -49,6 +50,9 @@ export const cacheSetStage: Stage = {
       // Redis error in CACHE_SET is non-fatal (§12.127)
       logger.warn({ err: error, requestId: ctx.requestId }, 'Failed to set cache');
     }
+
+    // Fire-and-forget: predictive pre-fetch for follow-up tools (F8)
+    enqueuePrefetch(ctx);
 
     // Release single-flight lock
     if (ctx.isLockOwner) {

@@ -1,6 +1,6 @@
 # APIbase.pro — The API Hub for AI Agents
 
-> One MCP endpoint. 340 tools. 95 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
+> One MCP endpoint. 346 tools. 95 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Health](https://apibase.pro/health/ready)** | **[Dashboard](https://apibase.pro/dashboard)**
 
@@ -19,7 +19,7 @@
 
 ## What is APIbase?
 
-Production MCP server that gives AI agents access to 340 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, translate text, check weather alerts, generate images, send emails, look up holidays, shorten URLs, detect fires by satellite, decode VINs, look up chemical compounds, find EV chargers — and 250+ more tools across 30+ categories.
+Production MCP server that gives AI agents access to 346 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, translate text, check weather alerts, generate images, send emails, look up holidays, shorten URLs, detect fires by satellite, decode VINs, look up chemical compounds, find EV chargers, batch multiple calls, track usage analytics — and 250+ more tools across 30+ categories.
 
 **Built for AI agents, not humans.** Auto-registration, zero setup, pay-per-call via x402 USDC micropayments on Base or MPP (Machine Payments Protocol) on Tempo.
 
@@ -69,7 +69,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 
 ---
 
-## Tool Categories (340 tools, 95 providers)
+## Tool Categories (346 tools, 95 providers)
 
 | Category | Tools | Providers | Examples |
 |----------|-------|-----------|----------|
@@ -131,8 +131,70 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 | **Food Products** | 2 | Open Food Facts | Barcode lookup, product search (3M+ products) |
 | **Test Data** | 1 | RandomUser.me | Random user profiles for testing |
 | **Crypto & DeFi** | 26 | CoinGecko, Polymarket, Hyperliquid | Prices, prediction markets, perpetuals |
+| **Platform** | 6 | APIbase (internal) | Usage analytics, tool quality index, batch calls |
 
 **Full tool catalog with schemas:** [`https://apibase.pro/api/v1/tools`](https://apibase.pro/api/v1/tools)
+
+---
+
+## Platform Features
+
+### Usage Analytics (Free)
+
+Track your API usage — total calls, cost, cache hit rate, latency, and per-tool breakdown.
+
+```bash
+# Usage summary
+curl -X POST https://apibase.pro/api/v1/tools/account.usage/call \
+  -H "Authorization: Bearer ak_live_..." \
+  -d '{"period": "7d"}'
+
+# Per-tool breakdown
+curl -X POST https://apibase.pro/api/v1/tools/account.tools/call \
+  -H "Authorization: Bearer ak_live_..." \
+  -d '{"sort": "cost", "limit": 10}'
+
+# Time series (hourly/daily buckets)
+curl -X POST https://apibase.pro/api/v1/tools/account.timeseries/call \
+  -H "Authorization: Bearer ak_live_..." \
+  -d '{"period": "30d", "granularity": "day"}'
+```
+
+### Tool Quality Index (Free)
+
+Check tool reliability before calling — uptime, p50/p95 latency, error rate. Updated every 10 minutes.
+
+```bash
+# Quality metrics for a specific tool
+curl -X POST https://apibase.pro/api/v1/tools/platform.tool_quality/call \
+  -H "Authorization: Bearer ak_live_..." \
+  -d '{"tool_id": "crypto.get_price"}'
+
+# Rankings — find the most reliable tools
+curl -X POST https://apibase.pro/api/v1/tools/platform.tool_rankings/call \
+  -H "Authorization: Bearer ak_live_..." \
+  -d '{"sort": "uptime", "limit": 20}'
+```
+
+### Batch API (Free wrapper)
+
+Execute up to 20 tool calls in parallel with a single request. Each sub-call runs the full pipeline independently. You pay only for individual tool calls.
+
+```bash
+# Via MCP tool
+curl -X POST https://apibase.pro/api/v1/tools/platform.call_batch/call \
+  -H "Authorization: Bearer ak_live_..." \
+  -d '{"calls": [
+    {"tool_id": "crypto.get_price", "params": {"coin": "bitcoin"}},
+    {"tool_id": "finance.exchange_rates", "params": {"from": "USD", "to": "EUR"}},
+    {"tool_id": "country.by_code", "params": {"code": "US"}}
+  ]}'
+
+# Via REST endpoint
+curl -X POST https://apibase.pro/api/v1/tools/call_batch \
+  -H "Authorization: Bearer ak_live_..." \
+  -d '{"calls": [...], "max_parallel": 10}'
+```
 
 
 

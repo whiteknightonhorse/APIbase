@@ -14,6 +14,7 @@ import { mppMiddleware } from '../middleware/mpp.middleware';
 import { x402Router } from '../routes/x402.router';
 import { onboardRouter } from '../routes/onboard.router';
 import { executeRouter } from '../routes/execute.router';
+import { batchRouter } from '../routes/batch.router';
 import { dashboardRouter } from '../routes/dashboard.router';
 
 /**
@@ -68,6 +69,7 @@ export function createApp(): express.Express {
   app.use(agentsRouter);
   app.use(toolsRouter);
   app.use(executeRouter);
+  app.use(batchRouter);
 
   // --- 404 catch-all (must be after all routes) ---
   app.use((req: express.Request, _res: express.Response, next: express.NextFunction) => {

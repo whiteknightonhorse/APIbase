@@ -117,6 +117,13 @@ export const authStage: Stage = {
   name: 'AUTH',
 
   async execute(ctx: PipelineContext) {
+    // Skip auth for pre-authenticated contexts (batch sub-calls, prefetch).
+    // Only internal code can set agentId before pipeline — external requests
+    // create fresh contexts via createPipelineContext() which never sets it.
+    if (ctx.agentId) {
+      return ok(ctx);
+    }
+
     const authHeader = ctx.headers['authorization'];
     const headerValue = Array.isArray(authHeader) ? authHeader[0] : authHeader;
 

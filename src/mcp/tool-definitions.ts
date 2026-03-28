@@ -3159,4 +3159,61 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'developer',
     annotations: READ_ONLY,
   },
+
+  // Account Analytics — Usage & Billing Insights (F4, 3 tools)
+  {
+    toolId: 'account.usage',
+    mcpName: 'account.analytics.usage',
+    title: 'Usage Summary',
+    description: 'Get your API usage summary — total calls, total cost, cache hit rate, average latency, and unique tools used. Filter by period: 1 day, 7 days, or 30 days. See how efficiently you are using the platform. Free, no charge (APIbase)',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'account.tools',
+    mcpName: 'account.analytics.tools',
+    title: 'Per-Tool Usage Breakdown',
+    description: 'Get per-tool usage breakdown — calls, cost, cache hits, average latency, last used. Sort by cost (highest spend), calls (most used), or latency (slowest). Identify your most-used and most-expensive tools. Free, no charge (APIbase)',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'account.timeseries',
+    mcpName: 'account.analytics.timeseries',
+    title: 'Usage Time Series',
+    description: 'Get time-series usage data — calls, cost, cache hits per hour or day over a period. Visualize usage patterns and trends. Choose granularity: hourly (for 1d period) or daily (for 7d/30d). Free, no charge (APIbase)',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+
+  // Platform Tools — Quality Index & Batch API (F1, F5, 3 tools)
+  {
+    toolId: 'platform.tool_quality',
+    mcpName: 'platform.quality.tool',
+    title: 'Tool Quality Metrics',
+    description: 'Get quality metrics for any tool — uptime percentage, p50/p95 latency, error rate, total calls in last 24h. Check reliability before calling expensive tools. Updated every 10 minutes. Free, no charge (APIbase)',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'platform.tool_rankings',
+    mcpName: 'platform.quality.rankings',
+    title: 'Tool Quality Rankings',
+    description: 'Get ranked list of tools by quality — sort by uptime (most reliable), latency (fastest), or error_rate (fewest errors). Filter by category (e.g. "crypto", "weather"). Discover the best tools for your use case. Free, no charge (APIbase)',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'platform.call_batch',
+    mcpName: 'platform.batch.call',
+    title: 'Batch Tool Calls',
+    description: 'Execute up to 20 tool calls in a single request with parallel execution (max 10 concurrent). Each call runs the full pipeline independently with its own billing. Returns array of results with per-call status, data, cost, and duration. Save 5x round-trips vs sequential calls. Batch wrapper is free — you pay only for individual tool calls (APIbase)',
+    category: 'developer',
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: false,
+      openWorldHint: true,
+    },
+  },
 ];
