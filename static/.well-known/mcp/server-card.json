@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase \u2014 The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 355 tools. Dual-rail: x402 + MPP.",
+    "description": "Unified MCP gateway to 359 tools. Dual-rail: x402 + MPP.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -13135,6 +13135,142 @@
             "description": "Filter by tool category prefix (e.g. \"crypto\", \"weather\", \"finance\")"
           }
         }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "vehicle.safety.complaints",
+      "title": "Vehicle Consumer Complaints",
+      "description": "Search consumer complaints filed with NHTSA about vehicles. Returns incident details including crash/fire flags, injuries, deaths, affected components, and complaint summary. Covers US vehicles from ~1995 to present. Critical for safety research and product liability analysis (NHTSA)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "make": {
+            "type": "string",
+            "description": "Vehicle manufacturer name (e.g. \"Toyota\", \"Ford\", \"Tesla\", \"Honda\")",
+            "minLength": 1
+          },
+          "model": {
+            "type": "string",
+            "description": "Vehicle model name (e.g. \"Camry\", \"Model 3\", \"Civic\")",
+            "minLength": 1
+          },
+          "model_year": {
+            "type": "integer",
+            "description": "Model year (e.g. 2023). NHTSA complaint data available from ~1995 to present",
+            "minimum": 1995,
+            "maximum": 2030
+          }
+        },
+        "required": [
+          "make",
+          "model",
+          "model_year"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "vehicle.safety.investigations",
+      "title": "Defect Investigations",
+      "description": "Search NHTSA defect investigation records by manufacturer and model. Returns investigation number, type (preliminary/engineering analysis), description, latest activity date, and NHTSA action number. Covers active and closed investigations for US vehicles (NHTSA)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "make": {
+            "type": "string",
+            "description": "Vehicle manufacturer name (e.g. \"Tesla\", \"GM\", \"Ford\")",
+            "minLength": 1
+          },
+          "model": {
+            "type": "string",
+            "description": "Vehicle model name to narrow results (e.g. \"Model 3\", \"Bolt EV\")"
+          }
+        },
+        "required": [
+          "make"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "vehicle.safety.ratings",
+      "title": "5-Star Crash Test Safety Ratings",
+      "description": "Get NCAP 5-Star crash test safety ratings by make/model/year or vehicle ID. Returns overall rating, frontal crash, side crash, and rollover ratings (1-5 stars). Also shows related complaints, recalls, and investigation counts. Available from ~2011 for US-market vehicles (NHTSA)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "make": {
+            "type": "string",
+            "description": "Vehicle manufacturer name (e.g. \"Toyota\", \"Honda\"). Required unless vehicle_id is provided"
+          },
+          "model": {
+            "type": "string",
+            "description": "Vehicle model name (e.g. \"Camry\", \"Civic\"). Required unless vehicle_id is provided"
+          },
+          "model_year": {
+            "type": "integer",
+            "minimum": 2011,
+            "maximum": 2030,
+            "description": "Model year (e.g. 2023). 5-Star ratings available from ~2011. Required unless vehicle_id is provided"
+          },
+          "vehicle_id": {
+            "type": "integer",
+            "description": "NHTSA Vehicle ID for full ratings detail (get from initial search). Overrides make/model/year if provided"
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "vehicle.safety.recalls",
+      "title": "Vehicle Recall Search",
+      "description": "Search NHTSA vehicle recalls by make, model, and year. Returns campaign number, manufacturer, subject, summary, consequence, remedy, affected components, and units affected. Covers all US recalls from 1966 to present. Essential for automotive safety, insurance, and fleet management agents (NHTSA)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "make": {
+            "type": "string",
+            "description": "Vehicle manufacturer name (e.g. \"Toyota\", \"Ford\", \"Tesla\", \"BMW\")",
+            "minLength": 1
+          },
+          "model": {
+            "type": "string",
+            "description": "Vehicle model name (e.g. \"Camry\", \"Model 3\", \"F-150\", \"X5\")",
+            "minLength": 1
+          },
+          "model_year": {
+            "type": "integer",
+            "description": "Model year (e.g. 2023). NHTSA recall data available from 1966 to present",
+            "minimum": 1966,
+            "maximum": 2030
+          }
+        },
+        "required": [
+          "make",
+          "model",
+          "model_year"
+        ]
       },
       "annotations": {
         "readOnlyHint": true,

@@ -2099,6 +2099,28 @@ tools:
     price_usd: "0.003"
     cache_ttl: 3600
 
+  # --- UC-219: NHTSA Safety (Vehicle Recalls, Complaints, Ratings) ---
+  - tool_id: safety.recalls
+    name: Vehicle Recall Search
+    provider: nhtsa-safety
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: safety.complaints
+    name: Vehicle Consumer Complaints
+    provider: nhtsa-safety
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: safety.ratings
+    name: 5-Star Crash Test Safety Ratings
+    provider: nhtsa-safety
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: safety.investigations
+    name: Defect Investigations
+    provider: nhtsa-safety
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   # --- UC-218: RCSB Protein Data Bank (Structural Biology) ---
   - tool_id: pdb.search
     name: Search Protein Structures

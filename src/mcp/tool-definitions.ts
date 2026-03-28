@@ -3160,6 +3160,40 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     annotations: READ_ONLY,
   },
 
+  // NHTSA Safety — Vehicle Recalls, Complaints, Ratings, Investigations (UC-219, 4 tools)
+  {
+    toolId: 'safety.recalls',
+    mcpName: 'vehicle.safety.recalls',
+    title: 'Vehicle Recall Search',
+    description: 'Search NHTSA vehicle recalls by make, model, and year. Returns campaign number, manufacturer, subject, summary, consequence, remedy, affected components, and units affected. Covers all US recalls from 1966 to present. Essential for automotive safety, insurance, and fleet management agents (NHTSA)',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'safety.complaints',
+    mcpName: 'vehicle.safety.complaints',
+    title: 'Vehicle Consumer Complaints',
+    description: 'Search consumer complaints filed with NHTSA about vehicles. Returns incident details including crash/fire flags, injuries, deaths, affected components, and complaint summary. Covers US vehicles from ~1995 to present. Critical for safety research and product liability analysis (NHTSA)',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'safety.ratings',
+    mcpName: 'vehicle.safety.ratings',
+    title: '5-Star Crash Test Safety Ratings',
+    description: 'Get NCAP 5-Star crash test safety ratings by make/model/year or vehicle ID. Returns overall rating, frontal crash, side crash, and rollover ratings (1-5 stars). Also shows related complaints, recalls, and investigation counts. Available from ~2011 for US-market vehicles (NHTSA)',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'safety.investigations',
+    mcpName: 'vehicle.safety.investigations',
+    title: 'Defect Investigations',
+    description: 'Search NHTSA defect investigation records by manufacturer and model. Returns investigation number, type (preliminary/engineering analysis), description, latest activity date, and NHTSA action number. Covers active and closed investigations for US vehicles (NHTSA)',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+
   // RCSB Protein Data Bank — Structural Biology (UC-218, 4 tools)
   {
     toolId: 'pdb.search',

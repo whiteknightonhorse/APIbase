@@ -98,6 +98,7 @@ import { IpqsAdapter } from './ipqs';
 import { AccountAdapter } from './account';
 import { PlatformAdapter } from './platform';
 import { RcsbAdapter } from './rcsb';
+import { NhtsaSafetyAdapter } from './nhtsa-safety';
 import { config } from '../config';
 
 /**
@@ -540,6 +541,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'pdb':
       // RCSB Protein Data Bank — open access, no API key (UC-218)
       return getOrCreate('rcsb', () => new RcsbAdapter());
+    case 'safety':
+      // NHTSA Safety — recalls, complaints, ratings, investigations (UC-219)
+      return getOrCreate('nhtsa-safety', () => new NhtsaSafetyAdapter());
     default:
       return undefined;
   }

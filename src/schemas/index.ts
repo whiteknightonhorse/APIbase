@@ -98,6 +98,7 @@ import { ipqsSchemas } from './ipqs.schema';
 import { accountSchemas } from './account.schema';
 import { platformSchemas } from './platform.schema';
 import { rcsbSchemas } from './rcsb.schema';
+import { nhtsaSafetySchemas } from './nhtsa-safety.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -199,4 +200,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...accountSchemas,
   ...platformSchemas,
   ...rcsbSchemas,
+  ...nhtsaSafetySchemas,
 };

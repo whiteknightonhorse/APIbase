@@ -869,6 +869,15 @@
     "docs_url": "https://www.ipqualityscore.com/documentation/overview",
     "limit_proof": "Free plan: 1,000 lookups/month (35/day), shared across all endpoints"
   },
+  "nhtsa-safety": {
+    "display_name": "NHTSA Vehicle Safety",
+    "health_url": "https://api.nhtsa.gov/recalls/recallsByVehicle?make=Toyota&model=Camry&modelYear=2023",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.nhtsa.gov/nhtsa-datasets-and-apis",
+    "limit_proof": "US Government open data, no auth required, no documented rate limits"
+  },
   "rcsb": {
     "display_name": "RCSB Protein Data Bank",
     "health_url": "https://data.rcsb.org/rest/v1/core/entry/4HHB",

@@ -1,17 +1,17 @@
 # APIbase — Universal API Hub for AI Agents
 # https://apibase.pro
 
-> 350 API tools from 95+ providers via one MCP endpoint.
+> 354 API tools from 95+ providers via one MCP endpoint.
 > Supports x402 (USDC on Base) and MPP payments.
 
 ## Quick Start for Agents
 - Connect: POST https://apibase.pro/mcp (MCP Streamable HTTP)
 - Discover tools: Call prompt "discover_tools" with task or category
-- Full catalog: GET https://apibase.pro/api/v1/tools (all 350 tools, JSON schemas)
+- Full catalog: GET https://apibase.pro/api/v1/tools (all 354 tools, JSON schemas)
 - OpenAPI spec: GET https://apibase.pro/.well-known/openapi.json
 
 ## Progressive Disclosure
-350 tools across 21 categories. Use discover_tools prompt to find relevant tools:
+354 tools across 21 categories. Use discover_tools prompt to find relevant tools:
 - No args → category index (21 categories with counts)
 - category="finance" → 26 finance tools
 - task="search flights" → amadeus, aviasales, sabre tools ranked by relevance

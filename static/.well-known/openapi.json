@@ -31392,6 +31392,362 @@
         ]
       }
     },
+    "/api/v1/tools/safety.recalls/call": {
+      "post": {
+        "operationId": "safety_recalls",
+        "summary": "Vehicle Recall Search",
+        "description": "Search NHTSA vehicle recalls by make, model, and year. Returns campaign number, manufacturer, subject, summary, consequence, remedy, affected components, and units affected. Covers all US recalls from 1966 to present. Essential for automotive safety, insurance, and fleet management agents (NHTSA)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "safety.recalls"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "make": {
+                    "type": "string",
+                    "description": "Vehicle manufacturer name (e.g. \"Toyota\", \"Ford\", \"Tesla\", \"BMW\")",
+                    "minLength": 1
+                  },
+                  "model": {
+                    "type": "string",
+                    "description": "Vehicle model name (e.g. \"Camry\", \"Model 3\", \"F-150\", \"X5\")",
+                    "minLength": 1
+                  },
+                  "model_year": {
+                    "type": "integer",
+                    "description": "Model year (e.g. 2023). NHTSA recall data available from 1966 to present",
+                    "minimum": 1966,
+                    "maximum": 2030
+                  }
+                },
+                "required": [
+                  "make",
+                  "model",
+                  "model_year"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/safety.complaints/call": {
+      "post": {
+        "operationId": "safety_complaints",
+        "summary": "Vehicle Consumer Complaints",
+        "description": "Search consumer complaints filed with NHTSA about vehicles. Returns incident details including crash/fire flags, injuries, deaths, affected components, and complaint summary. Covers US vehicles from ~1995 to present. Critical for safety research and product liability analysis (NHTSA)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "safety.complaints"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "make": {
+                    "type": "string",
+                    "description": "Vehicle manufacturer name (e.g. \"Toyota\", \"Ford\", \"Tesla\", \"Honda\")",
+                    "minLength": 1
+                  },
+                  "model": {
+                    "type": "string",
+                    "description": "Vehicle model name (e.g. \"Camry\", \"Model 3\", \"Civic\")",
+                    "minLength": 1
+                  },
+                  "model_year": {
+                    "type": "integer",
+                    "description": "Model year (e.g. 2023). NHTSA complaint data available from ~1995 to present",
+                    "minimum": 1995,
+                    "maximum": 2030
+                  }
+                },
+                "required": [
+                  "make",
+                  "model",
+                  "model_year"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/safety.ratings/call": {
+      "post": {
+        "operationId": "safety_ratings",
+        "summary": "5-Star Crash Test Safety Ratings",
+        "description": "Get NCAP 5-Star crash test safety ratings by make/model/year or vehicle ID. Returns overall rating, frontal crash, side crash, and rollover ratings (1-5 stars). Also shows related complaints, recalls, and investigation counts. Available from ~2011 for US-market vehicles (NHTSA)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "safety.ratings"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "make": {
+                    "type": "string",
+                    "description": "Vehicle manufacturer name (e.g. \"Toyota\", \"Honda\"). Required unless vehicle_id is provided"
+                  },
+                  "model": {
+                    "type": "string",
+                    "description": "Vehicle model name (e.g. \"Camry\", \"Civic\"). Required unless vehicle_id is provided"
+                  },
+                  "model_year": {
+                    "type": "integer",
+                    "minimum": 2011,
+                    "maximum": 2030,
+                    "description": "Model year (e.g. 2023). 5-Star ratings available from ~2011. Required unless vehicle_id is provided"
+                  },
+                  "vehicle_id": {
+                    "type": "integer",
+                    "description": "NHTSA Vehicle ID for full ratings detail (get from initial search). Overrides make/model/year if provided"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/safety.investigations/call": {
+      "post": {
+        "operationId": "safety_investigations",
+        "summary": "Defect Investigations",
+        "description": "Search NHTSA defect investigation records by manufacturer and model. Returns investigation number, type (preliminary/engineering analysis), description, latest activity date, and NHTSA action number. Covers active and closed investigations for US vehicles (NHTSA)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "safety.investigations"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "make": {
+                    "type": "string",
+                    "description": "Vehicle manufacturer name (e.g. \"Tesla\", \"GM\", \"Ford\")",
+                    "minLength": 1
+                  },
+                  "model": {
+                    "type": "string",
+                    "description": "Vehicle model name to narrow results (e.g. \"Model 3\", \"Bolt EV\")"
+                  }
+                },
+                "required": [
+                  "make"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/pdb.search/call": {
       "post": {
         "operationId": "pdb_search",
