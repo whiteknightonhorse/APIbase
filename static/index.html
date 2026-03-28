@@ -4,13 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>APIbase.pro — Best unified API gateway, compare 350 tools at pay-per-call pricing</title>
-<meta name="description" content="Compare 327 API tools from 98 providers through one MCP endpoint. Pay per call with x402 or MPP USDC micropayments. No subscriptions, no upfront costs.">
+<meta name="description" content="Compare 350 API tools from 98 providers through one MCP endpoint. Pay per call with x402 or MPP USDC micropayments. No subscriptions, no upfront costs.">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="shortcut icon" href="/favicon.png">
 <link rel="canonical" href="https://apibase.pro/">
 <meta property="og:title" content="APIbase.pro — Best unified API gateway for 350 tools">
-<meta property="og:description" content="Compare 327 API tools from 98 providers through one MCP endpoint. Pay per call with x402 or MPP USDC micropayments.">
+<meta property="og:description" content="Compare 350 API tools from 98 providers through one MCP endpoint. Pay per call with x402 or MPP USDC micropayments.">
 <meta property="og:url" content="https://apibase.pro/">
 <meta property="og:image" content="https://apibase.pro/og-image.png">
 <meta property="og:image:width" content="1400">
@@ -399,13 +399,16 @@ code{
 
 <h2>Why people choose APIbase</h2>
 <ul>
-<li>One MCP endpoint (<code>https://apibase.pro/mcp</code>) replaces 85 separate provider integrations</li>
-<li>300 tools across travel, finance, weather, entertainment, maps, e-commerce, health, education, music, jobs, and gaming</li>
-<li>Dual-rail payments — x402 (USDC on Base) or MPP (USDC on Tempo via Stripe), from $0.001 to $1.00 depending on the tool</li>
+<li>One MCP endpoint (<code>https://apibase.pro/mcp</code>) replaces 98 separate provider integrations</li>
+<li>350 tools across travel, finance, weather, entertainment, maps, e-commerce, health, education, music, jobs, science, and more</li>
+<li>Dual-rail payments — x402 (USDC on Base) or MPP (USDC on Tempo), from $0.001 to $1.00 depending on the tool</li>
 <li>Auto-registration — connect and receive credentials on first request, no signup form</li>
+<li>Batch API — execute up to 20 tool calls in a single request with parallel execution</li>
+<li>Usage analytics — track your calls, costs, cache hit rate, and per-tool breakdown in real time</li>
+<li>Tool quality index — check uptime, p50/p95 latency, and error rate for any tool before calling</li>
 <li>13-stage request pipeline: auth, idempotency, schema validation, caching, escrow, provider call, ledger</li>
 <li>Fail-closed architecture — validation errors reject immediately, no silent pass-through</li>
-<li>Per-tool response caching with configurable TTL (5s for crypto prices, 300s for weather)</li>
+<li>Per-tool response caching with configurable TTL (5s for crypto prices, 7 days for walkability scores)</li>
 </ul>
 
 <h2>vs alternatives: how APIbase compares</h2>
@@ -460,7 +463,7 @@ code{
 <p>Point your MCP-compatible client at <code>https://apibase.pro/mcp</code>. The system auto-registers your software on first request and returns an <code>api_key</code>. Use that key for all subsequent calls. No forms, no approval process.</p>
 
 <h3>What API categories are available?</h3>
-<p>Travel (flights, hotels), finance (exchange rates, market data), weather, entertainment (movies, events, games), e-commerce (product search), maps and geolocation, health and nutrition, education and research, music discovery, jobs and career data, and space and astronomy.</p>
+<p>Travel (flights, hotels), finance (exchange rates, market data), weather, entertainment (movies, events, games), e-commerce (product search), maps and geolocation, health and nutrition, chemistry and structural biology, education and research, music discovery, jobs and career data, space and astronomy, legal and regulatory, social media, and more — 30+ categories total.</p>
 
 <h3>Is it production-ready?</h3>
 <p>Yes. The platform runs 16 Docker containers on dedicated infrastructure with automated health checks, graceful shutdown, append-only financial ledger, and 27 Prometheus alert rules. All tool calls are idempotent and escrow-protected.</p>
@@ -468,7 +471,7 @@ code{
 <h2>Recommended next step</h2>
 <ul class="step-wizard">
 <li><span class="step-num">[STEP 1/4]</span> <span class="step-ready">Connect your MCP client to <code>https://apibase.pro/mcp</code></span> <span class="step-dots">........</span> <span class="step-tag tag-ready">[READY]</span></li>
-<li><span class="step-num">[STEP 2/4]</span> Browse the <a href="https://apibase.pro/api/v1/tools">tool catalog</a> — 300 tools available <span class="step-dots">............</span> <span class="step-tag tag-pending">[ ]</span></li>
+<li><span class="step-num">[STEP 2/4]</span> Browse the <a href="https://apibase.pro/api/v1/tools">tool catalog</a> — 350 tools available <span class="step-dots">............</span> <span class="step-tag tag-pending">[ ]</span></li>
 <li><span class="step-num">[STEP 3/4]</span> Fund your wallet — USDC on Base (x402) or <a href="https://wallet.tempo.xyz">wallet.tempo.xyz</a> (MPP) <span class="step-dots">.....</span> <span class="step-tag tag-pending">[ ]</span></li>
 <li><span class="step-num">[STEP 4/4]</span> Read the <a href="https://apibase.pro/llms.txt">documentation</a> for full protocol details <span class="step-dots">........</span> <span class="step-tag tag-pending">[ ]</span></li>
 </ul>
@@ -483,7 +486,7 @@ code{
 <div class="footer-row">
 <span id="gen-time">Generated: --</span>
 <span id="uptime-counter">Uptime: 0m 0s</span>
-<span>BUILD: v1.0.0  |  TOOLS: 203</span>
+<span>BUILD: v1.0.0  |  TOOLS: 350</span>
 </div>
 </div>
 
