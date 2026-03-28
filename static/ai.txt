@@ -8,7 +8,7 @@ URL: https://apibase.pro
 Type: API aggregation platform for AI agents
 Protocol: MCP (Model Context Protocol)
 Payment: x402 (USDC on Base) + MPP (Machine Payments Protocol)
-Tools: 350 across 21 categories
+Tools: 354 across 21 categories
 
 ## What We Do
 APIbase aggregates 354 API tools from 95+ providers into a single MCP endpoint.
