@@ -31391,6 +31391,890 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/pdb.search/call": {
+      "post": {
+        "operationId": "pdb_search",
+        "summary": "Search Protein Structures",
+        "description": "Search 220K+ macromolecular 3D structures in the Protein Data Bank by keyword, protein name, organism, or author. Returns PDB IDs with relevance scores. The canonical database for structural biology, X-ray crystallography, cryo-EM, and NMR structures (RCSB PDB)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pdb.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search query — keyword, protein name, organism, or author (e.g. \"insulin\", \"hemoglobin\", \"Homo sapiens\", \"Watson\")",
+                    "minLength": 1
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of results (1-50). Default: 10",
+                    "default": 10
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/pdb.structure/call": {
+      "post": {
+        "operationId": "pdb_structure",
+        "summary": "Protein Structure Details",
+        "description": "Get full details for a 3D protein structure by PDB ID — title, experimental method (X-ray/cryo-EM/NMR), resolution, molecular weight, chain counts (protein/DNA/RNA), deposit date, primary citation with DOI and PubMed ID. Essential for drug design and structural analysis (RCSB PDB)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pdb.structure"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "pdb_id": {
+                    "type": "string",
+                    "description": "4-character PDB identifier (e.g. \"4HHB\" for hemoglobin, \"1BNA\" for DNA, \"6LU7\" for SARS-CoV-2 main protease)",
+                    "minLength": 4,
+                    "maxLength": 4
+                  }
+                },
+                "required": [
+                  "pdb_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/pdb.ligand/call": {
+      "post": {
+        "operationId": "pdb_ligand",
+        "summary": "Ligand Chemistry Data",
+        "description": "Get chemical component data for a ligand/small molecule by its 3-letter PDB code — name, molecular formula, weight, type, formal charge, heavy atom count, SMILES/InChI descriptors. Covers ATP, HEM, NAG, drug molecules, cofactors, ions, and 40K+ chemical entities in the PDB (RCSB PDB)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pdb.ligand"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ligand_id": {
+                    "type": "string",
+                    "description": "Chemical component identifier — standard 3-letter code (e.g. \"ATP\" for adenosine triphosphate, \"HEM\" for heme, \"NAG\" for N-acetylglucosamine, \"ZN\" for zinc ion)",
+                    "minLength": 1,
+                    "maxLength": 5
+                  }
+                },
+                "required": [
+                  "ligand_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/pdb.sequence/call": {
+      "post": {
+        "operationId": "pdb_sequence",
+        "summary": "Sequence Similarity Search",
+        "description": "Search protein structures by amino acid sequence similarity (BLAST). Input a protein sequence and find all PDB structures with matching chains. Configure identity cutoff (e.g. 90%) and E-value threshold. Returns PDB entity IDs ranked by similarity score. Essential for homology modeling and structure prediction (RCSB PDB)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pdb.sequence"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sequence": {
+                    "type": "string",
+                    "description": "Protein amino acid sequence in one-letter code (e.g. \"MVLSPADKTNVKAAWGKVGAHAGEYGAEALERMFLSFPTTKTYFPHFDLSH\" — first 50 residues of human hemoglobin alpha)",
+                    "minLength": 10
+                  },
+                  "identity_cutoff": {
+                    "type": "number",
+                    "minimum": 0.1,
+                    "maximum": 1,
+                    "description": "Minimum sequence identity (0.1-1.0). Default: 0.9 (90% identical)",
+                    "default": 0.9
+                  },
+                  "evalue_cutoff": {
+                    "type": "number",
+                    "description": "Maximum E-value threshold for BLAST significance. Default: 0.1",
+                    "default": 0.1
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of results (1-50). Default: 10",
+                    "default": 10
+                  }
+                },
+                "required": [
+                  "sequence"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/account.usage/call": {
+      "post": {
+        "operationId": "account_usage",
+        "summary": "Usage Summary",
+        "description": "Get your API usage summary — total calls, total cost, cache hit rate, average latency, and unique tools used. Filter by period: 1 day, 7 days, or 30 days. See how efficiently you are using the platform. Free, no charge (APIbase)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.000000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "account.usage"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "period": {
+                    "type": "string",
+                    "enum": [
+                      "1d",
+                      "7d",
+                      "30d"
+                    ],
+                    "description": "Time period for usage stats: \"1d\" (24 hours), \"7d\" (7 days), or \"30d\" (30 days). Default: \"7d\"",
+                    "default": "7d"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/account.tools/call": {
+      "post": {
+        "operationId": "account_tools",
+        "summary": "Per-Tool Usage Breakdown",
+        "description": "Get per-tool usage breakdown — calls, cost, cache hits, average latency, last used. Sort by cost (highest spend), calls (most used), or latency (slowest). Identify your most-used and most-expensive tools. Free, no charge (APIbase)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.000000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "account.tools"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sort": {
+                    "type": "string",
+                    "enum": [
+                      "cost",
+                      "calls",
+                      "latency"
+                    ],
+                    "description": "Sort tools by: \"cost\" (highest spend), \"calls\" (most used), or \"latency\" (slowest). Default: \"calls\"",
+                    "default": "calls"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Max number of tools to return (1-100). Default: 20",
+                    "default": 20
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/account.timeseries/call": {
+      "post": {
+        "operationId": "account_timeseries",
+        "summary": "Usage Time Series",
+        "description": "Get time-series usage data — calls, cost, cache hits per hour or day over a period. Visualize usage patterns and trends. Choose granularity: hourly (for 1d period) or daily (for 7d/30d). Free, no charge (APIbase)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.000000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "account.timeseries"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "period": {
+                    "type": "string",
+                    "enum": [
+                      "1d",
+                      "7d",
+                      "30d"
+                    ],
+                    "description": "Time period: \"1d\", \"7d\", or \"30d\". Default: \"7d\"",
+                    "default": "7d"
+                  },
+                  "granularity": {
+                    "type": "string",
+                    "enum": [
+                      "hour",
+                      "day"
+                    ],
+                    "description": "Time bucket granularity: \"hour\" or \"day\". Default: \"day\"",
+                    "default": "day"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/platform.tool_quality/call": {
+      "post": {
+        "operationId": "platform_tool_quality",
+        "summary": "Tool Quality Metrics",
+        "description": "Get quality metrics for any tool — uptime percentage, p50/p95 latency, error rate, total calls in last 24h. Check reliability before calling expensive tools. Updated every 10 minutes. Free, no charge (APIbase)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.000000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "platform.tool_quality"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tool_id": {
+                    "type": "string",
+                    "description": "Tool ID to get quality metrics for (e.g. \"crypto.get_price\", \"weather.get_current\")",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "tool_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/platform.tool_rankings/call": {
+      "post": {
+        "operationId": "platform_tool_rankings",
+        "summary": "Tool Quality Rankings",
+        "description": "Get ranked list of tools by quality — sort by uptime (most reliable), latency (fastest), or error_rate (fewest errors). Filter by category (e.g. \"crypto\", \"weather\"). Discover the best tools for your use case. Free, no charge (APIbase)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.000000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "platform.tool_rankings"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sort": {
+                    "type": "string",
+                    "enum": [
+                      "uptime",
+                      "latency",
+                      "error_rate"
+                    ],
+                    "description": "Sort by: \"uptime\" (highest availability), \"latency\" (fastest p50), or \"error_rate\" (lowest errors). Default: \"uptime\"",
+                    "default": "uptime"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Max number of tools to return (1-100). Default: 20",
+                    "default": 20
+                  },
+                  "category": {
+                    "type": "string",
+                    "description": "Filter by tool category prefix (e.g. \"crypto\", \"weather\", \"finance\")"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/platform.call_batch/call": {
+      "post": {
+        "operationId": "platform_call_batch",
+        "summary": "Batch Tool Calls",
+        "description": "Execute up to 20 tool calls in a single request with parallel execution (max 10 concurrent). Each call runs the full pipeline independently with its own billing. Returns array of results with per-call status, data, cost, and duration. Save 5x round-trips vs sequential calls. Batch wrapper is free — you pay only for individual tool calls (APIbase)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.000000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "platform.call_batch"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "calls": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "tool_id": {
+                          "type": "string",
+                          "description": "Tool ID to call (e.g. \"crypto.get_price\")",
+                          "minLength": 1
+                        },
+                        "params": {
+                          "type": "object",
+                          "additionalProperties": {},
+                          "description": "Parameters for the tool call"
+                        },
+                        "idempotency_key": {
+                          "type": "string",
+                          "description": "Optional idempotency key for this specific call"
+                        }
+                      },
+                      "required": [
+                        "tool_id",
+                        "params"
+                      ]
+                    },
+                    "description": "Array of tool calls to execute in parallel (max 20)",
+                    "minItems": 1,
+                    "maxItems": 20
+                  },
+                  "max_parallel": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10,
+                    "description": "Max concurrent calls (1-10). Default: 10",
+                    "default": 10
+                  }
+                },
+                "required": [
+                  "calls"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {
