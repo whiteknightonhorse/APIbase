@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase \u2014 The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 359 tools. Dual-rail: x402 + MPP.",
+    "description": "Unified MCP gateway to 362 tools. Dual-rail: x402 + MPP.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -13270,6 +13270,96 @@
           "make",
           "model",
           "model_year"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "science.chem.formula",
+      "title": "Molecular Formula & Weight",
+      "description": "Get molecular formula and molecular weight for any compound by name, CAS number, or SMILES. Returns formula (e.g. \"C9H8O4\" for aspirin) and weight in daltons (e.g. 180.157). Accepts any chemical identifier format (NCI CACTUS)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "description": "Chemical identifier \u2014 compound name (e.g. \"ibuprofen\"), CAS number (e.g. \"15687-27-1\"), or SMILES string. Returns molecular formula and weight",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "identifier"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "science.chem.names",
+      "title": "Chemical Synonyms & Names",
+      "description": "Get all known names, synonyms, CAS numbers, and registry IDs for a chemical compound. Input any identifier (name, CAS, SMILES, InChIKey) and get the full list of aliases. Useful for finding alternative names, trade names, and cross-references (NCI CACTUS)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "description": "Chemical identifier to look up synonyms for \u2014 compound name, CAS number, SMILES, or InChIKey (e.g. \"aspirin\", \"50-78-2\")",
+            "minLength": 1
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Maximum number of names/synonyms to return (1-100). Default: 20",
+            "default": 20
+          }
+        },
+        "required": [
+          "identifier"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "science.chem.resolve",
+      "title": "Chemical ID Resolver",
+      "description": "Convert any chemical identifier to SMILES, InChI, and InChIKey. Input a compound name (e.g. \"aspirin\"), CAS number (e.g. \"50-78-2\"), SMILES, or InChIKey and get all other representations. The only universal chemical ID converter \u2014 essential for chemistry workflows and cross-database lookups (NCI CACTUS)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "description": "Chemical identifier to resolve \u2014 compound name (e.g. \"aspirin\", \"caffeine\"), CAS number (e.g. \"50-78-2\"), SMILES (e.g. \"CC(=O)Oc1ccccc1C(O)=O\"), or InChIKey (e.g. \"BSYNRYMUTXBXSQ-UHFFFAOYSA-N\")",
+            "minLength": 1
+          },
+          "output": {
+            "type": "string",
+            "enum": [
+              "all",
+              "smiles",
+              "stdinchi",
+              "stdinchikey"
+            ],
+            "description": "Output format: \"all\" (SMILES + InChI + InChIKey), \"smiles\" (canonical SMILES only), \"stdinchi\" (Standard InChI only), \"stdinchikey\" (InChIKey only). Default: \"all\"",
+            "default": "all"
+          }
+        },
+        "required": [
+          "identifier"
         ]
       },
       "annotations": {
