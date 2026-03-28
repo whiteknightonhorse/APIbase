@@ -99,6 +99,7 @@ import { accountSchemas } from './account.schema';
 import { platformSchemas } from './platform.schema';
 import { rcsbSchemas } from './rcsb.schema';
 import { nhtsaSafetySchemas } from './nhtsa-safety.schema';
+import { cactusSchemas } from './cactus.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -201,4 +202,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...platformSchemas,
   ...rcsbSchemas,
   ...nhtsaSafetySchemas,
+  ...cactusSchemas,
 };

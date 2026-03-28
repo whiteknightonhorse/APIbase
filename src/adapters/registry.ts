@@ -99,6 +99,7 @@ import { AccountAdapter } from './account';
 import { PlatformAdapter } from './platform';
 import { RcsbAdapter } from './rcsb';
 import { NhtsaSafetyAdapter } from './nhtsa-safety';
+import { CactusAdapter } from './cactus';
 import { config } from '../config';
 
 /**
@@ -544,6 +545,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'safety':
       // NHTSA Safety — recalls, complaints, ratings, investigations (UC-219)
       return getOrCreate('nhtsa-safety', () => new NhtsaSafetyAdapter());
+    case 'chem':
+      // NCI CACTUS — chemical identifier resolution (UC-220)
+      return getOrCreate('cactus', () => new CactusAdapter());
     default:
       return undefined;
   }

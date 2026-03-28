@@ -3160,6 +3160,32 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     annotations: READ_ONLY,
   },
 
+  // NCI CACTUS — Chemical Identifier Resolution (UC-220, 3 tools)
+  {
+    toolId: 'chem.resolve',
+    mcpName: 'science.chem.resolve',
+    title: 'Chemical ID Resolver',
+    description: 'Convert any chemical identifier to SMILES, InChI, and InChIKey. Input a compound name (e.g. "aspirin"), CAS number (e.g. "50-78-2"), SMILES, or InChIKey and get all other representations. The only universal chemical ID converter — essential for chemistry workflows and cross-database lookups (NCI CACTUS)',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'chem.formula',
+    mcpName: 'science.chem.formula',
+    title: 'Molecular Formula & Weight',
+    description: 'Get molecular formula and molecular weight for any compound by name, CAS number, or SMILES. Returns formula (e.g. "C9H8O4" for aspirin) and weight in daltons (e.g. 180.157). Accepts any chemical identifier format (NCI CACTUS)',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'chem.names',
+    mcpName: 'science.chem.names',
+    title: 'Chemical Synonyms & Names',
+    description: 'Get all known names, synonyms, CAS numbers, and registry IDs for a chemical compound. Input any identifier (name, CAS, SMILES, InChIKey) and get the full list of aliases. Useful for finding alternative names, trade names, and cross-references (NCI CACTUS)',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+
   // NHTSA Safety — Vehicle Recalls, Complaints, Ratings, Investigations (UC-219, 4 tools)
   {
     toolId: 'safety.recalls',

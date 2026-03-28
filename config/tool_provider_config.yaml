@@ -2099,6 +2099,23 @@ tools:
     price_usd: "0.003"
     cache_ttl: 3600
 
+  # --- UC-220: NCI CACTUS Chemical Identifier Resolver ---
+  - tool_id: chem.resolve
+    name: Chemical ID Resolver
+    provider: cactus
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: chem.formula
+    name: Molecular Formula & Weight
+    provider: cactus
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: chem.names
+    name: Chemical Synonyms & Names
+    provider: cactus
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   # --- UC-219: NHTSA Safety (Vehicle Recalls, Complaints, Ratings) ---
   - tool_id: safety.recalls
     name: Vehicle Recall Search
