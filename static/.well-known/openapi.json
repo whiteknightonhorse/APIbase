@@ -31392,6 +31392,261 @@
         ]
       }
     },
+    "/api/v1/tools/chem.resolve/call": {
+      "post": {
+        "operationId": "chem_resolve",
+        "summary": "Chemical ID Resolver",
+        "description": "Convert any chemical identifier to SMILES, InChI, and InChIKey. Input a compound name (e.g. \"aspirin\"), CAS number (e.g. \"50-78-2\"), SMILES, or InChIKey and get all other representations. The only universal chemical ID converter — essential for chemistry workflows and cross-database lookups (NCI CACTUS)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "chem.resolve"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "identifier": {
+                    "type": "string",
+                    "description": "Chemical identifier to resolve — compound name (e.g. \"aspirin\", \"caffeine\"), CAS number (e.g. \"50-78-2\"), SMILES (e.g. \"CC(=O)Oc1ccccc1C(O)=O\"), or InChIKey (e.g. \"BSYNRYMUTXBXSQ-UHFFFAOYSA-N\")",
+                    "minLength": 1
+                  },
+                  "output": {
+                    "type": "string",
+                    "enum": [
+                      "all",
+                      "smiles",
+                      "stdinchi",
+                      "stdinchikey"
+                    ],
+                    "description": "Output format: \"all\" (SMILES + InChI + InChIKey), \"smiles\" (canonical SMILES only), \"stdinchi\" (Standard InChI only), \"stdinchikey\" (InChIKey only). Default: \"all\"",
+                    "default": "all"
+                  }
+                },
+                "required": [
+                  "identifier"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/chem.formula/call": {
+      "post": {
+        "operationId": "chem_formula",
+        "summary": "Molecular Formula & Weight",
+        "description": "Get molecular formula and molecular weight for any compound by name, CAS number, or SMILES. Returns formula (e.g. \"C9H8O4\" for aspirin) and weight in daltons (e.g. 180.157). Accepts any chemical identifier format (NCI CACTUS)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "chem.formula"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "identifier": {
+                    "type": "string",
+                    "description": "Chemical identifier — compound name (e.g. \"ibuprofen\"), CAS number (e.g. \"15687-27-1\"), or SMILES string. Returns molecular formula and weight",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "identifier"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/chem.names/call": {
+      "post": {
+        "operationId": "chem_names",
+        "summary": "Chemical Synonyms & Names",
+        "description": "Get all known names, synonyms, CAS numbers, and registry IDs for a chemical compound. Input any identifier (name, CAS, SMILES, InChIKey) and get the full list of aliases. Useful for finding alternative names, trade names, and cross-references (NCI CACTUS)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "chem.names"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "identifier": {
+                    "type": "string",
+                    "description": "Chemical identifier to look up synonyms for — compound name, CAS number, SMILES, or InChIKey (e.g. \"aspirin\", \"50-78-2\")",
+                    "minLength": 1
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of names/synonyms to return (1-100). Default: 20",
+                    "default": 20
+                  }
+                },
+                "required": [
+                  "identifier"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/safety.recalls/call": {
       "post": {
         "operationId": "safety_recalls",
