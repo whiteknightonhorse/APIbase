@@ -32347,6 +32347,266 @@
         ]
       }
     },
+    "/api/v1/tools/tracking.register/call": {
+      "post": {
+        "operationId": "tracking_register",
+        "summary": "Register Package for Tracking",
+        "description": "Register a tracking number to begin monitoring shipment status. Auto-detects carrier from 3,200+ supported carriers worldwide (UPS, FedEx, DHL, USPS, China Post, Royal Mail, etc.). Must be called before tracking.status. Returns detected carrier and registration status. Consumes quota — 200 free/month (17TRACK)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.025000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "tracking.register"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tracking_number": {
+                    "type": "string",
+                    "description": "Package tracking number (e.g. \"1Z999AA10123456784\" for UPS, \"9400111899560243888780\" for USPS). Carrier is auto-detected from 3,200+ supported carriers",
+                    "minLength": 3,
+                    "maxLength": 50
+                  },
+                  "tag": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "description": "Optional label for this shipment (e.g. order ID, customer reference). Up to 50 characters"
+                  }
+                },
+                "required": [
+                  "tracking_number"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/tracking.status/call": {
+      "post": {
+        "operationId": "tracking_status",
+        "summary": "Get Package Tracking Events",
+        "description": "Get full tracking timeline for a registered package — latest status, all carrier scan events with timestamps and locations, delivery milestones, transit days, origin/destination countries. Supports 3,200+ carriers across 220 countries. Call tracking.register first if number is not yet registered (17TRACK)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "tracking.status"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tracking_number": {
+                    "type": "string",
+                    "description": "Tracking number previously registered with tracking.register. Returns full event timeline, carrier info, milestones, and delivery status",
+                    "minLength": 3,
+                    "maxLength": 50
+                  }
+                },
+                "required": [
+                  "tracking_number"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/tracking.list/call": {
+      "post": {
+        "operationId": "tracking_list",
+        "summary": "List Tracked Packages",
+        "description": "List all tracking numbers registered in your account with status summary — package status, latest event, transit days, registration time. Paginated. Filter by status: NotFound, InTransit, Delivered, Expired, Exception (17TRACK)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "tracking.list"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Page number (default 1)",
+                    "default": 1
+                  },
+                  "page_size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Results per page (1-100, default 20)",
+                    "default": 20
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "NotFound",
+                      "InTransit",
+                      "Delivered",
+                      "Expired",
+                      "Exception"
+                    ],
+                    "description": "Filter by package status"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/account.usage/call": {
       "post": {
         "operationId": "account_usage",

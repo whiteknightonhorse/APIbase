@@ -100,6 +100,7 @@ import { PlatformAdapter } from './platform';
 import { RcsbAdapter } from './rcsb';
 import { NhtsaSafetyAdapter } from './nhtsa-safety';
 import { CactusAdapter } from './cactus';
+import { TrackingAdapter } from './17track';
 import { config } from '../config';
 
 /**
@@ -548,6 +549,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'chem':
       // NCI CACTUS — chemical identifier resolution (UC-220)
       return getOrCreate('cactus', () => new CactusAdapter());
+    case 'tracking': {
+      // 17TRACK — package tracking (UC-221)
+      const track17Key = (config as Record<string, unknown>).PROVIDER_KEY_17TRACK as string | undefined;
+      if (!track17Key) return undefined;
+      return getOrCreate('17track', () => new TrackingAdapter(track17Key));
+    }
     default:
       return undefined;
   }

@@ -878,6 +878,15 @@
     "docs_url": "https://cactus.nci.nih.gov/chemical/structure_documentation",
     "limit_proof": "US Government (NIH/NCI) open data, no auth, no documented rate limits"
   },
+  "17track": {
+    "display_name": "17TRACK",
+    "health_url": "https://api.17track.net/track/v2.2/gettracklist",
+    "limit_type": "monthly",
+    "free_limit": 200,
+    "reset_period": "monthly",
+    "docs_url": "https://api.17track.net/en",
+    "limit_proof": "Free plan: 200 quota units/month for /register; /gettrackinfo and /gettracklist are free after registration"
+  },
   "nhtsa-safety": {
     "display_name": "NHTSA Vehicle Safety",
     "health_url": "https://api.nhtsa.gov/recalls/recallsByVehicle?make=Toyota&model=Camry&modelYear=2023",

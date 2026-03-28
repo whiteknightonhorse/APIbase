@@ -3254,6 +3254,32 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     annotations: READ_ONLY,
   },
 
+  // 17TRACK — Package Tracking (UC-221, 3 tools)
+  {
+    toolId: 'tracking.register',
+    mcpName: 'logistics.tracking.register',
+    title: 'Register Package for Tracking',
+    description: 'Register a tracking number to begin monitoring shipment status. Auto-detects carrier from 3,200+ supported carriers worldwide (UPS, FedEx, DHL, USPS, China Post, Royal Mail, etc.). Must be called before tracking.status. Returns detected carrier and registration status. Consumes quota — 200 free/month (17TRACK)',
+    category: 'logistics',
+    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+  },
+  {
+    toolId: 'tracking.status',
+    mcpName: 'logistics.tracking.status',
+    title: 'Get Package Tracking Events',
+    description: 'Get full tracking timeline for a registered package — latest status, all carrier scan events with timestamps and locations, delivery milestones, transit days, origin/destination countries. Supports 3,200+ carriers across 220 countries. Call tracking.register first if number is not yet registered (17TRACK)',
+    category: 'logistics',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'tracking.list',
+    mcpName: 'logistics.tracking.list',
+    title: 'List Tracked Packages',
+    description: 'List all tracking numbers registered in your account with status summary — package status, latest event, transit days, registration time. Paginated. Filter by status: NotFound, InTransit, Delivered, Expired, Exception (17TRACK)',
+    category: 'logistics',
+    annotations: READ_ONLY,
+  },
+
   // Account Analytics — Usage & Billing Insights (F4, 3 tools)
   {
     toolId: 'account.usage',

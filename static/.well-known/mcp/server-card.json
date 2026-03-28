@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase \u2014 The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 362 tools. Dual-rail: x402 + MPP.",
+    "description": "Unified MCP gateway to 365 tools. Dual-rail: x402 + MPP.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -13360,6 +13360,101 @@
         },
         "required": [
           "identifier"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "logistics.tracking.list",
+      "title": "List Tracked Packages",
+      "description": "List all tracking numbers registered in your account with status summary \u2014 package status, latest event, transit days, registration time. Paginated. Filter by status: NotFound, InTransit, Delivered, Expired, Exception (17TRACK)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number (default 1)",
+            "default": 1
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Results per page (1-100, default 20)",
+            "default": 20
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "NotFound",
+              "InTransit",
+              "Delivered",
+              "Expired",
+              "Exception"
+            ],
+            "description": "Filter by package status"
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "logistics.tracking.register",
+      "title": "Register Package Tracking",
+      "description": "Register a tracking number to begin monitoring shipment status. Auto-detects carrier from 3,200+ supported carriers worldwide (UPS, FedEx, DHL, USPS, China Post, Royal Mail, etc.). Must be called before tracking.status. Returns detected carrier and registration status. Consumes quota \u2014 200 free/month (17TRACK)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "tracking_number": {
+            "type": "string",
+            "description": "Package tracking number (e.g. \"1Z999AA10123456784\" for UPS, \"9400111899560243888780\" for USPS). Carrier is auto-detected from 3,200+ supported carriers",
+            "minLength": 3,
+            "maxLength": 50
+          },
+          "tag": {
+            "type": "string",
+            "maxLength": 50,
+            "description": "Optional label for this shipment (e.g. order ID, customer reference). Up to 50 characters"
+          }
+        },
+        "required": [
+          "tracking_number"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "logistics.tracking.status",
+      "title": "Get Tracking Events",
+      "description": "Get full tracking timeline for a registered package \u2014 latest status, all carrier scan events with timestamps and locations, delivery milestones, transit days, origin/destination countries. Supports 3,200+ carriers across 220 countries. Call tracking.register first if number is not yet registered (17TRACK)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "tracking_number": {
+            "type": "string",
+            "description": "Tracking number previously registered with tracking.register. Returns full event timeline, carrier info, milestones, and delivery status",
+            "minLength": 3,
+            "maxLength": 50
+          }
+        },
+        "required": [
+          "tracking_number"
         ]
       },
       "annotations": {

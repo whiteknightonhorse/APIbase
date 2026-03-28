@@ -2116,6 +2116,23 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-221: 17TRACK (Package Tracking) ---
+  - tool_id: tracking.register
+    name: Register Package Tracking
+    provider: 17track
+    price_usd: "0.025"
+    cache_ttl: 0
+  - tool_id: tracking.status
+    name: Get Tracking Events
+    provider: 17track
+    price_usd: "0.002"
+    cache_ttl: 60
+  - tool_id: tracking.list
+    name: List Tracked Packages
+    provider: 17track
+    price_usd: "0.001"
+    cache_ttl: 30
+
   # --- UC-219: NHTSA Safety (Vehicle Recalls, Complaints, Ratings) ---
   - tool_id: safety.recalls
     name: Vehicle Recall Search
