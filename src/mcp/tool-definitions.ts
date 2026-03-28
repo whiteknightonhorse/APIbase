@@ -3254,6 +3254,32 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     annotations: READ_ONLY,
   },
 
+  // Materials Project — Materials Science (UC-222, 3 tools)
+  {
+    toolId: 'materials.search',
+    mcpName: 'science.materials.search',
+    title: 'Search Materials Database',
+    description: 'Search 150,000+ inorganic materials by chemical formula, elements, band gap, stability, or metallic character. Returns DFT-computed properties: band gap, formation energy, density, crystal system. Filter semiconductors (band_gap 1-3 eV), stable battery cathodes (elements Li,Fe,O + is_stable), or metals. DOE/Lawrence Berkeley Lab data, CC BY 4.0 (Materials Project)',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'materials.details',
+    mcpName: 'science.materials.details',
+    title: 'Material Properties',
+    description: 'Get full DFT-computed properties for a material by Materials Project ID (e.g. mp-149 for silicon). Returns: band gap, formation energy, thermodynamic stability, density, crystal structure, spacegroup, magnetism, bulk/shear modulus, Poisson ratio, Fermi energy, database cross-references. 150K+ materials (Materials Project)',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'materials.elasticity',
+    mcpName: 'science.materials.elasticity',
+    title: 'Material Elastic Properties',
+    description: 'Get mechanical/elastic properties for a material: bulk modulus, shear modulus (Voigt-Reuss-Hill averages), universal anisotropy index, Poisson ratio, and full 6x6 elastic tensor (IEEE format). Essential for structural materials screening and mechanical simulations (Materials Project)',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+
   // 17TRACK — Package Tracking (UC-221, 3 tools)
   {
     toolId: 'tracking.register',

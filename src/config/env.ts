@@ -215,6 +215,9 @@ export const appEnvSchema = z.object({
   FATSECRET_CLIENT_ID: z.string().optional().default(''),
   FATSECRET_CLIENT_SECRET: z.string().optional().default(''),
 
+  // Materials Project (UC-222) — X-API-KEY header, free unlimited, CC BY 4.0
+  PROVIDER_KEY_MATERIALS_PROJECT: z.string().optional().default(''),
+
   // 17TRACK Package Tracking (UC-221) — 17token header, 200 free registers/month
   PROVIDER_KEY_17TRACK: z.string().optional().default(''),
 

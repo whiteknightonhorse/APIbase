@@ -1,6 +1,6 @@
 # APIbase.pro — The API Hub for AI Agents
 
-> One MCP endpoint. 360 tools. 101 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
+> One MCP endpoint. 363 tools. 102 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Health](https://apibase.pro/health/ready)** | **[Dashboard](https://apibase.pro/dashboard)**
 
@@ -19,7 +19,7 @@
 
 ## What is APIbase?
 
-Production MCP server that gives AI agents access to 360 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, translate text, check weather alerts, generate images, send emails, look up holidays, shorten URLs, detect fires by satellite, decode VINs, look up chemical compounds, find EV chargers, batch multiple calls, track usage analytics — and 250+ more tools across 30+ categories.
+Production MCP server that gives AI agents access to 363 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, translate text, check weather alerts, generate images, send emails, look up holidays, shorten URLs, detect fires by satellite, decode VINs, look up chemical compounds, find EV chargers, batch multiple calls, track usage analytics — and 250+ more tools across 30+ categories.
 
 **Built for AI agents, not humans.** Auto-registration, zero setup, pay-per-call via x402 USDC micropayments on Base or MPP (Machine Payments Protocol) on Tempo.
 
@@ -69,7 +69,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 
 ---
 
-## Tool Categories (360 tools, 101 providers)
+## Tool Categories (363 tools, 102 providers)
 
 | Category | Tools | Providers | Examples |
 |----------|-------|-----------|----------|
@@ -91,7 +91,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 | **Music** | 7 | MusicBrainz, ListenBrainz, RadioBrowser | Artists, albums, radio stations |
 | **Podcasts** | 4 | PodcastIndex | Search 4M+ podcasts, trending, episodes |
 | **Health & Nutrition** | 7 | USDA, OpenFDA, NIH | Food data, drug safety, supplements |
-| **Chemistry & Biology** | 13 | PubChem, RCSB PDB, NCI CACTUS | 100M+ compounds, 220K+ protein structures, chemical ID converter |
+| **Chemistry & Biology** | 16 | PubChem, RCSB PDB, NCI CACTUS, Materials Project | 100M+ compounds, 220K+ proteins, 150K+ materials, chemical ID converter |
 | **EV Charging** | 3 | Open Charge Map | 300K+ charging stations worldwide, connectors, power levels |
 | **Fraud Detection** | 4 | IPQualityScore | IP/email/URL/phone fraud scoring, VPN/proxy/bot detection |
 | **Disease Data** | 7 | disease.sh, WHO GHO | COVID/Influenza global disease statistics, WHO global health data |
@@ -337,12 +337,12 @@ npx agentcash add https://apibase.pro
 
 ```
 GET  /.well-known/mcp.json    → MCP server metadata
-GET  /api/v1/tools             → Full tool catalog (all 360 tools in one response)
+GET  /api/v1/tools             → Full tool catalog (all 363 tools in one response)
 GET  /health/ready             → System health check
-POST /mcp  prompts/get discover_tools  → Browse 360 tools by category or task (progressive disclosure)
+POST /mcp  prompts/get discover_tools  → Browse 363 tools by category or task (progressive disclosure)
 ```
 
-**Progressive disclosure:** Instead of loading all 360 tool schemas into context, agents can call the `discover_tools` prompt to find relevant tools first:
+**Progressive disclosure:** Instead of loading all 363 tool schemas into context, agents can call the `discover_tools` prompt to find relevant tools first:
 - `discover_tools` (no args) → 21 categories with tool counts
 - `discover_tools category="travel"` → 17 travel tools
 - `discover_tools task="check earthquake near Tokyo"` → matching tools ranked by relevance

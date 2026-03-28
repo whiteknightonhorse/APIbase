@@ -878,6 +878,15 @@
     "docs_url": "https://cactus.nci.nih.gov/chemical/structure_documentation",
     "limit_proof": "US Government (NIH/NCI) open data, no auth, no documented rate limits"
   },
+  "materials-project": {
+    "display_name": "Materials Project",
+    "health_url": "https://api.materialsproject.org/materials/core/?_limit=1&_fields=material_id",
+    "limit_type": "rate_limited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://api.materialsproject.org/docs",
+    "limit_proof": "Free unlimited with API key. Rate limits: 25/sec, 1K/min, 40K/hr, 640K/day. DOE/LBNL, CC BY 4.0"
+  },
   "17track": {
     "display_name": "17TRACK",
     "health_url": "https://api.17track.net/track/v2.2/gettracklist",

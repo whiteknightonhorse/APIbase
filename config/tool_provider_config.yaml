@@ -2116,6 +2116,23 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-222: Materials Project (Materials Science) ---
+  - tool_id: materials.search
+    name: Search Materials Database
+    provider: materials-project
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: materials.details
+    name: Material Properties
+    provider: materials-project
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: materials.elasticity
+    name: Material Elastic Properties
+    provider: materials-project
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   # --- UC-221: 17TRACK (Package Tracking) ---
   - tool_id: tracking.register
     name: Register Package Tracking

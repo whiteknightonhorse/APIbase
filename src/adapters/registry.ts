@@ -101,6 +101,7 @@ import { RcsbAdapter } from './rcsb';
 import { NhtsaSafetyAdapter } from './nhtsa-safety';
 import { CactusAdapter } from './cactus';
 import { TrackingAdapter } from './17track';
+import { MaterialsProjectAdapter } from './materials-project';
 import { config } from '../config';
 
 /**
@@ -549,6 +550,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'chem':
       // NCI CACTUS — chemical identifier resolution (UC-220)
       return getOrCreate('cactus', () => new CactusAdapter());
+    case 'materials': {
+      // Materials Project — materials science properties (UC-222)
+      const mpKey = (config as Record<string, unknown>).PROVIDER_KEY_MATERIALS_PROJECT as string | undefined;
+      if (!mpKey) return undefined;
+      return getOrCreate('materials-project', () => new MaterialsProjectAdapter(mpKey));
+    }
     case 'tracking': {
       // 17TRACK — package tracking (UC-221)
       const track17Key = (config as Record<string, unknown>).PROVIDER_KEY_17TRACK as string | undefined;
