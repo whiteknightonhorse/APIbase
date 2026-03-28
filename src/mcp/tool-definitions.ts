@@ -3160,6 +3160,40 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     annotations: READ_ONLY,
   },
 
+  // RCSB Protein Data Bank — Structural Biology (UC-218, 4 tools)
+  {
+    toolId: 'pdb.search',
+    mcpName: 'science.pdb.search',
+    title: 'Search Protein Structures',
+    description: 'Search 220K+ macromolecular 3D structures in the Protein Data Bank by keyword, protein name, organism, or author. Returns PDB IDs with relevance scores. The canonical database for structural biology, X-ray crystallography, cryo-EM, and NMR structures (RCSB PDB)',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'pdb.structure',
+    mcpName: 'science.pdb.structure',
+    title: 'Protein Structure Details',
+    description: 'Get full details for a 3D protein structure by PDB ID — title, experimental method (X-ray/cryo-EM/NMR), resolution, molecular weight, chain counts (protein/DNA/RNA), deposit date, primary citation with DOI and PubMed ID. Essential for drug design and structural analysis (RCSB PDB)',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'pdb.ligand',
+    mcpName: 'science.pdb.ligand',
+    title: 'Ligand Chemistry Data',
+    description: 'Get chemical component data for a ligand/small molecule by its 3-letter PDB code — name, molecular formula, weight, type, formal charge, heavy atom count, SMILES/InChI descriptors. Covers ATP, HEM, NAG, drug molecules, cofactors, ions, and 40K+ chemical entities in the PDB (RCSB PDB)',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'pdb.sequence',
+    mcpName: 'science.pdb.sequence',
+    title: 'Sequence Similarity Search',
+    description: 'Search protein structures by amino acid sequence similarity (BLAST). Input a protein sequence and find all PDB structures with matching chains. Configure identity cutoff (e.g. 90%) and E-value threshold. Returns PDB entity IDs ranked by similarity score. Essential for homology modeling and structure prediction (RCSB PDB)',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+
   // Account Analytics — Usage & Billing Insights (F4, 3 tools)
   {
     toolId: 'account.usage',

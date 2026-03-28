@@ -97,6 +97,7 @@ import { openchargemapSchemas } from './openchargemap.schema';
 import { ipqsSchemas } from './ipqs.schema';
 import { accountSchemas } from './account.schema';
 import { platformSchemas } from './platform.schema';
+import { rcsbSchemas } from './rcsb.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -197,4 +198,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...ipqsSchemas,
   ...accountSchemas,
   ...platformSchemas,
+  ...rcsbSchemas,
 };

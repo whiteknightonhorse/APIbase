@@ -2099,6 +2099,28 @@ tools:
     price_usd: "0.003"
     cache_ttl: 3600
 
+  # --- UC-218: RCSB Protein Data Bank (Structural Biology) ---
+  - tool_id: pdb.search
+    name: Search Protein Structures
+    provider: rcsb
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: pdb.structure
+    name: Protein Structure Details
+    provider: rcsb
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: pdb.ligand
+    name: Ligand Chemistry Data
+    provider: rcsb
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: pdb.sequence
+    name: Sequence Similarity Search
+    provider: rcsb
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   # --- F4: Account Analytics (internal, $0) ---
   - tool_id: account.usage
     name: Usage Summary
