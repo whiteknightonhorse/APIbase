@@ -196,8 +196,13 @@ curl -X POST https://apibase.pro/api/v1/tools/call_batch \
   -d '{"calls": [...], "max_parallel": 10}'
 ```
 
+### Predictive Pre-fetching
 
+When an agent calls a tool, the platform can automatically pre-fetch related data into cache. For example, a flight search pre-fetches exchange rates for the destination currency — so when the agent asks for rates next, it's an instant cache hit.
 
+- Fire-and-forget: does not slow down the original response
+- Controlled by `PREFETCH_ENABLED` env var (disabled by default)
+- Rules: flight search → exchange rates, real estate → walk score, geocode → country data
 
 ---
 
@@ -331,12 +336,12 @@ npx agentcash add https://apibase.pro
 
 ```
 GET  /.well-known/mcp.json    → MCP server metadata
-GET  /api/v1/tools             → Full tool catalog (all 340 tools in one response)
+GET  /api/v1/tools             → Full tool catalog (all 346 tools in one response)
 GET  /health/ready             → System health check
-POST /mcp  prompts/get discover_tools  → Browse 340 tools by category or task (progressive disclosure)
+POST /mcp  prompts/get discover_tools  → Browse 346 tools by category or task (progressive disclosure)
 ```
 
-**Progressive disclosure:** Instead of loading all 333 tool schemas into context, agents can call the `discover_tools` prompt to find relevant tools first:
+**Progressive disclosure:** Instead of loading all 346 tool schemas into context, agents can call the `discover_tools` prompt to find relevant tools first:
 - `discover_tools` (no args) → 21 categories with tool counts
 - `discover_tools category="travel"` → 17 travel tools
 - `discover_tools task="check earthquake near Tokyo"` → matching tools ranked by relevance
