@@ -2116,6 +2116,18 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-226: AudD Music Recognition ---
+  - tool_id: audd.recognize
+    name: Identify Song from Audio
+    provider: audd
+    price_usd: "0.007"
+    cache_ttl: 0
+  - tool_id: audd.lyrics
+    name: Search Song Lyrics
+    provider: audd
+    price_usd: "0.003"
+    cache_ttl: 86400
+
   # --- UC-222: Materials Project (Materials Science) ---
   - tool_id: materials.search
     name: Search Materials Database

@@ -102,6 +102,7 @@ import { nhtsaSafetySchemas } from './nhtsa-safety.schema';
 import { cactusSchemas } from './cactus.schema';
 import { trackingSchemas } from './17track.schema';
 import { materialsProjectSchemas } from './materials-project.schema';
+import { auddSchemas } from './audd.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -207,4 +208,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...cactusSchemas,
   ...trackingSchemas,
   ...materialsProjectSchemas,
+  ...auddSchemas,
 };

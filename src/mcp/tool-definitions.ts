@@ -3254,6 +3254,24 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     annotations: READ_ONLY,
   },
 
+  // AudD — Music Recognition / Audio Fingerprinting (UC-226, 2 tools)
+  {
+    toolId: 'audd.recognize',
+    mcpName: 'music.audd.recognize',
+    title: 'Identify Song from Audio',
+    description: 'Identify a song from an audio file URL — like Shazam for AI agents. Analyzes audio fingerprint against 80M+ tracks and returns artist, title, album, release date, plus Spotify and Apple Music links. Accepts MP3, WAV, OGG, or any audio URL (AudD)',
+    category: 'music',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'audd.lyrics',
+    mcpName: 'music.audd.lyrics',
+    title: 'Search Song Lyrics',
+    description: 'Search for song lyrics by artist name, song title, or both. Returns full lyrics text, artist, title, and metadata. Query examples: "imagine john lennon", "bohemian rhapsody", "taylor swift love story" (AudD)',
+    category: 'music',
+    annotations: READ_ONLY,
+  },
+
   // Materials Project — Materials Science (UC-222, 3 tools)
   {
     toolId: 'materials.search',

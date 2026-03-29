@@ -215,6 +215,9 @@ export const appEnvSchema = z.object({
   FATSECRET_CLIENT_ID: z.string().optional().default(''),
   FATSECRET_CLIENT_SECRET: z.string().optional().default(''),
 
+  // AudD Music Recognition (UC-226) — api_token query param, 300 free trial
+  PROVIDER_KEY_AUDD: z.string().optional().default(''),
+
   // Materials Project (UC-222) — X-API-KEY header, free unlimited, CC BY 4.0
   PROVIDER_KEY_MATERIALS_PROJECT: z.string().optional().default(''),
 

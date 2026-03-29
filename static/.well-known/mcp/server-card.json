@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase \u2014 The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 368 tools. Dual-rail: x402 + MPP.",
+    "description": "Unified MCP gateway to 370 tools. Dual-rail: x402 + MPP.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -13556,6 +13556,53 @@
             "description": "Offset for pagination"
           }
         }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "music.audd.lyrics",
+      "title": "Search Song Lyrics",
+      "description": "Search for song lyrics by artist name, song title, or both. Returns full lyrics text, artist, title, and metadata. Query examples: \"imagine john lennon\", \"bohemian rhapsody\", \"taylor swift love story\" (AudD)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "description": "Search query for lyrics \u2014 artist name, song title, or both (e.g. \"imagine john lennon\", \"bohemian rhapsody\", \"taylor swift love story\")",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "q"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "music.audd.recognize",
+      "title": "Identify Song from Audio",
+      "description": "Identify a song from an audio file URL \u2014 like Shazam for AI agents. Analyzes audio fingerprint against 80M+ tracks and returns artist, title, album, release date, plus Spotify and Apple Music links. Accepts MP3, WAV, OGG, or any audio URL (AudD)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "URL of audio file to identify (MP3, WAV, OGG, etc.). The API analyzes the audio and matches it against 80M+ tracks. Example: \"https://example.com/song.mp3\""
+          }
+        },
+        "required": [
+          "url"
+        ]
       },
       "annotations": {
         "readOnlyHint": true,

@@ -102,6 +102,7 @@ import { NhtsaSafetyAdapter } from './nhtsa-safety';
 import { CactusAdapter } from './cactus';
 import { TrackingAdapter } from './17track';
 import { MaterialsProjectAdapter } from './materials-project';
+import { AuddAdapter } from './audd';
 import { config } from '../config';
 
 /**
@@ -550,6 +551,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'chem':
       // NCI CACTUS — chemical identifier resolution (UC-220)
       return getOrCreate('cactus', () => new CactusAdapter());
+    case 'audd': {
+      // AudD — music recognition / audio fingerprinting (UC-226)
+      const auddKey = (config as Record<string, unknown>).PROVIDER_KEY_AUDD as string | undefined;
+      if (!auddKey) return undefined;
+      return getOrCreate('audd', () => new AuddAdapter(auddKey));
+    }
     case 'materials': {
       // Materials Project — materials science properties (UC-222)
       const mpKey = (config as Record<string, unknown>).PROVIDER_KEY_MATERIALS_PROJECT as string | undefined;
