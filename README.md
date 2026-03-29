@@ -25,6 +25,10 @@ Production MCP server that gives AI agents access to 373 real-world API tools th
 
 ---
 
+## Hosted deployment
+
+A hosted deployment is available on [Fronteir AI](https://fronteir.ai/mcp/whiteknightonhorse-apibase).
+
 ## Quick Start (30 seconds)
 
 ### Claude Desktop / Cursor / Windsurf
