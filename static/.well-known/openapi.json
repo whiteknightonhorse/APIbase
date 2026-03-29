@@ -32347,6 +32347,212 @@
         ]
       }
     },
+    "/api/v1/tools/carmarket.search/call": {
+      "post": {
+        "operationId": "carmarket_search",
+        "summary": "Search Car Listings",
+        "description": "Search millions of active US car listings by make, model, year, price range, mileage, ZIP code, and radius. Returns VIN, price, miles, dealer info, Carfax status, and days on market. Filter by seller type (dealer/private) and color. Data from all major US marketplaces (MarketCheck)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "carmarket.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "make": {
+                    "type": "string",
+                    "description": "Car manufacturer (e.g. \"Toyota\", \"Honda\", \"BMW\", \"Tesla\")"
+                  },
+                  "model": {
+                    "type": "string",
+                    "description": "Car model (e.g. \"Camry\", \"Civic\", \"Model 3\")"
+                  },
+                  "year": {
+                    "type": "integer",
+                    "description": "Model year (e.g. 2023, 2024)"
+                  },
+                  "price_min": {
+                    "type": "number",
+                    "description": "Minimum price in USD"
+                  },
+                  "price_max": {
+                    "type": "number",
+                    "description": "Maximum price in USD"
+                  },
+                  "miles_max": {
+                    "type": "number",
+                    "description": "Maximum mileage"
+                  },
+                  "zip": {
+                    "type": "string",
+                    "description": "US ZIP code to search near (e.g. \"10001\")"
+                  },
+                  "radius": {
+                    "type": "number",
+                    "description": "Search radius in miles from ZIP (max 100 on free tier)"
+                  },
+                  "seller_type": {
+                    "type": "string",
+                    "enum": [
+                      "dealer",
+                      "private"
+                    ],
+                    "description": "Filter by seller type"
+                  },
+                  "exterior_color": {
+                    "type": "string",
+                    "description": "Filter by exterior color (e.g. \"White\", \"Black\", \"Red\")"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 25,
+                    "description": "Max results (1-25, default 10)",
+                    "default": 10
+                  },
+                  "start": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Offset for pagination"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/carmarket.listing/call": {
+      "post": {
+        "operationId": "carmarket_listing",
+        "summary": "Car Listing Details",
+        "description": "Get full details for a specific car listing by ID — VIN, price, MSRP, mileage, full build specs (engine, transmission, drivetrain, fuel type), dealer contact, Carfax 1-owner status, days on market, photos. Get listing IDs from carmarket.search (MarketCheck)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "carmarket.listing"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "MarketCheck listing ID (e.g. \"3TMCZ5AN5PM564843-883937ce-f335\"). Get IDs from carmarket.search results",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/threatintel.reputation/call": {
       "post": {
         "operationId": "threatintel_reputation",
