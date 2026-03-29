@@ -3254,6 +3254,24 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     annotations: READ_ONLY,
   },
 
+  // MarketCheck — Car Listings (UC-231, 2 tools)
+  {
+    toolId: 'carmarket.search',
+    mcpName: 'vehicle.carmarket.search',
+    title: 'Search Car Listings',
+    description: 'Search millions of active US car listings by make, model, year, price range, mileage, ZIP code, and radius. Returns VIN, price, miles, dealer info, Carfax status, and days on market. Filter by seller type (dealer/private) and color. Data from all major US marketplaces (MarketCheck)',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'carmarket.listing',
+    mcpName: 'vehicle.carmarket.listing',
+    title: 'Car Listing Details',
+    description: 'Get full details for a specific car listing by ID — VIN, price, MSRP, mileage, full build specs (engine, transmission, drivetrain, fuel type), dealer contact, Carfax 1-owner status, days on market, photos. Get listing IDs from carmarket.search (MarketCheck)',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+
   // Threat Intelligence Platform — Domain Security (UC-227, 3 tools)
   {
     toolId: 'threatintel.reputation',

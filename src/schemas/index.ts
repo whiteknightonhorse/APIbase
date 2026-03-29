@@ -105,6 +105,7 @@ import { materialsProjectSchemas } from './materials-project.schema';
 import { auddSchemas } from './audd.schema';
 import { listennotesSchemas } from './listennotes.schema';
 import { threatintelSchemas } from './threatintel.schema';
+import { marketcheckSchemas } from './marketcheck.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -213,4 +214,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...auddSchemas,
   ...listennotesSchemas,
   ...threatintelSchemas,
+  ...marketcheckSchemas,
 };

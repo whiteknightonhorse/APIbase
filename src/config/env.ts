@@ -215,6 +215,9 @@ export const appEnvSchema = z.object({
   FATSECRET_CLIENT_ID: z.string().optional().default(''),
   FATSECRET_CLIENT_SECRET: z.string().optional().default(''),
 
+  // MarketCheck Car Listings (UC-231) — api_key query param, 500 free/month
+  PROVIDER_KEY_MARKETCHECK: z.string().optional().default(''),
+
   // Threat Intelligence Platform (UC-227) — apiKey query param, 100 free credits
   PROVIDER_KEY_THREATINTEL: z.string().optional().default(''),
 

@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase \u2014 The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 376 tools. Dual-rail: x402 + MPP.",
+    "description": "Unified MCP gateway to 378 tools. Dual-rail: x402 + MPP.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -13782,6 +13782,102 @@
         "required": [
           "domain"
         ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "vehicle.carmarket.listing",
+      "title": "Car Listing Details",
+      "description": "Get full details for a specific car listing by ID \u2014 VIN, price, MSRP, mileage, full build specs (engine, transmission, drivetrain, fuel type), dealer contact, Carfax 1-owner status, days on market, photos. Get listing IDs from carmarket.search (MarketCheck)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "MarketCheck listing ID (e.g. \"3TMCZ5AN5PM564843-883937ce-f335\"). Get IDs from carmarket.search results",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "vehicle.carmarket.search",
+      "title": "Search Car Listings",
+      "description": "Search millions of active US car listings by make, model, year, price range, mileage, ZIP code, and radius. Returns VIN, price, miles, dealer info, Carfax status, and days on market. Filter by seller type (dealer/private) and color. Data from all major US marketplaces (MarketCheck)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "make": {
+            "type": "string",
+            "description": "Car manufacturer (e.g. \"Toyota\", \"Honda\", \"BMW\", \"Tesla\")"
+          },
+          "model": {
+            "type": "string",
+            "description": "Car model (e.g. \"Camry\", \"Civic\", \"Model 3\")"
+          },
+          "year": {
+            "type": "integer",
+            "description": "Model year (e.g. 2023, 2024)"
+          },
+          "price_min": {
+            "type": "number",
+            "description": "Minimum price in USD"
+          },
+          "price_max": {
+            "type": "number",
+            "description": "Maximum price in USD"
+          },
+          "miles_max": {
+            "type": "number",
+            "description": "Maximum mileage"
+          },
+          "zip": {
+            "type": "string",
+            "description": "US ZIP code to search near (e.g. \"10001\")"
+          },
+          "radius": {
+            "type": "number",
+            "description": "Search radius in miles from ZIP (max 100 on free tier)"
+          },
+          "seller_type": {
+            "type": "string",
+            "enum": [
+              "dealer",
+              "private"
+            ],
+            "description": "Filter by seller type"
+          },
+          "exterior_color": {
+            "type": "string",
+            "description": "Filter by exterior color (e.g. \"White\", \"Black\", \"Red\")"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 25,
+            "description": "Max results (1-25, default 10)",
+            "default": 10
+          },
+          "start": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Offset for pagination"
+          }
+        }
       },
       "annotations": {
         "readOnlyHint": true,

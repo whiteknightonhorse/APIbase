@@ -878,6 +878,15 @@
     "docs_url": "https://cactus.nci.nih.gov/chemical/structure_documentation",
     "limit_proof": "US Government (NIH/NCI) open data, no auth, no documented rate limits"
   },
+  "marketcheck": {
+    "display_name": "MarketCheck",
+    "health_url": "https://mc-api.marketcheck.com/v2/search/car/active?make=Toyota&rows=1",
+    "limit_type": "monthly",
+    "free_limit": 500,
+    "reset_period": "monthly",
+    "docs_url": "https://apidocs.marketcheck.com/",
+    "limit_proof": "Free plan: 500 calls/month, 5 calls/sec, 100mi radius restriction. No CC required"
+  },
   "threatintel": {
     "display_name": "Threat Intelligence Platform",
     "health_url": "https://api.threatintelligenceplatform.com/v1/reputation?domainName=google.com",
