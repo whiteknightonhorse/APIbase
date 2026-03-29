@@ -878,6 +878,15 @@
     "docs_url": "https://cactus.nci.nih.gov/chemical/structure_documentation",
     "limit_proof": "US Government (NIH/NCI) open data, no auth, no documented rate limits"
   },
+  "listennotes": {
+    "display_name": "Listen Notes",
+    "health_url": "https://listen-api.listennotes.com/api/v2/best_podcasts",
+    "limit_type": "monthly",
+    "free_limit": 50,
+    "reset_period": "monthly",
+    "docs_url": "https://www.listennotes.com/api/docs/",
+    "limit_proof": "Free plan: 50 requests/month. Pro: $200/mo + $1.60/1K calls. X-ListenAPI-Key header auth"
+  },
   "audd": {
     "display_name": "AudD Music Recognition",
     "health_url": "https://api.audd.io/findLyrics/?q=test",

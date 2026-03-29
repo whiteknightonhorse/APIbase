@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase \u2014 The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 370 tools. Dual-rail: x402 + MPP.",
+    "description": "Unified MCP gateway to 373 tools. Dual-rail: x402 + MPP.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -13602,6 +13602,113 @@
         },
         "required": [
           "url"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "podcasts.listennotes.best",
+      "title": "Best Podcasts by Genre",
+      "description": "Get curated lists of the best podcasts by genre \u2014 Technology (127), Business (93), TV & Film (68), Sports (77), Leisure (82), and 60+ more genres. Paginated, returns podcast titles, publishers, episode counts, and descriptions (Listen Notes)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "genre_id": {
+            "type": "integer",
+            "description": "Genre ID to filter (e.g. 93=Business, 127=Technology, 68=TV & Film, 82=Leisure, 77=Sports). Omit for overall best"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number (default 1)",
+            "default": 1
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "podcasts.listennotes.podcast",
+      "title": "Podcast Details",
+      "description": "Get full details for a podcast by Listen Notes ID \u2014 title, publisher, description, episode count, language, country, website, genres, and latest publish date. Use IDs from listennotes.search or listennotes.best (Listen Notes)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Listen Notes podcast ID (e.g. \"4d3fe717742d4963a85562e9f84d8c79\"). Get IDs from listennotes.search or listennotes.best",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "podcasts.listennotes.search",
+      "title": "Search Podcasts & Episodes",
+      "description": "Full-text search across 3.7M+ podcasts and 186M+ episodes. Search by keyword, filter by language and genre, sort by relevance or date. Returns episode titles, podcast names, audio URLs, and duration. The most comprehensive podcast search API available (Listen Notes)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "description": "Search query \u2014 full-text search across 186M+ podcast episodes and 3.7M+ podcasts (e.g. \"artificial intelligence\", \"startup funding\", \"true crime\")",
+            "minLength": 1
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "episode",
+              "podcast"
+            ],
+            "description": "Search type: \"episode\" (default) searches episode titles/descriptions, \"podcast\" searches podcast-level metadata",
+            "default": "episode"
+          },
+          "language": {
+            "type": "string",
+            "description": "ISO 639-1 language code (e.g. \"en\", \"es\", \"fr\"). Filters results by podcast language"
+          },
+          "genre_ids": {
+            "type": "string",
+            "description": "Comma-separated genre IDs to filter (e.g. \"93,127\" for Business+Technology). See Listen Notes genre list"
+          },
+          "sort_by_date": {
+            "type": "boolean",
+            "description": "Sort by date (true) or relevance (false, default)"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10,
+            "description": "Max results (1-10, default 10)",
+            "default": 10
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Offset for pagination"
+          }
+        },
+        "required": [
+          "q"
         ]
       },
       "annotations": {

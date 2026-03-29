@@ -103,6 +103,7 @@ import { cactusSchemas } from './cactus.schema';
 import { trackingSchemas } from './17track.schema';
 import { materialsProjectSchemas } from './materials-project.schema';
 import { auddSchemas } from './audd.schema';
+import { listennotesSchemas } from './listennotes.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -209,4 +210,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...trackingSchemas,
   ...materialsProjectSchemas,
   ...auddSchemas,
+  ...listennotesSchemas,
 };

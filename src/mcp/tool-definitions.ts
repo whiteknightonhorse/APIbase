@@ -3254,6 +3254,32 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     annotations: READ_ONLY,
   },
 
+  // Listen Notes — Podcast Search (UC-225, 3 tools)
+  {
+    toolId: 'listennotes.search',
+    mcpName: 'podcasts.listennotes.search',
+    title: 'Search Podcasts & Episodes',
+    description: 'Full-text search across 3.7M+ podcasts and 186M+ episodes. Search by keyword, filter by language and genre, sort by relevance or date. Returns episode titles, podcast names, audio URLs, and duration. The most comprehensive podcast search API available (Listen Notes)',
+    category: 'podcasts',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'listennotes.podcast',
+    mcpName: 'podcasts.listennotes.podcast',
+    title: 'Podcast Details',
+    description: 'Get full details for a podcast by Listen Notes ID — title, publisher, description, episode count, language, country, website, genres, and latest publish date. Use IDs from listennotes.search or listennotes.best (Listen Notes)',
+    category: 'podcasts',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'listennotes.best',
+    mcpName: 'podcasts.listennotes.best',
+    title: 'Best Podcasts by Genre',
+    description: 'Get curated lists of the best podcasts by genre — Technology (127), Business (93), TV & Film (68), Sports (77), Leisure (82), and 60+ more genres. Paginated, returns podcast titles, publishers, episode counts, and descriptions (Listen Notes)',
+    category: 'podcasts',
+    annotations: READ_ONLY,
+  },
+
   // AudD — Music Recognition / Audio Fingerprinting (UC-226, 2 tools)
   {
     toolId: 'audd.recognize',

@@ -32347,6 +32347,278 @@
         ]
       }
     },
+    "/api/v1/tools/listennotes.search/call": {
+      "post": {
+        "operationId": "listennotes_search",
+        "summary": "Search Podcasts & Episodes",
+        "description": "Full-text search across 3.7M+ podcasts and 186M+ episodes. Search by keyword, filter by language and genre, sort by relevance or date. Returns episode titles, podcast names, audio URLs, and duration. The most comprehensive podcast search API available (Listen Notes)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "listennotes.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "q": {
+                    "type": "string",
+                    "description": "Search query — full-text search across 186M+ podcast episodes and 3.7M+ podcasts (e.g. \"artificial intelligence\", \"startup funding\", \"true crime\")",
+                    "minLength": 1
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "episode",
+                      "podcast"
+                    ],
+                    "description": "Search type: \"episode\" (default) searches episode titles/descriptions, \"podcast\" searches podcast-level metadata",
+                    "default": "episode"
+                  },
+                  "language": {
+                    "type": "string",
+                    "description": "ISO 639-1 language code (e.g. \"en\", \"es\", \"fr\"). Filters results by podcast language"
+                  },
+                  "genre_ids": {
+                    "type": "string",
+                    "description": "Comma-separated genre IDs to filter (e.g. \"93,127\" for Business+Technology). See Listen Notes genre list"
+                  },
+                  "sort_by_date": {
+                    "type": "boolean",
+                    "description": "Sort by date (true) or relevance (false, default)"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10,
+                    "description": "Max results (1-10, default 10)",
+                    "default": 10
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Offset for pagination"
+                  }
+                },
+                "required": [
+                  "q"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/listennotes.podcast/call": {
+      "post": {
+        "operationId": "listennotes_podcast",
+        "summary": "Podcast Details",
+        "description": "Get full details for a podcast by Listen Notes ID — title, publisher, description, episode count, language, country, website, genres, and latest publish date. Use IDs from listennotes.search or listennotes.best (Listen Notes)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "listennotes.podcast"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Listen Notes podcast ID (e.g. \"4d3fe717742d4963a85562e9f84d8c79\"). Get IDs from listennotes.search or listennotes.best",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/listennotes.best/call": {
+      "post": {
+        "operationId": "listennotes_best",
+        "summary": "Best Podcasts by Genre",
+        "description": "Get curated lists of the best podcasts by genre — Technology (127), Business (93), TV & Film (68), Sports (77), Leisure (82), and 60+ more genres. Paginated, returns podcast titles, publishers, episode counts, and descriptions (Listen Notes)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "listennotes.best"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "genre_id": {
+                    "type": "integer",
+                    "description": "Genre ID to filter (e.g. 93=Business, 127=Technology, 68=TV & Film, 82=Leisure, 77=Sports). Omit for overall best"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Page number (default 1)",
+                    "default": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/audd.recognize/call": {
       "post": {
         "operationId": "audd_recognize",

@@ -2116,6 +2116,23 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-225: Listen Notes (Podcast Search) ---
+  - tool_id: listennotes.search
+    name: Search Podcasts & Episodes
+    provider: listennotes
+    price_usd: "0.003"
+    cache_ttl: 3600
+  - tool_id: listennotes.podcast
+    name: Podcast Details
+    provider: listennotes
+    price_usd: "0.002"
+    cache_ttl: 86400
+  - tool_id: listennotes.best
+    name: Best Podcasts by Genre
+    provider: listennotes
+    price_usd: "0.002"
+    cache_ttl: 86400
+
   # --- UC-226: AudD Music Recognition ---
   - tool_id: audd.recognize
     name: Identify Song from Audio

@@ -215,6 +215,9 @@ export const appEnvSchema = z.object({
   FATSECRET_CLIENT_ID: z.string().optional().default(''),
   FATSECRET_CLIENT_SECRET: z.string().optional().default(''),
 
+  // Listen Notes Podcast Search (UC-225) — X-ListenAPI-Key header, 50 free/month
+  PROVIDER_KEY_LISTENNOTES: z.string().optional().default(''),
+
   // AudD Music Recognition (UC-226) — api_token query param, 300 free trial
   PROVIDER_KEY_AUDD: z.string().optional().default(''),
 
