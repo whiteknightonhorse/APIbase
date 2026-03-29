@@ -21,6 +21,19 @@ import { getActiveToolIds } from '../pipeline/stages/tool-status.stage';
 export { TOOL_DEFINITIONS } from './tool-definitions';
 
 /**
+ * Payment context — mutable ref updated per HTTP request by server.ts.
+ * Tool callbacks read this to set x402Paid/mppPaid on the pipeline context.
+ */
+export interface PaymentContext {
+  x402Paid: boolean;
+  x402Payer: string | null;
+  x402PaymentHeader: string | null;
+  mppPaid: boolean;
+  mppPayer: string | null;
+  mppMethod: string | null;
+}
+
+/**
  * Register all platform tools on an McpServer instance.
  *
  * Each tool callback creates a PipelineContext and runs the 13-stage pipeline.
@@ -28,7 +41,7 @@ export { TOOL_DEFINITIONS } from './tool-definitions';
  *
  * MCP clients see mcpName (3-level), pipeline uses toolId (2-level).
  */
-export function registerTools(server: McpServer, apiKey: string, requestId: string): void {
+export function registerTools(server: McpServer, apiKey: string, requestId: string, paymentCtx?: PaymentContext): void {
   const activeIds = getActiveToolIds();
 
   for (const def of TOOL_DEFINITIONS) {
@@ -64,10 +77,29 @@ export function registerTools(server: McpServer, apiKey: string, requestId: stri
         annotations: def.annotations,
       },
       async (args: Record<string, unknown>) => {
-        const ctx = createPipelineContext(requestId, 'POST', '/mcp', args, {
+        const headers: Record<string, string> = {
           authorization: `Bearer ${apiKey}`,
-        });
+        };
+        // Forward payment headers so pipeline recognizes them
+        if (paymentCtx?.x402PaymentHeader) {
+          headers['x-payment'] = paymentCtx.x402PaymentHeader;
+        }
+        const ctx = createPipelineContext(requestId, 'POST', '/mcp', args, headers);
         ctx.toolId = toolId;
+
+        // Set payment flags from the current HTTP request's payment context
+        if (paymentCtx) {
+          if (paymentCtx.x402Paid) {
+            ctx.x402Paid = true;
+            ctx.x402Payer = paymentCtx.x402Payer ?? undefined;
+            ctx.x402PaymentHeader = paymentCtx.x402PaymentHeader ?? '';
+          }
+          if (paymentCtx.mppPaid) {
+            ctx.mppPaid = true;
+            ctx.mppPayer = paymentCtx.mppPayer ?? undefined;
+            ctx.mppMethod = paymentCtx.mppMethod ?? undefined;
+          }
+        }
 
         const result = await runPipeline(ctx);
 
