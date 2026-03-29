@@ -22,7 +22,7 @@ import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 import { logger } from '../config/logger';
 import { mcpSessionsActive } from '../services/metrics.service';
-import { registerTools } from './tool-adapter';
+import { registerTools, type PaymentContext } from './tool-adapter';
 import { registerPrompts } from './prompt-adapter';
 
 // ---------------------------------------------------------------------------
@@ -31,6 +31,9 @@ import { registerPrompts } from './prompt-adapter';
 
 /** Active sessions: sessionId → transport (both transport types) */
 const sessions = new Map<string, SSEServerTransport | StreamableHTTPServerTransport>();
+
+/** Per-session payment context ref — updated on each HTTP request, read by tool callbacks */
+const sessionPaymentCtx = new Map<string, PaymentContext>();
 
 /** Last activity timestamp per session for idle eviction */
 const sessionLastActivity = new Map<string, number>();
@@ -49,6 +52,7 @@ function touchSession(sessionId: string): void {
 function removeSession(sessionId: string): void {
   sessions.delete(sessionId);
   sessionLastActivity.delete(sessionId);
+  sessionPaymentCtx.delete(sessionId);
   mcpSessionsActive.set(sessions.size);
 }
 
@@ -122,12 +126,30 @@ const SERVER_OPTIONS = {
 
 /**
  * Create a fully configured McpServer instance with all tools and prompts registered.
+ * Payment context ref is a mutable object updated per-request in the POST handler,
+ * so tool callbacks always see the payment state from the current HTTP request.
  */
-function createMcpServer(apiKey: string, requestId: string): McpServer {
+function createMcpServer(apiKey: string, requestId: string, paymentCtxRef: PaymentContext): McpServer {
   const mcpServer = new McpServer(SERVER_INFO, SERVER_OPTIONS);
-  registerTools(mcpServer, apiKey, requestId);
+  registerTools(mcpServer, apiKey, requestId, paymentCtxRef);
   registerPrompts(mcpServer);
   return mcpServer;
+}
+
+/**
+ * Extract payment state from an Express request (populated by x402/MPP middleware).
+ */
+function extractPaymentFromReq(req: express.Request): PaymentContext {
+  const x402 = (req as unknown as Record<string, unknown>).x402Payment as { verified?: boolean; payer?: string } | undefined;
+  const mpp = (req as unknown as Record<string, unknown>).mppPayment as { verified?: boolean; payer?: string; method?: string } | undefined;
+  return {
+    x402Paid: !!x402?.verified,
+    x402Payer: x402?.payer ?? null,
+    x402PaymentHeader: (req.headers['x-payment'] as string) ?? null,
+    mppPaid: !!mpp?.verified,
+    mppPayer: mpp?.payer ?? null,
+    mppMethod: mpp?.method ?? null,
+  };
 }
 
 /**
@@ -188,6 +210,12 @@ export function createMcpRouter(): express.Router {
           return;
         }
         touchSession(sessionId);
+        // Update payment context from current HTTP request headers (per-call)
+        const payCtx = sessionPaymentCtx.get(sessionId);
+        if (payCtx) {
+          const fresh = extractPaymentFromReq(req);
+          Object.assign(payCtx, fresh);
+        }
         await transport.handleRequest(req, res, req.body);
         return;
       }
@@ -226,10 +254,14 @@ export function createMcpRouter(): express.Router {
 
       const requestId = (req.headers['x-request-id'] as string) || randomUUID();
 
+      // Create mutable payment context ref — updated per-request, read by tool callbacks
+      const paymentCtxRef: PaymentContext = extractPaymentFromReq(req);
+
       const transport = new StreamableHTTPServerTransport({
         sessionIdGenerator: () => randomUUID(),
         onsessioninitialized: (sid: string) => {
           sessions.set(sid, transport);
+          sessionPaymentCtx.set(sid, paymentCtxRef);
           touchSession(sid);
           mcpSessionsActive.set(sessions.size);
           logger.info(
@@ -253,7 +285,7 @@ export function createMcpRouter(): express.Router {
         );
       };
 
-      const mcpServer = createMcpServer(apiKey, requestId);
+      const mcpServer = createMcpServer(apiKey, requestId, paymentCtxRef);
       await mcpServer.connect(transport);
 
       await transport.handleRequest(req, res, req.body);
@@ -358,9 +390,12 @@ export function createMcpRouter(): express.Router {
     const transport = new SSEServerTransport('/messages', res);
     const sessionId = transport.sessionId;
 
-    const mcpServer = createMcpServer(apiKey, requestId);
+    // Create mutable payment context for SSE session
+    const paymentCtxRef: PaymentContext = extractPaymentFromReq(req);
+    const mcpServer = createMcpServer(apiKey, requestId, paymentCtxRef);
 
     sessions.set(sessionId, transport);
+    sessionPaymentCtx.set(sessionId, paymentCtxRef);
     touchSession(sessionId);
     mcpSessionsActive.set(sessions.size);
     logger.info({ request_id: requestId, session_id: sessionId }, 'MCP SSE session created');
@@ -413,6 +448,13 @@ export function createMcpRouter(): express.Router {
     }
 
     touchSession(sessionId);
+
+    // Update payment context from current HTTP request (per-call for SSE)
+    const payCtx = sessionPaymentCtx.get(sessionId);
+    if (payCtx) {
+      const fresh = extractPaymentFromReq(req);
+      Object.assign(payCtx, fresh);
+    }
 
     transport.handlePostMessage(req, res, req.body).catch((error: unknown) => {
       logger.error({ session_id: sessionId, err: error }, 'MCP POST message handling failed');

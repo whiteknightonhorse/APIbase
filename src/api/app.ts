@@ -52,15 +52,15 @@ export function createApp(): express.Express {
   // --- Body parsing ---
   app.use(express.json({ limit: '1mb' }));
 
-  // --- MCP endpoint (before content-type enforcement — SSE GET has no Content-Type) ---
+  // --- Payment verification — dual rail: x402 + MPP (before MCP + pipeline, §8.6) ---
+  app.use(x402Middleware);
+  app.use(mppMiddleware);
+
+  // --- MCP endpoint (after payment middleware so req.x402Payment/mppPayment are set) ---
   app.use(createMcpRouter());
 
   // --- Smart Onboarding Form (§6.12, §AP-10 — before content-type enforcement) ---
   app.use(onboardRouter);
-
-  // --- Payment verification — dual rail: x402 + MPP (before pipeline, §8.6) ---
-  app.use(x402Middleware);
-  app.use(mppMiddleware);
 
   // --- Content-type enforcement (JSON-only for API routes) ---
   app.use(contentTypeMiddleware);
