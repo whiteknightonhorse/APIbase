@@ -3254,6 +3254,32 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     annotations: READ_ONLY,
   },
 
+  // Threat Intelligence Platform — Domain Security (UC-227, 3 tools)
+  {
+    toolId: 'threatintel.reputation',
+    mcpName: 'security.threatintel.reputation',
+    title: 'Domain Reputation Score',
+    description: 'Get domain reputation score (0-100) with detailed security test results — WHOIS age, SSL validity, mail server config, blacklist status, and more. Higher score = safer domain. Essential for security agents evaluating domain trustworthiness (Threat Intelligence Platform)',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'threatintel.malware',
+    mcpName: 'security.threatintel.malware',
+    title: 'Malware & Phishing Check',
+    description: 'Check if a domain is associated with malware, phishing, or other threats. Returns safe score (0-100) and detailed warning descriptions. Use for URL safety verification before agent navigation (Threat Intelligence Platform)',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'threatintel.infrastructure',
+    mcpName: 'security.threatintel.infrastructure',
+    title: 'Domain Infrastructure Analysis',
+    description: 'Analyze domain infrastructure — all associated IPv4 addresses, geolocation (country, city, region), subnets, and resource types (web, mail, DNS). Reveals hosting setup, CDN usage, and geographic distribution (Threat Intelligence Platform)',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+
   // Listen Notes — Podcast Search (UC-225, 3 tools)
   {
     toolId: 'listennotes.search',

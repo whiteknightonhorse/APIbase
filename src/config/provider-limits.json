@@ -878,6 +878,15 @@
     "docs_url": "https://cactus.nci.nih.gov/chemical/structure_documentation",
     "limit_proof": "US Government (NIH/NCI) open data, no auth, no documented rate limits"
   },
+  "threatintel": {
+    "display_name": "Threat Intelligence Platform",
+    "health_url": "https://api.threatintelligenceplatform.com/v1/reputation?domainName=google.com",
+    "limit_type": "credits",
+    "free_limit": 100,
+    "reset_period": "none",
+    "docs_url": "https://threatintelligenceplatform.com/threat-intelligence-api-docs",
+    "limit_proof": "One-time trial: 100 free credits. Pay-per-credit top-up, no subscription. WhoisXML Group product"
+  },
   "listennotes": {
     "display_name": "Listen Notes",
     "health_url": "https://listen-api.listennotes.com/api/v2/best_podcasts",

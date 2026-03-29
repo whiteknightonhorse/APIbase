@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase \u2014 The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 373 tools. Dual-rail: x402 + MPP.",
+    "description": "Unified MCP gateway to 376 tools. Dual-rail: x402 + MPP.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -13709,6 +13709,78 @@
         },
         "required": [
           "q"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "security.threatintel.infrastructure",
+      "title": "Domain Infrastructure Analysis",
+      "description": "Analyze domain infrastructure \u2014 all associated IPv4 addresses, geolocation (country, city, region), subnets, and resource types (web, mail, DNS). Reveals hosting setup, CDN usage, and geographic distribution (Threat Intelligence Platform)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "domain": {
+            "type": "string",
+            "description": "Domain name to analyze infrastructure (e.g. \"google.com\"). Returns all associated IPs, geolocation, subnets, and resource types",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "domain"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "security.threatintel.malware",
+      "title": "Malware & Phishing Check",
+      "description": "Check if a domain is associated with malware, phishing, or other threats. Returns safe score (0-100) and detailed warning descriptions. Use for URL safety verification before agent navigation (Threat Intelligence Platform)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "domain": {
+            "type": "string",
+            "description": "Domain name to check for malware and phishing (e.g. \"example.com\"). Returns safe score 0-100 and warning details",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "domain"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "security.threatintel.reputation",
+      "title": "Domain Reputation Score",
+      "description": "Get domain reputation score (0-100) with detailed security test results \u2014 WHOIS age, SSL validity, mail server config, blacklist status, and more. Higher score = safer domain. Essential for security agents evaluating domain trustworthiness (Threat Intelligence Platform)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "domain": {
+            "type": "string",
+            "description": "Domain name to check reputation (e.g. \"google.com\", \"suspicious-site.xyz\"). Returns reputation score 0-100 and security test results",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "domain"
         ]
       },
       "annotations": {

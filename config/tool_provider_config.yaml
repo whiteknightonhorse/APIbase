@@ -2116,6 +2116,23 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-227: Threat Intelligence Platform ---
+  - tool_id: threatintel.reputation
+    name: Domain Reputation Score
+    provider: threatintel
+    price_usd: "0.005"
+    cache_ttl: 3600
+  - tool_id: threatintel.malware
+    name: Malware & Phishing Check
+    provider: threatintel
+    price_usd: "0.005"
+    cache_ttl: 3600
+  - tool_id: threatintel.infrastructure
+    name: Domain Infrastructure Analysis
+    provider: threatintel
+    price_usd: "0.005"
+    cache_ttl: 3600
+
   # --- UC-225: Listen Notes (Podcast Search) ---
   - tool_id: listennotes.search
     name: Search Podcasts & Episodes

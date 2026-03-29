@@ -215,6 +215,9 @@ export const appEnvSchema = z.object({
   FATSECRET_CLIENT_ID: z.string().optional().default(''),
   FATSECRET_CLIENT_SECRET: z.string().optional().default(''),
 
+  // Threat Intelligence Platform (UC-227) — apiKey query param, 100 free credits
+  PROVIDER_KEY_THREATINTEL: z.string().optional().default(''),
+
   // Listen Notes Podcast Search (UC-225) — X-ListenAPI-Key header, 50 free/month
   PROVIDER_KEY_LISTENNOTES: z.string().optional().default(''),
 

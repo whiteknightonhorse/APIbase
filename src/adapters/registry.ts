@@ -104,6 +104,7 @@ import { TrackingAdapter } from './17track';
 import { MaterialsProjectAdapter } from './materials-project';
 import { AuddAdapter } from './audd';
 import { ListenNotesAdapter } from './listennotes';
+import { ThreatIntelAdapter } from './threatintel';
 import { config } from '../config';
 
 /**
@@ -552,6 +553,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'chem':
       // NCI CACTUS — chemical identifier resolution (UC-220)
       return getOrCreate('cactus', () => new CactusAdapter());
+    case 'threatintel': {
+      // Threat Intelligence Platform — domain reputation (UC-227)
+      const tiKey = (config as Record<string, unknown>).PROVIDER_KEY_THREATINTEL as string | undefined;
+      if (!tiKey) return undefined;
+      return getOrCreate('threatintel', () => new ThreatIntelAdapter(tiKey));
+    }
     case 'listennotes': {
       // Listen Notes — podcast search (UC-225)
       const lnKey = (config as Record<string, unknown>).PROVIDER_KEY_LISTENNOTES as string | undefined;

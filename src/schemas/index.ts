@@ -104,6 +104,7 @@ import { trackingSchemas } from './17track.schema';
 import { materialsProjectSchemas } from './materials-project.schema';
 import { auddSchemas } from './audd.schema';
 import { listennotesSchemas } from './listennotes.schema';
+import { threatintelSchemas } from './threatintel.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -211,4 +212,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...materialsProjectSchemas,
   ...auddSchemas,
   ...listennotesSchemas,
+  ...threatintelSchemas,
 };
