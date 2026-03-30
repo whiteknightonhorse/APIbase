@@ -32347,6 +32347,286 @@
         ]
       }
     },
+    "/api/v1/tools/bdl.games/call": {
+      "post": {
+        "operationId": "bdl_games",
+        "summary": "Sports Games & Scores",
+        "description": "Get NBA and NFL game results by date — scores, teams, status (Final/In Progress/Scheduled). Filter by date, season, or team. Covers all NBA and NFL games with real-time scores (BallDontLie)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bdl.games"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "date": {
+                    "type": "string",
+                    "description": "Game date (YYYY-MM-DD, e.g. \"2026-03-29\"). Returns all games on that date"
+                  },
+                  "season": {
+                    "type": "integer",
+                    "description": "Season year (e.g. 2025 for 2025-26 season)"
+                  },
+                  "team_id": {
+                    "type": "integer",
+                    "description": "Filter by team ID (get IDs from bdl.teams)"
+                  },
+                  "sport": {
+                    "type": "string",
+                    "enum": [
+                      "nba",
+                      "nfl"
+                    ],
+                    "description": "Sport league: \"nba\" (default) or \"nfl\"",
+                    "default": "nba"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 25,
+                    "description": "Max results (1-25, default 10)",
+                    "default": 10
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/bdl.teams/call": {
+      "post": {
+        "operationId": "bdl_teams",
+        "summary": "Sports Teams",
+        "description": "List NBA and NFL teams with conference, division, city, and abbreviation. Filter by conference (East/West for NBA, AFC/NFC for NFL) or division (BallDontLie)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bdl.teams"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "conference": {
+                    "type": "string",
+                    "description": "Filter by conference (e.g. \"East\", \"West\" for NBA; \"AFC\", \"NFC\" for NFL)"
+                  },
+                  "division": {
+                    "type": "string",
+                    "description": "Filter by division (e.g. \"Atlantic\", \"Pacific\" for NBA)"
+                  },
+                  "sport": {
+                    "type": "string",
+                    "enum": [
+                      "nba",
+                      "nfl"
+                    ],
+                    "description": "Sport league: \"nba\" (default) or \"nfl\"",
+                    "default": "nba"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 30,
+                    "description": "Max results (1-30, default 30)",
+                    "default": 30
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/bdl.players/call": {
+      "post": {
+        "operationId": "bdl_players",
+        "summary": "Player Search",
+        "description": "Search NBA players by name — returns position, jersey number, and current team. Example: \"lebron\" → LeBron James #23 F, Los Angeles Lakers (BallDontLie)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bdl.players"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "search": {
+                    "type": "string",
+                    "description": "Search by player name (e.g. \"lebron\", \"curry\", \"mahomes\")"
+                  },
+                  "team_id": {
+                    "type": "integer",
+                    "description": "Filter by team ID"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 25,
+                    "description": "Max results (1-25, default 10)",
+                    "default": 10
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/postal.lookup/call": {
       "post": {
         "operationId": "postal_lookup",

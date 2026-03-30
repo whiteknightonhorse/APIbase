@@ -2116,6 +2116,23 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-251: BallDontLie (Sports Data) ---
+  - tool_id: bdl.games
+    name: Sports Games & Scores
+    provider: balldontlie
+    price_usd: "0.002"
+    cache_ttl: 300
+  - tool_id: bdl.teams
+    name: Sports Teams
+    provider: balldontlie
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: bdl.players
+    name: Player Search
+    provider: balldontlie
+    price_usd: "0.002"
+    cache_ttl: 3600
+
   # --- UC-250: Zippopotam.us (Global Postal Codes) ---
   - tool_id: postal.lookup
     name: Global Postal Code Lookup
