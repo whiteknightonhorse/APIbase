@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Grep",
+      "Glob",
+      "WebSearch",
+      "WebFetch"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "case \"$TOOL_INPUT\" in *'rm -rf'*|*'git push --force'*|*'git reset --hard'*|*'chmod 777'*|*'chmod -R 777'*|*'curl | bash'*|*'wget | bash'*) echo 'BLOCKED: dangerous command' >&2; exit 2;; esac"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -60,5 +60,11 @@
   },
   "overrides": {
     "effect": "^3.20.0"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint --fix --quiet",
+      "prettier --write"
+    ]
   }
 }
