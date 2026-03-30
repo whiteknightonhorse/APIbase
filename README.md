@@ -375,10 +375,46 @@ POST /mcp  prompts/get discover_tools  → Browse 378 tools by category or task 
 
 ## Self-Hosting
 
+### Prerequisites
+
+- Docker Engine 24.0+ and Docker Compose v2.0+
+- 4GB+ RAM available for containers
+- Open ports: 3000 (app), 5432 (postgres), 6379 (redis) — or customize in compose files
+
+### Quick Start
+
 ```bash
 git clone https://github.com/whiteknightonhorse/APIbase.git
-cp .env.example .env    # configure secrets
+cd APIbase
+
+# Create environment file with required variables
+cat > .env << 'EOF'
+POSTGRES_USER=apibase
+POSTGRES_PASSWORD=$(openssl rand -base64 32)
+POSTGRES_DB=apibase
+DATABASE_URL_WORKER=postgresql://apibase:${POSTGRES_PASSWORD}@postgres:5432/apibase
+DATABASE_URL_OUTBOX=postgresql://apibase:${POSTGRES_PASSWORD}@postgres:5432/apibase
+IMAGE_TAG=latest
+EOF
+
+# For production deployment, also set:
+# GF_ADMIN_PASSWORD=your_grafana_admin_password
+
+# Start the services
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+```
+
+### Verify Installation
+
+```bash
+# Check all services are healthy
+docker compose ps
+
+# View logs
+docker compose logs -f
+
+# Test the API
+curl http://localhost:3000/health/ready
 ```
 
 ## License
