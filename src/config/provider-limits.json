@@ -878,6 +878,15 @@
     "docs_url": "https://cactus.nci.nih.gov/chemical/structure_documentation",
     "limit_proof": "US Government (NIH/NCI) open data, no auth, no documented rate limits"
   },
+  "zyte": {
+    "display_name": "Zyte API",
+    "health_url": "https://api.zyte.com/v1/extract",
+    "limit_type": "credits",
+    "free_limit": 5,
+    "reset_period": "none",
+    "docs_url": "https://docs.zyte.com/zyte-api/",
+    "limit_proof": "Trial: $5 free credit (30 days). PAYG: $0.00013–$0.01608/request. No subscription required."
+  },
   "marketcheck": {
     "display_name": "MarketCheck",
     "health_url": "https://mc-api.marketcheck.com/v2/search/car/active?make=Toyota&rows=1",

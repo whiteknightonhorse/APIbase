@@ -215,6 +215,9 @@ export const appEnvSchema = z.object({
   FATSECRET_CLIENT_ID: z.string().optional().default(''),
   FATSECRET_CLIENT_SECRET: z.string().optional().default(''),
 
+  // Zyte API Web Scraping (UC-233) — Basic Auth, $5 free credit trial
+  PROVIDER_KEY_ZYTE: z.string().optional().default(''),
+
   // MarketCheck Car Listings (UC-231) — api_key query param, 500 free/month
   PROVIDER_KEY_MARKETCHECK: z.string().optional().default(''),
 

@@ -2116,6 +2116,23 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-233: Zyte API (Web Scraping) ---
+  - tool_id: scrape.extract
+    name: Extract Web Page HTML
+    provider: zyte
+    price_usd: "0.003"
+    cache_ttl: 3600
+  - tool_id: scrape.browser
+    name: Browser-Rendered Page HTML
+    provider: zyte
+    price_usd: "0.015"
+    cache_ttl: 3600
+  - tool_id: scrape.screenshot
+    name: Web Page Screenshot
+    provider: zyte
+    price_usd: "0.005"
+    cache_ttl: 3600
+
   # --- UC-231: MarketCheck (Car Listings) ---
   - tool_id: carmarket.search
     name: Search Car Listings

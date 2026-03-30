@@ -106,6 +106,7 @@ import { AuddAdapter } from './audd';
 import { ListenNotesAdapter } from './listennotes';
 import { ThreatIntelAdapter } from './threatintel';
 import { MarketCheckAdapter } from './marketcheck';
+import { ZyteAdapter } from './zyte';
 import { config } from '../config';
 
 /**
@@ -142,30 +143,40 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'aster':
       return getOrCreate('asterdex', () => new AsterDexAdapter());
     case 'weather': {
-      const key = (config as Record<string, unknown>).PROVIDER_KEY_OPENWEATHER as string | undefined;
+      const key = (config as Record<string, unknown>).PROVIDER_KEY_OPENWEATHER as
+        | string
+        | undefined;
       if (!key) return undefined;
       return getOrCreate('openweathermap', () => new OpenWeatherMapAdapter(key));
     }
     case 'crypto':
     case 'coingecko': {
-      const cgKey = (config as Record<string, unknown>).PROVIDER_KEY_COINGECKO as string | undefined;
+      const cgKey = (config as Record<string, unknown>).PROVIDER_KEY_COINGECKO as
+        | string
+        | undefined;
       if (!cgKey) return undefined;
       return getOrCreate('coingecko', () => new CoinGeckoAdapter(cgKey));
     }
     case 'aviasales': {
-      const aviasalesToken = (config as Record<string, unknown>).PROVIDER_KEY_AVIASALES as string | undefined;
+      const aviasalesToken = (config as Record<string, unknown>).PROVIDER_KEY_AVIASALES as
+        | string
+        | undefined;
       if (!aviasalesToken) return undefined;
       return getOrCreate('aviasales', () => new AviasalesAdapter(aviasalesToken));
     }
     case 'sabre': {
       const clientId = (config as Record<string, unknown>).SABRE_CLIENT_ID as string | undefined;
-      const clientSecret = (config as Record<string, unknown>).SABRE_CLIENT_SECRET as string | undefined;
+      const clientSecret = (config as Record<string, unknown>).SABRE_CLIENT_SECRET as
+        | string
+        | undefined;
       if (!clientId || !clientSecret) return undefined;
       return getOrCreate('sabre', () => new SabreAdapter(clientId, clientSecret));
     }
     case 'amadeus': {
       const apiKey = (config as Record<string, unknown>).AMADEUS_API_KEY as string | undefined;
-      const apiSecret = (config as Record<string, unknown>).AMADEUS_API_SECRET as string | undefined;
+      const apiSecret = (config as Record<string, unknown>).AMADEUS_API_SECRET as
+        | string
+        | undefined;
       if (!apiKey || !apiSecret) return undefined;
       return getOrCreate('amadeus', () => new AmadeusAdapter(apiKey, apiSecret));
     }
@@ -175,7 +186,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       return getOrCreate('foursquare', () => new FoursquareAdapter(key));
     }
     case 'ticketmaster': {
-      const key = (config as Record<string, unknown>).PROVIDER_KEY_TICKETMASTER as string | undefined;
+      const key = (config as Record<string, unknown>).PROVIDER_KEY_TICKETMASTER as
+        | string
+        | undefined;
       if (!key) return undefined;
       return getOrCreate('ticketmaster', () => new TicketmasterAdapter(key));
     }
@@ -187,7 +200,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'health': {
       const usdaKey = (config as Record<string, unknown>).PROVIDER_KEY_USDA as string | undefined;
       if (!usdaKey) return undefined;
-      const openFdaKey = (config as Record<string, unknown>).PROVIDER_KEY_OPENFDA as string | undefined;
+      const openFdaKey = (config as Record<string, unknown>).PROVIDER_KEY_OPENFDA as
+        | string
+        | undefined;
       return getOrCreate('health', () => new HealthAdapter(usdaKey, openFdaKey || undefined));
     }
     case 'finance': {
@@ -202,38 +217,62 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const onetKey = (config as Record<string, unknown>).PROVIDER_KEY_ONET as string | undefined;
       if (!onetKey || onetKey === 'MANUAL_REQUIRED') return undefined;
       const blsKey = (config as Record<string, unknown>).PROVIDER_KEY_BLS as string | undefined;
-      const cjKey = (config as Record<string, unknown>).PROVIDER_KEY_CAREERJET as string | undefined;
-      return getOrCreate('jobs', () => new JobsAdapter(onetKey, blsKey || undefined, cjKey || undefined));
+      const cjKey = (config as Record<string, unknown>).PROVIDER_KEY_CAREERJET as
+        | string
+        | undefined;
+      return getOrCreate(
+        'jobs',
+        () => new JobsAdapter(onetKey, blsKey || undefined, cjKey || undefined),
+      );
     }
     case 'education': {
       // All 5 providers are free; Scorecard uses DEMO_KEY by default, PubMed key is optional
-      const scorecardKey = (config as Record<string, unknown>).PROVIDER_KEY_SCORECARD as string | undefined;
-      const pubmedKey = (config as Record<string, unknown>).PROVIDER_KEY_PUBMED as string | undefined;
-      return getOrCreate('education', () => new EducationAdapter(scorecardKey || undefined, pubmedKey || undefined));
+      const scorecardKey = (config as Record<string, unknown>).PROVIDER_KEY_SCORECARD as
+        | string
+        | undefined;
+      const pubmedKey = (config as Record<string, unknown>).PROVIDER_KEY_PUBMED as
+        | string
+        | undefined;
+      return getOrCreate(
+        'education',
+        () => new EducationAdapter(scorecardKey || undefined, pubmedKey || undefined),
+      );
     }
     case 'geo': {
-      const geoKey = (config as Record<string, unknown>).PROVIDER_KEY_GEOAPIFY as string | undefined;
+      const geoKey = (config as Record<string, unknown>).PROVIDER_KEY_GEOAPIFY as
+        | string
+        | undefined;
       if (!geoKey) return undefined;
       return getOrCreate('geo', () => new GeoAdapter(geoKey));
     }
     case 'aipush': {
-      const aipushSecret = (config as Record<string, unknown>).AIPUSH_INTERNAL_SECRET as string | undefined;
+      const aipushSecret = (config as Record<string, unknown>).AIPUSH_INTERNAL_SECRET as
+        | string
+        | undefined;
       if (!aipushSecret) return undefined;
-      const aipushUrl = (config as Record<string, unknown>).AIPUSH_INTERNAL_URL as string | undefined;
+      const aipushUrl = (config as Record<string, unknown>).AIPUSH_INTERNAL_URL as
+        | string
+        | undefined;
       return getOrCreate('aipush', () => new AIPushAdapter(aipushSecret, aipushUrl || undefined));
     }
     case 'diffbot': {
-      const diffbotKey = (config as Record<string, unknown>).PROVIDER_KEY_DIFFBOT as string | undefined;
+      const diffbotKey = (config as Record<string, unknown>).PROVIDER_KEY_DIFFBOT as
+        | string
+        | undefined;
       if (!diffbotKey) return undefined;
       return getOrCreate('diffbot', () => new DiffbotAdapter(diffbotKey));
     }
     case 'whois': {
-      const whoisKey = (config as Record<string, unknown>).PROVIDER_KEY_WHOISXML as string | undefined;
+      const whoisKey = (config as Record<string, unknown>).PROVIDER_KEY_WHOISXML as
+        | string
+        | undefined;
       if (!whoisKey) return undefined;
       return getOrCreate('whoisxml', () => new WhoisXmlAdapter(whoisKey));
     }
     case 'spoonacular': {
-      const spoonKey = (config as Record<string, unknown>).PROVIDER_KEY_SPOONACULAR as string | undefined;
+      const spoonKey = (config as Record<string, unknown>).PROVIDER_KEY_SPOONACULAR as
+        | string
+        | undefined;
       if (!spoonKey) return undefined;
       return getOrCreate('spoonacular', () => new SpoonacularAdapter(spoonKey));
     }
@@ -252,7 +291,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     }
     case 'igdb': {
       const igdbClientId = (config as Record<string, unknown>).IGDB_CLIENT_ID as string | undefined;
-      const igdbClientSecret = (config as Record<string, unknown>).IGDB_CLIENT_SECRET as string | undefined;
+      const igdbClientSecret = (config as Record<string, unknown>).IGDB_CLIENT_SECRET as
+        | string
+        | undefined;
       if (!igdbClientId || !igdbClientSecret) return undefined;
       return getOrCreate('igdb', () => new IgdbAdapter(igdbClientId, igdbClientSecret));
     }
@@ -276,7 +317,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // Open Library — open access, no API key, CC0
       return getOrCreate('openlibrary', () => new OpenLibraryAdapter());
     case 'email': {
-      const zbKey = (config as Record<string, unknown>).PROVIDER_KEY_ZEROBOUNCE as string | undefined;
+      const zbKey = (config as Record<string, unknown>).PROVIDER_KEY_ZEROBOUNCE as
+        | string
+        | undefined;
       if (!zbKey) return undefined;
       return getOrCreate('zerobounce', () => new ZeroBounceAdapter(zbKey));
     }
@@ -286,12 +329,16 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       return getOrCreate('shortio', () => new ShortIoAdapter(sioKey));
     }
     case 'exchangerate': {
-      const erKey = (config as Record<string, unknown>).PROVIDER_KEY_EXCHANGERATE as string | undefined;
+      const erKey = (config as Record<string, unknown>).PROVIDER_KEY_EXCHANGERATE as
+        | string
+        | undefined;
       if (!erKey) return undefined;
       return getOrCreate('exchangerate', () => new ExchangeRateAdapter(erKey));
     }
     case 'calendarific': {
-      const calKey = (config as Record<string, unknown>).PROVIDER_KEY_CALENDARIFIC as string | undefined;
+      const calKey = (config as Record<string, unknown>).PROVIDER_KEY_CALENDARIFIC as
+        | string
+        | undefined;
       if (!calKey) return undefined;
       return getOrCreate('calendarific', () => new CalendarificAdapter(calKey));
     }
@@ -319,12 +366,16 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'worldclock':
       return getOrCreate('timeapi', () => new TimeApiAdapter());
     case 'screenshot': {
-      const flashKey = (config as Record<string, unknown>).PROVIDER_KEY_APIFLASH as string | undefined;
+      const flashKey = (config as Record<string, unknown>).PROVIDER_KEY_APIFLASH as
+        | string
+        | undefined;
       if (!flashKey) return undefined;
       return getOrCreate('apiflash', () => new ApiFlashAdapter(flashKey));
     }
     case 'sports': {
-      const sportsKey = (config as Record<string, unknown>).PROVIDER_KEY_APISPORTS as string | undefined;
+      const sportsKey = (config as Record<string, unknown>).PROVIDER_KEY_APISPORTS as
+        | string
+        | undefined;
       if (!sportsKey) return undefined;
       return getOrCreate('apisports', () => new ApiSportsAdapter(sportsKey));
     }
@@ -334,18 +385,26 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       return getOrCreate('langbly', () => new LangblyAdapter(lbKey));
     }
     case 'twilio': {
-      const twilioSid = (config as Record<string, unknown>).TWILIO_ACCOUNT_SID as string | undefined;
-      const twilioToken = (config as Record<string, unknown>).TWILIO_AUTH_TOKEN as string | undefined;
+      const twilioSid = (config as Record<string, unknown>).TWILIO_ACCOUNT_SID as
+        | string
+        | undefined;
+      const twilioToken = (config as Record<string, unknown>).TWILIO_AUTH_TOKEN as
+        | string
+        | undefined;
       if (!twilioSid || !twilioToken) return undefined;
       return getOrCreate('twilio', () => new TwilioAdapter(twilioSid, twilioToken));
     }
     case 'stability': {
-      const stabKey = (config as Record<string, unknown>).PROVIDER_KEY_STABILITY as string | undefined;
+      const stabKey = (config as Record<string, unknown>).PROVIDER_KEY_STABILITY as
+        | string
+        | undefined;
       if (!stabKey) return undefined;
       return getOrCreate('stability', () => new StabilityAdapter(stabKey));
     }
     case 'resend': {
-      const resendKey = (config as Record<string, unknown>).PROVIDER_KEY_RESEND as string | undefined;
+      const resendKey = (config as Record<string, unknown>).PROVIDER_KEY_RESEND as
+        | string
+        | undefined;
       if (!resendKey) return undefined;
       return getOrCreate('resend', () => new ResendAdapter(resendKey));
     }
@@ -358,7 +417,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'courtlistener':
       return getOrCreate('courtlistener', () => new CourtListenerAdapter());
     case 'ocr': {
-      const ocrKey = (config as Record<string, unknown>).PROVIDER_KEY_OCRSPACE as string | undefined;
+      const ocrKey = (config as Record<string, unknown>).PROVIDER_KEY_OCRSPACE as
+        | string
+        | undefined;
       if (!ocrKey) return undefined;
       return getOrCreate('ocrspace', () => new OcrSpaceAdapter(ocrKey));
     }
@@ -368,7 +429,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       return getOrCreate('finnhub', () => new FinnhubAdapter(fhKey));
     }
     case 'news': {
-      const newsKey = (config as Record<string, unknown>).PROVIDER_KEY_NEWSDATA as string | undefined;
+      const newsKey = (config as Record<string, unknown>).PROVIDER_KEY_NEWSDATA as
+        | string
+        | undefined;
       if (!newsKey) return undefined;
       return getOrCreate('newsdata', () => new NewsDataAdapter(newsKey));
     }
@@ -378,22 +441,30 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       return getOrCreate('exa', () => new ExaAdapter(exaKey));
     }
     case 'tavily': {
-      const tavilyKey = (config as Record<string, unknown>).PROVIDER_KEY_TAVILY as string | undefined;
+      const tavilyKey = (config as Record<string, unknown>).PROVIDER_KEY_TAVILY as
+        | string
+        | undefined;
       if (!tavilyKey) return undefined;
       return getOrCreate('tavily', () => new TavilyAdapter(tavilyKey));
     }
     case 'serper': {
-      const serperKey = (config as Record<string, unknown>).PROVIDER_KEY_SERPER as string | undefined;
+      const serperKey = (config as Record<string, unknown>).PROVIDER_KEY_SERPER as
+        | string
+        | undefined;
       if (!serperKey) return undefined;
       return getOrCreate('serper', () => new SerperAdapter(serperKey));
     }
     case 'usrealestate': {
-      const rapidKey = (config as Record<string, unknown>).PROVIDER_KEY_RAPIDAPI as string | undefined;
+      const rapidKey = (config as Record<string, unknown>).PROVIDER_KEY_RAPIDAPI as
+        | string
+        | undefined;
       if (!rapidKey) return undefined;
       return getOrCreate('usrealestate', () => new UsRealEstateAdapter(rapidKey));
     }
     case 'walkscore': {
-      const wsKey = (config as Record<string, unknown>).PROVIDER_KEY_WALKSCORE as string | undefined;
+      const wsKey = (config as Record<string, unknown>).PROVIDER_KEY_WALKSCORE as
+        | string
+        | undefined;
       if (!wsKey) return undefined;
       return getOrCreate('walkscore', () => new WalkScoreAdapter(wsKey));
     }
@@ -409,7 +480,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     }
     case 'browser': {
       const bbKey = (config as Record<string, unknown>).BROWSERBASE_API_KEY as string | undefined;
-      const bbProject = (config as Record<string, unknown>).BROWSERBASE_PROJECT_ID as string | undefined;
+      const bbProject = (config as Record<string, unknown>).BROWSERBASE_PROJECT_ID as
+        | string
+        | undefined;
       if (!bbKey || !bbProject) return undefined;
       return getOrCreate('browserbase', () => new BrowserbaseAdapter(bbKey, bbProject));
     }
@@ -434,14 +507,18 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'vatcomply':
       return getOrCreate('vatcomply', () => new VatcomplyAdapter());
     case 'transcribe': {
-      const aaiKey = (config as Record<string, unknown>).PROVIDER_KEY_ASSEMBLYAI as string | undefined;
+      const aaiKey = (config as Record<string, unknown>).PROVIDER_KEY_ASSEMBLYAI as
+        | string
+        | undefined;
       if (!aaiKey) return undefined;
       return getOrCreate('assemblyai', () => new AssemblyAIAdapter(aaiKey));
     }
     case 'lei':
       return getOrCreate('gleif', () => new GleifAdapter());
     case 'ukcompany': {
-      const chKey = (config as Record<string, unknown>).PROVIDER_KEY_COMPANIES_HOUSE as string | undefined;
+      const chKey = (config as Record<string, unknown>).PROVIDER_KEY_COMPANIES_HOUSE as
+        | string
+        | undefined;
       if (!chKey) return undefined;
       return getOrCreate('companies-house', () => new CompaniesHouseAdapter(chKey));
     }
@@ -449,19 +526,25 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       return getOrCreate('edgar', () => new EdgarAdapter());
     case 'bluesky': {
       const bsHandle = (config as Record<string, unknown>).BLUESKY_HANDLE as string | undefined;
-      const bsPassword = (config as Record<string, unknown>).BLUESKY_APP_PASSWORD as string | undefined;
+      const bsPassword = (config as Record<string, unknown>).BLUESKY_APP_PASSWORD as
+        | string
+        | undefined;
       if (!bsHandle || !bsPassword) return undefined;
       return getOrCreate('bluesky', () => new BlueskyAdapter(bsHandle, bsPassword));
     }
     case 'artic':
       return getOrCreate('artic', () => new ArticAdapter());
     case 'europeana': {
-      const euKey = (config as Record<string, unknown>).PROVIDER_KEY_EUROPEANA as string | undefined;
+      const euKey = (config as Record<string, unknown>).PROVIDER_KEY_EUROPEANA as
+        | string
+        | undefined;
       if (!euKey) return undefined;
       return getOrCreate('europeana', () => new EuropeanaAdapter(euKey));
     }
     case 'convert': {
-      const convertKey = (config as Record<string, unknown>).PROVIDER_KEY_CONVERTAPI as string | undefined;
+      const convertKey = (config as Record<string, unknown>).PROVIDER_KEY_CONVERTAPI as
+        | string
+        | undefined;
       if (!convertKey) return undefined;
       return getOrCreate('convertapi', () => new ConvertApiAdapter(convertKey));
     }
@@ -471,29 +554,41 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       return getOrCreate('api2pdf', () => new Api2PdfAdapter(pdfKey));
     }
     case 'podcast': {
-      const piKey = (config as Record<string, unknown>).PROVIDER_KEY_PODCASTINDEX as string | undefined;
-      const piSecret = (config as Record<string, unknown>).PROVIDER_SECRET_PODCASTINDEX as string | undefined;
+      const piKey = (config as Record<string, unknown>).PROVIDER_KEY_PODCASTINDEX as
+        | string
+        | undefined;
+      const piSecret = (config as Record<string, unknown>).PROVIDER_SECRET_PODCASTINDEX as
+        | string
+        | undefined;
       if (!piKey || !piSecret) return undefined;
       return getOrCreate('podcastindex', () => new PodcastIndexAdapter(piKey, piSecret));
     }
     case 'geocodio': {
-      const geocodioKey = (config as Record<string, unknown>).PROVIDER_KEY_GEOCODIO as string | undefined;
+      const geocodioKey = (config as Record<string, unknown>).PROVIDER_KEY_GEOCODIO as
+        | string
+        | undefined;
       if (!geocodioKey) return undefined;
       return getOrCreate('geocodio', () => new GeocodioAdapter(geocodioKey));
     }
     case 'autodev': {
-      const autodevKey = (config as Record<string, unknown>).PROVIDER_KEY_AUTODEV as string | undefined;
+      const autodevKey = (config as Record<string, unknown>).PROVIDER_KEY_AUTODEV as
+        | string
+        | undefined;
       if (!autodevKey) return undefined;
       return getOrCreate('autodev', () => new AutoDevAdapter(autodevKey));
     }
     case 'hunter': {
-      const hunterKey = (config as Record<string, unknown>).PROVIDER_KEY_HUNTER as string | undefined;
+      const hunterKey = (config as Record<string, unknown>).PROVIDER_KEY_HUNTER as
+        | string
+        | undefined;
       if (!hunterKey) return undefined;
       return getOrCreate('hunter', () => new HunterAdapter(hunterKey));
     }
     case 'fatsecret': {
       const fsId = (config as Record<string, unknown>).FATSECRET_CLIENT_ID as string | undefined;
-      const fsSecret = (config as Record<string, unknown>).FATSECRET_CLIENT_SECRET as string | undefined;
+      const fsSecret = (config as Record<string, unknown>).FATSECRET_CLIENT_SECRET as
+        | string
+        | undefined;
       if (!fsId || !fsSecret) return undefined;
       return getOrCreate('fatsecret', () => new FatSecretAdapter(fsId, fsSecret));
     }
@@ -506,31 +601,41 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'gdacs':
       return getOrCreate('gdacs', () => new GdacsAdapter());
     case 'rateapi': {
-      const rateKey = (config as Record<string, unknown>).PROVIDER_KEY_RATEAPI as string | undefined;
+      const rateKey = (config as Record<string, unknown>).PROVIDER_KEY_RATEAPI as
+        | string
+        | undefined;
       if (!rateKey) return undefined;
       return getOrCreate('rateapi', () => new RateApiAdapter(rateKey));
     }
     case 'ibanapi': {
-      const ibanKey = (config as Record<string, unknown>).PROVIDER_KEY_IBANAPI as string | undefined;
+      const ibanKey = (config as Record<string, unknown>).PROVIDER_KEY_IBANAPI as
+        | string
+        | undefined;
       if (!ibanKey) return undefined;
       return getOrCreate('ibanapi', () => new IbanApiAdapter(ibanKey));
     }
     case 'currents': {
-      const currKey = (config as Record<string, unknown>).PROVIDER_KEY_CURRENTS as string | undefined;
+      const currKey = (config as Record<string, unknown>).PROVIDER_KEY_CURRENTS as
+        | string
+        | undefined;
       if (!currKey) return undefined;
       return getOrCreate('currents', () => new CurrentsAdapter(currKey));
     }
     case 'twitterapi': {
-      const twKey = (config as Record<string, unknown>).PROVIDER_KEY_TWITTERAPI as string | undefined;
+      const twKey = (config as Record<string, unknown>).PROVIDER_KEY_TWITTERAPI as
+        | string
+        | undefined;
       if (!twKey) return undefined;
       return getOrCreate('twitterapi', () => new TwitterApiAdapter(twKey));
     }
     case 'pubchem': {
-      const ncbiKey = (config as Record<string, unknown>).PROVIDER_KEY_NCBI as string || '';
+      const ncbiKey = ((config as Record<string, unknown>).PROVIDER_KEY_NCBI as string) || '';
       return getOrCreate('pubchem', () => new PubchemAdapter(ncbiKey));
     }
     case 'openchargemap': {
-      const ocmKey = (config as Record<string, unknown>).PROVIDER_KEY_OPENCHARGEMAP as string | undefined;
+      const ocmKey = (config as Record<string, unknown>).PROVIDER_KEY_OPENCHARGEMAP as
+        | string
+        | undefined;
       if (!ocmKey) return undefined;
       return getOrCreate('openchargemap', () => new OpenChargeMapAdapter(ocmKey));
     }
@@ -554,21 +659,33 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'chem':
       // NCI CACTUS — chemical identifier resolution (UC-220)
       return getOrCreate('cactus', () => new CactusAdapter());
+    case 'scrape': {
+      // Zyte — web scraping (UC-233)
+      const zyteKey = (config as Record<string, unknown>).PROVIDER_KEY_ZYTE as string | undefined;
+      if (!zyteKey) return undefined;
+      return getOrCreate('zyte', () => new ZyteAdapter(zyteKey));
+    }
     case 'carmarket': {
       // MarketCheck — car listings (UC-231)
-      const mcKey = (config as Record<string, unknown>).PROVIDER_KEY_MARKETCHECK as string | undefined;
+      const mcKey = (config as Record<string, unknown>).PROVIDER_KEY_MARKETCHECK as
+        | string
+        | undefined;
       if (!mcKey) return undefined;
       return getOrCreate('marketcheck', () => new MarketCheckAdapter(mcKey));
     }
     case 'threatintel': {
       // Threat Intelligence Platform — domain reputation (UC-227)
-      const tiKey = (config as Record<string, unknown>).PROVIDER_KEY_THREATINTEL as string | undefined;
+      const tiKey = (config as Record<string, unknown>).PROVIDER_KEY_THREATINTEL as
+        | string
+        | undefined;
       if (!tiKey) return undefined;
       return getOrCreate('threatintel', () => new ThreatIntelAdapter(tiKey));
     }
     case 'listennotes': {
       // Listen Notes — podcast search (UC-225)
-      const lnKey = (config as Record<string, unknown>).PROVIDER_KEY_LISTENNOTES as string | undefined;
+      const lnKey = (config as Record<string, unknown>).PROVIDER_KEY_LISTENNOTES as
+        | string
+        | undefined;
       if (!lnKey) return undefined;
       return getOrCreate('listennotes', () => new ListenNotesAdapter(lnKey));
     }
@@ -580,13 +697,17 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     }
     case 'materials': {
       // Materials Project — materials science properties (UC-222)
-      const mpKey = (config as Record<string, unknown>).PROVIDER_KEY_MATERIALS_PROJECT as string | undefined;
+      const mpKey = (config as Record<string, unknown>).PROVIDER_KEY_MATERIALS_PROJECT as
+        | string
+        | undefined;
       if (!mpKey) return undefined;
       return getOrCreate('materials-project', () => new MaterialsProjectAdapter(mpKey));
     }
     case 'tracking': {
       // 17TRACK — package tracking (UC-221)
-      const track17Key = (config as Record<string, unknown>).PROVIDER_KEY_17TRACK as string | undefined;
+      const track17Key = (config as Record<string, unknown>).PROVIDER_KEY_17TRACK as
+        | string
+        | undefined;
       if (!track17Key) return undefined;
       return getOrCreate('17track', () => new TrackingAdapter(track17Key));
     }

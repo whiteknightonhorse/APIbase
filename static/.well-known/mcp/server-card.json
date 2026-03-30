@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase \u2014 The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 378 tools. Dual-rail: x402 + MPP.",
+    "description": "Unified MCP gateway to 381 tools. Dual-rail: x402 + MPP.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -13878,6 +13878,75 @@
             "description": "Offset for pagination"
           }
         }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "web.scrape.browser",
+      "title": "Browser-Rendered Page HTML",
+      "description": "Render a URL with headless browser and return JS-rendered HTML. Use for SPAs, React/Vue apps, or pages with dynamic content that raw HTTP cannot capture. Returns fully rendered DOM as HTML text (Zyte)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "URL to render with headless browser \u2014 returns JS-rendered HTML. Use for SPAs, dynamic content. More expensive than extract. Example: \"https://example.com\""
+          }
+        },
+        "required": [
+          "url"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "web.scrape.extract",
+      "title": "Extract Web Page HTML",
+      "description": "Extract raw HTML from any URL \u2014 cheapest web scraping API ($0.00013 for simple sites). Returns decoded HTML content, HTTP status code, and content length. Use for data extraction, content analysis, or price monitoring. Handles anti-bot protection automatically (Zyte)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "URL to scrape \u2014 returns raw HTML content. Fast and cheap ($0.00013 for simple sites). Example: \"https://example.com\""
+          }
+        },
+        "required": [
+          "url"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "web.scrape.screenshot",
+      "title": "Web Page Screenshot",
+      "description": "Capture a full-page screenshot of any URL \u2014 returns base64-encoded PNG image. Use for visual verification, monitoring, or archiving. Headless browser renders the page before capture (Zyte)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "URL to screenshot \u2014 returns base64-encoded PNG image. Use for visual verification or page capture. Example: \"https://example.com\""
+          }
+        },
+        "required": [
+          "url"
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
