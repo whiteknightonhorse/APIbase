@@ -300,6 +300,18 @@ ISSUE_EOF
     2>&1 || echo "Failed to create GitHub issue"
 
   echo "GitHub Issue created"
+
+  # Flywheel: auto-create rules for each CRITICAL/HIGH finding
+  echo -e "$FINDINGS" | grep -E "CRITICAL|HIGH" | while IFS= read -r finding; do
+    FIND_DESC=$(echo "$finding" | sed 's/^- \*\*[A-Z]*\*\*: //' | cut -c1-100)
+    if [ -n "$FIND_DESC" ]; then
+      /home/apibase/apibase/scripts/flywheel-update.sh \
+        "Security audit finding: $FIND_DESC" \
+        "Fix and prevent: $FIND_DESC. Detected by weekly security audit." \
+        "security" 2>/dev/null || true
+    fi
+  done
+  echo "Flywheel rules created for CRITICAL/HIGH findings"
 else
   echo -e "\nNo issues found — no GitHub Issue needed"
 fi
