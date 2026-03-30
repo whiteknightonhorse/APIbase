@@ -77,8 +77,10 @@ export class Judge0Adapter extends BaseAdapter {
     switch (req.toolId) {
       case 'code.execute':
         return this.parseExecution(raw.body as unknown as Judge0Submission);
-      case 'code.languages':
-        return this.parseLanguages(raw.body as unknown as Judge0Language[]);
+      case 'code.languages': {
+        const filter = ((req.params as Record<string, unknown>).filter as string) ?? '';
+        return this.parseLanguages(raw.body as unknown as Judge0Language[], filter);
+      }
       default:
         return raw.body;
     }
@@ -98,8 +100,12 @@ export class Judge0Adapter extends BaseAdapter {
     };
   }
 
-  private parseLanguages(body: Judge0Language[]): CodeLanguagesOutput {
-    const langs = Array.isArray(body) ? body : [];
+  private parseLanguages(body: Judge0Language[], filter: string): CodeLanguagesOutput {
+    let langs = Array.isArray(body) ? body : [];
+    if (filter) {
+      const lc = filter.toLowerCase();
+      langs = langs.filter((l) => l.name.toLowerCase().includes(lc));
+    }
     return {
       languages: langs.map((l) => ({ id: l.id, name: l.name })),
       total: langs.length,

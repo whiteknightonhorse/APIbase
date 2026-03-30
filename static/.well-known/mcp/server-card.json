@@ -14002,7 +14002,12 @@
       "description": "List all 71 available programming languages and their IDs for code execution. Common IDs: 71=Python 3.8, 63=JavaScript (Node.js), 62=Java, 54=C++ (GCC), 60=Go, 73=Rust, 51=C#, 46=Bash. Returns full list with compiler/interpreter versions (Judge0 CE)",
       "inputSchema": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "filter": {
+            "type": "string",
+            "description": "Optional filter \u2014 substring match on language name (e.g. \"python\", \"java\", \"rust\"). Returns all 71 languages if omitted"
+          }
+        }
       },
       "annotations": {
         "readOnlyHint": true,

@@ -15,7 +15,16 @@ const execute = z
   })
   .strip();
 
-const languages = z.object({}).strip();
+const languages = z
+  .object({
+    filter: z
+      .string()
+      .optional()
+      .describe(
+        'Optional filter — substring match on language name (e.g. "python", "java", "rust"). Returns all 71 languages if omitted',
+      ),
+  })
+  .strip();
 
 export const judge0Schemas: Record<string, ZodSchema> = {
   'code.execute': execute,
