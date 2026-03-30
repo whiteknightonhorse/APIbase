@@ -215,6 +215,9 @@ export const appEnvSchema = z.object({
   FATSECRET_CLIENT_ID: z.string().optional().default(''),
   FATSECRET_CLIENT_SECRET: z.string().optional().default(''),
 
+  // DHL Shipment Tracking (UC-228) — DHL-API-Key header, 250 req/day production
+  PROVIDER_KEY_DHL: z.string().optional().default(''),
+
   // ShipEngine (UC-246) — API-Key header, Free plan $0/mo
   PROVIDER_KEY_SHIPENGINE: z.string().optional().default(''),
 

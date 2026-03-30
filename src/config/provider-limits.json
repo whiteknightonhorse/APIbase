@@ -878,6 +878,15 @@
     "docs_url": "https://cactus.nci.nih.gov/chemical/structure_documentation",
     "limit_proof": "US Government (NIH/NCI) open data, no auth, no documented rate limits"
   },
+  "dhl": {
+    "display_name": "DHL Tracking",
+    "health_url": "https://api-eu.dhl.com/track/shipments?trackingNumber=0000000000",
+    "limit_type": "daily",
+    "free_limit": 250,
+    "reset_period": "daily",
+    "docs_url": "https://developer.dhl.com/api-reference/shipment-tracking",
+    "limit_proof": "Production Europe: 250 requests/day. Official DHL Unified Tracking API."
+  },
   "postcodes-io": {
     "display_name": "Postcodes.io",
     "health_url": "https://api.postcodes.io/postcodes/SW1A1AA",
