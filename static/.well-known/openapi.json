@@ -32347,6 +32347,254 @@
         ]
       }
     },
+    "/api/v1/tools/ukpost.lookup/call": {
+      "post": {
+        "operationId": "ukpost_lookup",
+        "summary": "UK Postcode Lookup",
+        "description": "Look up a UK postcode — returns district, region, country, ward, parish, parliamentary constituency, and lat/lon coordinates. Backed by ONS/Ordnance Survey data. Example: \"SW1A 1AA\" → Westminster, London (Postcodes.io)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ukpost.lookup"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "postcode": {
+                    "type": "string",
+                    "description": "UK postcode to look up (e.g. \"SW1A 1AA\" for Westminster, \"EC2R 8AH\" for City of London, \"M1 1AA\" for Manchester). Returns district, region, country, lat/lon, parliamentary constituency",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "postcode"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ukpost.nearest/call": {
+      "post": {
+        "operationId": "ukpost_nearest",
+        "summary": "Nearest UK Postcodes",
+        "description": "Find nearest UK postcodes to a lat/lon coordinate — returns postcodes sorted by distance with district info. Use for reverse geocoding in the UK (Postcodes.io)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ukpost.nearest"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "lat": {
+                    "type": "number",
+                    "description": "Latitude (e.g. 51.5074 for London)"
+                  },
+                  "lon": {
+                    "type": "number",
+                    "description": "Longitude (e.g. -0.1278 for London)"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10,
+                    "description": "Max results (1-10, default 5)",
+                    "default": 5
+                  }
+                },
+                "required": [
+                  "lat",
+                  "lon"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ukpost.validate/call": {
+      "post": {
+        "operationId": "ukpost_validate",
+        "summary": "Validate UK Postcode",
+        "description": "Check if a UK postcode is valid and exists — returns true/false. Use for form validation or data cleaning (Postcodes.io)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ukpost.validate"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "postcode": {
+                    "type": "string",
+                    "description": "UK postcode to validate (e.g. \"SW1A 1AA\"). Returns true if valid format and exists",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "postcode"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/shipengine.rates/call": {
       "post": {
         "operationId": "shipengine_rates",

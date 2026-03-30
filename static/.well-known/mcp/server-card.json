@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase \u2014 The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 390 tools. Dual-rail: x402 + MPP.",
+    "description": "Unified MCP gateway to 393 tools. Dual-rail: x402 + MPP.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -14237,6 +14237,89 @@
         },
         "required": [
           "address_line1"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "address.ukpost.lookup",
+      "title": "UK Postcode Lookup",
+      "description": "Look up a UK postcode \u2014 returns district, region, country, ward, parish, parliamentary constituency, and lat/lon coordinates. Backed by ONS/Ordnance Survey data. Example: \"SW1A 1AA\" \u2192 Westminster, London (Postcodes.io)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "postcode": {
+            "type": "string",
+            "description": "UK postcode to look up (e.g. \"SW1A 1AA\" for Westminster, \"EC2R 8AH\" for City of London, \"M1 1AA\" for Manchester). Returns district, region, country, lat/lon, parliamentary constituency",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "postcode"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "address.ukpost.nearest",
+      "title": "Nearest UK Postcodes",
+      "description": "Find nearest UK postcodes to a lat/lon coordinate \u2014 returns postcodes sorted by distance with district info. Use for reverse geocoding in the UK (Postcodes.io)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number",
+            "description": "Latitude (e.g. 51.5074 for London)"
+          },
+          "lon": {
+            "type": "number",
+            "description": "Longitude (e.g. -0.1278 for London)"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10,
+            "description": "Max results (1-10, default 5)",
+            "default": 5
+          }
+        },
+        "required": [
+          "lat",
+          "lon"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "address.ukpost.validate",
+      "title": "Validate UK Postcode",
+      "description": "Check if a UK postcode is valid and exists \u2014 returns true/false. Use for form validation or data cleaning (Postcodes.io)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "postcode": {
+            "type": "string",
+            "description": "UK postcode to validate (e.g. \"SW1A 1AA\"). Returns true if valid format and exists",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "postcode"
         ]
       },
       "annotations": {

@@ -110,6 +110,7 @@ import { zyteSchemas } from './zyte.schema';
 import { judge0Schemas } from './judge0.schema';
 import { weatherapiSchemas } from './weatherapi.schema';
 import { shipengineSchemas } from './shipengine.schema';
+import { postcodesIoSchemas } from './postcodes-io.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -223,4 +224,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...judge0Schemas,
   ...weatherapiSchemas,
   ...shipengineSchemas,
+  ...postcodesIoSchemas,
 };

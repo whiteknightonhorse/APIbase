@@ -110,6 +110,7 @@ import { ZyteAdapter } from './zyte';
 import { Judge0Adapter } from './judge0';
 import { WeatherApiAdapter } from './weatherapi';
 import { ShipEngineAdapter } from './shipengine';
+import { PostcodesIoAdapter } from './postcodes-io';
 import { config } from '../config';
 
 /**
@@ -662,6 +663,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'chem':
       // NCI CACTUS — chemical identifier resolution (UC-220)
       return getOrCreate('cactus', () => new CactusAdapter());
+    case 'ukpost':
+      // Postcodes.io — UK postal lookup (UC-249)
+      return getOrCreate('postcodes-io', () => new PostcodesIoAdapter());
     case 'shipengine': {
       // ShipEngine — shipping rates + address validation (UC-246)
       const seKey = (config as Record<string, unknown>).PROVIDER_KEY_SHIPENGINE as

@@ -3562,6 +3562,35 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     annotations: READ_ONLY,
   },
 
+  // Postcodes.io — UK Postal Lookup (UC-249, 3 tools)
+  {
+    toolId: 'ukpost.lookup',
+    mcpName: 'address.ukpost.lookup',
+    title: 'UK Postcode Lookup',
+    description:
+      'Look up a UK postcode — returns district, region, country, ward, parish, parliamentary constituency, and lat/lon coordinates. Backed by ONS/Ordnance Survey data. Example: "SW1A 1AA" → Westminster, London (Postcodes.io)',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ukpost.nearest',
+    mcpName: 'address.ukpost.nearest',
+    title: 'Nearest UK Postcodes',
+    description:
+      'Find nearest UK postcodes to a lat/lon coordinate — returns postcodes sorted by distance with district info. Use for reverse geocoding in the UK (Postcodes.io)',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ukpost.validate',
+    mcpName: 'address.ukpost.validate',
+    title: 'Validate UK Postcode',
+    description:
+      'Check if a UK postcode is valid and exists — returns true/false. Use for form validation or data cleaning (Postcodes.io)',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+
   // ShipEngine — Shipping Rates & Address Validation (UC-246, 3 tools)
   {
     toolId: 'shipengine.rates',
