@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase \u2014 The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 395 tools. Dual-rail: x402 + MPP.",
+    "description": "Unified MCP gateway to 398 tools. Dual-rail: x402 + MPP.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -14376,6 +14376,121 @@
           "country_code",
           "postal_code"
         ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "sports.bdl.games",
+      "title": "Sports Games & Scores",
+      "description": "Get NBA and NFL game results by date \u2014 scores, teams, status (Final/In Progress/Scheduled). Filter by date, season, or team. Covers all NBA and NFL games with real-time scores (BallDontLie)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "Game date (YYYY-MM-DD, e.g. \"2026-03-29\"). Returns all games on that date"
+          },
+          "season": {
+            "type": "integer",
+            "description": "Season year (e.g. 2025 for 2025-26 season)"
+          },
+          "team_id": {
+            "type": "integer",
+            "description": "Filter by team ID (get IDs from bdl.teams)"
+          },
+          "sport": {
+            "type": "string",
+            "enum": [
+              "nba",
+              "nfl"
+            ],
+            "description": "Sport league: \"nba\" (default) or \"nfl\"",
+            "default": "nba"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 25,
+            "description": "Max results (1-25, default 10)",
+            "default": 10
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "sports.bdl.players",
+      "title": "Player Search",
+      "description": "Search NBA players by name \u2014 returns position, jersey number, and current team. Example: \"lebron\" \u2192 LeBron James #23 F, Los Angeles Lakers (BallDontLie)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "search": {
+            "type": "string",
+            "description": "Search by player name (e.g. \"lebron\", \"curry\", \"mahomes\")"
+          },
+          "team_id": {
+            "type": "integer",
+            "description": "Filter by team ID"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 25,
+            "description": "Max results (1-25, default 10)",
+            "default": 10
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "sports.bdl.teams",
+      "title": "Sports Teams",
+      "description": "List NBA and NFL teams with conference, division, city, and abbreviation. Filter by conference (East/West for NBA, AFC/NFC for NFL) or division (BallDontLie)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "conference": {
+            "type": "string",
+            "description": "Filter by conference (e.g. \"East\", \"West\" for NBA; \"AFC\", \"NFC\" for NFL)"
+          },
+          "division": {
+            "type": "string",
+            "description": "Filter by division (e.g. \"Atlantic\", \"Pacific\" for NBA)"
+          },
+          "sport": {
+            "type": "string",
+            "enum": [
+              "nba",
+              "nfl"
+            ],
+            "description": "Sport league: \"nba\" (default) or \"nfl\"",
+            "default": "nba"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30,
+            "description": "Max results (1-30, default 30)",
+            "default": 30
+          }
+        }
       },
       "annotations": {
         "readOnlyHint": true,

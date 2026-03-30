@@ -112,6 +112,7 @@ import { WeatherApiAdapter } from './weatherapi';
 import { ShipEngineAdapter } from './shipengine';
 import { PostcodesIoAdapter } from './postcodes-io';
 import { DhlAdapter } from './dhl';
+import { BallDontLieAdapter } from './balldontlie';
 import { ZippopotamusAdapter } from './zippopotamus';
 import { config } from '../config';
 
@@ -665,6 +666,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'chem':
       // NCI CACTUS — chemical identifier resolution (UC-220)
       return getOrCreate('cactus', () => new CactusAdapter());
+    case 'bdl': {
+      // BallDontLie — sports data (UC-251)
+      const bdlKey = (config as Record<string, unknown>).PROVIDER_KEY_BDL as string | undefined;
+      if (!bdlKey) return undefined;
+      return getOrCreate('balldontlie', () => new BallDontLieAdapter(bdlKey));
+    }
     case 'postal':
       // Zippopotam.us — global postal codes (UC-250)
       return getOrCreate('zippopotamus', () => new ZippopotamusAdapter());

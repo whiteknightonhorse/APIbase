@@ -3562,6 +3562,35 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     annotations: READ_ONLY,
   },
 
+  // BallDontLie — Sports Data (UC-251, 3 tools)
+  {
+    toolId: 'bdl.games',
+    mcpName: 'sports.bdl.games',
+    title: 'Sports Games & Scores',
+    description:
+      'Get NBA and NFL game results by date — scores, teams, status (Final/In Progress/Scheduled). Filter by date, season, or team. Covers all NBA and NFL games with real-time scores (BallDontLie)',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bdl.teams',
+    mcpName: 'sports.bdl.teams',
+    title: 'Sports Teams',
+    description:
+      'List NBA and NFL teams with conference, division, city, and abbreviation. Filter by conference (East/West for NBA, AFC/NFC for NFL) or division (BallDontLie)',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bdl.players',
+    mcpName: 'sports.bdl.players',
+    title: 'Player Search',
+    description:
+      'Search NBA players by name — returns position, jersey number, and current team. Example: "lebron" → LeBron James #23 F, Los Angeles Lakers (BallDontLie)',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+
   // Zippopotam.us — Global Postal Codes (UC-250, 1 tool)
   {
     toolId: 'postal.lookup',

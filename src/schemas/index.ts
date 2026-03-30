@@ -113,6 +113,7 @@ import { shipengineSchemas } from './shipengine.schema';
 import { postcodesIoSchemas } from './postcodes-io.schema';
 import { dhlSchemas } from './dhl.schema';
 import { zippopotamusSchemas } from './zippopotamus.schema';
+import { balldontlieSchemas } from './balldontlie.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -229,4 +230,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...postcodesIoSchemas,
   ...dhlSchemas,
   ...zippopotamusSchemas,
+  ...balldontlieSchemas,
 };

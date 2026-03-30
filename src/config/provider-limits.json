@@ -1012,5 +1012,14 @@
     "reset_period": "none",
     "docs_url": "https://api.zippopotam.us/",
     "limit_proof": "Free, no auth, unlimited. 60+ countries, open source."
+  },
+  "balldontlie": {
+    "display_name": "BallDontLie",
+    "health_url": "https://api.balldontlie.io/v1/teams?per_page=1",
+    "limit_type": "rate_limited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://docs.balldontlie.io/",
+    "limit_proof": "Free: $0/sport, 5 req/min. NBA + NFL + more. No credit card required."
   }
 }
