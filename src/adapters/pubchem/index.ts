@@ -28,10 +28,21 @@ export class PubchemAdapter extends BaseAdapter {
   private readonly apiKey: string;
 
   private static readonly PROPERTIES = [
-    'MolecularFormula', 'MolecularWeight', 'IUPACName',
-    'IsomericSMILES', 'CanonicalSMILES', 'InChI', 'InChIKey',
-    'XLogP', 'HBondDonorCount', 'HBondAcceptorCount',
-    'ExactMass', 'TPSA', 'Complexity', 'Charge', 'HeavyAtomCount',
+    'MolecularFormula',
+    'MolecularWeight',
+    'IUPACName',
+    'IsomericSMILES',
+    'CanonicalSMILES',
+    'InChI',
+    'InChIKey',
+    'XLogP',
+    'HBondDonorCount',
+    'HBondAcceptorCount',
+    'ExactMass',
+    'TPSA',
+    'Complexity',
+    'Charge',
+    'HeavyAtomCount',
   ].join(',');
 
   constructor(apiKey: string) {
@@ -113,7 +124,12 @@ export class PubchemAdapter extends BaseAdapter {
         return data.Record;
       }
       case 'pubchem.bioassay_summary': {
-        if (!body || (typeof body === 'object' && !Array.isArray(body) && Object.keys(body as object).length === 0)) {
+        if (
+          !body ||
+          (typeof body === 'object' &&
+            !Array.isArray(body) &&
+            Object.keys(body as object).length === 0)
+        ) {
           throw new Error('No bioassay data found');
         }
         return body;
@@ -138,10 +154,7 @@ export class PubchemAdapter extends BaseAdapter {
     return this.apiKey ? `&api_key=${this.apiKey}` : '';
   }
 
-  private buildCompoundSearch(
-    params: Record<string, unknown>,
-    headers: Record<string, string>,
-  ) {
+  private buildCompoundSearch(params: Record<string, unknown>, headers: Record<string, string>) {
     const name = encodeURIComponent(String(params.name || ''));
     const limit = Number(params.limit) || 5;
     return {
@@ -155,7 +168,7 @@ export class PubchemAdapter extends BaseAdapter {
     params: Record<string, unknown>,
     headers: Record<string, string>,
   ) {
-    const cid = String(params.cid || '');
+    const cid = encodeURIComponent(String(params.cid || ''));
     return {
       url: `${this.baseUrl}/pug/compound/cid/${cid}/property/${PubchemAdapter.PROPERTIES}/JSON?${this.apiKeyParam().replace('&', '')}`,
       method: 'GET',
@@ -163,11 +176,8 @@ export class PubchemAdapter extends BaseAdapter {
     };
   }
 
-  private buildCompoundSynonyms(
-    params: Record<string, unknown>,
-    headers: Record<string, string>,
-  ) {
-    const cid = String(params.cid || '');
+  private buildCompoundSynonyms(params: Record<string, unknown>, headers: Record<string, string>) {
+    const cid = encodeURIComponent(String(params.cid || ''));
     return {
       url: `${this.baseUrl}/pug/compound/cid/${cid}/synonyms/JSON?${this.apiKeyParam().replace('&', '')}`,
       method: 'GET',
@@ -175,11 +185,8 @@ export class PubchemAdapter extends BaseAdapter {
     };
   }
 
-  private buildHazardData(
-    params: Record<string, unknown>,
-    headers: Record<string, string>,
-  ) {
-    const cid = String(params.cid || '');
+  private buildHazardData(params: Record<string, unknown>, headers: Record<string, string>) {
+    const cid = encodeURIComponent(String(params.cid || ''));
     return {
       url: `${this.baseUrl}/pug_view/data/compound/${cid}/JSON?heading=GHS+Classification${this.apiKeyParam()}`,
       method: 'GET',
@@ -187,11 +194,8 @@ export class PubchemAdapter extends BaseAdapter {
     };
   }
 
-  private buildBioassaySummary(
-    params: Record<string, unknown>,
-    headers: Record<string, string>,
-  ) {
-    const cid = String(params.cid || '');
+  private buildBioassaySummary(params: Record<string, unknown>, headers: Record<string, string>) {
+    const cid = encodeURIComponent(String(params.cid || ''));
     return {
       url: `${this.baseUrl}/pug/compound/cid/${cid}/assaysummary/JSON?${this.apiKeyParam().replace('&', '')}`,
       method: 'GET',
@@ -199,12 +203,10 @@ export class PubchemAdapter extends BaseAdapter {
     };
   }
 
-  private buildStructureLookup(
-    params: Record<string, unknown>,
-    headers: Record<string, string>,
-  ) {
+  private buildStructureLookup(params: Record<string, unknown>, headers: Record<string, string>) {
     const name = encodeURIComponent(String(params.name || ''));
-    const structureProps = 'IsomericSMILES,CanonicalSMILES,InChI,InChIKey,MolecularFormula,MolecularWeight';
+    const structureProps =
+      'IsomericSMILES,CanonicalSMILES,InChI,InChIKey,MolecularFormula,MolecularWeight';
     return {
       url: `${this.baseUrl}/pug/compound/name/${name}/property/${structureProps}/JSON?${this.apiKeyParam().replace('&', '')}`,
       method: 'GET',
