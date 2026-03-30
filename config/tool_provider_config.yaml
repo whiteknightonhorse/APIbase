@@ -2116,6 +2116,18 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-238: Judge0 CE (Code Execution Sandbox) ---
+  - tool_id: code.execute
+    name: Execute Code in Sandbox
+    provider: judge0
+    price_usd: "0.005"
+    cache_ttl: 0
+  - tool_id: code.languages
+    name: List Programming Languages
+    provider: judge0
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   # --- UC-233: Zyte API (Web Scraping) ---
   - tool_id: scrape.extract
     name: Extract Web Page HTML

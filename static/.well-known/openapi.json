@@ -32347,6 +32347,172 @@
         ]
       }
     },
+    "/api/v1/tools/code.execute/call": {
+      "post": {
+        "operationId": "code_execute",
+        "summary": "Execute Code in Sandbox",
+        "description": "Execute source code in a sandboxed environment — 71 programming languages supported (Python, JavaScript, Java, C++, Go, Rust, C#, Bash, Ruby, PHP, and 60+ more). Returns stdout, stderr, execution time, and memory usage. Safe sandboxed execution with CPU/memory limits. Use code.languages to get language IDs (Judge0 CE)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.005000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "code.execute"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "language_id": {
+                    "type": "integer",
+                    "description": "Language ID from code.languages (e.g. 71=Python 3, 63=JavaScript, 62=Java, 54=C++, 60=Go, 73=Rust, 51=C#, 46=Bash). Call code.languages for full list"
+                  },
+                  "source_code": {
+                    "type": "string",
+                    "description": "Source code to execute",
+                    "minLength": 1
+                  },
+                  "stdin": {
+                    "type": "string",
+                    "description": "Standard input to feed to the program"
+                  },
+                  "cpu_time_limit": {
+                    "type": "number",
+                    "description": "CPU time limit in seconds (default 5, max 15)"
+                  },
+                  "memory_limit": {
+                    "type": "number",
+                    "description": "Memory limit in KB (default 128000 = 128MB)"
+                  }
+                },
+                "required": [
+                  "language_id",
+                  "source_code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/code.languages/call": {
+      "post": {
+        "operationId": "code_languages",
+        "summary": "List Programming Languages",
+        "description": "List all 71 available programming languages and their IDs for code execution. Common IDs: 71=Python 3.8, 63=JavaScript (Node.js), 62=Java, 54=C++ (GCC), 60=Go, 73=Rust, 51=C#, 46=Bash. Returns full list with compiler/interpreter versions (Judge0 CE)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "code.languages"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/scrape.extract/call": {
       "post": {
         "operationId": "scrape_extract",

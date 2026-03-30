@@ -3562,6 +3562,31 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     annotations: READ_ONLY,
   },
 
+  // Judge0 CE — Code Execution Sandbox (UC-238, 2 tools)
+  {
+    toolId: 'code.execute',
+    mcpName: 'dev.code.execute',
+    title: 'Execute Code in Sandbox',
+    description:
+      'Execute source code in a sandboxed environment — 71 programming languages supported (Python, JavaScript, Java, C++, Go, Rust, C#, Bash, Ruby, PHP, and 60+ more). Returns stdout, stderr, execution time, and memory usage. Safe sandboxed execution with CPU/memory limits. Use code.languages to get language IDs (Judge0 CE)',
+    category: 'developer',
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: true,
+    },
+  },
+  {
+    toolId: 'code.languages',
+    mcpName: 'dev.code.languages',
+    title: 'List Programming Languages',
+    description:
+      'List all 71 available programming languages and their IDs for code execution. Common IDs: 71=Python 3.8, 63=JavaScript (Node.js), 62=Java, 54=C++ (GCC), 60=Go, 73=Rust, 51=C#, 46=Bash. Returns full list with compiler/interpreter versions (Judge0 CE)',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+
   // Zyte — Web Scraping (UC-233, 3 tools)
   {
     toolId: 'scrape.extract',

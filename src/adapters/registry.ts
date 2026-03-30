@@ -107,6 +107,7 @@ import { ListenNotesAdapter } from './listennotes';
 import { ThreatIntelAdapter } from './threatintel';
 import { MarketCheckAdapter } from './marketcheck';
 import { ZyteAdapter } from './zyte';
+import { Judge0Adapter } from './judge0';
 import { config } from '../config';
 
 /**
@@ -659,6 +660,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'chem':
       // NCI CACTUS — chemical identifier resolution (UC-220)
       return getOrCreate('cactus', () => new CactusAdapter());
+    case 'code':
+      // Judge0 CE — code execution sandbox (UC-238)
+      return getOrCreate('judge0', () => new Judge0Adapter());
     case 'scrape': {
       // Zyte — web scraping (UC-233)
       const zyteKey = (config as Record<string, unknown>).PROVIDER_KEY_ZYTE as string | undefined;
