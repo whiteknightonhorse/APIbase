@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase \u2014 The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 393 tools. Dual-rail: x402 + MPP.",
+    "description": "Unified MCP gateway to 394 tools. Dual-rail: x402 + MPP.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -14320,6 +14320,30 @@
         },
         "required": [
           "postcode"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "logistics.dhl.track",
+      "title": "Track DHL Shipment",
+      "description": "Track a DHL shipment by tracking number \u2014 returns current status, delivery events timeline, origin/destination, estimated delivery date, and service type. Supports all DHL services: Express, Parcel, eCommerce, Freight. Official DHL data for 220+ countries (DHL)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "tracking_number": {
+            "type": "string",
+            "description": "DHL tracking number (e.g. \"00340434292135100186\" for DHL Paket, \"1234567890\" for DHL Express). Supports all DHL services: Express, Parcel, eCommerce, Freight",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "tracking_number"
         ]
       },
       "annotations": {

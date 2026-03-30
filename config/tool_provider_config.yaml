@@ -2116,6 +2116,13 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-228: DHL Shipment Tracking ---
+  - tool_id: dhl.track
+    name: Track DHL Shipment
+    provider: dhl
+    price_usd: "0.001"
+    cache_ttl: 300
+
   # --- UC-249: Postcodes.io (UK Postal Lookup) ---
   - tool_id: ukpost.lookup
     name: UK Postcode Lookup

@@ -32347,6 +32347,85 @@
         ]
       }
     },
+    "/api/v1/tools/dhl.track/call": {
+      "post": {
+        "operationId": "dhl_track",
+        "summary": "Track DHL Shipment",
+        "description": "Track a DHL shipment by tracking number — returns current status, delivery events timeline, origin/destination, estimated delivery date, and service type. Supports all DHL services: Express, Parcel, eCommerce, Freight. Official DHL data for 220+ countries (DHL)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "dhl.track"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tracking_number": {
+                    "type": "string",
+                    "description": "DHL tracking number (e.g. \"00340434292135100186\" for DHL Paket, \"1234567890\" for DHL Express). Supports all DHL services: Express, Parcel, eCommerce, Freight",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "tracking_number"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/ukpost.lookup/call": {
       "post": {
         "operationId": "ukpost_lookup",

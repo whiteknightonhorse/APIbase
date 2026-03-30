@@ -3562,6 +3562,17 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     annotations: READ_ONLY,
   },
 
+  // DHL — Shipment Tracking (UC-228, 1 tool)
+  {
+    toolId: 'dhl.track',
+    mcpName: 'logistics.dhl.track',
+    title: 'Track DHL Shipment',
+    description:
+      'Track a DHL shipment by tracking number — returns current status, delivery events timeline, origin/destination, estimated delivery date, and service type. Supports all DHL services: Express, Parcel, eCommerce, Freight. Official DHL data for 220+ countries (DHL)',
+    category: 'logistics',
+    annotations: READ_ONLY,
+  },
+
   // Postcodes.io — UK Postal Lookup (UC-249, 3 tools)
   {
     toolId: 'ukpost.lookup',

@@ -111,6 +111,7 @@ import { Judge0Adapter } from './judge0';
 import { WeatherApiAdapter } from './weatherapi';
 import { ShipEngineAdapter } from './shipengine';
 import { PostcodesIoAdapter } from './postcodes-io';
+import { DhlAdapter } from './dhl';
 import { config } from '../config';
 
 /**
@@ -663,6 +664,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'chem':
       // NCI CACTUS — chemical identifier resolution (UC-220)
       return getOrCreate('cactus', () => new CactusAdapter());
+    case 'dhl': {
+      // DHL — shipment tracking (UC-228)
+      const dhlKey = (config as Record<string, unknown>).PROVIDER_KEY_DHL as string | undefined;
+      if (!dhlKey) return undefined;
+      return getOrCreate('dhl', () => new DhlAdapter(dhlKey));
+    }
     case 'ukpost':
       // Postcodes.io — UK postal lookup (UC-249)
       return getOrCreate('postcodes-io', () => new PostcodesIoAdapter());
