@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase \u2014 The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 381 tools. Dual-rail: x402 + MPP.",
+    "description": "Unified MCP gateway to 383 tools. Dual-rail: x402 + MPP.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -13947,6 +13947,62 @@
         "required": [
           "url"
         ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "dev.code.execute",
+      "title": "Execute Code in Sandbox",
+      "description": "Execute source code in a sandboxed environment \u2014 71 programming languages supported (Python, JavaScript, Java, C++, Go, Rust, C#, Bash, Ruby, PHP, and 60+ more). Returns stdout, stderr, execution time, and memory usage. Safe sandboxed execution with CPU/memory limits. Use code.languages to get language IDs (Judge0 CE)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "language_id": {
+            "type": "integer",
+            "description": "Language ID from code.languages (e.g. 71=Python 3, 63=JavaScript, 62=Java, 54=C++, 60=Go, 73=Rust, 51=C#, 46=Bash). Call code.languages for full list"
+          },
+          "source_code": {
+            "type": "string",
+            "description": "Source code to execute",
+            "minLength": 1
+          },
+          "stdin": {
+            "type": "string",
+            "description": "Standard input to feed to the program"
+          },
+          "cpu_time_limit": {
+            "type": "number",
+            "description": "CPU time limit in seconds (default 5, max 15)"
+          },
+          "memory_limit": {
+            "type": "number",
+            "description": "Memory limit in KB (default 128000 = 128MB)"
+          }
+        },
+        "required": [
+          "language_id",
+          "source_code"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "dev.code.languages",
+      "title": "List Programming Languages",
+      "description": "List all 71 available programming languages and their IDs for code execution. Common IDs: 71=Python 3.8, 63=JavaScript (Node.js), 62=Java, 54=C++ (GCC), 60=Go, 73=Rust, 51=C#, 46=Bash. Returns full list with compiler/interpreter versions (Judge0 CE)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
       },
       "annotations": {
         "readOnlyHint": true,
