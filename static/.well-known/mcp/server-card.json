@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase \u2014 The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 383 tools. Dual-rail: x402 + MPP.",
+    "description": "Unified MCP gateway to 387 tools. Dual-rail: x402 + MPP.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -14008,6 +14008,113 @@
             "description": "Optional filter \u2014 substring match on language name (e.g. \"python\", \"java\", \"rust\"). Returns all 71 languages if omitted"
           }
         }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "weather.weatherapi.astronomy",
+      "title": "Astronomy Data",
+      "description": "Get sunrise, sunset, moonrise, moonset times and moon phase for any location and date. Returns moon illumination percentage and phase name (WeatherAPI.com)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "description": "Location query \u2014 city name, coordinates, or zip code",
+            "minLength": 1
+          },
+          "date": {
+            "type": "string",
+            "description": "Date for astronomy data (YYYY-MM-DD, default today)"
+          }
+        },
+        "required": [
+          "q"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "weather.weatherapi.current",
+      "title": "Current Weather",
+      "description": "Get current weather conditions for any location worldwide \u2014 temperature, wind, humidity, pressure, UV index, cloud cover, feels-like temp. Accepts city name, coordinates, zip code, or airport code. 100K+ stations globally (WeatherAPI.com)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "description": "Location query \u2014 city name (e.g. \"London\"), coordinates (\"48.8,2.35\"), US zip (\"10001\"), UK postcode (\"SW1\"), IP address, or IATA airport code (\"JFK\")",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "q"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "weather.weatherapi.forecast",
+      "title": "Weather Forecast",
+      "description": "Get 3-day weather forecast \u2014 daily min/max temperature, conditions, wind, precipitation, humidity, rain/snow chance, UV index. Accepts any location query (WeatherAPI.com)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "description": "Location query \u2014 city name, coordinates, zip code, or airport code",
+            "minLength": 1
+          },
+          "days": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 3,
+            "description": "Forecast days (1-3, default 3)",
+            "default": 3
+          }
+        },
+        "required": [
+          "q"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "weather.weatherapi.search",
+      "title": "Location Search",
+      "description": "Search and autocomplete location names \u2014 returns matching cities with coordinates. Type partial name (e.g. \"lon\" \u2192 London, \"mos\" \u2192 Moscow). Use result coordinates with other weather tools (WeatherAPI.com)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "description": "Search query \u2014 partial city name for autocomplete (e.g. \"lon\" \u2192 London, \"mos\" \u2192 Moscow)",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "q"
+        ]
       },
       "annotations": {
         "readOnlyHint": true,

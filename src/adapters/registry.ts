@@ -108,6 +108,7 @@ import { ThreatIntelAdapter } from './threatintel';
 import { MarketCheckAdapter } from './marketcheck';
 import { ZyteAdapter } from './zyte';
 import { Judge0Adapter } from './judge0';
+import { WeatherApiAdapter } from './weatherapi';
 import { config } from '../config';
 
 /**
@@ -660,6 +661,14 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'chem':
       // NCI CACTUS — chemical identifier resolution (UC-220)
       return getOrCreate('cactus', () => new CactusAdapter());
+    case 'weatherapi': {
+      // WeatherAPI.com — global weather (UC-243)
+      const waKey = (config as Record<string, unknown>).PROVIDER_KEY_WEATHERAPI as
+        | string
+        | undefined;
+      if (!waKey) return undefined;
+      return getOrCreate('weatherapi', () => new WeatherApiAdapter(waKey));
+    }
     case 'code':
       // Judge0 CE — code execution sandbox (UC-238)
       return getOrCreate('judge0', () => new Judge0Adapter());
