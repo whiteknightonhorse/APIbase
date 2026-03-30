@@ -129,7 +129,11 @@ const SERVER_OPTIONS = {
  * Payment context ref is a mutable object updated per-request in the POST handler,
  * so tool callbacks always see the payment state from the current HTTP request.
  */
-function createMcpServer(apiKey: string, requestId: string, paymentCtxRef: PaymentContext): McpServer {
+function createMcpServer(
+  apiKey: string,
+  requestId: string,
+  paymentCtxRef: PaymentContext,
+): McpServer {
   const mcpServer = new McpServer(SERVER_INFO, SERVER_OPTIONS);
   registerTools(mcpServer, apiKey, requestId, paymentCtxRef);
   registerPrompts(mcpServer);
@@ -140,8 +144,12 @@ function createMcpServer(apiKey: string, requestId: string, paymentCtxRef: Payme
  * Extract payment state from an Express request (populated by x402/MPP middleware).
  */
 function extractPaymentFromReq(req: express.Request): PaymentContext {
-  const x402 = (req as unknown as Record<string, unknown>).x402Payment as { verified?: boolean; payer?: string } | undefined;
-  const mpp = (req as unknown as Record<string, unknown>).mppPayment as { verified?: boolean; payer?: string; method?: string } | undefined;
+  const x402 = (req as unknown as Record<string, unknown>).x402Payment as
+    | { verified?: boolean; payer?: string }
+    | undefined;
+  const mpp = (req as unknown as Record<string, unknown>).mppPayment as
+    | { verified?: boolean; payer?: string; method?: string }
+    | undefined;
   return {
     x402Paid: !!x402?.verified,
     x402Payer: x402?.payer ?? null,
@@ -166,9 +174,14 @@ function extractApiKey(req: express.Request): string | null {
   if (smitheryKey) {
     return smitheryKey;
   }
-  // Smithery scanner passes key as query parameter
-  const queryKey = req.query.apiKey as string | undefined;
+  // Smithery scanner passes key as query parameter (CWE-598: query strings may be logged)
+  // Required for Smithery compatibility — prefer header auth when possible
+  const queryKey = req.query.apiKey as string | undefined; // nosemgrep: sensitive-data-in-get
   if (queryKey) {
+    logger.warn(
+      { path: req.path },
+      'API key received via query parameter — prefer Authorization header',
+    );
     return queryKey;
   }
   return null;
@@ -279,10 +292,7 @@ export function createMcpRouter(): express.Router {
       });
 
       transport.onerror = (error: Error) => {
-        logger.error(
-          { request_id: requestId, err: error },
-          'MCP Streamable HTTP transport error',
-        );
+        logger.error({ request_id: requestId, err: error }, 'MCP Streamable HTTP transport error');
       };
 
       const mcpServer = createMcpServer(apiKey, requestId, paymentCtxRef);

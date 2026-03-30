@@ -4,6 +4,7 @@ import {
   type ProviderRawResponse,
   ProviderErrorCode,
 } from '../../types/provider';
+import { stripHtml } from '../../utils/strip-html';
 import type {
   LNSearchResponse,
   LNPodcast,
@@ -52,7 +53,8 @@ export class ListenNotesAdapter extends BaseAdapter {
         qp.set('type', String(params.type ?? 'episode'));
         if (params.language) qp.set('language', String(params.language));
         if (params.genre_ids) qp.set('genre_ids', String(params.genre_ids));
-        if (params.sort_by_date != null) qp.set('sort_by_date', String(params.sort_by_date ? 1 : 0));
+        if (params.sort_by_date != null)
+          qp.set('sort_by_date', String(params.sort_by_date ? 1 : 0));
         qp.set('page_size', String(Math.min(Number(params.limit) || 10, 10)));
         if (params.offset) qp.set('offset', String(params.offset));
         return {
@@ -129,14 +131,16 @@ export class ListenNotesAdapter extends BaseAdapter {
       id: body.id,
       title: body.title ?? '',
       publisher: body.publisher ?? '',
-      description: (body.description ?? '').replace(/<[^>]*>/g, '').slice(0, 500),
+      description: stripHtml(body.description ?? '').slice(0, 500),
       language: body.language ?? '',
       country: body.country ?? '',
       website: body.website ?? '',
       total_episodes: body.total_episodes ?? 0,
       listen_url: body.listennotes_url ?? '',
       image: body.image ?? '',
-      latest_published: body.latest_pub_date_ms ? new Date(body.latest_pub_date_ms).toISOString() : '',
+      latest_published: body.latest_pub_date_ms
+        ? new Date(body.latest_pub_date_ms).toISOString()
+        : '',
       genres: body.genre_ids ?? [],
     };
   }
@@ -153,7 +157,7 @@ export class ListenNotesAdapter extends BaseAdapter {
         publisher: p.publisher ?? '',
         total_episodes: p.total_episodes ?? 0,
         listen_url: p.listennotes_url ?? '',
-        description: (p.description ?? '').replace(/<[^>]*>/g, '').slice(0, 200),
+        description: stripHtml(p.description ?? '').slice(0, 200),
       })),
     };
   }

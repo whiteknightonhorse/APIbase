@@ -1,5 +1,10 @@
 import { BaseAdapter } from '../base.adapter';
-import { type ProviderRequest, type ProviderRawResponse, ProviderErrorCode } from '../../types/provider';
+import {
+  type ProviderRequest,
+  type ProviderRawResponse,
+  ProviderErrorCode,
+} from '../../types/provider';
+import { stripHtml } from '../../utils/strip-html';
 
 /**
  * Mastodon adapter (UC-081).
@@ -26,7 +31,14 @@ export class MastodonAdapter extends BaseAdapter {
         return { url: `${this.baseUrl}/trends/tags?limit=${limit}`, method: 'GET', headers: h };
       }
       default:
-        throw { code: ProviderErrorCode.INVALID_RESPONSE, httpStatus: 502, message: `Unsupported: ${req.toolId}`, provider: this.provider, toolId: req.toolId, durationMs: 0 };
+        throw {
+          code: ProviderErrorCode.INVALID_RESPONSE,
+          httpStatus: 502,
+          message: `Unsupported: ${req.toolId}`,
+          provider: this.provider,
+          toolId: req.toolId,
+          durationMs: 0,
+        };
     }
   }
 
@@ -39,7 +51,7 @@ export class MastodonAdapter extends BaseAdapter {
         count: posts.length,
         posts: posts.map((s) => {
           const acct = (s.account as Record<string, unknown>) ?? {};
-          const content = String(s.content ?? '').replace(/<[^>]*>/g, '').slice(0, 500);
+          const content = stripHtml(String(s.content ?? '')).slice(0, 500);
           return {
             id: s.id,
             content,
@@ -61,7 +73,7 @@ export class MastodonAdapter extends BaseAdapter {
     return {
       count: tags.length,
       tags: tags.map((t) => {
-        const history = (t.history as Array<Record<string, unknown>> ?? []);
+        const history = (t.history as Array<Record<string, unknown>>) ?? [];
         const todayUses = history.length > 0 ? Number(history[0].uses ?? 0) : 0;
         const todayAccounts = history.length > 0 ? Number(history[0].accounts ?? 0) : 0;
         return {

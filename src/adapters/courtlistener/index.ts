@@ -1,5 +1,10 @@
 import { BaseAdapter } from '../base.adapter';
-import { type ProviderRequest, type ProviderRawResponse, ProviderErrorCode } from '../../types/provider';
+import {
+  type ProviderRequest,
+  type ProviderRawResponse,
+  ProviderErrorCode,
+} from '../../types/provider';
+import { stripHtml } from '../../utils/strip-html';
 
 /**
  * CourtListener adapter (UC-084).
@@ -28,7 +33,11 @@ export class CourtListenerAdapter extends BaseAdapter {
         return { url: `${this.baseUrl}/search/?${qs}`, method: 'GET', headers: h };
       }
       case 'courtlistener.opinion': {
-        return { url: `${this.baseUrl}/opinions/${String(p.opinion_id)}/`, method: 'GET', headers: h };
+        return {
+          url: `${this.baseUrl}/opinions/${String(p.opinion_id)}/`,
+          method: 'GET',
+          headers: h,
+        };
       }
       case 'courtlistener.dockets': {
         const qs = new URLSearchParams();
@@ -39,7 +48,14 @@ export class CourtListenerAdapter extends BaseAdapter {
         return { url: `${this.baseUrl}/search/?${qs}`, method: 'GET', headers: h };
       }
       default:
-        throw { code: ProviderErrorCode.INVALID_RESPONSE, httpStatus: 502, message: `Unsupported: ${req.toolId}`, provider: this.provider, toolId: req.toolId, durationMs: 0 };
+        throw {
+          code: ProviderErrorCode.INVALID_RESPONSE,
+          httpStatus: 502,
+          message: `Unsupported: ${req.toolId}`,
+          provider: this.provider,
+          toolId: req.toolId,
+          durationMs: 0,
+        };
     }
   }
 
@@ -47,15 +63,28 @@ export class CourtListenerAdapter extends BaseAdapter {
     const body = raw.body as Record<string, unknown>;
     if (req.toolId === 'courtlistener.opinion') {
       const d = body as Record<string, unknown>;
-      const text = String(d.plain_text ?? d.html ?? '').replace(/<[^>]*>/g, '').slice(0, 5000);
-      return { id: d.id, author: d.author_str, type: d.type, date_created: d.date_created, download_url: d.download_url, text: text || null };
+      const text = stripHtml(String(d.plain_text ?? d.html ?? '')).slice(0, 5000);
+      return {
+        id: d.id,
+        author: d.author_str,
+        type: d.type,
+        date_created: d.date_created,
+        download_url: d.download_url,
+        text: text || null,
+      };
     }
     // search + dockets
     const results = (body.results ?? []) as Array<Record<string, unknown>>;
     return {
       total: body.count ?? 0,
       results: results.map((r) => ({
-        case_name: r.caseName, court: r.court, date_filed: r.dateFiled, docket_number: r.docketNumber, status: r.status, snippet: (r.snippet as string)?.replace(/<[^>]*>/g, '')?.slice(0, 300) ?? null, absolute_url: r.absolute_url ? `https://www.courtlistener.com${r.absolute_url}` : null,
+        case_name: r.caseName,
+        court: r.court,
+        date_filed: r.dateFiled,
+        docket_number: r.docketNumber,
+        status: r.status,
+        snippet: r.snippet ? stripHtml(String(r.snippet)).slice(0, 300) : null,
+        absolute_url: r.absolute_url ? `https://www.courtlistener.com${r.absolute_url}` : null,
       })),
     };
   }
