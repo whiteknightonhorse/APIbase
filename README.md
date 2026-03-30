@@ -19,7 +19,7 @@
 
 ## Product Demo
 
-https://github.com/whiteknightonhorse/APIbase/releases/download/v1.5.0/product-demo.mp4
+https://github.com/user-attachments/assets/9e598d61-b2d0-486c-bd34-f0cb0354d09c
 
 > 12-slide walkthrough: connect → discover tools → 13-stage pipeline → dual-rail payments → analytics. [Full interactive version →](https://apibase.pro/video/)
 
