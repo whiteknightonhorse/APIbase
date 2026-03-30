@@ -1,0 +1,43 @@
+<!DOCTYPE html><html><head><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0d1117;color:#c9d1d9;font-family:'JetBrains Mono','Courier New',monospace;padding:60px 80px;width:1440px;height:900px}
+.title{color:#00ff41;font-size:28px;margin-bottom:8px}
+.subtitle{color:#888;font-size:16px;margin-bottom:36px}
+.pipeline{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:32px}
+.stage{display:flex;align-items:center;margin-bottom:6px;font-size:14px}
+.num{color:#666;width:28px;text-align:right;margin-right:12px}
+.name{background:#21262d;padding:6px 14px;border-radius:6px;min-width:200px;color:#c9d1d9;border:1px solid #30363d}
+.name.active{border-color:#238636;background:#23863622;color:#3fb950}
+.arrow{color:#30363d;margin:0 10px;font-size:12px}
+.desc{color:#8b949e;font-size:13px}
+.highlight{color:#ff7b72;font-weight:bold}
+.bottom{display:flex;gap:32px;margin-top:28px}
+.stat{background:#21262d;border:1px solid #30363d;border-radius:8px;padding:16px 24px;text-align:center;flex:1}
+.stat-num{color:#00ff41;font-size:24px;font-weight:bold}
+.stat-label{color:#8b949e;font-size:12px;margin-top:4px}
+</style></head><body>
+<div class="title">> 13-Stage Request Pipeline</div>
+<div class="subtitle">Every tool call passes through — no shortcuts, no bypass</div>
+
+<div class="pipeline">
+<div class="stage"><span class="num">1</span><span class="name">AUTH</span><span class="arrow">→</span><span class="desc">Validate API key, resolve agent_id</span></div>
+<div class="stage"><span class="num">2</span><span class="name">IDEMPOTENCY</span><span class="arrow">→</span><span class="desc">Deduplicate by idempotency key</span></div>
+<div class="stage"><span class="num">3</span><span class="name">CONTENT_NEG</span><span class="arrow">→</span><span class="desc">Accept/Content-Type negotiation</span></div>
+<div class="stage"><span class="num">4</span><span class="name">SCHEMA_VALIDATION</span><span class="arrow">→</span><span class="desc">Zod validation — reject malformed input</span></div>
+<div class="stage"><span class="num">5</span><span class="name">TOOL_STATUS</span><span class="arrow">→</span><span class="desc">Check tool exists &amp; healthy</span></div>
+<div class="stage"><span class="num">6</span><span class="name">CACHE</span><span class="arrow">→</span><span class="desc">Redis lookup — return if cached (TTL per tool)</span></div>
+<div class="stage"><span class="num">7</span><span class="name">RATE_LIMIT</span><span class="arrow">→</span><span class="desc">Dual-bucket per agent per tool</span></div>
+<div class="stage"><span class="num">8</span><span class="name active">ESCROW</span><span class="arrow">→</span><span class="desc"><span class="highlight">Verify x402/MPP payment — 402 if unpaid</span></span></div>
+<div class="stage"><span class="num">9</span><span class="name active">PROVIDER_CALL</span><span class="arrow">→</span><span class="desc"><span class="highlight">Call upstream API (Amadeus, CoinGecko, DHL...)</span></span></div>
+<div class="stage"><span class="num">10</span><span class="name">ESCROW_FINALIZE</span><span class="arrow">→</span><span class="desc">Charge on success, refund on failure</span></div>
+<div class="stage"><span class="num">11</span><span class="name">LEDGER_WRITE</span><span class="arrow">→</span><span class="desc">Append-only financial record (PG transaction)</span></div>
+<div class="stage"><span class="num">12</span><span class="name">CACHE_SET</span><span class="arrow">→</span><span class="desc">Store response in Redis</span></div>
+<div class="stage"><span class="num">13</span><span class="name">RESPONSE</span><span class="arrow">→</span><span class="desc">Return normalized JSON to agent</span></div>
+</div>
+
+<div class="bottom">
+<div class="stat"><div class="stat-num">~120ms</div><div class="stat-label">avg pipeline latency</div></div>
+<div class="stat"><div class="stat-num">Fail-Closed</div><div class="stat-label">any error = reject, never pass through</div></div>
+<div class="stat"><div class="stat-num">Atomic</div><div class="stat-label">escrow + ledger in one PG transaction</div></div>
+</div>
+</body></html>

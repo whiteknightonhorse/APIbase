@@ -1,0 +1,41 @@
+<!DOCTYPE html><html><head><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0d1117;color:#c9d1d9;font-family:'JetBrains Mono','Courier New',monospace;padding:60px 80px;width:1440px;height:900px}
+.title{color:#00ff41;font-size:28px;margin-bottom:8px}
+.subtitle{color:#888;font-size:16px;margin-bottom:32px}
+.chat{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:28px;max-height:720px;overflow:hidden}
+.msg{margin-bottom:16px;padding:12px 16px;border-radius:8px;font-size:14px;line-height:1.6}
+.user{background:#1f6feb22;border-left:3px solid #1f6feb;color:#c9d1d9}
+.user::before{content:"You: ";color:#58a6ff;font-weight:bold}
+.assistant{background:#23882222;border-left:3px solid #238636;color:#c9d1d9}
+.assistant::before{content:"Claude: ";color:#3fb950;font-weight:bold}
+.cat{display:inline-block;background:#21262d;padding:3px 10px;border-radius:4px;margin:2px;font-size:12px;color:#8b949e}
+.cat-count{color:#00ff41;font-weight:bold}
+.tool-call{background:#0d111766;padding:8px 12px;border-radius:6px;margin:8px 0;font-size:13px;color:#8b949e;border:1px solid #30363d}
+.tool-call span{color:#ff7b72}
+</style></head><body>
+<div class="title">> Progressive Disclosure</div>
+<div class="subtitle">Agents discover relevant tools — not all 393 at once</div>
+
+<div class="chat">
+<div class="msg user">What tools do you have for travel?</div>
+<div class="msg assistant">
+<div class="tool-call"><span>tools/call</span> discover_tools category="travel"</div>
+Found <span style="color:#00ff41;font-weight:bold">17 travel tools</span> across 3 providers:<br><br>
+<div class="cat">amadeus.flight_search <span class="cat-count">$0.035</span></div>
+<div class="cat">amadeus.flight_price <span class="cat-count">$0.020</span></div>
+<div class="cat">amadeus.flight_status <span class="cat-count">$0.005</span></div>
+<div class="cat">aviasales.search_flights <span class="cat-count">$0.003</span></div>
+<div class="cat">aviasales.price_calendar <span class="cat-count">$0.002</span></div>
+<div class="cat">sabre.search_flights <span class="cat-count">$0.005</span></div>
+<div class="cat">amadeus.airport_search <span class="cat-count">$0.002</span></div>
+<div class="cat">+ 10 more</div>
+</div>
+<div class="msg user">Search flights from NYC to London next week</div>
+<div class="msg assistant">
+<div class="tool-call"><span>tools/call</span> amadeus.flight_search {from: "JFK", to: "LHR", date: "2026-04-07"}</div>
+Found 12 flights. Cheapest: <span style="color:#00ff41">$387</span> (BA 178, 7h 15m, direct) via Amadeus GDS.
+<br>Cost: $0.035 USDC via x402.
+</div>
+</div>
+</body></html>

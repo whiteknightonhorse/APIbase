@@ -1,0 +1,49 @@
+<!DOCTYPE html><html><head><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0d1117;color:#c9d1d9;font-family:'JetBrains Mono','Courier New',monospace;padding:60px 80px;width:1440px;height:900px}
+.title{color:#00ff41;font-size:28px;margin-bottom:8px}
+.subtitle{color:#888;font-size:16px;margin-bottom:32px}
+.terminal{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:24px;font-size:14px;line-height:1.7}
+.term-header{display:flex;gap:8px;margin-bottom:16px}
+.dot{width:12px;height:12px;border-radius:50%}
+.dot-r{background:#ff5f56}.dot-y{background:#ffbd2e}.dot-g{background:#27c93f}
+.prompt{color:#8b949e}
+.cmd{color:#c9d1d9}
+.key{color:#ff7b72}
+.str{color:#a5d6ff}
+.num{color:#79c0ff}
+.comment{color:#6e7681}
+.cards{display:flex;gap:20px;margin-top:28px}
+.card{flex:1;background:#161b22;border:1px solid #30363d;border-radius:12px;padding:20px;text-align:center}
+.card-num{font-size:28px;font-weight:bold;color:#00ff41}
+.card-label{color:#8b949e;font-size:12px;margin-top:4px}
+.card-sub{color:#3fb950;font-size:13px;margin-top:8px}
+</style></head><body>
+<div class="title">> Usage Analytics (Free)</div>
+<div class="subtitle">Track every call, cost, and cache hit — built into every agent account</div>
+
+<div class="terminal">
+<div class="term-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+<span class="prompt">$</span> <span class="cmd">curl -X POST .../tools/account.usage/call -d '{"period":"7d"}'</span><br>
+<br>
+{<br>
+&nbsp;&nbsp;<span class="key">"period"</span>: <span class="str">"7d"</span>,<br>
+&nbsp;&nbsp;<span class="key">"total_calls"</span>: <span class="num">1,247</span>,<br>
+&nbsp;&nbsp;<span class="key">"total_cost_usd"</span>: <span class="num">3.82</span>,<br>
+&nbsp;&nbsp;<span class="key">"cache_hit_rate"</span>: <span class="num">0.67</span>,  <span class="comment">// 67% served from cache</span><br>
+&nbsp;&nbsp;<span class="key">"avg_latency_ms"</span>: <span class="num">142</span>,<br>
+&nbsp;&nbsp;<span class="key">"top_tools"</span>: [<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="key">"tool"</span>: <span class="str">"crypto.get_price"</span>, <span class="key">"calls"</span>: <span class="num">423</span>, <span class="key">"cost"</span>: <span class="num">0.42</span> },<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="key">"tool"</span>: <span class="str">"weather.current"</span>, <span class="key">"calls"</span>: <span class="num">312</span>, <span class="key">"cost"</span>: <span class="num">0.31</span> },<br>
+&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="key">"tool"</span>: <span class="str">"amadeus.flight_search"</span>, <span class="key">"calls"</span>: <span class="num">89</span>, <span class="key">"cost"</span>: <span class="num">3.12</span> }<br>
+&nbsp;&nbsp;]<br>
+}
+</div>
+
+<div class="cards">
+<div class="card"><div class="card-num">393</div><div class="card-label">TOOLS AVAILABLE</div><div class="card-sub">114 providers</div></div>
+<div class="card"><div class="card-num">$0.001</div><div class="card-label">MIN PRICE/CALL</div><div class="card-sub">up to $0.035</div></div>
+<div class="card"><div class="card-num">67%</div><div class="card-label">CACHE HIT RATE</div><div class="card-sub">save on repeat calls</div></div>
+<div class="card"><div class="card-num">142ms</div><div class="card-label">AVG LATENCY</div><div class="card-sub">13-stage pipeline</div></div>
+</div>
+</body></html>

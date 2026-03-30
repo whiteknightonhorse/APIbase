@@ -5,22 +5,36 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="icon" type="image/png" href="/favicon.png">
-<link rel="shortcut icon" href="/favicon.png">
-<title>APIbase.pro — Product Demo</title>
-<meta property="og:title" content="APIbase.pro — Product Demo">
-<meta property="og:description" content="Universal MCP gateway for AI agents. 203 tools, 46 providers, x402 USDC micropayments on Base.">
+<title>APIbase.pro — Product Slideshow</title>
+<meta property="og:title" content="APIbase.pro — 393 Tools, 114 Providers">
+<meta property="og:description" content="The API Hub for AI Agents. MCP gateway with x402 USDC micropayments.">
 <meta property="og:image" content="https://apibase.pro/og-image.png">
-<meta property="og:type" content="video.other">
 <meta property="og:url" content="https://apibase.pro/video/">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0a0a0a;color:#00ff41;font-family:'Courier New',monospace;display:flex;flex-direction:column;align-items:center;min-height:100vh}
-.header{padding:24px;text-align:center;max-width:800px;width:100%}
+body{background:#0a0a0a;color:#00ff41;font-family:'JetBrains Mono','Courier New',monospace;display:flex;flex-direction:column;align-items:center;min-height:100vh}
+.header{padding:24px;text-align:center;max-width:900px;width:100%}
 h1{font-size:20px;color:#00ff41;margin-bottom:8px;font-weight:normal}
-.subtitle{font-size:14px;color:#888;margin-bottom:24px}
-.player{width:100%;max-width:900px;padding:0 16px}
-video{width:100%;border-radius:8px;border:1px solid #222;background:#000}
-.links{margin-top:24px;padding:24px;text-align:center;font-size:13px}
+.subtitle{font-size:14px;color:#888;margin-bottom:16px}
+.slideshow{position:relative;width:100%;max-width:900px;padding:0 16px;margin-bottom:8px;min-height:563px}
+.slideshow img{width:100%;border-radius:8px;border:1px solid #222;position:absolute;top:0;left:16px;right:16px;opacity:0;transition:opacity 0.6s ease}
+.slideshow img:first-child{position:relative;left:0}
+.slideshow img.active{opacity:1;z-index:1}
+.controls{display:flex;justify-content:center;gap:12px;margin-top:12px;align-items:center}
+.controls button{background:#111;color:#00ff41;border:1px solid #333;padding:8px 20px;font-family:inherit;font-size:13px;cursor:pointer;border-radius:4px;transition:all 0.2s}
+.controls button:hover{background:#1a1a1a;border-color:#00ff41}
+.controls button.active{background:#00ff41;color:#0a0a0a}
+.counter{color:#666;font-size:13px;min-width:70px;text-align:center}
+.dots{display:flex;gap:6px;justify-content:center;margin-top:10px}
+.dot{width:8px;height:8px;border-radius:50%;background:#333;cursor:pointer;transition:background 0.3s}
+.dot.active{background:#00ff41}
+.caption{text-align:center;color:#888;font-size:13px;margin-top:10px;min-height:20px;padding:0 16px}
+.progress-wrap{width:100%;max-width:900px;padding:0 16px;margin-top:6px}
+.progress{height:5px;background:#111;border-radius:3px;overflow:hidden}
+.progress-bar{height:100%;background:#00ff41;border-radius:3px;transition:width 0.05s linear;width:0}
+.video-link{text-align:center;margin-top:14px}
+.video-link a{color:#555;font-size:12px}
+.links{margin-top:20px;padding:20px;text-align:center;font-size:13px}
 a{color:#00ff41;text-decoration:none}
 a:hover{text-decoration:underline}
 .sep{color:#333;margin:0 12px}
@@ -28,21 +42,57 @@ a:hover{text-decoration:underline}
 </head>
 <body>
 <div class="header">
-<h1>> APIbase.pro — Product Demo</h1>
-<div class="subtitle">Universal MCP gateway for AI agents. 203 tools. x402 USDC on Base.</div>
+<h1>> APIbase.pro — Product Slideshow</h1>
+<div class="subtitle">The API Hub for AI Agents — 393 tools, 114 providers, x402 USDC micropayments</div>
 </div>
-<div class="player">
-<video controls preload="metadata" playsinline>
-<source src="/video/apibase-demo.mp4" type="video/mp4">
-Your browser does not support video playback.
-</video>
+<div class="slideshow" id="slideshow">
+<img src="/video/slide_01_homepage-hero.png?v=2" alt="Homepage" class="active" data-caption="Homepage — 393 tools, 114 providers, dual-rail payments">
+<img src="/video/slide_02_connect.png?v=2" alt="Connect" loading="lazy" data-caption="Connect in 30 seconds — one line of JSON config">
+<img src="/video/slide_03_discover.png?v=2" alt="Discover" loading="lazy" data-caption="Progressive disclosure — agents discover tools by category, not all 393 at once">
+<img src="/video/slide_04_categories.png?v=2" alt="Categories" loading="lazy" data-caption="393 tools across 30+ categories — travel, finance, crypto, weather, science, logistics, sports">
+<img src="/video/slide_05_pipeline.png?v=2" alt="Pipeline" loading="lazy" data-caption="13-stage pipeline — auth, content-neg, schema, cache, escrow, provider call, ledger">
+<img src="/video/slide_06_payment.png?v=2" alt="Payment" loading="lazy" data-caption="Dual-rail micropayments — x402 (USDC on Base) + MPP (USDC on Tempo)">
+<img src="/video/slide_07_dashboard.png?v=2" alt="Dashboard" loading="lazy" data-caption="Provider dashboard — real-time health, limits, and tool counts for 114 providers">
+<img src="/video/slide_08_features.png?v=2" alt="Features" loading="lazy" data-caption="Why agents choose APIbase — one endpoint replaces 114 integrations">
+<img src="/video/slide_09_analytics.png?v=2" alt="Analytics" loading="lazy" data-caption="Built-in usage analytics — track calls, costs, cache rate per tool (free)">
+<img src="/video/slide_10_github.png?v=2" alt="GitHub" loading="lazy" data-caption="Open source on GitHub — MIT license, 16-container Docker stack">
+<img src="/video/slide_11_smithery.png?v=2" alt="Smithery" loading="lazy" data-caption="Listed on Smithery MCP Registry — quality score verified">
+<img src="/video/slide_12_comparison.png?v=2" alt="Comparison" loading="lazy" data-caption="vs alternatives — unified MCP access vs managing separate provider integrations">
 </div>
+<div class="progress-wrap"><div class="progress"><div class="progress-bar" id="progress"></div></div></div>
+<div class="controls">
+<button id="prev">◀ Prev</button>
+<button id="play" class="active">⏸ Pause</button>
+<span class="counter" id="counter">1 / 12</span>
+<button id="next">Next ▶</button>
+</div>
+<div class="dots" id="dots"></div>
+<div class="caption" id="caption"></div>
+<div class="video-link"><a href="/video/product-demo.mp4">Download MP4 (1.4 MB)</a></div>
 <div class="links">
 <a href="https://apibase.pro">apibase.pro</a>
 <span class="sep">|</span>
 <a href="https://apibase.pro/api/v1/tools">Tool Catalog</a>
 <span class="sep">|</span>
+<a href="https://apibase.pro/dashboard">Dashboard</a>
+<span class="sep">|</span>
 <a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a>
 </div>
+<script>
+const images=document.querySelectorAll('#slideshow img'),counter=document.getElementById('counter'),caption=document.getElementById('caption'),progress=document.getElementById('progress'),dotsDiv=document.getElementById('dots');
+const durations=[6,10,10,8,10,10,8,10,8,8,8,10];
+let current=0,playing=true,elapsed=0,tickInterval=null,touchStartX=0;
+images.forEach((_,i)=>{const d=document.createElement('div');d.className='dot'+(i===0?' active':'');d.onclick=()=>{goTo(i);elapsed=0};dotsDiv.appendChild(d)});
+function goTo(i){images[current].classList.remove('active');dotsDiv.children[current].classList.remove('active');current=i;images[current].classList.add('active');dotsDiv.children[current].classList.add('active');counter.textContent=(current+1)+' / '+images.length;caption.textContent=images[current].dataset.caption||'';elapsed=0}
+function next(){goTo((current+1)%images.length)}function prev(){goTo((current-1+images.length)%images.length)}
+function startAuto(){playing=true;document.getElementById('play').classList.add('active');document.getElementById('play').textContent='⏸ Pause';elapsed=0;clearInterval(tickInterval);tickInterval=setInterval(()=>{elapsed+=50;progress.style.width=Math.min((elapsed/(durations[current]*1000))*100,100)+'%';if(elapsed>=durations[current]*1000)next()},50)}
+function stopAuto(){playing=false;document.getElementById('play').classList.remove('active');document.getElementById('play').textContent='▶ Auto';clearInterval(tickInterval)}
+document.getElementById('next').onclick=()=>{next();if(playing)elapsed=0};
+document.getElementById('prev').onclick=()=>{prev();if(playing)elapsed=0};
+document.getElementById('play').onclick=()=>{playing?stopAuto():startAuto()};
+document.addEventListener('keydown',(e)=>{if(e.key==='ArrowRight'){next();if(playing)elapsed=0}if(e.key==='ArrowLeft'){prev();if(playing)elapsed=0}if(e.key===' '){e.preventDefault();playing?stopAuto():startAuto()}});
+const ss=document.getElementById('slideshow');ss.addEventListener('touchstart',(e)=>{touchStartX=e.changedTouches[0].screenX});ss.addEventListener('touchend',(e)=>{const d=e.changedTouches[0].screenX-touchStartX;if(Math.abs(d)>50){d>0?prev():next();if(playing)elapsed=0}});
+caption.textContent=images[0].dataset.caption||'';startAuto();
+</script>
 </body>
 </html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html><html><head><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0d1117;color:#c9d1d9;font-family:'JetBrains Mono','Courier New',monospace;padding:60px 80px;width:1440px;height:900px}
+.title{color:#00ff41;font-size:28px;margin-bottom:8px}
+.subtitle{color:#888;font-size:16px;margin-bottom:32px}
+.terminal{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:24px;margin-bottom:20px;font-size:13px;line-height:1.7}
+.term-header{display:flex;gap:8px;margin-bottom:16px}
+.dot{width:12px;height:12px;border-radius:50%}
+.dot-r{background:#ff5f56}.dot-y{background:#ffbd2e}.dot-g{background:#27c93f}
+.prompt{color:#8b949e}
+.cmd{color:#c9d1d9}
+.comment{color:#6e7681}
+.status-402{color:#d29922;font-weight:bold}
+.status-200{color:#3fb950;font-weight:bold}
+.key{color:#ff7b72}
+.str{color:#a5d6ff}
+.num{color:#79c0ff}
+.rails{display:flex;gap:20px;margin-top:24px}
+.rail{flex:1;background:#161b22;border:1px solid #30363d;border-radius:12px;padding:20px;text-align:center}
+.rail-name{font-size:18px;font-weight:bold;margin-bottom:8px}
+.rail-x402 .rail-name{color:#1f6feb}
+.rail-mpp .rail-name{color:#a371f7}
+.rail-detail{color:#8b949e;font-size:13px;line-height:1.6}
+.rail-chain{color:#00ff41;font-size:14px;margin-top:8px}
+</style></head><body>
+<div class="title">> Dual-Rail Micropayments</div>
+<div class="subtitle">Pay per call with USDC — x402 (Base) or MPP (Tempo)</div>
+
+<div class="terminal">
+<div class="term-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+<span class="comment"># Step 1: Call paid tool → get 402 with payment instructions</span><br>
+<span class="prompt">$</span> <span class="cmd">curl -X POST https://apibase.pro/api/v1/tools/crypto.get_price/call</span><br>
+<br>
+<span class="status-402">HTTP 402 Payment Required</span><br>
+{<br>
+&nbsp;&nbsp;<span class="key">"price_usd"</span>: <span class="num">0.001</span>,<br>
+&nbsp;&nbsp;<span class="key">"payment_address"</span>: <span class="str">"0x50Eb...6480"</span>,<br>
+&nbsp;&nbsp;<span class="key">"network"</span>: <span class="str">"eip155:8453"</span> <span class="comment">// Base mainnet</span><br>
+}<br>
+<br>
+<span class="comment"># Step 2: Sign payment → resend with X-Payment header</span><br>
+<span class="prompt">$</span> <span class="cmd">curl -X POST ... -H "X-Payment: &lt;signed_proof&gt;"</span><br>
+<br>
+<span class="status-200">HTTP 200 OK</span><br>
+{ <span class="key">"price"</span>: <span class="num">67842.50</span>, <span class="key">"currency"</span>: <span class="str">"usd"</span>, <span class="key">"coin"</span>: <span class="str">"bitcoin"</span> }
+</div>
+
+<div class="rails">
+<div class="rail rail-x402">
+<div class="rail-name">x402</div>
+<div class="rail-detail">Header: X-Payment<br>Facilitator: PayAI<br>Settlement: instant on-chain</div>
+<div class="rail-chain">USDC on Base (L2)</div>
+</div>
+<div class="rail rail-mpp">
+<div class="rail-name">MPP</div>
+<div class="rail-detail">Header: Authorization: Payment<br>Protocol: Machine Payments<br>Settlement: Tempo blockchain</div>
+<div class="rail-chain">USDC on Tempo</div>
+</div>
+</div>
+</body></html>

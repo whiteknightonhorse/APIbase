@@ -1,0 +1,40 @@
+<!DOCTYPE html><html><head><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0d1117;color:#c9d1d9;font-family:'JetBrains Mono','Courier New',monospace;padding:60px 80px;width:1440px;height:900px}
+.title{color:#00ff41;font-size:28px;margin-bottom:8px}
+.subtitle{color:#888;font-size:16px;margin-bottom:40px}
+.terminal{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:32px;margin-bottom:24px}
+.term-header{display:flex;gap:8px;margin-bottom:20px}
+.dot{width:12px;height:12px;border-radius:50%}
+.dot-r{background:#ff5f56}.dot-y{background:#ffbd2e}.dot-g{background:#27c93f}
+.term-title{color:#666;font-size:13px;margin-left:12px}
+.filename{color:#58a6ff;font-size:14px;margin-bottom:12px}
+pre{font-size:15px;line-height:1.8;color:#c9d1d9}
+.key{color:#ff7b72}
+.str{color:#a5d6ff}
+.comment{color:#8b949e}
+.highlight{background:#1f6feb33;border-left:3px solid #1f6feb;padding:4px 12px;margin:-4px -12px}
+.badge{display:inline-block;background:#238636;color:#fff;padding:6px 16px;border-radius:20px;font-size:14px;margin-top:24px}
+.steps{margin-top:32px;color:#888;font-size:15px;line-height:2}
+.step-num{color:#00ff41;font-weight:bold}
+</style></head><body>
+<div class="title">> Connect in 30 Seconds</div>
+<div class="subtitle">One line of JSON. That's it.</div>
+
+<div class="terminal">
+<div class="term-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><span class="term-title">claude_desktop_config.json</span></div>
+<div class="filename">~/.claude/claude_desktop_config.json</div>
+<pre>{
+  <span class="key">"mcpServers"</span>: {
+    <span class="key">"apibase"</span>: {
+<div class="highlight">      <span class="key">"url"</span>: <span class="str">"https://apibase.pro/mcp"</span></div>
+    }
+  }
+}</pre>
+</div>
+
+<div class="steps">
+<span class="step-num">[1]</span> Paste config → <span class="step-num">[2]</span> Restart Claude → <span class="step-num">[3]</span> 393 tools available
+</div>
+<div class="badge">✓ Works with Claude Desktop, Cursor, Windsurf, any MCP client</div>
+</body></html>
