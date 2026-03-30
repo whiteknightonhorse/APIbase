@@ -215,6 +215,9 @@ export const appEnvSchema = z.object({
   FATSECRET_CLIENT_ID: z.string().optional().default(''),
   FATSECRET_CLIENT_SECRET: z.string().optional().default(''),
 
+  // ShipEngine (UC-246) — API-Key header, Free plan $0/mo
+  PROVIDER_KEY_SHIPENGINE: z.string().optional().default(''),
+
   // WeatherAPI.com (UC-243) — key= query param, 10M calls/month Business trial
   PROVIDER_KEY_WEATHERAPI: z.string().optional().default(''),
 

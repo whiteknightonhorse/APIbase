@@ -3562,6 +3562,35 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     annotations: READ_ONLY,
   },
 
+  // ShipEngine — Shipping Rates & Address Validation (UC-246, 3 tools)
+  {
+    toolId: 'shipengine.rates',
+    mcpName: 'logistics.shipengine.rates',
+    title: 'Compare Shipping Rates',
+    description:
+      'Compare shipping rates across multiple carriers (USPS, UPS, FedEx, DHL) for a package. Provide origin/destination ZIP codes, weight in pounds, and optional dimensions. Returns sorted rates with price, delivery time, and service type. Up to 84% off retail rates (ShipEngine)',
+    category: 'logistics',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'shipengine.validate',
+    mcpName: 'logistics.shipengine.validate',
+    title: 'Validate US Address',
+    description:
+      'Validate and standardize a US address — returns USPS-verified address with corrected spelling, ZIP+4, and validation status. Catches typos, missing info, and invalid addresses before shipping (ShipEngine)',
+    category: 'logistics',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'shipengine.carriers',
+    mcpName: 'logistics.shipengine.carriers',
+    title: 'List Shipping Carriers',
+    description:
+      'List all connected shipping carriers with their IDs and codes. Shows which carriers are available for rate comparison (USPS, UPS, FedEx, DHL, etc.) (ShipEngine)',
+    category: 'logistics',
+    annotations: READ_ONLY,
+  },
+
   // WeatherAPI.com — Global Weather (UC-243, 4 tools)
   {
     toolId: 'weatherapi.current',

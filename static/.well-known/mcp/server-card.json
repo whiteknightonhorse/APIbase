@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase \u2014 The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 387 tools. Dual-rail: x402 + MPP.",
+    "description": "Unified MCP gateway to 390 tools. Dual-rail: x402 + MPP.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -14114,6 +14114,129 @@
         },
         "required": [
           "q"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "logistics.shipengine.carriers",
+      "title": "List Shipping Carriers",
+      "description": "List all connected shipping carriers with their IDs and codes. Shows which carriers are available for rate comparison (USPS, UPS, FedEx, DHL, etc.) (ShipEngine)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "filter": {
+            "type": "string",
+            "description": "Optional filter on carrier name (e.g. \"ups\", \"usps\"). Returns all connected carriers if omitted"
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "logistics.shipengine.rates",
+      "title": "Compare Shipping Rates",
+      "description": "Compare shipping rates across multiple carriers (USPS, UPS, FedEx, DHL) for a package. Provide origin/destination ZIP codes, weight in pounds, and optional dimensions. Returns sorted rates with price, delivery time, and service type. Up to 84% off retail rates (ShipEngine)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "from_zip": {
+            "type": "string",
+            "description": "Origin US ZIP code (e.g. \"10001\" for NYC)",
+            "minLength": 1
+          },
+          "to_zip": {
+            "type": "string",
+            "description": "Destination US ZIP code (e.g. \"90210\" for Beverly Hills)",
+            "minLength": 1
+          },
+          "weight_lb": {
+            "type": "number",
+            "description": "Package weight in pounds (e.g. 5)",
+            "minimum": 0.1
+          },
+          "length": {
+            "type": "number",
+            "description": "Package length in inches"
+          },
+          "width": {
+            "type": "number",
+            "description": "Package width in inches"
+          },
+          "height": {
+            "type": "number",
+            "description": "Package height in inches"
+          },
+          "from_country": {
+            "type": "string",
+            "description": "Origin country code (default US)",
+            "default": "US"
+          },
+          "to_country": {
+            "type": "string",
+            "description": "Destination country code (default US)",
+            "default": "US"
+          }
+        },
+        "required": [
+          "from_zip",
+          "to_zip",
+          "weight_lb"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "logistics.shipengine.validate",
+      "title": "Validate US Address",
+      "description": "Validate and standardize a US address \u2014 returns USPS-verified address with corrected spelling, ZIP+4, and validation status. Catches typos, missing info, and invalid addresses before shipping (ShipEngine)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "address_line1": {
+            "type": "string",
+            "description": "Street address (e.g. \"1 E 161 St\")",
+            "minLength": 1
+          },
+          "address_line2": {
+            "type": "string",
+            "description": "Apartment, suite, unit (e.g. \"Apt 4B\")"
+          },
+          "city": {
+            "type": "string",
+            "description": "City name (e.g. \"Bronx\")"
+          },
+          "state": {
+            "type": "string",
+            "description": "State code (e.g. \"NY\")"
+          },
+          "postal_code": {
+            "type": "string",
+            "description": "ZIP code (e.g. \"10451\")"
+          },
+          "country": {
+            "type": "string",
+            "description": "Country code (default US)",
+            "default": "US"
+          }
+        },
+        "required": [
+          "address_line1"
         ]
       },
       "annotations": {

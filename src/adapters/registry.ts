@@ -109,6 +109,7 @@ import { MarketCheckAdapter } from './marketcheck';
 import { ZyteAdapter } from './zyte';
 import { Judge0Adapter } from './judge0';
 import { WeatherApiAdapter } from './weatherapi';
+import { ShipEngineAdapter } from './shipengine';
 import { config } from '../config';
 
 /**
@@ -661,6 +662,14 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'chem':
       // NCI CACTUS — chemical identifier resolution (UC-220)
       return getOrCreate('cactus', () => new CactusAdapter());
+    case 'shipengine': {
+      // ShipEngine — shipping rates + address validation (UC-246)
+      const seKey = (config as Record<string, unknown>).PROVIDER_KEY_SHIPENGINE as
+        | string
+        | undefined;
+      if (!seKey) return undefined;
+      return getOrCreate('shipengine', () => new ShipEngineAdapter(seKey));
+    }
     case 'weatherapi': {
       // WeatherAPI.com — global weather (UC-243)
       const waKey = (config as Record<string, unknown>).PROVIDER_KEY_WEATHERAPI as

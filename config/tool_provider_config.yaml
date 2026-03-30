@@ -2116,6 +2116,23 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-246: ShipEngine (Shipping Rates) ---
+  - tool_id: shipengine.rates
+    name: Compare Shipping Rates
+    provider: shipengine
+    price_usd: "0.003"
+    cache_ttl: 1800
+  - tool_id: shipengine.validate
+    name: Validate US Address
+    provider: shipengine
+    price_usd: "0.002"
+    cache_ttl: 86400
+  - tool_id: shipengine.carriers
+    name: List Shipping Carriers
+    provider: shipengine
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   # --- UC-243: WeatherAPI.com (Global Weather) ---
   - tool_id: weatherapi.current
     name: Current Weather
