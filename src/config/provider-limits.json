@@ -878,6 +878,15 @@
     "docs_url": "https://cactus.nci.nih.gov/chemical/structure_documentation",
     "limit_proof": "US Government (NIH/NCI) open data, no auth, no documented rate limits"
   },
+  "weatherapi": {
+    "display_name": "WeatherAPI.com",
+    "health_url": "https://api.weatherapi.com/v1/current.json?q=London",
+    "limit_type": "monthly",
+    "free_limit": 10000000,
+    "reset_period": "monthly",
+    "docs_url": "https://www.weatherapi.com/docs/",
+    "limit_proof": "Business trial: 10M calls/month till 2026-04-13. Commercial use OK. 100K+ global stations."
+  },
   "judge0": {
     "display_name": "Judge0 CE",
     "health_url": "https://ce.judge0.com/languages",

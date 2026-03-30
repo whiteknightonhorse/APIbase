@@ -3562,6 +3562,44 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     annotations: READ_ONLY,
   },
 
+  // WeatherAPI.com — Global Weather (UC-243, 4 tools)
+  {
+    toolId: 'weatherapi.current',
+    mcpName: 'weather.weatherapi.current',
+    title: 'Current Weather',
+    description:
+      'Get current weather conditions for any location worldwide — temperature, wind, humidity, pressure, UV index, cloud cover, feels-like temp. Accepts city name, coordinates, zip code, or airport code. 100K+ stations globally (WeatherAPI.com)',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'weatherapi.forecast',
+    mcpName: 'weather.weatherapi.forecast',
+    title: 'Weather Forecast (3-day)',
+    description:
+      'Get 3-day weather forecast — daily min/max temperature, conditions, wind, precipitation, humidity, rain/snow chance, UV index. Accepts any location query (WeatherAPI.com)',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'weatherapi.astronomy',
+    mcpName: 'weather.weatherapi.astronomy',
+    title: 'Astronomy Data',
+    description:
+      'Get sunrise, sunset, moonrise, moonset times and moon phase for any location and date. Returns moon illumination percentage and phase name (WeatherAPI.com)',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'weatherapi.search',
+    mcpName: 'weather.weatherapi.search',
+    title: 'Location Search',
+    description:
+      'Search and autocomplete location names — returns matching cities with coordinates. Type partial name (e.g. "lon" → London, "mos" → Moscow). Use result coordinates with other weather tools (WeatherAPI.com)',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+
   // Judge0 CE — Code Execution Sandbox (UC-238, 2 tools)
   {
     toolId: 'code.execute',

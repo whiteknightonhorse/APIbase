@@ -2116,6 +2116,28 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-243: WeatherAPI.com (Global Weather) ---
+  - tool_id: weatherapi.current
+    name: Current Weather
+    provider: weatherapi
+    price_usd: "0.001"
+    cache_ttl: 300
+  - tool_id: weatherapi.forecast
+    name: Weather Forecast
+    provider: weatherapi
+    price_usd: "0.001"
+    cache_ttl: 1800
+  - tool_id: weatherapi.astronomy
+    name: Astronomy Data
+    provider: weatherapi
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: weatherapi.search
+    name: Location Search
+    provider: weatherapi
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   # --- UC-238: Judge0 CE (Code Execution Sandbox) ---
   - tool_id: code.execute
     name: Execute Code in Sandbox

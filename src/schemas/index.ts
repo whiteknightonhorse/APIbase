@@ -108,6 +108,7 @@ import { threatintelSchemas } from './threatintel.schema';
 import { marketcheckSchemas } from './marketcheck.schema';
 import { zyteSchemas } from './zyte.schema';
 import { judge0Schemas } from './judge0.schema';
+import { weatherapiSchemas } from './weatherapi.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -219,4 +220,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...marketcheckSchemas,
   ...zyteSchemas,
   ...judge0Schemas,
+  ...weatherapiSchemas,
 };
