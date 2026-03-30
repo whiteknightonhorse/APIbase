@@ -32347,6 +32347,92 @@
         ]
       }
     },
+    "/api/v1/tools/postal.lookup/call": {
+      "post": {
+        "operationId": "postal_lookup",
+        "summary": "Global Postal Code Lookup",
+        "description": "Look up a postal/ZIP code in 60+ countries — returns city name, state/region, and lat/lon coordinates. Supports US, UK, Germany, France, Japan, Brazil, India, Australia, and 50+ more countries. Provide country code (ISO 2-letter) + postal code (Zippopotam.us)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "postal.lookup"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "country_code": {
+                    "type": "string",
+                    "description": "ISO 3166-1 alpha-2 country code (e.g. \"us\", \"de\", \"gb\", \"fr\", \"jp\", \"br\", \"in\", \"au\"). Supports 60+ countries",
+                    "minLength": 2,
+                    "maxLength": 2
+                  },
+                  "postal_code": {
+                    "type": "string",
+                    "description": "Postal/ZIP code (e.g. \"90210\" for US, \"10115\" for Germany, \"SW1A\" for UK, \"75001\" for France)",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "country_code",
+                  "postal_code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/dhl.track/call": {
       "post": {
         "operationId": "dhl_track",

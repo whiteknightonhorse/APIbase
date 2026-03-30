@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase \u2014 The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 394 tools. Dual-rail: x402 + MPP.",
+    "description": "Unified MCP gateway to 395 tools. Dual-rail: x402 + MPP.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -14344,6 +14344,37 @@
         },
         "required": [
           "tracking_number"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "address.postal.lookup",
+      "title": "Global Postal Code Lookup",
+      "description": "Look up a postal/ZIP code in 60+ countries \u2014 returns city name, state/region, and lat/lon coordinates. Supports US, UK, Germany, France, Japan, Brazil, India, Australia, and 50+ more countries. Provide country code (ISO 2-letter) + postal code (Zippopotam.us)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "country_code": {
+            "type": "string",
+            "description": "ISO 3166-1 alpha-2 country code (e.g. \"us\", \"de\", \"gb\", \"fr\", \"jp\", \"br\", \"in\", \"au\"). Supports 60+ countries",
+            "minLength": 2,
+            "maxLength": 2
+          },
+          "postal_code": {
+            "type": "string",
+            "description": "Postal/ZIP code (e.g. \"90210\" for US, \"10115\" for Germany, \"SW1A\" for UK, \"75001\" for France)",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "country_code",
+          "postal_code"
         ]
       },
       "annotations": {

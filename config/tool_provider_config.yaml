@@ -2116,6 +2116,13 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-250: Zippopotam.us (Global Postal Codes) ---
+  - tool_id: postal.lookup
+    name: Global Postal Code Lookup
+    provider: zippopotamus
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   # --- UC-228: DHL Shipment Tracking ---
   - tool_id: dhl.track
     name: Track DHL Shipment

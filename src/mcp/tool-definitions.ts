@@ -3562,6 +3562,17 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     annotations: READ_ONLY,
   },
 
+  // Zippopotam.us — Global Postal Codes (UC-250, 1 tool)
+  {
+    toolId: 'postal.lookup',
+    mcpName: 'address.postal.lookup',
+    title: 'Global Postal Code Lookup',
+    description:
+      'Look up a postal/ZIP code in 60+ countries — returns city name, state/region, and lat/lon coordinates. Supports US, UK, Germany, France, Japan, Brazil, India, Australia, and 50+ more countries. Provide country code (ISO 2-letter) + postal code (Zippopotam.us)',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+
   // DHL — Shipment Tracking (UC-228, 1 tool)
   {
     toolId: 'dhl.track',

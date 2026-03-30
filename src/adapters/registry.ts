@@ -112,6 +112,7 @@ import { WeatherApiAdapter } from './weatherapi';
 import { ShipEngineAdapter } from './shipengine';
 import { PostcodesIoAdapter } from './postcodes-io';
 import { DhlAdapter } from './dhl';
+import { ZippopotamusAdapter } from './zippopotamus';
 import { config } from '../config';
 
 /**
@@ -664,6 +665,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'chem':
       // NCI CACTUS — chemical identifier resolution (UC-220)
       return getOrCreate('cactus', () => new CactusAdapter());
+    case 'postal':
+      // Zippopotam.us — global postal codes (UC-250)
+      return getOrCreate('zippopotamus', () => new ZippopotamusAdapter());
     case 'dhl': {
       // DHL — shipment tracking (UC-228)
       const dhlKey = (config as Record<string, unknown>).PROVIDER_KEY_DHL as string | undefined;

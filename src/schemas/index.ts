@@ -112,6 +112,7 @@ import { weatherapiSchemas } from './weatherapi.schema';
 import { shipengineSchemas } from './shipengine.schema';
 import { postcodesIoSchemas } from './postcodes-io.schema';
 import { dhlSchemas } from './dhl.schema';
+import { zippopotamusSchemas } from './zippopotamus.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -227,4 +228,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...shipengineSchemas,
   ...postcodesIoSchemas,
   ...dhlSchemas,
+  ...zippopotamusSchemas,
 };

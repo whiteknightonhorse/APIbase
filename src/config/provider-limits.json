@@ -930,7 +930,7 @@
     "free_limit": 5,
     "reset_period": "none",
     "docs_url": "https://docs.zyte.com/zyte-api/",
-    "limit_proof": "Trial: $5 free credit (30 days). PAYG: $0.00013–$0.01608/request. No subscription required."
+    "limit_proof": "Trial: $5 free credit (30 days). PAYG: $0.00013\u2013$0.01608/request. No subscription required."
   },
   "marketcheck": {
     "display_name": "MarketCheck",
@@ -1003,5 +1003,14 @@
     "reset_period": "none",
     "docs_url": "https://data.rcsb.org/redoc/index.html",
     "limit_proof": "CC0 public domain, US government funded, no auth required, no documented rate limits"
+  },
+  "zippopotamus": {
+    "display_name": "Zippopotam.us",
+    "health_url": "https://api.zippopotam.us/us/90210",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://api.zippopotam.us/",
+    "limit_proof": "Free, no auth, unlimited. 60+ countries, open source."
   }
 }
