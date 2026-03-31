@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 405 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 406 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -13853,6 +13853,63 @@
             "maximum": 25,
             "description": "Max results (1-25, default 10)",
             "default": 10
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "jobs.jooble.search",
+      "description": "Search aggregated job listings across 70+ countries — filter by keywords, location, radius, salary, company name. Returns title, company, location, salary, source, direct link. 9M+ active listings from thousands of job boards (Jooble)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "keywords": {
+            "type": "string",
+            "description": "Job search keywords (e.g. \"python developer\", \"marketing manager\", \"nurse\")"
+          },
+          "location": {
+            "type": "string",
+            "description": "Location (e.g. \"New York\", \"London\", \"Berlin\", \"Remote\")"
+          },
+          "radius": {
+            "type": "string",
+            "enum": [
+              "0",
+              "4",
+              "8",
+              "16",
+              "26",
+              "40",
+              "80"
+            ],
+            "description": "Search radius in km from location: 0, 4, 8, 16, 26, 40, or 80"
+          },
+          "salary": {
+            "type": "number",
+            "description": "Minimum salary filter (numeric)"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number (default 1)",
+            "default": 1
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "Max results per page (1-20, default 10)",
+            "default": 10
+          },
+          "company_search": {
+            "type": "boolean",
+            "description": "Set true to search by company name instead of job title"
           }
         }
       },

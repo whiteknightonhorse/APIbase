@@ -116,6 +116,7 @@ import { AdzunaAdapter } from './adzuna';
 import { BallDontLieAdapter } from './balldontlie';
 import { ZippopotamusAdapter } from './zippopotamus';
 import { TheirStackAdapter } from './theirstack';
+import { JoobleAdapter } from './jooble';
 import { config } from '../config';
 
 /**
@@ -769,6 +770,13 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
         | undefined;
       if (!tsKey) return undefined;
       return getOrCreate('theirstack', () => new TheirStackAdapter(tsKey));
+    }
+    case 'jooble': {
+      const joobleKey = (config as Record<string, unknown>).PROVIDER_KEY_JOOBLE as
+        | string
+        | undefined;
+      if (!joobleKey) return undefined;
+      return getOrCreate('jooble', () => new JoobleAdapter(joobleKey));
     }
     default:
       return undefined;

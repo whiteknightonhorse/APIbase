@@ -2396,6 +2396,13 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-255: Jooble (Job Aggregator) ---
+  - tool_id: jooble.search
+    name: Search Jobs Worldwide
+    provider: jooble
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   # --- UC-254: TheirStack (Job Market Intelligence) ---
   - tool_id: theirstack.jobs
     name: Search Job Postings
