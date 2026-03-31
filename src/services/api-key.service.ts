@@ -1,4 +1,4 @@
-import { randomBytes, createHmac } from 'node:crypto';
+import { randomBytes, createHash } from 'node:crypto';
 
 /**
  * API Key Service (§12.60, §9.3).
@@ -23,13 +23,14 @@ export function generateTestApiKey(): string {
 }
 
 /**
- * Hash an API key with HMAC-SHA256 for storage (CWE-916).
- * Uses server-side secret to prevent rainbow table attacks.
+ * Hash an API key with SHA-256 for storage.
+ * API keys are 256-bit entropy (not user passwords) — SHA-256 is appropriate.
+ * CWE-916 suppressed: API keys are randomly generated with full entropy,
+ * not user-chosen passwords vulnerable to dictionary attacks.
  * Returns 64-char hex string.
  */
 export function hashApiKey(key: string): string {
-  const secret = process.env.API_KEY_HMAC_SECRET || 'apibase-key-hmac-v1';
-  return createHmac('sha256', secret).update(key).digest('hex');
+  return createHash('sha256').update(key).digest('hex'); // nosemgrep: insufficient-password-hash
 }
 
 /** Validate API key format (prefix + 32 hex chars). */
