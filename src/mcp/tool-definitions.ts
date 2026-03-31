@@ -1130,6 +1130,31 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     annotations: READ_ONLY,
   },
 
+  // AIPush — MIP Market Intelligence Report (UC-019, 2 tools)
+  {
+    toolId: 'aipush.market_report',
+    mcpName: 'aipush.market.report',
+    title: 'Market Intelligence Report',
+    description:
+      'Start a full AI market intelligence report for any website. Provide a URL (e.g. "https://stripe.com") — the system crawls the site, extracts value propositions and services, identifies competitors, scores them, finds keyword gaps and market opportunities. Returns report_id — poll with aipush.market_report_status. Takes ~2 minutes. Cost: $29.99 (AIPush MIP)',
+    category: 'marketing',
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: false,
+      openWorldHint: true,
+    },
+  },
+  {
+    toolId: 'aipush.market_report_status',
+    mcpName: 'aipush.market.report_status',
+    title: 'Market Report Status',
+    description:
+      'Poll the status of a market intelligence report. Returns "running" with current step (crawling/ai_analysis), or "completed" with full profile_json containing competitors (scored), keywords, market surface, and evidence. Free to poll (AIPush MIP)',
+    category: 'marketing',
+    annotations: READ_ONLY,
+  },
+
   // ---------------------------------------------------------------------------
   // Diffbot — AI-Powered Web Extraction (UC-026, 4 tools)
   // ---------------------------------------------------------------------------

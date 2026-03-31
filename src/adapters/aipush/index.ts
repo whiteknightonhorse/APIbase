@@ -40,7 +40,7 @@ export class AIPushAdapter extends BaseAdapter {
       provider: 'aipush',
       baseUrl: baseUrl || 'http://172.18.0.1:3099',
       timeoutMs: 180_000, // 3 min max (page generation can take 30-180s)
-      maxRetries: 0,      // no auto-retry for internal service
+      maxRetries: 0, // no auto-retry for internal service
     });
     this.internalSecret = internalSecret;
   }
@@ -53,7 +53,7 @@ export class AIPushAdapter extends BaseAdapter {
   } {
     const params = req.params as Record<string, unknown>;
     const headers: Record<string, string> = {
-      'Accept': 'application/json',
+      Accept: 'application/json',
       'Content-Type': 'application/json',
       'X-Internal-Secret': this.internalSecret,
     };
@@ -73,6 +73,19 @@ export class AIPushAdapter extends BaseAdapter {
         return this.buildProfile(params, headers);
       case 'aipush.check_visibility':
         return this.buildVisibility(params, headers);
+      case 'aipush.market_report':
+        return {
+          url: `${this.baseUrl}/api/internal/market-report`,
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ target_url: String(params.target_url ?? '') }),
+        };
+      case 'aipush.market_report_status':
+        return {
+          url: `${this.baseUrl}/api/internal/market-report/${encodeURIComponent(String(params.report_id ?? ''))}`,
+          method: 'GET',
+          headers,
+        };
       default:
         throw {
           code: ProviderErrorCode.INVALID_RESPONSE,
@@ -141,6 +154,10 @@ export class AIPushAdapter extends BaseAdapter {
         }
         return d;
       }
+      case 'aipush.market_report':
+        return data;
+      case 'aipush.market_report_status':
+        return data;
       default:
         return data;
     }

@@ -744,6 +744,17 @@ tools:
     price_usd: "0.100"
     cache_ttl: 3600
 
+  - tool_id: aipush.market_report
+    name: Market Intelligence Report (AIPush MIP)
+    provider: aipush
+    price_usd: "29.990"
+    cache_ttl: 0
+  - tool_id: aipush.market_report_status
+    name: Market Report Status (AIPush MIP)
+    provider: aipush
+    price_usd: "0"
+    cache_ttl: 0
+
   # --- UC-026: Diffbot AI Extraction ---
   - tool_id: diffbot.product_extract
     name: Diffbot Product Extract

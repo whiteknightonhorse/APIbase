@@ -11251,6 +11251,162 @@
         ]
       }
     },
+    "/api/v1/tools/aipush.market_report/call": {
+      "post": {
+        "operationId": "aipush_market_report",
+        "summary": "Market Intelligence Report",
+        "description": "Start a full AI market intelligence report for any website. Provide a URL (e.g. \"https://stripe.com\") — the system crawls the site, extracts value propositions and services, identifies competitors, scores them, finds keyword gaps and market opportunities. Returns report_id — poll with aipush.market_report_status. Takes ~2 minutes. Cost: $29.99 (AIPush MIP)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "29.990000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "aipush.market_report"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "target_url": {
+                    "type": "string",
+                    "description": "Website URL to analyze (e.g. \"https://stripe.com\"). The system crawls the site, extracts value propositions, finds competitors, and builds a full market intelligence report with competitive scoring, keyword gaps, and market opportunities. Takes ~2 minutes."
+                  }
+                },
+                "required": [
+                  "target_url"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/aipush.market_report_status/call": {
+      "post": {
+        "operationId": "aipush_market_report_status",
+        "summary": "Market Report Status",
+        "description": "Poll the status of a market intelligence report. Returns \"running\" with current step (crawling/ai_analysis), or \"completed\" with full profile_json containing competitors (scored), keywords, market surface, and evidence. Free to poll (AIPush MIP)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.000000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "aipush.market_report_status"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "report_id": {
+                    "type": "string",
+                    "description": "Report ID returned by aipush.market_report. Poll until status = \"completed\" to get the full profile_json with competitors, keywords, and market analysis."
+                  }
+                },
+                "required": [
+                  "report_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/diffbot.product_extract/call": {
       "post": {
         "operationId": "diffbot_product_extract",
