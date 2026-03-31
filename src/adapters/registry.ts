@@ -115,6 +115,7 @@ import { DhlAdapter } from './dhl';
 import { AdzunaAdapter } from './adzuna';
 import { BallDontLieAdapter } from './balldontlie';
 import { ZippopotamusAdapter } from './zippopotamus';
+import { TheirStackAdapter } from './theirstack';
 import { config } from '../config';
 
 /**
@@ -761,6 +762,13 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
         | undefined;
       if (!track17Key) return undefined;
       return getOrCreate('17track', () => new TrackingAdapter(track17Key));
+    }
+    case 'theirstack': {
+      const tsKey = (config as Record<string, unknown>).PROVIDER_KEY_THEIRSTACK as
+        | string
+        | undefined;
+      if (!tsKey) return undefined;
+      return getOrCreate('theirstack', () => new TheirStackAdapter(tsKey));
     }
     default:
       return undefined;

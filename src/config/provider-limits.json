@@ -1030,5 +1030,14 @@
     "reset_period": "daily",
     "docs_url": "https://developer.adzuna.com/overview",
     "limit_proof": "Trial Access: ~250 req/day free. 16+ countries. Job search + salary data."
+  },
+  "theirstack": {
+    "display_name": "TheirStack",
+    "health_url": "https://api.theirstack.com/v1/jobs/search",
+    "limit_type": "monthly",
+    "free_limit": 200,
+    "reset_period": "monthly",
+    "docs_url": "https://theirstack.com/docs",
+    "limit_proof": "200 API credits/month free. Bearer JWT auth. 181M+ job postings, tech stack analysis."
   }
 }

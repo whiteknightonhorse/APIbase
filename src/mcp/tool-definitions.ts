@@ -4040,4 +4040,26 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
       openWorldHint: true,
     },
   },
+
+  // ---------------------------------------------------------------------------
+  // TheirStack — Job Market Intelligence (UC-254, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'theirstack.jobs',
+    mcpName: 'jobs.theirstack.search',
+    title: 'Search Job Postings',
+    description:
+      'Search 181M+ job postings worldwide — filter by keywords, country, remote, tech stack, recency. Returns title, company, location, salary range, post date. Job market intelligence for hiring analysis and talent sourcing (TheirStack)',
+    category: 'jobs',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'theirstack.companies',
+    mcpName: 'jobs.theirstack.companies',
+    title: 'Search Companies by Tech Stack',
+    description:
+      'Find companies by technology stack — filter by technologies (kubernetes, react, python...), country, minimum active jobs. Returns company name, URL, job count, tech stack. Identify employers using specific technologies (TheirStack)',
+    category: 'jobs',
+    annotations: READ_ONLY,
+  },
 ];
