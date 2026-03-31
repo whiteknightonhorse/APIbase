@@ -1031,6 +1031,15 @@
     "docs_url": "https://developer.adzuna.com/overview",
     "limit_proof": "Trial Access: ~250 req/day free. 16+ countries. Job search + salary data."
   },
+  "jooble": {
+    "display_name": "Jooble",
+    "health_url": "https://jooble.org/api/about",
+    "limit_type": "credits",
+    "free_limit": 500,
+    "reset_period": "none",
+    "docs_url": "https://jooble.org/api/about",
+    "limit_proof": "500 requests default limit (contact support to increase). Free API, key in URL path."
+  },
   "theirstack": {
     "display_name": "TheirStack",
     "health_url": "https://api.theirstack.com/v1/jobs/search",

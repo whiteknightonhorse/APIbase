@@ -116,6 +116,7 @@ import { adzunaSchemas } from './adzuna.schema';
 import { zippopotamusSchemas } from './zippopotamus.schema';
 import { balldontlieSchemas } from './balldontlie.schema';
 import { theirstackSchemas } from './theirstack.schema';
+import { joobleSchemas } from './jooble.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -235,4 +236,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...zippopotamusSchemas,
   ...balldontlieSchemas,
   ...theirstackSchemas,
+  ...joobleSchemas,
 };

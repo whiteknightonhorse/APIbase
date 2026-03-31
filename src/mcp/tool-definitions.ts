@@ -4062,4 +4062,17 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'jobs',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // Jooble — Job Aggregator (UC-255, 1 tool)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'jooble.search',
+    mcpName: 'jobs.jooble.search',
+    title: 'Search Jobs Worldwide',
+    description:
+      'Search aggregated job listings across 70+ countries — filter by keywords, location, radius, salary, company name. Returns title, company, location, salary, source, direct link. 9M+ active listings from thousands of job boards (Jooble)',
+    category: 'jobs',
+    annotations: READ_ONLY,
+  },
 ];
