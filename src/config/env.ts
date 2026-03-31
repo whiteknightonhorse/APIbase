@@ -252,6 +252,9 @@ export const appEnvSchema = z.object({
   // 17TRACK Package Tracking (UC-221) — 17token header, 200 free registers/month
   PROVIDER_KEY_17TRACK: z.string().optional().default(''),
 
+  // TheirStack Job Market Intelligence (UC-254) — Bearer JWT, 200 credits/month free
+  PROVIDER_KEY_THEIRSTACK: z.string().optional().default(''),
+
   // Tempo MPP — Machine Payments Protocol (dual-rail with x402)
   MPP_ENABLED: z.string().optional().default('false'),
   MPP_SECRET_KEY: z.string().optional().default(''),

@@ -2396,6 +2396,18 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-254: TheirStack (Job Market Intelligence) ---
+  - tool_id: theirstack.jobs
+    name: Search Job Postings
+    provider: theirstack
+    price_usd: "0.002"
+    cache_ttl: 3600
+  - tool_id: theirstack.companies
+    name: Search Companies by Tech Stack
+    provider: theirstack
+    price_usd: "0.002"
+    cache_ttl: 3600
+
   # --- F4: Account Analytics (internal, $0) ---
   - tool_id: account.usage
     name: Usage Summary
