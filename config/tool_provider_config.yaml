@@ -2396,6 +2396,13 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-258: Remotive (Remote Jobs) ---
+  - tool_id: remotive.search
+    name: Search Remote Jobs
+    provider: remotive
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   # --- UC-257: Reed.co.uk (UK Job Board) ---
   - tool_id: reed.search
     name: Search UK Jobs
