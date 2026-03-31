@@ -36,6 +36,15 @@ export const appEnvSchema = z.object({
   X402_PAYMENT_ADDRESS: z.string().min(1).default('0x0000000000000000000000000000000000000000'),
   X402_FACILITATOR_URL: z.string().url().default('https://facilitator.payai.network'),
 
+  // CDP x402 Facilitator — Coinbase Developer Platform (Bazaar discovery)
+  CDP_ENABLED: z.string().optional().default('false'),
+  CDP_API_KEY_ID: z.string().optional().default(''),
+  CDP_API_KEY_SECRET: z.string().optional().default(''),
+  CDP_FACILITATOR_URL: z
+    .string()
+    .optional()
+    .default('https://api.cdp.coinbase.com/platform/v2/x402'),
+
   // Provider API keys (§5.3)
   PROVIDER_KEY_OPENWEATHER: z.string().min(1),
   PROVIDER_KEY_COINGECKO: z.string().optional().default(''),

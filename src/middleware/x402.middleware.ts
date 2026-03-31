@@ -1,23 +1,10 @@
 import type { Request, Response, NextFunction } from 'express';
 import { decodePaymentSignatureHeader } from '@x402/core/http';
 import { parsePaymentPayload, isPaymentPayloadV1 } from '@x402/core/schemas';
-import { HTTPFacilitatorClient, x402ResourceServer } from '@x402/core/server';
-import { registerExactEvmScheme } from '@x402/evm/exact/server';
 import { getX402Config } from '../config/x402.config';
+import { getSharedResourceServer } from '../services/x402-server.service';
 import { logger } from '../config/logger';
 import { AppError, ErrorCode } from '../types/errors';
-
-let resourceServer: x402ResourceServer | null = null;
-
-function getResourceServer(): x402ResourceServer {
-  if (!resourceServer) {
-    const cfg = getX402Config();
-    const facilitator = new HTTPFacilitatorClient({ url: cfg.facilitatorUrl });
-    resourceServer = new x402ResourceServer(facilitator);
-    registerExactEvmScheme(resourceServer);
-  }
-  return resourceServer;
-}
 
 export function x402Middleware(req: Request, _res: Response, next: NextFunction): void {
   const paymentHeader =
@@ -88,13 +75,16 @@ async function verifyPayment(req: Request, paymentHeader: string): Promise<void>
     };
   }
 
-  const server = getResourceServer();
+  const server = getSharedResourceServer();
   let result;
   try {
     result = await server.verifyPayment(payload as never, requirements as never);
   } catch (verifyErr) {
     log.error(
-      { requestId: req.requestId, err: verifyErr instanceof Error ? verifyErr.message : String(verifyErr) },
+      {
+        requestId: req.requestId,
+        err: verifyErr instanceof Error ? verifyErr.message : String(verifyErr),
+      },
       'x402: payment verification threw exception',
     );
     throw new AppError(ErrorCode.BAD_GATEWAY, 'Payment facilitator unavailable');
@@ -105,7 +95,10 @@ async function verifyPayment(req: Request, paymentHeader: string): Promise<void>
       { requestId: req.requestId, reason: result.invalidReason },
       'x402: payment verification failed',
     );
-    throw new AppError(ErrorCode.BAD_REQUEST, result.invalidMessage ?? result.invalidReason ?? 'Payment verification failed');
+    throw new AppError(
+      ErrorCode.BAD_REQUEST,
+      result.invalidMessage ?? result.invalidReason ?? 'Payment verification failed',
+    );
   }
 
   req.x402Payment = {

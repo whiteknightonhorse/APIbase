@@ -1,22 +1,9 @@
 import { decodePaymentSignatureHeader } from '@x402/core/http';
 import { parsePaymentPayload, isPaymentPayloadV1 } from '@x402/core/schemas';
-import { HTTPFacilitatorClient, x402ResourceServer } from '@x402/core/server';
-import { registerExactEvmScheme } from '@x402/evm/exact/server';
 import { getX402Config } from '../../config/x402.config';
+import { getSharedResourceServer } from '../../services/x402-server.service';
 import { logger } from '../../config/logger';
 import type { PipelineContext } from '../types';
-
-let resourceServer: x402ResourceServer | null = null;
-
-function getResourceServer(): x402ResourceServer {
-  if (!resourceServer) {
-    const cfg = getX402Config();
-    const facilitator = new HTTPFacilitatorClient({ url: cfg.facilitatorUrl });
-    resourceServer = new x402ResourceServer(facilitator);
-    registerExactEvmScheme(resourceServer);
-  }
-  return resourceServer;
-}
 
 /**
  * Settle x402 on-chain payment after successful provider call (§8.9).
@@ -33,10 +20,7 @@ export async function settleX402(ctx: PipelineContext): Promise<void> {
     const parsed = parsePaymentPayload(decoded);
 
     if (!parsed.success) {
-      logger.warn(
-        { requestId: ctx.requestId },
-        'x402 settle: failed to re-parse payment payload',
-      );
+      logger.warn({ requestId: ctx.requestId }, 'x402 settle: failed to re-parse payment payload');
       return;
     }
 
@@ -70,7 +54,7 @@ export async function settleX402(ctx: PipelineContext): Promise<void> {
       };
     }
 
-    const server = getResourceServer();
+    const server = getSharedResourceServer();
     const result = await server.settlePayment(payload as never, requirements as never);
 
     if (result.success) {

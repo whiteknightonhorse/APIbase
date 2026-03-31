@@ -1,6 +1,8 @@
 import Redis from 'ioredis';
 import { logger } from '../config/logger';
 import { config } from '../config';
+import { getCdpConfig } from '../config/cdp.config';
+import { buildCdpAuthHeadersFn } from '../services/cdp-jwt.service';
 
 /**
  * x402 Facilitator Health Check Job.
@@ -54,7 +56,10 @@ export async function run(redis: Redis): Promise<void> {
       last_check: new Date().toISOString(),
     };
     await writeRedis(redis, result);
-    logger.warn({ job: 'x402-health', ...result }, 'x402 health: TESTNET config detected in production');
+    logger.warn(
+      { job: 'x402-health', ...result },
+      'x402 health: TESTNET config detected in production',
+    );
     return;
   }
 
@@ -84,14 +89,17 @@ export async function run(redis: Redis): Promise<void> {
         last_check: new Date().toISOString(),
       };
       await writeRedis(redis, result);
-      logger.warn({ job: 'x402-health', http_status: response.status, latency_ms: latencyMs }, 'x402 health: facilitator returned non-2xx');
+      logger.warn(
+        { job: 'x402-health', http_status: response.status, latency_ms: latencyMs },
+        'x402 health: facilitator returned non-2xx',
+      );
       return;
     }
 
     // Parse supported chains/assets
     let networkSupported = false;
     try {
-      const body = await response.json() as unknown;
+      const body = (await response.json()) as unknown;
       networkSupported = checkNetworkSupported(body, chainId);
     } catch {
       // Could not parse — treat as orange (reachable but can't verify)
@@ -117,13 +125,16 @@ export async function run(redis: Redis): Promise<void> {
     };
     await writeRedis(redis, result);
 
-    logger.info({
-      job: 'x402-health',
-      status,
-      latency_ms: latencyMs,
-      network: chainId,
-      network_supported: networkSupported,
-    }, 'x402 health check completed');
+    logger.info(
+      {
+        job: 'x402-health',
+        status,
+        latency_ms: latencyMs,
+        network: chainId,
+        network_supported: networkSupported,
+      },
+      'x402 health check completed',
+    );
   } catch (err) {
     const latencyMs = Math.round(performance.now() - start);
     const result: X402HealthResult = {
@@ -138,6 +149,11 @@ export async function run(redis: Redis): Promise<void> {
     await writeRedis(redis, result);
     logger.warn({ job: 'x402-health', err, latency_ms: latencyMs }, 'x402 health check failed');
   }
+
+  // CDP facilitator probe (independent, non-blocking)
+  await runCdpHealthCheck(redis, chainId).catch((err) => {
+    logger.warn({ err }, 'CDP health check threw — ignored');
+  });
 }
 
 // Map chain IDs to short names used by facilitators
@@ -182,9 +198,87 @@ function checkNetworkSupported(body: unknown, chainId: string): boolean {
   return false;
 }
 
-async function writeRedis(redis: Redis, result: X402HealthResult): Promise<void> {
+/**
+ * CDP facilitator health probe (runs after PayAI probe).
+ * Writes to separate Redis key x402:health:cdp.
+ */
+async function runCdpHealthCheck(redis: Redis, chainId: string): Promise<void> {
+  const cdpCfg = getCdpConfig();
+  if (!cdpCfg.enabled) return;
+
+  const supportedUrl = `${cdpCfg.facilitatorUrl.replace(/\/+$/, '')}/supported`;
+  const start = performance.now();
+
   try {
-    await redis.hmset('x402:health', {
+    const authFn = buildCdpAuthHeadersFn(cdpCfg.apiKeyId, cdpCfg.apiKeySecret);
+    const authHeaders = await authFn();
+    const headers: Record<string, string> = {
+      'User-Agent': 'APIbase-x402-HealthCheck/1.0',
+      Accept: 'application/json',
+      ...(authHeaders.supported ?? {}),
+    };
+
+    const response = await fetch(supportedUrl, {
+      method: 'GET',
+      signal: AbortSignal.timeout(HEALTH_CHECK_TIMEOUT_MS),
+      headers,
+    });
+    const latencyMs = Math.round(performance.now() - start);
+
+    let status: HealthStatus = 'red';
+    let networkSupported = false;
+
+    if (response.ok) {
+      try {
+        const body = (await response.json()) as unknown;
+        networkSupported = checkNetworkSupported(body, chainId);
+      } catch {
+        /* parse fail = orange */
+      }
+      status = latencyMs <= 2000 && networkSupported ? 'green' : 'orange';
+    }
+
+    const result: X402HealthResult = {
+      status,
+      latency_ms: latencyMs,
+      facilitator_url: cdpCfg.facilitatorUrl,
+      network: chainId,
+      network_supported: String(networkSupported),
+      testnet: 'false',
+      last_check: new Date().toISOString(),
+    };
+
+    await writeRedis(redis, result, 'x402:health:cdp');
+    logger.info(
+      { job: 'x402-health', facilitator: 'cdp', status, latency_ms: latencyMs },
+      'CDP health check completed',
+    );
+  } catch (err) {
+    const latencyMs = Math.round(performance.now() - start);
+    const result: X402HealthResult = {
+      status: 'red',
+      latency_ms: latencyMs,
+      facilitator_url: cdpCfg.facilitatorUrl,
+      network: chainId,
+      network_supported: 'false',
+      testnet: 'false',
+      last_check: new Date().toISOString(),
+    };
+    await writeRedis(redis, result, 'x402:health:cdp');
+    logger.warn(
+      { job: 'x402-health', facilitator: 'cdp', err, latency_ms: latencyMs },
+      'CDP health check failed',
+    );
+  }
+}
+
+async function writeRedis(
+  redis: Redis,
+  result: X402HealthResult,
+  key = 'x402:health',
+): Promise<void> {
+  try {
+    await redis.hmset(key, {
       status: result.status,
       latency_ms: String(result.latency_ms),
       facilitator_url: result.facilitator_url,
@@ -193,7 +287,7 @@ async function writeRedis(redis: Redis, result: X402HealthResult): Promise<void>
       testnet: result.testnet,
       last_check: result.last_check,
     });
-    await redis.expire('x402:health', REDIS_TTL);
+    await redis.expire(key, REDIS_TTL);
   } catch (err) {
     logger.warn({ err }, 'Failed to write x402 health to Redis');
   }
