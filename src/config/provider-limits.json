@@ -1021,5 +1021,14 @@
     "reset_period": "none",
     "docs_url": "https://docs.balldontlie.io/",
     "limit_proof": "Free: $0/sport, 5 req/min. NBA + NFL + more. No credit card required."
+  },
+  "adzuna": {
+    "display_name": "Adzuna",
+    "health_url": "https://api.adzuna.com/v1/api/jobs/us/categories",
+    "limit_type": "daily",
+    "free_limit": 250,
+    "reset_period": "daily",
+    "docs_url": "https://developer.adzuna.com/overview",
+    "limit_proof": "Trial Access: ~250 req/day free. 16+ countries. Job search + salary data."
   }
 }

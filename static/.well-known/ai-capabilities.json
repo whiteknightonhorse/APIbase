@@ -2,8 +2,8 @@
   "platform": "APIbase",
   "version": "2.0",
   "updated_at": "2026-03-26T00:00:00Z",
-  "tools_count": 393,
-  "providers_count": 114,
+  "tools_count": 396,
+  "providers_count": 115,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",

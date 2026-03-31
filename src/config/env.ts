@@ -218,6 +218,10 @@ export const appEnvSchema = z.object({
   // BallDontLie Sports (UC-251) — Authorization header, $0/sport free
   PROVIDER_KEY_BDL: z.string().optional().default(''),
 
+  // Adzuna Job Search (UC-253) — app_id+app_key query params, Trial free
+  ADZUNA_APP_ID: z.string().optional().default(''),
+  ADZUNA_APP_KEY: z.string().optional().default(''),
+
   // DHL Shipment Tracking (UC-228) — DHL-API-Key header, 250 req/day production
   PROVIDER_KEY_DHL: z.string().optional().default(''),
 

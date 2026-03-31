@@ -112,6 +112,7 @@ import { WeatherApiAdapter } from './weatherapi';
 import { ShipEngineAdapter } from './shipengine';
 import { PostcodesIoAdapter } from './postcodes-io';
 import { DhlAdapter } from './dhl';
+import { AdzunaAdapter } from './adzuna';
 import { BallDontLieAdapter } from './balldontlie';
 import { ZippopotamusAdapter } from './zippopotamus';
 import { config } from '../config';
@@ -675,6 +676,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'postal':
       // Zippopotam.us — global postal codes (UC-250)
       return getOrCreate('zippopotamus', () => new ZippopotamusAdapter());
+    case 'adzuna': {
+      const adzId = (config as Record<string, unknown>).ADZUNA_APP_ID as string | undefined;
+      const adzKey = (config as Record<string, unknown>).ADZUNA_APP_KEY as string | undefined;
+      if (!adzId || !adzKey) return undefined;
+      return getOrCreate('adzuna', () => new AdzunaAdapter(adzId, adzKey));
+    }
     case 'dhl': {
       // DHL — shipment tracking (UC-228)
       const dhlKey = (config as Record<string, unknown>).PROVIDER_KEY_DHL as string | undefined;

@@ -3562,6 +3562,35 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     annotations: READ_ONLY,
   },
 
+  // Adzuna — Job Search (UC-253, 3 tools)
+  {
+    toolId: 'adzuna.search',
+    mcpName: 'jobs.adzuna.search',
+    title: 'Search Jobs (16+ Countries)',
+    description:
+      'Search job listings across 16+ countries (US, UK, AU, CA, DE, FR, and more) by keyword, location, category, salary range. Returns job title, company, salary, location, and apply URL. 70K+ developer jobs in US alone (Adzuna)',
+    category: 'jobs',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'adzuna.categories',
+    mcpName: 'jobs.adzuna.categories',
+    title: 'Job Categories',
+    description:
+      'List all job categories available in a country — IT, Sales, Engineering, HR, Healthcare, Hospitality, and more. Use category tags to filter adzuna.search results (Adzuna)',
+    category: 'jobs',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'adzuna.salary',
+    mcpName: 'jobs.adzuna.salary',
+    title: 'Salary Histogram',
+    description:
+      'Get salary distribution for a job title — returns histogram of salary buckets with job counts. Example: "python developer" in US → $20K-$140K distribution. Use for salary benchmarking and market research (Adzuna)',
+    category: 'jobs',
+    annotations: READ_ONLY,
+  },
+
   // BallDontLie — Sports Data (UC-251, 3 tools)
   {
     toolId: 'bdl.games',
