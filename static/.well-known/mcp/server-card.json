@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 410 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 414 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -14047,6 +14047,137 @@
             "maximum": 50,
             "description": "Max results (1-50, default 20)",
             "default": 20
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ecommerce.amazon.search",
+      "description": "Search Amazon products by keyword — filter by price range, sort by relevance/price/rating/reviews/newest. Returns title, ASIN, price, rating, Prime flag, image. 12 marketplaces: US, UK, CA, DE, FR, IT, ES, AU, IN, MX, BR, JP (Canopy API)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search keywords (e.g. \"wireless headphones\", \"raspberry pi 5\")"
+          },
+          "domain": {
+            "type": "string",
+            "description": "Amazon marketplace: US, UK, CA, DE, FR, IT, ES, AU, IN, MX, BR, JP (default US)",
+            "default": "US"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number for pagination"
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "relevance",
+              "price_asc",
+              "price_desc",
+              "rating",
+              "reviews",
+              "newest"
+            ],
+            "description": "Sort order: relevance, price_asc, price_desc, rating, reviews, newest"
+          },
+          "price_min": {
+            "type": "number",
+            "description": "Minimum price filter (in marketplace currency)"
+          },
+          "price_max": {
+            "type": "number",
+            "description": "Maximum price filter (in marketplace currency)"
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ecommerce.amazon.product",
+      "description": "Get full Amazon product details by ASIN — title, brand, price, rating, stock status, feature bullets, categories, seller name. Use ASINs from canopy.search. 12 Amazon marketplaces supported (Canopy API)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "asin": {
+            "type": "string",
+            "description": "Amazon ASIN product ID (e.g. \"B0CRSNCJ6Y\"). Get ASINs from canopy.search"
+          },
+          "domain": {
+            "type": "string",
+            "description": "Amazon marketplace: US, UK, CA, DE, FR, IT, ES, AU, IN, MX, BR, JP (default US)",
+            "default": "US"
+          }
+        },
+        "required": [
+          "asin"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ecommerce.amazon.offers",
+      "description": "Get all third-party seller offers for an Amazon product — price, condition (new/used), seller name & rating, Buy Box winner flag, Fulfilled by Amazon, delivery estimate. Price comparison across sellers (Canopy API)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "asin": {
+            "type": "string",
+            "description": "Amazon ASIN product ID. Returns all third-party offers with Buy Box winner, seller ratings, delivery info"
+          },
+          "domain": {
+            "type": "string",
+            "description": "Amazon marketplace: US, UK, CA, DE, FR, IT, ES, AU, IN, MX, BR, JP (default US)",
+            "default": "US"
+          }
+        },
+        "required": [
+          "asin"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ecommerce.amazon.deals",
+      "description": "Browse current Amazon deals — original price vs deal price, product title, ASIN, deal link. Paginated, 500+ active deals. 12 Amazon marketplaces (Canopy API)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "domain": {
+            "type": "string",
+            "description": "Amazon marketplace: US, UK, CA, DE, FR, IT, ES, AU, IN, MX, BR, JP (default US)",
+            "default": "US"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number (default 1)"
           }
         }
       },

@@ -4,7 +4,7 @@
   "version": "1.0",
   "mcp_endpoint": "https://apibase.pro/mcp",
   "tools_endpoint": "https://apibase.pro/api/v1/tools",
-  "tools_count": 405,
+  "tools_count": 409,
   "categories_count": 21,
   "capabilities_endpoint": "https://apibase.pro/.well-known/ai-capabilities.json",
   "authentication": "x402",

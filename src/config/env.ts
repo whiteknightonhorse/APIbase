@@ -261,6 +261,9 @@ export const appEnvSchema = z.object({
   // Reed.co.uk UK Job Board (UC-257) — HTTP Basic Auth (key as username), free read-only
   PROVIDER_KEY_REED: z.string().optional().default(''),
 
+  // Canopy API Amazon Product Data (UC-265) — API-KEY header, 100 req/month free, $0.01/req PAYG
+  PROVIDER_KEY_CANOPY: z.string().optional().default(''),
+
   // Tempo MPP — Machine Payments Protocol (dual-rail with x402)
   MPP_ENABLED: z.string().optional().default('false'),
   MPP_SECRET_KEY: z.string().optional().default(''),
