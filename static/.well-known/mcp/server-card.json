@@ -3,7 +3,7 @@
     "name": "APIbase",
     "version": "1.0.0",
     "title": "APIbase \u2014 The API Hub for AI Agents",
-    "description": "Unified MCP gateway to 401 tools. Dual-rail: x402 + MPP.",
+    "description": "Unified MCP gateway to 403 tools. Dual-rail: x402 + MPP.",
     "websiteUrl": "https://apibase.pro",
     "icons": [
       {
@@ -14603,6 +14603,52 @@
             "default": 1
           }
         }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "aipush.market.report",
+      "title": "Market Intelligence Report (AIPush MIP)",
+      "description": "Start a full AI market intelligence report for any website. Provide a URL (e.g. \"https://stripe.com\") \u2014 the system crawls the site, extracts value propositions and services, identifies competitors, scores them, finds keyword gaps and market opportunities. Returns report_id \u2014 poll with aipush.market_report_status. Takes ~2 minutes. Cost: $29.99 (AIPush MIP)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "target_url": {
+            "type": "string",
+            "description": "Website URL to analyze (e.g. \"https://stripe.com\"). The system crawls the site, extracts value propositions, finds competitors, and builds a full market intelligence report with competitive scoring, keyword gaps, and market opportunities. Takes ~2 minutes."
+          }
+        },
+        "required": [
+          "target_url"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "aipush.market.report_status",
+      "title": "Market Report Status (AIPush MIP)",
+      "description": "Poll the status of a market intelligence report. Returns \"running\" with current step (crawling/ai_analysis), or \"completed\" with full profile_json containing competitors (scored), keywords, market surface, and evidence. Free to poll (AIPush MIP)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "report_id": {
+            "type": "string",
+            "description": "Report ID returned by aipush.market_report. Poll until status = \"completed\" to get the full profile_json with competitors, keywords, and market analysis."
+          }
+        },
+        "required": [
+          "report_id"
+        ]
       },
       "annotations": {
         "readOnlyHint": true,

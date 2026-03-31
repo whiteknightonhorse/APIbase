@@ -99,3 +99,29 @@ export interface AIPushVisibilityResponse {
   overall_score: number;
   checked_at: string;
 }
+
+// ---------------------------------------------------------------------------
+// POST /api/internal/market-report
+// ---------------------------------------------------------------------------
+
+export interface AIPushMarketReportResponse {
+  ok: boolean;
+  report_id: string;
+  status: string;
+}
+
+// ---------------------------------------------------------------------------
+// GET /api/internal/market-report/:id
+// ---------------------------------------------------------------------------
+
+export interface AIPushMarketReportStatusResponse {
+  ok: boolean;
+  report_id: string;
+  status: string; // running | completed | failed
+  step?: string; // crawling | ai_analysis | ...
+  started_at?: string;
+  completed_at?: string;
+  target_url?: string;
+  profile_json?: Record<string, unknown>;
+  error?: string;
+}

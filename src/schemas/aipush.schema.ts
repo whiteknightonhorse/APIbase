@@ -47,7 +47,9 @@ const aipushGeneratePage = z
       .string()
       .min(3)
       .max(253)
-      .describe('Domain of the website to generate a page for. Must be set up first via aipush.setup_website.'),
+      .describe(
+        'Domain of the website to generate a page for. Must be set up first via aipush.setup_website.',
+      ),
     keyword: z
       .string()
       .min(2)
@@ -101,7 +103,9 @@ const aipushPageContent = z
       .string()
       .min(1)
       .max(200)
-      .describe('Page slug identifier (e.g. "best-hotels-bangkok-2026"). Returned by aipush.list_pages or aipush.generate_page.'),
+      .describe(
+        'Page slug identifier (e.g. "best-hotels-bangkok-2026"). Returned by aipush.list_pages or aipush.generate_page.',
+      ),
   })
   .strip();
 
@@ -115,7 +119,9 @@ const aipushWebsiteProfile = z
       .string()
       .min(3)
       .max(253)
-      .describe('Domain to get the MIP business analysis for. Must have completed setup (mip_status = "ready").'),
+      .describe(
+        'Domain to get the MIP business analysis for. Must have completed setup (mip_status = "ready").',
+      ),
   })
   .strip();
 
@@ -129,7 +135,39 @@ const aipushCheckVisibility = z
       .string()
       .min(3)
       .max(253)
-      .describe('Domain to check AI visibility for (e.g. "example.com"). Tests whether AI assistants know about and recommend this brand.'),
+      .describe(
+        'Domain to check AI visibility for (e.g. "example.com"). Tests whether AI assistants know about and recommend this brand.',
+      ),
+  })
+  .strip();
+
+// ---------------------------------------------------------------------------
+// aipush.market_report — Start MIP Market Intelligence Report
+// ---------------------------------------------------------------------------
+
+const aipushMarketReport = z
+  .object({
+    target_url: z
+      .string()
+      .url()
+      .describe(
+        'Website URL to analyze (e.g. "https://stripe.com"). The system crawls the site, extracts value propositions, finds competitors, and builds a full market intelligence report with competitive scoring, keyword gaps, and market opportunities. Takes ~2 minutes.',
+      ),
+  })
+  .strip();
+
+// ---------------------------------------------------------------------------
+// aipush.market_report_status — Poll report status / get results
+// ---------------------------------------------------------------------------
+
+const aipushMarketReportStatus = z
+  .object({
+    report_id: z
+      .string()
+      .uuid()
+      .describe(
+        'Report ID returned by aipush.market_report. Poll until status = "completed" to get the full profile_json with competitors, keywords, and market analysis.',
+      ),
   })
   .strip();
 
@@ -145,4 +183,6 @@ export const aipushSchemas: Record<string, ZodSchema> = {
   'aipush.page_content': aipushPageContent,
   'aipush.website_profile': aipushWebsiteProfile,
   'aipush.check_visibility': aipushCheckVisibility,
+  'aipush.market_report': aipushMarketReport,
+  'aipush.market_report_status': aipushMarketReportStatus,
 };
