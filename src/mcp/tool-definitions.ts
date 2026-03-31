@@ -4088,4 +4088,26 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'jobs',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // Reed.co.uk — UK Job Board (UC-257, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'reed.search',
+    mcpName: 'jobs.reed.search',
+    title: 'Search UK Jobs',
+    description:
+      'Search UK job listings — filter by keywords, location, distance, salary range (GBP), contract type (permanent/contract/temp), full/part time. Returns title, company, salary, applications count, direct link. UK largest job board (Reed.co.uk)',
+    category: 'jobs',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'reed.details',
+    mcpName: 'jobs.reed.details',
+    title: 'UK Job Details',
+    description:
+      'Get full details of a UK job listing by ID — title, company, full salary info (min/max GBP, annual/hourly/daily), contract type, full/part time, application count, full HTML description, external apply URL. Use job IDs from reed.search results (Reed.co.uk)',
+    category: 'jobs',
+    annotations: READ_ONLY,
+  },
 ];

@@ -118,6 +118,7 @@ import { ZippopotamusAdapter } from './zippopotamus';
 import { TheirStackAdapter } from './theirstack';
 import { JoobleAdapter } from './jooble';
 import { ArbeitnowAdapter } from './arbeitnow';
+import { ReedAdapter } from './reed';
 import { config } from '../config';
 
 /**
@@ -782,6 +783,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'arbeitnow':
       // Arbeitnow — open public API, no auth needed (UC-256)
       return getOrCreate('arbeitnow', () => new ArbeitnowAdapter());
+    case 'reed': {
+      const reedKey = (config as Record<string, unknown>).PROVIDER_KEY_REED as string | undefined;
+      if (!reedKey) return undefined;
+      return getOrCreate('reed', () => new ReedAdapter(reedKey));
+    }
     default:
       return undefined;
   }

@@ -1031,6 +1031,15 @@
     "docs_url": "https://developer.adzuna.com/overview",
     "limit_proof": "Trial Access: ~250 req/day free. 16+ countries. Job search + salary data."
   },
+  "reed": {
+    "display_name": "Reed.co.uk",
+    "health_url": "https://www.reed.co.uk/api/1.0/search?keywords=test&resultsToTake=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.reed.co.uk/developers/jobseeker",
+    "limit_proof": "Jobseeker API is free read-only. No documented rate limits. Recruiter API (paid) is separate."
+  },
   "arbeitnow": {
     "display_name": "Arbeitnow",
     "health_url": "https://www.arbeitnow.com/api/job-board-api?page=1",

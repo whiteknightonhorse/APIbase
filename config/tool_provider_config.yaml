@@ -2396,6 +2396,18 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-257: Reed.co.uk (UK Job Board) ---
+  - tool_id: reed.search
+    name: Search UK Jobs
+    provider: reed
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: reed.details
+    name: UK Job Details
+    provider: reed
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   # --- UC-256: Arbeitnow (EU Job Listings) ---
   - tool_id: arbeitnow.jobs
     name: Browse EU Job Listings

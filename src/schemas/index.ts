@@ -118,6 +118,7 @@ import { balldontlieSchemas } from './balldontlie.schema';
 import { theirstackSchemas } from './theirstack.schema';
 import { joobleSchemas } from './jooble.schema';
 import { arbeitnowSchemas } from './arbeitnow.schema';
+import { reedSchemas } from './reed.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -239,4 +240,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...theirstackSchemas,
   ...joobleSchemas,
   ...arbeitnowSchemas,
+  ...reedSchemas,
 };
