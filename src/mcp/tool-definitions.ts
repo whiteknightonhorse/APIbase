@@ -4075,4 +4075,17 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'jobs',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // Arbeitnow — EU Job Listings (UC-256, 1 tool)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'arbeitnow.jobs',
+    mcpName: 'jobs.arbeitnow.browse',
+    title: 'Browse EU Job Listings',
+    description:
+      'Browse European job listings — 100 jobs per page sorted by newest. Returns title, company, location, remote flag, tags, job types, direct link. Updated hourly. EU-focused: Germany, Austria, Switzerland, Netherlands, and more. Open public API (Arbeitnow)',
+    category: 'jobs',
+    annotations: READ_ONLY,
+  },
 ];

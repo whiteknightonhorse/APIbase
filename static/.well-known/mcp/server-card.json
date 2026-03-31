@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 406 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 407 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -13910,6 +13910,27 @@
           "company_search": {
             "type": "boolean",
             "description": "Set true to search by company name instead of job title"
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "jobs.arbeitnow.browse",
+      "description": "Browse European job listings — 100 jobs per page sorted by newest. Returns title, company, location, remote flag, tags, job types, direct link. Updated hourly. EU-focused: Germany, Austria, Switzerland, Netherlands, and more. Open public API (Arbeitnow)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number (default 1). Each page returns ~100 EU job listings sorted by newest first. No server-side search — use page to browse",
+            "default": 1
           }
         }
       },

@@ -2396,6 +2396,13 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-256: Arbeitnow (EU Job Listings) ---
+  - tool_id: arbeitnow.jobs
+    name: Browse EU Job Listings
+    provider: arbeitnow
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   # --- UC-255: Jooble (Job Aggregator) ---
   - tool_id: jooble.search
     name: Search Jobs Worldwide

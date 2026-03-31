@@ -117,6 +117,7 @@ import { BallDontLieAdapter } from './balldontlie';
 import { ZippopotamusAdapter } from './zippopotamus';
 import { TheirStackAdapter } from './theirstack';
 import { JoobleAdapter } from './jooble';
+import { ArbeitnowAdapter } from './arbeitnow';
 import { config } from '../config';
 
 /**
@@ -778,6 +779,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       if (!joobleKey) return undefined;
       return getOrCreate('jooble', () => new JoobleAdapter(joobleKey));
     }
+    case 'arbeitnow':
+      // Arbeitnow — open public API, no auth needed (UC-256)
+      return getOrCreate('arbeitnow', () => new ArbeitnowAdapter());
     default:
       return undefined;
   }

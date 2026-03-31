@@ -1031,6 +1031,15 @@
     "docs_url": "https://developer.adzuna.com/overview",
     "limit_proof": "Trial Access: ~250 req/day free. 16+ countries. Job search + salary data."
   },
+  "arbeitnow": {
+    "display_name": "Arbeitnow",
+    "health_url": "https://www.arbeitnow.com/api/job-board-api?page=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.arbeitnow.com/blog/job-board-api",
+    "limit_proof": "Free public API, no auth, no documented rate limits. Terms: do not abuse."
+  },
   "jooble": {
     "display_name": "Jooble",
     "health_url": "https://jooble.org/api/about",
