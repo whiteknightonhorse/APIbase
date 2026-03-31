@@ -119,6 +119,7 @@ import { theirstackSchemas } from './theirstack.schema';
 import { joobleSchemas } from './jooble.schema';
 import { arbeitnowSchemas } from './arbeitnow.schema';
 import { reedSchemas } from './reed.schema';
+import { remotiveSchemas } from './remotive.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -241,4 +242,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...joobleSchemas,
   ...arbeitnowSchemas,
   ...reedSchemas,
+  ...remotiveSchemas,
 };

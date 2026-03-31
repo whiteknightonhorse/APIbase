@@ -119,6 +119,7 @@ import { TheirStackAdapter } from './theirstack';
 import { JoobleAdapter } from './jooble';
 import { ArbeitnowAdapter } from './arbeitnow';
 import { ReedAdapter } from './reed';
+import { RemotiveAdapter } from './remotive';
 import { config } from '../config';
 
 /**
@@ -788,6 +789,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       if (!reedKey) return undefined;
       return getOrCreate('reed', () => new ReedAdapter(reedKey));
     }
+    case 'remotive':
+      // Remotive — open public API, no auth needed (UC-258)
+      return getOrCreate('remotive', () => new RemotiveAdapter());
     default:
       return undefined;
   }

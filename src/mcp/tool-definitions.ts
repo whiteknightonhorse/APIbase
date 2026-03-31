@@ -4110,4 +4110,17 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'jobs',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // Remotive — Remote Jobs (UC-258, 1 tool)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'remotive.search',
+    mcpName: 'jobs.remotive.search',
+    title: 'Search Remote Jobs',
+    description:
+      'Search curated remote-only job listings — filter by keywords and category (software-dev, design, marketing, data, devops, etc.). Returns title, company, salary, job type, location requirements, tags. Global remote positions only (Remotive)',
+    category: 'jobs',
+    annotations: READ_ONLY,
+  },
 ];

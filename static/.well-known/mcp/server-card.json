@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 409 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 410 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -14019,6 +14019,36 @@
         "required": [
           "job_id"
         ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "jobs.remotive.search",
+      "description": "Search curated remote-only job listings — filter by keywords and category (software-dev, design, marketing, data, devops, etc.). Returns title, company, salary, job type, location requirements, tags. Global remote positions only (Remotive)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "search": {
+            "type": "string",
+            "description": "Job search keywords (e.g. \"python\", \"react developer\", \"product manager\")"
+          },
+          "category": {
+            "type": "string",
+            "description": "Job category slug: software-dev, design, customer-support, writing, marketing, sales, product, business, data, devops, finance, hr, qa, all-others"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Max results (1-50, default 20)",
+            "default": 20
+          }
+        }
       },
       "annotations": {
         "readOnlyHint": true,
