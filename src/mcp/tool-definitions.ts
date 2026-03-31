@@ -4123,4 +4123,44 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'jobs',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // Canopy API — Amazon Product Data (UC-265, 4 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'canopy.search',
+    mcpName: 'ecommerce.amazon.search',
+    title: 'Search Amazon Products',
+    description:
+      'Search Amazon products by keyword — filter by price range, sort by relevance/price/rating/reviews/newest. Returns title, ASIN, price, rating, Prime flag, image. 12 marketplaces: US, UK, CA, DE, FR, IT, ES, AU, IN, MX, BR, JP (Canopy API)',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'canopy.product',
+    mcpName: 'ecommerce.amazon.product',
+    title: 'Amazon Product Details',
+    description:
+      'Get full Amazon product details by ASIN — title, brand, price, rating, stock status, feature bullets, categories, seller name. Use ASINs from canopy.search. 12 Amazon marketplaces supported (Canopy API)',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'canopy.offers',
+    mcpName: 'ecommerce.amazon.offers',
+    title: 'Amazon Product Offers & Buy Box',
+    description:
+      'Get all third-party seller offers for an Amazon product — price, condition (new/used), seller name & rating, Buy Box winner flag, Fulfilled by Amazon, delivery estimate. Price comparison across sellers (Canopy API)',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'canopy.deals',
+    mcpName: 'ecommerce.amazon.deals',
+    title: 'Amazon Current Deals',
+    description:
+      'Browse current Amazon deals — original price vs deal price, product title, ASIN, deal link. Paginated, 500+ active deals. 12 Amazon marketplaces (Canopy API)',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
 ];

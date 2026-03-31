@@ -1031,6 +1031,15 @@
     "docs_url": "https://developer.adzuna.com/overview",
     "limit_proof": "Trial Access: ~250 req/day free. 16+ countries. Job search + salary data."
   },
+  "canopy": {
+    "display_name": "Canopy API (Amazon)",
+    "health_url": "https://rest.canopyapi.co/api/amazon/search?searchTerm=test&domain=US",
+    "limit_type": "monthly",
+    "free_limit": 100,
+    "reset_period": "monthly",
+    "docs_url": "https://docs.canopyapi.co",
+    "limit_proof": "Hobby plan: 100 req/month free forever. PAYG: $0.01/req. 12 Amazon marketplaces."
+  },
   "remotive": {
     "display_name": "Remotive",
     "health_url": "https://remotive.com/api/remote-jobs?limit=1",

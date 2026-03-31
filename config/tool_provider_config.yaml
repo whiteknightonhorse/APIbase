@@ -2396,6 +2396,28 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-265: Canopy API (Amazon Product Data) ---
+  - tool_id: canopy.search
+    name: Search Amazon Products
+    provider: canopy
+    price_usd: "0.012"
+    cache_ttl: 3600
+  - tool_id: canopy.product
+    name: Amazon Product Details
+    provider: canopy
+    price_usd: "0.012"
+    cache_ttl: 86400
+  - tool_id: canopy.offers
+    name: Amazon Offers & Buy Box
+    provider: canopy
+    price_usd: "0.012"
+    cache_ttl: 1800
+  - tool_id: canopy.deals
+    name: Amazon Current Deals
+    provider: canopy
+    price_usd: "0.012"
+    cache_ttl: 3600
+
   # --- UC-258: Remotive (Remote Jobs) ---
   - tool_id: remotive.search
     name: Search Remote Jobs
