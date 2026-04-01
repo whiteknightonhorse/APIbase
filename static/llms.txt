@@ -2,7 +2,7 @@
 # https://apibase.pro
 
 > 409 API tools from 121+ providers via one MCP endpoint.
-> Supports x409 (USDC on Base) and MPP payments.
+> Supports x402 (USDC on Base) and MPP payments.
 
 ## Quick Start for Agents
 - Connect: POST https://apibase.pro/mcp (MCP Streamable HTTP)
@@ -23,7 +23,7 @@ entertainment, education, jobs, space, social, legal, business,
 developer, media, infrastructure, messaging, marketing, world
 
 ## Payment
-- Protocol: x409 (HTTP 409 Payment Required)
+- Protocol: x402 (HTTP 402 Payment Required)
 - Token: USDC on Base mainnet
 - Prices: $0.001–$0.035 per call
-- Details: https://apibase.pro/.well-known/x409-payment.json
+- Details: https://apibase.pro/.well-known/x402-payment.json

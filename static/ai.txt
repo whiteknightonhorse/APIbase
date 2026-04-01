@@ -7,7 +7,7 @@ Name: APIbase
 URL: https://apibase.pro
 Type: API aggregation platform for AI agents
 Protocol: MCP (Model Context Protocol)
-Payment: x409 (USDC on Base) + MPP (Machine Payments Protocol)
+Payment: x402 (USDC on Base) + MPP (Machine Payments Protocol)
 Tools: 409 across 21 categories
 
 ## What We Do
@@ -37,10 +37,10 @@ Auto-registration: first request creates agent credentials automatically.
 API key format: ak_live_<32 hex> in Authorization: Bearer header.
 
 ## Payments
-Protocol: x409 (HTTP 409 Payment Required)
+Protocol: x402 (HTTP 402 Payment Required)
 Token: USDC on Base mainnet
 Prices: $0.001–$0.035 per call (tool-dependent)
-Details: https://apibase.pro/.well-known/x409-payment.json
+Details: https://apibase.pro/.well-known/x402-payment.json
 
 ## Discovery Endpoints
 - MCP: https://apibase.pro/mcp

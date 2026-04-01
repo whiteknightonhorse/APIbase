@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APIbase — Connect from Any AI Framework</title>
+<meta name="description" content="Connect APIbase MCP server from Claude Desktop, Cursor, OpenAI Agents SDK, LangChain, Google ADK, CrewAI, Windsurf. One endpoint, 409+ tools.">
+<link rel="canonical" href="https://apibase.pro/frameworks">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0d1117;color:#c9d1d9;font-family:'JetBrains Mono','Courier New',monospace;padding:20px;max-width:900px;margin:0 auto;line-height:1.6}
+h1{color:#00ff41;font-size:24px;margin-bottom:8px}
+h2{color:#58a6ff;font-size:18px;margin:32px 0 12px;border-bottom:1px solid #30363d;padding-bottom:6px}
+h3{color:#d2a8ff;font-size:15px;margin:20px 0 8px}
+p,li{font-size:14px;color:#8b949e}
+a{color:#58a6ff;text-decoration:none}
+a:hover{text-decoration:underline}
+code{background:#161b22;padding:2px 6px;border-radius:4px;font-size:13px;color:#c9d1d9}
+pre{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:16px;overflow-x:auto;font-size:13px;margin:10px 0;color:#c9d1d9;line-height:1.5}
+.badge{display:inline-block;background:#238636;color:#fff;font-size:11px;padding:2px 8px;border-radius:10px;margin-left:8px}
+.badge-warn{background:#9e6a03}
+.card{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:16px;margin:12px 0}
+.endpoint{color:#00ff41;font-weight:bold}
+.note{color:#6e7681;font-size:12px;font-style:italic}
+.nav{display:flex;gap:16px;flex-wrap:wrap;margin:16px 0;font-size:13px}
+.back{color:#8b949e;font-size:13px;margin-bottom:16px;display:block}
+</style>
+</head>
+<body>
+<a href="/" class="back">&larr; apibase.pro</a>
+<h1>> Connect APIbase from Any Framework</h1>
+<p>One MCP endpoint. 409+ tools. Works with every major AI framework.</p>
+<p class="endpoint" style="margin:12px 0">https://apibase.pro/mcp</p>
+
+<div class="nav">
+<a href="#claude">Claude Desktop</a> &middot;
+<a href="#cursor">Cursor IDE</a> &middot;
+<a href="#windsurf">Windsurf</a> &middot;
+<a href="#openai">OpenAI Agents SDK</a> &middot;
+<a href="#langchain">LangChain</a> &middot;
+<a href="#google-adk">Google ADK</a> &middot;
+<a href="#crewai">CrewAI</a> &middot;
+<a href="#copilot">Copilot Studio</a> &middot;
+<a href="#rest">REST / curl</a>
+</div>
+
+<!-- Claude Desktop -->
+<h2 id="claude">Claude Desktop / Claude Code <span class="badge">Native MCP</span></h2>
+<p>Add to <code>~/Library/Application Support/Claude/claude_desktop_config.json</code> (macOS) or <code>%APPDATA%\Claude\claude_desktop_config.json</code> (Windows):</p>
+<pre>{
+  "mcpServers": {
+    "apibase": {
+      "url": "https://apibase.pro/mcp",
+      "transport": "streamable-http"
+    }
+  }
+}</pre>
+<p class="note">No API key needed — auto-registration on first call. Optional: add "headers": {"Authorization": "Bearer ak_live_..."}</p>
+
+<!-- Cursor IDE -->
+<h2 id="cursor">Cursor IDE <span class="badge">GA Jan 2026</span></h2>
+<p>Add to <code>.cursor/mcp.json</code> in your project root:</p>
+<pre>{
+  "mcpServers": {
+    "apibase": {
+      "url": "https://apibase.pro/mcp",
+      "transport": "streamable-http"
+    }
+  }
+}</pre>
+<p class="note">Or install via Cursor Settings → MCP → Add Server → URL: https://apibase.pro/mcp</p>
+
+<!-- Windsurf -->
+<h2 id="windsurf">Windsurf (Codeium) <span class="badge">Cascade Agent</span></h2>
+<p>Add to <code>~/.codeium/windsurf/mcp_config.json</code>:</p>
+<pre>{
+  "mcpServers": {
+    "apibase": {
+      "serverUrl": "https://apibase.pro/mcp",
+      "transport": "streamable-http"
+    }
+  }
+}</pre>
+<p class="note">Or: Windsurf → Cascade → MCP Tools → Add Server</p>
+
+<!-- OpenAI Agents SDK -->
+<h2 id="openai">OpenAI Agents SDK <span class="badge">Python + TS</span></h2>
+<h3>Python</h3>
+<pre>from agents import Agent
+from agents.mcp import MCPServerStreamableHTTP
+
+async with MCPServerStreamableHTTP(
+    url="https://apibase.pro/mcp",
+    headers={"Authorization": "Bearer ak_live_..."}
+) as server:
+    tools = await server.list_tools()
+    agent = Agent(
+        name="my-agent",
+        instructions="You have access to 409+ real-world API tools.",
+        mcp_servers=[server]
+    )
+    result = await Runner.run(agent, "Search flights from NYC to London")</pre>
+
+<h3>TypeScript</h3>
+<pre>import { MCPServerStreamableHTTP } from "@openai/agents/mcp";
+
+const server = new MCPServerStreamableHTTP({
+  url: "https://apibase.pro/mcp",
+  headers: { Authorization: "Bearer ak_live_..." }
+});
+await server.connect();</pre>
+
+<!-- LangChain -->
+<h2 id="langchain">LangChain / LangGraph <span class="badge">MultiServerMCPClient</span></h2>
+<pre>from langchain_mcp_adapters.client import MultiServerMCPClient
+
+async with MultiServerMCPClient({
+    "apibase": {
+        "url": "https://apibase.pro/mcp",
+        "transport": "streamable_http",
+        "headers": {"Authorization": "Bearer ak_live_..."}
+    }
+}) as client:
+    tools = client.get_tools()
+    # Use with any LangChain agent
+    from langgraph.prebuilt import create_react_agent
+    agent = create_react_agent(model, tools)</pre>
+<p class="note">Install: pip install langchain-mcp-adapters</p>
+
+<!-- Google ADK -->
+<h2 id="google-adk">Google ADK (Agent Development Kit) <span class="badge">v1.0 Stable</span></h2>
+<pre>from google.adk.tools.mcp_tool import McpToolset, StreamableHTTPConnectionParams
+
+toolset = McpToolset(
+    connection_params=StreamableHTTPConnectionParams(
+        url="https://apibase.pro/mcp",
+        headers={"Authorization": "Bearer ak_live_..."}
+    )
+)
+tools, exit_stack = await toolset.create_tools()
+# tools is a list of BaseTool — use with any ADK agent</pre>
+<p class="note">Install: pip install google-adk</p>
+
+<!-- CrewAI -->
+<h2 id="crewai">CrewAI <span class="badge">URL-based config</span></h2>
+<pre>from crewai import Agent, Task, Crew
+
+agent = Agent(
+    role="Research Assistant",
+    goal="Find real-time data using 409+ API tools",
+    backstory="You have access to APIbase MCP server with tools for flights, weather, stocks, jobs, and more.",
+    mcp_servers=["https://apibase.pro/mcp"],
+    verbose=True
+)</pre>
+<p class="note">CrewAI auto-discovers tools via MCP. No manual tool registration needed.</p>
+
+<!-- Copilot Studio -->
+<h2 id="copilot">Microsoft Copilot Studio <span class="badge badge-warn">Enterprise</span></h2>
+<p>In Copilot Studio → Actions → Add MCP Server:</p>
+<div class="card">
+<p><strong>Server URL:</strong> <code>https://apibase.pro/mcp</code></p>
+<p><strong>Transport:</strong> Streamable HTTP</p>
+<p><strong>Authentication:</strong> Bearer token (optional — auto-registration supported)</p>
+</div>
+<p class="note">Requires Microsoft 365 Copilot license. MCP support is GA as of 2026.</p>
+
+<!-- REST / curl -->
+<h2 id="rest">REST / curl (any language) <span class="badge">Universal</span></h2>
+<pre># Browse all tools
+curl -s https://apibase.pro/api/v1/tools | jq '.data | length'
+
+# Call a free tool (no payment needed)
+curl -X POST https://apibase.pro/api/v1/tools/account.usage/call \
+  -H "Authorization: Bearer ak_live_..." \
+  -H "Content-Type: application/json" \
+  -d '{"period": "7d"}'
+
+# Paid tool → 402 with payment instructions
+curl -X POST https://apibase.pro/api/v1/tools/crypto.trending/call \
+  -H "Authorization: Bearer ak_live_..." \
+  -H "Content-Type: application/json" \
+  -d '{}'</pre>
+
+<h2>Progressive Disclosure</h2>
+<p>409+ tools is too many for any context window. Use <code>discover_tools</code> prompt to find relevant tools first:</p>
+<pre># MCP: call the discover_tools prompt
+{"method": "prompts/get", "params": {"name": "discover_tools", "arguments": {"task": "search flights from NYC to London"}}}
+
+# REST: browse categories
+curl -s https://apibase.pro/api/v1/tools | jq '.data[] | select(.category == "travel")'</pre>
+
+<div style="margin:32px 0;padding:16px;border-top:1px solid #30363d;color:#6e7681;font-size:12px">
+<a href="/">Home</a> &middot; <a href="/dashboard">Dashboard</a> &middot; <a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a> &middot; <a href="https://smithery.ai/servers/apibase-pro/api-hub">Smithery</a>
+</div>
+</body>
+</html>

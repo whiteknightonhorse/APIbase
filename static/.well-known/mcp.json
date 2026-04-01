@@ -1,20 +1,37 @@
 {
   "name": "APIbase",
+  "description": "Unified MCP gateway to 409+ API tools from 121 providers. Pay-per-call via x402 USDC micropayments.",
   "protocol": "MCP",
-  "version": "1.0",
-  "mcp_endpoint": "https://apibase.pro/mcp",
+  "protocolVersion": "2025-03-26",
+  "transport": "streamable-http",
+  "url": "https://apibase.pro/mcp",
+  "version": "2.1.0",
   "tools_endpoint": "https://apibase.pro/api/v1/tools",
   "tools_count": 409,
+  "providers_count": 121,
   "categories_count": 21,
-  "capabilities_endpoint": "https://apibase.pro/.well-known/ai-capabilities.json",
-  "authentication": "x402",
-  "documentation": "https://apibase.pro/ai.txt",
-  "status": "active",
+  "authentication": {
+    "type": "bearer",
+    "required": false,
+    "description": "API key (ak_live_...) via Authorization: Bearer header. Optional — auto-registration supported.",
+    "payment": ["x402", "mpp"]
+  },
+  "capabilities": {
+    "tools": true,
+    "prompts": true,
+    "resources": false
+  },
   "prompts": [
+    "discover_tools",
     "find_cheapest_flight",
     "crypto_market_overview",
-    "prediction_market_research",
-    "discover_tools"
+    "prediction_market_research"
   ],
-  "discovery_hint": "Call prompt 'discover_tools' to browse tools by category or task instead of loading all schemas into context."
+  "discovery_hint": "Call prompt 'discover_tools' to browse tools by category or task instead of loading all schemas into context.",
+  "documentation": "https://apibase.pro/ai.txt",
+  "openapi": "https://apibase.pro/.well-known/openapi.json",
+  "server_card": "https://apibase.pro/.well-known/mcp/server-card.json",
+  "source": "https://github.com/whiteknightonhorse/APIbase",
+  "status": "active",
+  "updated_at": "2026-04-01"
 }

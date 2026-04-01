@@ -1,14 +1,14 @@
 {
   "platform": "APIbase",
   "version": "2.0",
-  "updated_at": "2026-03-26T00:00:00Z",
+  "updated_at": "2026-04-01T00:00:00Z",
   "tools_count": 409,
   "providers_count": 121,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
     "prompt_name": "discover_tools",
-    "description": "Call discover_tools to browse 327 tools by category or task instead of loading all schemas into context.",
+    "description": "Call discover_tools to browse 409+ tools by category or task instead of loading all schemas into context.",
     "examples": [
       {
         "args": {},
