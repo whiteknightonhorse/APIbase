@@ -1,6 +1,14 @@
 import type { Request, Response, NextFunction } from 'express';
-import { AppError, ErrorCode, ErrorHttpStatus, type ApiErrorResponse } from '../types/errors';
+import {
+  AppError,
+  ErrorCode,
+  ErrorHttpStatus,
+  SuggestedActionByStatus,
+  type ApiErrorResponse,
+} from '../types/errors';
 import { logger } from '../config/logger';
+
+const DOCS_URL = 'https://apibase.pro/frameworks#rest';
 
 /**
  * Global error handler (§12.243).
@@ -19,8 +27,11 @@ export function errorHandlerMiddleware(
   if (err instanceof AppError) {
     const body: ApiErrorResponse = {
       error: err.code,
+      error_code: err.code.toUpperCase(),
       message: err.message,
       request_id: requestId,
+      suggested_action: SuggestedActionByStatus[err.httpStatus] ?? 'contact_support',
+      documentation_url: DOCS_URL,
     };
 
     if (err.retryAfter !== undefined) {
@@ -43,8 +54,11 @@ export function errorHandlerMiddleware(
     (req.log ?? logger).warn({ status: 400, code: ErrorCode.BAD_REQUEST }, 'Malformed JSON body');
     const parseBody: ApiErrorResponse = {
       error: ErrorCode.BAD_REQUEST,
+      error_code: 'BAD_REQUEST',
       message: 'Malformed JSON in request body',
       request_id: requestId,
+      suggested_action: 'fix_request',
+      documentation_url: DOCS_URL,
     };
     res.status(400).json(parseBody);
     return;
@@ -55,8 +69,11 @@ export function errorHandlerMiddleware(
 
   const body: ApiErrorResponse = {
     error: ErrorCode.INTERNAL_ERROR,
+    error_code: 'INTERNAL_ERROR',
     message: 'Unexpected server error',
     request_id: requestId,
+    suggested_action: 'contact_support',
+    documentation_url: DOCS_URL,
   };
 
   res.status(ErrorHttpStatus[ErrorCode.INTERNAL_ERROR]).json(body);

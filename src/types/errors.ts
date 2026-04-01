@@ -23,11 +23,39 @@ export const ErrorCode = {
 
 export type ErrorCodeValue = (typeof ErrorCode)[keyof typeof ErrorCode];
 
-/** Standard error response body (§12.243). */
+/** Agent-friendly suggested actions for error recovery. */
+export type SuggestedAction =
+  | 'retry_after_delay'
+  | 'fix_request'
+  | 'add_payment'
+  | 'use_different_tool'
+  | 'contact_support';
+
+/** Map HTTP status ranges to suggested recovery actions. */
+export const SuggestedActionByStatus: Record<number, SuggestedAction> = {
+  400: 'fix_request',
+  401: 'fix_request',
+  402: 'add_payment',
+  403: 'fix_request',
+  404: 'use_different_tool',
+  406: 'fix_request',
+  409: 'retry_after_delay',
+  410: 'use_different_tool',
+  429: 'retry_after_delay',
+  500: 'contact_support',
+  502: 'retry_after_delay',
+  503: 'retry_after_delay',
+  504: 'retry_after_delay',
+};
+
+/** Standard error response body (§12.243). Enhanced for AI agent consumption. */
 export interface ApiErrorResponse {
   error: ErrorCodeValue;
+  error_code: string;
   message: string;
   request_id: string;
+  suggested_action: SuggestedAction;
+  documentation_url: string;
   retry_after?: number;
   price_usd?: string;
   payment_address?: string;

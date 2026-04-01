@@ -20,7 +20,10 @@ function buildCategoryIndex(): Map<string, McpToolDefinition[]> {
   for (const t of TOOL_DEFINITIONS) {
     const cat = t.category ?? 'other';
     let arr = idx.get(cat);
-    if (!arr) { arr = []; idx.set(cat, arr); }
+    if (!arr) {
+      arr = [];
+      idx.set(cat, arr);
+    }
     arr.push(t);
   }
   return idx;
@@ -52,11 +55,16 @@ function scoreByTask(tool: McpToolDefinition, keywords: string[]): number {
   let score = 0;
   for (const kw of keywords) {
     const stemmed = stem(kw);
-    if (title.includes(kw) || title.includes(stemmed))                       score += 3;
-    if (toolId.includes(kw) || toolId.includes(stemmed)
-     || mcpName.includes(kw) || mcpName.includes(stemmed))                   score += 2;
-    if (desc.includes(kw) || desc.includes(stemmed))                          score += 1;
-    if (cat.includes(kw) || cat.includes(stemmed))                             score += 1;
+    if (title.includes(kw) || title.includes(stemmed)) score += 3;
+    if (
+      toolId.includes(kw) ||
+      toolId.includes(stemmed) ||
+      mcpName.includes(kw) ||
+      mcpName.includes(stemmed)
+    )
+      score += 2;
+    if (desc.includes(kw) || desc.includes(stemmed)) score += 1;
+    if (cat.includes(kw) || cat.includes(stemmed)) score += 1;
   }
   return score;
 }
@@ -64,20 +72,78 @@ function scoreByTask(tool: McpToolDefinition, keywords: string[]): number {
 /** Extract meaningful keywords from a task description. Returns both original and stemmed forms. */
 function extractKeywords(task: string): string[] {
   const stopwords = new Set([
-    'a', 'an', 'the', 'is', 'are', 'was', 'were', 'be', 'been',
-    'to', 'of', 'in', 'for', 'on', 'with', 'at', 'by', 'from',
-    'and', 'or', 'not', 'no', 'but', 'if', 'so', 'as', 'it',
-    'do', 'does', 'did', 'will', 'would', 'can', 'could', 'should',
-    'has', 'have', 'had', 'i', 'me', 'my', 'we', 'our', 'you',
-    'your', 'he', 'she', 'they', 'them', 'this', 'that', 'what',
-    'which', 'how', 'get', 'find', 'search', 'look', 'up', 'about',
-    'some', 'any', 'all', 'want', 'need', 'near',
+    'a',
+    'an',
+    'the',
+    'is',
+    'are',
+    'was',
+    'were',
+    'be',
+    'been',
+    'to',
+    'of',
+    'in',
+    'for',
+    'on',
+    'with',
+    'at',
+    'by',
+    'from',
+    'and',
+    'or',
+    'not',
+    'no',
+    'but',
+    'if',
+    'so',
+    'as',
+    'it',
+    'do',
+    'does',
+    'did',
+    'will',
+    'would',
+    'can',
+    'could',
+    'should',
+    'has',
+    'have',
+    'had',
+    'i',
+    'me',
+    'my',
+    'we',
+    'our',
+    'you',
+    'your',
+    'he',
+    'she',
+    'they',
+    'them',
+    'this',
+    'that',
+    'what',
+    'which',
+    'how',
+    'get',
+    'find',
+    'search',
+    'look',
+    'up',
+    'about',
+    'some',
+    'any',
+    'all',
+    'want',
+    'need',
+    'near',
   ]);
   const words = task
     .toLowerCase()
     .replace(/[^a-z0-9\s]/g, ' ')
     .split(/\s+/)
-    .filter(w => w.length > 1 && !stopwords.has(w));
+    .filter((w) => w.length > 1 && !stopwords.has(w));
   // Deduplicate: include both original and stemmed forms
   const unique = new Set<string>();
   for (const w of words) {
@@ -90,13 +156,19 @@ function extractKeywords(task: string): string[] {
 
 const MAX_RESULTS = 18;
 
-/** Format a tool entry for text output. */
-function formatTool(t: McpToolDefinition): string {
+/** Format a tool entry for text output, with optional related tools. */
+function formatTool(t: McpToolDefinition, showRelated = false): string {
   const name = t.mcpName ?? t.toolId;
-  const desc = t.description.length > 120
-    ? t.description.slice(0, 117) + '...'
-    : t.description;
-  return `- ${name}: ${desc}`;
+  const desc = t.description.length > 120 ? t.description.slice(0, 117) + '...' : t.description;
+  let line = `- ${name}: ${desc}`;
+  if (showRelated && t.relatedTools && t.relatedTools.length > 0) {
+    const hints = t.relatedTools
+      .slice(0, 3)
+      .map((r) => `${r.toolId} (${r.reason})`)
+      .join(', ');
+    line += `\n  → Related: ${hints}`;
+  }
+  return line;
 }
 
 /** Produce the discover_tools response text. */
@@ -120,9 +192,11 @@ function discoverTools(args: { task?: string; category?: string }): string {
       return formatCategoryResult(category, tools);
     }
     const scored = tools
-      .map(t => ({ tool: t, score: scoreByTask(t, keywords) }))
-      .filter(s => s.score > 0)
-      .sort((a, b) => b.score - a.score || (a.tool.title?.length ?? 99) - (b.tool.title?.length ?? 99))
+      .map((t) => ({ tool: t, score: scoreByTask(t, keywords) }))
+      .filter((s) => s.score > 0)
+      .sort(
+        (a, b) => b.score - a.score || (a.tool.title?.length ?? 99) - (b.tool.title?.length ?? 99),
+      )
       .slice(0, MAX_RESULTS);
 
     if (scored.length === 0) {
@@ -130,12 +204,12 @@ function discoverTools(args: { task?: string; category?: string }): string {
         `No tools in "${category}" matched "${task}".`,
         '',
         `All ${tools.length} tools in this category:`,
-        ...tools.slice(0, MAX_RESULTS).map(formatTool),
+        ...tools.slice(0, MAX_RESULTS).map((t) => formatTool(t)),
         ...(tools.length > MAX_RESULTS ? [`... and ${tools.length - MAX_RESULTS} more`] : []),
       ].join('\n');
     }
     const lines = [`Tools in "${category}" for "${task}" (${scored.length}):`, ''];
-    for (const s of scored) lines.push(formatTool(s.tool));
+    for (const s of scored) lines.push(formatTool(s.tool, true));
     return lines.join('\n');
   }
 
@@ -158,10 +232,11 @@ function discoverTools(args: { task?: string; category?: string }): string {
     if (keywords.length === 0) {
       return 'Could not extract keywords from task. Try a more specific description or use category filter.';
     }
-    const scored = TOOL_DEFINITIONS
-      .map(t => ({ tool: t, score: scoreByTask(t, keywords) }))
-      .filter(s => s.score > 0)
-      .sort((a, b) => b.score - a.score || (a.tool.title?.length ?? 99) - (b.tool.title?.length ?? 99))
+    const scored = TOOL_DEFINITIONS.map((t) => ({ tool: t, score: scoreByTask(t, keywords) }))
+      .filter((s) => s.score > 0)
+      .sort(
+        (a, b) => b.score - a.score || (a.tool.title?.length ?? 99) - (b.tool.title?.length ?? 99),
+      )
       .slice(0, MAX_RESULTS);
 
     if (scored.length === 0) {
@@ -172,7 +247,7 @@ function discoverTools(args: { task?: string; category?: string }): string {
       ].join('\n');
     }
     const lines = [`Tools for "${task}" (top ${scored.length}):`, ''];
-    for (const s of scored) lines.push(formatTool(s.tool));
+    for (const s of scored) lines.push(formatTool(s.tool, true));
     return lines.join('\n');
   }
 
@@ -185,7 +260,10 @@ function discoverTools(args: { task?: string; category?: string }): string {
     const count = categoryIndex.get(cat)?.length ?? 0;
     if (count > 0) lines.push(`- ${cat}: ${count} tools`);
   }
-  lines.push('', 'Use discover_tools with category="<name>" or task="<description>" to find relevant tools.');
+  lines.push(
+    '',
+    'Use discover_tools with category="<name>" or task="<description>" to find relevant tools.',
+  );
   lines.push('All tools remain callable via tools/call regardless of discovery.');
   return lines.join('\n');
 }
@@ -297,8 +375,14 @@ export function registerPrompts(server: McpServer): void {
     'discover_tools',
     `Browse ${TOOL_DEFINITIONS.length} tools by category or task description. Returns relevant tools without loading all definitions into context.`,
     {
-      task: z.string().optional().describe('Describe what you want to do (e.g. "search flights from NYC to London")'),
-      category: z.string().optional().describe(`Filter by category: ${CATEGORIES.join(', ')}`),
+      task: z
+        .string()
+        .optional()
+        .describe('Describe what you want to do (e.g. "search flights from NYC to London")'),
+      category: z
+        .string()
+        .optional()
+        .describe(`Filter by category: ${CATEGORIES.join(', ')}`),
     },
     (args: { task?: string; category?: string }) => ({
       messages: [

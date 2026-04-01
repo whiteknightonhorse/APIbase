@@ -138,6 +138,10 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description: 'Get trending cryptocurrencies',
     category: 'crypto',
     annotations: READ_ONLY,
+    relatedTools: [
+      { toolId: 'crypto.get_price', reason: 'Get detailed price for a trending coin' },
+      { toolId: 'crypto.global', reason: 'Overall market cap and dominance' },
+    ],
   },
   {
     toolId: 'crypto.global',
@@ -305,6 +309,11 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
       'Search for real-time flight offers between airports with prices, airlines, stops, and duration (Amadeus)',
     category: 'travel',
     annotations: READ_ONLY,
+    relatedTools: [
+      { toolId: 'amadeus.flight_price', reason: 'Confirm exact pricing for selected offer' },
+      { toolId: 'finance.exchange_rates', reason: 'Convert flight price to local currency' },
+      { toolId: 'weatherapi.forecast', reason: 'Check weather at destination' },
+    ],
   },
   {
     toolId: 'amadeus.flight_price',
@@ -997,6 +1006,11 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description:
       'Convert an address, place name, or landmark to geographic coordinates (lat/lon) with structured address data (Geoapify/OSM)',
     category: 'location',
+    relatedTools: [
+      { toolId: 'weatherapi.current', reason: 'Weather at the geocoded location' },
+      { toolId: 'country.by_code', reason: 'Country details for the location' },
+      { toolId: 'walkscore.score', reason: 'Walkability score for the address' },
+    ],
     annotations: READ_ONLY,
   },
   {
@@ -2214,6 +2228,11 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description:
       'Real-time stock price quote — current price, change, percent change, day high/low, open, previous close. Supports US stocks, ETFs, and major global exchanges (Finnhub)',
     category: 'finance',
+    relatedTools: [
+      { toolId: 'finnhub.company', reason: 'Company profile and fundamentals' },
+      { toolId: 'finance.exchange_rates', reason: 'Convert price to different currency' },
+      { toolId: 'serper.news_search', reason: 'Latest news about this stock' },
+    ],
     annotations: READ_ONLY,
   },
   {
@@ -2347,6 +2366,10 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description:
       'Real-time Google web search results — organic listings, knowledge graph, answer box, people also ask, related searches. Supports country and language targeting. Powered by Serper.dev',
     category: 'search',
+    relatedTools: [
+      { toolId: 'serper.news_search', reason: 'Search news specifically' },
+      { toolId: 'diffbot.article_extract', reason: 'Extract full article from search result URL' },
+    ],
     annotations: READ_ONLY,
   },
   {
@@ -2387,6 +2410,10 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description:
       'Search active for-sale property listings across the US — filter by city, state, ZIP, price range, bedrooms, bathrooms, sqft, property type. Returns address, price, specs, photos. Millions of MLS listings (RapidAPI / Realtor.com data)',
     category: 'location',
+    relatedTools: [
+      { toolId: 'walkscore.score', reason: 'Walkability + transit + bike scores for listing' },
+      { toolId: 'geo.geocode', reason: 'Get coordinates for area search' },
+    ],
     annotations: READ_ONLY,
   },
   {
@@ -4099,6 +4126,10 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description:
       'Search UK job listings — filter by keywords, location, distance, salary range (GBP), contract type (permanent/contract/temp), full/part time. Returns title, company, salary, applications count, direct link. UK largest job board (Reed.co.uk)',
     category: 'jobs',
+    relatedTools: [
+      { toolId: 'reed.details', reason: 'Full job description and salary details' },
+      { toolId: 'finance.exchange_rates', reason: 'Convert GBP salary to your currency' },
+    ],
     annotations: READ_ONLY,
   },
   {
@@ -4134,6 +4165,10 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description:
       'Search Amazon products by keyword — filter by price range, sort by relevance/price/rating/reviews/newest. Returns title, ASIN, price, rating, Prime flag, image. 12 marketplaces: US, UK, CA, DE, FR, IT, ES, AU, IN, MX, BR, JP (Canopy API)',
     category: 'entertainment',
+    relatedTools: [
+      { toolId: 'canopy.product', reason: 'Full details for a specific ASIN' },
+      { toolId: 'canopy.offers', reason: 'Compare seller prices + Buy Box winner' },
+    ],
     annotations: READ_ONLY,
   },
   {
