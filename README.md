@@ -95,7 +95,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 
 | Category | Tools | Providers | Examples |
 |----------|-------|-----------|----------|
-| **Web Search** | 9 | Serper, Tavily, Exa | Google search, AI search, semantic search |
+| **Web Search** | 11 | Serper, Tavily, Exa, Spider.cloud | Google search, AI search, semantic search, web scraping |
 | **News & Events** | 10 | NewsData, GDELT, Mastodon, Currents API | Global news (65 langs), crypto news, trending |
 | **Social** | 7 | Bluesky, TwitterAPI.io | Search posts, profiles, feeds (AT Protocol, X/Twitter) |
 | **Travel & Flights** | 17 | Amadeus, Sabre, Aviasales | Flight search, pricing, status, airports |
@@ -123,10 +123,10 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 | **Jobs & Career** | 20 | Adzuna, TheirStack, Jooble, Reed, Remotive, Arbeitnow, BLS, ESCO | Global job search, UK/EU/remote, salary data, tech stack analysis |
 | **Legal & Regulatory** | 8 | Regulations.gov, Federal Register, CourtListener | US regulations, court opinions, executive orders |
 | **Air Quality** | 2 | IQAir AirVisual | AQI, pollutants (PM2.5/O3), 30K+ stations |
-| **Weather & Earth** | 3 | NWS, NASA FIRMS | US weather alerts, satellite fire detection |
+| **Weather** | 7 | WeatherAPI.com, NWS, NASA FIRMS | Current/forecast, astronomy, alerts, fire detection |
 | **Space & Astronomy** | 9 | NASA, JPL | APOD, asteroids, fireballs, solar flares |
 | **Translation** | 3 | Langbly | 90+ languages, language detection |
-| **Sports** | 4 | API-Sports | Football (2000+ leagues), basketball (NBA) |
+| **Sports** | 7 | API-Sports, BallDontLie | Football (2000+ leagues), NBA, NFL |
 | **Holidays & Calendar** | 3 | Nager.Date, Calendarific | 230+ countries, national/religious/observance |
 | **Image Generation** | 1 | Stability AI | Stable Diffusion, 16 style presets |
 | **OCR** | 1 | OCR.space | Text from images/PDFs, 20+ languages |
@@ -138,7 +138,8 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 | **SSL & Domain** | 8 | WhoisXML, ssl-checker.io, ThreatIntel | WHOIS, DNS, SSL, domain reputation, malware check |
 | **Barcode & QR** | 4 | QRServer, UPCitemdb | Generate/read QR, barcode lookup |
 | **Business Intel** | 1 | Hunter.io | Company emails, enrichment, 50M+ domains |
-| **E-commerce** | 15 | Zinc, Diffbot, Zyte, Canopy API | Product search, Amazon (12 marketplaces), web extraction, scraping |
+| **E-commerce** | 12 | Zinc, Canopy API, Diffbot, Zyte | Product search, Amazon (12 marketplaces), web extraction |
+| **Memes & Fun** | 2 | Imgflip | 100K+ meme templates, generate captioned meme images |
 | **AI Marketing** | 7 | AIPush | AI-optimized pages, visibility scores |
 | **World Clock** | 3 | TimeAPI.io | Timezone conversion, 597 IANA zones |
 | **Screenshots** | 1 | ApiFlash | Chrome-based URL capture |
@@ -153,7 +154,8 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 | **Food Products** | 2 | Open Food Facts | Barcode lookup, product search (3M+ products) |
 | **Test Data** | 1 | RandomUser.me | Random user profiles for testing |
 | **Crypto & DeFi** | 26 | CoinGecko, Polymarket, Hyperliquid | Prices, prediction markets, perpetuals |
-| **Package Tracking** | 3 | 17TRACK | Multi-carrier tracking, 3,200+ carriers, 220 countries |
+| **Logistics** | 7 | 17TRACK, DHL, ShipEngine | Multi-carrier tracking, shipping rates, address validation |
+| **Postal Codes** | 4 | Zippopotam.us, Postcodes.io | Global postal lookup (60+ countries), UK postcodes |
 | **Platform** | 6 | APIbase (internal) | Usage analytics, tool quality index, batch calls |
 
 **Full tool catalog with schemas:** [`https://apibase.pro/api/v1/tools`](https://apibase.pro/api/v1/tools)
