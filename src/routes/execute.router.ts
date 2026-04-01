@@ -38,7 +38,10 @@ executeRouter.post(
       if (req.x402Payment?.verified) {
         ctx.x402Paid = true;
         ctx.x402Payer = req.x402Payment.payer;
-        ctx.x402PaymentHeader = (req.headers['x-payment'] as string | undefined) ?? (req.headers['payment-signature'] as string | undefined) ?? '';
+        ctx.x402PaymentHeader =
+          (req.headers['x-payment'] as string | undefined) ??
+          (req.headers['payment-signature'] as string | undefined) ??
+          '';
       }
 
       if (req.mppPayment?.verified) {
@@ -75,10 +78,23 @@ executeRouter.post(
         return;
       }
 
+      const suggestedActions: Record<number, string> = {
+        400: 'fix_request',
+        401: 'fix_request',
+        403: 'fix_request',
+        404: 'use_different_tool',
+        429: 'retry_after_delay',
+        500: 'contact_support',
+        502: 'retry_after_delay',
+        503: 'retry_after_delay',
+      };
       res.status(status).json({
         error: result.error.error,
+        error_code: (result.error.error || '').toUpperCase(),
         message: result.error.message,
         request_id: requestId,
+        suggested_action: suggestedActions[status] ?? 'contact_support',
+        documentation_url: 'https://apibase.pro/frameworks#rest',
         ...(result.error.retryAfter ? { retry_after: result.error.retryAfter } : {}),
         ...(result.error.extra ?? {}),
       });

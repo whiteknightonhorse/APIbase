@@ -11,4 +11,6 @@ export interface McpToolDefinition {
   title?: string;
   category?: string;
   annotations?: ToolAnnotations;
+  /** Related tools agents should consider calling together. Shown in discover_tools output. */
+  relatedTools?: { toolId: string; reason: string }[];
 }
