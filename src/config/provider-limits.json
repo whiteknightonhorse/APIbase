@@ -1031,6 +1031,15 @@
     "docs_url": "https://developer.adzuna.com/overview",
     "limit_proof": "Trial Access: ~250 req/day free. 16+ countries. Job search + salary data."
   },
+  "spider": {
+    "display_name": "Spider.cloud",
+    "health_url": "https://api.spider.cloud/data/credits",
+    "limit_type": "credits",
+    "free_limit": 2500,
+    "reset_period": "none",
+    "docs_url": "https://spider.cloud/docs/api",
+    "limit_proof": "2,500 free credits on signup (one-time, no expiry). PAYG: ~$0.0005/scrape. No subscription required."
+  },
   "canopy": {
     "display_name": "Canopy API (Amazon)",
     "health_url": "https://rest.canopyapi.co/api/amazon/search?searchTerm=test&domain=US",

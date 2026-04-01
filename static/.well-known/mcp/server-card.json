@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 414 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 416 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -14180,6 +14180,78 @@
             "description": "Page number (default 1)"
           }
         }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "scraping.spider.scrape",
+      "description": "Scrape any web page and get clean content — markdown (default), plain text, or raw HTML. Handles JavaScript rendering, anti-bot bypass, proxy rotation. Returns LLM-ready output. Cheapest web scraper with PAYG pricing (Spider.cloud)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "URL to scrape (e.g. \"https://example.com/page\")"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "markdown",
+              "text",
+              "raw",
+              "commonmark"
+            ],
+            "description": "Output format: markdown (default, best for LLMs), text (plain), raw (HTML), commonmark",
+            "default": "markdown"
+          },
+          "readability": {
+            "type": "boolean",
+            "description": "Enable readability mode — pre-processes page for LLM consumption"
+          },
+          "wait_for": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 30000,
+            "description": "Wait N ms for JS to render before scraping (0-30000)"
+          }
+        },
+        "required": [
+          "url"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "scraping.spider.search",
+      "description": "Web search that returns page titles, descriptions, and URLs. Combine with spider.scrape to get full content. Results ranked by relevance (Spider.cloud)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Web search query (e.g. \"best MCP servers 2026\")"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "Max results (1-20, default 5)",
+            "default": 5
+          }
+        },
+        "required": [
+          "query"
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
