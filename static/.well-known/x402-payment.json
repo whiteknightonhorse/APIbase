@@ -1,13 +1,34 @@
 {
   "protocol": "x402",
-  "version": "1.0",
-  "network": "base-sepolia",
+  "version": "2",
+  "network": "eip155:8453",
+  "networkName": "base",
   "token": "USDC",
-  "payment_endpoint": "https://apibase.pro/api/v1/tools/{toolId}",
+  "tokenAddress": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+  "payTo": "0x50EbDa9dA5dC19c302Ca059d7B9E06e264936480",
+  "facilitators": [
+    {
+      "name": "CDP",
+      "url": "https://api.cdp.coinbase.com/platform/v2/x402",
+      "role": "primary"
+    },
+    {
+      "name": "PayAI",
+      "url": "https://facilitator.payai.network",
+      "role": "fallback"
+    }
+  ],
+  "payment_endpoint": "https://apibase.pro/api/v1/tools/{toolId}/call",
   "price_range": {
     "min_usd": "0.001",
-    "max_usd": "0.05"
+    "max_usd": "0.035"
   },
-  "testnet": true,
-  "documentation": "https://apibase.pro/ai.txt"
+  "testnet": false,
+  "dual_rail": {
+    "x402": true,
+    "mpp": true,
+    "mpp_realm": "apibase.pro"
+  },
+  "documentation": "https://apibase.pro/ai.txt",
+  "updated_at": "2026-04-01"
 }
