@@ -47,6 +47,20 @@ Production MCP server that gives AI agents access to 409 real-world API tools th
 }
 ```
 
+### Multi-server setup (recommended)
+
+Combine APIbase (real-world APIs) with Playwright (browser) and Context7 (docs):
+
+```json
+{
+  "mcpServers": {
+    "apibase": { "url": "https://apibase.pro/mcp" },
+    "playwright": { "command": "npx", "args": ["-y", "@playwright/mcp"] },
+    "context7": { "command": "npx", "args": ["-y", "@upstash/context7-mcp"] }
+  }
+}
+```
+
 ### Via npm (stdio bridge)
 
 ```json

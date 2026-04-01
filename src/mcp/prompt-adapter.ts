@@ -263,8 +263,11 @@ function discoverTools(args: { task?: string; category?: string }): string {
   lines.push(
     '',
     'Use discover_tools with category="<name>" or task="<description>" to find relevant tools.',
+    'All tools remain callable via tools/call regardless of discovery.',
+    '',
+    'APIbase provides real-world API data (flights, stocks, weather, jobs, products).',
+    'Pair with Playwright (browser) and Context7 (docs) for a complete agent toolkit.',
   );
-  lines.push('All tools remain callable via tools/call regardless of discovery.');
   return lines.join('\n');
 }
 
