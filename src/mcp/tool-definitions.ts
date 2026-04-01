@@ -4198,4 +4198,30 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'entertainment',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // Spider.cloud — Web Scraping (UC-274, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'spider.scrape',
+    mcpName: 'scraping.spider.scrape',
+    title: 'Scrape Web Page',
+    description:
+      'Scrape any web page and get clean content — markdown (default), plain text, or raw HTML. Handles JavaScript rendering, anti-bot bypass, proxy rotation. Returns LLM-ready output. Cheapest web scraper with PAYG pricing (Spider.cloud)',
+    category: 'search',
+    annotations: READ_ONLY,
+    relatedTools: [
+      { toolId: 'spider.search', reason: 'Find URLs to scrape via web search' },
+      { toolId: 'diffbot.article_extract', reason: 'Alternative: structured article extraction' },
+    ],
+  },
+  {
+    toolId: 'spider.search',
+    mcpName: 'scraping.spider.search',
+    title: 'Web Search + Scrape',
+    description:
+      'Web search that returns page titles, descriptions, and URLs. Combine with spider.scrape to get full content. Results ranked by relevance (Spider.cloud)',
+    category: 'search',
+    annotations: READ_ONLY,
+  },
 ];

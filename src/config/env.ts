@@ -273,6 +273,9 @@ export const appEnvSchema = z.object({
   // Canopy API Amazon Product Data (UC-265) — API-KEY header, 100 req/month free, $0.01/req PAYG
   PROVIDER_KEY_CANOPY: z.string().optional().default(''),
 
+  // Spider.cloud Web Scraping (UC-274) — Bearer sk-..., 2500 credits free, PAYG no subscription
+  PROVIDER_KEY_SPIDER: z.string().optional().default(''),
+
   // Tempo MPP — Machine Payments Protocol (dual-rail with x402)
   MPP_ENABLED: z.string().optional().default('false'),
   MPP_SECRET_KEY: z.string().optional().default(''),

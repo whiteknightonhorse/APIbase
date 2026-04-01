@@ -2396,6 +2396,18 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-274: Spider.cloud (Web Scraping) ---
+  - tool_id: spider.scrape
+    name: Scrape Web Page
+    provider: spider
+    price_usd: "0.003"
+    cache_ttl: 3600
+  - tool_id: spider.search
+    name: Web Search + Scrape
+    provider: spider
+    price_usd: "0.005"
+    cache_ttl: 1800
+
   # --- UC-265: Canopy API (Amazon Product Data) ---
   - tool_id: canopy.search
     name: Search Amazon Products

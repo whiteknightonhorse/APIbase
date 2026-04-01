@@ -121,6 +121,7 @@ import { ArbeitnowAdapter } from './arbeitnow';
 import { ReedAdapter } from './reed';
 import { RemotiveAdapter } from './remotive';
 import { CanopyAdapter } from './canopy';
+import { SpiderAdapter } from './spider';
 import { config } from '../config';
 
 /**
@@ -799,6 +800,13 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
         | undefined;
       if (!canopyKey) return undefined;
       return getOrCreate('canopy', () => new CanopyAdapter(canopyKey));
+    }
+    case 'spider': {
+      const spiderKey = (config as Record<string, unknown>).PROVIDER_KEY_SPIDER as
+        | string
+        | undefined;
+      if (!spiderKey) return undefined;
+      return getOrCreate('spider', () => new SpiderAdapter(spiderKey));
     }
     default:
       return undefined;
