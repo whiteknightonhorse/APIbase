@@ -190,6 +190,58 @@ curl -X POST https://apibase.pro/api/v1/tools/crypto.trending/call \
 # REST: browse categories
 curl -s https://apibase.pro/api/v1/tools | jq '.data[] | select(.category == "travel")'</pre>
 
+<h2 id="multi-server">Multi-Server Setup (Recommended)</h2>
+<p>Most agents need 3 types of tools: <strong>browser</strong> (Playwright), <strong>docs</strong> (Context7), and <strong>real-world data</strong> (APIbase). Configure all three together:</p>
+
+<h3>Claude Desktop / Cursor / Windsurf</h3>
+<pre>{
+  "mcpServers": {
+    "apibase": {
+      "url": "https://apibase.pro/mcp",
+      "transport": "streamable-http"
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp"]
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"]
+    }
+  }
+}</pre>
+<p class="note">Playwright = browser automation (2.3M npm/week). Context7 = up-to-date library docs (875K npm/week). APIbase = 409 real-world APIs (flights, stocks, weather, jobs, e-commerce). Each covers a different need — no overlap.</p>
+
+<h3>Why three servers?</h3>
+<div class="card">
+<p><strong>Context7</strong> answers "how do I use this library?" &mdash; current docs, no hallucination</p>
+<p><strong>Playwright</strong> answers "what's on this webpage?" &mdash; screenshots, clicks, form fills</p>
+<p><strong>APIbase</strong> answers "what's happening in the real world?" &mdash; flight prices, stock quotes, job listings, weather, package tracking</p>
+</div>
+<p class="note">The agent decides which server to call based on the task. No routing logic needed — the LLM reads tool descriptions and picks the right one.</p>
+
+<h3>OpenAI Agents SDK (multi-server)</h3>
+<pre>from agents.mcp import MCPServerStreamableHTTP, MCPServerStdio
+
+apibase = MCPServerStreamableHTTP(url="https://apibase.pro/mcp")
+playwright = MCPServerStdio(command="npx", args=["-y", "@playwright/mcp"])
+context7 = MCPServerStdio(command="npx", args=["-y", "@upstash/context7-mcp"])
+
+agent = Agent(
+    name="research-agent",
+    instructions="You have browser, docs, and 409 real-world API tools.",
+    mcp_servers=[apibase, playwright, context7]
+)</pre>
+
+<h3>LangChain (multi-server)</h3>
+<pre>async with MultiServerMCPClient({
+    "apibase": {"url": "https://apibase.pro/mcp", "transport": "streamable_http"},
+    "playwright": {"command": "npx", "args": ["-y", "@playwright/mcp"]},
+    "context7": {"command": "npx", "args": ["-y", "@upstash/context7-mcp"]}
+}) as client:
+    tools = client.get_tools()  # all tools from all 3 servers
+    agent = create_react_agent(model, tools)</pre>
+
 <div style="margin:32px 0;padding:16px;border-top:1px solid #30363d;color:#6e7681;font-size:12px">
 <a href="/">Home</a> &middot; <a href="/dashboard">Dashboard</a> &middot; <a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a> &middot; <a href="https://smithery.ai/servers/apibase-pro/api-hub">Smithery</a>
 </div>
