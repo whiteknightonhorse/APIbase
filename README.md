@@ -106,7 +106,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 | **Clinical Trials** | 3 | ClinicalTrials.gov | 577K+ trials, drug research, recruiting |
 | **Nutrition Database** | 2 | FatSecret | 2.3M+ foods, calories, macros, vitamins |
 | **Education & Research** | 7 | OpenAlex, arXiv, PubMed, CrossRef | Papers, colleges, DOI lookup |
-| **Jobs & Career** | 6 | BLS, ESCO, CareerJet | Salary data, occupations, job listings |
+| **Jobs & Career** | 20 | Adzuna, TheirStack, Jooble, Reed, Remotive, Arbeitnow, BLS, ESCO | Global job search, UK/EU/remote, salary data, tech stack analysis |
 | **Legal & Regulatory** | 8 | Regulations.gov, Federal Register, CourtListener | US regulations, court opinions, executive orders |
 | **Air Quality** | 2 | IQAir AirVisual | AQI, pollutants (PM2.5/O3), 30K+ stations |
 | **Weather & Earth** | 3 | NWS, NASA FIRMS | US weather alerts, satellite fire detection |
@@ -124,7 +124,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 | **SSL & Domain** | 8 | WhoisXML, ssl-checker.io, ThreatIntel | WHOIS, DNS, SSL, domain reputation, malware check |
 | **Barcode & QR** | 4 | QRServer, UPCitemdb | Generate/read QR, barcode lookup |
 | **Business Intel** | 1 | Hunter.io | Company emails, enrichment, 50M+ domains |
-| **E-commerce** | 11 | Zinc, Diffbot, Zyte | Product search, web extraction, scraping, screenshots |
+| **E-commerce** | 15 | Zinc, Diffbot, Zyte, Canopy API | Product search, Amazon (12 marketplaces), web extraction, scraping |
 | **AI Marketing** | 7 | AIPush | AI-optimized pages, visibility scores |
 | **World Clock** | 3 | TimeAPI.io | Timezone conversion, 597 IANA zones |
 | **Screenshots** | 1 | ApiFlash | Chrome-based URL capture |
@@ -327,27 +327,49 @@ npx agentcash add https://apibase.pro
 
 ---
 
-## Error Codes
+## Error Codes (Agent-Friendly)
 
-| HTTP | Code | Meaning |
-|------|------|---------|
-| 400 | `validation_error` | Invalid parameters (check schema) |
-| 401 | `unauthorized` | Missing or invalid API key |
-| 402 | `payment_required` | x402 or MPP payment needed |
-| 404 | `not_found` | Tool or resource not found |
-| 429 | `rate_limited` | Rate limit exceeded (check `Retry-After`) |
-| 502 | `bad_gateway` | Provider unavailable |
-| 503 | `service_unavailable` | System not ready |
+Every error response includes machine-readable recovery hints:
+
+```json
+{
+  "error": "rate_limit_exceeded",
+  "error_code": "RATE_LIMIT_EXCEEDED",
+  "message": "Too many requests",
+  "request_id": "abc123",
+  "suggested_action": "retry_after_delay",
+  "documentation_url": "https://apibase.pro/frameworks#rest",
+  "retry_after": 15
+}
+```
+
+| HTTP | Code | `suggested_action` |
+|------|------|--------------------|
+| 400 | `bad_request` / `schema_validation_failed` | `fix_request` |
+| 401 | `unauthorized` | `fix_request` |
+| 402 | `payment_required` | `add_payment` |
+| 404 | `not_found` | `use_different_tool` |
+| 429 | `rate_limit_exceeded` | `retry_after_delay` |
+| 502 | `bad_gateway` | `retry_after_delay` |
+| 503 | `service_unavailable` | `retry_after_delay` |
 
 ---
 
 ## MCP Discovery
 
 ```
-GET  /.well-known/mcp.json    → MCP server metadata
-GET  /api/v1/tools             → Full tool catalog (all 409 tools in one response)
-GET  /health/ready             → System health check
-POST /mcp  prompts/get discover_tools  → Browse 409 tools by category or task (progressive disclosure)
+GET  /.well-known/mcp.json              → MCP server metadata (transport, capabilities, tools count)
+GET  /.well-known/mcp/server-card.json  → Full tool catalog with schemas (Smithery)
+GET  /.well-known/ai-capabilities.json  → AI capabilities manifest (21 categories)
+GET  /.well-known/agent.json            → A2A agent card (protocol, auth, payment)
+GET  /.well-known/x402-payment.json     → Payment config (network, facilitators, dual-rail)
+GET  /.well-known/openapi.json          → OpenAPI 3.1 spec (with x-payment-info)
+GET  /ai.txt                            → Plain text AI agent discovery
+GET  /llms.txt                          → Concise LLM context
+GET  /api/v1/tools                      → Live tool catalog (all 409 tools, JSON schemas)
+GET  /health/ready                      → System health check
+POST /mcp  prompts/get discover_tools   → Browse tools by category or task (progressive disclosure)
+GET  /frameworks                        → Integration guides for 9 frameworks
 ```
 
 **Progressive disclosure:** Instead of loading all 409 tool schemas into context, agents can call the `discover_tools` prompt to find relevant tools first:
@@ -355,21 +377,40 @@ POST /mcp  prompts/get discover_tools  → Browse 409 tools by category or task 
 - `discover_tools category="travel"` → 17 travel tools
 - `discover_tools task="check earthquake near Tokyo"` → matching tools ranked by relevance
 
+**Tool composition hints:** Task-based search results include related tool suggestions:
+```
+- amadeus.flights.search: Search for real-time flight offers...
+  → Related: amadeus.flight_price (Confirm exact pricing), finance.exchange_rates (Convert to local currency)
+```
+
 ---
 
 ## Integrations
 
-| Platform | Config |
-|----------|--------|
-| **Claude Desktop** | `"url": "https://apibase.pro/mcp"` |
-| **Cursor** | `"url": "https://apibase.pro/mcp"` |
-| **Windsurf** | `"serverUrl": "https://apibase.pro/mcp"` |
-| **VS Code Copilot** | `"type": "http", "url": "https://apibase.pro/mcp"` |
-| **Continue.dev** | Streamable HTTP: `https://apibase.pro/mcp` |
-| **OpenAI GPT** | Import `https://apibase.pro/.well-known/openapi.json` |
+Every framework connects to one endpoint: `https://apibase.pro/mcp`
+
+| Platform | Config | Docs |
+|----------|--------|------|
+| **Claude Desktop / Code** | `"url": "https://apibase.pro/mcp"` | 3 lines JSON |
+| **Cursor IDE** | `.cursor/mcp.json` → same URL | 3 lines JSON |
+| **Windsurf (Codeium)** | `"serverUrl": "https://apibase.pro/mcp"` | 3 lines JSON |
+| **OpenAI Agents SDK** | `MCPServerStreamableHTTP(url=...)` | Python + TS |
+| **LangChain / LangGraph** | `MultiServerMCPClient({"apibase": {...}})` | Python |
+| **Google ADK** | `McpToolset(StreamableHTTPConnectionParams(...))` | Python |
+| **CrewAI** | `mcp_servers=["https://apibase.pro/mcp"]` | 1 line |
+| **Microsoft Copilot Studio** | UI: Actions → Add MCP Server | Enterprise |
+
+**[Full framework guides with code examples →](https://apibase.pro/frameworks)**
+
+### Registry Listings
+
+| Registry | Link |
+|----------|------|
 | **Smithery** | [smithery.ai/servers/apibase-pro/api-hub](https://smithery.ai/servers/apibase-pro/api-hub) |
 | **Glama** | [glama.ai/mcp/servers/whiteknightonhorse/APIbase](https://glama.ai/mcp/servers/whiteknightonhorse/APIbase) |
 | **MCP Registry** | `io.github.whiteknightonhorse/apibase` |
+| **PulseMCP** | [pulsemcp.com](https://pulsemcp.com) (auto-synced) |
+| **MPPScan** | [mppscan.com](https://www.mppscan.com) |
 
 ---
 
