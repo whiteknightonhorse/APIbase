@@ -1031,6 +1031,15 @@
     "docs_url": "https://developer.adzuna.com/overview",
     "limit_proof": "Trial Access: ~250 req/day free. 16+ countries. Job search + salary data."
   },
+  "imgflip": {
+    "display_name": "Imgflip",
+    "health_url": "https://api.imgflip.com/get_memes",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://imgflip.com/api",
+    "limit_proof": "Free unlimited API. get_memes no auth. caption_image needs free account."
+  },
   "spider": {
     "display_name": "Spider.cloud",
     "health_url": "https://api.spider.cloud/data/credits",

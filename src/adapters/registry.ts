@@ -122,6 +122,7 @@ import { ReedAdapter } from './reed';
 import { RemotiveAdapter } from './remotive';
 import { CanopyAdapter } from './canopy';
 import { SpiderAdapter } from './spider';
+import { ImgflipAdapter } from './imgflip';
 import { config } from '../config';
 
 /**
@@ -807,6 +808,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
         | undefined;
       if (!spiderKey) return undefined;
       return getOrCreate('spider', () => new SpiderAdapter(spiderKey));
+    }
+    case 'imgflip': {
+      const imgUser = (config as Record<string, unknown>).IMGFLIP_USERNAME as string | undefined;
+      const imgPass = (config as Record<string, unknown>).IMGFLIP_PASSWORD as string | undefined;
+      if (!imgUser || !imgPass) return undefined;
+      return getOrCreate('imgflip', () => new ImgflipAdapter(imgUser, imgPass));
     }
     default:
       return undefined;

@@ -1,13 +1,13 @@
 {
   "name": "APIbase",
-  "description": "Unified MCP gateway to 411+ API tools from 122 providers. Travel, finance, weather, jobs, e-commerce, and 25+ more categories. Pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Unified MCP gateway to 413+ API tools from 123 providers. Travel, finance, weather, jobs, e-commerce, and 25+ more categories. Pay-per-call via x402 USDC micropayments on Base.",
   "url": "https://apibase.pro",
   "version": "2.1.0",
   "protocol": "MCP",
   "transport": "streamable-http",
   "mcp_endpoint": "https://apibase.pro/mcp",
   "capabilities": ["tools", "prompts"],
-  "tools_count": 411,
+  "tools_count": 413,
   "providers_count": 121,
   "authentication": {
     "schemes": ["bearer"],

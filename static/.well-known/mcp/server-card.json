@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 416 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 418 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -14255,6 +14255,55 @@
       },
       "annotations": {
         "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "media.imgflip.memes",
+      "description": "Get top 100 popular meme templates — Drake Hotline Bling, Two Buttons, Distracted Boyfriend, and more. Returns template ID, name, image URL, box count. Use IDs with imgflip.caption to generate memes (Imgflip)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "search": {
+            "type": "string",
+            "description": "Optional: filter memes by name (client-side). Returns top 100 popular meme templates."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "media.imgflip.caption",
+      "description": "Generate a captioned meme image from a template ID + top/bottom text. Returns direct image URL. Use imgflip.memes to find template IDs. 100K+ templates available (Imgflip)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "template_id": {
+            "type": "string",
+            "description": "Meme template ID from imgflip.memes (e.g. \"181913649\" for Drake Hotline Bling, \"87743020\" for Two Buttons)"
+          },
+          "top_text": {
+            "type": "string",
+            "description": "Top text on the meme"
+          },
+          "bottom_text": {
+            "type": "string",
+            "description": "Bottom text on the meme"
+          }
+        },
+        "required": [
+          "template_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true

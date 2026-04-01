@@ -2396,6 +2396,18 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-286: Imgflip (Meme Generator) ---
+  - tool_id: imgflip.memes
+    name: Browse Meme Templates
+    provider: imgflip
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: imgflip.caption
+    name: Generate Meme Image
+    provider: imgflip
+    price_usd: "0.001"
+    cache_ttl: 0
+
   # --- UC-274: Spider.cloud (Web Scraping) ---
   - tool_id: spider.scrape
     name: Scrape Web Page

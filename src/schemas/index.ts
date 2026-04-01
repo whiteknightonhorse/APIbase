@@ -122,6 +122,7 @@ import { reedSchemas } from './reed.schema';
 import { remotiveSchemas } from './remotive.schema';
 import { canopySchemas } from './canopy.schema';
 import { spiderSchemas } from './spider.schema';
+import { imgflipSchemas } from './imgflip.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -247,4 +248,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...remotiveSchemas,
   ...canopySchemas,
   ...spiderSchemas,
+  ...imgflipSchemas,
 };

@@ -4224,4 +4224,31 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'search',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // Imgflip — Meme Generator (UC-286, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'imgflip.memes',
+    mcpName: 'media.imgflip.memes',
+    title: 'Browse Meme Templates',
+    description:
+      'Get top 100 popular meme templates — Drake Hotline Bling, Two Buttons, Distracted Boyfriend, and more. Returns template ID, name, image URL, box count. Use IDs with imgflip.caption to generate memes (Imgflip)',
+    category: 'media',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'imgflip.caption',
+    mcpName: 'media.imgflip.caption',
+    title: 'Generate Meme Image',
+    description:
+      'Generate a captioned meme image from a template ID + top/bottom text. Returns direct image URL. Use imgflip.memes to find template IDs. 100K+ templates available (Imgflip)',
+    category: 'media',
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: true,
+    },
+  },
 ];
