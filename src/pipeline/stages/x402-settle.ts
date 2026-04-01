@@ -1,6 +1,15 @@
 import { decodePaymentSignatureHeader } from '@x402/core/http';
 import { parsePaymentPayload, isPaymentPayloadV1 } from '@x402/core/schemas';
+// @x402/extensions/bazaar: TS can't resolve subpath exports but module exists at runtime
+// eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-explicit-any
+const bazaarMod = require('@x402/extensions/bazaar') as any;
+const declareDiscoveryExtension = bazaarMod.declareDiscoveryExtension as (opts: {
+  toolName: string;
+  description: string;
+  transport: string;
+}) => Record<string, unknown>;
 import { getX402Config } from '../../config/x402.config';
+import { getCdpConfig } from '../../config/cdp.config';
 import { getSharedResourceServer } from '../../services/x402-server.service';
 import { logger } from '../../config/logger';
 import type { PipelineContext } from '../types';
@@ -55,7 +64,22 @@ export async function settleX402(ctx: PipelineContext): Promise<void> {
     }
 
     const server = getSharedResourceServer();
-    const result = await server.settlePayment(payload as never, requirements as never);
+
+    // Build Bazaar discovery extensions for CDP catalog auto-registration
+    let bazaarExtensions: Record<string, unknown> | undefined;
+    if (getCdpConfig().enabled && ctx.toolId) {
+      bazaarExtensions = declareDiscoveryExtension({
+        toolName: ctx.toolId,
+        description: `Tool invocation: ${ctx.toolId}`,
+        transport: 'streamable-http',
+      });
+    }
+
+    const result = await server.settlePayment(
+      payload as never,
+      requirements as never,
+      bazaarExtensions as never,
+    );
 
     if (result.success) {
       logger.info(

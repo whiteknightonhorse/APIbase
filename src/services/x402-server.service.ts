@@ -1,5 +1,9 @@
 import { HTTPFacilitatorClient, x402ResourceServer } from '@x402/core/server';
 import { registerExactEvmScheme } from '@x402/evm/exact/server';
+// @x402/extensions/bazaar: TS can't resolve subpath exports but module exists at runtime
+// eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-explicit-any
+const bazaarMod = require('@x402/extensions/bazaar') as any;
+const bazaarResourceServerExtension = bazaarMod.bazaarResourceServerExtension;
 import { getX402Config } from '../config/x402.config';
 import { getCdpConfig } from '../config/cdp.config';
 import { buildCdpAuthHeadersFn } from './cdp-jwt.service';
@@ -56,6 +60,12 @@ export function getSharedResourceServer(): x402ResourceServer {
 
   server = new x402ResourceServer(clients);
   registerExactEvmScheme(server);
+
+  // Register Bazaar extension for CDP discovery catalog auto-registration
+  if (cdpCfg.enabled) {
+    server.registerExtension(bazaarResourceServerExtension);
+    logger.info('x402: Bazaar extension registered for CDP discovery');
+  }
 
   logger.info(
     { clients: clients.length, cdpEnabled: cdpCfg.enabled },
