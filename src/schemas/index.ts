@@ -123,6 +123,7 @@ import { remotiveSchemas } from './remotive.schema';
 import { canopySchemas } from './canopy.schema';
 import { spiderSchemas } from './spider.schema';
 import { imgflipSchemas } from './imgflip.schema';
+import { cocktaildbSchemas } from './cocktaildb.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -249,4 +250,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...canopySchemas,
   ...spiderSchemas,
   ...imgflipSchemas,
+  ...cocktaildbSchemas,
 };

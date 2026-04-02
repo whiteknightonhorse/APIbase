@@ -1031,6 +1031,15 @@
     "docs_url": "https://developer.adzuna.com/overview",
     "limit_proof": "Trial Access: ~250 req/day free. 16+ countries. Job search + salary data."
   },
+  "cocktaildb": {
+    "display_name": "TheCocktailDB",
+    "health_url": "https://www.thecocktaildb.com/api/json/v1/1/random.php",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.thecocktaildb.com/api.php",
+    "limit_proof": "Free unlimited API. Test key '1' for development. 10,000+ cocktail recipes."
+  },
   "imgflip": {
     "display_name": "Imgflip",
     "health_url": "https://api.imgflip.com/get_memes",

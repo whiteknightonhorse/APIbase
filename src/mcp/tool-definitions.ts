@@ -4251,4 +4251,26 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
       openWorldHint: true,
     },
   },
+
+  // ---------------------------------------------------------------------------
+  // TheCocktailDB — Cocktail Recipes (UC-304, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'cocktail.search',
+    mcpName: 'recipes.cocktail.search',
+    title: 'Search Cocktail Recipes',
+    description:
+      'Search 10,000+ cocktail recipes by name or filter by ingredient. Returns name, category, glass type, instructions, ingredients with measures, image. Search "margarita" or filter by "Vodka" (TheCocktailDB)',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'cocktail.random',
+    mcpName: 'recipes.cocktail.random',
+    title: 'Random Cocktail Recipe',
+    description:
+      'Get a random cocktail recipe with full details — name, category, glass, instructions, ingredients, measures, image. Great for discovery and recommendations (TheCocktailDB)',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
 ];

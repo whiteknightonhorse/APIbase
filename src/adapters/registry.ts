@@ -123,6 +123,7 @@ import { RemotiveAdapter } from './remotive';
 import { CanopyAdapter } from './canopy';
 import { SpiderAdapter } from './spider';
 import { ImgflipAdapter } from './imgflip';
+import { CocktailDbAdapter } from './cocktaildb';
 import { config } from '../config';
 
 /**
@@ -815,6 +816,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       if (!imgUser || !imgPass) return undefined;
       return getOrCreate('imgflip', () => new ImgflipAdapter(imgUser, imgPass));
     }
+    case 'cocktail':
+      // TheCocktailDB — free, no auth, test key "1" (UC-304)
+      return getOrCreate('cocktaildb', () => new CocktailDbAdapter());
     default:
       return undefined;
   }

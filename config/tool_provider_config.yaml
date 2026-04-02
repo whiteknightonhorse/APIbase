@@ -2396,6 +2396,18 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-304: TheCocktailDB (Cocktail Recipes) ---
+  - tool_id: cocktail.search
+    name: Search Cocktail Recipes
+    provider: cocktaildb
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: cocktail.random
+    name: Random Cocktail Recipe
+    provider: cocktaildb
+    price_usd: "0.001"
+    cache_ttl: 0
+
   # --- UC-286: Imgflip (Meme Generator) ---
   - tool_id: imgflip.memes
     name: Browse Meme Templates

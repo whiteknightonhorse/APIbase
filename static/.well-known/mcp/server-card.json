@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 418 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 420 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -14304,6 +14304,51 @@
       },
       "annotations": {
         "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "recipes.cocktail.search",
+      "description": "Search 10,000+ cocktail recipes by name or filter by ingredient. Returns name, category, glass type, instructions, ingredients with measures, image. Search \"margarita\" or filter by \"Vodka\" (TheCocktailDB)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Cocktail name to search (e.g. \"margarita\", \"mojito\", \"old fashioned\")"
+          },
+          "ingredient": {
+            "type": "string",
+            "description": "Filter by ingredient (e.g. \"Vodka\", \"Rum\", \"Gin\"). Returns cocktails containing this ingredient. Use name OR ingredient, not both."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "recipes.cocktail.random",
+      "description": "Get a random cocktail recipe with full details — name, category, glass, instructions, ingredients, measures, image. Great for discovery and recommendations (TheCocktailDB)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1,
+            "description": "Always returns 1 random cocktail with full recipe",
+            "default": 1
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": true
