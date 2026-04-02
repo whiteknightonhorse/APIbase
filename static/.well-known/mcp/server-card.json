@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 420 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 423 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -14346,6 +14346,95 @@
             "default": 1
           }
         }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "developer.github.search",
+      "description": "Search GitHub repositories by keyword, language, stars, topics. Returns name, description, stars, forks, language, license, owner. Sort by stars/forks/updated. 86K+ MCP repos, 372M+ total repos (GitHub API)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query (e.g. \"mcp server\", \"react framework\", \"language:python stars:>1000\")"
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "stars",
+              "forks",
+              "updated",
+              "help-wanted-issues"
+            ],
+            "description": "Sort by: stars (default), forks, updated, help-wanted-issues",
+            "default": "stars"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30,
+            "description": "Max results (1-30, default 10)",
+            "default": 10
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "developer.github.user",
+      "description": "Get a GitHub user profile — name, bio, public repos count, followers, company, location, join date. Works for users and organizations (GitHub API)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "GitHub username (e.g. \"torvalds\", \"whiteknightonhorse\")"
+          }
+        },
+        "required": [
+          "username"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "developer.github.repo",
+      "description": "Get full details of a GitHub repository — description, stars, forks, language, topics, license, last update. Public repos only (GitHub API)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "owner": {
+            "type": "string",
+            "description": "Repository owner (e.g. \"facebook\", \"microsoft\")"
+          },
+          "repo": {
+            "type": "string",
+            "description": "Repository name (e.g. \"react\", \"vscode\")"
+          }
+        },
+        "required": [
+          "owner",
+          "repo"
+        ]
       },
       "annotations": {
         "readOnlyHint": true,

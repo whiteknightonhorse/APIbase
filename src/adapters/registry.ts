@@ -124,6 +124,7 @@ import { CanopyAdapter } from './canopy';
 import { SpiderAdapter } from './spider';
 import { ImgflipAdapter } from './imgflip';
 import { CocktailDbAdapter } from './cocktaildb';
+import { GitHubApiAdapter } from './github-api';
 import { config } from '../config';
 
 /**
@@ -819,6 +820,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'cocktail':
       // TheCocktailDB — free, no auth, test key "1" (UC-304)
       return getOrCreate('cocktaildb', () => new CocktailDbAdapter());
+    case 'github': {
+      const ghToken = (config as Record<string, unknown>).PROVIDER_KEY_GITHUB as string | undefined;
+      if (!ghToken) return undefined;
+      return getOrCreate('github-api', () => new GitHubApiAdapter(ghToken));
+    }
     default:
       return undefined;
   }

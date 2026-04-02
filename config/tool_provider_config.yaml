@@ -2396,6 +2396,23 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-332: GitHub API (Code & Repos) ---
+  - tool_id: github.search_repos
+    name: Search GitHub Repositories
+    provider: github-api
+    price_usd: "0.002"
+    cache_ttl: 3600
+  - tool_id: github.user
+    name: GitHub User Profile
+    provider: github-api
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: github.repo
+    name: GitHub Repository Details
+    provider: github-api
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   # --- UC-304: TheCocktailDB (Cocktail Recipes) ---
   - tool_id: cocktail.search
     name: Search Cocktail Recipes

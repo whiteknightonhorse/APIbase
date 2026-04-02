@@ -280,6 +280,9 @@ export const appEnvSchema = z.object({
   IMGFLIP_USERNAME: z.string().optional().default(''),
   IMGFLIP_PASSWORD: z.string().optional().default(''),
 
+  // GitHub API (UC-332) — PAT token, 5K req/hour, read-only public data
+  PROVIDER_KEY_GITHUB: z.string().optional().default(''),
+
   // Tempo MPP — Machine Payments Protocol (dual-rail with x402)
   MPP_ENABLED: z.string().optional().default('false'),
   MPP_SECRET_KEY: z.string().optional().default(''),

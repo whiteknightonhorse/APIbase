@@ -1031,6 +1031,15 @@
     "docs_url": "https://developer.adzuna.com/overview",
     "limit_proof": "Trial Access: ~250 req/day free. 16+ countries. Job search + salary data."
   },
+  "github-api": {
+    "display_name": "GitHub API",
+    "health_url": "https://api.github.com/rate_limit",
+    "limit_type": "hourly",
+    "free_limit": 5000,
+    "reset_period": "hourly",
+    "docs_url": "https://docs.github.com/en/rest",
+    "limit_proof": "Authenticated: 5,000 req/hour. Read-only public data. PAT with public_repo + read:user scopes."
+  },
   "cocktaildb": {
     "display_name": "TheCocktailDB",
     "health_url": "https://www.thecocktaildb.com/api/json/v1/1/random.php",

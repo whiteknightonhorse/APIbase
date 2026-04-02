@@ -4273,4 +4273,39 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'entertainment',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // GitHub API — Code & Repositories (UC-332, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'github.search_repos',
+    mcpName: 'developer.github.search',
+    title: 'Search GitHub Repositories',
+    description:
+      'Search GitHub repositories by keyword, language, stars, topics. Returns name, description, stars, forks, language, license, owner. Sort by stars/forks/updated. 86K+ MCP repos, 372M+ total repos (GitHub API)',
+    category: 'developer',
+    annotations: READ_ONLY,
+    relatedTools: [
+      { toolId: 'github.repo', reason: 'Get full details for a specific repo' },
+      { toolId: 'github.user', reason: 'Check the repo owner profile' },
+    ],
+  },
+  {
+    toolId: 'github.user',
+    mcpName: 'developer.github.user',
+    title: 'GitHub User Profile',
+    description:
+      'Get a GitHub user profile — name, bio, public repos count, followers, company, location, join date. Works for users and organizations (GitHub API)',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'github.repo',
+    mcpName: 'developer.github.repo',
+    title: 'GitHub Repository Details',
+    description:
+      'Get full details of a GitHub repository — description, stars, forks, language, topics, license, last update. Public repos only (GitHub API)',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
 ];
