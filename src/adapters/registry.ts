@@ -125,6 +125,7 @@ import { SpiderAdapter } from './spider';
 import { ImgflipAdapter } from './imgflip';
 import { CocktailDbAdapter } from './cocktaildb';
 import { GitHubApiAdapter } from './github-api';
+import { WikidataAdapter } from './wikidata';
 import { config } from '../config';
 
 /**
@@ -825,6 +826,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       if (!ghToken) return undefined;
       return getOrCreate('github-api', () => new GitHubApiAdapter(ghToken));
     }
+    case 'wikidata':
+      // Wikidata — CC-0 open data, no auth (UC-323)
+      return getOrCreate('wikidata', () => new WikidataAdapter());
     default:
       return undefined;
   }

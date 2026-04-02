@@ -4308,4 +4308,26 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'developer',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // Wikidata — Structured Knowledge Graph (UC-323, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'wikidata.search',
+    mcpName: 'knowledge.wikidata.search',
+    title: 'Search Wikidata Entities',
+    description:
+      'Search 100M+ structured entities in Wikidata — people, companies, places, concepts. Returns entity ID, label, description. Use IDs with wikidata.entity for full details. CC-0 public domain (Wikidata)',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'wikidata.entity',
+    mcpName: 'knowledge.wikidata.entity',
+    title: 'Wikidata Entity Details',
+    description:
+      'Get structured data for a Wikidata entity by ID (e.g. Q42 = Douglas Adams). Returns labels, descriptions, aliases, and up to 20 property statements. 300+ languages supported. CC-0 (Wikidata)',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
 ];
