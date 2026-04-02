@@ -2396,6 +2396,18 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-323: Wikidata (Knowledge Graph) ---
+  - tool_id: wikidata.search
+    name: Search Wikidata Entities
+    provider: wikidata
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: wikidata.entity
+    name: Wikidata Entity Details
+    provider: wikidata
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   # --- UC-332: GitHub API (Code & Repos) ---
   - tool_id: github.search_repos
     name: Search GitHub Repositories

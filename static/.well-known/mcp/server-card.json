@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 423 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 425 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -14434,6 +14434,62 @@
         "required": [
           "owner",
           "repo"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "knowledge.wikidata.search",
+      "description": "Search 100M+ structured entities in Wikidata — people, companies, places, concepts. Returns entity ID, label, description. Use IDs with wikidata.entity for full details. CC-0 public domain (Wikidata)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query (e.g. \"Tesla\", \"Barack Obama\", \"JavaScript\", \"Mount Everest\")"
+          },
+          "language": {
+            "type": "string",
+            "description": "Language code for labels (e.g. \"en\", \"de\", \"fr\", \"ja\"). Default: en",
+            "default": "en"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "Max results (1-20, default 10)",
+            "default": 10
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "knowledge.wikidata.entity",
+      "description": "Get structured data for a Wikidata entity by ID (e.g. Q42 = Douglas Adams). Returns labels, descriptions, aliases, and up to 20 property statements. 300+ languages supported. CC-0 (Wikidata)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Wikidata entity ID (e.g. \"Q42\" for Douglas Adams, \"Q478214\" for Tesla Inc). Get IDs from wikidata.search"
+          }
+        },
+        "required": [
+          "id"
         ]
       },
       "annotations": {

@@ -1120,5 +1120,14 @@
     "reset_period": "monthly",
     "docs_url": "https://theirstack.com/docs",
     "limit_proof": "200 API credits/month free. Bearer JWT auth. 181M+ job postings, tech stack analysis."
+  },
+  "wikidata": {
+    "display_name": "Wikidata",
+    "health_url": "https://www.wikidata.org/w/api.php?action=wbsearchentities&search=test&language=en&limit=1&format=json",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.wikidata.org/wiki/Wikidata:REST_API",
+    "limit_proof": "CC-0 public domain. 100M+ entities. No auth, no rate limits. Requires User-Agent header."
   }
 }
