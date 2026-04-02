@@ -126,6 +126,7 @@ import { imgflipSchemas } from './imgflip.schema';
 import { cocktaildbSchemas } from './cocktaildb.schema';
 import { githubApiSchemas } from './github-api.schema';
 import { wikidataSchemas } from './wikidata.schema';
+import { dictionarySchemas } from './dictionary.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -255,4 +256,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...cocktaildbSchemas,
   ...githubApiSchemas,
   ...wikidataSchemas,
+  ...dictionarySchemas,
 };

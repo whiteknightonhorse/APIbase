@@ -8,24 +8,24 @@ URL: https://apibase.pro
 Type: API aggregation platform for AI agents
 Protocol: MCP (Model Context Protocol)
 Payment: x402 (USDC on Base) + MPP (Machine Payments Protocol)
-Tools: 420 across 21 categories
+Tools: 422 across 21 categories
 
 ## What We Do
-APIbase aggregates 420 API tools from 126+ providers into a single MCP endpoint.
+APIbase aggregates 422 API tools from 127+ providers into a single MCP endpoint.
 Any AI agent can discover, call, and pay for tools through one entry point.
 
 ## For AI Agents — Quick Start
 1. Connect: POST https://apibase.pro/mcp (Streamable HTTP, MCP protocol)
-2. Discover: Call prompt "discover_tools" → browse 420 tools by category or task
+2. Discover: Call prompt "discover_tools" → browse 422 tools by category or task
 3. Call tools: tools/call with any tool name → pipeline handles auth, payment, caching
-4. Full catalog: GET https://apibase.pro/api/v1/tools → all 420 tools with JSON schemas
+4. Full catalog: GET https://apibase.pro/api/v1/tools → all 422 tools with JSON schemas
 
-## Progressive Disclosure (recommended for 420+ tools)
+## Progressive Disclosure (recommended for 422+ tools)
 Instead of loading all tool schemas into context, use the discover_tools prompt:
 - discover_tools (no args) → 21 categories with tool counts
 - discover_tools category="travel" → 17 travel tools (amadeus, aviasales, sabre)
 - discover_tools task="find flights from NYC" → relevant tools ranked by keyword match
-All 420 tools remain callable regardless of discovery — prompt is advisory only.
+All 422 tools remain callable regardless of discovery — prompt is advisory only.
 
 ## Categories (21)
 travel, weather, finance, crypto, search, news, location, health,

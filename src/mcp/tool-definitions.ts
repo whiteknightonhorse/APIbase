@@ -4330,4 +4330,25 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'education',
     annotations: READ_ONLY,
   },
+  // ---------------------------------------------------------------------------
+  // Dictionary — Define Words + Word Search (UC-313+314, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'dictionary.define',
+    mcpName: 'language.dictionary.define',
+    title: 'Define a Word',
+    description:
+      'Get word definition — phonetic pronunciation, part of speech, definitions with examples, synonyms, antonyms, audio URL. Supports 12 languages: en, es, fr, de, it, pt, ru, ar, hi, ja, ko, zh (Free Dictionary API)',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'dictionary.words',
+    mcpName: 'language.dictionary.words',
+    title: 'Find Related Words',
+    description:
+      'Find words by meaning, sound, rhyme, or spelling pattern. "happy" → pleased, blissful. "algorithm" rhymes → rhythm, logarithm. Great for writing, creative tasks, word games (Datamuse)',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
 ];

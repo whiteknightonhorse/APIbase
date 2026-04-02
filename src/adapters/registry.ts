@@ -126,6 +126,7 @@ import { ImgflipAdapter } from './imgflip';
 import { CocktailDbAdapter } from './cocktaildb';
 import { GitHubApiAdapter } from './github-api';
 import { WikidataAdapter } from './wikidata';
+import { DictionaryAdapter } from './dictionary';
 import { config } from '../config';
 
 /**
@@ -829,6 +830,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'wikidata':
       // Wikidata — CC-0 open data, no auth (UC-323)
       return getOrCreate('wikidata', () => new WikidataAdapter());
+    case 'dictionary':
+      // Free Dictionary + Datamuse — no auth (UC-313, UC-314)
+      return getOrCreate('dictionary', () => new DictionaryAdapter());
     default:
       return undefined;
   }

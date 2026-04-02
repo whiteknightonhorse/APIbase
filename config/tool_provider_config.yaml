@@ -2408,6 +2408,18 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-313+314: Dictionary (Define + Word Search) ---
+  - tool_id: dictionary.define
+    name: Define a Word
+    provider: dictionary
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: dictionary.words
+    name: Find Related Words
+    provider: dictionary
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   # --- UC-332: GitHub API (Code & Repos) ---
   - tool_id: github.search_repos
     name: Search GitHub Repositories

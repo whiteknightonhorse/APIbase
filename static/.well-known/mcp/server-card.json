@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 425 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 427 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -14491,6 +14491,71 @@
         "required": [
           "id"
         ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "language.dictionary.define",
+      "description": "Get word definition — phonetic pronunciation, part of speech, definitions with examples, synonyms, antonyms, audio URL. Supports 12 languages: en, es, fr, de, it, pt, ru, ar, hi, ja, ko, zh (Free Dictionary API)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "word": {
+            "type": "string",
+            "description": "Word to define (e.g. \"algorithm\", \"serendipity\", \"ubuntu\")"
+          },
+          "language": {
+            "type": "string",
+            "description": "Language code: en, es, fr, de, it, pt, ru, ar, hi, ja, ko, zh (default: en)",
+            "default": "en"
+          }
+        },
+        "required": [
+          "word"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "language.dictionary.words",
+      "description": "Find words by meaning, sound, rhyme, or spelling pattern. \"happy\" → pleased, blissful. \"algorithm\" rhymes → rhythm, logarithm. Great for writing, creative tasks, word games (Datamuse)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "meaning": {
+            "type": "string",
+            "description": "Find words with this meaning (e.g. \"happy\" → pleased, blissful, content)"
+          },
+          "sounds_like": {
+            "type": "string",
+            "description": "Find words that sound like this (e.g. \"elefant\" → elephant)"
+          },
+          "rhymes_with": {
+            "type": "string",
+            "description": "Find words that rhyme with this (e.g. \"algorithm\" → rhythm, logarithm)"
+          },
+          "starts_with": {
+            "type": "string",
+            "description": "Find words starting with these letters (e.g. \"algor\" → algorithm, algorithmic)"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 25,
+            "description": "Max results (1-25, default 10)",
+            "default": 10
+          }
+        }
       },
       "annotations": {
         "readOnlyHint": true,
