@@ -86,21 +86,27 @@ pre{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:16px;o
 
 <!-- OpenAI Agents SDK -->
 <h2 id="openai">OpenAI Agents SDK <span class="badge">Python + TS</span></h2>
-<h3>Python</h3>
-<pre>from agents import Agent
-from agents.mcp import MCPServerStreamableHTTP
+<h3>Python (recommended: MCPServerManager)</h3>
+<pre>from agents import Agent, Runner
+from agents.mcp import MCPServerStreamableHTTP, MCPServerManager
 
-async with MCPServerStreamableHTTP(
-    url="https://apibase.pro/mcp",
-    headers={"Authorization": "Bearer ak_live_..."}
-) as server:
-    tools = await server.list_tools()
+# MCPServerManager handles lifecycle of all MCP connections
+async with MCPServerManager(
+    servers=[
+        MCPServerStreamableHTTP(
+            url="https://apibase.pro/mcp",
+            headers={"Authorization": "Bearer ak_live_..."}
+        )
+    ]
+) as manager:
     agent = Agent(
         name="my-agent",
-        instructions="You have access to 409+ real-world API tools.",
-        mcp_servers=[server]
+        instructions="You have access to 413+ real-world API tools.",
+        mcp_servers=manager.servers
     )
-    result = await Runner.run(agent, "Search flights from NYC to London")</pre>
+    result = await Runner.run(agent, "Search flights from NYC to London")
+    print(result.final_output)</pre>
+<p class="note">MCPServerManager is the recommended way to manage multiple MCP connections. See <a href="https://openai.github.io/openai-agents-python/mcp/#5-mcp-server-manager">official docs</a>.</p>
 
 <h3>TypeScript</h3>
 <pre>import { MCPServerStreamableHTTP } from "@openai/agents/mcp";
@@ -220,18 +226,23 @@ curl -s https://apibase.pro/api/v1/tools | jq '.data[] | select(.category == "tr
 </div>
 <p class="note">The agent decides which server to call based on the task. No routing logic needed — the LLM reads tool descriptions and picks the right one.</p>
 
-<h3>OpenAI Agents SDK (multi-server)</h3>
-<pre>from agents.mcp import MCPServerStreamableHTTP, MCPServerStdio
+<h3>OpenAI Agents SDK (multi-server via MCPServerManager)</h3>
+<pre>from agents import Agent, Runner
+from agents.mcp import MCPServerStreamableHTTP, MCPServerStdio, MCPServerManager
 
-apibase = MCPServerStreamableHTTP(url="https://apibase.pro/mcp")
-playwright = MCPServerStdio(command="npx", args=["-y", "@playwright/mcp"])
-context7 = MCPServerStdio(command="npx", args=["-y", "@upstash/context7-mcp"])
-
-agent = Agent(
-    name="research-agent",
-    instructions="You have browser, docs, and 409 real-world API tools.",
-    mcp_servers=[apibase, playwright, context7]
-)</pre>
+async with MCPServerManager(
+    servers=[
+        MCPServerStreamableHTTP(url="https://apibase.pro/mcp"),
+        MCPServerStdio(command="npx", args=["-y", "@playwright/mcp"]),
+        MCPServerStdio(command="npx", args=["-y", "@upstash/context7-mcp"]),
+    ]
+) as manager:
+    agent = Agent(
+        name="research-agent",
+        instructions="You have browser, docs, and 413 real-world API tools.",
+        mcp_servers=manager.servers
+    )
+    result = await Runner.run(agent, "Get AAPL stock price")</pre>
 
 <h3>LangChain (multi-server)</h3>
 <pre>async with MultiServerMCPClient({
