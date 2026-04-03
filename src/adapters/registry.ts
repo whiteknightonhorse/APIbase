@@ -131,6 +131,7 @@ import { NoaaAdapter } from './noaa';
 import { WhoisJsonAdapter } from './whoisjson';
 import { NpmAdapter } from './npm';
 import { OsvAdapter } from './osv';
+import { CensusAdapter } from './census';
 import { config } from '../config';
 
 /**
@@ -853,6 +854,13 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'osv':
       // OSV.dev — vulnerability database, no auth, Apache 2.0 (UC-345)
       return getOrCreate('osv', () => new OsvAdapter());
+    case 'census': {
+      const censusKey = (config as Record<string, unknown>).PROVIDER_KEY_CENSUS as
+        | string
+        | undefined;
+      if (!censusKey) return undefined;
+      return getOrCreate('census', () => new CensusAdapter(censusKey));
+    }
     default:
       return undefined;
   }
