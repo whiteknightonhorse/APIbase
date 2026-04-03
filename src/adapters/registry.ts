@@ -129,6 +129,7 @@ import { WikidataAdapter } from './wikidata';
 import { DictionaryAdapter } from './dictionary';
 import { NoaaAdapter } from './noaa';
 import { WhoisJsonAdapter } from './whoisjson';
+import { NpmAdapter } from './npm';
 import { config } from '../config';
 
 /**
@@ -845,6 +846,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       if (!wjKey) return undefined;
       return getOrCreate('whoisjson', () => new WhoisJsonAdapter(wjKey));
     }
+    case 'npm':
+      // npm Registry — no auth, public API (UC-344)
+      return getOrCreate('npm', () => new NpmAdapter());
     default:
       return undefined;
   }

@@ -4404,4 +4404,44 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'developer',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // npm Registry — JavaScript Package Intelligence (UC-344, 4 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'npm.package_info',
+    mcpName: 'npm.packages.info',
+    title: 'npm Package Info',
+    description:
+      'Get metadata for any npm package: version, description, license, dependencies, maintainers, repository URL, keywords, engines. 2.1M+ packages. Supports scoped packages (@scope/name). Returns latest version by default or a specific version.',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'npm.downloads',
+    mcpName: 'npm.packages.downloads',
+    title: 'npm Download Stats',
+    description:
+      'Get download count for any npm package over a time period: last-day, last-week, last-month, last-year. Useful for measuring package popularity, adoption trends, and comparing alternatives (e.g. express: 92M/week).',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'npm.search',
+    mcpName: 'npm.packages.search',
+    title: 'npm Package Search',
+    description:
+      'Search 2.1M+ npm packages by keyword. Returns ranked results with quality, popularity, and maintenance scores, download counts, dependents, license, publisher. Find libraries for any task (e.g. "mcp server", "react hooks", "typescript orm").',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'npm.versions',
+    mcpName: 'npm.packages.versions',
+    title: 'npm Package Versions',
+    description:
+      'List all published versions of an npm package with dist-tags (latest, next, beta), deprecation status, and total version count. Returns the 50 most recent versions. Useful for dependency auditing and upgrade planning.',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
 ];

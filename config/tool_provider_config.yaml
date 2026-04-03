@@ -2598,6 +2598,28 @@ tools:
     price_usd: "0.003"
     cache_ttl: 86400
 
+  # --- UC-344: npm Registry (JavaScript Package Intelligence) ---
+  - tool_id: npm.package_info
+    name: npm Package Info
+    provider: npm
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: npm.downloads
+    name: npm Download Stats
+    provider: npm
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: npm.search
+    name: npm Package Search
+    provider: npm
+    price_usd: "0.001"
+    cache_ttl: 1800
+  - tool_id: npm.versions
+    name: npm Package Versions
+    provider: npm
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   # --- F1: Batch API (wrapper $0, sub-calls billed individually) ---
   - tool_id: platform.call_batch
     name: Batch Tool Calls

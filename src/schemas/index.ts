@@ -129,6 +129,7 @@ import { wikidataSchemas } from './wikidata.schema';
 import { dictionarySchemas } from './dictionary.schema';
 import { noaaSchemas } from './noaa.schema';
 import { whoisjsonSchemas } from './whoisjson.schema';
+import { npmSchemas } from './npm.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -261,4 +262,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...dictionarySchemas,
   ...noaaSchemas,
   ...whoisjsonSchemas,
+  ...npmSchemas,
 };

@@ -188,6 +188,15 @@
     "docs_url": "https://whoisjson.com/",
     "limit_proof": "Basic plan: 1,000 req/month free, 20 req/min, all endpoints included, expires May 2026"
   },
+  "npm": {
+    "display_name": "npm Registry",
+    "health_url": "https://registry.npmjs.org/express/latest",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://github.com/npm/registry/blob/main/docs/REGISTRY-API.md",
+    "limit_proof": "Public API, no auth, no documented rate limits. 2.1M+ packages, CDN-backed."
+  },
   "spoonacular": {
     "display_name": "Spoonacular Recipe",
     "health_url": "https://api.spoonacular.com/recipes/complexSearch?query=test&number=1",
