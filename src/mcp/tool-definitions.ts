@@ -4351,4 +4351,35 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'education',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // NOAA NWS Weather — US Forecasts + Observations (UC-324, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'noaa.forecast',
+    mcpName: 'noaa.weather.forecast',
+    title: 'NOAA 7-Day Forecast (US)',
+    description:
+      'Get 7-day weather forecast for a US location by latitude/longitude. Returns day and night periods with temperature (°F), precipitation chance, wind speed/direction, and detailed forecast text. Powered by NOAA National Weather Service (api.weather.gov). US contiguous only.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'noaa.hourly',
+    mcpName: 'noaa.weather.hourly',
+    title: 'NOAA Hourly Forecast (US)',
+    description:
+      'Get hourly weather forecast (next 48 hours) for a US location by latitude/longitude. Returns temperature (°F), precipitation chance, wind speed/direction, and short conditions per hour. Powered by NOAA National Weather Service. US contiguous only.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'noaa.observation',
+    mcpName: 'noaa.weather.observation',
+    title: 'NOAA Latest Observation (US)',
+    description:
+      'Get latest weather observation from the nearest ASOS/AWOS station to a US location. Returns current temperature (°C/°F), humidity, wind, pressure, visibility, dewpoint, heat index, wind chill. Powered by NOAA National Weather Service. US contiguous only.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
 ];

@@ -2,8 +2,8 @@
   "platform": "APIbase",
   "version": "2.0",
   "updated_at": "2026-04-01T00:00:00Z",
-  "tools_count": 422,
-  "providers_count": 127,
+  "tools_count": 425,
+  "providers_count": 128,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
@@ -37,8 +37,8 @@
     },
     {
       "name": "weather",
-      "tools": 11,
-      "providers": "OpenWeatherMap, NWS, IQAir",
+      "tools": 14,
+      "providers": "OpenWeatherMap, NWS, IQAir, NOAA",
       "examples": "current weather, forecast, alerts, air quality"
     },
     {

@@ -127,6 +127,7 @@ import { CocktailDbAdapter } from './cocktaildb';
 import { GitHubApiAdapter } from './github-api';
 import { WikidataAdapter } from './wikidata';
 import { DictionaryAdapter } from './dictionary';
+import { NoaaAdapter } from './noaa';
 import { config } from '../config';
 
 /**
@@ -833,6 +834,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'dictionary':
       // Free Dictionary + Datamuse — no auth (UC-313, UC-314)
       return getOrCreate('dictionary', () => new DictionaryAdapter());
+    case 'noaa':
+      // NOAA NWS Weather — US forecasts + observations, no auth (UC-324)
+      return getOrCreate('noaa', () => new NoaaAdapter());
     default:
       return undefined;
   }
