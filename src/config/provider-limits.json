@@ -179,6 +179,15 @@
     "docs_url": "https://whois.whoisxmlapi.com/documentation/making-requests",
     "limit_proof": "500 free DRS credits on signup, lifetime (not time-reset), then paid plans"
   },
+  "whoisjson": {
+    "display_name": "WhoisJSON",
+    "health_url": "https://whoisjson.com/api/v1/ssl-cert-check?domain=google.com",
+    "limit_type": "monthly",
+    "free_limit": 1000,
+    "reset_period": "monthly",
+    "docs_url": "https://whoisjson.com/",
+    "limit_proof": "Basic plan: 1,000 req/month free, 20 req/min, all endpoints included, expires May 2026"
+  },
   "spoonacular": {
     "display_name": "Spoonacular Recipe",
     "health_url": "https://api.spoonacular.com/recipes/complexSearch?query=test&number=1",

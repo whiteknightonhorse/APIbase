@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 435 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 437 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -14780,6 +14780,54 @@
         },
         "required": [
           "property_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "whoisjson.ssl.check",
+      "title": "SSL Certificate Check",
+      "description": "Validate SSL/TLS certificate for any domain. Returns issuer (org, CN), validity dates, subject CN, wildcard status, key size, and Subject Alternative Names (SAN) list. Useful for security audits, monitoring cert expiration, and verifying HTTPS configuration (WhoisJSON)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "domain": {
+            "type": "string",
+            "description": "Domain name to check SSL certificate (e.g. google.com, apibase.pro)",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "domain"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "whoisjson.dns.subdomains",
+      "title": "Subdomain Discovery",
+      "description": "Discover subdomains for any domain via DNS brute-force enumeration. Returns subdomain names, DNS record types (A/CNAME/MX), resolved IPs, and active/inactive status. Useful for security reconnaissance, asset inventory, and infrastructure mapping (WhoisJSON)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "domain": {
+            "type": "string",
+            "description": "Domain name to discover subdomains (e.g. github.com, example.com)",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "domain"
         ]
       },
       "annotations": {

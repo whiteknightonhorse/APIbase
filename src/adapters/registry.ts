@@ -128,6 +128,7 @@ import { GitHubApiAdapter } from './github-api';
 import { WikidataAdapter } from './wikidata';
 import { DictionaryAdapter } from './dictionary';
 import { NoaaAdapter } from './noaa';
+import { WhoisJsonAdapter } from './whoisjson';
 import { config } from '../config';
 
 /**
@@ -837,6 +838,13 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'noaa':
       // NOAA NWS Weather — US forecasts + observations, no auth (UC-324)
       return getOrCreate('noaa', () => new NoaaAdapter());
+    case 'whoisjson': {
+      const wjKey = (config as Record<string, unknown>).PROVIDER_KEY_WHOISJSON as
+        | string
+        | undefined;
+      if (!wjKey) return undefined;
+      return getOrCreate('whoisjson', () => new WhoisJsonAdapter(wjKey));
+    }
     default:
       return undefined;
   }

@@ -2586,6 +2586,18 @@ tools:
     price_usd: "0.002"
     cache_ttl: 300
 
+  # --- UC-326: WhoisJSON (SSL + Subdomain Discovery) ---
+  - tool_id: whoisjson.ssl_check
+    name: SSL Certificate Check
+    provider: whoisjson
+    price_usd: "0.003"
+    cache_ttl: 86400
+  - tool_id: whoisjson.subdomains
+    name: Subdomain Discovery
+    provider: whoisjson
+    price_usd: "0.003"
+    cache_ttl: 86400
+
   # --- F1: Batch API (wrapper $0, sub-calls billed individually) ---
   - tool_id: platform.call_batch
     name: Batch Tool Calls

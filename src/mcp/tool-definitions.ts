@@ -4382,4 +4382,26 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'weather',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // WhoisJSON — SSL + Subdomain Discovery (UC-326, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'whoisjson.ssl_check',
+    mcpName: 'whoisjson.ssl.check',
+    title: 'SSL Certificate Check',
+    description:
+      'Validate SSL/TLS certificate for any domain. Returns issuer (org, CN), validity dates, subject CN, wildcard status, key size, and Subject Alternative Names (SAN) list. Useful for security audits, monitoring cert expiration, and verifying HTTPS configuration (WhoisJSON)',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'whoisjson.subdomains',
+    mcpName: 'whoisjson.dns.subdomains',
+    title: 'Subdomain Discovery',
+    description:
+      'Discover subdomains for any domain via DNS brute-force enumeration. Returns subdomain names, DNS record types (A/CNAME/MX), resolved IPs, and active/inactive status. Useful for security reconnaissance, asset inventory, and infrastructure mapping (WhoisJSON)',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
 ];
