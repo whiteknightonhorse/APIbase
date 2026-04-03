@@ -2569,6 +2569,23 @@ tools:
     price_usd: "0"
     cache_ttl: 60
 
+  # --- UC-324: NOAA NWS Weather (US Forecasts + Observations) ---
+  - tool_id: noaa.forecast
+    name: NOAA 7-Day Forecast
+    provider: noaa
+    price_usd: "0.002"
+    cache_ttl: 3600
+  - tool_id: noaa.hourly
+    name: NOAA Hourly Forecast
+    provider: noaa
+    price_usd: "0.002"
+    cache_ttl: 1800
+  - tool_id: noaa.observation
+    name: NOAA Latest Observation
+    provider: noaa
+    price_usd: "0.002"
+    cache_ttl: 300
+
   # --- F1: Batch API (wrapper $0, sub-calls billed individually) ---
   - tool_id: platform.call_batch
     name: Batch Tool Calls

@@ -469,6 +469,15 @@
     "docs_url": "https://www.weather.gov/documentation/services-web-api",
     "limit_proof": "US Government open data, no auth, no rate limits (fair use: 1 req/30s)"
   },
+  "noaa": {
+    "display_name": "NOAA NWS Weather",
+    "health_url": "https://api.weather.gov/points/41.8781,-87.6298",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.weather.gov/documentation/services-web-api",
+    "limit_proof": "US Government open data, no auth, no rate limits. Each tool call makes 2-3 upstream requests (points + forecast/observation)."
+  },
   "nagerdate": {
     "display_name": "Nager.Date Holidays",
     "health_url": "https://date.nager.at/api/v3/NextPublicHolidays/US",
