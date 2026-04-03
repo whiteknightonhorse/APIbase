@@ -4444,4 +4444,35 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'developer',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // OSV.dev — Open Source Vulnerability Database (UC-345, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'osv.query',
+    mcpName: 'osv.security.query',
+    title: 'Query Package Vulnerabilities',
+    description:
+      'Check known vulnerabilities for a specific package version in any ecosystem (npm, PyPI, Go, Maven, Rust, NuGet, 14+ more). Returns CVE/GHSA IDs, severity scores, and affected package counts. Powered by Google OSV.dev — aggregates GitHub Security Advisories, NVD, and ecosystem-native databases.',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'osv.get',
+    mcpName: 'osv.security.get',
+    title: 'Get Vulnerability Details',
+    description:
+      'Retrieve full details for a vulnerability by OSV ID (GHSA-xxxx), CVE ID (CVE-2021-xxxxx), or ecosystem ID (PYSEC/RUSTSEC/GO). Returns summary, CVSS severity, affected packages with fix versions, and reference links.',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'osv.batch_query',
+    mcpName: 'osv.security.batch',
+    title: 'Batch Vulnerability Scan',
+    description:
+      'Scan up to 100 packages at once for known vulnerabilities. Submit package+version+ecosystem triples (e.g. full requirements.txt or package.json dependencies) and get vulnerability matches for all in a single call. Ideal for full dependency tree security audits.',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
 ];

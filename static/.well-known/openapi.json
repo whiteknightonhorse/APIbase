@@ -39308,6 +39308,313 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/osv.query/call": {
+      "post": {
+        "operationId": "osv_query",
+        "summary": "Query Package Vulnerabilities",
+        "description": "Check known vulnerabilities for a specific package version in any ecosystem (npm, PyPI, Go, Maven, Rust, NuGet, 14+ more). Returns CVE/GHSA IDs, severity scores, and affected package counts. Powered by Google OSV.dev — aggregates GitHub Security Advisories, NVD, and ecosystem-native databases.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "osv.query"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "package": {
+                    "type": "string",
+                    "description": "Package name (e.g. lodash, requests, gin-gonic/gin)",
+                    "minLength": 1
+                  },
+                  "version": {
+                    "type": "string",
+                    "description": "Package version to check (e.g. 4.17.20, 2.25.0)",
+                    "minLength": 1
+                  },
+                  "ecosystem": {
+                    "type": "string",
+                    "enum": [
+                      "npm",
+                      "PyPI",
+                      "Go",
+                      "Maven",
+                      "crates.io",
+                      "NuGet",
+                      "Packagist",
+                      "RubyGems",
+                      "Pub",
+                      "Hex",
+                      "SwiftURL",
+                      "Linux",
+                      "Android",
+                      "OSS-Fuzz",
+                      "GIT"
+                    ],
+                    "description": "Package ecosystem (npm, PyPI, Go, Maven, crates.io, NuGet, Packagist, RubyGems, etc.)"
+                  }
+                },
+                "required": [
+                  "package",
+                  "version",
+                  "ecosystem"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/osv.get/call": {
+      "post": {
+        "operationId": "osv_get",
+        "summary": "Get Vulnerability Details",
+        "description": "Retrieve full details for a vulnerability by OSV ID (GHSA-xxxx), CVE ID (CVE-2021-xxxxx), or ecosystem ID (PYSEC/RUSTSEC/GO). Returns summary, CVSS severity, affected packages with fix versions, and reference links.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "osv.get"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "vuln_id": {
+                    "type": "string",
+                    "description": "Vulnerability ID — OSV (e.g. GHSA-35jh-r3h4-6jhm), CVE (e.g. CVE-2021-23337), or PYSEC/GO/RUSTSEC ID",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "vuln_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/osv.batch_query/call": {
+      "post": {
+        "operationId": "osv_batch_query",
+        "summary": "Batch Vulnerability Scan",
+        "description": "Scan up to 100 packages at once for known vulnerabilities. Submit package+version+ecosystem triples (e.g. full requirements.txt or package.json dependencies) and get vulnerability matches for all in a single call. Ideal for full dependency tree security audits.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "osv.batch_query"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "queries": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "package": {
+                          "type": "string",
+                          "description": "Package name",
+                          "minLength": 1
+                        },
+                        "version": {
+                          "type": "string",
+                          "description": "Package version",
+                          "minLength": 1
+                        },
+                        "ecosystem": {
+                          "type": "string",
+                          "enum": [
+                            "npm",
+                            "PyPI",
+                            "Go",
+                            "Maven",
+                            "crates.io",
+                            "NuGet",
+                            "Packagist",
+                            "RubyGems",
+                            "Pub",
+                            "Hex",
+                            "SwiftURL",
+                            "Linux",
+                            "Android",
+                            "OSS-Fuzz",
+                            "GIT"
+                          ],
+                          "description": "Package ecosystem (npm, PyPI, Go, Maven, crates.io, NuGet, Packagist, RubyGems, etc.)"
+                        }
+                      },
+                      "required": [
+                        "package",
+                        "version",
+                        "ecosystem"
+                      ]
+                    },
+                    "description": "List of package+version+ecosystem to check (max 100)",
+                    "minItems": 1,
+                    "maxItems": 100
+                  }
+                },
+                "required": [
+                  "queries"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

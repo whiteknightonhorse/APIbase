@@ -130,6 +130,7 @@ import { DictionaryAdapter } from './dictionary';
 import { NoaaAdapter } from './noaa';
 import { WhoisJsonAdapter } from './whoisjson';
 import { NpmAdapter } from './npm';
+import { OsvAdapter } from './osv';
 import { config } from '../config';
 
 /**
@@ -849,6 +850,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'npm':
       // npm Registry — no auth, public API (UC-344)
       return getOrCreate('npm', () => new NpmAdapter());
+    case 'osv':
+      // OSV.dev — vulnerability database, no auth, Apache 2.0 (UC-345)
+      return getOrCreate('osv', () => new OsvAdapter());
     default:
       return undefined;
   }

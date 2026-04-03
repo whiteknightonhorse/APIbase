@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 441 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 444 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -14944,6 +14944,148 @@
         },
         "required": [
           "package"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "osv.security.batch",
+      "title": "Batch Vulnerability Scan",
+      "description": "Scan up to 100 packages at once for known vulnerabilities. Submit package+version+ecosystem triples (e.g. full requirements.txt or package.json dependencies) and get vulnerability matches for all in a single call. Ideal for full dependency tree security audits.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "queries": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "package": {
+                  "type": "string",
+                  "description": "Package name",
+                  "minLength": 1
+                },
+                "version": {
+                  "type": "string",
+                  "description": "Package version",
+                  "minLength": 1
+                },
+                "ecosystem": {
+                  "type": "string",
+                  "enum": [
+                    "npm",
+                    "PyPI",
+                    "Go",
+                    "Maven",
+                    "crates.io",
+                    "NuGet",
+                    "Packagist",
+                    "RubyGems",
+                    "Pub",
+                    "Hex",
+                    "SwiftURL",
+                    "Linux",
+                    "Android",
+                    "OSS-Fuzz",
+                    "GIT"
+                  ],
+                  "description": "Package ecosystem (npm, PyPI, Go, Maven, crates.io, NuGet, Packagist, RubyGems, etc.)"
+                }
+              },
+              "required": [
+                "package",
+                "version",
+                "ecosystem"
+              ]
+            },
+            "description": "List of package+version+ecosystem to check (max 100)",
+            "minItems": 1,
+            "maxItems": 100
+          }
+        },
+        "required": [
+          "queries"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "osv.security.get",
+      "title": "Get Vulnerability Details",
+      "description": "Retrieve full details for a vulnerability by OSV ID (GHSA-xxxx), CVE ID (CVE-2021-xxxxx), or ecosystem ID (PYSEC/RUSTSEC/GO). Returns summary, CVSS severity, affected packages with fix versions, and reference links.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "vuln_id": {
+            "type": "string",
+            "description": "Vulnerability ID \u2014 OSV (e.g. GHSA-35jh-r3h4-6jhm), CVE (e.g. CVE-2021-23337), or PYSEC/GO/RUSTSEC ID",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "vuln_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "osv.security.query",
+      "title": "Query Package Vulnerabilities",
+      "description": "Check known vulnerabilities for a specific package version in any ecosystem (npm, PyPI, Go, Maven, Rust, NuGet, 14+ more). Returns CVE/GHSA IDs, severity scores, and affected package counts. Powered by Google OSV.dev \u2014 aggregates GitHub Security Advisories, NVD, and ecosystem-native databases.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "package": {
+            "type": "string",
+            "description": "Package name (e.g. lodash, requests, gin-gonic/gin)",
+            "minLength": 1
+          },
+          "version": {
+            "type": "string",
+            "description": "Package version to check (e.g. 4.17.20, 2.25.0)",
+            "minLength": 1
+          },
+          "ecosystem": {
+            "type": "string",
+            "enum": [
+              "npm",
+              "PyPI",
+              "Go",
+              "Maven",
+              "crates.io",
+              "NuGet",
+              "Packagist",
+              "RubyGems",
+              "Pub",
+              "Hex",
+              "SwiftURL",
+              "Linux",
+              "Android",
+              "OSS-Fuzz",
+              "GIT"
+            ],
+            "description": "Package ecosystem (npm, PyPI, Go, Maven, crates.io, NuGet, Packagist, RubyGems, etc.)"
+          }
+        },
+        "required": [
+          "package",
+          "version",
+          "ecosystem"
         ]
       },
       "annotations": {

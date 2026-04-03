@@ -2620,6 +2620,23 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-345: OSV.dev (Open Source Vulnerability Database) ---
+  - tool_id: osv.query
+    name: Query Package Vulnerabilities
+    provider: osv
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: osv.get
+    name: Get Vulnerability Details
+    provider: osv
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: osv.batch_query
+    name: Batch Vulnerability Scan
+    provider: osv
+    price_usd: "0.003"
+    cache_ttl: 1800
+
   # --- F1: Batch API (wrapper $0, sub-calls billed individually) ---
   - tool_id: platform.call_batch
     name: Batch Tool Calls

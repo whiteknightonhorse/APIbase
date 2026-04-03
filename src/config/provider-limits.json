@@ -188,6 +188,15 @@
     "docs_url": "https://whoisjson.com/",
     "limit_proof": "Basic plan: 1,000 req/month free, 20 req/min, all endpoints included, expires May 2026"
   },
+  "osv": {
+    "display_name": "OSV.dev",
+    "health_url": "https://api.osv.dev/v1/vulns/GHSA-35jh-r3h4-6jhm",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://google.github.io/osv.dev/api/",
+    "limit_proof": "Apache 2.0, no auth, no rate limits per FAQ. Google Open Source Security project."
+  },
   "npm": {
     "display_name": "npm Registry",
     "health_url": "https://registry.npmjs.org/express/latest",
