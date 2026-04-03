@@ -4475,4 +4475,44 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'developer',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // US Census Bureau — Demographics & Population (UC-333, 4 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'census.population',
+    mcpName: 'census.data.population',
+    title: 'US Population Data',
+    description:
+      'Get population counts for any US geography by FIPS code — total, male, female. Covers all 50 states, 3,000+ counties, and sub-county areas. Source: American Community Survey 5-year estimates (US Census Bureau). Public domain, updated annually.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'census.demographics',
+    mcpName: 'census.data.demographics',
+    title: 'US Demographics Data',
+    description:
+      "Get demographic composition for any US geography — median age, race (white/Black/Asian), Hispanic/Latino population, and bachelor's degree attainment. Source: ACS 5-year estimates (US Census Bureau). Useful for market research, policy analysis, and neighborhood profiling.",
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'census.economic',
+    mcpName: 'census.data.economic',
+    title: 'US Economic Data',
+    description:
+      'Get economic indicators for any US geography — median household income, population in poverty, and unemployed count. Source: ACS 5-year estimates (US Census Bureau). Key data for market sizing, real estate analysis, and business location intelligence.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'census.housing',
+    mcpName: 'census.data.housing',
+    title: 'US Housing Data',
+    description:
+      'Get housing statistics for any US geography — total units, median home value, median rent, owner-occupied vs renter-occupied counts. Source: ACS 5-year estimates (US Census Bureau). Essential for real estate agents, property valuations, and housing market analysis.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

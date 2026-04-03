@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 444 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 448 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -15086,6 +15086,146 @@
           "package",
           "version",
           "ecosystem"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "census.data.demographics",
+      "title": "US Demographics Data",
+      "description": "Get demographic composition for any US geography \u2014 median age, race (white/Black/Asian), Hispanic/Latino population, and bachelor's degree attainment. Source: ACS 5-year estimates (US Census Bureau). Useful for market research, policy analysis, and neighborhood profiling.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "state_fips": {
+            "type": "string",
+            "description": "US state FIPS code (e.g. 06 for California, 36 for New York, * for all states)",
+            "minLength": 1,
+            "maxLength": 2
+          },
+          "county_fips": {
+            "type": "string",
+            "description": "County FIPS code within the state (e.g. 037 for Los Angeles, * for all counties). Omit for state-level data."
+          },
+          "year": {
+            "type": "integer",
+            "minimum": 2010,
+            "maximum": 2023,
+            "description": "Survey year (default 2022). ACS 5-year estimates available 2010-2022."
+          }
+        },
+        "required": [
+          "state_fips"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "census.data.economic",
+      "title": "US Economic Data",
+      "description": "Get economic indicators for any US geography \u2014 median household income, population in poverty, and unemployed count. Source: ACS 5-year estimates (US Census Bureau). Key data for market sizing, real estate analysis, and business location intelligence.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "state_fips": {
+            "type": "string",
+            "description": "US state FIPS code (e.g. 06 for California, 36 for New York, * for all states)",
+            "minLength": 1,
+            "maxLength": 2
+          },
+          "county_fips": {
+            "type": "string",
+            "description": "County FIPS code within the state (e.g. 037 for Los Angeles, * for all counties). Omit for state-level data."
+          },
+          "year": {
+            "type": "integer",
+            "minimum": 2010,
+            "maximum": 2023,
+            "description": "Survey year (default 2022). ACS 5-year estimates available 2010-2022."
+          }
+        },
+        "required": [
+          "state_fips"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "census.data.housing",
+      "title": "US Housing Data",
+      "description": "Get housing statistics for any US geography \u2014 total units, median home value, median rent, owner-occupied vs renter-occupied counts. Source: ACS 5-year estimates (US Census Bureau). Essential for real estate agents, property valuations, and housing market analysis.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "state_fips": {
+            "type": "string",
+            "description": "US state FIPS code (e.g. 06 for California, 36 for New York, * for all states)",
+            "minLength": 1,
+            "maxLength": 2
+          },
+          "county_fips": {
+            "type": "string",
+            "description": "County FIPS code within the state (e.g. 037 for Los Angeles, * for all counties). Omit for state-level data."
+          },
+          "year": {
+            "type": "integer",
+            "minimum": 2010,
+            "maximum": 2023,
+            "description": "Survey year (default 2022). ACS 5-year estimates available 2010-2022."
+          }
+        },
+        "required": [
+          "state_fips"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "census.data.population",
+      "title": "US Population Data",
+      "description": "Get population counts for any US geography by FIPS code \u2014 total, male, female. Covers all 50 states, 3,000+ counties, and sub-county areas. Source: American Community Survey 5-year estimates (US Census Bureau). Public domain, updated annually.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "state_fips": {
+            "type": "string",
+            "description": "US state FIPS code (e.g. 06 for California, 36 for New York, * for all states)",
+            "minLength": 1,
+            "maxLength": 2
+          },
+          "county_fips": {
+            "type": "string",
+            "description": "County FIPS code within the state (e.g. 037 for Los Angeles, * for all counties). Omit for state-level data."
+          },
+          "year": {
+            "type": "integer",
+            "minimum": 2010,
+            "maximum": 2023,
+            "description": "Survey year (default 2022). ACS 5-year estimates available 2010-2022."
+          }
+        },
+        "required": [
+          "state_fips"
         ]
       },
       "annotations": {

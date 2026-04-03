@@ -2637,6 +2637,28 @@ tools:
     price_usd: "0.003"
     cache_ttl: 1800
 
+  # --- UC-333: US Census Bureau (Demographics, Population, Income, Housing) ---
+  - tool_id: census.population
+    name: US Population Data
+    provider: census
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: census.demographics
+    name: US Demographics Data
+    provider: census
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: census.economic
+    name: US Economic Data
+    provider: census
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: census.housing
+    name: US Housing Data
+    provider: census
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   # --- F1: Batch API (wrapper $0, sub-calls billed individually) ---
   - tool_id: platform.call_batch
     name: Batch Tool Calls

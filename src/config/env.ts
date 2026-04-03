@@ -314,6 +314,9 @@ export const appEnvSchema = z.object({
   // WhoisJSON (UC-326) — SSL cert check + subdomain discovery, 1K req/month free
   PROVIDER_KEY_WHOISJSON: z.string().optional().default(''),
 
+  // US Census Bureau (UC-333) — population, demographics, income, housing, unlimited
+  PROVIDER_KEY_CENSUS: z.string().optional().default(''),
+
   // Predictive Pre-fetching (F8) — fire-and-forget cache warming
   PREFETCH_ENABLED: z.string().optional().default('false'),
 
