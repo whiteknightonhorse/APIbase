@@ -135,6 +135,7 @@ import { CensusAdapter } from './census';
 import { UsaSpendingAdapter } from './usaspending';
 import { SamAdapter } from './sam';
 import { FemaAdapter } from './fema';
+import { PypiAdapter } from './pypi';
 import { config } from '../config';
 
 /**
@@ -875,6 +876,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'fema':
       // OpenFEMA — disaster data, no auth (UC-334)
       return getOrCreate('fema', () => new FemaAdapter());
+    case 'pypi':
+      // PyPI — Python Package Index, no auth (UC-346)
+      return getOrCreate('pypi', () => new PypiAdapter());
     default:
       return undefined;
   }

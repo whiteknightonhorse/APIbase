@@ -2705,6 +2705,18 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-346: PyPI (Python Package Index) ---
+  - tool_id: pypi.package_info
+    name: PyPI Package Info
+    provider: pypi
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: pypi.releases
+    name: PyPI Package Versions
+    provider: pypi
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   # --- F1: Batch API (wrapper $0, sub-calls billed individually) ---
   - tool_id: platform.call_batch
     name: Batch Tool Calls

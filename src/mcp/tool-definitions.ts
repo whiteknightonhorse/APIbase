@@ -4599,4 +4599,26 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // PyPI — Python Package Index (UC-346, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'pypi.package_info',
+    mcpName: 'pypi.packages.info',
+    title: 'PyPI Package Info',
+    description:
+      'Get metadata for any Python package from PyPI: version, summary, license, author, dependencies, classifiers, Python version requirements. 550K+ packages. Supports specific version lookup. Complements npm (UC-344) for polyglot dependency intelligence.',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'pypi.releases',
+    mcpName: 'pypi.packages.releases',
+    title: 'PyPI Package Versions',
+    description:
+      'List all published versions of a Python package with upload dates, yanked status, and distribution file types (sdist/wheel). Returns the 50 most recent versions. Useful for dependency auditing, version pinning, and upgrade planning.',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
 ];

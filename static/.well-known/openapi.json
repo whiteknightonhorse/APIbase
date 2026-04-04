@@ -40713,6 +40713,168 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/pypi.package_info/call": {
+      "post": {
+        "operationId": "pypi_package_info",
+        "summary": "PyPI Package Info",
+        "description": "Get metadata for any Python package from PyPI: version, summary, license, author, dependencies, classifiers, Python version requirements. 550K+ packages. Supports specific version lookup. Complements npm (UC-344) for polyglot dependency intelligence.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pypi.package_info"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "package": {
+                    "type": "string",
+                    "description": "Python package name (e.g. requests, flask, numpy, anthropic)",
+                    "minLength": 1
+                  },
+                  "version": {
+                    "type": "string",
+                    "description": "Specific version (e.g. 2.31.0). Defaults to latest release."
+                  }
+                },
+                "required": [
+                  "package"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/pypi.releases/call": {
+      "post": {
+        "operationId": "pypi_releases",
+        "summary": "PyPI Package Versions",
+        "description": "List all published versions of a Python package with upload dates, yanked status, and distribution file types (sdist/wheel). Returns the 50 most recent versions. Useful for dependency auditing, version pinning, and upgrade planning.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pypi.releases"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "package": {
+                    "type": "string",
+                    "description": "Python package name to list all versions (e.g. django, pandas, scipy)",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "package"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {
