@@ -369,6 +369,37 @@ Every error response includes machine-readable recovery hints:
 | 502 | `bad_gateway` | `retry_after_delay` |
 | 503 | `service_unavailable` | `retry_after_delay` |
 
+## Troubleshooting (Dual-Rail Payments)
+
+### "MPP payment verification failed" on x402 requests
+
+**Symptom:** Agent sends x402 payment (`X-Payment` header) but gets `400 MPP payment verification failed` instead of data.
+
+**Root cause:** If you use the `mppx` SDK with default settings, `Mppx.create()` installs a global `fetch()` polyfill that intercepts ALL HTTP requests — including x402 ones. When `mppx` sees a 402 response, it automatically signs an MPP credential and retries, even if the original request was x402. The MPP credential is invalid for x402 → server returns 400.
+
+**Fix:** Initialize mppx with `polyfill: false`:
+
+```typescript
+// WRONG — intercepts all fetch() calls including x402
+const mppx = await Mppx.create({ wallet });
+
+// CORRECT — only use mppx.fetch() explicitly for MPP payments
+const mppx = await Mppx.create({ wallet, polyfill: false });
+```
+
+Then use `mppx.fetch()` only for MPP payments, and regular `fetch()` for x402.
+
+### Using both payment protocols
+
+APIbase supports dual-rail payments. Each request should use ONE protocol:
+
+| Protocol | Header | When to use |
+|----------|--------|-------------|
+| **x402** | `X-Payment: <signed-payload>` | Default. Use with Coinbase CDP or PayAI facilitator |
+| **MPP** | `Authorization: Payment <credential>` | Use with Tempo wallet and `mppx` SDK |
+
+Do NOT send both headers in the same request — both middleware will activate and one will fail.
+
 ---
 
 ## MCP Discovery

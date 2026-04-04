@@ -23,7 +23,9 @@ entertainment, education, jobs, space, social, legal, business,
 developer, media, infrastructure, messaging, marketing, world
 
 ## Payment
-- Protocol: x402 (HTTP 402 Payment Required)
-- Token: USDC on Base mainnet
+- Protocol: x402 (HTTP 402 Payment Required) or MPP (Authorization: Payment)
+- Token: USDC on Base mainnet (x402) or Tempo (MPP)
 - Prices: $0.001–$0.035 per call
 - Details: https://apibase.pro/.well-known/x402-payment.json
+- IMPORTANT: use ONE protocol per request, not both
+- If using mppx SDK: set polyfill: false to avoid intercepting x402 requests
