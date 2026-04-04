@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 456 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 458 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -15524,6 +15524,58 @@
         },
         "required": [
           "state"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "pypi.packages.info",
+      "title": "PyPI Package Info",
+      "description": "Get metadata for any Python package from PyPI: version, summary, license, author, dependencies, classifiers, Python version requirements. 550K+ packages. Supports specific version lookup. Complements npm (UC-344) for polyglot dependency intelligence.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "package": {
+            "type": "string",
+            "description": "Python package name (e.g. requests, flask, numpy, anthropic)",
+            "minLength": 1
+          },
+          "version": {
+            "type": "string",
+            "description": "Specific version (e.g. 2.31.0). Defaults to latest release."
+          }
+        },
+        "required": [
+          "package"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "pypi.packages.releases",
+      "title": "PyPI Package Versions",
+      "description": "List all published versions of a Python package with upload dates, yanked status, and distribution file types (sdist/wheel). Returns the 50 most recent versions. Useful for dependency auditing, version pinning, and upgrade planning.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "package": {
+            "type": "string",
+            "description": "Python package name to list all versions (e.g. django, pandas, scipy)",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "package"
         ]
       },
       "annotations": {

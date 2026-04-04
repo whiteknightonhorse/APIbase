@@ -135,6 +135,7 @@ import { censusSchemas } from './census.schema';
 import { usaspendingSchemas } from './usaspending.schema';
 import { samSchemas } from './sam.schema';
 import { femaSchemas } from './fema.schema';
+import { pypiSchemas } from './pypi.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -273,4 +274,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...usaspendingSchemas,
   ...samSchemas,
   ...femaSchemas,
+  ...pypiSchemas,
 };

@@ -188,6 +188,15 @@
     "docs_url": "https://whoisjson.com/",
     "limit_proof": "Basic plan: 1,000 req/month free, 20 req/min, all endpoints included, expires May 2026"
   },
+  "pypi": {
+    "display_name": "PyPI",
+    "health_url": "https://pypi.org/pypi/requests/json",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://warehouse.pypa.io/api-reference/json.html",
+    "limit_proof": "Public API, no auth, no documented rate limits. PSF operated. 550K+ Python packages."
+  },
   "fema": {
     "display_name": "OpenFEMA",
     "health_url": "https://www.fema.gov/api/open/v2/DisasterDeclarationsSummaries?$top=1",
