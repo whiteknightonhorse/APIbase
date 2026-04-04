@@ -2717,6 +2717,28 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-341: GBIF (Global Biodiversity) ---
+  - tool_id: gbif.species_search
+    name: GBIF Species Search
+    provider: gbif
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: gbif.species_details
+    name: GBIF Species Details
+    provider: gbif
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: gbif.occurrences
+    name: GBIF Species Occurrences
+    provider: gbif
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: gbif.occurrence_count
+    name: GBIF Occurrence Count
+    provider: gbif
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   # --- F1: Batch API (wrapper $0, sub-calls billed individually) ---
   - tool_id: platform.call_batch
     name: Batch Tool Calls

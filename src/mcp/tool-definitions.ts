@@ -4621,4 +4621,44 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'developer',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // GBIF — Global Biodiversity (UC-341, 4 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'gbif.species_search',
+    mcpName: 'gbif.biodiversity.species_search',
+    title: 'GBIF Species Search',
+    description:
+      'Search 9M+ species in the GBIF backbone taxonomy by common or scientific name. Returns taxon key, scientific name, kingdom/phylum/class/order/family/genus, and taxonomic status. Filter by rank (SPECIES, GENUS, FAMILY). Source: Global Biodiversity Information Facility (CC0).',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'gbif.species_details',
+    mcpName: 'gbif.biodiversity.species_details',
+    title: 'GBIF Species Details',
+    description:
+      'Get full taxonomic profile for a species by GBIF taxon key. Returns classification hierarchy, vernacular (common) names, synonyms, number of descendants, and accepted name. Source: GBIF backbone taxonomy.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'gbif.occurrences',
+    mcpName: 'gbif.biodiversity.occurrences',
+    title: 'GBIF Species Occurrences',
+    description:
+      'Search 2.5B+ species occurrence records by taxon, country, and year. Returns observation coordinates, date, collector institution, basis of record (specimen/observation). Filter by ISO country code. Source: GBIF (2000+ institutions, 100+ countries).',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'gbif.occurrence_count',
+    mcpName: 'gbif.biodiversity.occurrence_count',
+    title: 'GBIF Occurrence Count',
+    description:
+      'Get total occurrence count for a species, optionally filtered by country. Useful for range size estimation, data density assessment, and conservation status analysis. Source: GBIF.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
 ];

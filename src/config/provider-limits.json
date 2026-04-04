@@ -188,6 +188,15 @@
     "docs_url": "https://whoisjson.com/",
     "limit_proof": "Basic plan: 1,000 req/month free, 20 req/min, all endpoints included, expires May 2026"
   },
+  "gbif": {
+    "display_name": "GBIF",
+    "health_url": "https://api.gbif.org/v1/species/search?q=Ursus&limit=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.gbif.org/developer/summary",
+    "limit_proof": "CC0/CC BY open data. No auth, no rate limits. 2.5B+ occurrences, 9M+ taxa. Intergovernmental organization."
+  },
   "pypi": {
     "display_name": "PyPI",
     "health_url": "https://pypi.org/pypi/requests/json",

@@ -40875,6 +40875,362 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/gbif.species_search/call": {
+      "post": {
+        "operationId": "gbif_species_search",
+        "summary": "GBIF Species Search",
+        "description": "Search 9M+ species in the GBIF backbone taxonomy by common or scientific name. Returns taxon key, scientific name, kingdom/phylum/class/order/family/genus, and taxonomic status. Filter by rank (SPECIES, GENUS, FAMILY). Source: Global Biodiversity Information Facility (CC0).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "gbif.species_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Species name to search — common name (e.g. \"polar bear\") or scientific name (e.g. \"Ursus maritimus\")",
+                    "minLength": 1
+                  },
+                  "rank": {
+                    "type": "string",
+                    "enum": [
+                      "KINGDOM",
+                      "PHYLUM",
+                      "CLASS",
+                      "ORDER",
+                      "FAMILY",
+                      "GENUS",
+                      "SPECIES"
+                    ],
+                    "description": "Taxonomic rank filter (default: SPECIES). Use SPECIES to avoid virus/subspecies matches."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20,
+                    "description": "Number of results (1-20, default 5)"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/gbif.species_details/call": {
+      "post": {
+        "operationId": "gbif_species_details",
+        "summary": "GBIF Species Details",
+        "description": "Get full taxonomic profile for a species by GBIF taxon key. Returns classification hierarchy, vernacular (common) names, synonyms, number of descendants, and accepted name. Source: GBIF backbone taxonomy.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "gbif.species_details"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "taxon_key": {
+                    "type": "integer",
+                    "description": "GBIF taxon key (numeric ID from species search results)"
+                  }
+                },
+                "required": [
+                  "taxon_key"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/gbif.occurrences/call": {
+      "post": {
+        "operationId": "gbif_occurrences",
+        "summary": "GBIF Species Occurrences",
+        "description": "Search 2.5B+ species occurrence records by taxon, country, and year. Returns observation coordinates, date, collector institution, basis of record (specimen/observation). Filter by ISO country code. Source: GBIF (2000+ institutions, 100+ countries).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "gbif.occurrences"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "taxon_key": {
+                    "type": "integer",
+                    "description": "GBIF taxon key for the species to search occurrences"
+                  },
+                  "country": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2,
+                    "description": "ISO 3166-1 alpha-2 country code (e.g. US, GB, BR, AU)"
+                  },
+                  "year": {
+                    "type": "integer",
+                    "minimum": 1700,
+                    "maximum": 2026,
+                    "description": "Filter by observation year (e.g. 2024)"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Number of results (1-50, default 10)"
+                  }
+                },
+                "required": [
+                  "taxon_key"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/gbif.occurrence_count/call": {
+      "post": {
+        "operationId": "gbif_occurrence_count",
+        "summary": "GBIF Occurrence Count",
+        "description": "Get total occurrence count for a species, optionally filtered by country. Useful for range size estimation, data density assessment, and conservation status analysis. Source: GBIF.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "gbif.occurrence_count"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "taxon_key": {
+                    "type": "integer",
+                    "description": "GBIF taxon key to count occurrences for"
+                  },
+                  "country": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2,
+                    "description": "ISO country code to filter count (e.g. US, BR)"
+                  }
+                },
+                "required": [
+                  "taxon_key"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

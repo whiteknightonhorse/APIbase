@@ -136,6 +136,7 @@ import { UsaSpendingAdapter } from './usaspending';
 import { SamAdapter } from './sam';
 import { FemaAdapter } from './fema';
 import { PypiAdapter } from './pypi';
+import { GbifAdapter } from './gbif';
 import { config } from '../config';
 
 /**
@@ -879,6 +880,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'pypi':
       // PyPI — Python Package Index, no auth (UC-346)
       return getOrCreate('pypi', () => new PypiAdapter());
+    case 'gbif':
+      // GBIF — Global Biodiversity, no auth, CC0 (UC-341)
+      return getOrCreate('gbif', () => new GbifAdapter());
     default:
       return undefined;
   }

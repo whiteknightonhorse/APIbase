@@ -136,6 +136,7 @@ import { usaspendingSchemas } from './usaspending.schema';
 import { samSchemas } from './sam.schema';
 import { femaSchemas } from './fema.schema';
 import { pypiSchemas } from './pypi.schema';
+import { gbifSchemas } from './gbif.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -275,4 +276,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...samSchemas,
   ...femaSchemas,
   ...pypiSchemas,
+  ...gbifSchemas,
 };
