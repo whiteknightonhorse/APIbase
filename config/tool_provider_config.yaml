@@ -2659,6 +2659,23 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-335: USAspending (Federal Contracts & Grants) ---
+  - tool_id: spending.awards
+    name: Federal Award Search
+    provider: spending
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: spending.agency
+    name: Federal Agency Spending
+    provider: spending
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: spending.geography
+    name: Federal Spending by State
+    provider: spending
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   # --- F1: Batch API (wrapper $0, sub-calls billed individually) ---
   - tool_id: platform.call_batch
     name: Batch Tool Calls

@@ -188,6 +188,15 @@
     "docs_url": "https://whoisjson.com/",
     "limit_proof": "Basic plan: 1,000 req/month free, 20 req/min, all endpoints included, expires May 2026"
   },
+  "spending": {
+    "display_name": "USAspending",
+    "health_url": "https://api.usaspending.gov/api/v2/references/agency/",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://api.usaspending.gov/docs/endpoints",
+    "limit_proof": "US Government open data (DATA Act). No auth, no rate limits. 60M+ awards, $10+ trillion tracked."
+  },
   "census": {
     "display_name": "US Census Bureau",
     "health_url": "https://api.census.gov/data/2022/acs/acs5?get=NAME,B01001_001E&for=state:06",

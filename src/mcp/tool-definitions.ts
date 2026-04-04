@@ -4515,4 +4515,35 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // USAspending — Federal Contracts & Grants (UC-335, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'spending.awards',
+    mcpName: 'spending.federal.awards',
+    title: 'Federal Award Search',
+    description:
+      'Search 60M+ US federal contract and grant awards by keyword, recipient, or NAICS code. Returns award amount, recipient, agency, dates, and description. Sorted by amount descending. Source: USAspending.gov (DATA Act mandate, US Gov open data).',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'spending.agency',
+    mcpName: 'spending.federal.agency',
+    title: 'Federal Agency Spending',
+    description:
+      'Search federal awards by agency name (e.g. "Defense", "NASA", "Health and Human Services"). Returns top awards by amount for a fiscal year. Source: USAspending.gov — covers all federal agencies.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'spending.geography',
+    mcpName: 'spending.federal.geography',
+    title: 'Federal Spending by State',
+    description:
+      'Get total US federal spending by state for contracts, grants, or all awards in a fiscal year. Returns all 50+ states sorted by spending amount. Useful for regional economic analysis and policy research. Source: USAspending.gov.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

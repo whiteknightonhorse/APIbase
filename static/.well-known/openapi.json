@@ -39975,6 +39975,283 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/spending.awards/call": {
+      "post": {
+        "operationId": "spending_awards",
+        "summary": "Federal Award Search",
+        "description": "Search 60M+ US federal contract and grant awards by keyword, recipient, or NAICS code. Returns award amount, recipient, agency, dates, and description. Sorted by amount descending. Source: USAspending.gov (DATA Act mandate, US Gov open data).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "spending.awards"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "keyword": {
+                    "type": "string",
+                    "description": "Search keyword for federal awards (e.g. \"artificial intelligence\", \"cybersecurity\", company name)",
+                    "minLength": 1
+                  },
+                  "fiscal_year": {
+                    "type": "integer",
+                    "minimum": 2000,
+                    "maximum": 2026,
+                    "description": "Fiscal year to filter (e.g. 2025). Default: current year."
+                  },
+                  "award_type": {
+                    "type": "string",
+                    "enum": [
+                      "contracts",
+                      "grants",
+                      "all"
+                    ],
+                    "description": "Filter by award type: contracts, grants, or all (default: all)"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 25,
+                    "description": "Number of results to return (1-25, default 10)"
+                  }
+                },
+                "required": [
+                  "keyword"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/spending.agency/call": {
+      "post": {
+        "operationId": "spending_agency",
+        "summary": "Federal Agency Spending",
+        "description": "Search federal awards by agency name (e.g. \"Defense\", \"NASA\", \"Health and Human Services\"). Returns top awards by amount for a fiscal year. Source: USAspending.gov — covers all federal agencies.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "spending.agency"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "agency_name": {
+                    "type": "string",
+                    "description": "Federal agency name or keyword (e.g. \"Defense\", \"NASA\", \"Health and Human Services\")",
+                    "minLength": 1
+                  },
+                  "fiscal_year": {
+                    "type": "integer",
+                    "minimum": 2000,
+                    "maximum": 2026,
+                    "description": "Fiscal year (e.g. 2025). Default: current year."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 25,
+                    "description": "Number of top awards to return (1-25, default 10)"
+                  }
+                },
+                "required": [
+                  "agency_name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/spending.geography/call": {
+      "post": {
+        "operationId": "spending_geography",
+        "summary": "Federal Spending by State",
+        "description": "Get total US federal spending by state for contracts, grants, or all awards in a fiscal year. Returns all 50+ states sorted by spending amount. Useful for regional economic analysis and policy research. Source: USAspending.gov.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "spending.geography"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "fiscal_year": {
+                    "type": "integer",
+                    "minimum": 2017,
+                    "maximum": 2026,
+                    "description": "Fiscal year (e.g. 2025). Default: current year."
+                  },
+                  "award_type": {
+                    "type": "string",
+                    "enum": [
+                      "contracts",
+                      "grants",
+                      "all"
+                    ],
+                    "description": "Filter by award type: contracts, grants, or all (default: all)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

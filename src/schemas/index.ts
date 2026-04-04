@@ -132,6 +132,7 @@ import { whoisjsonSchemas } from './whoisjson.schema';
 import { npmSchemas } from './npm.schema';
 import { osvSchemas } from './osv.schema';
 import { censusSchemas } from './census.schema';
+import { usaspendingSchemas } from './usaspending.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -267,4 +268,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...npmSchemas,
   ...osvSchemas,
   ...censusSchemas,
+  ...usaspendingSchemas,
 };

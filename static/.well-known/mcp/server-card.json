@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 448 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 451 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -15227,6 +15227,118 @@
         "required": [
           "state_fips"
         ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "spending.federal.agency",
+      "title": "Federal Agency Spending",
+      "description": "Search federal awards by agency name (e.g. \"Defense\", \"NASA\", \"Health and Human Services\"). Returns top awards by amount for a fiscal year. Source: USAspending.gov \u2014 covers all federal agencies.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "agency_name": {
+            "type": "string",
+            "description": "Federal agency name or keyword (e.g. \"Defense\", \"NASA\", \"Health and Human Services\")",
+            "minLength": 1
+          },
+          "fiscal_year": {
+            "type": "integer",
+            "minimum": 2000,
+            "maximum": 2026,
+            "description": "Fiscal year (e.g. 2025). Default: current year."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 25,
+            "description": "Number of top awards to return (1-25, default 10)"
+          }
+        },
+        "required": [
+          "agency_name"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "spending.federal.awards",
+      "title": "Federal Award Search",
+      "description": "Search 60M+ US federal contract and grant awards by keyword, recipient, or NAICS code. Returns award amount, recipient, agency, dates, and description. Sorted by amount descending. Source: USAspending.gov (DATA Act mandate, US Gov open data).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "keyword": {
+            "type": "string",
+            "description": "Search keyword for federal awards (e.g. \"artificial intelligence\", \"cybersecurity\", company name)",
+            "minLength": 1
+          },
+          "fiscal_year": {
+            "type": "integer",
+            "minimum": 2000,
+            "maximum": 2026,
+            "description": "Fiscal year to filter (e.g. 2025). Default: current year."
+          },
+          "award_type": {
+            "type": "string",
+            "enum": [
+              "contracts",
+              "grants",
+              "all"
+            ],
+            "description": "Filter by award type: contracts, grants, or all (default: all)"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 25,
+            "description": "Number of results to return (1-25, default 10)"
+          }
+        },
+        "required": [
+          "keyword"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "spending.federal.geography",
+      "title": "Federal Spending by State",
+      "description": "Get total US federal spending by state for contracts, grants, or all awards in a fiscal year. Returns all 50+ states sorted by spending amount. Useful for regional economic analysis and policy research. Source: USAspending.gov.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "fiscal_year": {
+            "type": "integer",
+            "minimum": 2017,
+            "maximum": 2026,
+            "description": "Fiscal year (e.g. 2025). Default: current year."
+          },
+          "award_type": {
+            "type": "string",
+            "enum": [
+              "contracts",
+              "grants",
+              "all"
+            ],
+            "description": "Filter by award type: contracts, grants, or all (default: all)"
+          }
+        }
       },
       "annotations": {
         "readOnlyHint": true,
