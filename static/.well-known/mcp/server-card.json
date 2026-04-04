@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 451 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 453 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -15339,6 +15339,69 @@
             "description": "Filter by award type: contracts, grants, or all (default: all)"
           }
         }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "sam.gov.entity_detail",
+      "title": "SAM.gov Entity Detail",
+      "description": "Get full SAM.gov registration details for a federal contractor by UEI (Unique Entity Identifier). Returns legal name, CAGE code, addresses, NAICS/PSC codes, business certifications, entity structure, organization type, and registration dates. Source: SAM.gov (GSA).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "uei": {
+            "type": "string",
+            "description": "Unique Entity Identifier (UEI) \u2014 12-character SAM.gov ID (e.g. KM99JJBNQ9M5 for Lockheed Martin)",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "uei"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "sam.gov.entity_search",
+      "title": "SAM.gov Entity Search",
+      "description": "Search 700K+ registered US federal contractors and grantees by company name, state, or NAICS code. Returns UEI (Unique Entity Identifier), CAGE code, registration status, business types (Small Business, 8(a), HUBZone, WOSB, Veteran-Owned), and NAICS codes. Source: SAM.gov (GSA).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Company or organization name to search (e.g. \"Lockheed\", \"Google\", \"Deloitte\"). Supports partial match.",
+            "minLength": 1
+          },
+          "state": {
+            "type": "string",
+            "maxLength": 2,
+            "description": "US state code to filter (e.g. VA, CA, TX)"
+          },
+          "naics_code": {
+            "type": "string",
+            "description": "NAICS industry code to filter (e.g. 541512 for Computer Systems Design)"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 25,
+            "description": "Number of results (1-25, default 10)"
+          }
+        },
+        "required": [
+          "name"
+        ]
       },
       "annotations": {
         "readOnlyHint": true,

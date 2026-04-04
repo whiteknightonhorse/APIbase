@@ -188,6 +188,15 @@
     "docs_url": "https://whoisjson.com/",
     "limit_proof": "Basic plan: 1,000 req/month free, 20 req/min, all endpoints included, expires May 2026"
   },
+  "sam": {
+    "display_name": "SAM.gov",
+    "health_url": "https://api.sam.gov/entity-information/v3/entities?registrationStatus=A&legalBusinessName=test&samRegistered=Yes",
+    "limit_type": "daily",
+    "free_limit": 10000,
+    "reset_period": "daily",
+    "docs_url": "https://open.gsa.gov/api/entity-api/",
+    "limit_proof": "Personal account: 10K req/day. API key expires every 90 days. US Gov open data, non-federal commercial access OK."
+  },
   "spending": {
     "display_name": "USAspending",
     "health_url": "https://api.usaspending.gov/api/v2/references/agency/",
