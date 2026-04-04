@@ -4546,4 +4546,26 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // SAM.gov — Federal Contractor Registry (UC-338, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'sam.entity_search',
+    mcpName: 'sam.gov.entity_search',
+    title: 'SAM.gov Entity Search',
+    description:
+      'Search 700K+ registered US federal contractors and grantees by company name, state, or NAICS code. Returns UEI (Unique Entity Identifier), CAGE code, registration status, business types (Small Business, 8(a), HUBZone, WOSB, Veteran-Owned), and NAICS codes. Source: SAM.gov (GSA).',
+    category: 'business',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'sam.entity_detail',
+    mcpName: 'sam.gov.entity_detail',
+    title: 'SAM.gov Entity Detail',
+    description:
+      'Get full SAM.gov registration details for a federal contractor by UEI (Unique Entity Identifier). Returns legal name, CAGE code, addresses, NAICS/PSC codes, business certifications, entity structure, organization type, and registration dates. Source: SAM.gov (GSA).',
+    category: 'business',
+    annotations: READ_ONLY,
+  },
 ];

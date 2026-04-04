@@ -40252,6 +40252,179 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/sam.entity_search/call": {
+      "post": {
+        "operationId": "sam_entity_search",
+        "summary": "SAM.gov Entity Search",
+        "description": "Search 700K+ registered US federal contractors and grantees by company name, state, or NAICS code. Returns UEI (Unique Entity Identifier), CAGE code, registration status, business types (Small Business, 8(a), HUBZone, WOSB, Veteran-Owned), and NAICS codes. Source: SAM.gov (GSA).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "sam.entity_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Company or organization name to search (e.g. \"Lockheed\", \"Google\", \"Deloitte\"). Supports partial match.",
+                    "minLength": 1
+                  },
+                  "state": {
+                    "type": "string",
+                    "maxLength": 2,
+                    "description": "US state code to filter (e.g. VA, CA, TX)"
+                  },
+                  "naics_code": {
+                    "type": "string",
+                    "description": "NAICS industry code to filter (e.g. 541512 for Computer Systems Design)"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 25,
+                    "description": "Number of results (1-25, default 10)"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/sam.entity_detail/call": {
+      "post": {
+        "operationId": "sam_entity_detail",
+        "summary": "SAM.gov Entity Detail",
+        "description": "Get full SAM.gov registration details for a federal contractor by UEI (Unique Entity Identifier). Returns legal name, CAGE code, addresses, NAICS/PSC codes, business certifications, entity structure, organization type, and registration dates. Source: SAM.gov (GSA).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "sam.entity_detail"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "uei": {
+                    "type": "string",
+                    "description": "Unique Entity Identifier (UEI) — 12-character SAM.gov ID (e.g. KM99JJBNQ9M5 for Lockheed Martin)",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "uei"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

@@ -133,6 +133,7 @@ import { NpmAdapter } from './npm';
 import { OsvAdapter } from './osv';
 import { CensusAdapter } from './census';
 import { UsaSpendingAdapter } from './usaspending';
+import { SamAdapter } from './sam';
 import { config } from '../config';
 
 /**
@@ -865,6 +866,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'spending':
       // USAspending — federal contracts/grants, no auth (UC-335)
       return getOrCreate('spending', () => new UsaSpendingAdapter());
+    case 'sam': {
+      const samKey = (config as Record<string, unknown>).PROVIDER_KEY_SAM as string | undefined;
+      if (!samKey) return undefined;
+      return getOrCreate('sam', () => new SamAdapter(samKey));
+    }
     default:
       return undefined;
   }

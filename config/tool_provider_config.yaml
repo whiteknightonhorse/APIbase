@@ -2676,6 +2676,18 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-338: SAM.gov (Federal Contractor Registry) ---
+  - tool_id: sam.entity_search
+    name: SAM.gov Entity Search
+    provider: sam
+    price_usd: "0.002"
+    cache_ttl: 86400
+  - tool_id: sam.entity_detail
+    name: SAM.gov Entity Detail
+    provider: sam
+    price_usd: "0.002"
+    cache_ttl: 86400
+
   # --- F1: Batch API (wrapper $0, sub-calls billed individually) ---
   - tool_id: platform.call_batch
     name: Batch Tool Calls
