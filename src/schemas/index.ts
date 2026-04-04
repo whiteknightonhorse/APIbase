@@ -134,6 +134,7 @@ import { osvSchemas } from './osv.schema';
 import { censusSchemas } from './census.schema';
 import { usaspendingSchemas } from './usaspending.schema';
 import { samSchemas } from './sam.schema';
+import { femaSchemas } from './fema.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -271,4 +272,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...censusSchemas,
   ...usaspendingSchemas,
   ...samSchemas,
+  ...femaSchemas,
 };

@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 453 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 456 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -15401,6 +15401,129 @@
         },
         "required": [
           "name"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "fema.disaster.assistance",
+      "title": "FEMA Housing Assistance",
+      "description": "Query federal disaster housing assistance data by state and disaster number. Returns registration counts, average damage, total inspected, approved amounts by county. Useful for disaster recovery analysis and aid distribution research. Source: OpenFEMA.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string",
+            "description": "US state code (e.g. TX, FL, CA)",
+            "minLength": 2,
+            "maxLength": 2
+          },
+          "disaster_number": {
+            "type": "integer",
+            "description": "FEMA disaster number to filter (e.g. 4673)"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of results (1-50, default 10)"
+          }
+        },
+        "required": [
+          "state"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "fema.disaster.declarations",
+      "title": "FEMA Disaster Declarations",
+      "description": "Search US federal disaster declarations from 1953 to present. Filter by state, incident type (Fire, Flood, Hurricane, Tornado, Earthquake), and year. Returns disaster number, title, dates, designated programs (IA, PA, HM). Source: OpenFEMA (US Gov open data).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "US state code (e.g. CA, TX, FL). Omit for all states."
+          },
+          "incident_type": {
+            "type": "string",
+            "enum": [
+              "Fire",
+              "Flood",
+              "Hurricane",
+              "Tornado",
+              "Earthquake",
+              "Severe Storm(s)",
+              "Snow",
+              "Drought",
+              "Typhoon",
+              "Biological",
+              "Other"
+            ],
+            "description": "Disaster type to filter (e.g. Fire, Flood, Hurricane)"
+          },
+          "year": {
+            "type": "integer",
+            "minimum": 1953,
+            "maximum": 2026,
+            "description": "Filter by declaration year (1953-2026)"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of results (1-50, default 10)"
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "fema.disaster.flood_claims",
+      "title": "NFIP Flood Insurance Claims",
+      "description": "Retrieve National Flood Insurance Program (NFIP) claims by state and year. Returns flood zone, building/contents payments, insurance coverage amounts, cause of damage. Essential for flood risk assessment and insurance analysis. Source: OpenFEMA.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string",
+            "description": "US state code (e.g. FL, TX, LA)",
+            "minLength": 2,
+            "maxLength": 2
+          },
+          "year": {
+            "type": "integer",
+            "minimum": 1970,
+            "maximum": 2026,
+            "description": "Year of loss to filter (e.g. 2024)"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of results (1-50, default 10)"
+          }
+        },
+        "required": [
+          "state"
         ]
       },
       "annotations": {

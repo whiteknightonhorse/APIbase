@@ -188,6 +188,15 @@
     "docs_url": "https://whoisjson.com/",
     "limit_proof": "Basic plan: 1,000 req/month free, 20 req/min, all endpoints included, expires May 2026"
   },
+  "fema": {
+    "display_name": "OpenFEMA",
+    "health_url": "https://www.fema.gov/api/open/v2/DisasterDeclarationsSummaries?$top=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.fema.gov/about/openfema/api",
+    "limit_proof": "US Government open data. No auth, no rate limits. All disasters since 1953."
+  },
   "sam": {
     "display_name": "SAM.gov",
     "health_url": "https://api.sam.gov/entity-information/v3/entities?registrationStatus=A&legalBusinessName=test&samRegistered=Yes",

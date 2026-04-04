@@ -134,6 +134,7 @@ import { OsvAdapter } from './osv';
 import { CensusAdapter } from './census';
 import { UsaSpendingAdapter } from './usaspending';
 import { SamAdapter } from './sam';
+import { FemaAdapter } from './fema';
 import { config } from '../config';
 
 /**
@@ -871,6 +872,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       if (!samKey) return undefined;
       return getOrCreate('sam', () => new SamAdapter(samKey));
     }
+    case 'fema':
+      // OpenFEMA — disaster data, no auth (UC-334)
+      return getOrCreate('fema', () => new FemaAdapter());
     default:
       return undefined;
   }
