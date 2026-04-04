@@ -4568,4 +4568,35 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'business',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // OpenFEMA — US Disaster Data (UC-334, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'fema.disasters',
+    mcpName: 'fema.disaster.declarations',
+    title: 'FEMA Disaster Declarations',
+    description:
+      'Search US federal disaster declarations from 1953 to present. Filter by state, incident type (Fire, Flood, Hurricane, Tornado, Earthquake), and year. Returns disaster number, title, dates, designated programs (IA, PA, HM). Source: OpenFEMA (US Gov open data).',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'fema.flood_claims',
+    mcpName: 'fema.disaster.flood_claims',
+    title: 'NFIP Flood Insurance Claims',
+    description:
+      'Retrieve National Flood Insurance Program (NFIP) claims by state and year. Returns flood zone, building/contents payments, insurance coverage amounts, cause of damage. Essential for flood risk assessment and insurance analysis. Source: OpenFEMA.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'fema.assistance',
+    mcpName: 'fema.disaster.assistance',
+    title: 'FEMA Housing Assistance',
+    description:
+      'Query federal disaster housing assistance data by state and disaster number. Returns registration counts, average damage, total inspected, approved amounts by county. Useful for disaster recovery analysis and aid distribution research. Source: OpenFEMA.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

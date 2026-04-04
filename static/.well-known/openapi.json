@@ -40425,6 +40425,294 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/fema.disasters/call": {
+      "post": {
+        "operationId": "fema_disasters",
+        "summary": "FEMA Disaster Declarations",
+        "description": "Search US federal disaster declarations from 1953 to present. Filter by state, incident type (Fire, Flood, Hurricane, Tornado, Earthquake), and year. Returns disaster number, title, dates, designated programs (IA, PA, HM). Source: OpenFEMA (US Gov open data).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fema.disasters"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2,
+                    "description": "US state code (e.g. CA, TX, FL). Omit for all states."
+                  },
+                  "incident_type": {
+                    "type": "string",
+                    "enum": [
+                      "Fire",
+                      "Flood",
+                      "Hurricane",
+                      "Tornado",
+                      "Earthquake",
+                      "Severe Storm(s)",
+                      "Snow",
+                      "Drought",
+                      "Typhoon",
+                      "Biological",
+                      "Other"
+                    ],
+                    "description": "Disaster type to filter (e.g. Fire, Flood, Hurricane)"
+                  },
+                  "year": {
+                    "type": "integer",
+                    "minimum": 1953,
+                    "maximum": 2026,
+                    "description": "Filter by declaration year (1953-2026)"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Number of results (1-50, default 10)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/fema.flood_claims/call": {
+      "post": {
+        "operationId": "fema_flood_claims",
+        "summary": "NFIP Flood Insurance Claims",
+        "description": "Retrieve National Flood Insurance Program (NFIP) claims by state and year. Returns flood zone, building/contents payments, insurance coverage amounts, cause of damage. Essential for flood risk assessment and insurance analysis. Source: OpenFEMA.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fema.flood_claims"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "type": "string",
+                    "description": "US state code (e.g. FL, TX, LA)",
+                    "minLength": 2,
+                    "maxLength": 2
+                  },
+                  "year": {
+                    "type": "integer",
+                    "minimum": 1970,
+                    "maximum": 2026,
+                    "description": "Year of loss to filter (e.g. 2024)"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Number of results (1-50, default 10)"
+                  }
+                },
+                "required": [
+                  "state"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/fema.assistance/call": {
+      "post": {
+        "operationId": "fema_assistance",
+        "summary": "FEMA Housing Assistance",
+        "description": "Query federal disaster housing assistance data by state and disaster number. Returns registration counts, average damage, total inspected, approved amounts by county. Useful for disaster recovery analysis and aid distribution research. Source: OpenFEMA.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fema.assistance"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "type": "string",
+                    "description": "US state code (e.g. TX, FL, CA)",
+                    "minLength": 2,
+                    "maxLength": 2
+                  },
+                  "disaster_number": {
+                    "type": "integer",
+                    "description": "FEMA disaster number to filter (e.g. 4673)"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Number of results (1-50, default 10)"
+                  }
+                },
+                "required": [
+                  "state"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {
