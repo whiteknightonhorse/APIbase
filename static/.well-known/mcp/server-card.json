@@ -14565,7 +14565,7 @@
       }
     },
     {
-      "name": "crypto.global",
+      "name": "crypto.global.stats",
       "title": "Crypto Global Stats",
       "description": "Get global cryptocurrency market statistics",
       "inputSchema": {
@@ -14585,7 +14585,7 @@
       }
     },
     {
-      "name": "finnhub.company_profile",
+      "name": "stocks.company.profile",
       "title": "Company Profile",
       "description": "Company profile by ticker \u2014 name, exchange, industry, country, market cap, shares outstanding, IPO date, logo, website (Finnhub)",
       "inputSchema": {
@@ -14610,7 +14610,7 @@
       }
     },
     {
-      "name": "geo.reverse_geocode",
+      "name": "geo.address.reverse",
       "title": "Reverse Geocode (Geoapify)",
       "description": "Convert geographic coordinates (lat/lon) to a structured address \u2014 street, city, country, postal code (Geoapify/OSM)",
       "inputSchema": {
@@ -14648,7 +14648,7 @@
       }
     },
     {
-      "name": "github.user",
+      "name": "developer.github.user",
       "title": "GitHub User Profile",
       "description": "Get a GitHub user profile \u2014 name, bio, public repos count, followers, company, location, join date. Works for users and organizations (GitHub API)",
       "inputSchema": {
@@ -14767,7 +14767,7 @@
       }
     },
     {
-      "name": "usrealestate.property_detail",
+      "name": "realestate.property.details",
       "title": "US Property Details",
       "description": "Detailed property information by property ID \u2014 beds, baths, sqft, year built, lot size, tax assessment, HOA, days on market, photos, last sale price/date. Use for_sale search first to get property_id (RapidAPI / Realtor.com data)",
       "inputSchema": {
