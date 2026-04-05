@@ -8,6 +8,7 @@
 import { z } from 'zod';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { TOOL_DEFINITIONS } from './tool-definitions';
+import { toolSchemas } from '../schemas';
 import type { McpToolDefinition } from './types';
 
 /* ------------------------------------------------------------------ */
@@ -156,11 +157,15 @@ function extractKeywords(task: string): string[] {
 
 const MAX_RESULTS = 18;
 
-/** Format a tool entry for text output, with optional related tools. */
+/** Format a tool entry for text output, with optional related tools and required params. */
 function formatTool(t: McpToolDefinition, showRelated = false): string {
   const name = t.mcpName ?? t.toolId;
   const desc = t.description.length > 120 ? t.description.slice(0, 117) + '...' : t.description;
-  let line = `- ${name}: ${desc}`;
+  // Show required params so agents know what to send
+  const schema = toolSchemas[t.toolId] as { shape?: Record<string, unknown> } | undefined;
+  const params = schema?.shape ? Object.keys(schema.shape) : [];
+  const paramHint = params.length > 0 ? ` (params: ${params.join(', ')})` : '';
+  let line = `- ${name}: ${desc}${paramHint}`;
   if (showRelated && t.relatedTools && t.relatedTools.length > 0) {
     const hints = t.relatedTools
       .slice(0, 3)

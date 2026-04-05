@@ -28,11 +28,21 @@ export const schemaValidationStage: Stage = {
         code: issue.code,
       }));
 
+      // Extract expected params from schema for agent hints
+      const shape = (schema as { shape?: Record<string, unknown> }).shape ?? {};
+      const expected_params = Object.keys(shape);
+
       return err<PipelineError>({
         code: 400,
         error: 'schema_validation_failed',
-        message: 'Request body validation failed',
-        extra: { tool_id: ctx.toolId, issues },
+        message: `Request body validation failed. Expected params: ${expected_params.join(', ')}`,
+        extra: {
+          tool_id: ctx.toolId,
+          issues,
+          expected_params,
+          received_params: Object.keys((ctx.body ?? {}) as Record<string, unknown>),
+          hint: `Fetch schema: GET /api/v1/tools/${ctx.toolId}`,
+        },
       });
     }
 
