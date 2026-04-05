@@ -637,6 +637,7 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       if (!rateKey) return undefined;
       return getOrCreate('rateapi', () => new RateApiAdapter(rateKey));
     }
+    case 'iban':
     case 'ibanapi': {
       const ibanKey = (config as Record<string, unknown>).PROVIDER_KEY_IBANAPI as
         | string
