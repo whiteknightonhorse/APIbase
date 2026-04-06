@@ -41231,6 +41231,301 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/congress.bills/call": {
+      "post": {
+        "operationId": "congress_bills",
+        "summary": "US Congressional Bills",
+        "description": "Search US federal bills and resolutions from 1973 to present. Filter by Congress number (93-119), bill type (hr/s/hjres/sjres). Returns title, sponsor, party, latest action, policy area. Source: Congress.gov (Library of Congress).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "congress.bills"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "congress": {
+                    "type": "integer",
+                    "minimum": 93,
+                    "maximum": 119,
+                    "description": "Congress number (93=1973 to 119=2025-2026). Default: current (119)."
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "hr",
+                      "s",
+                      "hjres",
+                      "sjres",
+                      "hconres",
+                      "sconres",
+                      "hres",
+                      "sres"
+                    ],
+                    "description": "Bill type: hr (House), s (Senate), hjres, sjres, hconres, sconres, hres, sres"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 25,
+                    "description": "Number of results (1-25, default 10)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/congress.bill_details/call": {
+      "post": {
+        "operationId": "congress_bill_details",
+        "summary": "US Bill Details",
+        "description": "Get full details for a specific US bill by Congress number, type (hr/s), and bill number. Returns title, all sponsors, co-sponsor count, action history, committee referrals, policy subjects. Source: Congress.gov.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "congress.bill_details"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "congress": {
+                    "type": "integer",
+                    "description": "Congress number (e.g. 119 for 2025-2026, 118 for 2023-2024)",
+                    "minimum": 93,
+                    "maximum": 119
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "hr",
+                      "s",
+                      "hjres",
+                      "sjres",
+                      "hconres",
+                      "sconres",
+                      "hres",
+                      "sres"
+                    ],
+                    "description": "Bill type: hr (House bill), s (Senate bill), hjres, sjres, etc."
+                  },
+                  "number": {
+                    "type": "integer",
+                    "description": "Bill number (e.g. 1 for HR 1)",
+                    "minimum": 1
+                  }
+                },
+                "required": [
+                  "congress",
+                  "type",
+                  "number"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/congress.members/call": {
+      "post": {
+        "operationId": "congress_members",
+        "summary": "US Congressional Members",
+        "description": "Search current and historical members of the US Congress. Filter by state, chamber (House/Senate), and Congress number. Returns name, party, state, district, bioguide ID. Source: Congress.gov.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "congress.members"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2,
+                    "description": "US state code (e.g. CA, TX, NY)"
+                  },
+                  "chamber": {
+                    "type": "string",
+                    "enum": [
+                      "house",
+                      "senate"
+                    ],
+                    "description": "Chamber: house or senate"
+                  },
+                  "congress": {
+                    "type": "integer",
+                    "minimum": 93,
+                    "maximum": 119,
+                    "description": "Congress number. Default: current (119)."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 25,
+                    "description": "Number of results (1-25, default 10)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

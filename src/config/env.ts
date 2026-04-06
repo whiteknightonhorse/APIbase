@@ -320,6 +320,9 @@ export const appEnvSchema = z.object({
   // SAM.gov (UC-338) — federal contractor registry, 10K/day, key expires every 90 days
   PROVIDER_KEY_SAM: z.string().optional().default(''),
 
+  // Congress.gov (UC-336) — US legislation, members, 5K/hr
+  PROVIDER_KEY_CONGRESS: z.string().optional().default(''),
+
   // Predictive Pre-fetching (F8) — fire-and-forget cache warming
   PREFETCH_ENABLED: z.string().optional().default('false'),
 

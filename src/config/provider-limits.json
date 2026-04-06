@@ -188,6 +188,15 @@
     "docs_url": "https://whoisjson.com/",
     "limit_proof": "Basic plan: 1,000 req/month free, 20 req/min, all endpoints included, expires May 2026"
   },
+  "congress": {
+    "display_name": "Congress.gov",
+    "health_url": "https://api.congress.gov/v3/bill?limit=1&format=json",
+    "limit_type": "hourly",
+    "free_limit": 5000,
+    "reset_period": "hourly",
+    "docs_url": "https://api.congress.gov/",
+    "limit_proof": "Library of Congress open data. Free API key, 5,000 req/hour. All US legislation since 1973."
+  },
   "gbif": {
     "display_name": "GBIF",
     "health_url": "https://api.gbif.org/v1/species/search?q=Ursus&limit=1",

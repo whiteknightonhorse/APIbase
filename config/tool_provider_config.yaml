@@ -2739,6 +2739,23 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-336: Congress.gov (US Legislation) ---
+  - tool_id: congress.bills
+    name: US Congressional Bills
+    provider: congress
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: congress.bill_details
+    name: US Bill Details
+    provider: congress
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: congress.members
+    name: US Congressional Members
+    provider: congress
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   # --- F1: Batch API (wrapper $0, sub-calls billed individually) ---
   - tool_id: platform.call_batch
     name: Batch Tool Calls

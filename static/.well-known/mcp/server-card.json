@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 462 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 465 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -15713,6 +15713,136 @@
         "required": [
           "query"
         ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "congress.legislation.bill_details",
+      "title": "US Bill Details",
+      "description": "Get full details for a specific US bill by Congress number, type (hr/s), and bill number. Returns title, all sponsors, co-sponsor count, action history, committee referrals, policy subjects. Source: Congress.gov.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "congress": {
+            "type": "integer",
+            "description": "Congress number (e.g. 119 for 2025-2026, 118 for 2023-2024)",
+            "minimum": 93,
+            "maximum": 119
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "hr",
+              "s",
+              "hjres",
+              "sjres",
+              "hconres",
+              "sconres",
+              "hres",
+              "sres"
+            ],
+            "description": "Bill type: hr (House bill), s (Senate bill), hjres, sjres, etc."
+          },
+          "number": {
+            "type": "integer",
+            "description": "Bill number (e.g. 1 for HR 1)",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "congress",
+          "type",
+          "number"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "congress.legislation.bills",
+      "title": "US Congressional Bills",
+      "description": "Search US federal bills and resolutions from 1973 to present. Filter by Congress number (93-119), bill type (hr/s/hjres/sjres). Returns title, sponsor, party, latest action, policy area. Source: Congress.gov (Library of Congress).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "congress": {
+            "type": "integer",
+            "minimum": 93,
+            "maximum": 119,
+            "description": "Congress number (93=1973 to 119=2025-2026). Default: current (119)."
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "hr",
+              "s",
+              "hjres",
+              "sjres",
+              "hconres",
+              "sconres",
+              "hres",
+              "sres"
+            ],
+            "description": "Bill type: hr (House), s (Senate), hjres, sjres, hconres, sconres, hres, sres"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 25,
+            "description": "Number of results (1-25, default 10)"
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "congress.legislation.members",
+      "title": "US Congressional Members",
+      "description": "Search current and historical members of the US Congress. Filter by state, chamber (House/Senate), and Congress number. Returns name, party, state, district, bioguide ID. Source: Congress.gov.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "US state code (e.g. CA, TX, NY)"
+          },
+          "chamber": {
+            "type": "string",
+            "enum": [
+              "house",
+              "senate"
+            ],
+            "description": "Chamber: house or senate"
+          },
+          "congress": {
+            "type": "integer",
+            "minimum": 93,
+            "maximum": 119,
+            "description": "Congress number. Default: current (119)."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 25,
+            "description": "Number of results (1-25, default 10)"
+          }
+        }
       },
       "annotations": {
         "readOnlyHint": true,

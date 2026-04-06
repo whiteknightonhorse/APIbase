@@ -4661,4 +4661,35 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'education',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // Congress.gov — US Legislation (UC-336, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'congress.bills',
+    mcpName: 'congress.legislation.bills',
+    title: 'US Congressional Bills',
+    description:
+      'Search US federal bills and resolutions from 1973 to present. Filter by Congress number (93-119), bill type (hr/s/hjres/sjres). Returns title, sponsor, party, latest action, policy area. Source: Congress.gov (Library of Congress).',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'congress.bill_details',
+    mcpName: 'congress.legislation.bill_details',
+    title: 'US Bill Details',
+    description:
+      'Get full details for a specific US bill by Congress number, type (hr/s), and bill number. Returns title, all sponsors, co-sponsor count, action history, committee referrals, policy subjects. Source: Congress.gov.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'congress.members',
+    mcpName: 'congress.legislation.members',
+    title: 'US Congressional Members',
+    description:
+      'Search current and historical members of the US Congress. Filter by state, chamber (House/Senate), and Congress number. Returns name, party, state, district, bioguide ID. Source: Congress.gov.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
 ];

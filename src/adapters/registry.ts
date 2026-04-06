@@ -137,6 +137,7 @@ import { SamAdapter } from './sam';
 import { FemaAdapter } from './fema';
 import { PypiAdapter } from './pypi';
 import { GbifAdapter } from './gbif';
+import { CongressAdapter } from './congress';
 import { config } from '../config';
 
 /**
@@ -884,6 +885,13 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'gbif':
       // GBIF — Global Biodiversity, no auth, CC0 (UC-341)
       return getOrCreate('gbif', () => new GbifAdapter());
+    case 'congress': {
+      const congressKey = (config as Record<string, unknown>).PROVIDER_KEY_CONGRESS as
+        | string
+        | undefined;
+      if (!congressKey) return undefined;
+      return getOrCreate('congress', () => new CongressAdapter(congressKey));
+    }
     default:
       return undefined;
   }
