@@ -306,7 +306,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     mcpName: 'amadeus.flights.search',
     title: 'Search Flights (Amadeus)',
     description:
-      'Search for real-time flight offers between airports with prices, airlines, stops, and duration (Amadeus)',
+      '⚡ ACTION: Search for real-time flight offers between airports with prices, airlines, stops, and duration (Amadeus)',
     category: 'travel',
     annotations: READ_ONLY,
     relatedTools: [
@@ -1113,7 +1113,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     mcpName: 'aipush.pages.list',
     title: 'List Generated Pages',
     description:
-      'List all published AI marketing pages for a website with URLs, titles, and publish dates (AIPush)',
+      '⚡ ACTION: List all published AI marketing pages for a website with URLs, titles, and publish dates (AIPush)',
     category: 'marketing',
     annotations: READ_ONLY,
   },
@@ -1150,7 +1150,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     mcpName: 'aipush.market.report',
     title: 'Market Intelligence Report',
     description:
-      'Start a full AI market intelligence report for any website. Provide a URL (e.g. "https://stripe.com") — the system crawls the site, extracts value propositions and services, identifies competitors, scores them, finds keyword gaps and market opportunities. Returns report_id — poll with aipush.market_report_status. Takes ~2 minutes. Cost: $29.99 (AIPush MIP)',
+      '⚡ ACTION: Start a full AI market intelligence report for any website. Provide a URL (e.g. "https://stripe.com") — the system crawls the site, extracts value propositions and services, identifies competitors, scores them, finds keyword gaps and market opportunities. Returns report_id — poll with aipush.market_report_status. Takes ~2 minutes. Cost: $29.99 (AIPush MIP)',
     category: 'marketing',
     annotations: {
       readOnlyHint: false,
@@ -1694,7 +1694,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     mcpName: 'web.url.shorten',
     title: 'Shorten URL (Short.io)',
     description:
-      'Create a short URL from any long URL. Optional custom slug. Returns short link at apibase.short.gy. 1,000 free links/month (Short.io)',
+      '⚡ ACTION: Create a short URL from any long URL. Optional custom slug. Returns short link at apibase.short.gy. 1,000 free links/month (Short.io)',
     category: 'developer',
     annotations: {
       readOnlyHint: false,
@@ -1957,7 +1957,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     mcpName: 'web.screenshot.capture',
     title: 'Capture Website Screenshot (ApiFlash)',
     description:
-      'Take a screenshot of any URL — returns image URL. Chrome-based rendering, supports full-page capture, custom viewport, ad blocking, cookie banner removal. Waits for JS-heavy SPAs to load (ApiFlash)',
+      '⚡ ACTION: Take a screenshot of any URL — returns image URL. Chrome-based rendering, supports full-page capture, custom viewport, ad blocking, cookie banner removal. Waits for JS-heavy SPAs to load (ApiFlash)',
     category: 'media',
     annotations: READ_ONLY,
   },
@@ -2050,7 +2050,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     mcpName: 'phone.twilio.sms',
     title: 'Send SMS (Twilio)',
     description:
-      'Send SMS message to any phone number worldwide. Requires a Twilio phone number as sender. Returns message SID and delivery status. $0.0083/SMS US outbound (Twilio)',
+      '⚡ ACTION: Send SMS message to any phone number worldwide. Requires a Twilio phone number as sender. Returns message SID and delivery status. $0.0083/SMS US outbound (Twilio)',
     category: 'messaging',
     annotations: {
       readOnlyHint: false,
@@ -2068,7 +2068,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     mcpName: 'ai.image.generate',
     title: 'Generate Image (Stability AI)',
     description:
-      'Generate images from text prompts using Stable Diffusion — supports style presets (anime, cinematic, pixel-art, photographic...), aspect ratios, negative prompts. Returns base64 PNG data URI. Powered by Stability AI',
+      '⚡ ACTION: Generate images from text prompts using Stable Diffusion — supports style presets (anime, cinematic, pixel-art, photographic...), aspect ratios, negative prompts. Returns base64 PNG data URI. Powered by Stability AI',
     category: 'media',
     annotations: READ_ONLY,
   },
@@ -2081,7 +2081,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     mcpName: 'email.transactional.send',
     title: 'Send Email (Resend)',
     description:
-      'Send transactional email — plain text or HTML body, multiple recipients, reply-to. Requires verified sender domain. 3,000 free emails/month (Resend)',
+      '⚡ ACTION: Send transactional email — plain text or HTML body, multiple recipients, reply-to. Requires verified sender domain. 3,000 free emails/month (Resend)',
     category: 'messaging',
     annotations: {
       readOnlyHint: false,
@@ -2592,7 +2592,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     mcpName: 'infra.browser.create_session',
     title: 'Create Browser Session',
     description:
-      'Create a managed headless browser session on Browserbase infrastructure. Returns session ID and WebSocket connect URL for Puppeteer/Playwright. Choose region (US/EU/Asia) and optional residential proxy. Sessions auto-expire after 5 minutes of inactivity (Browserbase)',
+      '⚡ ACTION: Create a managed headless browser session on Browserbase infrastructure. Returns session ID and WebSocket connect URL for Puppeteer/Playwright. Choose region (US/EU/Asia) and optional residential proxy. Sessions auto-expire after 5 minutes of inactivity (Browserbase)',
     category: 'infrastructure',
     annotations: TRADING,
   },
@@ -2629,7 +2629,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     mcpName: 'messaging.telegram.send_message',
     title: 'Send Telegram Message',
     description:
-      'Send a text message to a Telegram user or group chat. Supports Markdown (*bold*, _italic_, `code`, [link](url)) and HTML formatting. Max 4096 chars. Perfect for alerts, notifications, reports (Telegram Bot API)',
+      '⚡ ACTION: Send a text message to a Telegram user or group chat. Supports Markdown (*bold*, _italic_, `code`, [link](url)) and HTML formatting. Max 4096 chars. Perfect for alerts, notifications, reports (Telegram Bot API)',
     category: 'messaging',
     annotations: TRADING,
   },
@@ -2638,7 +2638,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     mcpName: 'messaging.telegram.send_photo',
     title: 'Send Telegram Photo',
     description:
-      'Send a photo to a Telegram chat with optional caption. Provide image URL — supports JPG, PNG, GIF up to 10MB (Telegram Bot API)',
+      '⚡ ACTION: Send a photo to a Telegram chat with optional caption. Provide image URL — supports JPG, PNG, GIF up to 10MB (Telegram Bot API)',
     category: 'messaging',
     annotations: TRADING,
   },
@@ -2647,7 +2647,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     mcpName: 'messaging.telegram.send_document',
     title: 'Send Telegram Document',
     description:
-      'Send a file/document to a Telegram chat — PDF, CSV, ZIP, any format up to 50MB. Perfect for sending reports, data exports, generated files (Telegram Bot API)',
+      '⚡ ACTION: Send a file/document to a Telegram chat — PDF, CSV, ZIP, any format up to 50MB. Perfect for sending reports, data exports, generated files (Telegram Bot API)',
     category: 'messaging',
     annotations: TRADING,
   },
@@ -2712,7 +2712,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     mcpName: 'domain.namesilo.register',
     title: 'Register Domain Name',
     description:
-      'Purchase and register a domain name (1-10 years). Includes free WHOIS privacy protection. Domain is registered instantly. Prices: .com ~$21, .org ~$12, .dev ~$18, .io ~$42 (NameSilo)',
+      '⚡ ACTION: Purchase and register a domain name (1-10 years). Includes free WHOIS privacy protection. Domain is registered instantly. Prices: .com ~$21, .org ~$12, .dev ~$18, .io ~$42 (NameSilo)',
     category: 'infrastructure',
     annotations: TRADING,
   },
@@ -2767,7 +2767,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     mcpName: 'infra.cloudflare.dns_create',
     title: 'Create DNS Record',
     description:
-      'Create a new DNS record (A, AAAA, CNAME, MX, TXT) for a Cloudflare zone. Set content (IP/hostname), TTL, and CDN proxy status. Returns new record ID (Cloudflare)',
+      '⚡ ACTION: Create a new DNS record (A, AAAA, CNAME, MX, TXT) for a Cloudflare zone. Set content (IP/hostname), TTL, and CDN proxy status. Returns new record ID (Cloudflare)',
     category: 'infrastructure',
     annotations: TRADING,
   },
@@ -2776,7 +2776,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     mcpName: 'infra.cloudflare.dns_delete',
     title: 'Delete DNS Record',
     description:
-      'Delete a DNS record from a Cloudflare zone by record ID. Removes the record immediately (Cloudflare)',
+      '⚡ ACTION: Delete a DNS record from a Cloudflare zone by record ID. Removes the record immediately (Cloudflare)',
     category: 'infrastructure',
     annotations: CANCEL,
   },
@@ -2794,7 +2794,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     mcpName: 'infra.cloudflare.purge_cache',
     title: 'Purge CDN Cache',
     description:
-      'Purge Cloudflare CDN cache — all cached files or specific URLs (max 30). Forces CDN to fetch fresh content from origin server (Cloudflare)',
+      '⚡ ACTION: Purge Cloudflare CDN cache — all cached files or specific URLs (max 30). Forces CDN to fetch fresh content from origin server (Cloudflare)',
     category: 'infrastructure',
     annotations: TRADING,
   },
@@ -3796,7 +3796,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     mcpName: 'dev.code.execute',
     title: 'Execute Code in Sandbox',
     description:
-      'Execute source code in a sandboxed environment — 71 programming languages supported (Python, JavaScript, Java, C++, Go, Rust, C#, Bash, Ruby, PHP, and 60+ more). Returns stdout, stderr, execution time, and memory usage. Safe sandboxed execution with CPU/memory limits. Use code.languages to get language IDs (Judge0 CE)',
+      '⚡ ACTION: Execute source code in a sandboxed environment — 71 programming languages supported (Python, JavaScript, Java, C++, Go, Rust, C#, Bash, Ruby, PHP, and 60+ more). Returns stdout, stderr, execution time, and memory usage. Safe sandboxed execution with CPU/memory limits. Use code.languages to get language IDs (Judge0 CE)',
     category: 'developer',
     annotations: {
       readOnlyHint: false,
@@ -3821,7 +3821,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     mcpName: 'web.scrape.extract',
     title: 'Extract Web Page HTML',
     description:
-      'Extract raw HTML from any URL — cheapest web scraping API ($0.00013 for simple sites). Returns decoded HTML content, HTTP status code, and content length. Use for data extraction, content analysis, or price monitoring. Handles anti-bot protection automatically (Zyte)',
+      '⚡ ACTION: Extract raw HTML from any URL — cheapest web scraping API ($0.00013 for simple sites). Returns decoded HTML content, HTTP status code, and content length. Use for data extraction, content analysis, or price monitoring. Handles anti-bot protection automatically (Zyte)',
     category: 'developer',
     annotations: READ_ONLY,
   },
@@ -3830,7 +3830,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     mcpName: 'web.scrape.browser',
     title: 'Browser-Rendered Page HTML',
     description:
-      'Render a URL with headless browser and return JS-rendered HTML. Use for SPAs, React/Vue apps, or pages with dynamic content that raw HTTP cannot capture. Returns fully rendered DOM as HTML text (Zyte)',
+      '⚡ ACTION: Render a URL with headless browser and return JS-rendered HTML. Use for SPAs, React/Vue apps, or pages with dynamic content that raw HTTP cannot capture. Returns fully rendered DOM as HTML text (Zyte)',
     category: 'developer',
     annotations: READ_ONLY,
   },
@@ -3839,7 +3839,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     mcpName: 'web.scrape.screenshot',
     title: 'Web Page Screenshot',
     description:
-      'Capture a full-page screenshot of any URL — returns base64-encoded PNG image. Use for visual verification, monitoring, or archiving. Headless browser renders the page before capture (Zyte)',
+      '⚡ ACTION: Capture a full-page screenshot of any URL — returns base64-encoded PNG image. Use for visual verification, monitoring, or archiving. Headless browser renders the page before capture (Zyte)',
     category: 'developer',
     annotations: READ_ONLY,
   },
@@ -3977,7 +3977,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     mcpName: 'logistics.tracking.register',
     title: 'Register Package for Tracking',
     description:
-      'Register a tracking number to begin monitoring shipment status. Auto-detects carrier from 3,200+ supported carriers worldwide (UPS, FedEx, DHL, USPS, China Post, Royal Mail, etc.). Must be called before tracking.status. Returns detected carrier and registration status. Consumes quota — 200 free/month (17TRACK)',
+      '⚡ ACTION: Register a tracking number to begin monitoring shipment status. Auto-detects carrier from 3,200+ supported carriers worldwide (UPS, FedEx, DHL, USPS, China Post, Royal Mail, etc.). Must be called before tracking.status. Returns detected carrier and registration status. Consumes quota — 200 free/month (17TRACK)',
     category: 'logistics',
     annotations: {
       readOnlyHint: false,
@@ -4058,7 +4058,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     mcpName: 'platform.batch.call',
     title: 'Batch Tool Calls',
     description:
-      'Execute up to 20 tool calls in a single request with parallel execution (max 10 concurrent). Each call runs the full pipeline independently with its own billing. Returns array of results with per-call status, data, cost, and duration. Save 5x round-trips vs sequential calls. Batch wrapper is free — you pay only for individual tool calls (APIbase)',
+      '⚡ ACTION: Execute up to 20 tool calls in a single request with parallel execution (max 10 concurrent). Each call runs the full pipeline independently with its own billing. Returns array of results with per-call status, data, cost, and duration. Save 5x round-trips vs sequential calls. Batch wrapper is free — you pay only for individual tool calls (APIbase)',
     category: 'developer',
     annotations: {
       readOnlyHint: false,
@@ -4242,7 +4242,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     mcpName: 'media.imgflip.caption',
     title: 'Generate Meme Image',
     description:
-      'Generate a captioned meme image from a template ID + top/bottom text. Returns direct image URL. Use imgflip.memes to find template IDs. 100K+ templates available (Imgflip)',
+      '⚡ ACTION: Generate a captioned meme image from a template ID + top/bottom text. Returns direct image URL. Use imgflip.memes to find template IDs. 100K+ templates available (Imgflip)',
     category: 'media',
     annotations: {
       readOnlyHint: false,
@@ -4815,5 +4815,23 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
       'Arctic sea ice extent from NSIDC — monthly measurements in million km² since 1979. Tracks long-term decline in Arctic ice coverage. Returns last 10 years by default. Source: National Snow and Ice Data Center.',
     category: 'weather',
     annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
+  // QuickChart — Data Visualization (1 tool)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'chart.create',
+    mcpName: 'chart.visualization.create',
+    title: 'Create Chart Image',
+    description:
+      '⚡ ACTION: Generate a chart image (PNG) from data — bar, line, pie, doughnut, radar, scatter. Returns a permanent image URL. Combine with data tools (climate.co2, census.population, finance.exchange_rates) to visualize any dataset. Powered by QuickChart (Chart.js).',
+    category: 'developer',
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: true,
+    },
   },
 ];

@@ -2880,7 +2880,7 @@
       "post": {
         "operationId": "amadeus_flight_search",
         "summary": "Search Flights (Amadeus)",
-        "description": "Search for real-time flight offers between airports with prices, airlines, stops, and duration (Amadeus)",
+        "description": "⚡ ACTION: Search for real-time flight offers between airports with prices, airlines, stops, and duration (Amadeus)",
         "x-payment-info": {
           "pricingMode": "fixed",
           "price": "0.035000",
@@ -10917,7 +10917,7 @@
       "post": {
         "operationId": "aipush_list_pages",
         "summary": "List Generated Pages",
-        "description": "List all published AI marketing pages for a website with URLs, titles, and publish dates (AIPush)",
+        "description": "⚡ ACTION: List all published AI marketing pages for a website with URLs, titles, and publish dates (AIPush)",
         "x-payment-info": {
           "pricingMode": "fixed",
           "price": "0.002000",
@@ -11255,7 +11255,7 @@
       "post": {
         "operationId": "aipush_market_report",
         "summary": "Market Intelligence Report",
-        "description": "Start a full AI market intelligence report for any website. Provide a URL (e.g. \"https://stripe.com\") — the system crawls the site, extracts value propositions and services, identifies competitors, scores them, finds keyword gaps and market opportunities. Returns report_id — poll with aipush.market_report_status. Takes ~2 minutes. Cost: $29.99 (AIPush MIP)",
+        "description": "⚡ ACTION: Start a full AI market intelligence report for any website. Provide a URL (e.g. \"https://stripe.com\") — the system crawls the site, extracts value propositions and services, identifies competitors, scores them, finds keyword gaps and market opportunities. Returns report_id — poll with aipush.market_report_status. Takes ~2 minutes. Cost: $29.99 (AIPush MIP)",
         "x-payment-info": {
           "pricingMode": "fixed",
           "price": "29.990000",
@@ -16046,7 +16046,7 @@
       "post": {
         "operationId": "shorturl_create",
         "summary": "Shorten URL (Short.io)",
-        "description": "Create a short URL from any long URL. Optional custom slug. Returns short link at apibase.short.gy. 1,000 free links/month (Short.io)",
+        "description": "⚡ ACTION: Create a short URL from any long URL. Optional custom slug. Returns short link at apibase.short.gy. 1,000 free links/month (Short.io)",
         "x-payment-info": {
           "pricingMode": "fixed",
           "price": "0.002000",
@@ -18041,7 +18041,7 @@
       "post": {
         "operationId": "screenshot_capture",
         "summary": "Capture Website Screenshot (ApiFlash)",
-        "description": "Take a screenshot of any URL — returns image URL. Chrome-based rendering, supports full-page capture, custom viewport, ad blocking, cookie banner removal. Waits for JS-heavy SPAs to load (ApiFlash)",
+        "description": "⚡ ACTION: Take a screenshot of any URL — returns image URL. Chrome-based rendering, supports full-page capture, custom viewport, ad blocking, cookie banner removal. Waits for JS-heavy SPAs to load (ApiFlash)",
         "x-payment-info": {
           "pricingMode": "fixed",
           "price": "0.005000",
@@ -18844,7 +18844,7 @@
       "post": {
         "operationId": "twilio_send_sms",
         "summary": "Send SMS (Twilio)",
-        "description": "Send SMS message to any phone number worldwide. Requires a Twilio phone number as sender. Returns message SID and delivery status. $0.0083/SMS US outbound (Twilio)",
+        "description": "⚡ ACTION: Send SMS message to any phone number worldwide. Requires a Twilio phone number as sender. Returns message SID and delivery status. $0.0083/SMS US outbound (Twilio)",
         "x-payment-info": {
           "pricingMode": "fixed",
           "price": "0.015000",
@@ -18936,7 +18936,7 @@
       "post": {
         "operationId": "stability_generate",
         "summary": "Generate Image (Stability AI)",
-        "description": "Generate images from text prompts using Stable Diffusion — supports style presets (anime, cinematic, pixel-art, photographic...), aspect ratios, negative prompts. Returns base64 PNG data URI. Powered by Stability AI",
+        "description": "⚡ ACTION: Generate images from text prompts using Stable Diffusion — supports style presets (anime, cinematic, pixel-art, photographic...), aspect ratios, negative prompts. Returns base64 PNG data URI. Powered by Stability AI",
         "x-payment-info": {
           "pricingMode": "fixed",
           "price": "0.070000",
@@ -19057,7 +19057,7 @@
       "post": {
         "operationId": "resend_send_email",
         "summary": "Send Email (Resend)",
-        "description": "Send transactional email — plain text or HTML body, multiple recipients, reply-to. Requires verified sender domain. 3,000 free emails/month (Resend)",
+        "description": "⚡ ACTION: Send transactional email — plain text or HTML body, multiple recipients, reply-to. Requires verified sender domain. 3,000 free emails/month (Resend)",
         "x-payment-info": {
           "pricingMode": "fixed",
           "price": "0.003000",
@@ -22961,7 +22961,7 @@
       "post": {
         "operationId": "browser_create_session",
         "summary": "Create Browser Session",
-        "description": "Create a managed headless browser session on Browserbase infrastructure. Returns session ID and WebSocket connect URL for Puppeteer/Playwright. Choose region (US/EU/Asia) and optional residential proxy. Sessions auto-expire after 5 minutes of inactivity (Browserbase)",
+        "description": "⚡ ACTION: Create a managed headless browser session on Browserbase infrastructure. Returns session ID and WebSocket connect URL for Puppeteer/Playwright. Choose region (US/EU/Asia) and optional residential proxy. Sessions auto-expire after 5 minutes of inactivity (Browserbase)",
         "x-payment-info": {
           "pricingMode": "fixed",
           "price": "0.010000",
@@ -23285,7 +23285,7 @@
       "post": {
         "operationId": "telegram_send_message",
         "summary": "Send Telegram Message",
-        "description": "Send a text message to a Telegram user or group chat. Supports Markdown (*bold*, _italic_, `code`, [link](url)) and HTML formatting. Max 4096 chars. Perfect for alerts, notifications, reports (Telegram Bot API)",
+        "description": "⚡ ACTION: Send a text message to a Telegram user or group chat. Supports Markdown (*bold*, _italic_, `code`, [link](url)) and HTML formatting. Max 4096 chars. Perfect for alerts, notifications, reports (Telegram Bot API)",
         "x-payment-info": {
           "pricingMode": "fixed",
           "price": "0.001000",
@@ -23382,7 +23382,7 @@
       "post": {
         "operationId": "telegram_send_photo",
         "summary": "Send Telegram Photo",
-        "description": "Send a photo to a Telegram chat with optional caption. Provide image URL — supports JPG, PNG, GIF up to 10MB (Telegram Bot API)",
+        "description": "⚡ ACTION: Send a photo to a Telegram chat with optional caption. Provide image URL — supports JPG, PNG, GIF up to 10MB (Telegram Bot API)",
         "x-payment-info": {
           "pricingMode": "fixed",
           "price": "0.001000",
@@ -23470,7 +23470,7 @@
       "post": {
         "operationId": "telegram_send_document",
         "summary": "Send Telegram Document",
-        "description": "Send a file/document to a Telegram chat — PDF, CSV, ZIP, any format up to 50MB. Perfect for sending reports, data exports, generated files (Telegram Bot API)",
+        "description": "⚡ ACTION: Send a file/document to a Telegram chat — PDF, CSV, ZIP, any format up to 50MB. Perfect for sending reports, data exports, generated files (Telegram Bot API)",
         "x-payment-info": {
           "pricingMode": "fixed",
           "price": "0.001000",
@@ -24052,7 +24052,7 @@
       "post": {
         "operationId": "namesilo_domain_register",
         "summary": "Register Domain Name",
-        "description": "Purchase and register a domain name (1-10 years). Includes free WHOIS privacy protection. Domain is registered instantly. Prices: .com ~$21, .org ~$12, .dev ~$18, .io ~$42 (NameSilo)",
+        "description": "⚡ ACTION: Purchase and register a domain name (1-10 years). Includes free WHOIS privacy protection. Domain is registered instantly. Prices: .com ~$21, .org ~$12, .dev ~$18, .io ~$42 (NameSilo)",
         "x-payment-info": {
           "pricingMode": "fixed",
           "price": "21.000000",
@@ -24565,7 +24565,7 @@
       "post": {
         "operationId": "cloudflare_dns_create",
         "summary": "Create DNS Record",
-        "description": "Create a new DNS record (A, AAAA, CNAME, MX, TXT) for a Cloudflare zone. Set content (IP/hostname), TTL, and CDN proxy status. Returns new record ID (Cloudflare)",
+        "description": "⚡ ACTION: Create a new DNS record (A, AAAA, CNAME, MX, TXT) for a Cloudflare zone. Set content (IP/hostname), TTL, and CDN proxy status. Returns new record ID (Cloudflare)",
         "x-payment-info": {
           "pricingMode": "fixed",
           "price": "0.005000",
@@ -24683,7 +24683,7 @@
       "post": {
         "operationId": "cloudflare_dns_delete",
         "summary": "Delete DNS Record",
-        "description": "Delete a DNS record from a Cloudflare zone by record ID. Removes the record immediately (Cloudflare)",
+        "description": "⚡ ACTION: Delete a DNS record from a Cloudflare zone by record ID. Removes the record immediately (Cloudflare)",
         "x-payment-info": {
           "pricingMode": "fixed",
           "price": "0.005000",
@@ -24851,7 +24851,7 @@
       "post": {
         "operationId": "cloudflare_purge_cache",
         "summary": "Purge CDN Cache",
-        "description": "Purge Cloudflare CDN cache — all cached files or specific URLs (max 30). Forces CDN to fetch fresh content from origin server (Cloudflare)",
+        "description": "⚡ ACTION: Purge Cloudflare CDN cache — all cached files or specific URLs (max 30). Forces CDN to fetch fresh content from origin server (Cloudflare)",
         "x-payment-info": {
           "pricingMode": "fixed",
           "price": "0.005000",
@@ -34092,7 +34092,7 @@
       "post": {
         "operationId": "code_execute",
         "summary": "Execute Code in Sandbox",
-        "description": "Execute source code in a sandboxed environment — 71 programming languages supported (Python, JavaScript, Java, C++, Go, Rust, C#, Bash, Ruby, PHP, and 60+ more). Returns stdout, stderr, execution time, and memory usage. Safe sandboxed execution with CPU/memory limits. Use code.languages to get language IDs (Judge0 CE)",
+        "description": "⚡ ACTION: Execute source code in a sandboxed environment — 71 programming languages supported (Python, JavaScript, Java, C++, Go, Rust, C#, Bash, Ruby, PHP, and 60+ more). Returns stdout, stderr, execution time, and memory usage. Safe sandboxed execution with CPU/memory limits. Use code.languages to get language IDs (Judge0 CE)",
         "x-payment-info": {
           "pricingMode": "fixed",
           "price": "0.005000",
@@ -34263,7 +34263,7 @@
       "post": {
         "operationId": "scrape_extract",
         "summary": "Extract Web Page HTML",
-        "description": "Extract raw HTML from any URL — cheapest web scraping API ($0.00013 for simple sites). Returns decoded HTML content, HTTP status code, and content length. Use for data extraction, content analysis, or price monitoring. Handles anti-bot protection automatically (Zyte)",
+        "description": "⚡ ACTION: Extract raw HTML from any URL — cheapest web scraping API ($0.00013 for simple sites). Returns decoded HTML content, HTTP status code, and content length. Use for data extraction, content analysis, or price monitoring. Handles anti-bot protection automatically (Zyte)",
         "x-payment-info": {
           "pricingMode": "fixed",
           "price": "0.003000",
@@ -34341,7 +34341,7 @@
       "post": {
         "operationId": "scrape_browser",
         "summary": "Browser-Rendered Page HTML",
-        "description": "Render a URL with headless browser and return JS-rendered HTML. Use for SPAs, React/Vue apps, or pages with dynamic content that raw HTTP cannot capture. Returns fully rendered DOM as HTML text (Zyte)",
+        "description": "⚡ ACTION: Render a URL with headless browser and return JS-rendered HTML. Use for SPAs, React/Vue apps, or pages with dynamic content that raw HTTP cannot capture. Returns fully rendered DOM as HTML text (Zyte)",
         "x-payment-info": {
           "pricingMode": "fixed",
           "price": "0.015000",
@@ -34419,7 +34419,7 @@
       "post": {
         "operationId": "scrape_screenshot",
         "summary": "Web Page Screenshot",
-        "description": "Capture a full-page screenshot of any URL — returns base64-encoded PNG image. Use for visual verification, monitoring, or archiving. Headless browser renders the page before capture (Zyte)",
+        "description": "⚡ ACTION: Capture a full-page screenshot of any URL — returns base64-encoded PNG image. Use for visual verification, monitoring, or archiving. Headless browser renders the page before capture (Zyte)",
         "x-payment-info": {
           "pricingMode": "fixed",
           "price": "0.005000",
@@ -35634,7 +35634,7 @@
       "post": {
         "operationId": "tracking_register",
         "summary": "Register Package for Tracking",
-        "description": "Register a tracking number to begin monitoring shipment status. Auto-detects carrier from 3,200+ supported carriers worldwide (UPS, FedEx, DHL, USPS, China Post, Royal Mail, etc.). Must be called before tracking.status. Returns detected carrier and registration status. Consumes quota — 200 free/month (17TRACK)",
+        "description": "⚡ ACTION: Register a tracking number to begin monitoring shipment status. Auto-detects carrier from 3,200+ supported carriers worldwide (UPS, FedEx, DHL, USPS, China Post, Royal Mail, etc.). Must be called before tracking.status. Returns detected carrier and registration status. Consumes quota — 200 free/month (17TRACK)",
         "x-payment-info": {
           "pricingMode": "fixed",
           "price": "0.025000",
@@ -36324,7 +36324,7 @@
       "post": {
         "operationId": "platform_call_batch",
         "summary": "Batch Tool Calls",
-        "description": "Execute up to 20 tool calls in a single request with parallel execution (max 10 concurrent). Each call runs the full pipeline independently with its own billing. Returns array of results with per-call status, data, cost, and duration. Save 5x round-trips vs sequential calls. Batch wrapper is free — you pay only for individual tool calls (APIbase)",
+        "description": "⚡ ACTION: Execute up to 20 tool calls in a single request with parallel execution (max 10 concurrent). Each call runs the full pipeline independently with its own billing. Returns array of results with per-call status, data, cost, and duration. Save 5x round-trips vs sequential calls. Batch wrapper is free — you pay only for individual tool calls (APIbase)",
         "x-payment-info": {
           "pricingMode": "fixed",
           "price": "0.000000",
@@ -37713,7 +37713,7 @@
       "post": {
         "operationId": "imgflip_caption",
         "summary": "Generate Meme Image",
-        "description": "Generate a captioned meme image from a template ID + top/bottom text. Returns direct image URL. Use imgflip.memes to find template IDs. 100K+ templates available (Imgflip)",
+        "description": "⚡ ACTION: Generate a captioned meme image from a template ID + top/bottom text. Returns direct image URL. Use imgflip.memes to find template IDs. 100K+ templates available (Imgflip)",
         "x-payment-info": {
           "pricingMode": "fixed",
           "price": "0.001000",
@@ -42517,6 +42517,143 @@
                     "description": "Number of years of data to return (1-50, default 10). Data is monthly."
                   }
                 }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/chart.create/call": {
+      "post": {
+        "operationId": "chart_create",
+        "summary": "Create Chart Image",
+        "description": "⚡ ACTION: Generate a chart image (PNG) from data — bar, line, pie, doughnut, radar, scatter. Returns a permanent image URL. Combine with data tools (climate.co2, census.population, finance.exchange_rates) to visualize any dataset. Powered by QuickChart (Chart.js).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "chart.create"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "bar",
+                      "line",
+                      "pie",
+                      "doughnut",
+                      "radar",
+                      "scatter",
+                      "horizontalBar"
+                    ],
+                    "description": "Chart type: bar, line, pie, doughnut, radar, scatter, horizontalBar"
+                  },
+                  "labels": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "X-axis labels (e.g. [\"Q1\", \"Q2\", \"Q3\", \"Q4\"])"
+                  },
+                  "datasets": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "label": {
+                          "type": "string",
+                          "description": "Dataset label (e.g. \"Revenue\", \"Temperature\")"
+                        },
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          },
+                          "description": "Array of numeric values"
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "data"
+                      ]
+                    },
+                    "description": "One or more datasets to plot",
+                    "minItems": 1
+                  },
+                  "title": {
+                    "type": "string",
+                    "description": "Chart title displayed at top"
+                  },
+                  "width": {
+                    "type": "integer",
+                    "minimum": 100,
+                    "maximum": 1000,
+                    "description": "Image width in pixels (100-1000, default 500)"
+                  },
+                  "height": {
+                    "type": "integer",
+                    "minimum": 100,
+                    "maximum": 1000,
+                    "description": "Image height in pixels (100-1000, default 300)"
+                  }
+                },
+                "required": [
+                  "type",
+                  "labels",
+                  "datasets"
+                ]
               }
             }
           }

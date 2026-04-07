@@ -142,6 +142,7 @@ import { DepsdevAdapter } from './depsdev';
 import { EpaAdapter } from './epa';
 import { NceiAdapter } from './ncei';
 import { ClimateAdapter } from './climate';
+import { QuickchartAdapter } from './quickchart';
 import { config } from '../config';
 
 /**
@@ -912,6 +913,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'climate':
       // Global Warming API — climate indicators, no auth, MIT (UC-342)
       return getOrCreate('climate', () => new ClimateAdapter());
+    case 'chart':
+      // QuickChart — chart image generation, no auth, MIT
+      return getOrCreate('chart', () => new QuickchartAdapter());
     default:
       return undefined;
   }

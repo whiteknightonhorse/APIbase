@@ -206,6 +206,15 @@
     "docs_url": "https://www.ncei.noaa.gov/cdo-web/webservices/v2",
     "limit_proof": "Free API key, 1,000 req/day. US Gov public domain. 100K+ global stations, 260+ years."
   },
+  "chart": {
+    "display_name": "QuickChart",
+    "health_url": "https://quickchart.io/health",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://quickchart.io/documentation/",
+    "limit_proof": "Free, no auth, no rate limits. MIT license. Chart.js to PNG image URL."
+  },
   "climate": {
     "display_name": "Global Warming API",
     "health_url": "https://global-warming.org/api/temperature-api",

@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 477 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 478 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -16210,6 +16210,88 @@
             "description": "Number of years of data to return (1-50, default 10). Data is monthly."
           }
         }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "chart.visualization.create",
+      "title": "Create Chart Image",
+      "description": "\u26a1 ACTION: Generate a chart image (PNG) from data \u2014 bar, line, pie, doughnut, radar, scatter. Returns a permanent image URL. Combine with data tools (climate.co2, census.population, finance.exchange_rates) to visualize any dataset. Powered by QuickChart (Chart.js).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "bar",
+              "line",
+              "pie",
+              "doughnut",
+              "radar",
+              "scatter",
+              "horizontalBar"
+            ],
+            "description": "Chart type: bar, line, pie, doughnut, radar, scatter, horizontalBar"
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "X-axis labels (e.g. [\"Q1\", \"Q2\", \"Q3\", \"Q4\"])"
+          },
+          "datasets": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "description": "Dataset label (e.g. \"Revenue\", \"Temperature\")"
+                },
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "description": "Array of numeric values"
+                }
+              },
+              "required": [
+                "label",
+                "data"
+              ]
+            },
+            "description": "One or more datasets to plot",
+            "minItems": 1
+          },
+          "title": {
+            "type": "string",
+            "description": "Chart title displayed at top"
+          },
+          "width": {
+            "type": "integer",
+            "minimum": 100,
+            "maximum": 1000,
+            "description": "Image width in pixels (100-1000, default 500)"
+          },
+          "height": {
+            "type": "integer",
+            "minimum": 100,
+            "maximum": 1000,
+            "description": "Image height in pixels (100-1000, default 300)"
+          }
+        },
+        "required": [
+          "type",
+          "labels",
+          "datasets"
+        ]
       },
       "annotations": {
         "readOnlyHint": true,

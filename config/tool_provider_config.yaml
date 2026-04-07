@@ -2825,6 +2825,13 @@ tools:
     price_usd: "0.003"
     cache_ttl: 86400
 
+  # --- QuickChart (Data Visualization) ---
+  - tool_id: chart.create
+    name: Create Chart Image
+    provider: chart
+    price_usd: "0.002"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform
