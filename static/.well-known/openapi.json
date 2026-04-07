@@ -41526,6 +41526,294 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/depsdev.package/call": {
+      "post": {
+        "operationId": "depsdev_package",
+        "summary": "Package Info (deps.dev)",
+        "description": "Get package metadata from Google deps.dev — all versions, default version, ecosystem. Covers npm, PyPI, Go, Maven, Cargo, NuGet (50M+ package versions). Complements npm/PyPI registries with cross-ecosystem unified view.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "depsdev.package"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "system": {
+                    "type": "string",
+                    "enum": [
+                      "npm",
+                      "pypi",
+                      "go",
+                      "maven",
+                      "cargo",
+                      "nuget"
+                    ],
+                    "description": "Package ecosystem: npm, pypi, go, maven, cargo, or nuget"
+                  },
+                  "package": {
+                    "type": "string",
+                    "description": "Package name (e.g. express, requests, gin-gonic/gin, log4j-core)",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "system",
+                  "package"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/depsdev.dependencies/call": {
+      "post": {
+        "operationId": "depsdev_dependencies",
+        "summary": "Dependency Tree (deps.dev)",
+        "description": "Resolve the full transitive dependency tree for a package version. Returns all direct and indirect dependencies with versions and relation type. Reveals hidden supply chain depth (e.g. express@5.2.1 has 67 transitive deps). Google deps.dev.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "depsdev.dependencies"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "system": {
+                    "type": "string",
+                    "enum": [
+                      "npm",
+                      "pypi",
+                      "go",
+                      "maven",
+                      "cargo",
+                      "nuget"
+                    ],
+                    "description": "Package ecosystem: npm, pypi, go, maven, cargo, or nuget"
+                  },
+                  "package": {
+                    "type": "string",
+                    "description": "Package name (e.g. lodash, flask, github.com/gin-gonic/gin)",
+                    "minLength": 1
+                  },
+                  "version": {
+                    "type": "string",
+                    "description": "Package version to resolve dependencies for (e.g. 4.17.21, 3.0.0)",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "system",
+                  "package",
+                  "version"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/depsdev.advisories/call": {
+      "post": {
+        "operationId": "depsdev_advisories",
+        "summary": "Security Advisories (deps.dev)",
+        "description": "List security advisories (from OSV) affecting a specific package version. Cross-ecosystem: npm, PyPI, Go, Maven, Cargo, NuGet. Returns advisory IDs with links to OSV.dev for full details. Complements osv.query for version-specific lookups.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "depsdev.advisories"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "system": {
+                    "type": "string",
+                    "enum": [
+                      "npm",
+                      "pypi",
+                      "go",
+                      "maven",
+                      "cargo",
+                      "nuget"
+                    ],
+                    "description": "Package ecosystem: npm, pypi, go, maven, cargo, or nuget"
+                  },
+                  "package": {
+                    "type": "string",
+                    "description": "Package name to check for security advisories",
+                    "minLength": 1
+                  },
+                  "version": {
+                    "type": "string",
+                    "description": "Package version to check (e.g. 4.17.20)",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "system",
+                  "package",
+                  "version"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

@@ -138,6 +138,7 @@ import { FemaAdapter } from './fema';
 import { PypiAdapter } from './pypi';
 import { GbifAdapter } from './gbif';
 import { CongressAdapter } from './congress';
+import { DepsdevAdapter } from './depsdev';
 import { config } from '../config';
 
 /**
@@ -892,6 +893,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       if (!congressKey) return undefined;
       return getOrCreate('congress', () => new CongressAdapter(congressKey));
     }
+    case 'depsdev':
+      // deps.dev — Google Open Source Insights, no auth, Apache 2.0 (UC-347)
+      return getOrCreate('depsdev', () => new DepsdevAdapter());
     default:
       return undefined;
   }

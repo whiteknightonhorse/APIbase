@@ -4692,4 +4692,35 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'legal',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // deps.dev — Google Open Source Insights (UC-347, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'depsdev.package',
+    mcpName: 'depsdev.insights.package',
+    title: 'Package Info (deps.dev)',
+    description:
+      'Get package metadata from Google deps.dev — all versions, default version, ecosystem. Covers npm, PyPI, Go, Maven, Cargo, NuGet (50M+ package versions). Complements npm/PyPI registries with cross-ecosystem unified view.',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'depsdev.dependencies',
+    mcpName: 'depsdev.insights.dependencies',
+    title: 'Dependency Tree (deps.dev)',
+    description:
+      'Resolve the full transitive dependency tree for a package version. Returns all direct and indirect dependencies with versions and relation type. Reveals hidden supply chain depth (e.g. express@5.2.1 has 67 transitive deps). Google deps.dev.',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'depsdev.advisories',
+    mcpName: 'depsdev.insights.advisories',
+    title: 'Security Advisories (deps.dev)',
+    description:
+      'List security advisories (from OSV) affecting a specific package version. Cross-ecosystem: npm, PyPI, Go, Maven, Cargo, NuGet. Returns advisory IDs with links to OSV.dev for full details. Complements osv.query for version-specific lookups.',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
 ];

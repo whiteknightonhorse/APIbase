@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 465 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 468 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -15843,6 +15843,129 @@
             "description": "Number of results (1-25, default 10)"
           }
         }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "depsdev.insights.advisories",
+      "title": "Security Advisories (deps.dev)",
+      "description": "List security advisories (from OSV) affecting a specific package version. Cross-ecosystem: npm, PyPI, Go, Maven, Cargo, NuGet. Returns advisory IDs with links to OSV.dev for full details. Complements osv.query for version-specific lookups.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "system": {
+            "type": "string",
+            "enum": [
+              "npm",
+              "pypi",
+              "go",
+              "maven",
+              "cargo",
+              "nuget"
+            ],
+            "description": "Package ecosystem: npm, pypi, go, maven, cargo, or nuget"
+          },
+          "package": {
+            "type": "string",
+            "description": "Package name to check for security advisories",
+            "minLength": 1
+          },
+          "version": {
+            "type": "string",
+            "description": "Package version to check (e.g. 4.17.20)",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "system",
+          "package",
+          "version"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "depsdev.insights.dependencies",
+      "title": "Dependency Tree (deps.dev)",
+      "description": "Resolve the full transitive dependency tree for a package version. Returns all direct and indirect dependencies with versions and relation type. Reveals hidden supply chain depth (e.g. express@5.2.1 has 67 transitive deps). Google deps.dev.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "system": {
+            "type": "string",
+            "enum": [
+              "npm",
+              "pypi",
+              "go",
+              "maven",
+              "cargo",
+              "nuget"
+            ],
+            "description": "Package ecosystem: npm, pypi, go, maven, cargo, or nuget"
+          },
+          "package": {
+            "type": "string",
+            "description": "Package name (e.g. lodash, flask, github.com/gin-gonic/gin)",
+            "minLength": 1
+          },
+          "version": {
+            "type": "string",
+            "description": "Package version to resolve dependencies for (e.g. 4.17.21, 3.0.0)",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "system",
+          "package",
+          "version"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "depsdev.insights.package",
+      "title": "Package Info (deps.dev)",
+      "description": "Get package metadata from Google deps.dev \u2014 all versions, default version, ecosystem. Covers npm, PyPI, Go, Maven, Cargo, NuGet (50M+ package versions). Complements npm/PyPI registries with cross-ecosystem unified view.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "system": {
+            "type": "string",
+            "enum": [
+              "npm",
+              "pypi",
+              "go",
+              "maven",
+              "cargo",
+              "nuget"
+            ],
+            "description": "Package ecosystem: npm, pypi, go, maven, cargo, or nuget"
+          },
+          "package": {
+            "type": "string",
+            "description": "Package name (e.g. express, requests, gin-gonic/gin, log4j-core)",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "system",
+          "package"
+        ]
       },
       "annotations": {
         "readOnlyHint": true,

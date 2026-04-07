@@ -2756,6 +2756,23 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-347: deps.dev (Google Open Source Insights) ---
+  - tool_id: depsdev.package
+    name: Package Info (deps.dev)
+    provider: depsdev
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: depsdev.dependencies
+    name: Dependency Tree (deps.dev)
+    provider: depsdev
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: depsdev.advisories
+    name: Security Advisories (deps.dev)
+    provider: depsdev
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   # --- F1: Batch API (wrapper $0, sub-calls billed individually) ---
   - tool_id: platform.call_batch
     name: Batch Tool Calls

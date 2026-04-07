@@ -188,6 +188,15 @@
     "docs_url": "https://whoisjson.com/",
     "limit_proof": "Basic plan: 1,000 req/month free, 20 req/min, all endpoints included, expires May 2026"
   },
+  "depsdev": {
+    "display_name": "deps.dev",
+    "health_url": "https://api.deps.dev/v3alpha/systems/npm/packages/express",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://docs.deps.dev/api/v3alpha/",
+    "limit_proof": "Apache 2.0, no auth, no rate limits. Google-hosted. 50M+ package versions across 6 ecosystems."
+  },
   "congress": {
     "display_name": "Congress.gov",
     "health_url": "https://api.congress.gov/v3/bill?limit=1&format=json",
