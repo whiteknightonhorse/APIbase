@@ -4,6 +4,7 @@ import {
   type ProviderRawResponse,
   ProviderErrorCode,
 } from '../../types/provider';
+import { stripHtml } from '../../utils/strip-html';
 import type {
   WgerExerciseSearchOutput,
   WgerExerciseDetailOutput,
@@ -119,9 +120,7 @@ export class WgerAdapter extends BaseAdapter {
     return {
       id: Number(body.id ?? 0),
       name: String(enTranslation?.name ?? body.name ?? ''),
-      description: String(enTranslation?.description ?? '')
-        .replace(/<[^>]*>/g, '')
-        .slice(0, 500),
+      description: stripHtml(String(enTranslation?.description ?? '')).slice(0, 500),
       category: String(category.name ?? ''),
       muscles: muscles.map((m) => String(m.name_en ?? m.name ?? '')),
       muscles_secondary: musclesSec.map((m) => String(m.name_en ?? m.name ?? '')),
