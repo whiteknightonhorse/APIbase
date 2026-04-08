@@ -5002,4 +5002,35 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'space',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // HuggingFace Hub — ML Model & Dataset Registry (UC-367, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'hf.models',
+    mcpName: 'hf.hub.models',
+    title: 'Search ML Models',
+    description:
+      'Search 1M+ ML models on HuggingFace Hub by name, task (text-generation, image-classification, translation), or library (transformers, diffusers). Returns model ID, downloads, likes, pipeline tag. Sorted by downloads.',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'hf.model_details',
+    mcpName: 'hf.hub.model_details',
+    title: 'ML Model Details',
+    description:
+      'Get full metadata for a HuggingFace model — downloads, likes, tags, library, author, pipeline task, model card data. Use model_id from hf.models search (e.g. "meta-llama/Llama-3.3-70B-Instruct").',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'hf.datasets',
+    mcpName: 'hf.hub.datasets',
+    title: 'Search ML Datasets',
+    description:
+      'Search 200K+ datasets on HuggingFace Hub by name or keyword. Returns dataset ID, downloads, likes, tags. Covers NLP, vision, audio, tabular datasets. Sorted by downloads.',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
 ];

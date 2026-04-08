@@ -44026,6 +44026,263 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/hf.models/call": {
+      "post": {
+        "operationId": "hf_models",
+        "summary": "Search ML Models",
+        "description": "Search 1M+ ML models on HuggingFace Hub by name, task (text-generation, image-classification, translation), or library (transformers, diffusers). Returns model ID, downloads, likes, pipeline tag. Sorted by downloads.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hf.models"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "search": {
+                    "type": "string",
+                    "description": "Search query — model name or keyword (e.g. \"llama\", \"stable-diffusion\", \"whisper\")",
+                    "minLength": 1
+                  },
+                  "task": {
+                    "type": "string",
+                    "description": "Filter by ML task: text-generation, image-classification, translation, text-to-image, automatic-speech-recognition, etc."
+                  },
+                  "library": {
+                    "type": "string",
+                    "description": "Filter by framework: transformers, diffusers, sentence-transformers, gguf, etc."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20,
+                    "description": "Number of results (1-20, default 10)"
+                  }
+                },
+                "required": [
+                  "search"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/hf.model_details/call": {
+      "post": {
+        "operationId": "hf_model_details",
+        "summary": "ML Model Details",
+        "description": "Get full metadata for a HuggingFace model — downloads, likes, tags, library, author, pipeline task, model card data. Use model_id from hf.models search (e.g. \"meta-llama/Llama-3.3-70B-Instruct\").",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hf.model_details"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "model_id": {
+                    "type": "string",
+                    "description": "Full model ID (e.g. \"meta-llama/Llama-3.3-70B-Instruct\", \"stabilityai/stable-diffusion-xl-base-1.0\")",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "model_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/hf.datasets/call": {
+      "post": {
+        "operationId": "hf_datasets",
+        "summary": "Search ML Datasets",
+        "description": "Search 200K+ datasets on HuggingFace Hub by name or keyword. Returns dataset ID, downloads, likes, tags. Covers NLP, vision, audio, tabular datasets. Sorted by downloads.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hf.datasets"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "search": {
+                    "type": "string",
+                    "description": "Search query — dataset name or keyword (e.g. \"wikipedia\", \"imagenet\", \"squad\")",
+                    "minLength": 1
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20,
+                    "description": "Number of results (1-20, default 10)"
+                  }
+                },
+                "required": [
+                  "search"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

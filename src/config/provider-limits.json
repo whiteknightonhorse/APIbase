@@ -251,6 +251,15 @@
     "docs_url": "https://wheretheiss.at/w/developer",
     "limit_proof": "Free, no auth. 1 req/sec rate limit. Real-time ISS position."
   },
+  "hf": {
+    "display_name": "HuggingFace Hub",
+    "health_url": "https://huggingface.co/api/models?limit=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://huggingface.co/docs/hub/api",
+    "limit_proof": "No auth for read, no documented rate limits. 1M+ models, 200K+ datasets."
+  },
   "solar": {
     "display_name": "Solar System",
     "health_url": "https://api.le-systeme-solaire.net/rest/bodies/mars",

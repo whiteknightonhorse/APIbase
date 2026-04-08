@@ -149,6 +149,7 @@ import { WgerAdapter } from './wger';
 import { EmailVerifyAdapter } from './email-verify';
 import { SolarAdapter } from './solar';
 import { IssAdapter } from './iss';
+import { HfAdapter } from './hf';
 import { config } from '../config';
 
 /**
@@ -952,6 +953,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'iss':
       // ISS Tracker — real-time position, no auth (UC-355)
       return getOrCreate('iss', () => new IssAdapter());
+    case 'hf':
+      // HuggingFace Hub — ML model + dataset registry, no auth (UC-367)
+      return getOrCreate('hf', () => new HfAdapter());
     default:
       return undefined;
   }

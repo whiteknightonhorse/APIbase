@@ -2924,6 +2924,23 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-367: HuggingFace Hub (ML Models + Datasets) ---
+  - tool_id: hf.models
+    name: Search ML Models
+    provider: hf
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: hf.model_details
+    name: ML Model Details
+    provider: hf
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: hf.datasets
+    name: Search ML Datasets
+    provider: hf
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

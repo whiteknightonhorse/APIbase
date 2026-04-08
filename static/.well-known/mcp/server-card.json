@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 494 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 497 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -16748,6 +16748,98 @@
             "description": "Response format: json (default) or text (raw TLE two-line element)"
           }
         }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "hf.hub.datasets",
+      "title": "Search ML Datasets",
+      "description": "Search 200K+ datasets on HuggingFace Hub by name or keyword. Returns dataset ID, downloads, likes, tags. Covers NLP, vision, audio, tabular datasets. Sorted by downloads.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "search": {
+            "type": "string",
+            "description": "Search query \u2014 dataset name or keyword (e.g. \"wikipedia\", \"imagenet\", \"squad\")",
+            "minLength": 1
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "Number of results (1-20, default 10)"
+          }
+        },
+        "required": [
+          "search"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "hf.hub.model_details",
+      "title": "ML Model Details",
+      "description": "Get full metadata for a HuggingFace model \u2014 downloads, likes, tags, library, author, pipeline task, model card data. Use model_id from hf.models search (e.g. \"meta-llama/Llama-3.3-70B-Instruct\").",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "model_id": {
+            "type": "string",
+            "description": "Full model ID (e.g. \"meta-llama/Llama-3.3-70B-Instruct\", \"stabilityai/stable-diffusion-xl-base-1.0\")",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "model_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "hf.hub.models",
+      "title": "Search ML Models",
+      "description": "Search 1M+ ML models on HuggingFace Hub by name, task (text-generation, image-classification, translation), or library (transformers, diffusers). Returns model ID, downloads, likes, pipeline tag. Sorted by downloads.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "search": {
+            "type": "string",
+            "description": "Search query \u2014 model name or keyword (e.g. \"llama\", \"stable-diffusion\", \"whisper\")",
+            "minLength": 1
+          },
+          "task": {
+            "type": "string",
+            "description": "Filter by ML task: text-generation, image-classification, translation, text-to-image, automatic-speech-recognition, etc."
+          },
+          "library": {
+            "type": "string",
+            "description": "Filter by framework: transformers, diffusers, sentence-transformers, gguf, etc."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "Number of results (1-20, default 10)"
+          }
+        },
+        "required": [
+          "search"
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
