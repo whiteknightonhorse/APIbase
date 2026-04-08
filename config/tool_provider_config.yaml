@@ -2912,6 +2912,18 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-355: ISS Tracker (Real-Time Space Station) ---
+  - tool_id: iss.position
+    name: ISS Current Position
+    provider: iss
+    price_usd: "0.001"
+    cache_ttl: 60
+  - tool_id: iss.tle
+    name: ISS Orbital Elements (TLE)
+    provider: iss
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

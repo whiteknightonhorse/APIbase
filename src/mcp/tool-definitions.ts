@@ -4980,4 +4980,26 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'space',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // ISS Tracker — Real-Time Space Station (UC-355, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'iss.position',
+    mcpName: 'iss.space.position',
+    title: 'ISS Current Position',
+    description:
+      'Get the real-time position of the International Space Station — latitude, longitude, altitude (km), velocity (km/h), and daylight/eclipse visibility. ISS orbits at 28,000 km/h, completes one orbit every 90 minutes. Updates every ~60 seconds.',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'iss.tle',
+    mcpName: 'iss.space.tle',
+    title: 'ISS Orbital Elements (TLE)',
+    description:
+      'Get the Two-Line Element set (TLE) for the International Space Station — NORAD catalog #25544. Contains orbital parameters for trajectory prediction and satellite tracking calculations.',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
 ];

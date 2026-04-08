@@ -148,6 +148,7 @@ import { UsnoAdapter } from './usno';
 import { WgerAdapter } from './wger';
 import { EmailVerifyAdapter } from './email-verify';
 import { SolarAdapter } from './solar';
+import { IssAdapter } from './iss';
 import { config } from '../config';
 
 /**
@@ -948,6 +949,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       if (!solarKey) return undefined;
       return getOrCreate('solar', () => new SolarAdapter(solarKey));
     }
+    case 'iss':
+      // ISS Tracker — real-time position, no auth (UC-355)
+      return getOrCreate('iss', () => new IssAdapter());
     default:
       return undefined;
   }

@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 492 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 494 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -16700,6 +16700,54 @@
         "required": [
           "id"
         ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "iss.space.position",
+      "title": "ISS Current Position",
+      "description": "Get the real-time position of the International Space Station \u2014 latitude, longitude, altitude (km), velocity (km/h), and daylight/eclipse visibility. ISS orbits at 28,000 km/h, completes one orbit every 90 minutes. Updates every ~60 seconds.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "units": {
+            "type": "string",
+            "enum": [
+              "kilometers",
+              "miles"
+            ],
+            "description": "Distance units: kilometers (default) or miles"
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "iss.space.tle",
+      "title": "ISS Orbital Elements (TLE)",
+      "description": "Get the Two-Line Element set (TLE) for the International Space Station \u2014 NORAD catalog #25544. Contains orbital parameters for trajectory prediction and satellite tracking calculations.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "format": {
+            "type": "string",
+            "enum": [
+              "json",
+              "text"
+            ],
+            "description": "Response format: json (default) or text (raw TLE two-line element)"
+          }
+        }
       },
       "annotations": {
         "readOnlyHint": true,
