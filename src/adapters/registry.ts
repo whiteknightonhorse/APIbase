@@ -146,6 +146,7 @@ import { QuickchartAdapter } from './quickchart';
 import { FigiAdapter } from './figi';
 import { UsnoAdapter } from './usno';
 import { WgerAdapter } from './wger';
+import { EmailVerifyAdapter } from './email-verify';
 import { config } from '../config';
 
 /**
@@ -933,6 +934,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'wger':
       // Wger — exercise + nutrition database, no auth, CC-BY-SA (UC-360)
       return getOrCreate('wger', () => new WgerAdapter());
+    case 'email_verify': {
+      // WhoisXML Email Verification — reuses PROVIDER_KEY_WHOISXML (UC-363)
+      const evKey = (config as Record<string, unknown>).PROVIDER_KEY_WHOISXML as string | undefined;
+      if (!evKey) return undefined;
+      return getOrCreate('email_verify', () => new EmailVerifyAdapter(evKey));
+    }
     default:
       return undefined;
   }

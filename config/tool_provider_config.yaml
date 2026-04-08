@@ -2893,6 +2893,13 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-363: WhoisXML Email Verification ---
+  - tool_id: email_verify.check
+    name: Verify Email Address
+    provider: email_verify
+    price_usd: "0.010"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

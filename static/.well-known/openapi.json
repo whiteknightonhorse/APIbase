@@ -43627,6 +43627,85 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/email_verify.check/call": {
+      "post": {
+        "operationId": "email_verify_check",
+        "summary": "Verify Email Address",
+        "description": "Verify an email address — SMTP deliverability check, DNS/MX validation, disposable email detection, catch-all server detection, free provider flag, role account flag (info@, admin@). Returns comprehensive verification result. Powered by WhoisXML API.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.010000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "email_verify.check"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "description": "Email address to verify (e.g. user@example.com, test@gmail.com)",
+                    "minLength": 3
+                  }
+                },
+                "required": [
+                  "email"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

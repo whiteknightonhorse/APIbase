@@ -4945,4 +4945,17 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'health',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // WhoisXML Email Verification (UC-363, 1 tool)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'email_verify.check',
+    mcpName: 'email.verification.check',
+    title: 'Verify Email Address',
+    description:
+      'Verify an email address — SMTP deliverability check, DNS/MX validation, disposable email detection, catch-all server detection, free provider flag, role account flag (info@, admin@). Returns comprehensive verification result. Powered by WhoisXML API.',
+    category: 'messaging',
+    annotations: READ_ONLY,
+  },
 ];

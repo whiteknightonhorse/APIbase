@@ -233,6 +233,15 @@
     "docs_url": "https://wger.de/en/software/api",
     "limit_proof": "Open source, CC-BY-SA. No auth, no rate limits. 896 exercises, 1.28M ingredients."
   },
+  "email_verify": {
+    "display_name": "WhoisXML Email",
+    "health_url": "https://emailverification.whoisxmlapi.com/api/v3?emailAddress=test@example.com",
+    "limit_type": "credits",
+    "free_limit": 500,
+    "reset_period": "none",
+    "docs_url": "https://emailverification.whoisxmlapi.com/api",
+    "limit_proof": "Credits shared with WhoisXML account (500 free on signup). SMTP + DNS + disposable detection."
+  },
   "chart": {
     "display_name": "QuickChart",
     "health_url": "https://quickchart.io/health",
