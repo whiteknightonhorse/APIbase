@@ -661,6 +661,7 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       if (!currKey) return undefined;
       return getOrCreate('currents', () => new CurrentsAdapter(currKey));
     }
+    case 'twitter':
     case 'twitterapi': {
       const twKey = (config as Record<string, unknown>).PROVIDER_KEY_TWITTERAPI as
         | string
@@ -672,6 +673,7 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const ncbiKey = ((config as Record<string, unknown>).PROVIDER_KEY_NCBI as string) || '';
       return getOrCreate('pubchem', () => new PubchemAdapter(ncbiKey));
     }
+    case 'evcharge':
     case 'openchargemap': {
       const ocmKey = (config as Record<string, unknown>).PROVIDER_KEY_OPENCHARGEMAP as
         | string
