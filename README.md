@@ -1,6 +1,6 @@
 # APIbase.pro — The API Hub for AI Agents
 
-> One MCP endpoint. 490 tools. 152 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
+> One MCP endpoint. 492 tools. 153 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Frameworks](https://apibase.pro/frameworks)** | **[Dashboard](https://apibase.pro/dashboard)**
 
@@ -91,7 +91,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 
 ---
 
-## Tool Categories (490 tools, 152 providers)
+## Tool Categories (492 tools, 153 providers)
 
 | Category | Tools | Providers | Examples |
 |----------|-------|-----------|----------|
@@ -112,7 +112,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 | **Stock Media** | 3 | Pexels | Free stock photos & videos, commercial use |
 | **Music** | 9 | MusicBrainz, ListenBrainz, RadioBrowser, AudD | Artists, albums, radio, song recognition, lyrics |
 | **Podcasts** | 7 | PodcastIndex, Listen Notes | Search 4M+ podcasts, 186M+ episodes, best by genre |
-| **Health & Nutrition** | 7 | USDA, OpenFDA, NIH | Food data, drug safety, supplements |
+| **Health & Nutrition** | 9 | USDA, OpenFDA, NIH, CDC | Food data, drug safety, supplements, public health datasets |
 | **Chemistry & Biology** | 16 | PubChem, RCSB PDB, NCI CACTUS, Materials Project | 100M+ compounds, 220K+ proteins, 150K+ materials, chemical ID converter |
 | **EV Charging** | 3 | Open Charge Map | 300K+ charging stations worldwide, connectors, power levels |
 | **Fraud Detection** | 4 | IPQualityScore | IP/email/URL/phone fraud scoring, VPN/proxy/bot detection |

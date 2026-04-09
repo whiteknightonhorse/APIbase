@@ -260,6 +260,15 @@
     "docs_url": "https://huggingface.co/docs/hub/api",
     "limit_proof": "No auth for read, no documented rate limits. 1M+ models, 200K+ datasets."
   },
+  "cdc": {
+    "display_name": "CDC Open Data",
+    "health_url": "https://api.us.socrata.com/api/catalog/v1?domains=data.cdc.gov&limit=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://dev.socrata.com/foundry/data.cdc.gov",
+    "limit_proof": "US Gov public domain. No auth required (app token optional for higher rate). 1,400+ health datasets."
+  },
   "worldbank": {
     "display_name": "World Bank Indicators",
     "health_url": "https://api.worldbank.org/v2/indicator?format=json&per_page=1",

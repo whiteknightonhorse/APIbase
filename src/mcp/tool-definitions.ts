@@ -5066,4 +5066,25 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+  // ---------------------------------------------------------------------------
+  // CDC Open Data — US public health statistics (UC-371)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'cdc.datasets',
+    mcpName: 'cdc.health.datasets',
+    title: 'Search CDC Health Datasets',
+    description:
+      'Search 1,400+ CDC public health datasets — COVID-19, chronic disease, vaccination, mortality, birth/death statistics, environmental health. Returns dataset ID, name, description, category. Use dataset IDs with cdc.query to fetch data (US Gov)',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'cdc.query',
+    mcpName: 'cdc.health.query',
+    title: 'Query CDC Dataset',
+    description:
+      'Query a specific CDC dataset using SoQL filters — filter by state, year, age group, condition. Returns structured rows with column names. Supports WHERE, SELECT, ORDER, GROUP BY. Use cdc.datasets to find dataset IDs first (US Gov, Socrata SODA API)',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
 ];

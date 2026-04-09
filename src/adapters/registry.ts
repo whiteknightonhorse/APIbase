@@ -152,6 +152,7 @@ import { IssAdapter } from './iss';
 import { HfAdapter } from './hf';
 import { UsgsWaterAdapter } from './usgs-water';
 import { WorldBankAdapter } from './worldbank';
+import { CdcAdapter } from './cdc';
 import { config } from '../config';
 
 /**
@@ -964,6 +965,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'worldbank':
       // World Bank Indicators — 16K+ global development indicators, no auth (UC-372)
       return getOrCreate('worldbank', () => new WorldBankAdapter());
+    case 'cdc':
+      // CDC Open Data — US public health datasets via Socrata SODA, no auth (UC-371)
+      return getOrCreate('cdc', () => new CdcAdapter());
     default:
       return undefined;
   }

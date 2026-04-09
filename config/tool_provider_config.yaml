@@ -2948,6 +2948,18 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # CDC Open Data (UC-371) — US public health datasets via Socrata SODA
+  - tool_id: cdc.datasets
+    name: Search CDC Health Datasets
+    provider: cdc
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: cdc.query
+    name: Query CDC Dataset
+    provider: cdc
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   # USGS Water Services (UC-369) — real-time streamflow & water levels
   - tool_id: water.sites
     name: Search Water Monitoring Sites

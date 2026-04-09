@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 505 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 507 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -17069,6 +17069,81 @@
             "description": "Results per page (1-50, default 20)"
           }
         }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "cdc.health.datasets",
+      "title": "Search CDC Health Datasets",
+      "description": "Search 1,400+ CDC public health datasets \u2014 COVID-19, chronic disease, vaccination, mortality, birth/death statistics, environmental health. Returns dataset ID, name, description, category. Use dataset IDs with cdc.query to fetch data (US Gov)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search keyword (e.g. \"covid deaths\", \"vaccination rates\", \"chronic disease\", \"mortality\")"
+          },
+          "category": {
+            "type": "string",
+            "description": "Dataset category filter (e.g. \"NCHS\", \"COVID-19\", \"Chronic Disease Indicators\")"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of results (1-50, default 20)"
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "cdc.health.query",
+      "title": "Query CDC Dataset",
+      "description": "Query a specific CDC dataset using SoQL filters \u2014 filter by state, year, age group, condition. Returns structured rows with column names. Supports WHERE, SELECT, ORDER, GROUP BY. Use cdc.datasets to find dataset IDs first (US Gov, Socrata SODA API)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "dataset_id": {
+            "type": "string",
+            "description": "CDC dataset ID in xxxx-xxxx format (e.g. \"9bhg-hcku\" for COVID deaths). Use cdc.datasets to find IDs."
+          },
+          "where": {
+            "type": "string",
+            "description": "SoQL WHERE clause filter (e.g. \"state='CA'\", \"year > 2020\", \"age_group='65+'\")"
+          },
+          "select": {
+            "type": "string",
+            "description": "Columns to return, comma-separated (e.g. \"state, year, deaths\"). Default: all columns."
+          },
+          "order": {
+            "type": "string",
+            "description": "Sort order (e.g. \"year DESC\", \"deaths DESC\"). Default: dataset default order."
+          },
+          "group": {
+            "type": "string",
+            "description": "Group by columns for aggregation (e.g. \"state\" with select \"state, SUM(deaths)\")"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000,
+            "description": "Max rows to return (1-1000, default 100)"
+          }
+        },
+        "required": [
+          "dataset_id"
+        ]
       },
       "annotations": {
         "readOnlyHint": true,
