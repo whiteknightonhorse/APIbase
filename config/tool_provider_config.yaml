@@ -2948,6 +2948,18 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # NOAA Tides & Currents (UC-374) — tide predictions + water levels
+  - tool_id: tides.predictions
+    name: Tide Predictions
+    provider: noaa-tides
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: tides.water_levels
+    name: Real-Time Water Levels
+    provider: noaa-tides
+    price_usd: "0.001"
+    cache_ttl: 360
+
   # DBLP (UC-370) — Computer Science bibliography
   - tool_id: dblp.search
     name: Search CS Papers

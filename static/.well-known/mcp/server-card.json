@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 509 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 511 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -17207,6 +17207,101 @@
         },
         "required": [
           "query"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "tides.noaa.predictions",
+      "title": "Tide Predictions",
+      "description": "Get tide predictions for a NOAA station \u2014 high/low tides, hourly, or 6-minute intervals. Returns predicted water level in feet or meters. Covers US coastlines, rivers, Great Lakes. Station IDs: 8518750 (NYC), 9414290 (SF), 8443970 (Boston) (NOAA, US Gov)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "station": {
+            "type": "string",
+            "description": "NOAA station ID (e.g. \"8518750\" for The Battery NYC, \"9414290\" for San Francisco, \"8443970\" for Boston)",
+            "minLength": 1
+          },
+          "begin_date": {
+            "type": "string",
+            "description": "Start date in YYYYMMDD format (e.g. \"20260409\")"
+          },
+          "end_date": {
+            "type": "string",
+            "description": "End date in YYYYMMDD format (e.g. \"20260410\"). Max range: 31 days."
+          },
+          "interval": {
+            "type": "string",
+            "enum": [
+              "hilo",
+              "h",
+              "6"
+            ],
+            "description": "Prediction interval: \"hilo\" = high/low tides only (default), \"h\" = hourly, \"6\" = every 6 minutes"
+          },
+          "datum": {
+            "type": "string",
+            "description": "Vertical datum: MLLW (default), MSL, NAVD, MHHW, MHW, MLW, etc."
+          },
+          "units": {
+            "type": "string",
+            "enum": [
+              "english",
+              "metric"
+            ],
+            "description": "Units: \"english\" = feet (default), \"metric\" = meters"
+          }
+        },
+        "required": [
+          "station",
+          "begin_date",
+          "end_date"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "tides.noaa.water_levels",
+      "title": "Real-Time Water Levels",
+      "description": "Get real-time observed water levels from a NOAA station \u2014 latest reading or recent history. Returns water level in feet or meters with quality flags. Updated every 6 minutes. Covers US coastlines, rivers, Great Lakes (NOAA, US Gov)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "station": {
+            "type": "string",
+            "description": "NOAA station ID (e.g. \"8518750\" for The Battery NYC, \"9414290\" for San Francisco)",
+            "minLength": 1
+          },
+          "date": {
+            "type": "string",
+            "description": "Date filter: \"latest\" (default, most recent reading), \"today\", \"recent\" (last 72 hours), or YYYYMMDD for specific date"
+          },
+          "datum": {
+            "type": "string",
+            "description": "Vertical datum: MLLW (default), MSL, NAVD, MHHW, MHW, MLW, etc."
+          },
+          "units": {
+            "type": "string",
+            "enum": [
+              "english",
+              "metric"
+            ],
+            "description": "Units: \"english\" = feet (default), \"metric\" = meters"
+          }
+        },
+        "required": [
+          "station"
         ]
       },
       "annotations": {

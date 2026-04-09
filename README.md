@@ -1,6 +1,6 @@
 # APIbase.pro — The API Hub for AI Agents
 
-> One MCP endpoint. 494 tools. 154 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
+> One MCP endpoint. 496 tools. 155 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Frameworks](https://apibase.pro/frameworks)** | **[Dashboard](https://apibase.pro/dashboard)**
 
@@ -91,7 +91,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 
 ---
 
-## Tool Categories (494 tools, 154 providers)
+## Tool Categories (496 tools, 155 providers)
 
 | Category | Tools | Providers | Examples |
 |----------|-------|-----------|----------|
@@ -148,6 +148,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 | **Browser** | 4 | Browserbase | Managed browser sessions, screenshots, scraping |
 | **Earthquakes** | 3 | USGS | Global seismic data, real-time feeds |
 | **Water Data** | 2 | USGS Water Services | Streamflow gauge sites, real-time water level & discharge |
+| **Tides & Currents** | 2 | NOAA Tides & Currents | Water levels, tidal predictions, currents — 3,000+ US stations |
 | **Disasters** | 3 | GDACS | UN global disaster alerts (earthquakes, floods, hurricanes, volcanoes) |
 | **IP Intelligence** | 2 | ipapi.is | Geolocation, VPN/proxy detection |
 | **Vehicle Data** | 9 | NHTSA, Auto.dev, MarketCheck | VIN decoder, recalls, safety ratings, car listings, market data |

@@ -154,6 +154,7 @@ import { UsgsWaterAdapter } from './usgs-water';
 import { WorldBankAdapter } from './worldbank';
 import { CdcAdapter } from './cdc';
 import { DblpAdapter } from './dblp';
+import { NoaaTidesAdapter } from './noaa-tides';
 import { config } from '../config';
 
 /**
@@ -972,6 +973,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'dblp':
       // DBLP — CS bibliography, 7M+ papers, 3M+ authors, CC0, no auth (UC-370)
       return getOrCreate('dblp', () => new DblpAdapter());
+    case 'tides':
+      // NOAA Tides & Currents — tide predictions + water levels, no auth (UC-374)
+      return getOrCreate('noaa-tides', () => new NoaaTidesAdapter());
     default:
       return undefined;
   }

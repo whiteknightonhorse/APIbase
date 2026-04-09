@@ -5108,4 +5108,25 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'education',
     annotations: READ_ONLY,
   },
+  // ---------------------------------------------------------------------------
+  // NOAA Tides & Currents — tide predictions + water levels (UC-374)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'tides.predictions',
+    mcpName: 'tides.noaa.predictions',
+    title: 'Get Tide Predictions',
+    description:
+      'Get tide predictions for a NOAA station — high/low tides, hourly, or 6-minute intervals. Returns predicted water level in feet or meters. Covers US coastlines, rivers, Great Lakes. Station IDs: 8518750 (NYC), 9414290 (SF), 8443970 (Boston) (NOAA, US Gov)',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'tides.water_levels',
+    mcpName: 'tides.noaa.water_levels',
+    title: 'Get Real-Time Water Levels',
+    description:
+      'Get real-time observed water levels from a NOAA station — latest reading or recent history. Returns water level in feet or meters with quality flags. Updated every 6 minutes. Covers US coastlines, rivers, Great Lakes (NOAA, US Gov)',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];
