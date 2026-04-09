@@ -5129,4 +5129,25 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+  // ---------------------------------------------------------------------------
+  // Met Museum — Open Access art collection (UC-373)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'met.search',
+    mcpName: 'met.art.search',
+    title: 'Search Met Museum Artworks',
+    description:
+      'Search 470,000+ artworks at The Metropolitan Museum of Art by keyword, artist, medium, department, date range, or geography. Returns object IDs — use met.details for full metadata and images. CC0 public domain (Met Museum)',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'met.details',
+    mcpName: 'met.art.details',
+    title: 'Get Artwork Details',
+    description:
+      'Get full details for a Met Museum artwork by object ID — title, artist, date, medium, dimensions, department, culture, provenance, high-res image URLs, public domain status. Use met.search to find object IDs first (Met Museum, CC0)',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
 ];

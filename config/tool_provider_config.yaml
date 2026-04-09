@@ -2948,6 +2948,18 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # Met Museum (UC-373) — Open Access art collection, CC0
+  - tool_id: met.search
+    name: Search Met Museum Artworks
+    provider: met-museum
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: met.details
+    name: Artwork Details
+    provider: met-museum
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   # NOAA Tides & Currents (UC-374) — tide predictions + water levels
   - tool_id: tides.predictions
     name: Tide Predictions

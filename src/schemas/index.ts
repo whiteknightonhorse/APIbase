@@ -155,6 +155,7 @@ import { worldbankSchemas } from './worldbank.schema';
 import { cdcSchemas } from './cdc.schema';
 import { dblpSchemas } from './dblp.schema';
 import { tidesSchemas } from './tides.schema';
+import { metSchemas } from './met.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -313,4 +314,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...cdcSchemas,
   ...dblpSchemas,
   ...tidesSchemas,
+  ...metSchemas,
 };

@@ -260,6 +260,15 @@
     "docs_url": "https://huggingface.co/docs/hub/api",
     "limit_proof": "No auth for read, no documented rate limits. 1M+ models, 200K+ datasets."
   },
+  "met-museum": {
+    "display_name": "Met Museum",
+    "health_url": "https://collectionapi.metmuseum.org/public/collection/v1/objects/436524",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://metmuseum.github.io/",
+    "limit_proof": "CC0 public domain. No auth, no documented rate limits. 470K+ artworks."
+  },
   "noaa-tides": {
     "display_name": "NOAA Tides & Currents",
     "health_url": "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?date=latest&station=8518750&product=water_level&datum=MLLW&units=english&time_zone=lst_ldt&format=json&application=apibase",

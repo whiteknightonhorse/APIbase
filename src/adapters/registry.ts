@@ -155,6 +155,7 @@ import { WorldBankAdapter } from './worldbank';
 import { CdcAdapter } from './cdc';
 import { DblpAdapter } from './dblp';
 import { NoaaTidesAdapter } from './noaa-tides';
+import { MetMuseumAdapter } from './met-museum';
 import { config } from '../config';
 
 /**
@@ -976,6 +977,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'tides':
       // NOAA Tides & Currents — tide predictions + water levels, no auth (UC-374)
       return getOrCreate('noaa-tides', () => new NoaaTidesAdapter());
+    case 'met':
+      // Met Museum — 470K+ artworks, CC0 public domain, no auth (UC-373)
+      return getOrCreate('met-museum', () => new MetMuseumAdapter());
     default:
       return undefined;
   }

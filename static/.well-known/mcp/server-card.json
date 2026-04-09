@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 511 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 513 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -17302,6 +17302,78 @@
         },
         "required": [
           "station"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "met.art.details",
+      "title": "Artwork Details",
+      "description": "Get full details for a Met Museum artwork by object ID \u2014 title, artist, date, medium, dimensions, department, culture, provenance, high-res image URLs, public domain status. Use met.search to find object IDs first (Met Museum, CC0)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "object_id": {
+            "type": "integer",
+            "description": "Met Museum object ID (e.g. 436524 for Van Gogh Sunflowers, 45734 for Washington Crossing the Delaware). Use met.search to find IDs.",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "object_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "met.art.search",
+      "title": "Search Met Museum Artworks",
+      "description": "Search 470,000+ artworks at The Metropolitan Museum of Art by keyword, artist, medium, department, date range, or geography. Returns object IDs \u2014 use met.details for full metadata and images. CC0 public domain (Met Museum)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search keyword \u2014 artist, title, medium, or subject (e.g. \"monet\", \"sunflowers\", \"greek vase\", \"armor\")",
+            "minLength": 1
+          },
+          "department_id": {
+            "type": "integer",
+            "description": "Department filter: 1=American Decorative Arts, 3=Ancient Near Eastern Art, 6=Asian Art, 9=Drawings and Prints, 11=European Paintings, 13=Greek and Roman Art, 17=Medieval Art, 21=Modern Art"
+          },
+          "medium": {
+            "type": "string",
+            "description": "Medium filter (e.g. \"Paintings\", \"Sculpture\", \"Photographs\", \"Ceramics\")"
+          },
+          "has_images": {
+            "type": "boolean",
+            "description": "Only return artworks with images (default: true)"
+          },
+          "geo_location": {
+            "type": "string",
+            "description": "Geographic location filter (e.g. \"France\", \"Japan\", \"Egypt\")"
+          },
+          "date_begin": {
+            "type": "integer",
+            "description": "Start year for date range filter (e.g. 1800). Use with date_end."
+          },
+          "date_end": {
+            "type": "integer",
+            "description": "End year for date range filter (e.g. 1900). Use with date_begin."
+          }
+        },
+        "required": [
+          "query"
         ]
       },
       "annotations": {
