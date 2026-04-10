@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>APIbase — Connect from Any AI Framework</title>
-<meta name="description" content="Connect APIbase MCP server from Claude Desktop, Cursor, OpenAI Agents SDK, LangChain, Google ADK, CrewAI, Windsurf. One endpoint, 409+ tools.">
+<meta name="description" content="Connect APIbase MCP server from Claude Desktop, Cursor, OpenAI Agents SDK, LangChain, Google ADK, CrewAI, Windsurf. One endpoint, 500+ tools.">
 <link rel="canonical" href="https://apibase.pro/frameworks">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <style>
@@ -30,7 +30,7 @@ pre{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:16px;o
 <body>
 <a href="/" class="back">&larr; apibase.pro</a>
 <h1>> Connect APIbase from Any Framework</h1>
-<p>One MCP endpoint. 409+ tools. Works with every major AI framework.</p>
+<p>One MCP endpoint. 500+ tools. Works with every major AI framework.</p>
 <p class="endpoint" style="margin:12px 0">https://apibase.pro/mcp</p>
 
 <div class="nav">
@@ -42,6 +42,7 @@ pre{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:16px;o
 <a href="#google-adk">Google ADK</a> &middot;
 <a href="#crewai">CrewAI</a> &middot;
 <a href="#copilot">Copilot Studio</a> &middot;
+<a href="#sunpeak">Sunpeak</a> &middot;
 <a href="#rest">REST / curl</a>
 </div>
 
@@ -101,7 +102,7 @@ async with MCPServerManager(
 ) as manager:
     agent = Agent(
         name="my-agent",
-        instructions="You have access to 413+ real-world API tools.",
+        instructions="You have access to 500+ real-world API tools.",
         mcp_servers=manager.servers
     )
     result = await Runner.run(agent, "Search flights from NYC to London")
@@ -154,7 +155,7 @@ tools, exit_stack = await toolset.create_tools()
 
 agent = Agent(
     role="Research Assistant",
-    goal="Find real-time data using 409+ API tools",
+    goal="Find real-time data using 500+ API tools",
     backstory="You have access to APIbase MCP server with tools for flights, weather, stocks, jobs, and more.",
     mcp_servers=["https://apibase.pro/mcp"],
     verbose=True
@@ -170,6 +171,26 @@ agent = Agent(
 <p><strong>Authentication:</strong> Bearer token (optional — auto-registration supported)</p>
 </div>
 <p class="note">Requires Microsoft 365 Copilot license. MCP support is GA as of 2026.</p>
+
+<!-- Sunpeak -->
+<h2 id="sunpeak">Sunpeak <span class="badge">MCP Apps</span></h2>
+<p><a href="https://sunpeak.ai">Sunpeak</a> is an open-source framework for building interactive MCP Apps that run inside ChatGPT and Claude. Connect APIbase as a backend to give your app access to 500 real-world API tools — flights, finance, weather, government data, museums, and more.</p>
+<pre>import { createApp } from "sunpeak";
+
+const app = createApp({
+  mcpServers: [
+    {
+      name: "apibase",
+      url: "https://apibase.pro/mcp",
+      transport: "streamable-http"
+    }
+  ]
+});
+
+// Your app now has access to 500 tools via MCP
+// Use discover_tools prompt to find relevant tools by task
+await app.run();</pre>
+<p class="note">Install: <code>pnpm add -g sunpeak</code> &nbsp;&middot;&nbsp; Docs: <a href="https://sunpeak.ai">sunpeak.ai</a> &nbsp;&middot;&nbsp; No API key required (auto-registration)</p>
 
 <!-- REST / curl -->
 <h2 id="rest">REST / curl (any language) <span class="badge">Universal</span></h2>
@@ -189,7 +210,7 @@ curl -X POST https://apibase.pro/api/v1/tools/crypto.trending/call \
   -d '{}'</pre>
 
 <h2>Progressive Disclosure</h2>
-<p>409+ tools is too many for any context window. Use <code>discover_tools</code> prompt to find relevant tools first:</p>
+<p>500+ tools is too many for any context window. Use <code>discover_tools</code> prompt to find relevant tools first:</p>
 <pre># MCP: call the discover_tools prompt
 {"method": "prompts/get", "params": {"name": "discover_tools", "arguments": {"task": "search flights from NYC to London"}}}
 
@@ -216,7 +237,7 @@ curl -s https://apibase.pro/api/v1/tools | jq '.data[] | select(.category == "tr
     }
   }
 }</pre>
-<p class="note">Playwright = browser automation (2.3M npm/week). Context7 = up-to-date library docs (875K npm/week). APIbase = 409 real-world APIs (flights, stocks, weather, jobs, e-commerce). Each covers a different need — no overlap.</p>
+<p class="note">Playwright = browser automation (2.3M npm/week). Context7 = up-to-date library docs (875K npm/week). APIbase = 500 real-world APIs (flights, stocks, weather, jobs, e-commerce). Each covers a different need — no overlap.</p>
 
 <h3>Why three servers?</h3>
 <div class="card">
@@ -239,7 +260,7 @@ async with MCPServerManager(
 ) as manager:
     agent = Agent(
         name="research-agent",
-        instructions="You have browser, docs, and 413 real-world API tools.",
+        instructions="You have browser, docs, and 500 real-world API tools.",
         mcp_servers=manager.servers
     )
     result = await Runner.run(agent, "Get AAPL stock price")</pre>
