@@ -264,15 +264,17 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // All 3 providers (MusicBrainz, ListenBrainz, RadioBrowser) are free, no API keys needed
       return getOrCreate('music', () => new MusicAdapter());
     case 'jobs': {
+      // O*NET key is optional — BLS, ESCO, CareerJet work without it.
+      // Don't block the entire adapter just because O*NET is MANUAL_REQUIRED.
       const onetKey = (config as Record<string, unknown>).PROVIDER_KEY_ONET as string | undefined;
-      if (!onetKey || onetKey === 'MANUAL_REQUIRED') return undefined;
+      const effectiveOnetKey = onetKey && onetKey !== 'MANUAL_REQUIRED' ? onetKey : undefined;
       const blsKey = (config as Record<string, unknown>).PROVIDER_KEY_BLS as string | undefined;
       const cjKey = (config as Record<string, unknown>).PROVIDER_KEY_CAREERJET as
         | string
         | undefined;
       return getOrCreate(
         'jobs',
-        () => new JobsAdapter(onetKey, blsKey || undefined, cjKey || undefined),
+        () => new JobsAdapter(effectiveOnetKey as string, blsKey || undefined, cjKey || undefined),
       );
     }
     case 'education': {
