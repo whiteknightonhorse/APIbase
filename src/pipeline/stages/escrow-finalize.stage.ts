@@ -13,22 +13,29 @@ export const escrowFinalizeStage: Stage = {
   name: 'ESCROW_FINALIZE',
 
   async execute(ctx) {
-    // x402 on-chain payment — settle with facilitator (§8.9)
-    if (ctx.x402Paid && ctx.providerCalled && ctx.providerResponse && ctx.x402PaymentHeader) {
+    // Something to serve: a successful provider call OR a cache hit being replayed.
+    // Both are "agent got their data" — payment should settle in either case.
+    const hasResponseToServe = (ctx.providerCalled && ctx.providerResponse) || ctx.cacheHit;
+
+    // x402 on-chain payment — settle with facilitator (§8.9).
+    // Cache-hit path added 2026-04-22: anonymous x402 agents with balance=0 need
+    // their signed payment to cover cache-hit billing (instead of dead balance debit).
+    if (ctx.x402Paid && ctx.x402PaymentHeader && hasResponseToServe) {
       await settleX402(ctx);
       ctx.billingStatus = 'PAID';
       ctx.finalCost = ctx.toolPrice ?? 0;
       return ok(ctx);
     }
 
-    // MPP on-chain payment — already settled at Tempo verification time (no facilitator)
-    if (ctx.mppPaid && ctx.providerCalled && ctx.providerResponse) {
+    // MPP on-chain payment — already settled at Tempo verification time (no facilitator).
+    // Cache-hit covered by hasResponseToServe same as x402.
+    if (ctx.mppPaid && hasResponseToServe) {
       ctx.billingStatus = 'PAID';
       ctx.finalCost = ctx.toolPrice ?? 0;
       return ok(ctx);
     }
 
-    // Cache hits had no escrow — handled by LEDGER_WRITE (§12.173)
+    // Cache hit without payment rail — fall through to LEDGER_WRITE (balance debit, §12.173)
     if (ctx.cacheHit) {
       return ok(ctx);
     }

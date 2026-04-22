@@ -29,7 +29,10 @@ export const ledgerWriteStage: Stage = {
       return ok(ctx);
     }
 
-    // On-chain payment (x402 or MPP) — write ledger entry (no escrow was created) (§8.9, §AP-9)
+    // On-chain payment (x402 or MPP) — write ledger entry (no escrow was created) (§8.9, §AP-9).
+    // Covers both cache-miss (provider called, payment settled) AND cache-hit
+    // (payment settled by ESCROW_FINALIZE, no provider call). cache_status
+    // reflects the actual path so the quality-index and cost analytics stay correct.
     if ((ctx.x402Paid || ctx.mppPaid) && ctx.billingStatus === 'PAID') {
       if (ctx.agentId && ctx.toolId && ctx.executionId) {
         await writeX402Entry({
@@ -41,6 +44,7 @@ export const ledgerWriteStage: Stage = {
           cost: ctx.finalCost ?? ctx.toolPrice ?? 0,
           payer: ctx.mppPaid ? (ctx.mppPayer ?? 'tempo-agent') : (ctx.x402Payer ?? 'unknown'),
           providerLatencyMs: ctx.providerDurationMs,
+          cacheHit: ctx.cacheHit === true,
         });
       }
       ctx.ledgerWritten = true;
@@ -83,10 +87,14 @@ export const ledgerWriteStage: Stage = {
         } catch (e) {
           if (e instanceof Error && e.message === 'INSUFFICIENT_FUNDS_CACHE_HIT') {
             const x402Cfg = getX402Config();
+            // Match ESCROW stage error shape so x402/MPP SDKs on the client
+            // can parse + retry with a signed payment. Previously we returned a
+            // shorter "Insufficient balance..." body which x402-SDKs couldn't
+            // parse → client gave up. (Q#1 cache-hit 402 loop, fixed 2026-04-22.)
             return err({
               code: 402,
               error: 'payment_required',
-              message: 'Insufficient balance for cache-hit charge',
+              message: `This tool costs $${toolPrice}. Provide x402 (X-Payment header) or MPP (Authorization: Payment) payment.`,
               extra: {
                 price_usd: toolPrice,
                 payment_address: x402Cfg.paymentAddress,

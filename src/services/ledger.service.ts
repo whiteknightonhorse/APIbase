@@ -60,6 +60,12 @@ export interface X402Entry extends LedgerEntryBase {
   cost: number;
   payer: string;
   providerLatencyMs?: number;
+  /**
+   * True when the payment rail covered a cache-hit (no provider call happened).
+   * Default: false (cache-miss cache-fill — provider called).
+   * Added 2026-04-22 to close Q#1 cache-hit 402 loop for anonymous payment-rail agents.
+   */
+  cacheHit?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -215,6 +221,7 @@ export async function writeSharedEntry(entry: SharedEntry): Promise<void> {
  */
 export async function writeX402Entry(entry: X402Entry): Promise<void> {
   const db = getPrisma();
+  const isCacheHit = entry.cacheHit === true;
 
   await db.executionLedger.create({
     data: {
@@ -224,9 +231,11 @@ export async function writeX402Entry(entry: X402Entry): Promise<void> {
       status: 'success',
       billing_status: 'PAID',
       cost_usd: entry.cost,
-      provider_called: true,
-      cache_status: 'MISS',
-      provider_latency_ms: entry.providerLatencyMs ?? null,
+      // Cache-hit path: provider was NOT called, served from cache.
+      // Cache-miss path: provider was called, filled cache for future hits.
+      provider_called: !isCacheHit,
+      cache_status: isCacheHit ? 'HIT' : 'MISS',
+      provider_latency_ms: isCacheHit ? null : (entry.providerLatencyMs ?? null),
       idempotency_key: entry.idempotencyKey ?? null,
     },
   });
