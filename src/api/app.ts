@@ -16,6 +16,7 @@ import { onboardRouter } from '../routes/onboard.router';
 import { executeRouter } from '../routes/execute.router';
 import { batchRouter } from '../routes/batch.router';
 import { dashboardRouter } from '../routes/dashboard.router';
+import { oauthRouter } from '../routes/oauth.router';
 
 /**
  * Express application configuration (§6.1, §12.243).
@@ -51,6 +52,10 @@ export function createApp(): express.Express {
 
   // --- Body parsing ---
   app.use(express.json({ limit: '1mb' }));
+  app.use(express.urlencoded({ extended: false, limit: '64kb' }));
+
+  // --- OAuth 2.0 compatibility (RFC 6749 + RFC 7591) — before payment + MCP ---
+  app.use(oauthRouter);
 
   // --- Payment verification — dual rail: x402 + MPP (before MCP + pipeline, §8.6) ---
   app.use(x402Middleware);

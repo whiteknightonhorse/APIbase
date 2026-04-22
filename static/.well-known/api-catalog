@@ -63,6 +63,20 @@
           "title": "Agent Skills discovery index"
         }
       ],
+      "oauth-authorization-server": [
+        {
+          "href": "https://apibase.pro/.well-known/oauth-authorization-server",
+          "type": "application/json",
+          "title": "OAuth 2.0 Authorization Server metadata (RFC 8414) — client_credentials grant"
+        }
+      ],
+      "oauth-protected-resource": [
+        {
+          "href": "https://apibase.pro/.well-known/oauth-protected-resource",
+          "type": "application/json",
+          "title": "OAuth 2.0 Protected Resource metadata (RFC 9728)"
+        }
+      ],
       "status": [
         {
           "href": "https://apibase.pro/health/ready",

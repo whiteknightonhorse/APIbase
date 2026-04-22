@@ -1,0 +1,10 @@
+{
+  "resource": "https://apibase.pro",
+  "authorization_servers": ["https://apibase.pro"],
+  "bearer_methods_supported": ["header"],
+  "resource_documentation": "https://apibase.pro/ai.txt",
+  "resource_name": "APIbase — The API Hub for AI Agents",
+  "resource_policy_uri": "https://apibase.pro/privacy",
+  "resource_tos_uri": "https://apibase.pro/terms",
+  "scopes_supported": []
+}

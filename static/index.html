@@ -543,5 +543,84 @@ code{
   }, 1000);
 })();
 </script>
+<!-- WebMCP — expose read-only page tools to in-browser AI agents. Feature-detected: no-op on browsers without WebMCP support. -->
+<script>
+(function() {
+  if (!('modelContext' in navigator) || typeof navigator.modelContext.provideContext !== 'function') {
+    return;
+  }
+
+  var catalogCache = null;
+  async function loadCatalog() {
+    if (catalogCache) return catalogCache;
+    var r = await fetch('/api/v1/tools', { headers: { 'Accept': 'application/json' } });
+    var j = await r.json();
+    catalogCache = Array.isArray(j) ? j : (j.data || j.tools || []);
+    return catalogCache;
+  }
+
+  navigator.modelContext.provideContext({
+    tools: [
+      {
+        name: 'get_tool_catalog',
+        description: 'Return the full APIbase tool catalog (502 tools across 158 providers, 21 categories). Each entry has id, name, description, category, endpoint, and pricing. Use to discover what capabilities are available on APIbase.pro.',
+        inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+        execute: async function() {
+          var tools = await loadCatalog();
+          return { count: tools.length, tools: tools };
+        }
+      },
+      {
+        name: 'get_tool_pricing',
+        description: 'Return pricing ($USD per call) for a specific tool by tool_id, or for all tools if tool_id is omitted. Prices range from $0.001 to $0.035 per call depending on upstream cost.',
+        inputSchema: {
+          type: 'object',
+          properties: { tool_id: { type: 'string', description: 'Tool id, e.g. amadeus.flight_search. Omit to get all tools.' } },
+          additionalProperties: false
+        },
+        execute: async function(input) {
+          var tools = await loadCatalog();
+          var id = input && input.tool_id;
+          if (id) {
+            var t = tools.find(function(x) { return x.id === id; });
+            return t ? { tool_id: id, pricing: t.pricing } : { error: 'tool_not_found', tool_id: id };
+          }
+          return {
+            count: tools.length,
+            pricing: tools.map(function(t) { return { tool_id: t.id, pricing: t.pricing }; })
+          };
+        }
+      },
+      {
+        name: 'get_mcp_connection_info',
+        description: 'Return the connection parameters for APIbase as an MCP server: endpoint URL, protocol version, supported auth methods, and supported payment rails. Use this to bootstrap an MCP client programmatically.',
+        inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+        execute: async function() {
+          return {
+            endpoint: 'https://apibase.pro/mcp',
+            protocol: 'MCP 2025-03-26 (Streamable HTTP)',
+            alternate_transports: { sse: 'https://apibase.pro/sse' },
+            auth_methods: [
+              { type: 'bearer', header: 'Authorization: Bearer <api_key>', key_format: 'ak_live_<32 hex>' },
+              { type: 'oauth2_client_credentials', token_endpoint: 'https://apibase.pro/oauth/token', registration_endpoint: 'https://apibase.pro/oauth/register' }
+            ],
+            payment_rails: [
+              { name: 'x402', header: 'X-PAYMENT', token: 'USDC', network: 'Base mainnet' },
+              { name: 'mpp', header: 'Authorization: Payment', token: 'USDC.e', network: 'Tempo mainnet' }
+            ],
+            discovery: {
+              server_card: 'https://apibase.pro/.well-known/mcp/server-card.json',
+              openapi: 'https://apibase.pro/.well-known/openapi.json',
+              api_catalog: 'https://apibase.pro/.well-known/api-catalog',
+              agent_skills: 'https://apibase.pro/.well-known/agent-skills/index.json'
+            },
+            auto_registration: 'First request without Authorization header auto-registers the agent and returns X-Agent-Id + X-API-Key in response headers (exactly once).'
+          };
+        }
+      }
+    ]
+  });
+})();
+</script>
 </body>
 </html>
