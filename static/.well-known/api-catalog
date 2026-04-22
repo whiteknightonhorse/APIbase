@@ -1,0 +1,87 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://apibase.pro/",
+      "service-desc": [
+        {
+          "href": "https://apibase.pro/.well-known/openapi.json",
+          "type": "application/vnd.oai.openapi+json;version=3.1",
+          "title": "APIbase OpenAPI 3.1 specification — 502 tool endpoints with x-payment-info"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://apibase.pro/frameworks",
+          "type": "text/html",
+          "title": "Integration guides for Claude Desktop, Cursor, OpenAI SDK, LangChain, CrewAI, ADK, Windsurf, Copilot Studio"
+        },
+        {
+          "href": "https://apibase.pro/ai.txt",
+          "type": "text/plain",
+          "title": "Agent-facing quick-start guide"
+        },
+        {
+          "href": "https://apibase.pro/llms.txt",
+          "type": "text/plain",
+          "title": "LLM-facing quick-start guide"
+        }
+      ],
+      "service-meta": [
+        {
+          "href": "https://apibase.pro/.well-known/mcp/server-card.json",
+          "type": "application/json",
+          "title": "Full MCP server card with 502 tool definitions, 3 prompts, resources"
+        },
+        {
+          "href": "https://apibase.pro/.well-known/mcp.json",
+          "type": "application/json",
+          "title": "MCP discovery manifest"
+        },
+        {
+          "href": "https://apibase.pro/.well-known/agent.json",
+          "type": "application/json",
+          "title": "A2A Agent Card"
+        },
+        {
+          "href": "https://apibase.pro/.well-known/ai-capabilities.json",
+          "type": "application/json",
+          "title": "AI capabilities catalog — categories, providers, examples"
+        },
+        {
+          "href": "https://apibase.pro/.well-known/x402-payment.json",
+          "type": "application/json",
+          "title": "x402 + MPP payment configuration"
+        },
+        {
+          "href": "https://apibase.pro/.well-known/kya-policy.json",
+          "type": "application/json",
+          "title": "Know Your Agent (KYA) verification policy"
+        },
+        {
+          "href": "https://apibase.pro/.well-known/agent-skills/index.json",
+          "type": "application/json",
+          "title": "Agent Skills discovery index"
+        }
+      ],
+      "status": [
+        {
+          "href": "https://apibase.pro/health/ready",
+          "type": "application/json",
+          "title": "Health and readiness check"
+        }
+      ],
+      "terms-of-service": [
+        {
+          "href": "https://apibase.pro/terms",
+          "type": "text/html"
+        }
+      ],
+      "privacy-policy": [
+        {
+          "href": "https://apibase.pro/privacy",
+          "type": "text/html"
+        }
+      ]
+    }
+  ]
+}
