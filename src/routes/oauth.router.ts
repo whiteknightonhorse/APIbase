@@ -1,4 +1,5 @@
 import { Router, type Request, type Response } from 'express';
+import rateLimit from 'express-rate-limit';
 import { registerAgent } from '../services/agent.service';
 import { getPrisma } from '../services/prisma.service';
 import { hashApiKey, isValidApiKeyFormat } from '../services/api-key.service';
@@ -18,10 +19,36 @@ import { logger } from '../config/logger';
  * Agents that prefer direct-API-key auth keep using Authorization: Bearer;
  * OAuth-speaking agents end up with the same credential via the standard dance.
  *
- * Rate limiting is enforced by Nginx (zone oauth_limit, 5 r/s burst 20).
+ * Defense in depth — TWO layers of rate limiting:
+ *   1. Nginx `limit_req_zone oauth_limit` (5 r/s burst 20) — network-edge
+ *   2. express-rate-limit (this file) — application-level, satisfies
+ *      CodeQL `js/missing-rate-limiting` since CodeQL only inspects JS.
  */
 
 export const oauthRouter = Router();
+
+/**
+ * Per-IP rate limiters. Both limiters emit RFC 6585 429 responses with
+ * RFC 6749 §5.2 error shape for OAuth-client compatibility.
+ */
+const makeLimiter = (windowMs: number, max: number) =>
+  rateLimit({
+    windowMs,
+    max,
+    standardHeaders: true,
+    legacyHeaders: false,
+    handler: (_req: Request, res: Response) => {
+      res.set('Cache-Control', 'no-store').status(429).json({
+        error: 'invalid_request',
+        error_description: 'Too many requests — rate limit exceeded',
+      });
+    },
+  });
+
+// /oauth/register is more expensive (DB write + agent creation) — tighter limit.
+const registerLimiter = makeLimiter(60_000, 10);
+// /oauth/token is read-only DB lookup — slightly looser.
+const tokenLimiter = makeLimiter(60_000, 30);
 
 // RFC 6749 §5.2 token error response
 interface OAuthError {
@@ -47,7 +74,7 @@ function oauthError(res: Response, status: number, body: OAuthError): void {
  * No client authentication is required on this endpoint (open DCR) — abuse is
  * controlled by the Nginx oauth_limit zone and by agent status revocation.
  */
-oauthRouter.post('/oauth/register', async (req: Request, res: Response) => {
+oauthRouter.post('/oauth/register', registerLimiter, async (req: Request, res: Response) => {
   try {
     const body = (req.body ?? {}) as Record<string, unknown>;
     const clientName =
@@ -99,7 +126,7 @@ oauthRouter.post('/oauth/register', async (req: Request, res: Response) => {
  * Returns the same api_key as the access_token. No JWT, no separate issuance
  * pipeline — the credential IS the api_key, reused.
  */
-oauthRouter.post('/oauth/token', async (req: Request, res: Response) => {
+oauthRouter.post('/oauth/token', tokenLimiter, async (req: Request, res: Response) => {
   try {
     const body = (req.body ?? {}) as Record<string, unknown>;
 
