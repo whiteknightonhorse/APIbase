@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 509 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 512 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -17259,9 +17259,115 @@
       }
     },
     {
-      "name": "phone.telnyx.sms",
-      "title": "Send SMS (Telnyx)",
-      "description": "\u26a1 ACTION: Send SMS message worldwide via Telnyx carrier-grade network. Requires a Telnyx number as sender (E.164). Lowest published US SMS rate ($0.004 + carrier fees). Returns message_id, status per recipient, segment count, and cost (Telnyx)",
+      "name": "phone.telnyx.estimate",
+      "title": "Estimate SMS Tier + Price (Telnyx)",
+      "description": "Classify a destination phone number into the right pricing tier (na / world / premium) and return the recommended send tool and price. Use this BEFORE telnyx.send_sms_* to avoid 400 errors. $0.001/lookup (Telnyx)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "to": {
+            "type": "string",
+            "description": "Destination phone number in E.164 format (e.g. \"+14155551234\", \"+447911123456\", \"+79991234567\"). The classifier returns the recommended send tool and tier-based price.",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "to"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "phone.telnyx.sms_na",
+      "title": "Send SMS \u2014 NANP (Telnyx)",
+      "description": "\u26a1 ACTION: Send SMS to North America (NANP +1 \u2014 US, Canada, Caribbean). $0.012/message \u2014 cheapest tier. Returns 400 if destination is outside +1. Use telnyx.estimate_price first if unsure (Telnyx)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "to": {
+            "type": "string",
+            "description": "Recipient phone number in E.164 format (e.g. \"+14155551234\"). Trial accounts can only send to verified destination numbers added in the Telnyx portal.",
+            "minLength": 1
+          },
+          "from": {
+            "type": "string",
+            "description": "Sender phone number in E.164 format \u2014 must be a Telnyx number you own (e.g. \"+15551234567\"). Provision via Telnyx portal Numbers > Buy Numbers.",
+            "minLength": 1
+          },
+          "text": {
+            "type": "string",
+            "description": "SMS body text (max 1600 chars; >160 splits into multiple billing segments).",
+            "minLength": 1,
+            "maxLength": 1600
+          },
+          "messaging_profile_id": {
+            "type": "string",
+            "description": "Optional Telnyx messaging profile UUID to route through a specific profile (10DLC campaign, sender pool)."
+          }
+        },
+        "required": [
+          "to",
+          "from",
+          "text"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "phone.telnyx.sms_premium",
+      "title": "Send SMS \u2014 Premium (Telnyx)",
+      "description": "\u26a1 ACTION: Send SMS to high-cost destinations: Russia +7, Belarus +375, Ukraine +380, China +86, Turkey +90, MENA (SA/AE/EG/JO/...), Africa (NG/KE/ZA/...), and any unknown prefix (default). $0.25/message. Highest tier \u2014 use telnyx.estimate_price to verify before sending (Telnyx)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "to": {
+            "type": "string",
+            "description": "Recipient phone number in E.164 format (e.g. \"+14155551234\"). Trial accounts can only send to verified destination numbers added in the Telnyx portal.",
+            "minLength": 1
+          },
+          "from": {
+            "type": "string",
+            "description": "Sender phone number in E.164 format \u2014 must be a Telnyx number you own (e.g. \"+15551234567\"). Provision via Telnyx portal Numbers > Buy Numbers.",
+            "minLength": 1
+          },
+          "text": {
+            "type": "string",
+            "description": "SMS body text (max 1600 chars; >160 splits into multiple billing segments).",
+            "minLength": 1,
+            "maxLength": 1600
+          },
+          "messaging_profile_id": {
+            "type": "string",
+            "description": "Optional Telnyx messaging profile UUID to route through a specific profile (10DLC campaign, sender pool)."
+          }
+        },
+        "required": [
+          "to",
+          "from",
+          "text"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "phone.telnyx.sms_world",
+      "title": "Send SMS \u2014 World (Telnyx)",
+      "description": "\u26a1 ACTION: Send SMS to most international destinations: UK +44, EU (DE/FR/IT/ES/NL/PL...), AU +61, JP +81, IN +91, BR +55, MX +52, ZA +27, IL +972, AE +971, SG +65, KR +82. $0.10/message. Returns 400 if destination is in NA tier (use telnyx.send_sms_na) or premium tier (use telnyx.send_sms_premium) (Telnyx)",
       "inputSchema": {
         "type": "object",
         "properties": {

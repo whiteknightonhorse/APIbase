@@ -72,8 +72,24 @@ const balance = z
   })
   .strip();
 
+// Estimate tier — takes a destination and returns the right send tool + price
+const estimatePrice = z
+  .object({
+    to: z
+      .string()
+      .min(1)
+      .describe(
+        'Destination phone number in E.164 format (e.g. "+14155551234", "+447911123456", "+79991234567"). The classifier returns the recommended send tool and tier-based price.',
+      ),
+  })
+  .strip();
+
 export const telnyxSchemas: Record<string, ZodSchema> = {
-  'telnyx.send_sms': sendSms,
+  // Three geo-tiered send tools — same input shape, different fixed price per tier
+  'telnyx.send_sms_na': sendSms,
+  'telnyx.send_sms_world': sendSms,
+  'telnyx.send_sms_premium': sendSms,
+  'telnyx.estimate_price': estimatePrice,
   'telnyx.message_status': messageStatus,
   'telnyx.list_messages': listMessages,
   'telnyx.balance': balance,

@@ -1290,12 +1290,30 @@ tools:
     price_usd: "0.015"
     cache_ttl: 0
 
-  # --- UC-395: Telnyx (CPaaS - SMS + Voice) ---
-  - tool_id: telnyx.send_sms
-    name: Send SMS (Telnyx)
+  # --- UC-395: Telnyx (CPaaS - SMS + Voice, geo-tiered pricing) ---
+  - tool_id: telnyx.send_sms_na
+    name: Send SMS — NANP (Telnyx)
     provider: telnyx
-    price_usd: "0.015"
+    price_usd: "0.012"
     cache_ttl: 0
+
+  - tool_id: telnyx.send_sms_world
+    name: Send SMS — World (Telnyx)
+    provider: telnyx
+    price_usd: "0.10"
+    cache_ttl: 0
+
+  - tool_id: telnyx.send_sms_premium
+    name: Send SMS — Premium (Telnyx)
+    provider: telnyx
+    price_usd: "0.25"
+    cache_ttl: 0
+
+  - tool_id: telnyx.estimate_price
+    name: Estimate SMS Tier + Price (Telnyx)
+    provider: telnyx
+    price_usd: "0.001"
+    cache_ttl: 86400
 
   - tool_id: telnyx.message_status
     name: Message Status (Telnyx)

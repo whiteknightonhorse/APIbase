@@ -2061,14 +2061,14 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   },
 
   // ---------------------------------------------------------------------------
-  // Telnyx — SMS / Voice CPaaS (UC-395, 4 tools)
+  // Telnyx — SMS / Voice CPaaS (UC-395, 6 tools — geo-tiered SMS pricing)
   // ---------------------------------------------------------------------------
   {
-    toolId: 'telnyx.send_sms',
-    mcpName: 'phone.telnyx.sms',
-    title: 'Send SMS (Telnyx)',
+    toolId: 'telnyx.send_sms_na',
+    mcpName: 'phone.telnyx.sms_na',
+    title: 'Send SMS — NANP / North America (Telnyx)',
     description:
-      '⚡ ACTION: Send SMS message worldwide via Telnyx carrier-grade network. Requires a Telnyx number as sender (E.164). Lowest published US SMS rate ($0.004 + carrier fees). Returns message_id, status per recipient, segment count, and cost (Telnyx)',
+      '⚡ ACTION: Send SMS to North America (NANP +1 — US, Canada, Caribbean). $0.012/message — cheapest tier. Returns 400 if destination is outside +1. Use telnyx.estimate_price first if unsure (Telnyx)',
     category: 'messaging',
     annotations: {
       readOnlyHint: false,
@@ -2076,6 +2076,43 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
       idempotentHint: false,
       openWorldHint: true,
     },
+  },
+  {
+    toolId: 'telnyx.send_sms_world',
+    mcpName: 'phone.telnyx.sms_world',
+    title: 'Send SMS — World (EU + APAC + LATAM core, Telnyx)',
+    description:
+      '⚡ ACTION: Send SMS to most international destinations: UK +44, EU (DE/FR/IT/ES/NL/PL...), AU +61, JP +81, IN +91, BR +55, MX +52, ZA +27, IL +972, AE +971, SG +65, KR +82. $0.10/message. Returns 400 if destination is in NA tier (use telnyx.send_sms_na) or premium tier (use telnyx.send_sms_premium) (Telnyx)',
+    category: 'messaging',
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: false,
+      openWorldHint: true,
+    },
+  },
+  {
+    toolId: 'telnyx.send_sms_premium',
+    mcpName: 'phone.telnyx.sms_premium',
+    title: 'Send SMS — Premium (CIS / CN / MENA / Africa, Telnyx)',
+    description:
+      '⚡ ACTION: Send SMS to high-cost destinations: Russia +7, Belarus +375, Ukraine +380, China +86, Turkey +90, MENA (SA/AE/EG/JO/...), Africa (NG/KE/ZA/...), and any unknown prefix (default). $0.25/message. Highest tier — use telnyx.estimate_price to verify before sending (Telnyx)',
+    category: 'messaging',
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: false,
+      openWorldHint: true,
+    },
+  },
+  {
+    toolId: 'telnyx.estimate_price',
+    mcpName: 'phone.telnyx.estimate',
+    title: 'Estimate SMS Tier + Price (Telnyx)',
+    description:
+      'Classify a destination phone number into the right pricing tier (na / world / premium) and return the recommended send tool and price. Use this BEFORE telnyx.send_sms_* to avoid 400 errors. $0.001/lookup (Telnyx)',
+    category: 'messaging',
+    annotations: READ_ONLY,
   },
   {
     toolId: 'telnyx.message_status',
