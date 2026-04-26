@@ -1446,5 +1446,14 @@
     "balance_api": true,
     "docs_url": "https://telnyx.com/pricing",
     "limit_proof": "Trial: $10 credit. SMS: $0.004/msg US base + carrier fees. Voice: $0.002/min. Numbers: $1.00/mo + $0.10/mo SMS capability."
+  },
+  "swpc": {
+    "display_name": "NOAA Space Weather",
+    "health_url": "https://services.swpc.noaa.gov/json/planetary_k_index_1m.json",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.swpc.noaa.gov/content/data-access",
+    "limit_proof": "US Government NOAA Open Data Dissemination (NODD) \u2014 no auth, no rate limit, commercial use allowed."
   }
 }

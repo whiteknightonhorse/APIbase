@@ -1315,6 +1315,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-396: NOAA SWPC (Space Weather) ---
+  - tool_id: swpc.k_index
+    name: Geomagnetic K-index (NOAA SWPC)
+    provider: swpc
+    price_usd: "0.001"
+    cache_ttl: 60
+
+  - tool_id: swpc.aurora
+    name: Aurora Forecast (NOAA SWPC)
+    provider: swpc
+    price_usd: "0.001"
+    cache_ttl: 300
+
+  - tool_id: swpc.solar_wind
+    name: Solar Wind Real-time (NOAA SWPC)
+    provider: swpc
+    price_usd: "0.001"
+    cache_ttl: 60
+
+  - tool_id: swpc.solar_regions
+    name: Active Solar Regions (NOAA SWPC)
+    provider: swpc
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: telnyx.message_status
     name: Message Status (Telnyx)
     provider: telnyx

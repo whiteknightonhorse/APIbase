@@ -19542,6 +19542,312 @@
         ]
       }
     },
+    "/api/v1/tools/swpc.k_index/call": {
+      "post": {
+        "operationId": "swpc_k_index",
+        "summary": "Geomagnetic K-index (NOAA SWPC)",
+        "description": "Current planetary K-index with G1-G5 storm severity classification, plus the maximum K-index observed in the rolling 6-hour window. Returns latest reading, window_max, and the last N 1-minute observations. Source: NOAA SWPC real-time stream (NODD public domain)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "swpc.k_index"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "points": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 120,
+                    "description": "Number of recent 1-minute K-index readings to return alongside the latest reading (default 30, max 120). The full 6-hour rolling window is always scanned for the window_max field regardless of this value."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/swpc.aurora/call": {
+      "post": {
+        "operationId": "swpc_aurora",
+        "summary": "Aurora Forecast (NOAA SWPC OVATION)",
+        "description": "Latest OVATION aurora visibility forecast aggregated into 10-degree latitude bands. Returns observation/forecast times plus top northern and southern hemisphere bands by max aurora probability — useful for aurora-tourism agents and high-latitude visibility checks. Source: NOAA SWPC (NODD public domain)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "swpc.aurora"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "refresh": {
+                    "type": "boolean",
+                    "description": "No-op flag for cache busting. Set to true to bypass the 5-minute cache and fetch the latest aurora oval forecast."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/swpc.solar_wind/call": {
+      "post": {
+        "operationId": "swpc_solar_wind",
+        "summary": "Solar Wind — Real-time (NOAA SWPC RTSW)",
+        "description": "Real-time solar wind speed (km/s), proton density (per cm³), and temperature (K) from the ACE/DSCOVR L1 monitors. Returns the latest reading plus the last N 1-minute observations. Source: NOAA SWPC RTSW (NODD public domain)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "swpc.solar_wind"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "points": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 60,
+                    "description": "Number of recent 1-minute solar-wind readings to return alongside the latest reading (default 20, max 60). Each reading includes proton speed (km/s), density (per cm³), temperature (K), and quality score."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/swpc.solar_regions/call": {
+      "post": {
+        "operationId": "swpc_solar_regions",
+        "summary": "Active Solar Regions (NOAA SWPC)",
+        "description": "Currently active sunspot regions with NOAA AR number, location (heliographic), area, spot class, magnetic class, and 24-hour C/M/X-class flare probabilities. Sorted by most recently observed first. Source: NOAA SWPC (NODD public domain)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "swpc.solar_regions"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Max number of active sunspot regions to return, sorted by most recently observed first (default 20, max 50). Each entry includes NOAA AR number, location, magnetic class, and C/M/X-class flare probabilities."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/stability.generate/call": {
       "post": {
         "operationId": "stability_generate",

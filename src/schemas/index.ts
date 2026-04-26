@@ -46,6 +46,7 @@ import { mastodonSchemas } from './mastodon.schema';
 import { stabilitySchemas } from './stability.schema';
 import { twilioSchemas } from './twilio.schema';
 import { telnyxSchemas } from './telnyx.schema';
+import { swpcSchemas } from './swpc.schema';
 import { langblySchemas } from './langbly.schema';
 import { apisportsSchemas } from './apisports.schema';
 import { apiflashSchemas } from './apiflash.schema';
@@ -210,6 +211,7 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...stabilitySchemas,
   ...twilioSchemas,
   ...telnyxSchemas,
+  ...swpcSchemas,
   ...langblySchemas,
   ...apisportsSchemas,
   ...apiflashSchemas,

@@ -2143,6 +2143,46 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   },
 
   // ---------------------------------------------------------------------------
+  // NOAA SWPC — Space Weather (UC-396, 4 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'swpc.k_index',
+    mcpName: 'space.swpc.k_index',
+    title: 'Geomagnetic K-index (NOAA SWPC)',
+    description:
+      'Current planetary K-index with G1-G5 storm severity classification, plus the maximum K-index observed in the rolling 6-hour window. Returns latest reading, window_max, and the last N 1-minute observations. Source: NOAA SWPC real-time stream (NODD public domain)',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'swpc.aurora',
+    mcpName: 'space.swpc.aurora',
+    title: 'Aurora Forecast (NOAA SWPC OVATION)',
+    description:
+      'Latest OVATION aurora visibility forecast aggregated into 10-degree latitude bands. Returns observation/forecast times plus top northern and southern hemisphere bands by max aurora probability — useful for aurora-tourism agents and high-latitude visibility checks. Source: NOAA SWPC (NODD public domain)',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'swpc.solar_wind',
+    mcpName: 'space.swpc.solar_wind',
+    title: 'Solar Wind — Real-time (NOAA SWPC RTSW)',
+    description:
+      'Real-time solar wind speed (km/s), proton density (per cm³), and temperature (K) from the ACE/DSCOVR L1 monitors. Returns the latest reading plus the last N 1-minute observations. Source: NOAA SWPC RTSW (NODD public domain)',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'swpc.solar_regions',
+    mcpName: 'space.swpc.solar_regions',
+    title: 'Active Solar Regions (NOAA SWPC)',
+    description:
+      'Currently active sunspot regions with NOAA AR number, location (heliographic), area, spot class, magnetic class, and 24-hour C/M/X-class flare probabilities. Sorted by most recently observed first. Source: NOAA SWPC (NODD public domain)',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
   // Stability AI — Image Generation (UC-080, 1 tool)
   // ---------------------------------------------------------------------------
   {

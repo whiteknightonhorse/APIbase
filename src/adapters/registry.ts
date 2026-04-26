@@ -46,6 +46,7 @@ import { MastodonAdapter } from './mastodon';
 import { StabilityAdapter } from './stability';
 import { TwilioAdapter } from './twilio';
 import { TelnyxAdapter } from './telnyx';
+import { SwpcAdapter } from './swpc';
 import { LangblyAdapter } from './langbly';
 import { ApiSportsAdapter } from './apisports';
 import { ApiFlashAdapter } from './apiflash';
@@ -466,6 +467,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       if (!telnyxKey) return undefined;
       return getOrCreate('telnyx', () => new TelnyxAdapter(telnyxKey));
     }
+    case 'swpc':
+      // NOAA SWPC — space weather (K-index, aurora, solar wind, regions), no auth, NODD (UC-396)
+      return getOrCreate('swpc', () => new SwpcAdapter());
     case 'stability': {
       const stabKey = (config as Record<string, unknown>).PROVIDER_KEY_STABILITY as
         | string
