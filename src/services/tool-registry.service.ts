@@ -63,6 +63,19 @@ export interface ToolCatalogEntry {
   method: string;
   category: string;
   pricing: { price_usd: number; cache_hit_price_usd: number };
+  /**
+   * Price tier — agents can filter by tier without knowing exact thresholds.
+   * micro: < $0.01 (typical micropayment, all 479+ free/paid-tier tools)
+   * standard: $0.01–$0.99 (heavy data tools, e.g. domain WHOIS, scraping)
+   * premium: $1+ (transactional tools — domain registration, ad spend pass-through)
+   */
+  tier: 'micro' | 'standard' | 'premium';
+  /**
+   * Minimum on-chain USDC balance an agent should have to call this tool.
+   * Equals price_usd for cache-miss; cache-hit costs the same when paid via
+   * x402/MPP rail (full sticker — cache discount is balance-tier only).
+   */
+  min_balance_usd: number;
   input_schema: Record<string, unknown>;
   status: string;
 }
@@ -111,9 +124,17 @@ function toEntry(tool: {
       price_usd: priceUsd,
       cache_hit_price_usd: cacheHitPrice,
     },
+    tier: priceTier(priceUsd),
+    min_balance_usd: priceUsd,
     input_schema: TOOL_SCHEMAS_JSON.get(tool.tool_id) ?? {},
     status: tool.status,
   };
+}
+
+function priceTier(p: number): 'micro' | 'standard' | 'premium' {
+  if (p < 0.01) return 'micro';
+  if (p < 1) return 'standard';
+  return 'premium';
 }
 
 // ---------------------------------------------------------------------------
@@ -143,6 +164,7 @@ export async function getPublicCatalog(): Promise<PublicCatalog> {
 export async function getToolsPaginated(
   cursor: string | null,
   limit: number,
+  filters: { maxPrice?: number; tier?: 'micro' | 'standard' | 'premium' } = {},
 ): Promise<PaginatedTools> {
   const db = getPrisma();
   const take = Math.min(Math.max(limit, 1), 1000);
@@ -156,12 +178,19 @@ export async function getToolsPaginated(
     }
   }
 
-  const statusFilter = { status: { not: 'unavailable' } };
+  // Build price-range filter from either max_price or tier (tier wins).
+  let priceFilter: { lte?: number; lt?: number; gte?: number } | undefined;
+  if (filters.tier === 'micro') priceFilter = { lt: 0.01 };
+  else if (filters.tier === 'standard') priceFilter = { gte: 0.01, lt: 1 };
+  else if (filters.tier === 'premium') priceFilter = { gte: 1 };
+  else if (typeof filters.maxPrice === 'number') priceFilter = { lte: filters.maxPrice };
+
+  const statusFilter: Record<string, unknown> = { status: { not: 'unavailable' } };
+  if (priceFilter) statusFilter.price_usd = priceFilter;
+
   const [tools, total] = await Promise.all([
     db.tool.findMany({
-      where: decodedCursor
-        ? { tool_id: { gt: decodedCursor }, ...statusFilter }
-        : statusFilter,
+      where: decodedCursor ? { tool_id: { gt: decodedCursor }, ...statusFilter } : statusFilter,
       orderBy: { tool_id: 'asc' },
       take: take + 1,
     }),

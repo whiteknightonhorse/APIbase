@@ -34,6 +34,11 @@ toolsRouter.get('/api/tools', async (_req: Request, res: Response, next: NextFun
 });
 
 // --- Paginated tool list ---
+// Optional filters:
+//   ?max_price=N        — only tools with price_usd <= N (e.g. "0.01")
+//   ?tier=micro|standard|premium — bucketed price tier (tier wins over max_price)
+//   ?limit=N            — page size (1..1000, default 1000)
+//   ?cursor=<b64>       — pagination cursor from previous response
 toolsRouter.get('/api/v1/tools', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const cursor = typeof req.query.cursor === 'string' ? req.query.cursor : null;
@@ -43,9 +48,26 @@ toolsRouter.get('/api/v1/tools', async (req: Request, res: Response, next: NextF
       throw new AppError(ErrorCode.BAD_REQUEST, 'limit must be between 1 and 1000');
     }
 
-    const result = await getToolsPaginated(cursor, rawLimit);
+    let maxPrice: number | undefined;
+    if (typeof req.query.max_price === 'string') {
+      const parsed = Number(req.query.max_price);
+      if (!isFinite(parsed) || parsed < 0) {
+        throw new AppError(ErrorCode.BAD_REQUEST, 'max_price must be a non-negative number');
+      }
+      maxPrice = parsed;
+    }
 
-    if (result.data.length === 0 && !cursor) {
+    let tier: 'micro' | 'standard' | 'premium' | undefined;
+    if (typeof req.query.tier === 'string') {
+      if (!['micro', 'standard', 'premium'].includes(req.query.tier)) {
+        throw new AppError(ErrorCode.BAD_REQUEST, 'tier must be one of: micro, standard, premium');
+      }
+      tier = req.query.tier as 'micro' | 'standard' | 'premium';
+    }
+
+    const result = await getToolsPaginated(cursor, rawLimit, { maxPrice, tier });
+
+    if (result.data.length === 0 && !cursor && !maxPrice && !tier) {
       throw new AppError(ErrorCode.SERVICE_UNAVAILABLE, 'No tools available');
     }
 

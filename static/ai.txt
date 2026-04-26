@@ -37,10 +37,27 @@ Auto-registration: first request creates agent credentials automatically.
 API key format: ak_live_<32 hex> in Authorization: Bearer header.
 
 ## Payments
-Protocol: x402 (HTTP 402 Payment Required)
-Token: USDC on Base mainnet
-Prices: $0.001–$0.035 per call (tool-dependent)
+Protocol: x402 (HTTP 402 Payment Required) or MPP (Authorization: Payment)
+Token: USDC on Base mainnet (x402) or USDC.e on Tempo (MPP)
+Prices: $0.001–$29.99 per call (most tools $0.001–$0.005)
 Details: https://apibase.pro/.well-known/x402-payment.json
+
+## Agent Integration Guide
+Match price to wallet — fetch only tools you can afford:
+  GET /api/v1/tools?max_price=0.01    → tools ≤ $0.01
+  GET /api/v1/tools?tier=micro        → < $0.01 (default for most agents)
+  GET /api/v1/tools?tier=standard     → $0.01–$0.99
+  GET /api/v1/tools?tier=premium      → $1+ (only 3 tools, e.g. domain registration)
+
+Each tool entry now includes:
+- pricing.price_usd           — sticker price per call
+- pricing.cache_hit_price_usd — discounted balance-tier rate (10% of price)
+- tier                        — micro | standard | premium
+- min_balance_usd             — minimum on-chain USDC required
+- input_schema                — JSON Schema for the call body
+
+The 402 payment challenge body also includes price_usd + min_balance_usd
+so agents can short-circuit signing if their wallet balance is insufficient.
 
 ## Discovery Endpoints
 - MCP: https://apibase.pro/mcp

@@ -25,7 +25,24 @@ developer, media, infrastructure, messaging, marketing, world
 ## Payment
 - Protocol: x402 (HTTP 402 Payment Required) or MPP (Authorization: Payment)
 - Token: USDC on Base mainnet (x402) or Tempo (MPP)
-- Prices: $0.001–$0.035 per call
+- Prices: $0.001–$29.99 per call (most tools $0.001–$0.005)
 - Details: https://apibase.pro/.well-known/x402-payment.json
 - IMPORTANT: use ONE protocol per request, not both
 - If using mppx SDK: set polyfill: false to avoid intercepting x402 requests
+
+## Agent Integration Guide
+1. Match price to wallet — fetch only tools you can afford:
+     GET /api/v1/tools?max_price=0.01     # only tools ≤ $0.01
+     GET /api/v1/tools?tier=micro         # < $0.01
+     GET /api/v1/tools?tier=standard      # $0.01–$0.99
+     GET /api/v1/tools?tier=premium       # $1+ (only 3 tools: domain reg, ad spend)
+2. Each tool entry includes:
+     pricing.price_usd       — sticker price per call
+     pricing.cache_hit_price_usd — discounted balance-tier rate (10% of price)
+     tier                    — micro | standard | premium
+     min_balance_usd         — minimum on-chain USDC the wallet should hold
+     input_schema            — JSON Schema for the call's body
+3. 402 challenge body always includes price_usd + min_balance_usd, so you can
+   short-circuit signing if your balance is insufficient.
+4. Use input_schema to build valid params — avoids 400 schema validation errors.
+5. Cache the tool list — it changes only on provider onboards (rare).

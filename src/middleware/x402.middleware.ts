@@ -145,6 +145,13 @@ export function buildPaymentRequiredResponse(
     suggested_action: 'add_payment',
     documentation_url: 'https://apibase.pro/frameworks#rest',
     price_usd: String(priceUsd),
+    /**
+     * Minimum on-chain USDC balance an agent should hold to call this tool
+     * successfully. Equals price_usd today (cache-hit pays full sticker via
+     * payment rail; cache discount applies only to balance-tier agents).
+     * Agents can short-circuit signing if their wallet balance < this value.
+     */
+    min_balance_usd: String(priceUsd),
     payment_address: cfg.paymentAddress,
     price_version: priceVersion,
   };
