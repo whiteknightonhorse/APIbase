@@ -276,7 +276,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://data.rijksmuseum.nl/",
-    "limit_proof": "CC-BY license. New Linked Open Data Search API — no auth required (legacy Collection API deprecated 2026). 800K+ artworks."
+    "limit_proof": "CC-BY license. New Linked Open Data Search API \u2014 no auth required (legacy Collection API deprecated 2026). 800K+ artworks."
   },
   "met-museum": {
     "display_name": "Met Museum",
@@ -1435,5 +1435,16 @@
     "reset_period": "none",
     "docs_url": "https://dictionaryapi.dev/",
     "limit_proof": "Free unlimited. No auth. Free Dictionary API + Datamuse combined."
+  },
+  "telnyx": {
+    "display_name": "Telnyx CPaaS",
+    "health_url": "https://api.telnyx.com/v2/balance",
+    "limit_type": "credits",
+    "free_limit": 1000,
+    "reset_period": "none",
+    "paid_balance": true,
+    "balance_api": true,
+    "docs_url": "https://telnyx.com/pricing",
+    "limit_proof": "Trial: $10 credit. SMS: $0.004/msg US base + carrier fees. Voice: $0.002/min. Numbers: $1.00/mo + $0.10/mo SMS capability."
   }
 }

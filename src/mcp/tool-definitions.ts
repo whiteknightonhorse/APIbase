@@ -2061,6 +2061,51 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   },
 
   // ---------------------------------------------------------------------------
+  // Telnyx — SMS / Voice CPaaS (UC-395, 4 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'telnyx.send_sms',
+    mcpName: 'phone.telnyx.sms',
+    title: 'Send SMS (Telnyx)',
+    description:
+      '⚡ ACTION: Send SMS message worldwide via Telnyx carrier-grade network. Requires a Telnyx number as sender (E.164). Lowest published US SMS rate ($0.004 + carrier fees). Returns message_id, status per recipient, segment count, and cost (Telnyx)',
+    category: 'messaging',
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: false,
+      openWorldHint: true,
+    },
+  },
+  {
+    toolId: 'telnyx.message_status',
+    mcpName: 'phone.telnyx.status',
+    title: 'Get Message Status (Telnyx)',
+    description:
+      'Get delivery status and events for a previously sent Telnyx message by message UUID. Returns per-recipient status (queued/sending/sent/delivered/failed), parts, sent_at, completed_at, errors, and cost (Telnyx)',
+    category: 'messaging',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'telnyx.list_messages',
+    mcpName: 'phone.telnyx.list',
+    title: 'List Messages (Telnyx)',
+    description:
+      'List recent Telnyx messages with optional filters: direction (inbound/outbound), date_from (ISO 8601), and pagination limit (max 100). Returns array of {message_id, from, to, text, status, created_at, cost} (Telnyx)',
+    category: 'messaging',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'telnyx.balance',
+    mcpName: 'phone.telnyx.balance',
+    title: 'Account Balance (Telnyx)',
+    description:
+      'Read current Telnyx account balance, available credit, currency, pending charges, and credit limit. Useful for cost monitoring before placing high-volume sends (Telnyx)',
+    category: 'messaging',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
   // Stability AI — Image Generation (UC-080, 1 tool)
   // ---------------------------------------------------------------------------
   {

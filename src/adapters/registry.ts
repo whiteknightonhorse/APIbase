@@ -45,6 +45,7 @@ import { RegulationsAdapter } from './regulations';
 import { MastodonAdapter } from './mastodon';
 import { StabilityAdapter } from './stability';
 import { TwilioAdapter } from './twilio';
+import { TelnyxAdapter } from './telnyx';
 import { LangblyAdapter } from './langbly';
 import { ApiSportsAdapter } from './apisports';
 import { ApiFlashAdapter } from './apiflash';
@@ -458,6 +459,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
         | undefined;
       if (!twilioSid || !twilioToken) return undefined;
       return getOrCreate('twilio', () => new TwilioAdapter(twilioSid, twilioToken));
+    }
+    case 'telnyx': {
+      // Telnyx CPaaS — SMS/voice via Bearer API key v2 (UC-395)
+      const telnyxKey = (config as Record<string, unknown>).TELNYX_API_KEY as string | undefined;
+      if (!telnyxKey) return undefined;
+      return getOrCreate('telnyx', () => new TelnyxAdapter(telnyxKey));
     }
     case 'stability': {
       const stabKey = (config as Record<string, unknown>).PROVIDER_KEY_STABILITY as

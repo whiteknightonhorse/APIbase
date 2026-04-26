@@ -18932,6 +18932,345 @@
         ]
       }
     },
+    "/api/v1/tools/telnyx.send_sms/call": {
+      "post": {
+        "operationId": "telnyx_send_sms",
+        "summary": "Send SMS (Telnyx)",
+        "description": "⚡ ACTION: Send SMS message worldwide via Telnyx carrier-grade network. Requires a Telnyx number as sender (E.164). Lowest published US SMS rate ($0.004 + carrier fees). Returns message_id, status per recipient, segment count, and cost (Telnyx)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.015000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "telnyx.send_sms"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "to": {
+                    "type": "string",
+                    "description": "Recipient phone number in E.164 format (e.g. \"+14155551234\"). Trial accounts can only send to verified destination numbers added in the Telnyx portal.",
+                    "minLength": 1
+                  },
+                  "from": {
+                    "type": "string",
+                    "description": "Sender phone number in E.164 format — must be a Telnyx number you own (e.g. \"+15551234567\"). Provision via Telnyx portal Numbers > Buy Numbers.",
+                    "minLength": 1
+                  },
+                  "text": {
+                    "type": "string",
+                    "description": "SMS body text (max 1600 chars; >160 splits into multiple billing segments).",
+                    "minLength": 1,
+                    "maxLength": 1600
+                  },
+                  "messaging_profile_id": {
+                    "type": "string",
+                    "description": "Optional Telnyx messaging profile UUID to route through a specific profile (10DLC campaign, sender pool)."
+                  }
+                },
+                "required": [
+                  "to",
+                  "from",
+                  "text"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/telnyx.message_status/call": {
+      "post": {
+        "operationId": "telnyx_message_status",
+        "summary": "Get Message Status (Telnyx)",
+        "description": "Get delivery status and events for a previously sent Telnyx message by message UUID. Returns per-recipient status (queued/sending/sent/delivered/failed), parts, sent_at, completed_at, errors, and cost (Telnyx)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "telnyx.message_status"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message_id": {
+                    "type": "string",
+                    "description": "Telnyx message UUID returned by send_sms (e.g. \"40ab7e80-94c6-4cb6-8c45-c3ed3e3bf3ec\").",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "message_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/telnyx.list_messages/call": {
+      "post": {
+        "operationId": "telnyx_list_messages",
+        "summary": "List Messages (Telnyx)",
+        "description": "List recent Telnyx messages with optional filters: direction (inbound/outbound), date_from (ISO 8601), and pagination limit (max 100). Returns array of {message_id, from, to, text, status, created_at, cost} (Telnyx)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "telnyx.list_messages"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Max number of messages to return per page (default 25, max 100)."
+                  },
+                  "direction": {
+                    "type": "string",
+                    "enum": [
+                      "inbound",
+                      "outbound"
+                    ],
+                    "description": "Filter by message direction: \"outbound\" (sent by us) or \"inbound\" (received)."
+                  },
+                  "date_from": {
+                    "type": "string",
+                    "description": "ISO 8601 date — return messages created on or after this date (e.g. \"2026-04-26\")."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/telnyx.balance/call": {
+      "post": {
+        "operationId": "telnyx_balance",
+        "summary": "Account Balance (Telnyx)",
+        "description": "Read current Telnyx account balance, available credit, currency, pending charges, and credit limit. Useful for cost monitoring before placing high-volume sends (Telnyx)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "telnyx.balance"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "refresh": {
+                    "type": "boolean",
+                    "description": "Set to true to bypass the 30-second cache and fetch a fresh balance from Telnyx. Default false."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/stability.generate/call": {
       "post": {
         "operationId": "stability_generate",

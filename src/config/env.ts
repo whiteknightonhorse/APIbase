@@ -120,6 +120,9 @@ export const appEnvSchema = z.object({
   TWILIO_ACCOUNT_SID: z.string().optional().default(''),
   TWILIO_AUTH_TOKEN: z.string().optional().default(''),
 
+  // Telnyx CPaaS (UC-395) — Bearer API key v2, trial $10
+  TELNYX_API_KEY: z.string().optional().default(''),
+
   // Stability AI (UC-080) — Bearer header, 25 free credits
   PROVIDER_KEY_STABILITY: z.string().optional().default(''),
 

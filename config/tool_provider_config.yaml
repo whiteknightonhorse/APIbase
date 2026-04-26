@@ -1290,6 +1290,31 @@ tools:
     price_usd: "0.015"
     cache_ttl: 0
 
+  # --- UC-395: Telnyx (CPaaS - SMS + Voice) ---
+  - tool_id: telnyx.send_sms
+    name: Send SMS (Telnyx)
+    provider: telnyx
+    price_usd: "0.015"
+    cache_ttl: 0
+
+  - tool_id: telnyx.message_status
+    name: Message Status (Telnyx)
+    provider: telnyx
+    price_usd: "0.001"
+    cache_ttl: 60
+
+  - tool_id: telnyx.list_messages
+    name: List Messages (Telnyx)
+    provider: telnyx
+    price_usd: "0.002"
+    cache_ttl: 60
+
+  - tool_id: telnyx.balance
+    name: Account Balance (Telnyx)
+    provider: telnyx
+    price_usd: "0.001"
+    cache_ttl: 30
+
   # --- UC-080: Stability AI (Image Generation) ---
   - tool_id: stability.generate
     name: Generate Image
