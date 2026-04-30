@@ -21,6 +21,29 @@ import { getActiveToolIds } from '../pipeline/stages/tool-status.stage';
 export { TOOL_DEFINITIONS } from './tool-definitions';
 
 /**
+ * Default outputSchema applied to every tool that doesn't declare its own.
+ * Smithery's "Capability Quality > Output schemas" check requires every tool to
+ * declare an outputSchema so callers can type-check responses.
+ *
+ * The platform's response shape varies per tool, but the wrapper structure is
+ * consistent: a JSON-serializable result. We expose `result` (the parsed
+ * provider response) and an optional `error` so agents know the basic envelope.
+ */
+const DEFAULT_OUTPUT_SHAPE: Record<string, z.ZodTypeAny> = {
+  result: z
+    .unknown()
+    .describe(
+      'Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response.',
+    ),
+  error: z
+    .unknown()
+    .optional()
+    .describe(
+      'Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras.',
+    ),
+};
+
+/**
  * Payment context — mutable ref updated per HTTP request by server.ts.
  * Tool callbacks read this to set x402Paid/mppPaid on the pipeline context.
  */
@@ -41,7 +64,12 @@ export interface PaymentContext {
  *
  * MCP clients see mcpName (3-level), pipeline uses toolId (2-level).
  */
-export function registerTools(server: McpServer, apiKey: string, requestId: string, paymentCtx?: PaymentContext): void {
+export function registerTools(
+  server: McpServer,
+  apiKey: string,
+  requestId: string,
+  paymentCtx?: PaymentContext,
+): void {
   const activeIds = getActiveToolIds();
 
   for (const def of TOOL_DEFINITIONS) {
@@ -74,6 +102,7 @@ export function registerTools(server: McpServer, apiKey: string, requestId: stri
         title: def.title,
         description: def.description,
         inputSchema: shape,
+        outputSchema: DEFAULT_OUTPUT_SHAPE,
         annotations: def.annotations,
       },
       async (args: Record<string, unknown>) => {
