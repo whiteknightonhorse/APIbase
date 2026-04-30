@@ -58,6 +58,10 @@ import { ibgeSchemas } from './ibge.schema';
 import { bcbSchemas } from './bcb.schema';
 import { eurostatSchemas } from './eurostat.schema';
 import { datagovsgSchemas } from './datagovsg.schema';
+import { airnowSchemas } from './airnow.schema';
+import { npsSchemas } from './nps.schema';
+import { eiaSchemas } from './eia.schema';
+import { fecSchemas } from './fec.schema';
 import { langblySchemas } from './langbly.schema';
 import { apisportsSchemas } from './apisports.schema';
 import { apiflashSchemas } from './apiflash.schema';
@@ -234,6 +238,10 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...bcbSchemas,
   ...eurostatSchemas,
   ...datagovsgSchemas,
+  ...airnowSchemas,
+  ...npsSchemas,
+  ...eiaSchemas,
+  ...fecSchemas,
   ...langblySchemas,
   ...apisportsSchemas,
   ...apiflashSchemas,

@@ -1601,6 +1601,95 @@ tools:
     price_usd: "0.002"
     cache_ttl: 60
 
+
+  # --- UC-397: AirNow EPA (4 tools) ---
+  - tool_id: airnow.current_zip
+    name: Current AQI by ZIP (AirNow)
+    provider: airnow
+    price_usd: "0.001"
+    cache_ttl: 600
+  - tool_id: airnow.current_latlng
+    name: Current AQI by Coordinate (AirNow)
+    provider: airnow
+    price_usd: "0.001"
+    cache_ttl: 600
+  - tool_id: airnow.forecast_zip
+    name: AQI Forecast by ZIP (AirNow)
+    provider: airnow
+    price_usd: "0.002"
+    cache_ttl: 3600
+  - tool_id: airnow.forecast_latlng
+    name: AQI Forecast by Coordinate (AirNow)
+    provider: airnow
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  # --- UC-406: US National Park Service (4 tools) ---
+  - tool_id: nps.parks
+    name: US National Parks
+    provider: nps
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: nps.alerts
+    name: NPS Park Alerts
+    provider: nps
+    price_usd: "0.001"
+    cache_ttl: 300
+  - tool_id: nps.campgrounds
+    name: NPS Campgrounds
+    provider: nps
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: nps.things_to_do
+    name: NPS Things To Do
+    provider: nps
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  # --- UC-407: US EIA Energy (4 tools) ---
+  - tool_id: eia.electricity_retail
+    name: US Retail Electricity (EIA)
+    provider: eia
+    price_usd: "0.002"
+    cache_ttl: 3600
+  - tool_id: eia.petroleum_spot
+    name: US Petroleum Spot Prices (EIA)
+    provider: eia
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: eia.natural_gas
+    name: US Natural Gas Prices (EIA)
+    provider: eia
+    price_usd: "0.002"
+    cache_ttl: 3600
+  - tool_id: eia.series
+    name: EIA Total-Energy Series
+    provider: eia
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  # --- UC-408: US FEC Campaign Finance (4 tools) ---
+  - tool_id: fec.candidates
+    name: FEC Candidates
+    provider: fec
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: fec.committee_totals
+    name: FEC Committee Totals
+    provider: fec
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: fec.super_pac_spending
+    name: Super PAC Independent Expenditures (FEC)
+    provider: fec
+    price_usd: "0.002"
+    cache_ttl: 3600
+  - tool_id: fec.elections
+    name: FEC Election Totals
+    provider: fec
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   # --- UC-080: Stability AI (Image Generation) ---
   - tool_id: stability.generate
     name: Generate Image

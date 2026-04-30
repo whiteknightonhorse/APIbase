@@ -1554,5 +1554,41 @@
     "limit_type": "unlimited",
     "free_limit": 0,
     "reset_period": "none"
+  },
+  "airnow": {
+    "display_name": "AirNow EPA",
+    "health_url": "https://www.airnowapi.org/aq/observation/zipCode/current/?format=application/json&zipCode=10001&distance=25&API_KEY=TOKEN_FROM_ENV_PROVIDER_KEY_AIRNOW",
+    "limit_type": "hourly",
+    "free_limit": 500,
+    "reset_period": "hourly",
+    "docs_url": "https://docs.airnowapi.org/webservices",
+    "limit_proof": "500 req/hr per endpoint, no monthly cap. US Gov free."
+  },
+  "nps": {
+    "display_name": "US National Park Service",
+    "health_url": "https://developer.nps.gov/api/v1/parks?limit=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.nps.gov/subjects/developer/get-started.htm",
+    "limit_proof": "Free with API key. NPS asks for \"responsible use\" \u2014 no documented hard cap. US Gov public domain."
+  },
+  "eia": {
+    "display_name": "US Energy Information Administration",
+    "health_url": "https://api.eia.gov/v2/?api_key=TOKEN_FROM_ENV_PROVIDER_KEY_EIA",
+    "limit_type": "hourly",
+    "free_limit": 5000,
+    "reset_period": "hourly",
+    "docs_url": "https://www.eia.gov/opendata",
+    "limit_proof": "5,000 req/hr per registered key. US Gov free."
+  },
+  "fec": {
+    "display_name": "US Federal Election Commission",
+    "health_url": "https://api.open.fec.gov/v1/candidates/?per_page=1&api_key=TOKEN_FROM_ENV_PROVIDER_KEY_API_DATA_GOV",
+    "limit_type": "hourly",
+    "free_limit": 1000,
+    "reset_period": "hourly",
+    "docs_url": "https://api.open.fec.gov/developers/",
+    "limit_proof": "1,000 req/hr per api.data.gov shared key. FEC mandatory public disclosure data."
   }
 }

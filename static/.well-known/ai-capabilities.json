@@ -2,8 +2,8 @@
   "platform": "APIbase",
   "version": "2.0",
   "updated_at": "2026-04-01T00:00:00Z",
-  "tools_count": 560,
-  "providers_count": 173,
+  "tools_count": 576,
+  "providers_count": 177,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
@@ -31,19 +31,19 @@
   "categories": [
     {
       "name": "travel",
-      "tools": 17,
+      "tools": 21,
       "providers": "Amadeus, Aviasales, Sabre",
       "examples": "flight search, pricing, airport lookup"
     },
     {
       "name": "weather",
-      "tools": 17,
+      "tools": 21,
       "providers": "OpenWeatherMap, NWS, IQAir, NOAA",
       "examples": "current weather, forecast, alerts, air quality"
     },
     {
       "name": "finance",
-      "tools": 38,
+      "tools": 42,
       "providers": "Finnhub, FRED, FDIC, ECB, RateAPI, IBAN, World Bank",
       "examples": "stock quotes, FX rates, economic data, mortgage rates, global indicators"
     },
@@ -109,7 +109,7 @@
     },
     {
       "name": "legal",
-      "tools": 11,
+      "tools": 15,
       "providers": "Regulations.gov, Federal Register, CourtListener",
       "examples": "regulations, court opinions, federal rules"
     },

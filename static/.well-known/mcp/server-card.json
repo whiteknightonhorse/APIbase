@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 560 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 576 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -18649,6 +18649,649 @@
           "lat",
           "lng"
         ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "weather.airnow.current_latlng",
+      "title": "Current AQI by Coordinate (AirNow)",
+      "description": "Current AQI observations near a US coordinate. Same fields as current_zip. EPA AirNow",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number",
+            "description": "Latitude (decimal degrees, e.g. 40.7128 for NYC)."
+          },
+          "lng": {
+            "type": "number",
+            "description": "Longitude (decimal degrees, e.g. -74.0060 for NYC)."
+          },
+          "distance": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Search radius in miles around the coordinate (default 25)."
+          }
+        },
+        "required": [
+          "lat",
+          "lng"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "weather.airnow.current_zip",
+      "title": "Current AQI by ZIP (AirNow)",
+      "description": "Current Air Quality Index (AQI) observations from EPA AirNow for any US ZIP code. Returns PM2.5, ozone, AQI value + category (Good/Moderate/Unhealthy/...). US Gov free",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "zip": {
+            "type": "string",
+            "description": "US ZIP code \u2014 5 digits (e.g. \"10001\" Manhattan, \"90210\" Beverly Hills, \"60601\" Chicago).",
+            "minLength": 5,
+            "maxLength": 5
+          },
+          "distance": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Search radius in miles around the ZIP centroid (default 25). If no monitor within radius, returns empty array."
+          }
+        },
+        "required": [
+          "zip"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "weather.airnow.forecast_latlng",
+      "title": "AQI Forecast by Coordinate (AirNow)",
+      "description": "Multi-day AQI forecast for a US lat/lng. EPA AirNow",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number",
+            "description": "Latitude (decimal degrees, e.g. 40.7128 for NYC)."
+          },
+          "lng": {
+            "type": "number",
+            "description": "Longitude (decimal degrees, e.g. -74.0060 for NYC)."
+          },
+          "distance": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Search radius in miles around the coordinate (default 25)."
+          },
+          "date": {
+            "type": "string",
+            "description": "Optional ISO date YYYY-MM-DD to get forecast for that day. Default: today."
+          }
+        },
+        "required": [
+          "lat",
+          "lng"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "weather.airnow.forecast_zip",
+      "title": "AQI Forecast by ZIP (AirNow)",
+      "description": "Multi-day AQI forecast (today + ~5 days) for a US ZIP \u2014 ozone + PM2.5 expected category. EPA AirNow",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "zip": {
+            "type": "string",
+            "description": "US ZIP code \u2014 5 digits (e.g. \"10001\" Manhattan, \"90210\" Beverly Hills, \"60601\" Chicago).",
+            "minLength": 5,
+            "maxLength": 5
+          },
+          "distance": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Search radius in miles around the ZIP centroid (default 25). If no monitor within radius, returns empty array."
+          },
+          "date": {
+            "type": "string",
+            "description": "Optional ISO date YYYY-MM-DD to get forecast for that day. Default: today."
+          }
+        },
+        "required": [
+          "zip"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "finance.eia.electricity",
+      "title": "US Retail Electricity (EIA)",
+      "description": "Retail electricity sales/price/revenue by US state and sector (residential, commercial, industrial). Frequency monthly/quarterly/annual. EIA public domain, 5K req/hr",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "Optional 2-letter US state code (e.g. \"CA\", \"TX\", \"NY\"). If omitted, returns national + all states."
+          },
+          "frequency": {
+            "type": "string",
+            "enum": [
+              "monthly",
+              "quarterly",
+              "annual"
+            ],
+            "description": "Time frequency (default \"monthly\")."
+          },
+          "length": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 500,
+            "description": "Number of recent observations to return (default 24, max 500)."
+          },
+          "start": {
+            "type": "string",
+            "description": "Earliest period (e.g. \"2020-01\" monthly, \"2020\" annual)."
+          },
+          "end": {
+            "type": "string",
+            "description": "Latest period in same format as `start`."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "finance.eia.natural_gas",
+      "title": "US Natural Gas Prices (EIA)",
+      "description": "Natural gas residential/commercial/industrial prices by US state. EIA public domain",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "Optional 2-letter US state code."
+          },
+          "frequency": {
+            "type": "string",
+            "enum": [
+              "monthly",
+              "annual"
+            ],
+            "description": "Time frequency (default \"monthly\")."
+          },
+          "length": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 500,
+            "description": "Number of recent observations (default 24, max 500)."
+          },
+          "start": {
+            "type": "string",
+            "description": "Earliest period."
+          },
+          "end": {
+            "type": "string",
+            "description": "Latest period."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "finance.eia.petroleum",
+      "title": "US Petroleum Spot Prices (EIA)",
+      "description": "Spot prices for crude oil and petroleum products: WTI (EPCWTI), Brent (EPCBRENT), Diesel (EPD2D), Regular Gas (EPMRR). Daily/weekly/monthly/annual. EIA public domain",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "product": {
+            "type": "string",
+            "description": "Petroleum product code \u2014 e.g. \"EPCBRENT\" (Brent), \"EPCWTI\" (WTI), \"EPD2D\" (No. 2 Diesel), \"EPMRR\" (Regular Gas)."
+          },
+          "frequency": {
+            "type": "string",
+            "enum": [
+              "daily",
+              "weekly",
+              "monthly",
+              "annual"
+            ],
+            "description": "Time frequency (default \"daily\" for spot prices)."
+          },
+          "length": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 500,
+            "description": "Number of recent observations (default 24, max 500)."
+          },
+          "start": {
+            "type": "string",
+            "description": "Earliest period (ISO date or YYYY-MM-DD)."
+          },
+          "end": {
+            "type": "string",
+            "description": "Latest period."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "finance.eia.series",
+      "title": "EIA Total-Energy Series",
+      "description": "Direct fetch of any EIA total-energy time-series by series ID (e.g. RNGWHHD = Henry Hub spot, ELETPUS = US electricity total). EIA public domain",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "series_id": {
+            "type": "string",
+            "description": "EIA series ID for the total-energy dataset (e.g. \"RNGWHHD\" Henry Hub spot, \"ELETPUS\" total US electricity, \"TETCBUS\" total energy consumption).",
+            "minLength": 1
+          },
+          "frequency": {
+            "type": "string",
+            "enum": [
+              "monthly",
+              "annual"
+            ],
+            "description": "Time frequency (default \"monthly\")."
+          },
+          "length": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 500,
+            "description": "Number of recent observations (default 24, max 500)."
+          }
+        },
+        "required": [
+          "series_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "gov.fec.candidates",
+      "title": "FEC Candidates",
+      "description": "Search 53K+ US federal election candidates by name/cycle/office (House/Senate/Presidential)/state/party. Returns FEC candidate ID + filing dates. FEC public disclosure",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "description": "Free-text candidate name search (e.g. \"Sanders\", \"Trump\")."
+          },
+          "cycle": {
+            "type": "integer",
+            "description": "Election cycle year \u2014 even number (e.g. 2024, 2022, 2020)."
+          },
+          "office": {
+            "type": "string",
+            "enum": [
+              "H",
+              "S",
+              "P"
+            ],
+            "description": "Office: \"H\" House of Representatives, \"S\" Senate, \"P\" Presidential."
+          },
+          "state": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "2-letter state code (e.g. \"CA\", \"TX\")."
+          },
+          "party": {
+            "type": "string",
+            "description": "Party abbreviation (e.g. \"REP\", \"DEM\", \"LIB\", \"GRE\")."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number (default 1)."
+          },
+          "per_page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Per-page count (default 20, max 100)."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "gov.fec.committee_totals",
+      "title": "FEC Committee Totals",
+      "description": "Receipts, disbursements, and cash-on-hand for US political committees (PACs, parties, candidate committees). Filter by cycle and committee type. FEC public disclosure",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "cycle": {
+            "type": "integer",
+            "description": "Election cycle year (e.g. 2024)."
+          },
+          "committee_type": {
+            "type": "string",
+            "description": "Committee type code: \"P\" Presidential, \"H\" House, \"S\" Senate, \"X\" Party, \"Y\" Party-Qualified, \"N\" PAC, \"Q\" PAC-Qualified, \"O\" Super PAC."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number (default 1)."
+          },
+          "per_page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Per-page count (default 20, max 100)."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "gov.fec.elections",
+      "title": "FEC Election Totals",
+      "description": "Aggregate election totals by cycle, office, and state \u2014 total receipts, disbursements, candidate count per race. FEC public disclosure",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "cycle": {
+            "type": "integer",
+            "description": "Election cycle year (e.g. 2024)."
+          },
+          "office": {
+            "type": "string",
+            "enum": [
+              "H",
+              "S",
+              "P"
+            ],
+            "description": "Office: \"H\" House, \"S\" Senate, \"P\" Presidential."
+          },
+          "state": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "2-letter state code."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number (default 1)."
+          },
+          "per_page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Per-page count (default 20, max 100)."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "gov.fec.super_pac_spending",
+      "title": "Super PAC Independent Expenditures (FEC)",
+      "description": "Schedule E independent expenditures \u2014 Super PAC spending supporting/opposing specific federal candidates. Filter by cycle, candidate ID, or support/oppose direction. FEC public disclosure",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "cycle": {
+            "type": "integer",
+            "description": "Election cycle year (e.g. 2024)."
+          },
+          "candidate_id": {
+            "type": "string",
+            "description": "FEC candidate ID (from fec.candidates) \u2014 return only expenditures targeting this candidate."
+          },
+          "support_oppose": {
+            "type": "string",
+            "enum": [
+              "S",
+              "O"
+            ],
+            "description": "\"S\" support / \"O\" oppose. If omitted, both directions returned."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number (default 1)."
+          },
+          "per_page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Per-page count (default 20, max 100)."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "travel.nps.alerts",
+      "title": "NPS Park Alerts",
+      "description": "Real-time alerts (closures, hazards, fire, flood, danger) for US national parks. Filter by state or park code. NPS public domain",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "state_code": {
+            "type": "string",
+            "description": "Optional 2-letter US state code (e.g. \"CA\", \"NY\", \"WY\"). Comma-separated for multiple (\"CA,WY\")."
+          },
+          "park_code": {
+            "type": "string",
+            "description": "Optional park code (e.g. \"yose\" Yosemite, \"yell\" Yellowstone, \"grca\" Grand Canyon). Comma-separated allowed."
+          },
+          "q": {
+            "type": "string",
+            "description": "Free-text keyword search."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Max records to return (default 10, max 50)."
+          },
+          "start": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Pagination offset for stepping through results."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "travel.nps.campgrounds",
+      "title": "NPS Campgrounds",
+      "description": "NPS campgrounds with reservation info, accessibility, amenities, coords. NPS public domain",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "state_code": {
+            "type": "string",
+            "description": "Optional 2-letter US state code (e.g. \"CA\", \"NY\", \"WY\"). Comma-separated for multiple (\"CA,WY\")."
+          },
+          "park_code": {
+            "type": "string",
+            "description": "Optional park code (e.g. \"yose\" Yosemite, \"yell\" Yellowstone, \"grca\" Grand Canyon). Comma-separated allowed."
+          },
+          "q": {
+            "type": "string",
+            "description": "Free-text keyword search."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Max records to return (default 10, max 50)."
+          },
+          "start": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Pagination offset for stepping through results."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "travel.nps.parks",
+      "title": "US National Parks",
+      "description": "Search the 474 US national parks with full metadata: coords, activities, entrance fees, operating hours, photos, designation. Filter by state code, park code, or keyword. NPS public domain",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "state_code": {
+            "type": "string",
+            "description": "Optional 2-letter US state code (e.g. \"CA\", \"NY\", \"WY\"). Comma-separated for multiple (\"CA,WY\")."
+          },
+          "park_code": {
+            "type": "string",
+            "description": "Optional park code (e.g. \"yose\" Yosemite, \"yell\" Yellowstone, \"grca\" Grand Canyon). Comma-separated allowed."
+          },
+          "q": {
+            "type": "string",
+            "description": "Free-text keyword search."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Max records to return (default 10, max 50)."
+          },
+          "start": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Pagination offset for stepping through results."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "travel.nps.things_to_do",
+      "title": "NPS Things To Do",
+      "description": "Activities, programs, tours offered at US national parks (3,587 entries). Filter by park or state. NPS public domain",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "state_code": {
+            "type": "string",
+            "description": "Optional 2-letter US state code (e.g. \"CA\", \"NY\", \"WY\"). Comma-separated for multiple (\"CA,WY\")."
+          },
+          "park_code": {
+            "type": "string",
+            "description": "Optional park code (e.g. \"yose\" Yosemite, \"yell\" Yellowstone, \"grca\" Grand Canyon). Comma-separated allowed."
+          },
+          "q": {
+            "type": "string",
+            "description": "Free-text keyword search."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Max records to return (default 10, max 50)."
+          },
+          "start": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Pagination offset for stepping through results."
+          }
+        }
       },
       "annotations": {
         "readOnlyHint": true,

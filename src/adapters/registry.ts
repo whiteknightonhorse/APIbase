@@ -58,6 +58,10 @@ import { IbgeAdapter } from './ibge';
 import { BcbAdapter } from './bcb';
 import { EurostatAdapter } from './eurostat';
 import { DataGovSgAdapter } from './datagovsg';
+import { AirNowAdapter } from './airnow';
+import { NpsAdapter } from './nps';
+import { EiaAdapter } from './eia';
+import { FecAdapter } from './fec';
 import { LangblyAdapter } from './langbly';
 import { ApiSportsAdapter } from './apisports';
 import { ApiFlashAdapter } from './apiflash';
@@ -514,6 +518,30 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'sg':
       // Singapore data.gov.sg — NEA/LTA real-time data, SG Open Data Licence v1.0 (UC-412)
       return getOrCreate('datagovsg', () => new DataGovSgAdapter());
+    case 'airnow': {
+      // AirNow EPA — US AQI observations + forecasts (UC-397)
+      const k = (config as Record<string, unknown>).PROVIDER_KEY_AIRNOW as string | undefined;
+      if (!k) return undefined;
+      return getOrCreate('airnow', () => new AirNowAdapter(k));
+    }
+    case 'nps': {
+      // US National Park Service — parks, alerts, campgrounds, things-to-do (UC-406)
+      const k = (config as Record<string, unknown>).PROVIDER_KEY_NPS as string | undefined;
+      if (!k) return undefined;
+      return getOrCreate('nps', () => new NpsAdapter(k));
+    }
+    case 'eia': {
+      // US Energy Information Administration — electricity, petroleum, natural gas (UC-407)
+      const k = (config as Record<string, unknown>).PROVIDER_KEY_EIA as string | undefined;
+      if (!k) return undefined;
+      return getOrCreate('eia', () => new EiaAdapter(k));
+    }
+    case 'fec': {
+      // US Federal Election Commission — campaign finance via api.data.gov shared key (UC-408)
+      const k = (config as Record<string, unknown>).PROVIDER_KEY_API_DATA_GOV as string | undefined;
+      if (!k) return undefined;
+      return getOrCreate('fec', () => new FecAdapter(k));
+    }
     case 'stability': {
       const stabKey = (config as Record<string, unknown>).PROVIDER_KEY_STABILITY as
         | string

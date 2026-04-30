@@ -123,6 +123,15 @@ export const appEnvSchema = z.object({
   // Telnyx CPaaS (UC-395) — Bearer API key v2, trial $10
   TELNYX_API_KEY: z.string().optional().default(''),
 
+  // AirNow EPA (UC-397) — US AQI, free key (instant)
+  PROVIDER_KEY_AIRNOW: z.string().optional().default(''),
+  // US National Park Service (UC-406) — free X-Api-Key
+  PROVIDER_KEY_NPS: z.string().optional().default(''),
+  // US Energy Information Administration (UC-407) — free api_key, 5K req/hr
+  PROVIDER_KEY_EIA: z.string().optional().default(''),
+  // api.data.gov shared key (UC-408 FEC + Census + NASA + ...) — 1K req/hr
+  PROVIDER_KEY_API_DATA_GOV: z.string().optional().default(''),
+
   // Stability AI (UC-080) — Bearer header, 25 free credits
   PROVIDER_KEY_STABILITY: z.string().optional().default(''),
 

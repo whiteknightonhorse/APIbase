@@ -2618,6 +2618,165 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   },
 
   // ---------------------------------------------------------------------------
+  // AirNow EPA — US AQI (UC-397, 4 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'airnow.current_zip',
+    mcpName: 'weather.airnow.current_zip',
+    title: 'Current AQI by US ZIP Code',
+    description:
+      'Current Air Quality Index (AQI) observations from EPA AirNow for any US ZIP code. Returns PM2.5, ozone, AQI value + category (Good/Moderate/Unhealthy/...). US Gov free',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'airnow.current_latlng',
+    mcpName: 'weather.airnow.current_latlng',
+    title: 'Current AQI by Coordinate',
+    description:
+      'Current AQI observations near a US coordinate. Same fields as current_zip. EPA AirNow',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'airnow.forecast_zip',
+    mcpName: 'weather.airnow.forecast_zip',
+    title: 'AQI Forecast by US ZIP',
+    description:
+      'Multi-day AQI forecast (today + ~5 days) for a US ZIP — ozone + PM2.5 expected category. EPA AirNow',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'airnow.forecast_latlng',
+    mcpName: 'weather.airnow.forecast_latlng',
+    title: 'AQI Forecast by Coordinate',
+    description: 'Multi-day AQI forecast for a US lat/lng. EPA AirNow',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
+  // US National Park Service (UC-406, 4 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'nps.parks',
+    mcpName: 'travel.nps.parks',
+    title: 'US National Parks',
+    description:
+      'Search the 474 US national parks with full metadata: coords, activities, entrance fees, operating hours, photos, designation. Filter by state code, park code, or keyword. NPS public domain',
+    category: 'travel',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nps.alerts',
+    mcpName: 'travel.nps.alerts',
+    title: 'NPS Park Alerts',
+    description:
+      'Real-time alerts (closures, hazards, fire, flood, danger) for US national parks. Filter by state or park code. NPS public domain',
+    category: 'travel',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nps.campgrounds',
+    mcpName: 'travel.nps.campgrounds',
+    title: 'NPS Campgrounds',
+    description:
+      'NPS campgrounds with reservation info, accessibility, amenities, coords. NPS public domain',
+    category: 'travel',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nps.things_to_do',
+    mcpName: 'travel.nps.things_to_do',
+    title: 'NPS Things To Do',
+    description:
+      'Activities, programs, tours offered at US national parks (3,587 entries). Filter by park or state. NPS public domain',
+    category: 'travel',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
+  // US Energy Information Administration (UC-407, 4 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'eia.electricity_retail',
+    mcpName: 'finance.eia.electricity',
+    title: 'US Retail Electricity',
+    description:
+      'Retail electricity sales/price/revenue by US state and sector (residential, commercial, industrial). Frequency monthly/quarterly/annual. EIA public domain, 5K req/hr',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'eia.petroleum_spot',
+    mcpName: 'finance.eia.petroleum',
+    title: 'US Petroleum Spot Prices',
+    description:
+      'Spot prices for crude oil and petroleum products: WTI (EPCWTI), Brent (EPCBRENT), Diesel (EPD2D), Regular Gas (EPMRR). Daily/weekly/monthly/annual. EIA public domain',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'eia.natural_gas',
+    mcpName: 'finance.eia.natural_gas',
+    title: 'US Natural Gas Prices',
+    description:
+      'Natural gas residential/commercial/industrial prices by US state. EIA public domain',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'eia.series',
+    mcpName: 'finance.eia.series',
+    title: 'EIA Total-Energy Series',
+    description:
+      'Direct fetch of any EIA total-energy time-series by series ID (e.g. RNGWHHD = Henry Hub spot, ELETPUS = US electricity total). EIA public domain',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
+  // US Federal Election Commission (UC-408, 4 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'fec.candidates',
+    mcpName: 'gov.fec.candidates',
+    title: 'FEC Federal Candidates',
+    description:
+      'Search 53K+ US federal election candidates by name/cycle/office (House/Senate/Presidential)/state/party. Returns FEC candidate ID + filing dates. FEC public disclosure',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'fec.committee_totals',
+    mcpName: 'gov.fec.committee_totals',
+    title: 'FEC Committee Totals',
+    description:
+      'Receipts, disbursements, and cash-on-hand for US political committees (PACs, parties, candidate committees). Filter by cycle and committee type. FEC public disclosure',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'fec.super_pac_spending',
+    mcpName: 'gov.fec.super_pac_spending',
+    title: 'Super PAC Independent Expenditures',
+    description:
+      'Schedule E independent expenditures — Super PAC spending supporting/opposing specific federal candidates. Filter by cycle, candidate ID, or support/oppose direction. FEC public disclosure',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'fec.elections',
+    mcpName: 'gov.fec.elections',
+    title: 'FEC Election Totals',
+    description:
+      'Aggregate election totals by cycle, office, and state — total receipts, disbursements, candidate count per race. FEC public disclosure',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
   // Stability AI — Image Generation (UC-080, 1 tool)
   // ---------------------------------------------------------------------------
   {
