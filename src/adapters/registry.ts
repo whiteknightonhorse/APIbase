@@ -47,6 +47,17 @@ import { StabilityAdapter } from './stability';
 import { TwilioAdapter } from './twilio';
 import { TelnyxAdapter } from './telnyx';
 import { SwpcAdapter } from './swpc';
+import { BibleAdapter } from './bible';
+import { GutendexAdapter } from './gutendex';
+import { LibriVoxAdapter } from './librivox';
+import { TatoebaAdapter } from './tatoeba';
+import { LocAdapter } from './loc';
+import { UkPoliceAdapter } from './ukpolice';
+import { BrasilApiAdapter } from './brasilapi';
+import { IbgeAdapter } from './ibge';
+import { BcbAdapter } from './bcb';
+import { EurostatAdapter } from './eurostat';
+import { DataGovSgAdapter } from './datagovsg';
 import { LangblyAdapter } from './langbly';
 import { ApiSportsAdapter } from './apisports';
 import { ApiFlashAdapter } from './apiflash';
@@ -470,6 +481,39 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'swpc':
       // NOAA SWPC — space weather (K-index, aurora, solar wind, regions), no auth, NODD (UC-396)
       return getOrCreate('swpc', () => new SwpcAdapter());
+    case 'bible':
+      // Free Use Bible API — 1000+ public-domain Bible translations, MIT, no auth (UC-399)
+      return getOrCreate('bible', () => new BibleAdapter());
+    case 'gutendex':
+      // Gutendex — Project Gutenberg JSON wrapper, MIT, no auth (UC-400)
+      return getOrCreate('gutendex', () => new GutendexAdapter());
+    case 'librivox':
+      // LibriVox — 20K+ public-domain audiobooks, no auth (UC-401)
+      return getOrCreate('librivox', () => new LibriVoxAdapter());
+    case 'tatoeba':
+      // Tatoeba — 13M parallel sentences, CC-BY 2.0 FR, no auth (UC-402)
+      return getOrCreate('tatoeba', () => new TatoebaAdapter());
+    case 'loc':
+      // US Library of Congress — 415K+ digitized historical items, public domain, no auth (UC-409)
+      return getOrCreate('loc', () => new LocAdapter());
+    case 'ukpolice':
+      // UK Police — crime data, OGL v3.0, no auth (UC-411)
+      return getOrCreate('ukpolice', () => new UkPoliceAdapter());
+    case 'brasilapi':
+      // BrasilAPI — Brazilian gov (CNPJ/CEP/banks/PIX), MIT, no auth (UC-403)
+      return getOrCreate('brasilapi', () => new BrasilApiAdapter());
+    case 'ibge':
+      // IBGE — Brazilian census/geography, CC BY 4.0, no auth (UC-404)
+      return getOrCreate('ibge', () => new IbgeAdapter());
+    case 'bcb':
+      // Banco Central do Brasil SGS — financial time-series, ODbL, no auth (UC-405)
+      return getOrCreate('bcb', () => new BcbAdapter());
+    case 'eurostat':
+      // Eurostat — 35K+ EU stat datasets, CC BY 4.0, no auth (UC-410)
+      return getOrCreate('eurostat', () => new EurostatAdapter());
+    case 'sg':
+      // Singapore data.gov.sg — NEA/LTA real-time data, SG Open Data Licence v1.0 (UC-412)
+      return getOrCreate('datagovsg', () => new DataGovSgAdapter());
     case 'stability': {
       const stabKey = (config as Record<string, unknown>).PROVIDER_KEY_STABILITY as
         | string

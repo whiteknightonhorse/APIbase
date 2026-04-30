@@ -2183,6 +2183,441 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   },
 
   // ---------------------------------------------------------------------------
+  // Free Use Bible API (UC-399, 4 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'bible.translations',
+    mcpName: 'bible.catalog.translations',
+    title: 'List Bible Translations',
+    description:
+      'List 1000+ public-domain Bible translations across 429+ languages. Filter by ISO 639-3 language code or English name. Returns translation IDs needed for bible.passage. MIT-licensed open data (Free Use Bible API)',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bible.books',
+    mcpName: 'bible.catalog.books',
+    title: 'List Books in Translation',
+    description:
+      'List the books in a specific Bible translation (e.g. KJV → 66 books). Returns book IDs and chapter counts needed for bible.passage. Free Use Bible API',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bible.passage',
+    mcpName: 'bible.text.passage',
+    title: 'Get Bible Chapter',
+    description:
+      'Fetch the verse-by-verse text of a Bible chapter for a given translation and book (e.g. KJV / John / 3). Returns array of {number, text}. Free Use Bible API',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bible.commentaries',
+    mcpName: 'bible.catalog.commentaries',
+    title: 'List Scholarly Commentaries',
+    description:
+      'List available scholarly Bible commentaries (Matthew Henry, JFB, Gill, etc.). Each entry includes commentary ID, name, and language. Free Use Bible API',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
+  // Gutendex — Project Gutenberg (UC-400, 4 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'gutendex.search',
+    mcpName: 'books.gutendex.search',
+    title: 'Search Project Gutenberg',
+    description:
+      'Search 78K+ public-domain books on Project Gutenberg by free-text query, language (ISO 639-1), topic, or author birth year. Returns book IDs, titles, authors, languages, subjects, download counts, and EPUB/TXT/HTML/cover URLs (Gutendex MIT)',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'gutendex.book',
+    mcpName: 'books.gutendex.book',
+    title: 'Get Gutenberg Book Details',
+    description:
+      'Get full metadata + download URLs (EPUB, TXT, HTML, cover JPEG) for a Project Gutenberg book by numeric ID (e.g. 1342 = Pride and Prejudice). Gutendex MIT',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'gutendex.by_author',
+    mcpName: 'books.gutendex.by_author',
+    title: 'Books by Author',
+    description:
+      'List all Project Gutenberg books by a specific author (search by name). Filter by language. Gutendex MIT',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'gutendex.popular',
+    mcpName: 'books.gutendex.popular',
+    title: 'Popular Public-Domain Books',
+    description:
+      'List most-downloaded Project Gutenberg books, optionally filtered by language or topic. Gutendex MIT',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
+  // LibriVox — Public-Domain Audiobooks (UC-401, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'librivox.search',
+    mcpName: 'books.librivox.search',
+    title: 'Search LibriVox Audiobooks',
+    description:
+      'Search 20K+ public-domain audiobooks by title, author, or genre. Returns book IDs, descriptions, languages, copyright years, total time, and ZIP download URLs. LibriVox public domain',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'librivox.book',
+    mcpName: 'books.librivox.book',
+    title: 'Get LibriVox Audiobook Details',
+    description:
+      'Get full audiobook details by LibriVox ID — includes per-section MP3 URLs (chapter-level streaming), playtimes, authors, and project metadata. LibriVox public domain',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
+  // Tatoeba — Multilingual Sentence Database (UC-402, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'tatoeba.search',
+    mcpName: 'language.tatoeba.search',
+    title: 'Search Tatoeba Sentences',
+    description:
+      'Search 13M parallel sentences across 429 languages (CC-BY 2.0 FR). Filter by source language, optional translation language, audio availability, and free-text keyword. Sort by relevance/random/created/modified. Tatoeba',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'tatoeba.sentence',
+    mcpName: 'language.tatoeba.sentence',
+    title: 'Get Tatoeba Sentence + Translations',
+    description:
+      'Get a single Tatoeba sentence by ID with all translations and audio recordings. Useful for language-learning agents. Tatoeba CC-BY 2.0 FR',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'tatoeba.languages',
+    mcpName: 'language.tatoeba.languages',
+    title: 'List Tatoeba Languages',
+    description:
+      'List all 429 supported languages on Tatoeba with ISO 639-3 codes and sentence counts. Tatoeba CC-BY 2.0 FR',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
+  // US Library of Congress (UC-409, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'loc.search',
+    mcpName: 'media.loc.search',
+    title: 'Search Library of Congress',
+    description:
+      'Search 415K+ digitized historical items at LOC (photos, manuscripts, maps, newspapers, films, rare books). Filter by online format (image/audio/video/text/web archive) or collection slug. Public domain by US statute (17 USC §105)',
+    category: 'media',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'loc.item',
+    mcpName: 'media.loc.item',
+    title: 'Get LOC Item Detail',
+    description:
+      'Get full metadata + asset URLs (image, audio, PDF) for a Library of Congress item by its ID or full LOC URL. Includes rights, contributors, subjects, and digitized resource list. LOC public domain',
+    category: 'media',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'loc.collections',
+    mcpName: 'media.loc.collections',
+    title: 'List LOC Collections',
+    description:
+      'Browse Library of Congress digital collections — Civil War Photographs, Geography & Map Division, Rosa Parks Papers, etc. Returns collection slugs needed for filtered search. LOC public domain',
+    category: 'media',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
+  // UK Police API (UC-411, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'ukpolice.crimes_near',
+    mcpName: 'gov.ukpolice.crimes_near',
+    title: 'UK Crimes Near Coordinate',
+    description:
+      'Street-level UK crime records within 1 mile of a coordinate for a given month (England + Wales, 43 forces). Filter by crime category. Returns up to 500 records with category, location, outcome status. OGL v3.0 (commercial OK)',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ukpolice.forces',
+    mcpName: 'gov.ukpolice.forces',
+    title: 'UK Police Forces',
+    description:
+      'List the 43 UK police forces (id + name) for England and Wales. Used to drill down into per-force statistics. OGL v3.0',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ukpolice.outcomes_at_location',
+    mcpName: 'gov.ukpolice.outcomes',
+    title: 'UK Crime Outcomes at Location',
+    description:
+      'Case outcomes (charged, acquitted, action taken, etc.) for crimes at a UK coordinate in a given month. Useful for property safety scoring. OGL v3.0',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
+  // BrasilAPI — Brazilian Gov Aggregator (UC-403, 6 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'brasilapi.cnpj',
+    mcpName: 'gov.brasilapi.cnpj',
+    title: 'Lookup Brazilian Company (CNPJ)',
+    description:
+      'Look up a Brazilian company by 14-digit CNPJ tax ID — returns name, address, CNAE codes, QSA partners, capital, status from Receita Federal. BrasilAPI MIT',
+    category: 'business',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'brasilapi.cep',
+    mcpName: 'gov.brasilapi.cep',
+    title: 'Lookup Brazilian Address (CEP)',
+    description:
+      'Look up a Brazilian address by 8-digit CEP postal code — returns street, neighborhood, city, state, coordinates, timezone. BrasilAPI MIT',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'brasilapi.banks',
+    mcpName: 'gov.brasilapi.banks',
+    title: 'List Brazilian Banks',
+    description: 'List all 472 Brazilian banks with ISPB codes and bank numbers. BrasilAPI MIT',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'brasilapi.rates',
+    mcpName: 'gov.brasilapi.rates',
+    title: 'Brazilian Interest Rates',
+    description: 'Current SELIC, CDI, and IPCA rates from Banco Central do Brasil. BrasilAPI MIT',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'brasilapi.holidays',
+    mcpName: 'gov.brasilapi.holidays',
+    title: 'Brazilian National Holidays',
+    description: 'All Brazilian national holidays for a given year. BrasilAPI MIT',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'brasilapi.ddd',
+    mcpName: 'gov.brasilapi.ddd',
+    title: 'Brazilian Area Code (DDD) Lookup',
+    description: 'Look up Brazilian area code (DDD, 2 digits) → state and cities. BrasilAPI MIT',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
+  // IBGE — Brazilian Census + Geography (UC-404, 5 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'ibge.states',
+    mcpName: 'gov.ibge.states',
+    title: 'Brazilian States',
+    description:
+      'All 27 Brazilian states + Federal District with full region hierarchy. IBGE CC BY 4.0',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ibge.municipalities',
+    mcpName: 'gov.ibge.municipalities',
+    title: 'Brazilian Municipalities',
+    description:
+      'List all 5,570 Brazilian municipalities (or filtered by 2-letter state code) with IBGE codes. IBGE CC BY 4.0',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ibge.name_frequency',
+    mcpName: 'gov.ibge.name_frequency',
+    title: 'Brazilian Name Frequency',
+    description:
+      'First-name popularity time-series by decade since 1930 from Brazilian census data — useful for cultural/marketing research. IBGE CC BY 4.0',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ibge.cnae',
+    mcpName: 'gov.ibge.cnae',
+    title: 'CNAE Economic Activity Classes',
+    description:
+      'Brazilian CNAE economic activity classification codes used in CNPJ and tax filings. IBGE CC BY 4.0',
+    category: 'business',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ibge.regions',
+    mcpName: 'gov.ibge.regions',
+    title: 'Brazilian Geographic Regions',
+    description:
+      'The 5 Brazilian geographic regions (Norte, Nordeste, Sudeste, Sul, Centro-Oeste) with metadata. IBGE CC BY 4.0',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
+  // Banco Central do Brasil SGS (UC-405, 6 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'bcb.selic',
+    mcpName: 'finance.bcb.selic',
+    title: 'SELIC Daily Rate',
+    description:
+      'Brazilian SELIC daily interest rate (series 11) — last N observations from BCB SGS. ODbL',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bcb.cdi',
+    mcpName: 'finance.bcb.cdi',
+    title: 'CDI Daily Rate',
+    description: 'Brazilian CDI daily rate (series 12) — last N observations from BCB SGS. ODbL',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bcb.ipca',
+    mcpName: 'finance.bcb.ipca',
+    title: 'IPCA Monthly Inflation',
+    description:
+      'Brazilian IPCA monthly inflation rate (series 433) — last N observations from BCB SGS. ODbL',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bcb.usd_brl',
+    mcpName: 'finance.bcb.usd_brl',
+    title: 'USD/BRL Daily FX',
+    description:
+      'Brazilian Real / US Dollar daily exchange rate (series 1) — last N observations from BCB SGS. ODbL',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bcb.eur_brl',
+    mcpName: 'finance.bcb.eur_brl',
+    title: 'EUR/BRL Daily FX',
+    description:
+      'Brazilian Real / Euro daily exchange rate (series 21619) — last N observations from BCB SGS. ODbL',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bcb.selic_target',
+    mcpName: 'finance.bcb.selic_target',
+    title: 'SELIC Target (COPOM)',
+    description:
+      'COPOM-set SELIC target rate (series 4389) — Brazilian central bank policy decisions. BCB SGS ODbL',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
+  // Eurostat (UC-410, 4 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'eurostat.unemployment',
+    mcpName: 'finance.eurostat.unemployment',
+    title: 'EU Monthly Unemployment Rate',
+    description:
+      'Monthly unemployment rate (% of active population, seasonally adjusted, total population) for one EU country (geo code) or aggregate (EU27_2020, EA20). Eurostat dataset une_rt_m, CC BY 4.0',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'eurostat.inflation',
+    mcpName: 'finance.eurostat.inflation',
+    title: 'EU HICP Annual Inflation',
+    description:
+      'Monthly HICP annual rate of change (overall index) for one EU country. Eurostat dataset prc_hicp_manr, CC BY 4.0',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'eurostat.gdp_growth',
+    mcpName: 'finance.eurostat.gdp_growth',
+    title: 'EU Annual GDP Growth',
+    description:
+      'Annual real GDP growth rate (chain-linked volumes, % change vs previous year) for one EU country. Eurostat dataset tec00115, CC BY 4.0',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'eurostat.population',
+    mcpName: 'finance.eurostat.population',
+    title: 'EU Population (1 Jan)',
+    description:
+      'Annual population on 1 January for one EU country. Eurostat dataset demo_gind, CC BY 4.0',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
+  // Singapore data.gov.sg (UC-412, 4 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'sg.weather_forecast',
+    mcpName: 'gov.sg.weather_forecast',
+    title: 'Singapore 2-Hour Weather Forecast',
+    description:
+      'Real-time 2-hour weather forecast for 51 Singapore zones (showers/cloudy/etc.) from NEA. Singapore Open Data Licence v1.0',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'sg.air_quality',
+    mcpName: 'gov.sg.air_quality',
+    title: 'Singapore PM2.5 Air Quality',
+    description:
+      'Real-time PM2.5 readings (μg/m³) for the 5 Singapore regions (north/south/east/west/central). NEA, SG Open Data Licence v1.0',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'sg.rainfall',
+    mcpName: 'gov.sg.rainfall',
+    title: 'Singapore Rainfall',
+    description:
+      '5-minute rainfall readings (mm) from 60 NEA weather stations across Singapore with station coords. SG Open Data Licence v1.0',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'sg.taxi_availability',
+    mcpName: 'gov.sg.taxi_availability',
+    title: 'Singapore Live Taxi Density',
+    description:
+      'Live taxi positions across Singapore aggregated to a 5km grid — returns the top 30 zones by taxi count and the timestamp of the snapshot. LTA, SG Open Data Licence v1.0',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
   // Stability AI — Image Generation (UC-080, 1 tool)
   // ---------------------------------------------------------------------------
   {

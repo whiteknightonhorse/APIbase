@@ -1358,6 +1358,249 @@ tools:
     price_usd: "0.001"
     cache_ttl: 30
 
+
+  # --- UC-399: Free Use Bible API (4 tools) ---
+  - tool_id: bible.translations
+    name: List Bible Translations
+    provider: bible
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: bible.books
+    name: List Books in Bible Translation
+    provider: bible
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: bible.passage
+    name: Get Bible Chapter Text
+    provider: bible
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: bible.commentaries
+    name: List Bible Commentaries
+    provider: bible
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  # --- UC-400: Gutendex (Project Gutenberg, 4 tools) ---
+  - tool_id: gutendex.search
+    name: Search Project Gutenberg
+    provider: gutendex
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: gutendex.book
+    name: Project Gutenberg Book Detail
+    provider: gutendex
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: gutendex.by_author
+    name: Books by Author (Gutendex)
+    provider: gutendex
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: gutendex.popular
+    name: Popular Public-Domain Books
+    provider: gutendex
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  # --- UC-401: LibriVox (2 tools) ---
+  - tool_id: librivox.search
+    name: Search LibriVox Audiobooks
+    provider: librivox
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: librivox.book
+    name: LibriVox Audiobook Detail
+    provider: librivox
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  # --- UC-402: Tatoeba (3 tools) ---
+  - tool_id: tatoeba.search
+    name: Search Tatoeba Sentences
+    provider: tatoeba
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: tatoeba.sentence
+    name: Tatoeba Sentence Detail
+    provider: tatoeba
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: tatoeba.languages
+    name: Tatoeba Supported Languages
+    provider: tatoeba
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  # --- UC-409: US Library of Congress (3 tools) ---
+  - tool_id: loc.search
+    name: Search Library of Congress
+    provider: loc
+    price_usd: "0.002"
+    cache_ttl: 3600
+  - tool_id: loc.item
+    name: LOC Item Detail
+    provider: loc
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: loc.collections
+    name: List LOC Collections
+    provider: loc
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  # --- UC-411: UK Police (3 tools) ---
+  - tool_id: ukpolice.crimes_near
+    name: UK Crimes Near Coordinate
+    provider: ukpolice
+    price_usd: "0.002"
+    cache_ttl: 86400
+  - tool_id: ukpolice.forces
+    name: UK Police Forces
+    provider: ukpolice
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: ukpolice.outcomes_at_location
+    name: UK Crime Outcomes at Location
+    provider: ukpolice
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  # --- UC-403: BrasilAPI (6 tools) ---
+  - tool_id: brasilapi.cnpj
+    name: Brazilian CNPJ Lookup
+    provider: brasilapi
+    price_usd: "0.002"
+    cache_ttl: 86400
+  - tool_id: brasilapi.cep
+    name: Brazilian CEP Lookup
+    provider: brasilapi
+    price_usd: "0.001"
+    cache_ttl: 604800
+  - tool_id: brasilapi.banks
+    name: Brazilian Banks
+    provider: brasilapi
+    price_usd: "0.001"
+    cache_ttl: 604800
+  - tool_id: brasilapi.rates
+    name: Brazilian Interest Rates
+    provider: brasilapi
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: brasilapi.holidays
+    name: Brazilian Holidays
+    provider: brasilapi
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: brasilapi.ddd
+    name: Brazilian DDD Area Code
+    provider: brasilapi
+    price_usd: "0.001"
+    cache_ttl: 604800
+
+  # --- UC-404: IBGE (5 tools) ---
+  - tool_id: ibge.states
+    name: Brazilian States
+    provider: ibge
+    price_usd: "0.001"
+    cache_ttl: 604800
+  - tool_id: ibge.municipalities
+    name: Brazilian Municipalities
+    provider: ibge
+    price_usd: "0.001"
+    cache_ttl: 604800
+  - tool_id: ibge.name_frequency
+    name: Brazilian Name Frequency
+    provider: ibge
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: ibge.cnae
+    name: CNAE Economic Activity Classes
+    provider: ibge
+    price_usd: "0.001"
+    cache_ttl: 604800
+  - tool_id: ibge.regions
+    name: Brazilian Regions
+    provider: ibge
+    price_usd: "0.001"
+    cache_ttl: 604800
+
+  # --- UC-405: Banco Central do Brasil SGS (6 tools) ---
+  - tool_id: bcb.selic
+    name: SELIC Daily Rate (BCB)
+    provider: bcb
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: bcb.cdi
+    name: CDI Daily Rate (BCB)
+    provider: bcb
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: bcb.ipca
+    name: IPCA Monthly Inflation (BCB)
+    provider: bcb
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: bcb.usd_brl
+    name: USD/BRL Daily FX (BCB)
+    provider: bcb
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: bcb.eur_brl
+    name: EUR/BRL Daily FX (BCB)
+    provider: bcb
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: bcb.selic_target
+    name: SELIC Target Rate (COPOM)
+    provider: bcb
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  # --- UC-410: Eurostat (4 tools) ---
+  - tool_id: eurostat.unemployment
+    name: EU Monthly Unemployment
+    provider: eurostat
+    price_usd: "0.002"
+    cache_ttl: 86400
+  - tool_id: eurostat.inflation
+    name: EU Monthly Inflation (HICP)
+    provider: eurostat
+    price_usd: "0.002"
+    cache_ttl: 86400
+  - tool_id: eurostat.gdp_growth
+    name: EU Annual GDP Growth
+    provider: eurostat
+    price_usd: "0.001"
+    cache_ttl: 604800
+  - tool_id: eurostat.population
+    name: EU Annual Population
+    provider: eurostat
+    price_usd: "0.001"
+    cache_ttl: 604800
+
+  # --- UC-412: Singapore data.gov.sg (4 tools) ---
+  - tool_id: sg.weather_forecast
+    name: SG 2-Hour Weather Forecast
+    provider: datagovsg
+    price_usd: "0.001"
+    cache_ttl: 300
+  - tool_id: sg.air_quality
+    name: SG PM2.5 Air Quality
+    provider: datagovsg
+    price_usd: "0.002"
+    cache_ttl: 300
+  - tool_id: sg.rainfall
+    name: SG Rainfall Stations
+    provider: datagovsg
+    price_usd: "0.001"
+    cache_ttl: 300
+  - tool_id: sg.taxi_availability
+    name: SG Live Taxi Density
+    provider: datagovsg
+    price_usd: "0.002"
+    cache_ttl: 60
+
   # --- UC-080: Stability AI (Image Generation) ---
   - tool_id: stability.generate
     name: Generate Image

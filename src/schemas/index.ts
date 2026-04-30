@@ -47,6 +47,17 @@ import { stabilitySchemas } from './stability.schema';
 import { twilioSchemas } from './twilio.schema';
 import { telnyxSchemas } from './telnyx.schema';
 import { swpcSchemas } from './swpc.schema';
+import { bibleSchemas } from './bible.schema';
+import { gutendexSchemas } from './gutendex.schema';
+import { librivoxSchemas } from './librivox.schema';
+import { tatoebaSchemas } from './tatoeba.schema';
+import { locSchemas } from './loc.schema';
+import { ukpoliceSchemas } from './ukpolice.schema';
+import { brasilapiSchemas } from './brasilapi.schema';
+import { ibgeSchemas } from './ibge.schema';
+import { bcbSchemas } from './bcb.schema';
+import { eurostatSchemas } from './eurostat.schema';
+import { datagovsgSchemas } from './datagovsg.schema';
 import { langblySchemas } from './langbly.schema';
 import { apisportsSchemas } from './apisports.schema';
 import { apiflashSchemas } from './apiflash.schema';
@@ -212,6 +223,17 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...twilioSchemas,
   ...telnyxSchemas,
   ...swpcSchemas,
+  ...bibleSchemas,
+  ...gutendexSchemas,
+  ...librivoxSchemas,
+  ...tatoebaSchemas,
+  ...locSchemas,
+  ...ukpoliceSchemas,
+  ...brasilapiSchemas,
+  ...ibgeSchemas,
+  ...bcbSchemas,
+  ...eurostatSchemas,
+  ...datagovsgSchemas,
   ...langblySchemas,
   ...apisportsSchemas,
   ...apiflashSchemas,

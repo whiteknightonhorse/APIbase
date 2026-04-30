@@ -1455,5 +1455,104 @@
     "reset_period": "none",
     "docs_url": "https://www.swpc.noaa.gov/content/data-access",
     "limit_proof": "US Government NOAA Open Data Dissemination (NODD) \u2014 no auth, no rate limit, commercial use allowed."
+  },
+  "bible": {
+    "display_name": "Free Use Bible API",
+    "health_url": "https://bible.helloao.org/api/available_translations.json",
+    "docs_url": "https://bible.helloao.org",
+    "limit_proof": "MIT-licensed open source, AWS CloudFront CDN, no auth, no rate limit, commercial use OK.",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none"
+  },
+  "gutendex": {
+    "display_name": "Gutendex (Project Gutenberg)",
+    "health_url": "https://gutendex.com/books/?ids=1342",
+    "docs_url": "https://gutendex.com",
+    "limit_proof": "MIT-licensed open source. Public-instance limit not documented; self-hostable for SLA.",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none"
+  },
+  "librivox": {
+    "display_name": "LibriVox",
+    "health_url": "https://librivox.org/api/feed/audiobooks/?format=json&limit=1",
+    "docs_url": "https://librivox.org/api/info",
+    "limit_proof": "Public domain audiobooks. No documented rate limit; polite-use policy.",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none"
+  },
+  "tatoeba": {
+    "display_name": "Tatoeba",
+    "health_url": "https://api.tatoeba.org/unstable/sentences/1",
+    "docs_url": "https://api.tatoeba.org/openapi.json",
+    "limit_proof": "CC-BY 2.0 FR. Unstable v0 API; no documented rate limit.",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none"
+  },
+  "loc": {
+    "display_name": "US Library of Congress",
+    "health_url": "https://www.loc.gov/search/?q=test&fo=json&c=1",
+    "docs_url": "https://libraryofcongress.github.io/data-exploration/",
+    "limit_proof": "US Government public domain (17 USC \u00a7105). JSON mode (?fo=json), no auth, polite-use policy.",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none"
+  },
+  "ukpolice": {
+    "display_name": "UK Police",
+    "health_url": "https://data.police.uk/api/forces",
+    "docs_url": "https://data.police.uk/docs/",
+    "limit_proof": "OGL v3.0 \u2014 commercial reuse explicitly permitted. No documented rate limit.",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none"
+  },
+  "brasilapi": {
+    "display_name": "BrasilAPI",
+    "health_url": "https://brasilapi.com.br/api/banks/v1",
+    "docs_url": "https://brasilapi.com.br/docs",
+    "limit_proof": "MIT license, Vercel CDN, no auth, no documented hard rate limit.",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none"
+  },
+  "ibge": {
+    "display_name": "IBGE (Brazil Stats)",
+    "health_url": "https://servicodados.ibge.gov.br/api/v1/localidades/regioes",
+    "docs_url": "https://servicodados.ibge.gov.br/api/docs",
+    "limit_proof": "Brazilian Government open data, CC BY 4.0, no auth.",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none"
+  },
+  "bcb": {
+    "display_name": "Banco Central do Brasil SGS",
+    "health_url": "https://api.bcb.gov.br/dados/serie/bcdata.sgs.11/dados/ultimos/1?formato=json",
+    "docs_url": "https://opendata.bcb.gov.br/en/dataset/?res_format=API",
+    "limit_proof": "Brazilian Government open data, ODbL, commercial use permitted.",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none"
+  },
+  "eurostat": {
+    "display_name": "Eurostat",
+    "health_url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/une_rt_m?format=JSON&geo=DE&time=2024-01",
+    "docs_url": "https://wikis.ec.europa.eu/display/EUROSTATHELP/Web+services",
+    "limit_proof": "EU Statistical Office, CC BY 4.0, commercial use with attribution.",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none"
+  },
+  "datagovsg": {
+    "display_name": "Singapore data.gov.sg",
+    "health_url": "https://api.data.gov.sg/v1/environment/2-hour-weather-forecast",
+    "docs_url": "https://data.gov.sg/developer",
+    "limit_proof": "Singapore Open Data Licence v1.0 \u2014 commercial reuse explicitly permitted, no auth, no documented rate limit.",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none"
   }
 }

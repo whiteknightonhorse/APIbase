@@ -2,8 +2,8 @@
   "platform": "APIbase",
   "version": "2.0",
   "updated_at": "2026-04-01T00:00:00Z",
-  "tools_count": 516,
-  "providers_count": 162,
+  "tools_count": 560,
+  "providers_count": 173,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
@@ -37,13 +37,13 @@
     },
     {
       "name": "weather",
-      "tools": 14,
+      "tools": 17,
       "providers": "OpenWeatherMap, NWS, IQAir, NOAA",
       "examples": "current weather, forecast, alerts, air quality"
     },
     {
       "name": "finance",
-      "tools": 27,
+      "tools": 38,
       "providers": "Finnhub, FRED, FDIC, ECB, RateAPI, IBAN, World Bank",
       "examples": "stock quotes, FX rates, economic data, mortgage rates, global indicators"
     },
@@ -67,7 +67,7 @@
     },
     {
       "name": "location",
-      "tools": 21,
+      "tools": 23,
       "providers": "Geoapify, Geocodio, Foursquare, Walk Score, Realtor, Open Charge Map",
       "examples": "geocoding, places, routing, real estate"
     },
@@ -85,7 +85,7 @@
     },
     {
       "name": "education",
-      "tools": 13,
+      "tools": 26,
       "providers": "OpenAlex, arXiv, PubMed, Open Library, College Scorecard, DBLP",
       "examples": "papers, books, colleges"
     },
@@ -109,13 +109,13 @@
     },
     {
       "name": "legal",
-      "tools": 8,
+      "tools": 11,
       "providers": "Regulations.gov, Federal Register, CourtListener",
       "examples": "regulations, court opinions, federal rules"
     },
     {
       "name": "business",
-      "tools": 6,
+      "tools": 8,
       "providers": "GLEIF, Companies House, Hunter.io",
       "examples": "LEI lookup, UK companies, email enrichment"
     },
@@ -127,7 +127,7 @@
     },
     {
       "name": "media",
-      "tools": 14,
+      "tools": 17,
       "providers": "Pexels, Stability AI, OCR.space, ARTIC, Europeana, AssemblyAI",
       "examples": "stock photos, image generation, OCR, art, transcription"
     },
@@ -151,7 +151,7 @@
     },
     {
       "name": "world",
-      "tools": 22,
+      "tools": 29,
       "providers": "REST Countries, Nager.Date, GDACS, VATcomply, Open Food Facts, USGS Water, NOAA Tides",
       "examples": "countries, holidays, disasters, VAT, food products, streamflow, water quality, tides & currents"
     }
