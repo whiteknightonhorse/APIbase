@@ -250,6 +250,16 @@ APIbase supports **dual payment rails** — agents can pay using either protocol
 | Token | USDC on Base |
 | Wallet | `0x50EbDa9dA5dC19c302Ca059d7B9E06e264936480` |
 | Price range | $0.001 – $1.00 per call |
+| Settlement | **Self-hosted on-chain facilitator** — no third-party SaaS in the payment path. See [`docs/x402-facilitator.md`](docs/x402-facilitator.md). |
+
+#### Sovereign payment settlement
+
+APIbase runs its own x402 facilitator in-process: every successful payment is settled by submitting `transferWithAuthorization` directly on Base via [`viem`](https://viem.sh). There is no Coinbase CDP, no PayAI, no third-party intermediary in the critical path of a paid request.
+
+- **No vendor lock-in.** If any third-party facilitator changes pricing, ToS, or KYC requirements, our service is unaffected.
+- **Open architecture.** Built on the public [`@x402/core`](https://www.npmjs.com/package/@x402/core) + [`@x402/evm`](https://www.npmjs.com/package/@x402/evm) SDKs and `viem` — anyone can fork the pattern. Implementation in [`src/payments/local-facilitator.ts`](src/payments/local-facilitator.ts).
+- **Predictable cost.** Settlement = fixed Base gas (~$0.0005 per call) instead of opaque per-settle facilitator fees.
+- **Fallback retained.** PayAI HTTP facilitator stays wired as transparent in-client fallback — single-RPC blips don't drop revenue.
 
 ### MPP (Machine Payments Protocol)
 
@@ -471,9 +481,10 @@ Every framework connects to one endpoint: `https://apibase.pro/mcp`
 ## Architecture
 
 - **16 Docker containers**: API, Worker, Outbox, PostgreSQL, Redis, Nginx, Prometheus, Grafana, Loki, Promtail, Alertmanager, exporters
-- **Single Hetzner server** with automated health checks, graceful shutdown, and 27 Prometheus alert rules
+- **Single Hetzner server** with automated health checks, graceful shutdown, and 27+ Prometheus alert rules
 - **PostgreSQL** = source of truth for financial data (append-only ledger)
 - **Redis** = cache, rate limiting, single-flight deduplication
+- **Self-hosted x402 facilitator** = on-chain `transferWithAuthorization` settled by APIbase directly (no third-party HTTP facilitator in the critical path). [Details →](docs/x402-facilitator.md)
 - **Fail-closed**: any infrastructure failure = reject requests, never pass through
 
 ## Self-Hosting
