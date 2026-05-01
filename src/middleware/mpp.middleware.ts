@@ -1,7 +1,34 @@
 import type { Request, Response, NextFunction } from 'express';
 import { getMppConfig } from '../config/mpp.config';
+import { getToolPriceUsd } from '../pipeline/stages/tool-status.stage';
 import { logger } from '../config/logger';
 import { AppError, ErrorCode } from '../types/errors';
+
+/**
+ * Match REST tool-call URL: /api/v1/tools/{toolId}/call (with optional
+ * trailing slash and ignoring any query string). Captures `toolId`. Returns
+ * undefined for non-tool routes (e.g. /mcp, /agents/me, /onboard).
+ */
+const TOOL_CALL_URL = /^\/api\/v1\/tools\/([^/]+)\/call\/?$/;
+function toolIdFromUrl(originalUrl: string): string | undefined {
+  const path = originalUrl.split('?')[0];
+  const m = TOOL_CALL_URL.exec(path);
+  return m?.[1];
+}
+
+/**
+ * Resolve the amount the MPP HMAC was signed over. Agents sign over the tool
+ * price — server must reconstruct the same value. Falls back to 0.001 for
+ * non-tool routes (e.g. /mcp) so existing behavior is preserved there.
+ */
+function resolveAmountForUrl(originalUrl: string): string {
+  const toolId = toolIdFromUrl(originalUrl);
+  if (toolId) {
+    const price = getToolPriceUsd(toolId);
+    if (price !== undefined) return String(price);
+  }
+  return '0.001';
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let mppxInstance: any = null;
@@ -101,13 +128,20 @@ async function verifyMppPayment(req: Request): Promise<void> {
   });
 
   try {
-    // Use the Mppx charge handler directly with Fetch Request
-    // The charge handler checks the credential HMAC against our secretKey
-    const chargeHandler = mppx.charge({ amount: '0.001' });
+    // Use the Mppx charge handler directly with Fetch Request.
+    // The charge handler checks the credential HMAC against our secretKey;
+    // crucially, the HMAC message includes `amount`, so we MUST pass the
+    // tool's actual price (matching what the agent signed) — not a hardcoded
+    // value. Hardcoding caused HMAC mismatch on every tool not priced 0.001.
+    const amount = resolveAmountForUrl(req.originalUrl);
+    const chargeHandler = mppx.charge({ amount });
     const result = await chargeHandler(fetchReq);
 
     if (result.status === 402) {
-      log.warn({ requestId: req.requestId }, 'mpp: credential HMAC verification failed');
+      log.warn(
+        { requestId: req.requestId, originalUrl: req.originalUrl, amount },
+        'mpp: credential HMAC verification failed',
+      );
       throw new AppError(ErrorCode.BAD_REQUEST, 'MPP payment verification failed');
     }
 

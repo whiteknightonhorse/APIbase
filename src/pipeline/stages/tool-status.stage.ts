@@ -68,6 +68,16 @@ export function getActiveToolIds(): Set<string> {
   return active;
 }
 
+/**
+ * Returns the cached price (in USD) for a tool, or undefined if the tool
+ * is not in the cache. Read-side only — used by middleware that needs the
+ * price BEFORE the pipeline runs (e.g. MPP HMAC verification, which signs
+ * over the actual amount and must be reconstructed server-side).
+ */
+export function getToolPriceUsd(toolId: string): number | undefined {
+  return toolCache.get(toolId)?.price_usd;
+}
+
 /** Stop the refresh timer (graceful shutdown). */
 export function stopToolCacheRefresh(): void {
   if (refreshTimer) {
