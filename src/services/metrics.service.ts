@@ -128,3 +128,27 @@ export const mcpSessionsActive = new client.Gauge({
   help: 'Number of active MCP sessions',
   registers: [register],
 });
+
+// ---------------------------------------------------------------------------
+// x402 self-hosted facilitator metrics (X402_FACILITATOR_MODE=local)
+// ---------------------------------------------------------------------------
+
+export const x402LocalSettleTotal = new client.Counter({
+  name: 'x402_local_settle_total',
+  help: 'Total x402 local-facilitator settle attempts',
+  labelNames: ['result'] as const, // 'success' | 'fallback' | 'error'
+  registers: [register],
+});
+
+export const x402LocalSettleDurationSeconds = new client.Histogram({
+  name: 'x402_local_settle_duration_seconds',
+  help: 'x402 local-facilitator settle duration in seconds',
+  buckets: [0.5, 1, 2, 5, 10, 30],
+  registers: [register],
+});
+
+export const x402OperatorEthBalance = new client.Gauge({
+  name: 'x402_operator_eth_balance',
+  help: 'x402 operator wallet ETH balance on Base (units: ETH, not wei)',
+  registers: [register],
+});

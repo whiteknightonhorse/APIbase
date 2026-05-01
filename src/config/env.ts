@@ -45,6 +45,19 @@ export const appEnvSchema = z.object({
     .optional()
     .default('https://api.cdp.coinbase.com/platform/v2/x402'),
 
+  // Self-hosted x402 facilitator (CDP-free path).
+  // mode=local → APIbase submits transferWithAuthorization on Base directly via viem.
+  // mode=remote → existing HTTP facilitator behavior (PayAI / CDP).
+  X402_FACILITATOR_MODE: z.enum(['local', 'remote']).default('remote'),
+  // Operator wallet — pays gas only, separate from X402_PAYMENT_ADDRESS receiver.
+  // Required iff X402_FACILITATOR_MODE=local. Format: 0x + 64 hex chars.
+  X402_OPERATOR_PRIVATE_KEY: z.string().optional().default(''),
+  // Base RPC URLs (override with private RPC for high QPS).
+  X402_BASE_RPC_URL: z.string().url().default('https://mainnet.base.org'),
+  X402_BASE_SEPOLIA_RPC_URL: z.string().url().default('https://sepolia.base.org'),
+  // Operator wallet ETH balance threshold for low-balance alert (in ETH, not wei).
+  X402_OPERATOR_MIN_ETH_BALANCE: z.coerce.number().default(0.005),
+
   // Provider API keys (§5.3)
   PROVIDER_KEY_OPENWEATHER: z.string().min(1),
   PROVIDER_KEY_COINGECKO: z.string().optional().default(''),

@@ -21,7 +21,9 @@
       "@x402/core/schemas": ["./node_modules/@x402/core/dist/cjs/schemas"],
       "@x402/core/server": ["./node_modules/@x402/core/dist/cjs/server"],
       "@x402/core/types": ["./node_modules/@x402/core/dist/cjs/types"],
-      "@x402/evm/exact/server": ["./node_modules/@x402/evm/dist/cjs/exact/server"]
+      "@x402/core/facilitator": ["./node_modules/@x402/core/dist/cjs/facilitator"],
+      "@x402/evm/exact/server": ["./node_modules/@x402/evm/dist/cjs/exact/server"],
+      "@x402/evm/exact/facilitator": ["./node_modules/@x402/evm/dist/cjs/exact/facilitator"]
     }
   },
   "include": ["src/**/*"],

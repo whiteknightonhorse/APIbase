@@ -296,3 +296,32 @@ groups:
           severity: warning
         annotations:
           summary: "execution_ledger has > 1M dead tuples — VACUUM may be lagging"
+
+      # -----------------------------------------------------------------------
+      # 28. X402OperatorWalletLowBalance — critical
+      # Self-hosted facilitator: operator wallet pays gas for every on-chain
+      # settle. Below threshold = top up immediately. Below 0 = settles will
+      # fail. Free-tier-style cushion: 0.005 ETH ≈ 10K settles at ~$0.0005 gas.
+      # -----------------------------------------------------------------------
+      - alert: X402OperatorWalletLowBalance
+        expr: x402_operator_eth_balance > 0 and x402_operator_eth_balance < 0.005
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "x402 operator wallet ETH balance < 0.005 — top up immediately or settles will fail when it hits 0"
+
+      # -----------------------------------------------------------------------
+      # 29. X402LocalSettleErrorRate — warning
+      # Self-hosted facilitator: spike in local settle errors after PayAI
+      # fallback also failed — investigate RPC, signer, or on-chain issue.
+      # -----------------------------------------------------------------------
+      - alert: X402LocalSettleErrorRate
+        expr: |
+          (rate(x402_local_settle_total{result="error"}[5m])
+            / (rate(x402_local_settle_total[5m]) > 0)) > 0.05
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "x402 local settle error rate > 5% over 10m — investigate RPC / operator signer"

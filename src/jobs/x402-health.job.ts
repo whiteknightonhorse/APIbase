@@ -2,7 +2,10 @@ import Redis from 'ioredis';
 import { logger } from '../config/logger';
 import { config } from '../config';
 import { getCdpConfig } from '../config/cdp.config';
+import { getX402Config } from '../config/x402.config';
 import { buildCdpAuthHeadersFn } from '../services/cdp-jwt.service';
+import { getOperatorWallet, weiToEth } from '../payments/operator-signer';
+import { x402OperatorEthBalance } from '../services/metrics.service';
 
 /**
  * x402 Facilitator Health Check Job.
@@ -154,6 +157,64 @@ export async function run(redis: Redis): Promise<void> {
   await runCdpHealthCheck(redis, chainId).catch((err) => {
     logger.warn({ err }, 'CDP health check threw — ignored');
   });
+
+  // Operator wallet ETH balance probe (only when self-hosted facilitator is active).
+  await runOperatorBalanceProbe(redis).catch((err) => {
+    logger.warn({ err }, 'x402 operator balance probe threw — ignored');
+  });
+}
+
+/**
+ * Operator wallet ETH balance probe.
+ * Updates the x402_operator_eth_balance gauge so Prometheus alert
+ * X402OperatorWalletLowBalance can fire before settles start failing.
+ * Also writes Redis hash x402:operator (TTL 2h) for the dashboard.
+ */
+async function runOperatorBalanceProbe(redis: Redis): Promise<void> {
+  const x402Cfg = getX402Config();
+  if (x402Cfg.facilitatorMode !== 'local') return;
+
+  let wallet;
+  try {
+    wallet = getOperatorWallet();
+  } catch (err) {
+    logger.warn({ err }, 'x402 operator wallet not initialized — skipping balance probe');
+    return;
+  }
+
+  let balanceWei: bigint;
+  try {
+    balanceWei = await wallet.getEthBalance();
+  } catch (err) {
+    logger.warn({ err, operator: wallet.address }, 'x402 operator balance probe: RPC call failed');
+    return;
+  }
+
+  const balanceEth = weiToEth(balanceWei);
+  x402OperatorEthBalance.set(balanceEth);
+
+  try {
+    await redis.hmset('x402:operator', {
+      address: wallet.address,
+      balance_eth: String(balanceEth),
+      min_balance_eth: String(x402Cfg.operatorMinEthBalance),
+      below_threshold: String(balanceEth < x402Cfg.operatorMinEthBalance),
+      last_check: new Date().toISOString(),
+    });
+    await redis.expire('x402:operator', 7200);
+  } catch (err) {
+    logger.warn({ err }, 'Failed to write x402 operator balance to Redis');
+  }
+
+  logger.info(
+    {
+      job: 'x402-health',
+      operator: wallet.address,
+      balance_eth: balanceEth,
+      min_eth: x402Cfg.operatorMinEthBalance,
+    },
+    'x402 operator balance probe completed',
+  );
 }
 
 // Map chain IDs to short names used by facilitators

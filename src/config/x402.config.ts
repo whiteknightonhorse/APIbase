@@ -9,6 +9,10 @@ export interface X402Config {
   readonly receiptTtlSeconds: number;
   readonly maxTimeoutSeconds: number;
   readonly testnet: boolean;
+  readonly facilitatorMode: 'local' | 'remote';
+  readonly operatorPrivateKey: string;
+  readonly baseRpcUrl: string;
+  readonly operatorMinEthBalance: number;
 }
 
 const NETWORK_MAP: Record<string, { chainId: string; usdc: string; testnet: boolean }> = {
@@ -38,6 +42,10 @@ export function getX402Config(): X402Config {
       receiptTtlSeconds: 86_400,
       maxTimeoutSeconds: 30,
       testnet: net.testnet,
+      facilitatorMode: config.X402_FACILITATOR_MODE,
+      operatorPrivateKey: config.X402_OPERATOR_PRIVATE_KEY,
+      baseRpcUrl: net.testnet ? config.X402_BASE_SEPOLIA_RPC_URL : config.X402_BASE_RPC_URL,
+      operatorMinEthBalance: config.X402_OPERATOR_MIN_ETH_BALANCE,
     });
   }
   return frozen;
