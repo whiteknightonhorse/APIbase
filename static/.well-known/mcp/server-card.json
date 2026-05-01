@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 576 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 576 tools across 177 providers. Pay-per-call via x402 (USDC on Base) or MPP (USDC on Tempo). Self-hosted on-chain settlement — APIbase signs and submits transferWithAuthorization directly, no third-party facilitator dependency.",
   "version": "2.1.0",
   "tools": [
     {
