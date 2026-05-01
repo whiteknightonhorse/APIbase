@@ -142,13 +142,23 @@ export const x402LocalSettleTotal = new client.Counter({
 
 export const x402LocalSettleDurationSeconds = new client.Histogram({
   name: 'x402_local_settle_duration_seconds',
-  help: 'x402 local-facilitator settle duration in seconds',
-  buckets: [0.5, 1, 2, 5, 10, 30],
+  help: 'x402 local-facilitator settle duration in seconds, by outcome',
+  // Sub-second buckets to capture future fire-and-forget optimization wins;
+  // upper buckets to detect chain-finality slowdowns.
+  buckets: [0.1, 0.25, 0.5, 1, 2, 5, 10, 30],
+  labelNames: ['result'] as const, // 'success' | 'fallback' | 'error'
   registers: [register],
 });
 
 export const x402OperatorEthBalance = new client.Gauge({
   name: 'x402_operator_eth_balance',
   help: 'x402 operator wallet ETH balance on Base (units: ETH, not wei)',
+  registers: [register],
+});
+
+export const x402OperatorLockWaitSeconds = new client.Histogram({
+  name: 'x402_operator_lock_wait_seconds',
+  help: 'Time spent waiting to acquire the per-operator settle lock',
+  buckets: [0.001, 0.01, 0.1, 0.5, 1, 5, 30],
   registers: [register],
 });

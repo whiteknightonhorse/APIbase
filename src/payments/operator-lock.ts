@@ -1,6 +1,7 @@
 import { ensureRedisConnected } from '../services/redis.service';
 import { logger } from '../config/logger';
 import { AppError, ErrorCode } from '../types/errors';
+import { x402OperatorLockWaitSeconds } from '../services/metrics.service';
 
 /**
  * Redis SETNX-based lock for serializing on-chain settles per operator address.
@@ -39,16 +40,24 @@ export async function withOperatorLock<T>(
   const token = `${process.pid}:${Date.now()}:${Math.random().toString(36).slice(2)}`;
   const deadline = Date.now() + ACQUIRE_TIMEOUT_MS;
 
-  // Acquire — SET NX with PX for atomic lock + auto-expiry
+  // Acquire — SET NX with PX for atomic lock + auto-expiry.
+  // Track success in-loop to avoid post-loop race (we may have just acquired
+  // the lock right before deadline, or our TTL could expire between the
+  // successful SET and a separate GET — both produce false negatives on a
+  // post-loop GET check).
+  const acquireStart = Date.now();
+  let acquired = false;
   while (Date.now() < deadline) {
     const got = await redis.set(key, token, 'PX', LOCK_TTL_MS, 'NX');
-    if (got === 'OK') break;
+    if (got === 'OK') {
+      acquired = true;
+      break;
+    }
     await sleep(RETRY_DELAY_MS);
   }
+  x402OperatorLockWaitSeconds.observe((Date.now() - acquireStart) / 1000);
 
-  // Final check — if still not held, give up
-  const owner = await redis.get(key);
-  if (owner !== token) {
+  if (!acquired) {
     throw new AppError(
       ErrorCode.SERVICE_UNAVAILABLE,
       `Could not acquire operator lock within ${ACQUIRE_TIMEOUT_MS}ms`,

@@ -70,20 +70,31 @@ export class LocalFacilitatorClient implements FacilitatorClient {
       const result = await withOperatorLock(this.operatorAddress, () =>
         this.localFacilitator.settle(paymentPayload, paymentRequirements),
       );
-      x402LocalSettleTotal.inc({ result: result.success ? 'success' : 'error' });
-      x402LocalSettleDurationSeconds.observe((performance.now() - start) / 1000);
+      const outcome = result.success ? 'success' : 'error';
+      x402LocalSettleTotal.inc({ result: outcome });
+      x402LocalSettleDurationSeconds.observe(
+        { result: outcome },
+        (performance.now() - start) / 1000,
+      );
       return result;
     } catch (err) {
-      x402LocalSettleDurationSeconds.observe((performance.now() - start) / 1000);
       logger.warn(
         { err: errMsg(err), operator: this.operatorAddress },
         'x402 local settle threw — attempting fallback',
       );
       if (this.remoteFallback) {
         x402LocalSettleTotal.inc({ result: 'fallback' });
+        x402LocalSettleDurationSeconds.observe(
+          { result: 'fallback' },
+          (performance.now() - start) / 1000,
+        );
         return this.remoteFallback.settle(paymentPayload, paymentRequirements);
       }
       x402LocalSettleTotal.inc({ result: 'error' });
+      x402LocalSettleDurationSeconds.observe(
+        { result: 'error' },
+        (performance.now() - start) / 1000,
+      );
       throw err;
     }
   }

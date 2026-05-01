@@ -70,7 +70,9 @@ export function getOperatorWallet(): OperatorWallet {
   const signer = createWalletClient({
     account,
     chain,
-    transport: http(cfg.baseRpcUrl),
+    // retryCount=2 + retryDelay=200ms absorbs transient public-RPC blips
+    // (mainnet.base.org has no SLA) before falling back to PayAI HTTP path
+    transport: http(cfg.baseRpcUrl, { retryCount: 2, retryDelay: 200 }),
   }).extend(publicActions) as OperatorSigner;
 
   cached = {
