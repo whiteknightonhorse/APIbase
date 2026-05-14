@@ -2420,6 +2420,28 @@ tools:
     price_usd: "0.002"
     cache_ttl: 60
 
+  # --- Xquik (X/Twitter Data) ---
+  - tool_id: xquik.search_tweets
+    name: Search X Tweets
+    provider: xquik
+    price_usd: "0.002"
+    cache_ttl: 60
+  - tool_id: xquik.user
+    name: X User Profile
+    provider: xquik
+    price_usd: "0.002"
+    cache_ttl: 300
+  - tool_id: xquik.followers
+    name: X User Followers
+    provider: xquik
+    price_usd: "0.003"
+    cache_ttl: 300
+  - tool_id: xquik.trends
+    name: X Trending Topics
+    provider: xquik
+    price_usd: "0.002"
+    cache_ttl: 60
+
   # --- UC-210: Currents API (Global News) ---
   - tool_id: currents.latest
     name: Latest Global News

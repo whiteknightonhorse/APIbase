@@ -325,6 +325,9 @@ export const appEnvSchema = z.object({
   // TwitterAPI.io (UC-198) — Twitter/X data, pay-per-call
   PROVIDER_KEY_TWITTERAPI: z.string().optional().default(''),
 
+  // Xquik - X/Twitter data API
+  PROVIDER_KEY_XQUIK: z.string().optional().default(''),
+
   // Currents API (UC-210) — global news 70+ countries
   PROVIDER_KEY_CURRENTS: z.string().optional().default(''),
 

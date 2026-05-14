@@ -109,6 +109,7 @@ import { WhoAdapter } from './who';
 import { GdacsAdapter } from './gdacs';
 import { RateApiAdapter } from './rateapi';
 import { TwitterApiAdapter } from './twitterapi';
+import { XquikAdapter } from './xquik';
 import { CurrentsAdapter } from './currents';
 import { IbanApiAdapter } from './ibanapi';
 import { PubchemAdapter } from './pubchem';
@@ -777,6 +778,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
         | undefined;
       if (!twKey) return undefined;
       return getOrCreate('twitterapi', () => new TwitterApiAdapter(twKey));
+    }
+    case 'xquik': {
+      const xquikKey = (config as Record<string, unknown>).PROVIDER_KEY_XQUIK as string | undefined;
+      if (!xquikKey) return undefined;
+      return getOrCreate('xquik', () => new XquikAdapter(xquikKey));
     }
     case 'pubchem': {
       const ncbiKey = ((config as Record<string, unknown>).PROVIDER_KEY_NCBI as string) || '';

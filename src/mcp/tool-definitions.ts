@@ -4071,6 +4071,44 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     annotations: READ_ONLY,
   },
 
+  // Xquik (4)
+  {
+    toolId: 'xquik.search_tweets',
+    mcpName: 'xquik.tweets.search',
+    title: 'Search X Tweets with Xquik',
+    description:
+      'Search X tweets with X query operators, cursor pagination, optional time bounds, and engagement-ranked or chronological sort. Returns tweet text, author, metrics, timestamps, and pagination cursors.',
+    category: 'social',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'xquik.user',
+    mcpName: 'xquik.users.profile',
+    title: 'X User Profile with Xquik',
+    description:
+      'Look up an X user profile by username or user ID. Returns display name, bio, follower and following counts, verification status, profile images, location, and account creation date.',
+    category: 'social',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'xquik.followers',
+    mcpName: 'xquik.users.followers',
+    title: 'X User Followers with Xquik',
+    description:
+      'Get a paginated follower list for an X user by username or user ID. Returns profile details with cursor pagination and configurable page size.',
+    category: 'social',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'xquik.trends',
+    mcpName: 'xquik.trends.regional',
+    title: 'X Trending Topics with Xquik',
+    description:
+      'Get current X trending topics by WOEID region. Returns trend names, optional descriptions, search queries, rank, count, and the region used.',
+    category: 'social',
+    annotations: READ_ONLY,
+  },
+
   // Currents API (3) — UC-210
   {
     toolId: 'currents.latest',

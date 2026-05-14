@@ -1,6 +1,6 @@
 # APIbase.pro — The API Hub for AI Agents
 
-> One MCP endpoint. 576 tools. 177 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
+> One MCP endpoint. 580 tools. 178 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Frameworks](https://apibase.pro/frameworks)** | **[Dashboard](https://apibase.pro/dashboard)**
 
@@ -27,7 +27,7 @@ https://github.com/user-attachments/assets/9e598d61-b2d0-486c-bd34-f0cb0354d09c
 
 ## What is APIbase?
 
-Production MCP server that gives AI agents access to 576 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, check weather and tides, query US Census and CDC health data, search ML models on HuggingFace, look up World Bank indicators, track streamflow from USGS stations, search 7M+ CS papers on DBLP, generate images, send emails, decode VINs, look up chemical compounds, scan npm/PyPI vulnerabilities, find EV chargers, search art at the Met Museum, batch multiple calls, track usage analytics — and 300+ more tools across 30+ categories.
+Production MCP server that gives AI agents access to 580 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, check weather and tides, query US Census and CDC health data, search ML models on HuggingFace, look up World Bank indicators, track streamflow from USGS stations, search 7M+ CS papers on DBLP, generate images, send emails, decode VINs, look up chemical compounds, scan npm/PyPI vulnerabilities, find EV chargers, search art at the Met Museum, batch multiple calls, track usage analytics - and 300+ more tools across 30+ categories.
 
 **Built for AI agents, not humans.** Auto-registration, zero setup, pay-per-call via x402 USDC micropayments on Base or MPP (Machine Payments Protocol) on Tempo.
 
@@ -91,13 +91,13 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 
 ---
 
-## Tool Categories (576 tools, 160 providers)
+## Tool Categories (580 tools, 161 providers)
 
 | Category | Tools | Providers | Examples |
 |----------|-------|-----------|----------|
 | **Web Search** | 11 | Serper, Tavily, Exa, Spider.cloud | Google search, AI search, semantic search, web scraping |
 | **News & Events** | 10 | NewsData, GDELT, Mastodon, Currents API | Global news (65 langs), crypto news, trending |
-| **Social** | 7 | Bluesky, TwitterAPI.io | Search posts, profiles, feeds (AT Protocol, X/Twitter) |
+| **Social** | 11 | Bluesky, TwitterAPI.io, Xquik | Search posts, profiles, feeds, followers, trends (AT Protocol, X/Twitter) |
 | **Travel & Flights** | 17 | Amadeus, Sabre, Aviasales | Flight search, pricing, status, airports |
 | **Finance & Stocks** | 17 | Finnhub, CoinGecko, ECB, FRED, World Bank | Stock quotes, OHLCV, FX rates, economic data, global indicators |
 | **Banking Data** | 6 | FDIC BankFind, IBANAPI | US bank financials, branch locations, institution search, IBAN validation |
