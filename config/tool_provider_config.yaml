@@ -3543,6 +3543,23 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-431: Statistics Sweden (SCB) ---
+  - tool_id: scb.catalog
+    name: SCB Sweden Statistics Catalog
+    provider: scb
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: scb.table_metadata
+    name: SCB Sweden Table Metadata
+    provider: scb
+    price_usd: "0.002"
+    cache_ttl: 3600
+  - tool_id: scb.table_query
+    name: SCB Sweden Table Query
+    provider: scb
+    price_usd: "0.003"
+    cache_ttl: 1800
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

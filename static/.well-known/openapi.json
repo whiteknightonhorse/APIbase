@@ -53297,6 +53297,278 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/scb.catalog/call": {
+      "post": {
+        "operationId": "scb_catalog",
+        "summary": "SCB Sweden Statistics Catalog",
+        "description": "Browse the SCB statistics database tree by path. Top-level categories: BE (population), AM (labour market), HE (households), NR (national accounts), PR (prices/inflation), MI (environment), AA (general), BO (housing), EN (energy), FM (financial markets), HA (trade), JO (agriculture), LE (living conditions). Returns child nodes (subcategories, type=l) or table descriptors at leaf nodes (type=t). Use empty path '' to get top-level. Navigate hierarchically to find tables for scb.table_metadata.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "scb.catalog"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "Hierarchical path through SCB taxonomy. Empty '' gets top-level categories. Examples: 'BE' (population), 'BE/BE0101' (population statistics tables), 'AM' (labour market), 'NR' (national accounts), 'PR' (prices/inflation), 'MI' (environment), 'HE' (household finances). Use scb.catalog recursively to navigate until type=t (table leaf) nodes appear.",
+                    "default": ""
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/scb.table_metadata/call": {
+      "post": {
+        "operationId": "scb_table_metadata",
+        "summary": "SCB Sweden Table Metadata",
+        "description": "Get metadata for a specific SCB statistical table — title, dimensions (variables like Region, Alder/age, Kon/sex, Tid/year), valid value codes for each dimension, and latest update timestamp. Use this BEFORE scb.table_query to discover what filter values are accepted. Example path: 'BE/BE0101/BE0101A/BefolkningNy' (Sweden population by region/age/sex/year).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "scb.table_metadata"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "table_path": {
+                    "type": "string",
+                    "description": "Full path to a leaf table (type='t' from scb.catalog), e.g. 'BE/BE0101/BE0101A/BefolkningNy' (Sweden population by region/age/sex/year). 'AM/AKU/AKU01/AKU01A' (labour market, employed persons). Returns title, dimension codes, and valid values to use in scb.table_query."
+                  }
+                },
+                "required": [
+                  "table_path"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/scb.table_query/call": {
+      "post": {
+        "operationId": "scb_table_query",
+        "summary": "SCB Sweden Table Query",
+        "description": "Run a statistical query against an SCB table — specify dimension filters to slice data by region, age, sex, year, etc. Returns JSON-stat2 format with labeled dimensions and numeric values. Always call scb.table_metadata first to discover valid dimension codes and value codes. Example: Sweden total population (Region='00', filter='vs:RegionRiket99'), latest year (Tid filter='top' values=['1']).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "scb.table_query"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "table_path": {
+                    "type": "string",
+                    "description": "Full path to the leaf table to query — same as scb.table_metadata table_path. Example: 'BE/BE0101/BE0101A/BefolkningNy'."
+                  },
+                  "query": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "description": "Dimension code from scb.table_metadata variables[].code. Examples: 'Region', 'Alder', 'Kon', 'Tid', 'ContentsCode'."
+                        },
+                        "selection": {
+                          "type": "object",
+                          "properties": {
+                            "filter": {
+                              "type": "string",
+                              "description": "Filter type. Common values: 'item' (select by exact code), 'vs:RegionRiket99' (Sweden total), 'vs:RegionKommun07' (municipality level), 'top' (select N most recent — use with Tid/year dimensions), 'all' (all values). Use the valueSet codes from metadata."
+                            },
+                            "values": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              },
+                              "description": "Array of value codes to select. Get valid codes from scb.table_metadata variables[].values. For filter='item': list codes like ['00','01']. For filter='top': list count like ['3'] (3 most recent). For filter='all': use ['*']. Example: Region '00' = Sweden total, Kon '1'=men '2'=women."
+                            }
+                          },
+                          "required": [
+                            "filter",
+                            "values"
+                          ],
+                          "description": "Selection criteria for this dimension."
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "selection"
+                      ],
+                      "description": "Filter for one dimension (variable) in the table."
+                    },
+                    "description": "Array of dimension filters. Each filter selects which values to include for one dimension. Example: [{code:'Region',selection:{filter:'vs:RegionRiket99',values:['00']}}, {code:'ContentsCode',selection:{filter:'item',values:['BE0101N1']}}, {code:'Tid',selection:{filter:'top',values:['1']}}]. Response is JSON-stat2 format with dimension labels and numeric values array."
+                  }
+                },
+                "required": [
+                  "table_path",
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

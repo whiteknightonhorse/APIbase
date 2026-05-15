@@ -183,6 +183,7 @@ import { ChesscomAdapter } from './chesscom';
 import { AwcAdapter } from './awc';
 import { UkfsaAdapter } from './ukfsa';
 import { GovukAdapter } from './govuk';
+import { ScbAdapter } from './scb';
 import { config } from '../config';
 
 /**
@@ -1109,6 +1110,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'govuk':
       // GOV.UK Content API — 700K+ UK government documents, OGL v3, no auth (UC-430)
       return getOrCreate('govuk', () => new GovukAdapter());
+    case 'scb':
+      // Statistics Sweden (SCB) PXWeb API — open national statistics, no auth (UC-431)
+      return getOrCreate('scb', () => new ScbAdapter());
     default:
       return undefined;
   }

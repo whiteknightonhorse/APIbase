@@ -6105,4 +6105,34 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'legal',
     annotations: READ_ONLY,
   },
+  // ---------------------------------------------------------------------------
+  // Statistics Sweden — SCB (UC-431)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'scb.catalog',
+    mcpName: 'scb.catalog.browse',
+    title: 'SCB Sweden Statistics Catalog',
+    description:
+      "Browse the SCB statistics database tree by path. Top-level categories: BE (population), AM (labour market), HE (households), NR (national accounts), PR (prices/inflation), MI (environment), AA (general), BO (housing), EN (energy), FM (financial markets), HA (trade), JO (agriculture), LE (living conditions). Returns child nodes (subcategories, type=l) or table descriptors at leaf nodes (type=t). Use empty path '' to get top-level. Navigate hierarchically to find tables for scb.table_metadata.",
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'scb.table_metadata',
+    mcpName: 'scb.tables.metadata',
+    title: 'SCB Sweden Table Metadata',
+    description:
+      "Get metadata for a specific SCB statistical table — title, dimensions (variables like Region, Alder/age, Kon/sex, Tid/year), valid value codes for each dimension, and latest update timestamp. Use this BEFORE scb.table_query to discover what filter values are accepted. Example path: 'BE/BE0101/BE0101A/BefolkningNy' (Sweden population by region/age/sex/year).",
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'scb.table_query',
+    mcpName: 'scb.tables.query',
+    title: 'SCB Sweden Table Query',
+    description:
+      "Run a statistical query against an SCB table — specify dimension filters to slice data by region, age, sex, year, etc. Returns JSON-stat2 format with labeled dimensions and numeric values. Always call scb.table_metadata first to discover valid dimension codes and value codes. Example: Sweden total population (Region='00', filter='vs:RegionRiket99'), latest year (Tid filter='top' values=['1']).",
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 592 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 595 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -33937,6 +33937,185 @@
         },
         "required": [
           "q"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "scb.catalog.browse",
+      "title": "SCB Sweden Statistics Catalog",
+      "description": "Browse the SCB statistics database tree by path. Top-level categories: BE (population), AM (labour market), HE (households), NR (national accounts), PR (prices/inflation), MI (environment), AA (general), BO (housing), EN (energy), FM (financial markets), HA (trade), JO (agriculture), LE (living conditions). Returns child nodes (subcategories, type=l) or table descriptors at leaf nodes (type=t). Use empty path '' to get top-level. Navigate hierarchically to find tables for scb.table_metadata.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Hierarchical path through SCB taxonomy. Empty '' gets top-level categories. Examples: 'BE' (population), 'BE/BE0101' (population statistics tables), 'AM' (labour market), 'NR' (national accounts), 'PR' (prices/inflation), 'MI' (environment), 'HE' (household finances). Use scb.catalog recursively to navigate until type=t (table leaf) nodes appear.",
+            "default": ""
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "scb.tables.metadata",
+      "title": "SCB Sweden Table Metadata",
+      "description": "Get metadata for a specific SCB statistical table \u2014 title, dimensions (variables like Region, Alder/age, Kon/sex, Tid/year), valid value codes for each dimension, and latest update timestamp. Use this BEFORE scb.table_query to discover what filter values are accepted. Example path: 'BE/BE0101/BE0101A/BefolkningNy' (Sweden population by region/age/sex/year).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "table_path": {
+            "type": "string",
+            "description": "Full path to a leaf table (type='t' from scb.catalog), e.g. 'BE/BE0101/BE0101A/BefolkningNy' (Sweden population by region/age/sex/year). 'AM/AKU/AKU01/AKU01A' (labour market, employed persons). Returns title, dimension codes, and valid values to use in scb.table_query."
+          }
+        },
+        "required": [
+          "table_path"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "scb.tables.query",
+      "title": "SCB Sweden Table Query",
+      "description": "Run a statistical query against an SCB table \u2014 specify dimension filters to slice data by region, age, sex, year, etc. Returns JSON-stat2 format with labeled dimensions and numeric values. Always call scb.table_metadata first to discover valid dimension codes and value codes. Example: Sweden total population (Region='00', filter='vs:RegionRiket99'), latest year (Tid filter='top' values=['1']).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "table_path": {
+            "type": "string",
+            "description": "Full path to the leaf table to query \u2014 same as scb.table_metadata table_path. Example: 'BE/BE0101/BE0101A/BefolkningNy'."
+          },
+          "query": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string",
+                  "description": "Dimension code from scb.table_metadata variables[].code. Examples: 'Region', 'Alder', 'Kon', 'Tid', 'ContentsCode'."
+                },
+                "selection": {
+                  "type": "object",
+                  "properties": {
+                    "filter": {
+                      "type": "string",
+                      "description": "Filter type. Common values: 'item' (select by exact code), 'vs:RegionRiket99' (Sweden total), 'vs:RegionKommun07' (municipality level), 'top' (select N most recent \u2014 use with Tid/year dimensions), 'all' (all values). Use the valueSet codes from metadata."
+                    },
+                    "values": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Array of value codes to select. Get valid codes from scb.table_metadata variables[].values. For filter='item': list codes like ['00','01']. For filter='top': list count like ['3'] (3 most recent). For filter='all': use ['*']. Example: Region '00' = Sweden total, Kon '1'=men '2'=women."
+                    }
+                  },
+                  "required": [
+                    "filter",
+                    "values"
+                  ],
+                  "description": "Selection criteria for this dimension."
+                }
+              },
+              "required": [
+                "code",
+                "selection"
+              ],
+              "description": "Filter for one dimension (variable) in the table."
+            },
+            "description": "Array of dimension filters. Each filter selects which values to include for one dimension. Example: [{code:'Region',selection:{filter:'vs:RegionRiket99',values:['00']}}, {code:'ContentsCode',selection:{filter:'item',values:['BE0101N1']}}, {code:'Tid',selection:{filter:'top',values:['1']}}]. Response is JSON-stat2 format with dimension labels and numeric values array."
+          }
+        },
+        "required": [
+          "table_path",
+          "query"
         ]
       },
       "outputSchema": {

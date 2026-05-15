@@ -2,8 +2,8 @@
   "platform": "APIbase",
   "version": "2.0",
   "updated_at": "2026-04-01T00:00:00Z",
-  "tools_count": 592,
-  "providers_count": 183,
+  "tools_count": 595,
+  "providers_count": 184,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
@@ -151,9 +151,9 @@
     },
     {
       "name": "world",
-      "tools": 29,
-      "providers": "REST Countries, Nager.Date, GDACS, VATcomply, Open Food Facts, USGS Water, NOAA Tides",
-      "examples": "countries, holidays, disasters, VAT, food products, streamflow, water quality, tides & currents"
+      "tools": 32,
+      "providers": "REST Countries, Nager.Date, GDACS, VATcomply, Open Food Facts, USGS Water, NOAA Tides, Statistics Sweden (SCB)",
+      "examples": "countries, holidays, disasters, VAT, food products, streamflow, water quality, tides & currents, Sweden statistics"
     }
   ]
 }

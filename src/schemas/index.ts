@@ -183,6 +183,7 @@ import { chesscomSchemas } from './chesscom.schema';
 import { awcSchemas } from './awc.schema';
 import { ukfsaSchemas } from './ukfsa.schema';
 import { govukSchemas } from './govuk.schema';
+import { scbSchemas } from './scb.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -369,4 +370,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...awcSchemas,
   ...ukfsaSchemas,
   ...govukSchemas,
+  ...scbSchemas,
 };
