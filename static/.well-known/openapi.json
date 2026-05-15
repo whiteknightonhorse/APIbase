@@ -55358,6 +55358,246 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/avwx.notams/call": {
+      "post": {
+        "operationId": "avwx_notams",
+        "summary": "AVWX Parsed NOTAMs",
+        "description": "Active NOTAMs (Notice to Airmen) for one or more airports, parsed into structured fields — NOTAM ID, classification (FDC/D/U), type (runway closure, navaid out, airspace restriction, obstacle), effective period, summary text. Critical for flight planning. UNIQUE to AVWX — NOAA and CheckWX do NOT return parsed NOTAMs.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "avwx.notams"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "icao_code": {
+                    "type": "string",
+                    "description": "Single ICAO airport code (4-letter uppercase). Examples: KJFK, EGLL, RJTT, OMDB."
+                  },
+                  "distance": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100,
+                    "description": "Include NOTAMs within this nautical-mile radius (0-100, default 10). Use 0 for airport-specific only."
+                  }
+                },
+                "required": [
+                  "icao_code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/avwx.pireps/call": {
+      "post": {
+        "operationId": "avwx_pireps",
+        "summary": "AVWX Parsed PIREPs",
+        "description": "Pilot Reports (PIREPs) near an airport, parsed — aircraft type, altitude, time, location, sky condition observed, turbulence, icing, weather. Source: pilots reporting in-flight conditions. Useful for hazard awareness.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "avwx.pireps"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "icao_code": {
+                    "type": "string",
+                    "description": "Single ICAO airport code (4-letter uppercase). Examples: KJFK, EGLL, KSFO."
+                  }
+                },
+                "required": [
+                  "icao_code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/avwx.station_summary/call": {
+      "post": {
+        "operationId": "avwx_station_summary",
+        "summary": "AVWX Station Summary",
+        "description": "Composite report for one airport — latest parsed METAR + TAF + station info (name, lat/lon/elev, type) in one call. Cheaper than three separate calls if you need the full picture.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "avwx.station_summary"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "icao_code": {
+                    "type": "string",
+                    "description": "Single ICAO airport code (4-letter uppercase). Examples: KJFK, EGLL, KSFO."
+                  }
+                },
+                "required": [
+                  "icao_code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

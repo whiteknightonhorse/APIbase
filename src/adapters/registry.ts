@@ -189,6 +189,7 @@ import { UsajobsAdapter } from './usajobs';
 import { NrelAdapter } from './nrel';
 import { OpenDotaAdapter } from './opendota';
 import { CheckWxAdapter } from './checkwx';
+import { AvwxAdapter } from './avwx';
 import { config } from '../config';
 
 /**
@@ -1153,6 +1154,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
         | undefined;
       if (!checkwxKey) return undefined;
       return getOrCreate('checkwx', () => new CheckWxAdapter(checkwxKey));
+    }
+    case 'avwx': {
+      // AVWX Aviation Weather — parsed NOTAMs + PIREPs + station summary (UC-424)
+      const avwxKey = (config as Record<string, unknown>).PROVIDER_KEY_AVWX as string | undefined;
+      if (!avwxKey) return undefined;
+      return getOrCreate('avwx', () => new AvwxAdapter(avwxKey));
     }
     default:
       return undefined;

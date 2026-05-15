@@ -1708,5 +1708,15 @@
     "reset_period": "monthly",
     "docs_url": "https://www.checkwxapi.com/documentation",
     "limit_proof": "Free tier: 10,000 calls/month. AMBER ToS — commercial use OK with attribution. Requires API key."
+  },
+  "avwx": {
+    "display_name": "AVWX Aviation Weather",
+    "health_url": "https://avwx.rest/api/summary/KJFK",
+    "limit_type": "monthly",
+    "free_limit": 1000,
+    "reset_period": "monthly",
+    "paid_balance": true,
+    "docs_url": "https://avwx.rest/documentation#section/Authentication",
+    "limit_proof": "Free tier: 1,000 requests/month. Commercial use OK. Paid plans start at $10/month for higher volume."
   }
 }

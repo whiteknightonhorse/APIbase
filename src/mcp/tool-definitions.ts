@@ -6331,4 +6331,33 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'entertainment',
     annotations: READ_ONLY,
   },
+
+  // AVWX Aviation Weather (UC-424, 3 tools)
+  {
+    toolId: 'avwx.notams',
+    mcpName: 'avwx.notams.list',
+    title: 'AVWX Parsed NOTAMs',
+    description:
+      'Active NOTAMs (Notice to Airmen) for one or more airports, parsed into structured fields — NOTAM ID, classification (FDC/D/U), type (runway closure, navaid out, airspace restriction, obstacle), effective period, summary text. Critical for flight planning. UNIQUE to AVWX — NOAA and CheckWX do NOT return parsed NOTAMs.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'avwx.pireps',
+    mcpName: 'avwx.pireps.list',
+    title: 'AVWX Parsed PIREPs',
+    description:
+      'Pilot Reports (PIREPs) near an airport, parsed — aircraft type, altitude, time, location, sky condition observed, turbulence, icing, weather. Source: pilots reporting in-flight conditions. Useful for hazard awareness.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'avwx.station_summary',
+    mcpName: 'avwx.stations.summary',
+    title: 'AVWX Station Summary',
+    description:
+      'Composite report for one airport — latest parsed METAR + TAF + station info (name, lat/lon/elev, type) in one call. Cheaper than three separate calls if you need the full picture.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
 ];

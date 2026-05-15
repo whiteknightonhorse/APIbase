@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 615 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 618 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -35285,6 +35285,153 @@
         },
         "required": [
           "icao_codes"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "avwx.notams.list",
+      "title": "AVWX Parsed NOTAMs",
+      "description": "Active NOTAMs (Notice to Airmen) for one or more airports, parsed into structured fields \u2014 NOTAM ID, classification (FDC/D/U), type (runway closure, navaid out, airspace restriction, obstacle), effective period, summary text. Critical for flight planning. UNIQUE to AVWX \u2014 NOAA and CheckWX do NOT return parsed NOTAMs.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "icao_code": {
+            "type": "string",
+            "description": "Single ICAO airport code (4-letter uppercase). Examples: KJFK, EGLL, RJTT, OMDB."
+          },
+          "distance": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Include NOTAMs within this nautical-mile radius (0-100, default 10). Use 0 for airport-specific only."
+          }
+        },
+        "required": [
+          "icao_code"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "avwx.pireps.list",
+      "title": "AVWX Parsed PIREPs",
+      "description": "Pilot Reports (PIREPs) near an airport, parsed \u2014 aircraft type, altitude, time, location, sky condition observed, turbulence, icing, weather. Source: pilots reporting in-flight conditions. Useful for hazard awareness.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "icao_code": {
+            "type": "string",
+            "description": "Single ICAO airport code (4-letter uppercase). Examples: KJFK, EGLL, KSFO."
+          }
+        },
+        "required": [
+          "icao_code"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "avwx.stations.summary",
+      "title": "AVWX Station Summary",
+      "description": "Composite report for one airport \u2014 latest parsed METAR + TAF + station info (name, lat/lon/elev, type) in one call. Cheaper than three separate calls if you need the full picture.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "icao_code": {
+            "type": "string",
+            "description": "Single ICAO airport code (4-letter uppercase). Examples: KJFK, EGLL, KSFO."
+          }
+        },
+        "required": [
+          "icao_code"
         ]
       },
       "outputSchema": {

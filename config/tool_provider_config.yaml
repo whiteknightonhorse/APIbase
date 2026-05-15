@@ -3650,6 +3650,23 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-424: AVWX Aviation Weather ---
+  - tool_id: avwx.notams
+    name: AVWX Parsed NOTAMs
+    provider: avwx
+    price_usd: "0.003"
+    cache_ttl: 1800
+  - tool_id: avwx.pireps
+    name: AVWX Parsed PIREPs
+    provider: avwx
+    price_usd: "0.002"
+    cache_ttl: 900
+  - tool_id: avwx.station_summary
+    name: AVWX Station Summary
+    provider: avwx
+    price_usd: "0.003"
+    cache_ttl: 1800
+
   # --- UC-418: OpenDota ---
   - tool_id: opendota.player_summary
     name: OpenDota Player Summary

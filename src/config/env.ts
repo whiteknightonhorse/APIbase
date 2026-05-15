@@ -379,6 +379,9 @@ export const appEnvSchema = z.object({
   // CheckWX Aviation Weather (UC-423) — X-API-Key header, pre-decoded METAR/TAF JSON
   PROVIDER_KEY_CHECKWX: z.string().optional().default(''),
 
+  // AVWX Aviation Weather (UC-424) — Authorization: BEARER header, parsed NOTAMs + PIREPs
+  PROVIDER_KEY_AVWX: z.string().optional().default(''),
+
   // Polymarket trading — Phase 2 (UC-001 §3-§8)
   POLYMARKET_WALLET_ADDRESS: z.string().startsWith('0x').optional().default(''),
   POLYMARKET_PRIVATE_KEY: z.string().optional().default(''),
