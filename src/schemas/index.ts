@@ -182,6 +182,7 @@ import { lichessSchemas } from './lichess.schema';
 import { chesscomSchemas } from './chesscom.schema';
 import { awcSchemas } from './awc.schema';
 import { ukfsaSchemas } from './ukfsa.schema';
+import { govukSchemas } from './govuk.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -367,4 +368,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...chesscomSchemas,
   ...awcSchemas,
   ...ukfsaSchemas,
+  ...govukSchemas,
 };

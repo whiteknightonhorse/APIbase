@@ -53040,6 +53040,263 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/govuk.search/call": {
+      "post": {
+        "operationId": "govuk_search",
+        "summary": "GOV.UK Content Search",
+        "description": "Full-text search across all 700K+ GOV.UK documents — guidance pages, news articles, statistics releases, organisation pages, ministerial pages, statutory instruments. Filter by content type, organisation, topic. Distinct from UK FSA (food ratings only) — this covers ALL government publications.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "govuk.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "q": {
+                    "type": "string",
+                    "description": "Search query (free text). Examples: 'energy bill rebate', 'visa skilled worker', 'income tax allowance 2026'."
+                  },
+                  "count": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Results per page (1-100, default 10).",
+                    "default": 10
+                  },
+                  "start": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Offset for pagination (default 0).",
+                    "default": 0
+                  },
+                  "order": {
+                    "type": "string",
+                    "enum": [
+                      "-public_timestamp",
+                      "public_timestamp",
+                      "relevance",
+                      "-relevance"
+                    ],
+                    "description": "Sort order. Default is relevance. Use '-public_timestamp' for newest first, 'public_timestamp' for oldest first."
+                  }
+                },
+                "required": [
+                  "q"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/govuk.content/call": {
+      "post": {
+        "operationId": "govuk_content",
+        "summary": "GOV.UK Document Content",
+        "description": "Fetch full content of a GOV.UK page by its base path — title, publication date, organisation, full HTML body (or structured fields per content type), related documents.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "govuk.content"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "base_path": {
+                    "type": "string",
+                    "description": "GOV.UK URL path starting with /, e.g. '/income-tax-rates' or '/government/publications/spring-statement-2026'. Get from govuk.search results."
+                  }
+                },
+                "required": [
+                  "base_path"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/govuk.organisations/call": {
+      "post": {
+        "operationId": "govuk_organisations",
+        "summary": "GOV.UK Organisations Directory",
+        "description": "List or search UK government organisations (ministerial departments, executive agencies, NDPBs, public corporations) — name, web URL, parent department, child organisations. 1100+ entries from Cabinet Office to local agencies.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "govuk.organisations"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Page number (1-100, default 1, 20 organisations per page).",
+                    "default": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

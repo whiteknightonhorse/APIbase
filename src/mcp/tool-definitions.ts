@@ -6074,4 +6074,35 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'health',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // GOV.UK Content API — Cabinet Office, 700K+ UK government documents (UC-430)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'govuk.search',
+    mcpName: 'govuk.content.search',
+    title: 'GOV.UK Content Search',
+    description:
+      'Full-text search across all 700K+ GOV.UK documents — guidance pages, news articles, statistics releases, organisation pages, ministerial pages, statutory instruments. Filter by content type, organisation, topic. Distinct from UK FSA (food ratings only) — this covers ALL government publications.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'govuk.content',
+    mcpName: 'govuk.content.fetch',
+    title: 'GOV.UK Document Content',
+    description:
+      'Fetch full content of a GOV.UK page by its base path — title, publication date, organisation, full HTML body (or structured fields per content type), related documents.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'govuk.organisations',
+    mcpName: 'govuk.organisations.list',
+    title: 'GOV.UK Organisations Directory',
+    description:
+      'List or search UK government organisations (ministerial departments, executive agencies, NDPBs, public corporations) — name, web URL, parent department, child organisations. 1100+ entries from Cabinet Office to local agencies.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
 ];

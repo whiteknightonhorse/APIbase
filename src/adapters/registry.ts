@@ -182,6 +182,7 @@ import { LichessAdapter } from './lichess';
 import { ChesscomAdapter } from './chesscom';
 import { AwcAdapter } from './awc';
 import { UkfsaAdapter } from './ukfsa';
+import { GovukAdapter } from './govuk';
 import { config } from '../config';
 
 /**
@@ -1105,6 +1106,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'ukfsa':
       // UK Food Standards Agency — Food Hygiene Rating Scheme, OGL v3, no auth (UC-429)
       return getOrCreate('ukfsa', () => new UkfsaAdapter());
+    case 'govuk':
+      // GOV.UK Content API — 700K+ UK government documents, OGL v3, no auth (UC-430)
+      return getOrCreate('govuk', () => new GovukAdapter());
     default:
       return undefined;
   }

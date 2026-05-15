@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 589 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 592 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -33774,6 +33774,170 @@
             "description": "Reserved for future filtering \u2014 not currently used."
           }
         }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "govuk.content.fetch",
+      "title": "GOV.UK Document Content",
+      "description": "Fetch full content of a GOV.UK page by its base path \u2014 title, publication date, organisation, full HTML body (or structured fields per content type), related documents.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "base_path": {
+            "type": "string",
+            "description": "GOV.UK URL path starting with /, e.g. '/income-tax-rates' or '/government/publications/spring-statement-2026'. Get from govuk.search results."
+          }
+        },
+        "required": [
+          "base_path"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "govuk.organisations.list",
+      "title": "GOV.UK Organisations Directory",
+      "description": "List or search UK government organisations (ministerial departments, executive agencies, NDPBs, public corporations) \u2014 name, web URL, parent department, child organisations. 1100+ entries from Cabinet Office to local agencies.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Page number (1-100, default 1, 20 organisations per page).",
+            "default": 1
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "govuk.content.search",
+      "title": "GOV.UK Content Search",
+      "description": "Full-text search across all 700K+ GOV.UK documents \u2014 guidance pages, news articles, statistics releases, organisation pages, ministerial pages, statutory instruments. Filter by content type, organisation, topic. Distinct from UK FSA (food ratings only) \u2014 this covers ALL government publications.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "description": "Search query (free text). Examples: 'energy bill rebate', 'visa skilled worker', 'income tax allowance 2026'."
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Results per page (1-100, default 10).",
+            "default": 10
+          },
+          "start": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Offset for pagination (default 0).",
+            "default": 0
+          },
+          "order": {
+            "type": "string",
+            "enum": [
+              "-public_timestamp",
+              "public_timestamp",
+              "relevance",
+              "-relevance"
+            ],
+            "description": "Sort order. Default is relevance. Use '-public_timestamp' for newest first, 'public_timestamp' for oldest first."
+          }
+        },
+        "required": [
+          "q"
+        ]
       },
       "outputSchema": {
         "type": "object",

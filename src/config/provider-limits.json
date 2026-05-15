@@ -1635,5 +1635,14 @@
     "reset_period": "none",
     "docs_url": "https://api.ratings.food.gov.uk/help",
     "limit_proof": "UK Government open data (OGL v3), no auth required, no documented rate limits. Free for commercial use."
+  },
+  "govuk": {
+    "display_name": "GOV.UK Content API",
+    "health_url": "https://www.gov.uk/api/search.json?q=test&count=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://content-api.publishing.service.gov.uk/reference.html",
+    "limit_proof": "UK Government open data (OGL v3), no auth required, no documented rate limits. Commercial use OK."
   }
 }

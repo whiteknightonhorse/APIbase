@@ -3526,6 +3526,23 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-430: GOV.UK Content API (Cabinet Office, UK) ---
+  - tool_id: govuk.search
+    name: GOV.UK Content Search
+    provider: govuk
+    price_usd: "0.002"
+    cache_ttl: 1800
+  - tool_id: govuk.content
+    name: GOV.UK Document Content
+    provider: govuk
+    price_usd: "0.002"
+    cache_ttl: 3600
+  - tool_id: govuk.organisations
+    name: GOV.UK Organisations Directory
+    provider: govuk
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform
