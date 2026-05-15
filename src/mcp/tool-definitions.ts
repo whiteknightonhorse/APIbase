@@ -6013,4 +6013,34 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'entertainment',
     annotations: READ_ONLY,
   },
+  // ---------------------------------------------------------------------------
+  // NOAA Aviation Weather Center (AWC) — METAR/TAF/SIGMET aviation weather (UC-422)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'awc.metar',
+    mcpName: 'aviation.metar.current',
+    title: 'Aviation METAR Weather Report',
+    description:
+      'Current METAR (METeorological Aerodrome Report) for one or more airports — official aviation weather observations (wind, visibility, sky condition, temperature, dewpoint, altimeter, remarks). Updates every 1 hour, more often when conditions change rapidly.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'awc.taf',
+    mcpName: 'aviation.taf.forecast',
+    title: 'Aviation TAF Terminal Forecast',
+    description:
+      'TAF (Terminal Aerodrome Forecast) for an airport — aviation forecast valid for next 24-30 hours with wind, visibility, weather phenomena, and sky conditions in 6-hour windows. Updates 4× daily.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'awc.sigmet',
+    mcpName: 'aviation.sigmet.alerts',
+    title: 'Aviation SIGMET / AIRMET Hazard Alerts',
+    description:
+      'Active SIGMET (SIGnificant METeorological information) and AIRMET reports — flight safety hazards including thunderstorms, turbulence, icing, volcanic ash, dust storms, mountain obscuration. Used by pilots and dispatchers for go/no-go decisions.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
 ];

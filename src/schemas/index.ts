@@ -180,6 +180,7 @@ import { cmaSchemas } from './cma.schema';
 import { razorpayifscSchemas } from './razorpayifsc.schema';
 import { lichessSchemas } from './lichess.schema';
 import { chesscomSchemas } from './chesscom.schema';
+import { awcSchemas } from './awc.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -363,4 +364,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...razorpayifscSchemas,
   ...lichessSchemas,
   ...chesscomSchemas,
+  ...awcSchemas,
 };

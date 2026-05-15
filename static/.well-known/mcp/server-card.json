@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 583 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 586 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -33459,6 +33459,151 @@
         },
         "required": [
           "title"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "aviation.metar.current",
+      "title": "Aviation METAR Weather Report",
+      "description": "Current METAR (METeorological Aerodrome Report) for one or more airports \u2014 official aviation weather observations (wind, visibility, sky condition, temperature, dewpoint, altimeter, remarks). Updates every 1 hour, more often when conditions change rapidly.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "icao_codes": {
+            "type": "string",
+            "description": "Comma-separated ICAO airport codes (uppercase, 4 letters each, e.g. 'KJFK,KLAX,EGLL,RJTT'). Max 20 per call. Examples: KJFK (New York JFK), EGLL (London Heathrow), RJTT (Tokyo Haneda)."
+          },
+          "hours": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 72,
+            "description": "Hours of history to return (default 2, max 72)",
+            "default": 2
+          }
+        },
+        "required": [
+          "icao_codes"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "aviation.sigmet.alerts",
+      "title": "Aviation SIGMET / AIRMET Hazard Alerts",
+      "description": "Active SIGMET (SIGnificant METeorological information) and AIRMET reports \u2014 flight safety hazards including thunderstorms, turbulence, icing, volcanic ash, dust storms, mountain obscuration. Used by pilots and dispatchers for go/no-go decisions.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "_unused": {
+            "type": "string",
+            "description": "Reserved for future hazard-type filtering"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "aviation.taf.forecast",
+      "title": "Aviation TAF Terminal Forecast",
+      "description": "TAF (Terminal Aerodrome Forecast) for an airport \u2014 aviation forecast valid for next 24-30 hours with wind, visibility, weather phenomena, and sky conditions in 6-hour windows. Updates 4\u00d7 daily.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "icao_codes": {
+            "type": "string",
+            "description": "Comma-separated ICAO airport codes. Max 20 per call. Examples: KJFK (New York JFK), EGLL (London Heathrow), OMDB (Dubai International), YSSY (Sydney Kingsford Smith)."
+          }
+        },
+        "required": [
+          "icao_codes"
         ]
       },
       "outputSchema": {

@@ -3492,6 +3492,23 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-422: NOAA Aviation Weather Center (AWC) ---
+  - tool_id: awc.metar
+    name: Aviation METAR Weather Report
+    provider: awc
+    price_usd: "0.001"
+    cache_ttl: 1800
+  - tool_id: awc.taf
+    name: Aviation TAF Terminal Forecast
+    provider: awc
+    price_usd: "0.002"
+    cache_ttl: 7200
+  - tool_id: awc.sigmet
+    name: Aviation SIGMET / AIRMET Hazard Alerts
+    provider: awc
+    price_usd: "0.002"
+    cache_ttl: 900
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

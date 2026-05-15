@@ -1617,5 +1617,14 @@
     "reset_period": "none",
     "docs_url": "https://www.chess.com/news/view/published-data-api",
     "limit_proof": "Open public data, no auth required for read endpoints, commercial use OK. No documented rate limits; be polite with User-Agent header."
+  },
+  "awc": {
+    "display_name": "NOAA Aviation Weather Center",
+    "health_url": "https://aviationweather.gov/api/data/metar?ids=KJFK&format=json&taf=false&hours=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://aviationweather.gov/data/api/",
+    "limit_proof": "US Federal Government open data API, no auth required, no documented rate limits. Public domain, be polite."
   }
 }

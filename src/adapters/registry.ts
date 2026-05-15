@@ -180,6 +180,7 @@ import { CmaAdapter } from './cma';
 import { RazorpayIfscAdapter } from './razorpayifsc';
 import { LichessAdapter } from './lichess';
 import { ChesscomAdapter } from './chesscom';
+import { AwcAdapter } from './awc';
 import { config } from '../config';
 
 /**
@@ -1097,6 +1098,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'chesscom':
       // Chess.com Public Data API — player profiles, stats, titled players, no auth (UC-417)
       return getOrCreate('chesscom', () => new ChesscomAdapter());
+    case 'awc':
+      // NOAA Aviation Weather Center — METAR/TAF/SIGMET, no auth, US public domain (UC-422)
+      return getOrCreate('awc', () => new AwcAdapter());
     default:
       return undefined;
   }
