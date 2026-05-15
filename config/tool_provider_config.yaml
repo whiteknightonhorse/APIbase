@@ -3451,6 +3451,13 @@ tools:
     price_usd: "0.001"
     cache_ttl: 900
 
+  # --- UC-425: Razorpay IFSC ---
+  - tool_id: razorpayifsc.lookup
+    name: Razorpay IFSC Bank Lookup
+    provider: razorpayifsc
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

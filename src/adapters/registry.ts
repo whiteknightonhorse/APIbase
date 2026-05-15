@@ -177,6 +177,7 @@ import { NoaaTidesAdapter } from './noaa-tides';
 import { MetMuseumAdapter } from './met-museum';
 import { RijksmuseumAdapter } from './rijksmuseum';
 import { CmaAdapter } from './cma';
+import { RazorpayIfscAdapter } from './razorpayifsc';
 import { config } from '../config';
 
 /**
@@ -1085,6 +1086,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'cma':
       // Cleveland Museum of Art — 64K+ artworks, CC0, no auth (UC-381)
       return getOrCreate('cma', () => new CmaAdapter());
+    case 'razorpayifsc':
+      // Razorpay IFSC — Indian bank branch lookup, MIT, no auth (UC-425)
+      return getOrCreate('razorpayifsc', () => new RazorpayIfscAdapter());
     default:
       return undefined;
   }

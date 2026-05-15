@@ -177,6 +177,7 @@ import { tidesSchemas } from './tides.schema';
 import { metSchemas } from './met.schema';
 import { rijksSchemas } from './rijks.schema';
 import { cmaSchemas } from './cma.schema';
+import { razorpayifscSchemas } from './razorpayifsc.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -357,4 +358,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...metSchemas,
   ...rijksSchemas,
   ...cmaSchemas,
+  ...razorpayifscSchemas,
 };

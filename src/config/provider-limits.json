@@ -1590,5 +1590,14 @@
     "reset_period": "hourly",
     "docs_url": "https://api.open.fec.gov/developers/",
     "limit_proof": "1,000 req/hr per api.data.gov shared key. FEC mandatory public disclosure data."
+  },
+  "razorpayifsc": {
+    "display_name": "Razorpay IFSC",
+    "health_url": "https://ifsc.razorpay.com/SBIN0005943",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://razorpay.com/docs/api/ifsc/",
+    "limit_proof": "Public MIT-licensed open data API. No authentication, no documented rate limits."
   }
 }

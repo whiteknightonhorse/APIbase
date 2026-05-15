@@ -51955,6 +51955,86 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/razorpayifsc.lookup/call": {
+      "post": {
+        "operationId": "razorpayifsc_lookup",
+        "summary": "Razorpay IFSC Bank Lookup",
+        "description": "Look up Indian bank branch details (name, address, IFSC capabilities like UPI/NEFT/RTGS/IMPS) by IFSC code. Free, MIT-licensed open data covering all Indian banks.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "razorpayifsc.lookup"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ifsc_code": {
+                    "type": "string",
+                    "description": "11-character IFSC code (e.g. SBIN0005943). Format: 4 letters (bank code) + 0 + 6 digits (branch code).",
+                    "minLength": 11,
+                    "maxLength": 11
+                  }
+                },
+                "required": [
+                  "ifsc_code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

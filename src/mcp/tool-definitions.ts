@@ -5941,4 +5941,16 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+  // ---------------------------------------------------------------------------
+  // Razorpay IFSC — Indian bank branch lookup (UC-425)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'razorpayifsc.lookup',
+    mcpName: 'razorpay.ifsc.lookup',
+    title: 'Razorpay IFSC Bank Lookup',
+    description:
+      'Look up Indian bank branch details (name, address, IFSC capabilities like UPI/NEFT/RTGS/IMPS) by IFSC code. Free, MIT-licensed open data covering all Indian banks.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
 ];
