@@ -1689,5 +1689,15 @@
     "reset_period": "hourly",
     "docs_url": "https://developer.nrel.gov/docs/rate-limits/",
     "limit_proof": "Free developer key: 1000 requests/hour shared across all NREL APIs (AFDC + PVWatts). US Public Domain, commercial use OK."
+  },
+  "opendota": {
+    "display_name": "OpenDota",
+    "health_url": "https://api.opendota.com/api/health",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "paid_balance": true,
+    "docs_url": "https://docs.opendota.com/#section/Authentication",
+    "limit_proof": "Premium tier with API key: unlimited calls/day, 3000 req/min. Billed monthly at $0.0001/call. Without key: 60k calls/month free."
   }
 }

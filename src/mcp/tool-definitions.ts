@@ -6264,4 +6264,42 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+
+  // OpenDota — Dota 2 statistics (UC-418, 4 tools)
+  {
+    toolId: 'opendota.player_summary',
+    mcpName: 'opendota.players.summary',
+    title: 'OpenDota Player Summary',
+    description:
+      "Get a Dota 2 player's profile + summary stats by Steam Account ID — name, avatar, MMR estimate, total wins/losses, rank tier, last match time. Profile may be private (returns minimal info).",
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'opendota.player_matches',
+    mcpName: 'opendota.players.matches',
+    title: 'OpenDota Player Match History',
+    description:
+      'Recent match history for a Dota 2 player — array of matches with match_id, hero, kills/deaths/assists, duration, win/loss, party_size, game_mode, lobby_type. Sortable by date.',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'opendota.match_detail',
+    mcpName: 'opendota.matches.detail',
+    title: 'OpenDota Match Detail',
+    description:
+      'Full detail of one Dota 2 match — all 10 players with hero, items, K/D/A, gold/XP per minute, ability picks, team composition, game duration, winner. Heavy parse but rich data.',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'opendota.pro_teams',
+    mcpName: 'opendota.proteams.list',
+    title: 'OpenDota Pro Teams',
+    description:
+      'List professional Dota 2 teams with rating, wins/losses, last match time, logo URL, team_id, sponsor. Sorted by rating descending.',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
 ];

@@ -187,6 +187,7 @@ import { ScbAdapter } from './scb';
 import { NvdAdapter } from './nvd';
 import { UsajobsAdapter } from './usajobs';
 import { NrelAdapter } from './nrel';
+import { OpenDotaAdapter } from './opendota';
 import { config } from '../config';
 
 /**
@@ -1135,6 +1136,14 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const nrelKey = (config as Record<string, unknown>).PROVIDER_KEY_NREL as string | undefined;
       if (!nrelKey) return undefined;
       return getOrCreate('nrel', () => new NrelAdapter(nrelKey));
+    }
+    case 'opendota': {
+      // OpenDota — Dota 2 statistics API (UC-418) — unlimited/day, 3000 req/min
+      const opendotaKey = (config as Record<string, unknown>).PROVIDER_KEY_OPENDOTA as
+        | string
+        | undefined;
+      if (!opendotaKey) return undefined;
+      return getOrCreate('opendota', () => new OpenDotaAdapter(opendotaKey));
     }
     default:
       return undefined;

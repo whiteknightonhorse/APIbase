@@ -3633,6 +3633,28 @@ tools:
     price_usd: "0.003"
     cache_ttl: 86400
 
+  # --- UC-418: OpenDota ---
+  - tool_id: opendota.player_summary
+    name: OpenDota Player Summary
+    provider: opendota
+    price_usd: "0.001"
+    cache_ttl: 1800
+  - tool_id: opendota.player_matches
+    name: OpenDota Player Match History
+    provider: opendota
+    price_usd: "0.002"
+    cache_ttl: 600
+  - tool_id: opendota.match_detail
+    name: OpenDota Match Detail
+    provider: opendota
+    price_usd: "0.002"
+    cache_ttl: 86400
+  - tool_id: opendota.pro_teams
+    name: OpenDota Pro Teams
+    provider: opendota
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform
