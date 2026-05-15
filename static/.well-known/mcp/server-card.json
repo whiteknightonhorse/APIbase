@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 612 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 615 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -35145,6 +35145,147 @@
             "description": "Reserved for future filtering \u2014 not currently used."
           }
         }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "checkwx.metar.decoded",
+      "title": "CheckWX Decoded METAR",
+      "description": "Get current METAR for one or more airports as fully decoded JSON \u2014 wind (direction/speed/gust as separate fields), visibility (in SM and meters), sky conditions (cloud coverage + altitude as objects), temperature/dewpoint (\u00b0C and \u00b0F), altimeter (inHg and hPa), flight category (VFR/MVFR/IFR/LIFR). Saves agents from parsing raw METAR text.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "icao_codes": {
+            "type": "string",
+            "description": "Comma-separated ICAO airport codes (uppercase 4 letters). Max 25 per call. Examples: 'KJFK,EGLL,RJTT', 'KSFO', 'EDDF'."
+          }
+        },
+        "required": [
+          "icao_codes"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "checkwx.stations.info",
+      "title": "CheckWX Station Information",
+      "description": "Airport/weather-station metadata by ICAO \u2014 name, IATA, latitude/longitude/elevation, country, city, time zone, runway info (count, longest length, surface).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "icao_code": {
+            "type": "string",
+            "description": "Single ICAO airport/station code (4-letter uppercase). Examples: 'KJFK', 'EGLL', 'RJTT'."
+          }
+        },
+        "required": [
+          "icao_code"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "checkwx.taf.decoded",
+      "title": "CheckWX Decoded TAF",
+      "description": "Decoded TAF forecast for airports \u2014 issued time, valid window, per-period forecast objects (wind, visibility, weather conditions, sky). Each forecast change block parsed into structured JSON.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "icao_codes": {
+            "type": "string",
+            "description": "Comma-separated ICAO airport codes (uppercase 4 letters). Max 25 per call. Examples: 'KJFK,EGLL,RJTT', 'KSFO', 'EDDF'."
+          }
+        },
+        "required": [
+          "icao_codes"
+        ]
       },
       "outputSchema": {
         "type": "object",

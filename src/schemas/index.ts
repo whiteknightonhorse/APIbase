@@ -189,6 +189,7 @@ import { nvdSchemas } from './nvd.schema';
 import { usajobsSchemas } from './usajobs.schema';
 import { nrelSchemas } from './nrel.schema';
 import { opendotaSchemas } from './opendota.schema';
+import { checkwxSchemas } from './checkwx.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -381,4 +382,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...usajobsSchemas,
   ...nrelSchemas,
   ...opendotaSchemas,
+  ...checkwxSchemas,
 };

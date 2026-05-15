@@ -188,6 +188,7 @@ import { NvdAdapter } from './nvd';
 import { UsajobsAdapter } from './usajobs';
 import { NrelAdapter } from './nrel';
 import { OpenDotaAdapter } from './opendota';
+import { CheckWxAdapter } from './checkwx';
 import { config } from '../config';
 
 /**
@@ -1144,6 +1145,14 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
         | undefined;
       if (!opendotaKey) return undefined;
       return getOrCreate('opendota', () => new OpenDotaAdapter(opendotaKey));
+    }
+    case 'checkwx': {
+      // CheckWX Aviation Weather — pre-decoded METAR/TAF/station JSON (UC-423)
+      const checkwxKey = (config as Record<string, unknown>).PROVIDER_KEY_CHECKWX as
+        | string
+        | undefined;
+      if (!checkwxKey) return undefined;
+      return getOrCreate('checkwx', () => new CheckWxAdapter(checkwxKey));
     }
     default:
       return undefined;

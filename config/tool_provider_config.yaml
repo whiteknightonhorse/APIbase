@@ -3633,6 +3633,23 @@ tools:
     price_usd: "0.003"
     cache_ttl: 86400
 
+  # --- UC-423: CheckWX Aviation Weather ---
+  - tool_id: checkwx.metar_decoded
+    name: CheckWX Decoded METAR
+    provider: checkwx
+    price_usd: "0.002"
+    cache_ttl: 1800
+  - tool_id: checkwx.taf_decoded
+    name: CheckWX Decoded TAF
+    provider: checkwx
+    price_usd: "0.003"
+    cache_ttl: 7200
+  - tool_id: checkwx.station_info
+    name: CheckWX Station Information
+    provider: checkwx
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   # --- UC-418: OpenDota ---
   - tool_id: opendota.player_summary
     name: OpenDota Player Summary

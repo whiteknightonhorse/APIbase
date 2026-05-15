@@ -6265,6 +6265,35 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     annotations: READ_ONLY,
   },
 
+  // CheckWX Aviation Weather (UC-423, 3 tools)
+  {
+    toolId: 'checkwx.metar_decoded',
+    mcpName: 'checkwx.metar.decoded',
+    title: 'CheckWX Decoded METAR',
+    description:
+      'Get current METAR for one or more airports as fully decoded JSON — wind (direction/speed/gust as separate fields), visibility (in SM and meters), sky conditions (cloud coverage + altitude as objects), temperature/dewpoint (°C and °F), altimeter (inHg and hPa), flight category (VFR/MVFR/IFR/LIFR). Saves agents from parsing raw METAR text.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'checkwx.taf_decoded',
+    mcpName: 'checkwx.taf.decoded',
+    title: 'CheckWX Decoded TAF',
+    description:
+      'Decoded TAF forecast for airports — issued time, valid window, per-period forecast objects (wind, visibility, weather conditions, sky). Each forecast change block parsed into structured JSON.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'checkwx.station_info',
+    mcpName: 'checkwx.stations.info',
+    title: 'CheckWX Station Information',
+    description:
+      'Airport/weather-station metadata by ICAO — name, IATA, latitude/longitude/elevation, country, city, time zone, runway info (count, longest length, surface).',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+
   // OpenDota — Dota 2 statistics (UC-418, 4 tools)
   {
     toolId: 'opendota.player_summary',

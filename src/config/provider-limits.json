@@ -1699,5 +1699,14 @@
     "paid_balance": true,
     "docs_url": "https://docs.opendota.com/#section/Authentication",
     "limit_proof": "Premium tier with API key: unlimited calls/day, 3000 req/min. Billed monthly at $0.0001/call. Without key: 60k calls/month free."
+  },
+  "checkwx": {
+    "display_name": "CheckWX Aviation Weather",
+    "health_url": "https://api.checkwx.com/station/KJFK",
+    "limit_type": "monthly",
+    "free_limit": 10000,
+    "reset_period": "monthly",
+    "docs_url": "https://www.checkwxapi.com/documentation",
+    "limit_proof": "Free tier: 10,000 calls/month. AMBER ToS — commercial use OK with attribution. Requires API key."
   }
 }

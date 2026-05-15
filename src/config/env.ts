@@ -376,6 +376,9 @@ export const appEnvSchema = z.object({
   // OpenDota — Dota 2 statistics API (UC-418) — upstream cost $0.0001/call, unlimited/day, 3000 req/min
   PROVIDER_KEY_OPENDOTA: z.string().optional().default(''),
 
+  // CheckWX Aviation Weather (UC-423) — X-API-Key header, pre-decoded METAR/TAF JSON
+  PROVIDER_KEY_CHECKWX: z.string().optional().default(''),
+
   // Polymarket trading — Phase 2 (UC-001 §3-§8)
   POLYMARKET_WALLET_ADDRESS: z.string().startsWith('0x').optional().default(''),
   POLYMARKET_PRIVATE_KEY: z.string().optional().default(''),
