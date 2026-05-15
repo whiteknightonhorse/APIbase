@@ -52778,6 +52778,268 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/ukfsa.establishment_search/call": {
+      "post": {
+        "operationId": "ukfsa_establishment_search",
+        "summary": "UK FSA Food Business Search",
+        "description": "Search UK food businesses by name, address, postcode, or local authority. Returns the official Food Hygiene Rating Scheme score (0-5), business type, last inspection date, and full address. Covers 500K+ premises across England, Wales, Northern Ireland (Scotland has separate FHIS — pass/improvement required).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ukfsa.establishment_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Business name fragment to search (e.g. 'Tesco', 'Pret', 'Wagamama'). Partial match supported."
+                  },
+                  "address": {
+                    "type": "string",
+                    "description": "Address or postcode fragment (e.g. 'SW1A 1AA', 'Manchester', 'Oxford Street')."
+                  },
+                  "latitude": {
+                    "type": "number",
+                    "description": "WGS84 latitude for location-based search (use with longitude + max_distance_miles)."
+                  },
+                  "longitude": {
+                    "type": "number",
+                    "description": "WGS84 longitude for location-based search."
+                  },
+                  "max_distance_miles": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100,
+                    "description": "Search radius from lat/lon in miles (0-100, default 5).",
+                    "default": 5
+                  },
+                  "page_size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Results per page (1-50, default 20).",
+                    "default": 20
+                  },
+                  "page_number": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 200,
+                    "description": "Page number for pagination (1-200, default 1).",
+                    "default": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ukfsa.establishment_details/call": {
+      "post": {
+        "operationId": "ukfsa_establishment_details",
+        "summary": "UK FSA Food Business Details",
+        "description": "Detailed record for one UK food premise by FSA ID — full scheme breakdown (hygiene/structural/management scores), confidence in management score, exact inspection date, local authority code, business type taxonomy.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ukfsa.establishment_details"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "establishment_id": {
+                    "type": "integer",
+                    "description": "FSA establishment ID (positive integer, obtained from establishment_search results).",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "establishment_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ukfsa.local_authorities/call": {
+      "post": {
+        "operationId": "ukfsa_local_authorities",
+        "summary": "UK FSA Local Authorities",
+        "description": "List all UK local authorities that participate in the Food Hygiene Rating Scheme (or Scottish FHIS) — name, code, total establishments count, scheme type (FHRS=England/Wales/NI 0-5 rating, FHIS=Scotland pass/improvement).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ukfsa.local_authorities"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "_unused": {
+                    "type": "string",
+                    "description": "Reserved for future filtering — not currently used."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

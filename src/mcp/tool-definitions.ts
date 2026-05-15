@@ -6043,4 +6043,35 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'weather',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // UK Food Standards Agency (FSA) — Food Hygiene Rating Scheme (UC-429)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'ukfsa.establishment_search',
+    mcpName: 'ukfsa.establishments.search',
+    title: 'UK FSA Food Business Search',
+    description:
+      'Search UK food businesses by name, address, postcode, or local authority. Returns the official Food Hygiene Rating Scheme score (0-5), business type, last inspection date, and full address. Covers 500K+ premises across England, Wales, Northern Ireland (Scotland has separate FHIS — pass/improvement required).',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ukfsa.establishment_details',
+    mcpName: 'ukfsa.establishments.detail',
+    title: 'UK FSA Food Business Details',
+    description:
+      'Detailed record for one UK food premise by FSA ID — full scheme breakdown (hygiene/structural/management scores), confidence in management score, exact inspection date, local authority code, business type taxonomy.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ukfsa.local_authorities',
+    mcpName: 'ukfsa.authorities.list',
+    title: 'UK FSA Local Authorities',
+    description:
+      'List all UK local authorities that participate in the Food Hygiene Rating Scheme (or Scottish FHIS) — name, code, total establishments count, scheme type (FHRS=England/Wales/NI 0-5 rating, FHIS=Scotland pass/improvement).',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
 ];

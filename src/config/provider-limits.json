@@ -1626,5 +1626,14 @@
     "reset_period": "none",
     "docs_url": "https://aviationweather.gov/data/api/",
     "limit_proof": "US Federal Government open data API, no auth required, no documented rate limits. Public domain, be polite."
+  },
+  "ukfsa": {
+    "display_name": "UK Food Standards Agency",
+    "health_url": "https://api.ratings.food.gov.uk/Authorities",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://api.ratings.food.gov.uk/help",
+    "limit_proof": "UK Government open data (OGL v3), no auth required, no documented rate limits. Free for commercial use."
   }
 }

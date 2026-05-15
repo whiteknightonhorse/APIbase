@@ -3509,6 +3509,23 @@ tools:
     price_usd: "0.002"
     cache_ttl: 900
 
+  # --- UC-429: UK Food Standards Agency (FSA) — Food Hygiene Rating Scheme ---
+  - tool_id: ukfsa.establishment_search
+    name: UK FSA Food Business Search
+    provider: ukfsa
+    price_usd: "0.002"
+    cache_ttl: 3600
+  - tool_id: ukfsa.establishment_details
+    name: UK FSA Food Business Details
+    provider: ukfsa
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: ukfsa.local_authorities
+    name: UK FSA Local Authorities
+    provider: ukfsa
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

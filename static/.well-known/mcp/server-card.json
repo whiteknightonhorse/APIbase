@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 586 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 589 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -33605,6 +33605,175 @@
         "required": [
           "icao_codes"
         ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ukfsa.establishments.detail",
+      "title": "UK FSA Food Business Details",
+      "description": "Detailed record for one UK food premise by FSA ID \u2014 full scheme breakdown (hygiene/structural/management scores), confidence in management score, exact inspection date, local authority code, business type taxonomy.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "establishment_id": {
+            "type": "integer",
+            "description": "FSA establishment ID (positive integer, obtained from establishment_search results).",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "establishment_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ukfsa.establishments.search",
+      "title": "UK FSA Food Business Search",
+      "description": "Search UK food businesses by name, address, postcode, or local authority. Returns the official Food Hygiene Rating Scheme score (0-5), business type, last inspection date, and full address. Covers 500K+ premises across England, Wales, Northern Ireland (Scotland has separate FHIS \u2014 pass/improvement required).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Business name fragment to search (e.g. 'Tesco', 'Pret', 'Wagamama'). Partial match supported."
+          },
+          "address": {
+            "type": "string",
+            "description": "Address or postcode fragment (e.g. 'SW1A 1AA', 'Manchester', 'Oxford Street')."
+          },
+          "latitude": {
+            "type": "number",
+            "description": "WGS84 latitude for location-based search (use with longitude + max_distance_miles)."
+          },
+          "longitude": {
+            "type": "number",
+            "description": "WGS84 longitude for location-based search."
+          },
+          "max_distance_miles": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Search radius from lat/lon in miles (0-100, default 5).",
+            "default": 5
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Results per page (1-50, default 20).",
+            "default": 20
+          },
+          "page_number": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "description": "Page number for pagination (1-200, default 1).",
+            "default": 1
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ukfsa.authorities.list",
+      "title": "UK FSA Local Authorities",
+      "description": "List all UK local authorities that participate in the Food Hygiene Rating Scheme (or Scottish FHIS) \u2014 name, code, total establishments count, scheme type (FHRS=England/Wales/NI 0-5 rating, FHIS=Scotland pass/improvement).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "_unused": {
+            "type": "string",
+            "description": "Reserved for future filtering \u2014 not currently used."
+          }
+        }
       },
       "outputSchema": {
         "type": "object",
