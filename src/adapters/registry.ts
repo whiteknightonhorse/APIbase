@@ -186,6 +186,7 @@ import { GovukAdapter } from './govuk';
 import { ScbAdapter } from './scb';
 import { NvdAdapter } from './nvd';
 import { UsajobsAdapter } from './usajobs';
+import { NrelAdapter } from './nrel';
 import { config } from '../config';
 
 /**
@@ -1128,6 +1129,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
         | undefined;
       if (!usajobsKey) return undefined;
       return getOrCreate('usajobs', () => new UsajobsAdapter(usajobsKey));
+    }
+    case 'nrel': {
+      // NREL — AFDC (EV chargers) + PVWatts (solar) (UC-414) — 1000 req/hour shared
+      const nrelKey = (config as Record<string, unknown>).PROVIDER_KEY_NREL as string | undefined;
+      if (!nrelKey) return undefined;
+      return getOrCreate('nrel', () => new NrelAdapter(nrelKey));
     }
     default:
       return undefined;

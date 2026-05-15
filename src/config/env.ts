@@ -367,6 +367,9 @@ export const appEnvSchema = z.object({
   // NIST NVD (UC-413) — CVE/CPE vulnerability database, 50 req/30s with key
   PROVIDER_KEY_NVD: z.string().optional().default(''),
 
+  // NREL — AFDC (EV chargers) + PVWatts (solar) (UC-414) — 1000 req/hour shared
+  PROVIDER_KEY_NREL: z.string().optional().default(''),
+
   // USAJOBS OPM (UC-415) — US federal civil-service job postings
   PROVIDER_KEY_USAJOBS: z.string().optional().default(''),
 

@@ -6226,4 +6226,42 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'jobs',
     annotations: READ_ONLY,
   },
+
+  // NREL — AFDC + PVWatts (UC-414, 4 tools)
+  {
+    toolId: 'nrel.afdc_stations_nearest',
+    mcpName: 'nrel.afdc.nearest',
+    title: 'NREL AFDC — Nearest Alt-Fuel Stations',
+    description:
+      'Find the nearest alternative fuel stations to a given US location (latitude/longitude). Includes EV charging (Level 1/2/DC Fast), CNG, LNG, propane, biodiesel, hydrogen. Returns station name, address, network, plug types, hours, last verified date. US-specific; for global EV stations use openchargemap.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nrel.afdc_stations_search',
+    mcpName: 'nrel.afdc.search',
+    title: 'NREL AFDC — Alt-Fuel Stations Search',
+    description:
+      'Search US alt-fuel stations by ZIP, state, or city. Filterable by fuel type, EV network, connector type, and access level. Use for state-level analytics or city-wide EV infrastructure surveys; use afdc_stations_nearest for proximity search to a coordinate.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nrel.afdc_station_detail',
+    mcpName: 'nrel.afdc.detail',
+    title: 'NREL AFDC — Station Detail',
+    description:
+      'Get detailed record for one specific alt-fuel station by its AFDC station ID — operator info, full address, hours per day-of-week, EV charging speed breakdown (Level 1/2/DC Fast outlet counts), accepted payment methods, access restrictions.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nrel.pvwatts_estimate',
+    mcpName: 'nrel.pvwatts.estimate',
+    title: 'NREL PVWatts Solar PV Production Estimate',
+    description:
+      'Calculate monthly and annual AC energy production (kWh) for a residential or commercial solar PV system at any global location. Uses NSRDB satellite-derived solar resource data. Returns monthly AC/DC energy, capacity factor, plane-of-array irradiance, and solar radiation. Unique — no other tool in this catalog estimates solar PV output.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

@@ -3611,6 +3611,28 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-414: NREL — AFDC (EV chargers) + PVWatts (solar) ---
+  - tool_id: nrel.afdc_stations_nearest
+    name: NREL AFDC Nearest Alt-Fuel Stations
+    provider: nrel
+    price_usd: "0.002"
+    cache_ttl: 3600
+  - tool_id: nrel.afdc_stations_search
+    name: NREL AFDC Alt-Fuel Stations Search
+    provider: nrel
+    price_usd: "0.002"
+    cache_ttl: 3600
+  - tool_id: nrel.afdc_station_detail
+    name: NREL AFDC Station Detail
+    provider: nrel
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: nrel.pvwatts_estimate
+    name: NREL PVWatts Solar PV Production Estimate
+    provider: nrel
+    price_usd: "0.003"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

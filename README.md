@@ -1,6 +1,6 @@
 # APIbase.pro — The API Hub for AI Agents
 
-> One MCP endpoint. 604 tools. 187 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
+> One MCP endpoint. 608 tools. 188 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Frameworks](https://apibase.pro/frameworks)** | **[Dashboard](https://apibase.pro/dashboard)**
 
@@ -27,7 +27,7 @@ https://github.com/user-attachments/assets/9e598d61-b2d0-486c-bd34-f0cb0354d09c
 
 ## What is APIbase?
 
-Production MCP server that gives AI agents access to 604 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, check weather and tides, query US Census and CDC health data, search ML models on HuggingFace, look up World Bank indicators, track streamflow from USGS stations, search 7M+ CS papers on DBLP, generate images, send emails, decode VINs, look up chemical compounds, scan npm/PyPI vulnerabilities, search NIST NVD CVE records, find EV chargers, search art at the Met Museum, batch multiple calls, track usage analytics — and 300+ more tools across 30+ categories.
+Production MCP server that gives AI agents access to 608 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, check weather and tides, query US Census and CDC health data, search ML models on HuggingFace, look up World Bank indicators, track streamflow from USGS stations, search 7M+ CS papers on DBLP, generate images, send emails, decode VINs, look up chemical compounds, scan npm/PyPI vulnerabilities, search NIST NVD CVE records, find EV chargers, estimate solar PV output, search art at the Met Museum, batch multiple calls, track usage analytics — and 300+ more tools across 30+ categories.
 
 **Built for AI agents, not humans.** Auto-registration, zero setup, pay-per-call via x402 USDC micropayments on Base or MPP (Machine Payments Protocol) on Tempo.
 
@@ -91,7 +91,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 
 ---
 
-## Tool Categories (604 tools, 187 providers)
+## Tool Categories (608 tools, 188 providers)
 
 | Category | Tools | Providers | Examples |
 |----------|-------|-----------|----------|
@@ -114,7 +114,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 | **Podcasts** | 7 | PodcastIndex, Listen Notes | Search 4M+ podcasts, 186M+ episodes, best by genre |
 | **Health & Nutrition** | 12 | USDA, OpenFDA, NIH, CDC, UK FSA | Food data, drug safety, supplements, public health datasets, UK food hygiene ratings |
 | **Chemistry & Biology** | 16 | PubChem, RCSB PDB, NCI CACTUS, Materials Project | 100M+ compounds, 220K+ proteins, 150K+ materials, chemical ID converter |
-| **EV Charging** | 3 | Open Charge Map | 300K+ charging stations worldwide, connectors, power levels |
+| **EV Charging & Energy** | 7 | Open Charge Map, NREL AFDC, NREL PVWatts | 300K+ EV stations worldwide; US alt-fuel stations (EV/CNG/H2); solar PV output estimation |
 | **Fraud Detection** | 4 | IPQualityScore | IP/email/URL/phone fraud scoring, VPN/proxy/bot detection |
 | **Disease Data** | 7 | disease.sh, WHO GHO | COVID/Influenza global disease statistics, WHO global health data |
 | **Clinical Trials** | 3 | ClinicalTrials.gov | 577K+ trials, drug research, recruiting |

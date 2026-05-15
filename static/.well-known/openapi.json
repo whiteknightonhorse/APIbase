@@ -54322,23 +54322,456 @@
                     "enum": [
                       "agencysubelements",
                       "occupationalseries",
-                      "paygrades",
                       "hiringpaths",
                       "securityclearances",
                       "applicantsuppliers",
                       "geoloccodes",
                       "postalcodes",
-                      "cyberworkroles",
-                      "workschedules",
-                      "traveldescriptions"
+                      "cyberworkroles"
                     ],
-                    "description": "Reference code list name. Options: agencysubelements (all federal agencies and sub-orgs), occupationalseries (4-digit job-family codes, e.g. 2210=IT Specialist), paygrades (GS-1 through SES), hiringpaths (public/veteran/student/disability), securityclearances (Public Trust to TS/SCI), applicantsuppliers (hiring authority types), geoloccodes (geographic location codes), postalcodes (ZIP code lookup), cyberworkroles (NICE Cybersecurity Workforce Framework roles), workschedules (full-time/part-time/intermittent), traveldescriptions (travel requirement levels)."
+                    "description": "Reference code list name. Options: agencysubelements (all federal agencies and sub-orgs), occupationalseries (4-digit job-family codes, e.g. 2210=IT Specialist), hiringpaths (public/veteran/student/disability/internal), securityclearances (Public Trust to TS/SCI), applicantsuppliers (hiring authority types), geoloccodes (geographic location codes), postalcodes (ZIP code lookup), cyberworkroles (NICE Cybersecurity Workforce Framework roles)."
                   }
                 },
                 "required": [
                   "code_list"
                 ],
                 "description": "Fetch reference code lists used by USAJOBS — agency codes, pay grades, hiring paths, occupational series, and more."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/nrel.afdc_stations_nearest/call": {
+      "post": {
+        "operationId": "nrel_afdc_stations_nearest",
+        "summary": "NREL AFDC — Nearest Alt-Fuel Stations",
+        "description": "Find the nearest alternative fuel stations to a given US location (latitude/longitude). Includes EV charging (Level 1/2/DC Fast), CNG, LNG, propane, biodiesel, hydrogen. Returns station name, address, network, plug types, hours, last verified date. US-specific; for global EV stations use openchargemap.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nrel.afdc_stations_nearest"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "latitude": {
+                    "type": "number",
+                    "description": "WGS84 latitude (US territory only). Example: 37.7749 for San Francisco."
+                  },
+                  "longitude": {
+                    "type": "number",
+                    "description": "WGS84 longitude (US territory only). Example: -122.4194 for San Francisco."
+                  },
+                  "fuel_type": {
+                    "type": "string",
+                    "description": "Comma-separated fuel codes: ELEC (electric), CNG, LNG, LPG (propane), BD (biodiesel), E85, HY (hydrogen). Default ELEC.",
+                    "default": "ELEC"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "E",
+                      "P",
+                      "T"
+                    ],
+                    "description": "Station status: E=available (open), P=planned (future), T=temporarily unavailable. Default E.",
+                    "default": "E"
+                  },
+                  "radius": {
+                    "type": "number",
+                    "description": "Search radius in miles (max 500). Default 5.",
+                    "default": 5
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 200,
+                    "description": "Max stations to return (1-200). Default 20.",
+                    "default": 20
+                  }
+                },
+                "required": [
+                  "latitude",
+                  "longitude"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/nrel.afdc_stations_search/call": {
+      "post": {
+        "operationId": "nrel_afdc_stations_search",
+        "summary": "NREL AFDC — Alt-Fuel Stations Search",
+        "description": "Search US alt-fuel stations by ZIP, state, or city. Filterable by fuel type, EV network, connector type, and access level. Use for state-level analytics or city-wide EV infrastructure surveys; use afdc_stations_nearest for proximity search to a coordinate.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nrel.afdc_stations_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "zip": {
+                    "type": "string",
+                    "description": "5-digit US ZIP code to search within. Example: '94102'."
+                  },
+                  "state": {
+                    "type": "string",
+                    "description": "2-letter US state code. Example: 'CA', 'TX', 'NY'."
+                  },
+                  "city": {
+                    "type": "string",
+                    "description": "City name. Use with state for disambiguation. Example: Oakland."
+                  },
+                  "fuel_type": {
+                    "type": "string",
+                    "description": "Comma-separated fuel codes: ELEC (electric), CNG, LNG, LPG (propane), BD (biodiesel), E85, HY (hydrogen). Default ELEC.",
+                    "default": "ELEC"
+                  },
+                  "ev_connector_type": {
+                    "type": "string",
+                    "description": "EV connector codes (comma-separated): J1772 (Level 2), J1772COMBO (CCS), CHADEMO, TESLA, NEMA1450, NEMA515."
+                  },
+                  "access": {
+                    "type": "string",
+                    "enum": [
+                      "public",
+                      "private"
+                    ],
+                    "description": "Filter by access type: 'public' for open-access stations, 'private' for fleet-only."
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "E",
+                      "P",
+                      "T"
+                    ],
+                    "description": "Station status: E=available (open), P=planned (future), T=temporarily unavailable. Default E.",
+                    "default": "E"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 200,
+                    "description": "Results per page (1-200). Default 50.",
+                    "default": 50
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Pagination offset — number of results to skip. Default 0.",
+                    "default": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/nrel.afdc_station_detail/call": {
+      "post": {
+        "operationId": "nrel_afdc_station_detail",
+        "summary": "NREL AFDC — Station Detail",
+        "description": "Get detailed record for one specific alt-fuel station by its AFDC station ID — operator info, full address, hours per day-of-week, EV charging speed breakdown (Level 1/2/DC Fast outlet counts), accepted payment methods, access restrictions.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nrel.afdc_station_detail"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "station_id": {
+                    "type": "integer",
+                    "description": "AFDC station ID (positive integer). Obtained from afdc_stations_nearest or afdc_stations_search results.",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "station_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/nrel.pvwatts_estimate/call": {
+      "post": {
+        "operationId": "nrel_pvwatts_estimate",
+        "summary": "NREL PVWatts Solar PV Production Estimate",
+        "description": "Calculate monthly and annual AC energy production (kWh) for a residential or commercial solar PV system at any global location. Uses NSRDB satellite-derived solar resource data. Returns monthly AC/DC energy, capacity factor, plane-of-array irradiance, and solar radiation. Unique — no other tool in this catalog estimates solar PV output.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nrel.pvwatts_estimate"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "latitude": {
+                    "type": "number",
+                    "description": "Site latitude in decimal degrees (global, WGS84). Example: 37.7749 (San Francisco), 51.5074 (London)."
+                  },
+                  "longitude": {
+                    "type": "number",
+                    "description": "Site longitude in decimal degrees (global, WGS84). Example: -122.4194 (San Francisco), -0.1278 (London)."
+                  },
+                  "system_capacity": {
+                    "type": "number",
+                    "description": "System DC nameplate capacity in kilowatts (kW). Example: 5 for a typical residential system, 100 for commercial.",
+                    "minimum": 0
+                  },
+                  "module_type": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2,
+                    "description": "Solar module type: 0=Standard (polycrystalline), 1=Premium (monocrystalline, default), 2=Thin Film.",
+                    "default": 1
+                  },
+                  "losses": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 99,
+                    "description": "System losses percentage (0-99). Accounts for wiring, soiling, shading. Default 14 (NREL recommended).",
+                    "default": 14
+                  },
+                  "array_type": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4,
+                    "description": "Array mount type: 0=Fixed open rack, 1=Fixed roof mount (default), 2=1-axis tracking, 3=1-axis backtracking, 4=2-axis tracking.",
+                    "default": 1
+                  },
+                  "tilt": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 90,
+                    "description": "Module tilt angle in degrees from horizontal (0=flat/horizontal, 90=vertical). Default 20.",
+                    "default": 20
+                  },
+                  "azimuth": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 360,
+                    "description": "Array azimuth angle: 0=north, 90=east, 180=south (default, optimal in Northern Hemisphere), 270=west.",
+                    "default": 180
+                  }
+                },
+                "required": [
+                  "latitude",
+                  "longitude",
+                  "system_capacity"
+                ]
               }
             }
           }

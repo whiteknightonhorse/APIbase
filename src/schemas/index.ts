@@ -187,6 +187,7 @@ import { scbSchemas } from './scb.schema';
 import { irctcSchemas } from './irctc.schema';
 import { nvdSchemas } from './nvd.schema';
 import { usajobsSchemas } from './usajobs.schema';
+import { nrelSchemas } from './nrel.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -377,4 +378,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...irctcSchemas,
   ...nvdSchemas,
   ...usajobsSchemas,
+  ...nrelSchemas,
 };
