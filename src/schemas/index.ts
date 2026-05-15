@@ -178,6 +178,7 @@ import { metSchemas } from './met.schema';
 import { rijksSchemas } from './rijks.schema';
 import { cmaSchemas } from './cma.schema';
 import { razorpayifscSchemas } from './razorpayifsc.schema';
+import { lichessSchemas } from './lichess.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -359,4 +360,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...rijksSchemas,
   ...cmaSchemas,
   ...razorpayifscSchemas,
+  ...lichessSchemas,
 };

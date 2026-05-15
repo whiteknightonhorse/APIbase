@@ -3458,6 +3458,23 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-416: Lichess ---
+  - tool_id: lichess.user_profile
+    name: Lichess User Profile
+    provider: lichess
+    price_usd: "0.001"
+    cache_ttl: 300
+  - tool_id: lichess.top_players
+    name: Lichess Top Players
+    provider: lichess
+    price_usd: "0.001"
+    cache_ttl: 600
+  - tool_id: lichess.daily_puzzle
+    name: Lichess Daily Puzzle
+    provider: lichess
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 577 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 580 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -33140,6 +33140,168 @@
         },
         "required": [
           "ifsc_code"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "lichess.puzzle.daily",
+      "title": "Lichess Daily Puzzle",
+      "description": "Get today's Lichess daily puzzle \u2014 puzzle ID, FEN position, solution moves, theme, rating difficulty.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "_unused": {
+            "type": "string",
+            "description": "Reserved for future filtering \u2014 not currently used."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "lichess.players.top",
+      "title": "Lichess Top Players",
+      "description": "Top N players in a chess variant (bullet, blitz, rapid, classical, ultraBullet, chess960, crazyhouse, antichess, atomic, horde, kingOfTheHill, racingKings, threeCheck). Returns username, rating, country.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "nb": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "description": "Number of top players to return (1\u2013200). Defaults to 10.",
+            "default": 10
+          },
+          "perf_type": {
+            "type": "string",
+            "enum": [
+              "bullet",
+              "blitz",
+              "rapid",
+              "classical",
+              "ultraBullet",
+              "chess960",
+              "crazyhouse",
+              "antichess",
+              "atomic",
+              "horde",
+              "kingOfTheHill",
+              "racingKings",
+              "threeCheck"
+            ],
+            "description": "Chess variant to rank players by. One of: bullet, blitz, rapid, classical, ultraBullet, chess960, crazyhouse, antichess, atomic, horde, kingOfTheHill, racingKings, threeCheck."
+          }
+        },
+        "required": [
+          "perf_type"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "lichess.user.profile",
+      "title": "Lichess User Profile",
+      "description": "Get a Lichess user's profile \u2014 username, ratings across variants (bullet/blitz/rapid/classical/correspondence/puzzle), games played, online status, profile bio, country, language.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "Lichess username (2\u201330 characters, lowercase letters, digits, and underscores). Example: \"DrNykterstein\".",
+            "minLength": 2,
+            "maxLength": 30
+          }
+        },
+        "required": [
+          "username"
         ]
       },
       "outputSchema": {

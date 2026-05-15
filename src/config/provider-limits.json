@@ -1599,5 +1599,14 @@
     "reset_period": "none",
     "docs_url": "https://razorpay.com/docs/api/ifsc/",
     "limit_proof": "Public MIT-licensed open data API. No authentication, no documented rate limits."
+  },
+  "lichess": {
+    "display_name": "Lichess",
+    "health_url": "https://lichess.org/api/puzzle/daily",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://lichess.org/api#section/Introduction",
+    "limit_proof": "Open API, no auth required for public read endpoints. ~20 req/s burst allowed; no hard daily/monthly quota documented."
   }
 }

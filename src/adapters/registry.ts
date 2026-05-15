@@ -178,6 +178,7 @@ import { MetMuseumAdapter } from './met-museum';
 import { RijksmuseumAdapter } from './rijksmuseum';
 import { CmaAdapter } from './cma';
 import { RazorpayIfscAdapter } from './razorpayifsc';
+import { LichessAdapter } from './lichess';
 import { config } from '../config';
 
 /**
@@ -1089,6 +1090,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'razorpayifsc':
       // Razorpay IFSC — Indian bank branch lookup, MIT, no auth (UC-425)
       return getOrCreate('razorpayifsc', () => new RazorpayIfscAdapter());
+    case 'lichess':
+      // Lichess — chess platform: user profiles, top players, daily puzzle, no auth (UC-416)
+      return getOrCreate('lichess', () => new LichessAdapter());
     default:
       return undefined;
   }

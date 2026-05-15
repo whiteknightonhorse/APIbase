@@ -5953,4 +5953,34 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+  // ---------------------------------------------------------------------------
+  // Lichess — Chess platform: profiles, top players, daily puzzle (UC-416)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'lichess.user_profile',
+    mcpName: 'lichess.user.profile',
+    title: 'Lichess User Profile',
+    description:
+      "Get a Lichess user's profile — username, ratings across variants (bullet/blitz/rapid/classical/correspondence/puzzle), games played, online status, profile bio, country, language.",
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'lichess.top_players',
+    mcpName: 'lichess.players.top',
+    title: 'Lichess Top Players',
+    description:
+      'Top N players in a chess variant (bullet, blitz, rapid, classical, ultraBullet, chess960, crazyhouse, antichess, atomic, horde, kingOfTheHill, racingKings, threeCheck). Returns username, rating, country.',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'lichess.daily_puzzle',
+    mcpName: 'lichess.puzzle.daily',
+    title: 'Lichess Daily Puzzle',
+    description:
+      "Get today's Lichess daily puzzle — puzzle ID, FEN position, solution moves, theme, rating difficulty.",
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
 ];
