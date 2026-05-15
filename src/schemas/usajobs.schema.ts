@@ -78,18 +78,15 @@ export const usajobsSchemas: Record<string, z.ZodSchema> = {
         .enum([
           'agencysubelements',
           'occupationalseries',
-          'paygrades',
           'hiringpaths',
           'securityclearances',
           'applicantsuppliers',
           'geoloccodes',
           'postalcodes',
           'cyberworkroles',
-          'workschedules',
-          'traveldescriptions',
         ])
         .describe(
-          'Reference code list name. Options: agencysubelements (all federal agencies and sub-orgs), occupationalseries (4-digit job-family codes, e.g. 2210=IT Specialist), paygrades (GS-1 through SES), hiringpaths (public/veteran/student/disability), securityclearances (Public Trust to TS/SCI), applicantsuppliers (hiring authority types), geoloccodes (geographic location codes), postalcodes (ZIP code lookup), cyberworkroles (NICE Cybersecurity Workforce Framework roles), workschedules (full-time/part-time/intermittent), traveldescriptions (travel requirement levels).',
+          'Reference code list name. Options: agencysubelements (all federal agencies and sub-orgs), occupationalseries (4-digit job-family codes, e.g. 2210=IT Specialist), hiringpaths (public/veteran/student/disability/internal), securityclearances (Public Trust to TS/SCI), applicantsuppliers (hiring authority types), geoloccodes (geographic location codes), postalcodes (ZIP code lookup), cyberworkroles (NICE Cybersecurity Workforce Framework roles).',
         ),
     })
     .strip()
