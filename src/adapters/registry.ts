@@ -179,6 +179,7 @@ import { RijksmuseumAdapter } from './rijksmuseum';
 import { CmaAdapter } from './cma';
 import { RazorpayIfscAdapter } from './razorpayifsc';
 import { LichessAdapter } from './lichess';
+import { ChesscomAdapter } from './chesscom';
 import { config } from '../config';
 
 /**
@@ -1093,6 +1094,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'lichess':
       // Lichess — chess platform: user profiles, top players, daily puzzle, no auth (UC-416)
       return getOrCreate('lichess', () => new LichessAdapter());
+    case 'chesscom':
+      // Chess.com Public Data API — player profiles, stats, titled players, no auth (UC-417)
+      return getOrCreate('chesscom', () => new ChesscomAdapter());
     default:
       return undefined;
   }

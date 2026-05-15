@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 580 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 583 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -33302,6 +33302,163 @@
         },
         "required": [
           "username"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "chesscom.player.profile",
+      "title": "Chess.com Player Profile",
+      "description": "Get a Chess.com player's profile \u2014 username, country, title (GM/IM/FM), join date, online status, followers, league. Distinct from Lichess: Chess.com is the world's largest chess platform with 100M+ users.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "Chess.com username (3\u201325 characters; lowercase letters, digits, hyphens, and underscores only). Example: \"hikaru\", \"magnuscarlsen\".",
+            "minLength": 3,
+            "maxLength": 25
+          }
+        },
+        "required": [
+          "username"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "chesscom.player.stats",
+      "title": "Chess.com Player Stats",
+      "description": "Get a Chess.com player's rating + record across all time controls (rapid, blitz, bullet, daily, daily960, tactics, lessons, puzzle_rush). Returns highest rating, current rating, win/loss/draw counts.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "Chess.com username (3\u201325 characters; lowercase letters, digits, hyphens, and underscores only). Example: \"hikaru\", \"magnuscarlsen\".",
+            "minLength": 3,
+            "maxLength": 25
+          }
+        },
+        "required": [
+          "username"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "chesscom.players.titled",
+      "title": "Chess.com Titled Players List",
+      "description": "List all titled players on Chess.com by title (GM, WGM, IM, WIM, FM, WFM, NM, WNM, CM, WCM). Returns array of usernames.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "enum": [
+              "GM",
+              "WGM",
+              "IM",
+              "WIM",
+              "FM",
+              "WFM",
+              "NM",
+              "WNM",
+              "CM",
+              "WCM"
+            ],
+            "description": "Official chess title to filter by. GM = Grandmaster, WGM = Woman Grandmaster, IM = International Master, WIM = Woman International Master, FM = FIDE Master, WFM = Woman FIDE Master, NM = National Master, WNM = Woman National Master, CM = Candidate Master, WCM = Woman Candidate Master."
+          }
+        },
+        "required": [
+          "title"
         ]
       },
       "outputSchema": {

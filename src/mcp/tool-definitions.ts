@@ -5983,4 +5983,34 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'entertainment',
     annotations: READ_ONLY,
   },
+  // ---------------------------------------------------------------------------
+  // Chess.com — World's largest chess platform: profiles, stats, titled players (UC-417)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'chesscom.player_profile',
+    mcpName: 'chesscom.player.profile',
+    title: 'Chess.com Player Profile',
+    description:
+      "Get a Chess.com player's profile — username, country, title (GM/IM/FM), join date, online status, followers, league. Distinct from Lichess: Chess.com is the world's largest chess platform with 100M+ users.",
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'chesscom.player_stats',
+    mcpName: 'chesscom.player.stats',
+    title: 'Chess.com Player Stats',
+    description:
+      "Get a Chess.com player's rating + record across all time controls (rapid, blitz, bullet, daily, daily960, tactics, lessons, puzzle_rush). Returns highest rating, current rating, win/loss/draw counts.",
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'chesscom.titled_players',
+    mcpName: 'chesscom.players.titled',
+    title: 'Chess.com Titled Players List',
+    description:
+      'List all titled players on Chess.com by title (GM, WGM, IM, WIM, FM, WFM, NM, WNM, CM, WCM). Returns array of usernames.',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
 ];

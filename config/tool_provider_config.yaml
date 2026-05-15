@@ -3475,6 +3475,23 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-417: Chess.com Public Data API ---
+  - tool_id: chesscom.player_profile
+    name: Chess.com Player Profile
+    provider: chesscom
+    price_usd: "0.001"
+    cache_ttl: 600
+  - tool_id: chesscom.player_stats
+    name: Chess.com Player Stats
+    provider: chesscom
+    price_usd: "0.001"
+    cache_ttl: 600
+  - tool_id: chesscom.titled_players
+    name: Chess.com Titled Players List
+    provider: chesscom
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform
