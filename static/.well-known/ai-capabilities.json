@@ -2,8 +2,8 @@
   "platform": "APIbase",
   "version": "2.0",
   "updated_at": "2026-04-01T00:00:00Z",
-  "tools_count": 576,
-  "providers_count": 177,
+  "tools_count": 618,
+  "providers_count": 191,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
@@ -31,20 +31,20 @@
   "categories": [
     {
       "name": "travel",
-      "tools": 21,
-      "providers": "Amadeus, Aviasales, Sabre",
-      "examples": "flight search, pricing, airport lookup"
+      "tools": 24,
+      "providers": "Amadeus, Aviasales, Sabre, IRCTC Indian Railways",
+      "examples": "flight search, pricing, airport lookup, Indian train schedules, live train status"
     },
     {
       "name": "weather",
-      "tools": 21,
-      "providers": "OpenWeatherMap, NWS, IQAir, NOAA",
-      "examples": "current weather, forecast, alerts, air quality"
+      "tools": 30,
+      "providers": "OpenWeatherMap, NWS, IQAir, NOAA, NOAA AWC, CheckWX, AVWX",
+      "examples": "current weather, forecast, alerts, air quality, aviation METAR/TAF/SIGMET (raw + decoded JSON), parsed NOTAMs and PIREPs"
     },
     {
       "name": "finance",
-      "tools": 42,
-      "providers": "Finnhub, FRED, FDIC, ECB, RateAPI, IBAN, World Bank",
+      "tools": 43,
+      "providers": "Finnhub, FRED, FDIC, ECB, RateAPI, IBAN, World Bank, Razorpay IFSC",
       "examples": "stock quotes, FX rates, economic data, mortgage rates, global indicators"
     },
     {
@@ -73,15 +73,15 @@
     },
     {
       "name": "health",
-      "tools": 32,
-      "providers": "USDA, OpenFDA, WHO, FatSecret, Spoonacular, ClinicalTrials, PubChem, CDC",
-      "examples": "nutrition, drug safety, clinical trials, recipes"
+      "tools": 35,
+      "providers": "USDA, OpenFDA, WHO, FatSecret, Spoonacular, ClinicalTrials, PubChem, CDC, UK FSA",
+      "examples": "nutrition, drug safety, clinical trials, recipes, UK food hygiene ratings"
     },
     {
       "name": "entertainment",
-      "tools": 52,
-      "providers": "TMDB, Ticketmaster, RAWG, IGDB, Jikan, MusicBrainz, PodcastIndex, API-Sports, Met Museum, Rijksmuseum, Cleveland Museum",
-      "examples": "movies, events, games, anime, music, podcasts, sports, art collections"
+      "tools": 62,
+      "providers": "TMDB, Ticketmaster, RAWG, IGDB, Jikan, Lichess, Chess.com, MusicBrainz, PodcastIndex, API-Sports, Met Museum, Rijksmuseum, Cleveland Museum, OpenDota",
+      "examples": "movies, events, games, anime, chess/esports, music, podcasts, sports, art collections, Dota 2 stats"
     },
     {
       "name": "education",
@@ -91,9 +91,9 @@
     },
     {
       "name": "jobs",
-      "tools": 6,
-      "providers": "BLS, O*NET, ESCO, CareerJet",
-      "examples": "salary data, occupations, job listings"
+      "tools": 9,
+      "providers": "BLS, O*NET, ESCO, CareerJet, USAJOBS",
+      "examples": "salary data, occupations, job listings, US federal civil-service"
     },
     {
       "name": "space",
@@ -109,9 +109,9 @@
     },
     {
       "name": "legal",
-      "tools": 15,
-      "providers": "Regulations.gov, Federal Register, CourtListener",
-      "examples": "regulations, court opinions, federal rules"
+      "tools": 18,
+      "providers": "Regulations.gov, Federal Register, CourtListener, GOV.UK Content API",
+      "examples": "regulations, court opinions, federal rules, UK government documents"
     },
     {
       "name": "business",
@@ -121,9 +121,9 @@
     },
     {
       "name": "developer",
-      "tools": 36,
-      "providers": "QRServer, WhoisXML, TimeAPI, NHTSA, Langbly, ConvertAPI, API2PDF, IPQualityScore",
-      "examples": "QR codes, WHOIS, VIN decode, translation, PDF generation"
+      "tools": 39,
+      "providers": "QRServer, WhoisXML, TimeAPI, NHTSA, Langbly, ConvertAPI, API2PDF, IPQualityScore, NIST NVD",
+      "examples": "QR codes, WHOIS, VIN decode, translation, PDF generation, CVE vulnerabilities"
     },
     {
       "name": "media",
@@ -151,9 +151,9 @@
     },
     {
       "name": "world",
-      "tools": 29,
-      "providers": "REST Countries, Nager.Date, GDACS, VATcomply, Open Food Facts, USGS Water, NOAA Tides",
-      "examples": "countries, holidays, disasters, VAT, food products, streamflow, water quality, tides & currents"
+      "tools": 36,
+      "providers": "REST Countries, Nager.Date, GDACS, VATcomply, Open Food Facts, USGS Water, NOAA Tides, Statistics Sweden (SCB), NREL AFDC, NREL PVWatts",
+      "examples": "countries, holidays, disasters, VAT, food products, streamflow, water quality, tides & currents, Sweden statistics, US alt-fuel stations, solar PV output estimation"
     }
   ]
 }

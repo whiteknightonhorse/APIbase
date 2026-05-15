@@ -51955,6 +51955,3649 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/razorpayifsc.lookup/call": {
+      "post": {
+        "operationId": "razorpayifsc_lookup",
+        "summary": "Razorpay IFSC Bank Lookup",
+        "description": "Look up Indian bank branch details (name, address, IFSC capabilities like UPI/NEFT/RTGS/IMPS) by IFSC code. Free, MIT-licensed open data covering all Indian banks.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "razorpayifsc.lookup"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ifsc_code": {
+                    "type": "string",
+                    "description": "11-character IFSC code (e.g. SBIN0005943). Format: 4 letters (bank code) + 0 + 6 digits (branch code).",
+                    "minLength": 11,
+                    "maxLength": 11
+                  }
+                },
+                "required": [
+                  "ifsc_code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/lichess.user_profile/call": {
+      "post": {
+        "operationId": "lichess_user_profile",
+        "summary": "Lichess User Profile",
+        "description": "Get a Lichess user's profile — username, ratings across variants (bullet/blitz/rapid/classical/correspondence/puzzle), games played, online status, profile bio, country, language.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lichess.user_profile"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "description": "Lichess username (2–30 characters, lowercase letters, digits, and underscores). Example: \"DrNykterstein\".",
+                    "minLength": 2,
+                    "maxLength": 30
+                  }
+                },
+                "required": [
+                  "username"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/lichess.top_players/call": {
+      "post": {
+        "operationId": "lichess_top_players",
+        "summary": "Lichess Top Players",
+        "description": "Top N players in a chess variant (bullet, blitz, rapid, classical, ultraBullet, chess960, crazyhouse, antichess, atomic, horde, kingOfTheHill, racingKings, threeCheck). Returns username, rating, country.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lichess.top_players"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nb": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 200,
+                    "description": "Number of top players to return (1–200). Defaults to 10.",
+                    "default": 10
+                  },
+                  "perf_type": {
+                    "type": "string",
+                    "enum": [
+                      "bullet",
+                      "blitz",
+                      "rapid",
+                      "classical",
+                      "ultraBullet",
+                      "chess960",
+                      "crazyhouse",
+                      "antichess",
+                      "atomic",
+                      "horde",
+                      "kingOfTheHill",
+                      "racingKings",
+                      "threeCheck"
+                    ],
+                    "description": "Chess variant to rank players by. One of: bullet, blitz, rapid, classical, ultraBullet, chess960, crazyhouse, antichess, atomic, horde, kingOfTheHill, racingKings, threeCheck."
+                  }
+                },
+                "required": [
+                  "perf_type"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/lichess.daily_puzzle/call": {
+      "post": {
+        "operationId": "lichess_daily_puzzle",
+        "summary": "Lichess Daily Puzzle",
+        "description": "Get today's Lichess daily puzzle — puzzle ID, FEN position, solution moves, theme, rating difficulty.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lichess.daily_puzzle"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "_unused": {
+                    "type": "string",
+                    "description": "Reserved for future filtering — not currently used."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/chesscom.player_profile/call": {
+      "post": {
+        "operationId": "chesscom_player_profile",
+        "summary": "Chess.com Player Profile",
+        "description": "Get a Chess.com player's profile — username, country, title (GM/IM/FM), join date, online status, followers, league. Distinct from Lichess: Chess.com is the world's largest chess platform with 100M+ users.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "chesscom.player_profile"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "description": "Chess.com username (3–25 characters; lowercase letters, digits, hyphens, and underscores only). Example: \"hikaru\", \"magnuscarlsen\".",
+                    "minLength": 3,
+                    "maxLength": 25
+                  }
+                },
+                "required": [
+                  "username"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/chesscom.player_stats/call": {
+      "post": {
+        "operationId": "chesscom_player_stats",
+        "summary": "Chess.com Player Stats",
+        "description": "Get a Chess.com player's rating + record across all time controls (rapid, blitz, bullet, daily, daily960, tactics, lessons, puzzle_rush). Returns highest rating, current rating, win/loss/draw counts.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "chesscom.player_stats"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "description": "Chess.com username (3–25 characters; lowercase letters, digits, hyphens, and underscores only). Example: \"hikaru\", \"magnuscarlsen\".",
+                    "minLength": 3,
+                    "maxLength": 25
+                  }
+                },
+                "required": [
+                  "username"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/chesscom.titled_players/call": {
+      "post": {
+        "operationId": "chesscom_titled_players",
+        "summary": "Chess.com Titled Players List",
+        "description": "List all titled players on Chess.com by title (GM, WGM, IM, WIM, FM, WFM, NM, WNM, CM, WCM). Returns array of usernames.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "chesscom.titled_players"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "enum": [
+                      "GM",
+                      "WGM",
+                      "IM",
+                      "WIM",
+                      "FM",
+                      "WFM",
+                      "NM",
+                      "WNM",
+                      "CM",
+                      "WCM"
+                    ],
+                    "description": "Official chess title to filter by. GM = Grandmaster, WGM = Woman Grandmaster, IM = International Master, WIM = Woman International Master, FM = FIDE Master, WFM = Woman FIDE Master, NM = National Master, WNM = Woman National Master, CM = Candidate Master, WCM = Woman Candidate Master."
+                  }
+                },
+                "required": [
+                  "title"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/awc.metar/call": {
+      "post": {
+        "operationId": "awc_metar",
+        "summary": "Aviation METAR Weather Report",
+        "description": "Current METAR (METeorological Aerodrome Report) for one or more airports — official aviation weather observations (wind, visibility, sky condition, temperature, dewpoint, altimeter, remarks). Updates every 1 hour, more often when conditions change rapidly.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "awc.metar"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "icao_codes": {
+                    "type": "string",
+                    "description": "Comma-separated ICAO airport codes (uppercase, 4 letters each, e.g. 'KJFK,KLAX,EGLL,RJTT'). Max 20 per call. Examples: KJFK (New York JFK), EGLL (London Heathrow), RJTT (Tokyo Haneda)."
+                  },
+                  "hours": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 72,
+                    "description": "Hours of history to return (default 2, max 72)",
+                    "default": 2
+                  }
+                },
+                "required": [
+                  "icao_codes"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/awc.taf/call": {
+      "post": {
+        "operationId": "awc_taf",
+        "summary": "Aviation TAF Terminal Forecast",
+        "description": "TAF (Terminal Aerodrome Forecast) for an airport — aviation forecast valid for next 24-30 hours with wind, visibility, weather phenomena, and sky conditions in 6-hour windows. Updates 4× daily.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "awc.taf"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "icao_codes": {
+                    "type": "string",
+                    "description": "Comma-separated ICAO airport codes. Max 20 per call. Examples: KJFK (New York JFK), EGLL (London Heathrow), OMDB (Dubai International), YSSY (Sydney Kingsford Smith)."
+                  }
+                },
+                "required": [
+                  "icao_codes"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/awc.sigmet/call": {
+      "post": {
+        "operationId": "awc_sigmet",
+        "summary": "Aviation SIGMET / AIRMET Hazard Alerts",
+        "description": "Active SIGMET (SIGnificant METeorological information) and AIRMET reports — flight safety hazards including thunderstorms, turbulence, icing, volcanic ash, dust storms, mountain obscuration. Used by pilots and dispatchers for go/no-go decisions.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "awc.sigmet"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "_unused": {
+                    "type": "string",
+                    "description": "Reserved for future hazard-type filtering"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ukfsa.establishment_search/call": {
+      "post": {
+        "operationId": "ukfsa_establishment_search",
+        "summary": "UK FSA Food Business Search",
+        "description": "Search UK food businesses by name, address, postcode, or local authority. Returns the official Food Hygiene Rating Scheme score (0-5), business type, last inspection date, and full address. Covers 500K+ premises across England, Wales, Northern Ireland (Scotland has separate FHIS — pass/improvement required).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ukfsa.establishment_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Business name fragment to search (e.g. 'Tesco', 'Pret', 'Wagamama'). Partial match supported."
+                  },
+                  "address": {
+                    "type": "string",
+                    "description": "Address or postcode fragment (e.g. 'SW1A 1AA', 'Manchester', 'Oxford Street')."
+                  },
+                  "latitude": {
+                    "type": "number",
+                    "description": "WGS84 latitude for location-based search (use with longitude + max_distance_miles)."
+                  },
+                  "longitude": {
+                    "type": "number",
+                    "description": "WGS84 longitude for location-based search."
+                  },
+                  "max_distance_miles": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100,
+                    "description": "Search radius from lat/lon in miles (0-100, default 5).",
+                    "default": 5
+                  },
+                  "page_size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Results per page (1-50, default 20).",
+                    "default": 20
+                  },
+                  "page_number": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 200,
+                    "description": "Page number for pagination (1-200, default 1).",
+                    "default": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ukfsa.establishment_details/call": {
+      "post": {
+        "operationId": "ukfsa_establishment_details",
+        "summary": "UK FSA Food Business Details",
+        "description": "Detailed record for one UK food premise by FSA ID — full scheme breakdown (hygiene/structural/management scores), confidence in management score, exact inspection date, local authority code, business type taxonomy.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ukfsa.establishment_details"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "establishment_id": {
+                    "type": "integer",
+                    "description": "FSA establishment ID (positive integer, obtained from establishment_search results).",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "establishment_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ukfsa.local_authorities/call": {
+      "post": {
+        "operationId": "ukfsa_local_authorities",
+        "summary": "UK FSA Local Authorities",
+        "description": "List all UK local authorities that participate in the Food Hygiene Rating Scheme (or Scottish FHIS) — name, code, total establishments count, scheme type (FHRS=England/Wales/NI 0-5 rating, FHIS=Scotland pass/improvement).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ukfsa.local_authorities"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "_unused": {
+                    "type": "string",
+                    "description": "Reserved for future filtering — not currently used."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/govuk.search/call": {
+      "post": {
+        "operationId": "govuk_search",
+        "summary": "GOV.UK Content Search",
+        "description": "Full-text search across all 700K+ GOV.UK documents — guidance pages, news articles, statistics releases, organisation pages, ministerial pages, statutory instruments. Filter by content type, organisation, topic. Distinct from UK FSA (food ratings only) — this covers ALL government publications.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "govuk.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "q": {
+                    "type": "string",
+                    "description": "Search query (free text). Examples: 'energy bill rebate', 'visa skilled worker', 'income tax allowance 2026'."
+                  },
+                  "count": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Results per page (1-100, default 10).",
+                    "default": 10
+                  },
+                  "start": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Offset for pagination (default 0).",
+                    "default": 0
+                  },
+                  "order": {
+                    "type": "string",
+                    "enum": [
+                      "-public_timestamp",
+                      "public_timestamp",
+                      "relevance",
+                      "-relevance"
+                    ],
+                    "description": "Sort order. Default is relevance. Use '-public_timestamp' for newest first, 'public_timestamp' for oldest first."
+                  }
+                },
+                "required": [
+                  "q"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/govuk.content/call": {
+      "post": {
+        "operationId": "govuk_content",
+        "summary": "GOV.UK Document Content",
+        "description": "Fetch full content of a GOV.UK page by its base path — title, publication date, organisation, full HTML body (or structured fields per content type), related documents.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "govuk.content"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "base_path": {
+                    "type": "string",
+                    "description": "GOV.UK URL path starting with /, e.g. '/income-tax-rates' or '/government/publications/spring-statement-2026'. Get from govuk.search results."
+                  }
+                },
+                "required": [
+                  "base_path"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/govuk.organisations/call": {
+      "post": {
+        "operationId": "govuk_organisations",
+        "summary": "GOV.UK Organisations Directory",
+        "description": "List or search UK government organisations (ministerial departments, executive agencies, NDPBs, public corporations) — name, web URL, parent department, child organisations. 1100+ entries from Cabinet Office to local agencies.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "govuk.organisations"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Page number (1-100, default 1, 20 organisations per page).",
+                    "default": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/scb.catalog/call": {
+      "post": {
+        "operationId": "scb_catalog",
+        "summary": "SCB Sweden Statistics Catalog",
+        "description": "Browse the SCB statistics database tree by path. Top-level categories: BE (population), AM (labour market), HE (households), NR (national accounts), PR (prices/inflation), MI (environment), AA (general), BO (housing), EN (energy), FM (financial markets), HA (trade), JO (agriculture), LE (living conditions). Returns child nodes (subcategories, type=l) or table descriptors at leaf nodes (type=t). Use empty path '' to get top-level. Navigate hierarchically to find tables for scb.table_metadata.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "scb.catalog"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "Hierarchical path through SCB taxonomy. Empty '' gets top-level categories. Examples: 'BE' (population), 'BE/BE0101' (population statistics tables), 'AM' (labour market), 'NR' (national accounts), 'PR' (prices/inflation), 'MI' (environment), 'HE' (household finances). Use scb.catalog recursively to navigate until type=t (table leaf) nodes appear.",
+                    "default": ""
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/scb.table_metadata/call": {
+      "post": {
+        "operationId": "scb_table_metadata",
+        "summary": "SCB Sweden Table Metadata",
+        "description": "Get metadata for a specific SCB statistical table — title, dimensions (variables like Region, Alder/age, Kon/sex, Tid/year), valid value codes for each dimension, and latest update timestamp. Use this BEFORE scb.table_query to discover what filter values are accepted. Example path: 'BE/BE0101/BE0101A/BefolkningNy' (Sweden population by region/age/sex/year).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "scb.table_metadata"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "table_path": {
+                    "type": "string",
+                    "description": "Full path to a leaf table (type='t' from scb.catalog), e.g. 'BE/BE0101/BE0101A/BefolkningNy' (Sweden population by region/age/sex/year). 'AM/AKU/AKU01/AKU01A' (labour market, employed persons). Returns title, dimension codes, and valid values to use in scb.table_query."
+                  }
+                },
+                "required": [
+                  "table_path"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/scb.table_query/call": {
+      "post": {
+        "operationId": "scb_table_query",
+        "summary": "SCB Sweden Table Query",
+        "description": "Run a statistical query against an SCB table — specify dimension filters to slice data by region, age, sex, year, etc. Returns JSON-stat2 format with labeled dimensions and numeric values. Always call scb.table_metadata first to discover valid dimension codes and value codes. Example: Sweden total population (Region='00', filter='vs:RegionRiket99'), latest year (Tid filter='top' values=['1']).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "scb.table_query"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "table_path": {
+                    "type": "string",
+                    "description": "Full path to the leaf table to query — same as scb.table_metadata table_path. Example: 'BE/BE0101/BE0101A/BefolkningNy'."
+                  },
+                  "query": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "description": "Dimension code from scb.table_metadata variables[].code. Examples: 'Region', 'Alder', 'Kon', 'Tid', 'ContentsCode'."
+                        },
+                        "selection": {
+                          "type": "object",
+                          "properties": {
+                            "filter": {
+                              "type": "string",
+                              "description": "Filter type. Common values: 'item' (select by exact code), 'vs:RegionRiket99' (Sweden total), 'vs:RegionKommun07' (municipality level), 'top' (select N most recent — use with Tid/year dimensions), 'all' (all values). Use the valueSet codes from metadata."
+                            },
+                            "values": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              },
+                              "description": "Array of value codes to select. Get valid codes from scb.table_metadata variables[].values. For filter='item': list codes like ['00','01']. For filter='top': list count like ['3'] (3 most recent). For filter='all': use ['*']. Example: Region '00' = Sweden total, Kon '1'=men '2'=women."
+                            }
+                          },
+                          "required": [
+                            "filter",
+                            "values"
+                          ],
+                          "description": "Selection criteria for this dimension."
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "selection"
+                      ],
+                      "description": "Filter for one dimension (variable) in the table."
+                    },
+                    "description": "Array of dimension filters. Each filter selects which values to include for one dimension. Example: [{code:'Region',selection:{filter:'vs:RegionRiket99',values:['00']}}, {code:'ContentsCode',selection:{filter:'item',values:['BE0101N1']}}, {code:'Tid',selection:{filter:'top',values:['1']}}]. Response is JSON-stat2 format with dimension labels and numeric values array."
+                  }
+                },
+                "required": [
+                  "table_path",
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/irctc.train_search/call": {
+      "post": {
+        "operationId": "irctc_train_search",
+        "summary": "IRCTC Train Search Between Stations",
+        "description": "Search trains running between two Indian railway stations. Returns train number, name, departure/arrival time, distance, class availability (1A/2A/3A/SL/CC/EC), and running days (Mon-Sun).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.005000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "irctc.train_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "from_station_code": {
+                    "type": "string",
+                    "description": "Origin station code (3-5 uppercase letters). Examples: NDLS (New Delhi), CSMT (Mumbai CST), HWH (Howrah Kolkata), MAS (Chennai Central), SBC (Bengaluru)."
+                  },
+                  "to_station_code": {
+                    "type": "string",
+                    "description": "Destination station code (3-5 uppercase letters, same format as from_station_code). Use irctc.station_search to discover codes by name."
+                  },
+                  "date_of_journey": {
+                    "type": "string",
+                    "description": "Journey date in YYYY-MM-DD format. Must be within the next 120 days from today. Example: 2026-05-15."
+                  }
+                },
+                "required": [
+                  "from_station_code",
+                  "to_station_code",
+                  "date_of_journey"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/irctc.train_status/call": {
+      "post": {
+        "operationId": "irctc_train_status",
+        "summary": "IRCTC Live Train Running Status",
+        "description": "Get live running status of an Indian train for today or a specific date — current station, expected arrival/departure, delay in minutes, distance covered, full station-by-station schedule.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.005000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "irctc.train_status"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "train_number": {
+                    "type": "string",
+                    "description": "5-digit Indian Railways train number. Examples: '12951' (Mumbai Rajdhani Express), '12303' (Poorva Express), '22691' (Rajdhani Express Bangalore)."
+                  },
+                  "start_day": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4,
+                    "description": "Day offset for the train journey start relative to today (0=today, 1=yesterday, 2=two days ago, up to 4). Use non-zero for multi-day trains that departed before today.",
+                    "default": 0
+                  }
+                },
+                "required": [
+                  "train_number"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/irctc.station_search/call": {
+      "post": {
+        "operationId": "irctc_station_search",
+        "summary": "IRCTC Railway Station Lookup",
+        "description": "Search Indian Railways stations by name or partial code. Returns station code, full name, state. Use this to discover station codes for irctc.train_search/status.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "irctc.station_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Station name fragment or partial station code to search for. Case-insensitive. Examples: \"Mumbai\" returns CSMT/BCT/LTT/etc., \"delhi\" returns NDLS/DLI/NZM, \"HWH\" returns Howrah. Returns up to 20 matches."
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/nvd.cve_search/call": {
+      "post": {
+        "operationId": "nvd_cve_search",
+        "summary": "NIST NVD CVE Search",
+        "description": "Search the National Vulnerability Database for CVE records by keyword, vendor, product, CVSS severity, or publication date range. Returns CVE-ID, summary, CVSS v3 base score, severity (LOW/MEDIUM/HIGH/CRITICAL), affected CPE configurations, references. Distinct from OSV: NVD provides canonical NIST records with CVSS v3 scores, CWE weakness types, and CPE configurations.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nvd.cve_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "keyword": {
+                    "type": "string",
+                    "description": "Free-text keyword to search CVE records. Examples: 'log4j', 'OpenSSL CVE-2023', 'Linux kernel use-after-free'. Combined with other filters using AND logic."
+                  },
+                  "cvss_v3_severity": {
+                    "type": "string",
+                    "enum": [
+                      "LOW",
+                      "MEDIUM",
+                      "HIGH",
+                      "CRITICAL"
+                    ],
+                    "description": "Filter by CVSS v3 base severity. LOW = 0.1–3.9, MEDIUM = 4.0–6.9, HIGH = 7.0–8.9, CRITICAL = 9.0–10.0. Omit to return all severities."
+                  },
+                  "pub_start_date": {
+                    "type": "string",
+                    "description": "Earliest CVE publication date in ISO 8601 extended format with timezone offset (e.g. '2024-01-01T00:00:00.000+00:00'). Maximum 120-day window per request when combined with pub_end_date."
+                  },
+                  "pub_end_date": {
+                    "type": "string",
+                    "description": "Latest CVE publication date in ISO 8601 extended format with timezone offset (e.g. '2024-12-31T23:59:59.999+00:00'). Must be paired with pub_start_date. Maximum 120-day window."
+                  },
+                  "results_per_page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 2000,
+                    "description": "Number of CVE records to return per page. Range: 1–2000. Default: 20."
+                  },
+                  "start_index": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Zero-based offset for pagination. Use with results_per_page to page through large result sets. Default: 0."
+                  }
+                },
+                "description": "Search NVD CVE records by keyword, severity, or date range."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/nvd.cve_detail/call": {
+      "post": {
+        "operationId": "nvd_cve_detail",
+        "summary": "NIST NVD CVE Detail",
+        "description": "Fetch the canonical NVD record for a specific CVE-ID — full English description, CVSS v3 + v2 vectors and scores, weakness types (CWE), affected CPE configurations with version ranges, and all references with tags. Example: CVE-2021-44228 for Log4Shell.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nvd.cve_detail"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cve_id": {
+                    "type": "string",
+                    "description": "Full CVE identifier in canonical form (e.g. 'CVE-2021-44228' for Log4Shell). Format: CVE-YYYY-NNNN+ where YYYY is the year and NNNN+ is a sequence number of four or more digits."
+                  }
+                },
+                "required": [
+                  "cve_id"
+                ],
+                "description": "Fetch the canonical NVD record for a single CVE by its ID."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/nvd.cpe_search/call": {
+      "post": {
+        "operationId": "nvd_cpe_search",
+        "summary": "NIST NVD CPE Product Lookup",
+        "description": "Search the Common Platform Enumeration (CPE) dictionary for product identifiers used by CVEs. Returns CPE 2.3 URI (cpe:2.3:a:vendor:product:version:...), title, deprecation status. Use this to find the exact CPE string before searching CVEs by affected product.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nvd.cpe_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "keyword": {
+                    "type": "string",
+                    "description": "Product keyword to search the CPE dictionary. Examples: 'openssl', 'apache tomcat', 'nginx 1.18'. Returns CPE 2.3 URIs used to identify affected products in CVE records."
+                  },
+                  "results_per_page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 1000,
+                    "description": "Number of CPE records to return per page. Range: 1–1000. Default: 20."
+                  },
+                  "start_index": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Zero-based offset for pagination. Use with results_per_page to page through large result sets. Default: 0."
+                  }
+                },
+                "required": [
+                  "keyword"
+                ],
+                "description": "Search the CPE dictionary to find product identifiers used in CVE configurations."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/usajobs.search/call": {
+      "post": {
+        "operationId": "usajobs_search",
+        "summary": "USAJOBS Federal Job Search",
+        "description": "Search US federal civil-service job postings — by keyword, location, pay grade (GS-1 to GS-15, SES), agency, position type. Returns position title, agency, location, salary range, grade, open period, application URL. USAJOBS is the ONLY source for US federal civil-service postings, distinct from BLS, ESCO, CareerJet, Adzuna, Reed, Jooble, Arbeitnow, Remotive, and TheirStack.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "usajobs.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "keyword": {
+                    "type": "string",
+                    "description": "Free-text search across job title + description. Examples: 'software engineer', 'cybersecurity analyst', 'data scientist'."
+                  },
+                  "location_name": {
+                    "type": "string",
+                    "description": "Location filter. City + state, ZIP, or state name. Examples: 'Washington, DC', 'San Francisco, CA', '94102'."
+                  },
+                  "pay_grade_low": {
+                    "type": "string",
+                    "description": "Minimum federal pay grade. Format: 'GS01'-'GS15', 'SES', or 'EX-V'. Default: any."
+                  },
+                  "pay_grade_high": {
+                    "type": "string",
+                    "description": "Maximum federal pay grade (same format as pay_grade_low)."
+                  },
+                  "organization": {
+                    "type": "string",
+                    "description": "Agency code or name fragment. Examples: 'DOD' (Defense), 'VA' (Veterans Affairs), 'HHS' (Health and Human Services)."
+                  },
+                  "position_title": {
+                    "type": "string",
+                    "description": "Strict position-title filter. Use keyword for fuzzy match."
+                  },
+                  "results_per_page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 500,
+                    "description": "Results per page (1-500, default 25).",
+                    "default": 25
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Page number for pagination (default 1).",
+                    "default": 1
+                  }
+                },
+                "description": "Search US federal civil-service job postings by keyword, location, pay grade, agency, or position title."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/usajobs.position_detail/call": {
+      "post": {
+        "operationId": "usajobs_position_detail",
+        "summary": "USAJOBS Position Detail",
+        "description": "Get full detail for a specific federal job posting by control number (PositionID) — full description, qualifications, duties, benefits summary, application instructions, security clearance level, telework eligibility.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "usajobs.position_detail"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "control_number": {
+                    "type": "string",
+                    "description": "PositionID from a search result (digits-only string, e.g. \"856924100\"). Found in the MatchedObjectId field."
+                  }
+                },
+                "required": [
+                  "control_number"
+                ],
+                "description": "Fetch full detail for a specific federal job posting by control number."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/usajobs.code_lists/call": {
+      "post": {
+        "operationId": "usajobs_code_lists",
+        "summary": "USAJOBS Reference Code Lists",
+        "description": "Fetch reference code lists used by USAJOBS — agency codes, pay grades, hiring paths, occupational series, security clearance levels, work schedules. Use to discover valid values for search filters.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "usajobs.code_lists"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "code_list": {
+                    "type": "string",
+                    "enum": [
+                      "agencysubelements",
+                      "occupationalseries",
+                      "hiringpaths",
+                      "securityclearances",
+                      "applicantsuppliers",
+                      "geoloccodes",
+                      "postalcodes",
+                      "cyberworkroles"
+                    ],
+                    "description": "Reference code list name. Options: agencysubelements (all federal agencies and sub-orgs), occupationalseries (4-digit job-family codes, e.g. 2210=IT Specialist), hiringpaths (public/veteran/student/disability/internal), securityclearances (Public Trust to TS/SCI), applicantsuppliers (hiring authority types), geoloccodes (geographic location codes), postalcodes (ZIP code lookup), cyberworkroles (NICE Cybersecurity Workforce Framework roles)."
+                  }
+                },
+                "required": [
+                  "code_list"
+                ],
+                "description": "Fetch reference code lists used by USAJOBS — agency codes, pay grades, hiring paths, occupational series, and more."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/nrel.afdc_stations_nearest/call": {
+      "post": {
+        "operationId": "nrel_afdc_stations_nearest",
+        "summary": "NREL AFDC — Nearest Alt-Fuel Stations",
+        "description": "Find the nearest alternative fuel stations to a given US location (latitude/longitude). Includes EV charging (Level 1/2/DC Fast), CNG, LNG, propane, biodiesel, hydrogen. Returns station name, address, network, plug types, hours, last verified date. US-specific; for global EV stations use openchargemap.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nrel.afdc_stations_nearest"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "latitude": {
+                    "type": "number",
+                    "description": "WGS84 latitude (US territory only). Example: 37.7749 for San Francisco."
+                  },
+                  "longitude": {
+                    "type": "number",
+                    "description": "WGS84 longitude (US territory only). Example: -122.4194 for San Francisco."
+                  },
+                  "fuel_type": {
+                    "type": "string",
+                    "description": "Comma-separated fuel codes: ELEC (electric), CNG, LNG, LPG (propane), BD (biodiesel), E85, HY (hydrogen). Default ELEC.",
+                    "default": "ELEC"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "E",
+                      "P",
+                      "T"
+                    ],
+                    "description": "Station status: E=available (open), P=planned (future), T=temporarily unavailable. Default E.",
+                    "default": "E"
+                  },
+                  "radius": {
+                    "type": "number",
+                    "description": "Search radius in miles (max 500). Default 5.",
+                    "default": 5
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 200,
+                    "description": "Max stations to return (1-200). Default 20.",
+                    "default": 20
+                  }
+                },
+                "required": [
+                  "latitude",
+                  "longitude"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/nrel.afdc_stations_search/call": {
+      "post": {
+        "operationId": "nrel_afdc_stations_search",
+        "summary": "NREL AFDC — Alt-Fuel Stations Search",
+        "description": "Search US alt-fuel stations by ZIP, state, or city. Filterable by fuel type, EV network, connector type, and access level. Use for state-level analytics or city-wide EV infrastructure surveys; use afdc_stations_nearest for proximity search to a coordinate.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nrel.afdc_stations_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "zip": {
+                    "type": "string",
+                    "description": "5-digit US ZIP code to search within. Example: '94102'."
+                  },
+                  "state": {
+                    "type": "string",
+                    "description": "2-letter US state code. Example: 'CA', 'TX', 'NY'."
+                  },
+                  "city": {
+                    "type": "string",
+                    "description": "City name. Use with state for disambiguation. Example: Oakland."
+                  },
+                  "fuel_type": {
+                    "type": "string",
+                    "description": "Comma-separated fuel codes: ELEC (electric), CNG, LNG, LPG (propane), BD (biodiesel), E85, HY (hydrogen). Default ELEC.",
+                    "default": "ELEC"
+                  },
+                  "ev_connector_type": {
+                    "type": "string",
+                    "description": "EV connector codes (comma-separated): J1772 (Level 2), J1772COMBO (CCS), CHADEMO, TESLA, NEMA1450, NEMA515."
+                  },
+                  "access": {
+                    "type": "string",
+                    "enum": [
+                      "public",
+                      "private"
+                    ],
+                    "description": "Filter by access type: 'public' for open-access stations, 'private' for fleet-only."
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "E",
+                      "P",
+                      "T"
+                    ],
+                    "description": "Station status: E=available (open), P=planned (future), T=temporarily unavailable. Default E.",
+                    "default": "E"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 200,
+                    "description": "Results per page (1-200). Default 50.",
+                    "default": 50
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Pagination offset — number of results to skip. Default 0.",
+                    "default": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/nrel.afdc_station_detail/call": {
+      "post": {
+        "operationId": "nrel_afdc_station_detail",
+        "summary": "NREL AFDC — Station Detail",
+        "description": "Get detailed record for one specific alt-fuel station by its AFDC station ID — operator info, full address, hours per day-of-week, EV charging speed breakdown (Level 1/2/DC Fast outlet counts), accepted payment methods, access restrictions.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nrel.afdc_station_detail"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "station_id": {
+                    "type": "integer",
+                    "description": "AFDC station ID (positive integer). Obtained from afdc_stations_nearest or afdc_stations_search results.",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "station_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/nrel.pvwatts_estimate/call": {
+      "post": {
+        "operationId": "nrel_pvwatts_estimate",
+        "summary": "NREL PVWatts Solar PV Production Estimate",
+        "description": "Calculate monthly and annual AC energy production (kWh) for a residential or commercial solar PV system at any global location. Uses NSRDB satellite-derived solar resource data. Returns monthly AC/DC energy, capacity factor, plane-of-array irradiance, and solar radiation. Unique — no other tool in this catalog estimates solar PV output.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nrel.pvwatts_estimate"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "latitude": {
+                    "type": "number",
+                    "description": "Site latitude in decimal degrees (global, WGS84). Example: 37.7749 (San Francisco), 51.5074 (London)."
+                  },
+                  "longitude": {
+                    "type": "number",
+                    "description": "Site longitude in decimal degrees (global, WGS84). Example: -122.4194 (San Francisco), -0.1278 (London)."
+                  },
+                  "system_capacity": {
+                    "type": "number",
+                    "description": "System DC nameplate capacity in kilowatts (kW). Example: 5 for a typical residential system, 100 for commercial.",
+                    "minimum": 0
+                  },
+                  "module_type": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2,
+                    "description": "Solar module type: 0=Standard (polycrystalline), 1=Premium (monocrystalline, default), 2=Thin Film.",
+                    "default": 1
+                  },
+                  "losses": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 99,
+                    "description": "System losses percentage (0-99). Accounts for wiring, soiling, shading. Default 14 (NREL recommended).",
+                    "default": 14
+                  },
+                  "array_type": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4,
+                    "description": "Array mount type: 0=Fixed open rack, 1=Fixed roof mount (default), 2=1-axis tracking, 3=1-axis backtracking, 4=2-axis tracking.",
+                    "default": 1
+                  },
+                  "tilt": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 90,
+                    "description": "Module tilt angle in degrees from horizontal (0=flat/horizontal, 90=vertical). Default 20.",
+                    "default": 20
+                  },
+                  "azimuth": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 360,
+                    "description": "Array azimuth angle: 0=north, 90=east, 180=south (default, optimal in Northern Hemisphere), 270=west.",
+                    "default": 180
+                  }
+                },
+                "required": [
+                  "latitude",
+                  "longitude",
+                  "system_capacity"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/checkwx.metar_decoded/call": {
+      "post": {
+        "operationId": "checkwx_metar_decoded",
+        "summary": "CheckWX Decoded METAR",
+        "description": "Get current METAR for one or more airports as fully decoded JSON — wind (direction/speed/gust as separate fields), visibility (in SM and meters), sky conditions (cloud coverage + altitude as objects), temperature/dewpoint (°C and °F), altimeter (inHg and hPa), flight category (VFR/MVFR/IFR/LIFR). Saves agents from parsing raw METAR text.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "checkwx.metar_decoded"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "icao_codes": {
+                    "type": "string",
+                    "description": "Comma-separated ICAO airport codes (uppercase 4 letters). Max 25 per call. Examples: 'KJFK,EGLL,RJTT', 'KSFO', 'EDDF'."
+                  }
+                },
+                "required": [
+                  "icao_codes"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/checkwx.taf_decoded/call": {
+      "post": {
+        "operationId": "checkwx_taf_decoded",
+        "summary": "CheckWX Decoded TAF",
+        "description": "Decoded TAF forecast for airports — issued time, valid window, per-period forecast objects (wind, visibility, weather conditions, sky). Each forecast change block parsed into structured JSON.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "checkwx.taf_decoded"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "icao_codes": {
+                    "type": "string",
+                    "description": "Comma-separated ICAO airport codes (uppercase 4 letters). Max 25 per call. Examples: 'KJFK,EGLL,RJTT', 'KSFO', 'EDDF'."
+                  }
+                },
+                "required": [
+                  "icao_codes"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/checkwx.station_info/call": {
+      "post": {
+        "operationId": "checkwx_station_info",
+        "summary": "CheckWX Station Information",
+        "description": "Airport/weather-station metadata by ICAO — name, IATA, latitude/longitude/elevation, country, city, time zone, runway info (count, longest length, surface).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "checkwx.station_info"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "icao_code": {
+                    "type": "string",
+                    "description": "Single ICAO airport/station code (4-letter uppercase). Examples: 'KJFK', 'EGLL', 'RJTT'."
+                  }
+                },
+                "required": [
+                  "icao_code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/opendota.player_summary/call": {
+      "post": {
+        "operationId": "opendota_player_summary",
+        "summary": "OpenDota Player Summary",
+        "description": "Get a Dota 2 player's profile + summary stats by Steam Account ID — name, avatar, MMR estimate, total wins/losses, rank tier, last match time. Profile may be private (returns minimal info).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "opendota.player_summary"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "account_id": {
+                    "type": "integer",
+                    "description": "Steam account ID (Dota 2 32-bit). Get from /api/search?q=playername. Example: 105248644 (Dendi)."
+                  }
+                },
+                "required": [
+                  "account_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/opendota.player_matches/call": {
+      "post": {
+        "operationId": "opendota_player_matches",
+        "summary": "OpenDota Player Match History",
+        "description": "Recent match history for a Dota 2 player — array of matches with match_id, hero, kills/deaths/assists, duration, win/loss, party_size, game_mode, lobby_type. Sortable by date.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "opendota.player_matches"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "account_id": {
+                    "type": "integer",
+                    "description": "Steam account ID (Dota 2 32-bit). Get from /api/search?q=playername. Example: 105248644 (Dendi)."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Max matches to return (1-100, default 20).",
+                    "default": 20
+                  }
+                },
+                "required": [
+                  "account_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/opendota.match_detail/call": {
+      "post": {
+        "operationId": "opendota_match_detail",
+        "summary": "OpenDota Match Detail",
+        "description": "Full detail of one Dota 2 match — all 10 players with hero, items, K/D/A, gold/XP per minute, ability picks, team composition, game duration, winner. Heavy parse but rich data.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "opendota.match_detail"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "match_id": {
+                    "type": "integer",
+                    "description": "Dota 2 match ID (64-bit integer from player_matches)."
+                  }
+                },
+                "required": [
+                  "match_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/opendota.pro_teams/call": {
+      "post": {
+        "operationId": "opendota_pro_teams",
+        "summary": "OpenDota Pro Teams",
+        "description": "List professional Dota 2 teams with rating, wins/losses, last match time, logo URL, team_id, sponsor. Sorted by rating descending.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "opendota.pro_teams"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "_unused": {
+                    "type": "string",
+                    "description": "Reserved for future filtering — not currently used."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/avwx.notams/call": {
+      "post": {
+        "operationId": "avwx_notams",
+        "summary": "AVWX Parsed NOTAMs",
+        "description": "Active NOTAMs (Notice to Airmen) for one or more airports, parsed into structured fields — NOTAM ID, classification (FDC/D/U), type (runway closure, navaid out, airspace restriction, obstacle), effective period, summary text. Critical for flight planning. UNIQUE to AVWX — NOAA and CheckWX do NOT return parsed NOTAMs.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "avwx.notams"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "icao_code": {
+                    "type": "string",
+                    "description": "Single ICAO airport code (4-letter uppercase). Examples: KJFK, EGLL, RJTT, OMDB."
+                  },
+                  "distance": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100,
+                    "description": "Include NOTAMs within this nautical-mile radius (0-100, default 10). Use 0 for airport-specific only."
+                  }
+                },
+                "required": [
+                  "icao_code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/avwx.pireps/call": {
+      "post": {
+        "operationId": "avwx_pireps",
+        "summary": "AVWX Parsed PIREPs",
+        "description": "Pilot Reports (PIREPs) near an airport, parsed — aircraft type, altitude, time, location, sky condition observed, turbulence, icing, weather. Source: pilots reporting in-flight conditions. Useful for hazard awareness.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "avwx.pireps"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "icao_code": {
+                    "type": "string",
+                    "description": "Single ICAO airport code (4-letter uppercase). Examples: KJFK, EGLL, KSFO."
+                  }
+                },
+                "required": [
+                  "icao_code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/avwx.station_summary/call": {
+      "post": {
+        "operationId": "avwx_station_summary",
+        "summary": "AVWX Station Summary",
+        "description": "Composite report for one airport — latest parsed METAR + TAF + station info (name, lat/lon/elev, type) in one call. Cheaper than three separate calls if you need the full picture.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "avwx.station_summary"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "icao_code": {
+                    "type": "string",
+                    "description": "Single ICAO airport code (4-letter uppercase). Examples: KJFK, EGLL, KSFO."
+                  }
+                },
+                "required": [
+                  "icao_code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

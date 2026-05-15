@@ -178,6 +178,20 @@ import { tidesSchemas } from './tides.schema';
 import { metSchemas } from './met.schema';
 import { rijksSchemas } from './rijks.schema';
 import { cmaSchemas } from './cma.schema';
+import { razorpayifscSchemas } from './razorpayifsc.schema';
+import { lichessSchemas } from './lichess.schema';
+import { chesscomSchemas } from './chesscom.schema';
+import { awcSchemas } from './awc.schema';
+import { ukfsaSchemas } from './ukfsa.schema';
+import { govukSchemas } from './govuk.schema';
+import { scbSchemas } from './scb.schema';
+import { irctcSchemas } from './irctc.schema';
+import { nvdSchemas } from './nvd.schema';
+import { usajobsSchemas } from './usajobs.schema';
+import { nrelSchemas } from './nrel.schema';
+import { opendotaSchemas } from './opendota.schema';
+import { checkwxSchemas } from './checkwx.schema';
+import { avwxSchemas } from './avwx.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -359,4 +373,18 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...metSchemas,
   ...rijksSchemas,
   ...cmaSchemas,
+  ...razorpayifscSchemas,
+  ...lichessSchemas,
+  ...chesscomSchemas,
+  ...awcSchemas,
+  ...ukfsaSchemas,
+  ...govukSchemas,
+  ...scbSchemas,
+  ...irctcSchemas,
+  ...nvdSchemas,
+  ...usajobsSchemas,
+  ...nrelSchemas,
+  ...opendotaSchemas,
+  ...checkwxSchemas,
+  ...avwxSchemas,
 };

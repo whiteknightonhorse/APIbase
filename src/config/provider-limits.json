@@ -1590,5 +1590,133 @@
     "reset_period": "hourly",
     "docs_url": "https://api.open.fec.gov/developers/",
     "limit_proof": "1,000 req/hr per api.data.gov shared key. FEC mandatory public disclosure data."
+  },
+  "razorpayifsc": {
+    "display_name": "Razorpay IFSC",
+    "health_url": "https://ifsc.razorpay.com/SBIN0005943",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://razorpay.com/docs/api/ifsc/",
+    "limit_proof": "Public MIT-licensed open data API. No authentication, no documented rate limits."
+  },
+  "lichess": {
+    "display_name": "Lichess",
+    "health_url": "https://lichess.org/api/puzzle/daily",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://lichess.org/api#section/Introduction",
+    "limit_proof": "Open API, no auth required for public read endpoints. ~20 req/s burst allowed; no hard daily/monthly quota documented."
+  },
+  "chesscom": {
+    "display_name": "Chess.com",
+    "health_url": "https://api.chess.com/pub/titled/GM",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.chess.com/news/view/published-data-api",
+    "limit_proof": "Open public data, no auth required for read endpoints, commercial use OK. No documented rate limits; be polite with User-Agent header."
+  },
+  "awc": {
+    "display_name": "NOAA Aviation Weather Center",
+    "health_url": "https://aviationweather.gov/api/data/metar?ids=KJFK&format=json&taf=false&hours=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://aviationweather.gov/data/api/",
+    "limit_proof": "US Federal Government open data API, no auth required, no documented rate limits. Public domain, be polite."
+  },
+  "ukfsa": {
+    "display_name": "UK Food Standards Agency",
+    "health_url": "https://api.ratings.food.gov.uk/Authorities",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://api.ratings.food.gov.uk/help",
+    "limit_proof": "UK Government open data (OGL v3), no auth required, no documented rate limits. Free for commercial use."
+  },
+  "govuk": {
+    "display_name": "GOV.UK Content API",
+    "health_url": "https://www.gov.uk/api/search.json?q=test&count=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://content-api.publishing.service.gov.uk/reference.html",
+    "limit_proof": "UK Government open data (OGL v3), no auth required, no documented rate limits. Commercial use OK."
+  },
+  "scb": {
+    "display_name": "Statistics Sweden (SCB)",
+    "health_url": "https://api.scb.se/OV0104/v1/doris/en/ssd/",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.scb.se/en/services/open-data-api/api-for-the-statistical-database/",
+    "limit_proof": "Open data, no auth required, no documented rate limits. Commercial use explicitly permitted under SCB open data license."
+  },
+  "irctc": {
+    "display_name": "IRCTC Indian Railways",
+    "health_url": "https://irctc1.p.rapidapi.com/api/v1/searchStation?query=Delhi",
+    "limit_type": "monthly",
+    "free_limit": 500,
+    "reset_period": "monthly",
+    "docs_url": "https://rapidapi.com/IRCTCAPI/api/irctc1/pricing",
+    "limit_proof": "RapidAPI Basic plan includes limited free requests/month; conservative default 500 req/month. Exact limit depends on subscribed plan — see rapidapi.com/IRCTCAPI/api/irctc1/pricing."
+  },
+  "nvd": {
+    "display_name": "NIST National Vulnerability Database",
+    "health_url": "https://services.nvd.nist.gov/rest/json/cves/2.0?resultsPerPage=1",
+    "limit_type": "hourly",
+    "free_limit": 100,
+    "reset_period": "hourly",
+    "docs_url": "https://nvd.nist.gov/developers/start-here",
+    "limit_proof": "With API key: 50 requests per 30-second rolling window (~100/min). Without key: 5 requests per 30-second window. US public domain, commercial use OK."
+  },
+  "usajobs": {
+    "display_name": "USAJOBS (OPM)",
+    "health_url": "https://data.usajobs.gov/api/codelist/paygrades",
+    "limit_type": "hourly",
+    "free_limit": 10,
+    "reset_period": "hourly",
+    "docs_url": "https://developer.usajobs.gov/general/getting-started",
+    "limit_proof": "Authenticated users: up to 10 requests per second burst, general fair use; no published hard cap. US Federal public information, commercial use OK."
+  },
+  "nrel": {
+    "display_name": "NREL (Energy Lab)",
+    "health_url": "https://developer.nrel.gov/api/alt-fuel-stations/v1/nearest.json?api_key=DEMO_KEY&latitude=37.77&longitude=-122.41&limit=1",
+    "limit_type": "hourly",
+    "free_limit": 1000,
+    "reset_period": "hourly",
+    "docs_url": "https://developer.nrel.gov/docs/rate-limits/",
+    "limit_proof": "Free developer key: 1000 requests/hour shared across all NREL APIs (AFDC + PVWatts). US Public Domain, commercial use OK."
+  },
+  "opendota": {
+    "display_name": "OpenDota",
+    "health_url": "https://api.opendota.com/api/health",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "paid_balance": true,
+    "docs_url": "https://docs.opendota.com/#section/Authentication",
+    "limit_proof": "Premium tier with API key: unlimited calls/day, 3000 req/min. Billed monthly at $0.0001/call. Without key: 60k calls/month free."
+  },
+  "checkwx": {
+    "display_name": "CheckWX Aviation Weather",
+    "health_url": "https://api.checkwx.com/station/KJFK",
+    "limit_type": "monthly",
+    "free_limit": 10000,
+    "reset_period": "monthly",
+    "docs_url": "https://www.checkwxapi.com/documentation",
+    "limit_proof": "Free tier: 10,000 calls/month. AMBER ToS — commercial use OK with attribution. Requires API key."
+  },
+  "avwx": {
+    "display_name": "AVWX Aviation Weather",
+    "health_url": "https://avwx.rest/api/summary/KJFK",
+    "limit_type": "monthly",
+    "free_limit": 1000,
+    "reset_period": "monthly",
+    "paid_balance": true,
+    "docs_url": "https://avwx.rest/documentation#section/Authentication",
+    "limit_proof": "Free tier: 1,000 requests/month. Commercial use OK. Paid plans start at $10/month for higher volume."
   }
 }

@@ -1,6 +1,6 @@
 # APIbase.pro — The API Hub for AI Agents
 
-> One MCP endpoint. 580 tools. 178 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
+> One MCP endpoint. 622 tools. 192 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Frameworks](https://apibase.pro/frameworks)** | **[Dashboard](https://apibase.pro/dashboard)**
 
@@ -27,7 +27,7 @@ https://github.com/user-attachments/assets/9e598d61-b2d0-486c-bd34-f0cb0354d09c
 
 ## What is APIbase?
 
-Production MCP server that gives AI agents access to 580 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, check weather and tides, query US Census and CDC health data, search ML models on HuggingFace, look up World Bank indicators, track streamflow from USGS stations, search 7M+ CS papers on DBLP, generate images, send emails, decode VINs, look up chemical compounds, scan npm/PyPI vulnerabilities, find EV chargers, search art at the Met Museum, batch multiple calls, track usage analytics - and 300+ more tools across 30+ categories.
+Production MCP server that gives AI agents access to 622 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, check weather and tides, query US Census and CDC health data, search ML models on HuggingFace, look up World Bank indicators, track streamflow from USGS stations, search 7M+ CS papers on DBLP, generate images, send emails, decode VINs, look up chemical compounds, scan npm/PyPI vulnerabilities, search NIST NVD CVE records, find EV chargers, estimate solar PV output, search art at the Met Museum, look up Dota 2 match stats, get decoded aviation METAR/TAF, look up parsed NOTAMs and PIREPs, search X/Twitter posts and profiles, batch multiple calls, track usage analytics — and 300+ more tools across 30+ categories.
 
 **Built for AI agents, not humans.** Auto-registration, zero setup, pay-per-call via x402 USDC micropayments on Base or MPP (Machine Payments Protocol) on Tempo.
 
@@ -91,39 +91,39 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 
 ---
 
-## Tool Categories (580 tools, 161 providers)
+## Tool Categories (622 tools, 192 providers)
 
 | Category | Tools | Providers | Examples |
 |----------|-------|-----------|----------|
 | **Web Search** | 11 | Serper, Tavily, Exa, Spider.cloud | Google search, AI search, semantic search, web scraping |
 | **News & Events** | 10 | NewsData, GDELT, Mastodon, Currents API | Global news (65 langs), crypto news, trending |
 | **Social** | 11 | Bluesky, TwitterAPI.io, Xquik | Search posts, profiles, feeds, followers, trends (AT Protocol, X/Twitter) |
-| **Travel & Flights** | 17 | Amadeus, Sabre, Aviasales | Flight search, pricing, status, airports |
+| **Travel & Flights** | 20 | Amadeus, Sabre, Aviasales, IRCTC Indian Railways | Flight search, pricing, status, airports, Indian train schedules/live status |
 | **Finance & Stocks** | 17 | Finnhub, CoinGecko, ECB, FRED, World Bank | Stock quotes, OHLCV, FX rates, economic data, global indicators |
-| **Banking Data** | 6 | FDIC BankFind, IBANAPI | US bank financials, branch locations, institution search, IBAN validation |
+| **Banking Data** | 7 | FDIC BankFind, IBANAPI, Razorpay IFSC | US bank financials, branch locations, institution search, IBAN validation, Indian IFSC lookup |
 | **Company Data** | 8 | SEC EDGAR, Companies House, GLEIF | US filings + UK registry + global LEI (200+ countries) |
 | **Currency Conversion** | 2 | ExchangeRate-API | 160+ currencies, real-time conversion |
 | **Tax & VAT** | 3 | VATcomply | EU VAT validation, rates, ECB exchange rates |
 | **Maps & Geo** | 7 | Geoapify | Geocode, routing, POI search, isochrone |
 | **Address (US/CA)** | 2 | Geocodio | Geocode, reverse geocode, USPS-standard |
 | **Real Estate** | 4 | Walk Score, US Real Estate | Walkability, property listings, details |
-| **Entertainment** | 30 | TMDB, Ticketmaster, RAWG, IGDB, Jikan, Met Museum, Rijksmuseum, CMA | Movies, events, games, anime, art collections |
+| **Entertainment** | 40 | TMDB, Ticketmaster, RAWG, IGDB, Jikan, Lichess, Chess.com, Met Museum, Rijksmuseum, CMA, OpenDota | Movies, events, games, anime, chess/esports, art collections, Dota 2 |
 | **Art & Culture** | 5 | Europeana, ARTIC | 50M+ EU objects + 120K Chicago artworks |
 | **Stock Media** | 3 | Pexels | Free stock photos & videos, commercial use |
 | **Music** | 9 | MusicBrainz, ListenBrainz, RadioBrowser, AudD | Artists, albums, radio, song recognition, lyrics |
 | **Podcasts** | 7 | PodcastIndex, Listen Notes | Search 4M+ podcasts, 186M+ episodes, best by genre |
-| **Health & Nutrition** | 9 | USDA, OpenFDA, NIH, CDC | Food data, drug safety, supplements, public health datasets |
+| **Health & Nutrition** | 12 | USDA, OpenFDA, NIH, CDC, UK FSA | Food data, drug safety, supplements, public health datasets, UK food hygiene ratings |
 | **Chemistry & Biology** | 16 | PubChem, RCSB PDB, NCI CACTUS, Materials Project | 100M+ compounds, 220K+ proteins, 150K+ materials, chemical ID converter |
-| **EV Charging** | 3 | Open Charge Map | 300K+ charging stations worldwide, connectors, power levels |
+| **EV Charging & Energy** | 7 | Open Charge Map, NREL AFDC, NREL PVWatts | 300K+ EV stations worldwide; US alt-fuel stations (EV/CNG/H2); solar PV output estimation |
 | **Fraud Detection** | 4 | IPQualityScore | IP/email/URL/phone fraud scoring, VPN/proxy/bot detection |
 | **Disease Data** | 7 | disease.sh, WHO GHO | COVID/Influenza global disease statistics, WHO global health data |
 | **Clinical Trials** | 3 | ClinicalTrials.gov | 577K+ trials, drug research, recruiting |
 | **Nutrition Database** | 2 | FatSecret | 2.3M+ foods, calories, macros, vitamins |
 | **Education & Research** | 9 | OpenAlex, arXiv, PubMed, CrossRef, DBLP | Papers, colleges, DOI lookup, CS bibliography |
-| **Jobs & Career** | 20 | Adzuna, TheirStack, Jooble, Reed, Remotive, Arbeitnow, BLS, ESCO | Global job search, UK/EU/remote, salary data, tech stack analysis |
-| **Legal & Regulatory** | 8 | Regulations.gov, Federal Register, CourtListener | US regulations, court opinions, executive orders |
+| **Jobs & Career** | 23 | Adzuna, TheirStack, Jooble, Reed, Remotive, Arbeitnow, BLS, ESCO, USAJOBS | Global job search, UK/EU/remote, salary data, tech stack analysis, US federal civil-service |
+| **Legal & Regulatory** | 11 | Regulations.gov, Federal Register, CourtListener, GOV.UK Content API | US/UK regulations, court opinions, government publications |
 | **Air Quality** | 2 | IQAir AirVisual | AQI, pollutants (PM2.5/O3), 30K+ stations |
-| **Weather** | 10 | WeatherAPI.com, NWS, NOAA, NASA FIRMS | Current/forecast, hourly, observations, astronomy, alerts, fire detection |
+| **Weather** | 19 | WeatherAPI.com, NWS, NOAA, NASA FIRMS, NOAA AWC, CheckWX, AVWX | Current/forecast, hourly, observations, astronomy, alerts, fire detection, aviation METAR/TAF/SIGMET (raw + decoded JSON), parsed NOTAMs and PIREPs |
 | **Space & Astronomy** | 13 | NASA, JPL, NOAA SWPC | APOD, asteroids, fireballs, solar flares |
 | **Translation** | 3 | Langbly | 90+ languages, language detection |
 | **Sports** | 7 | API-Sports, BallDontLie | Football (2000+ leagues), NBA, NFL |
@@ -136,6 +136,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 | **Messaging** | 5 | Telegram | Send messages, photos, documents via bot |
 | **URL Shortener** | 2 | Short.io | Custom branded short links + stats |
 | **SSL & Domain** | 10 | WhoisXML, ssl-checker.io, ThreatIntel | WHOIS, DNS, SSL, domain reputation, malware check |
+| **CVE Vulnerabilities** | 3 | NIST NVD | CVE search, CVSS v3 scores, CWE weakness, CPE product lookup |
 | **Barcode & QR** | 4 | QRServer, UPCitemdb | Generate/read QR, barcode lookup |
 | **Business Intel** | 1 | Hunter.io | Company emails, enrichment, 50M+ domains |
 | **E-commerce** | 12 | Zinc, Canopy API, Diffbot, Zyte | Product search, Amazon (12 marketplaces), web extraction |
@@ -161,6 +162,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 | **Public-Domain Books** | 13 | Free Use Bible API, Gutendex, LibriVox, Tatoeba | 78K Gutenberg books, 20K LibriVox audio, 1K Bible translations, 13M sentence pairs |
 | **Brazilian Gov Data** | 17 | BrasilAPI, IBGE, BCB SGS | CNPJ/CEP/banks/PIX, census/municipalities, SELIC/CDI/IPCA/USD-BRL |
 | **EU & UK Gov Data** | 7 | Eurostat, UK Police | EU unemployment/inflation/GDP, UK street-level crime |
+| **Nordic Statistics** | 3 | Statistics Sweden (SCB) | Sweden population, labour market, national accounts, prices — PXWeb API |
 | **Singapore Gov Data** | 4 | data.gov.sg | Live weather/PM2.5/rainfall/taxi |
 | **US Cultural Archives** | 3 | US Library of Congress | 415K digitized historical items |
 | **Platform** | 6 | APIbase (internal) | Usage analytics, tool quality index, batch calls |

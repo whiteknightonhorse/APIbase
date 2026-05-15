@@ -5979,4 +5979,423 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+  // ---------------------------------------------------------------------------
+  // Razorpay IFSC — Indian bank branch lookup (UC-425)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'razorpayifsc.lookup',
+    mcpName: 'razorpay.ifsc.lookup',
+    title: 'Razorpay IFSC Bank Lookup',
+    description:
+      'Look up Indian bank branch details (name, address, IFSC capabilities like UPI/NEFT/RTGS/IMPS) by IFSC code. Free, MIT-licensed open data covering all Indian banks.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  // ---------------------------------------------------------------------------
+  // Lichess — Chess platform: profiles, top players, daily puzzle (UC-416)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'lichess.user_profile',
+    mcpName: 'lichess.user.profile',
+    title: 'Lichess User Profile',
+    description:
+      "Get a Lichess user's profile — username, ratings across variants (bullet/blitz/rapid/classical/correspondence/puzzle), games played, online status, profile bio, country, language.",
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'lichess.top_players',
+    mcpName: 'lichess.players.top',
+    title: 'Lichess Top Players',
+    description:
+      'Top N players in a chess variant (bullet, blitz, rapid, classical, ultraBullet, chess960, crazyhouse, antichess, atomic, horde, kingOfTheHill, racingKings, threeCheck). Returns username, rating, country.',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'lichess.daily_puzzle',
+    mcpName: 'lichess.puzzle.daily',
+    title: 'Lichess Daily Puzzle',
+    description:
+      "Get today's Lichess daily puzzle — puzzle ID, FEN position, solution moves, theme, rating difficulty.",
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  // ---------------------------------------------------------------------------
+  // Chess.com — World's largest chess platform: profiles, stats, titled players (UC-417)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'chesscom.player_profile',
+    mcpName: 'chesscom.player.profile',
+    title: 'Chess.com Player Profile',
+    description:
+      "Get a Chess.com player's profile — username, country, title (GM/IM/FM), join date, online status, followers, league. Distinct from Lichess: Chess.com is the world's largest chess platform with 100M+ users.",
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'chesscom.player_stats',
+    mcpName: 'chesscom.player.stats',
+    title: 'Chess.com Player Stats',
+    description:
+      "Get a Chess.com player's rating + record across all time controls (rapid, blitz, bullet, daily, daily960, tactics, lessons, puzzle_rush). Returns highest rating, current rating, win/loss/draw counts.",
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'chesscom.titled_players',
+    mcpName: 'chesscom.players.titled',
+    title: 'Chess.com Titled Players List',
+    description:
+      'List all titled players on Chess.com by title (GM, WGM, IM, WIM, FM, WFM, NM, WNM, CM, WCM). Returns array of usernames.',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  // ---------------------------------------------------------------------------
+  // NOAA Aviation Weather Center (AWC) — METAR/TAF/SIGMET aviation weather (UC-422)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'awc.metar',
+    mcpName: 'aviation.metar.current',
+    title: 'Aviation METAR Weather Report',
+    description:
+      'Current METAR (METeorological Aerodrome Report) for one or more airports — official aviation weather observations (wind, visibility, sky condition, temperature, dewpoint, altimeter, remarks). Updates every 1 hour, more often when conditions change rapidly.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'awc.taf',
+    mcpName: 'aviation.taf.forecast',
+    title: 'Aviation TAF Terminal Forecast',
+    description:
+      'TAF (Terminal Aerodrome Forecast) for an airport — aviation forecast valid for next 24-30 hours with wind, visibility, weather phenomena, and sky conditions in 6-hour windows. Updates 4× daily.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'awc.sigmet',
+    mcpName: 'aviation.sigmet.alerts',
+    title: 'Aviation SIGMET / AIRMET Hazard Alerts',
+    description:
+      'Active SIGMET (SIGnificant METeorological information) and AIRMET reports — flight safety hazards including thunderstorms, turbulence, icing, volcanic ash, dust storms, mountain obscuration. Used by pilots and dispatchers for go/no-go decisions.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
+  // UK Food Standards Agency (FSA) — Food Hygiene Rating Scheme (UC-429)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'ukfsa.establishment_search',
+    mcpName: 'ukfsa.establishments.search',
+    title: 'UK FSA Food Business Search',
+    description:
+      'Search UK food businesses by name, address, postcode, or local authority. Returns the official Food Hygiene Rating Scheme score (0-5), business type, last inspection date, and full address. Covers 500K+ premises across England, Wales, Northern Ireland (Scotland has separate FHIS — pass/improvement required).',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ukfsa.establishment_details',
+    mcpName: 'ukfsa.establishments.detail',
+    title: 'UK FSA Food Business Details',
+    description:
+      'Detailed record for one UK food premise by FSA ID — full scheme breakdown (hygiene/structural/management scores), confidence in management score, exact inspection date, local authority code, business type taxonomy.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ukfsa.local_authorities',
+    mcpName: 'ukfsa.authorities.list',
+    title: 'UK FSA Local Authorities',
+    description:
+      'List all UK local authorities that participate in the Food Hygiene Rating Scheme (or Scottish FHIS) — name, code, total establishments count, scheme type (FHRS=England/Wales/NI 0-5 rating, FHIS=Scotland pass/improvement).',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
+  // GOV.UK Content API — Cabinet Office, 700K+ UK government documents (UC-430)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'govuk.search',
+    mcpName: 'govuk.content.search',
+    title: 'GOV.UK Content Search',
+    description:
+      'Full-text search across all 700K+ GOV.UK documents — guidance pages, news articles, statistics releases, organisation pages, ministerial pages, statutory instruments. Filter by content type, organisation, topic. Distinct from UK FSA (food ratings only) — this covers ALL government publications.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'govuk.content',
+    mcpName: 'govuk.content.fetch',
+    title: 'GOV.UK Document Content',
+    description:
+      'Fetch full content of a GOV.UK page by its base path — title, publication date, organisation, full HTML body (or structured fields per content type), related documents.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'govuk.organisations',
+    mcpName: 'govuk.organisations.list',
+    title: 'GOV.UK Organisations Directory',
+    description:
+      'List or search UK government organisations (ministerial departments, executive agencies, NDPBs, public corporations) — name, web URL, parent department, child organisations. 1100+ entries from Cabinet Office to local agencies.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  // ---------------------------------------------------------------------------
+  // Statistics Sweden — SCB (UC-431)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'scb.catalog',
+    mcpName: 'scb.catalog.browse',
+    title: 'SCB Sweden Statistics Catalog',
+    description:
+      "Browse the SCB statistics database tree by path. Top-level categories: BE (population), AM (labour market), HE (households), NR (national accounts), PR (prices/inflation), MI (environment), AA (general), BO (housing), EN (energy), FM (financial markets), HA (trade), JO (agriculture), LE (living conditions). Returns child nodes (subcategories, type=l) or table descriptors at leaf nodes (type=t). Use empty path '' to get top-level. Navigate hierarchically to find tables for scb.table_metadata.",
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'scb.table_metadata',
+    mcpName: 'scb.tables.metadata',
+    title: 'SCB Sweden Table Metadata',
+    description:
+      "Get metadata for a specific SCB statistical table — title, dimensions (variables like Region, Alder/age, Kon/sex, Tid/year), valid value codes for each dimension, and latest update timestamp. Use this BEFORE scb.table_query to discover what filter values are accepted. Example path: 'BE/BE0101/BE0101A/BefolkningNy' (Sweden population by region/age/sex/year).",
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'scb.table_query',
+    mcpName: 'scb.tables.query',
+    title: 'SCB Sweden Table Query',
+    description:
+      "Run a statistical query against an SCB table — specify dimension filters to slice data by region, age, sex, year, etc. Returns JSON-stat2 format with labeled dimensions and numeric values. Always call scb.table_metadata first to discover valid dimension codes and value codes. Example: Sweden total population (Region='00', filter='vs:RegionRiket99'), latest year (Tid filter='top' values=['1']).",
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
+  // IRCTC Indian Railways via RapidAPI (UC-426)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'irctc.train_search',
+    mcpName: 'irctc.trains.search',
+    title: 'IRCTC Train Search Between Stations',
+    description:
+      'Search trains running between two Indian railway stations. Returns train number, name, departure/arrival time, distance, class availability (1A/2A/3A/SL/CC/EC), and running days (Mon-Sun).',
+    category: 'travel',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'irctc.train_status',
+    mcpName: 'irctc.trains.status',
+    title: 'IRCTC Live Train Running Status',
+    description:
+      'Get live running status of an Indian train for today or a specific date — current station, expected arrival/departure, delay in minutes, distance covered, full station-by-station schedule.',
+    category: 'travel',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'irctc.station_search',
+    mcpName: 'irctc.stations.search',
+    title: 'IRCTC Railway Station Lookup',
+    description:
+      'Search Indian Railways stations by name or partial code. Returns station code, full name, state. Use this to discover station codes for irctc.train_search/status.',
+    category: 'travel',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
+  // NIST National Vulnerability Database (NVD) (UC-413, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'nvd.cve_search',
+    mcpName: 'nvd.cves.search',
+    title: 'NIST NVD CVE Search',
+    description:
+      'Search the National Vulnerability Database for CVE records by keyword, vendor, product, CVSS severity, or publication date range. Returns CVE-ID, summary, CVSS v3 base score, severity (LOW/MEDIUM/HIGH/CRITICAL), affected CPE configurations, references. Distinct from OSV: NVD provides canonical NIST records with CVSS v3 scores, CWE weakness types, and CPE configurations.',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nvd.cve_detail',
+    mcpName: 'nvd.cves.detail',
+    title: 'NIST NVD CVE Detail',
+    description:
+      'Fetch the canonical NVD record for a specific CVE-ID — full English description, CVSS v3 + v2 vectors and scores, weakness types (CWE), affected CPE configurations with version ranges, and all references with tags. Example: CVE-2021-44228 for Log4Shell.',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nvd.cpe_search',
+    mcpName: 'nvd.cpes.search',
+    title: 'NIST NVD CPE Product Lookup',
+    description:
+      'Search the Common Platform Enumeration (CPE) dictionary for product identifiers used by CVEs. Returns CPE 2.3 URI (cpe:2.3:a:vendor:product:version:...), title, deprecation status. Use this to find the exact CPE string before searching CVEs by affected product.',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+
+  // USAJOBS — Office of Personnel Management (UC-415, 3 tools)
+  {
+    toolId: 'usajobs.search',
+    mcpName: 'usajobs.jobs.search',
+    title: 'USAJOBS Federal Job Search',
+    description:
+      'Search US federal civil-service job postings — by keyword, location, pay grade (GS-1 to GS-15, SES), agency, position type. Returns position title, agency, location, salary range, grade, open period, application URL. USAJOBS is the ONLY source for US federal civil-service postings, distinct from BLS, ESCO, CareerJet, Adzuna, Reed, Jooble, Arbeitnow, Remotive, and TheirStack.',
+    category: 'jobs',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'usajobs.position_detail',
+    mcpName: 'usajobs.positions.detail',
+    title: 'USAJOBS Position Detail',
+    description:
+      'Get full detail for a specific federal job posting by control number (PositionID) — full description, qualifications, duties, benefits summary, application instructions, security clearance level, telework eligibility.',
+    category: 'jobs',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'usajobs.code_lists',
+    mcpName: 'usajobs.codes.list',
+    title: 'USAJOBS Reference Code Lists',
+    description:
+      'Fetch reference code lists used by USAJOBS — agency codes, pay grades, hiring paths, occupational series, security clearance levels, work schedules. Use to discover valid values for search filters.',
+    category: 'jobs',
+    annotations: READ_ONLY,
+  },
+
+  // NREL — AFDC + PVWatts (UC-414, 4 tools)
+  {
+    toolId: 'nrel.afdc_stations_nearest',
+    mcpName: 'nrel.afdc.nearest',
+    title: 'NREL AFDC — Nearest Alt-Fuel Stations',
+    description:
+      'Find the nearest alternative fuel stations to a given US location (latitude/longitude). Includes EV charging (Level 1/2/DC Fast), CNG, LNG, propane, biodiesel, hydrogen. Returns station name, address, network, plug types, hours, last verified date. US-specific; for global EV stations use openchargemap.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nrel.afdc_stations_search',
+    mcpName: 'nrel.afdc.search',
+    title: 'NREL AFDC — Alt-Fuel Stations Search',
+    description:
+      'Search US alt-fuel stations by ZIP, state, or city. Filterable by fuel type, EV network, connector type, and access level. Use for state-level analytics or city-wide EV infrastructure surveys; use afdc_stations_nearest for proximity search to a coordinate.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nrel.afdc_station_detail',
+    mcpName: 'nrel.afdc.detail',
+    title: 'NREL AFDC — Station Detail',
+    description:
+      'Get detailed record for one specific alt-fuel station by its AFDC station ID — operator info, full address, hours per day-of-week, EV charging speed breakdown (Level 1/2/DC Fast outlet counts), accepted payment methods, access restrictions.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nrel.pvwatts_estimate',
+    mcpName: 'nrel.pvwatts.estimate',
+    title: 'NREL PVWatts Solar PV Production Estimate',
+    description:
+      'Calculate monthly and annual AC energy production (kWh) for a residential or commercial solar PV system at any global location. Uses NSRDB satellite-derived solar resource data. Returns monthly AC/DC energy, capacity factor, plane-of-array irradiance, and solar radiation. Unique — no other tool in this catalog estimates solar PV output.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+
+  // CheckWX Aviation Weather (UC-423, 3 tools)
+  {
+    toolId: 'checkwx.metar_decoded',
+    mcpName: 'checkwx.metar.decoded',
+    title: 'CheckWX Decoded METAR',
+    description:
+      'Get current METAR for one or more airports as fully decoded JSON — wind (direction/speed/gust as separate fields), visibility (in SM and meters), sky conditions (cloud coverage + altitude as objects), temperature/dewpoint (°C and °F), altimeter (inHg and hPa), flight category (VFR/MVFR/IFR/LIFR). Saves agents from parsing raw METAR text.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'checkwx.taf_decoded',
+    mcpName: 'checkwx.taf.decoded',
+    title: 'CheckWX Decoded TAF',
+    description:
+      'Decoded TAF forecast for airports — issued time, valid window, per-period forecast objects (wind, visibility, weather conditions, sky). Each forecast change block parsed into structured JSON.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'checkwx.station_info',
+    mcpName: 'checkwx.stations.info',
+    title: 'CheckWX Station Information',
+    description:
+      'Airport/weather-station metadata by ICAO — name, IATA, latitude/longitude/elevation, country, city, time zone, runway info (count, longest length, surface).',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+
+  // OpenDota — Dota 2 statistics (UC-418, 4 tools)
+  {
+    toolId: 'opendota.player_summary',
+    mcpName: 'opendota.players.summary',
+    title: 'OpenDota Player Summary',
+    description:
+      "Get a Dota 2 player's profile + summary stats by Steam Account ID — name, avatar, MMR estimate, total wins/losses, rank tier, last match time. Profile may be private (returns minimal info).",
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'opendota.player_matches',
+    mcpName: 'opendota.players.matches',
+    title: 'OpenDota Player Match History',
+    description:
+      'Recent match history for a Dota 2 player — array of matches with match_id, hero, kills/deaths/assists, duration, win/loss, party_size, game_mode, lobby_type. Sortable by date.',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'opendota.match_detail',
+    mcpName: 'opendota.matches.detail',
+    title: 'OpenDota Match Detail',
+    description:
+      'Full detail of one Dota 2 match — all 10 players with hero, items, K/D/A, gold/XP per minute, ability picks, team composition, game duration, winner. Heavy parse but rich data.',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'opendota.pro_teams',
+    mcpName: 'opendota.proteams.list',
+    title: 'OpenDota Pro Teams',
+    description:
+      'List professional Dota 2 teams with rating, wins/losses, last match time, logo URL, team_id, sponsor. Sorted by rating descending.',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+
+  // AVWX Aviation Weather (UC-424, 3 tools)
+  {
+    toolId: 'avwx.notams',
+    mcpName: 'avwx.notams.list',
+    title: 'AVWX Parsed NOTAMs',
+    description:
+      'Active NOTAMs (Notice to Airmen) for one or more airports, parsed into structured fields — NOTAM ID, classification (FDC/D/U), type (runway closure, navaid out, airspace restriction, obstacle), effective period, summary text. Critical for flight planning. UNIQUE to AVWX — NOAA and CheckWX do NOT return parsed NOTAMs.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'avwx.pireps',
+    mcpName: 'avwx.pireps.list',
+    title: 'AVWX Parsed PIREPs',
+    description:
+      'Pilot Reports (PIREPs) near an airport, parsed — aircraft type, altitude, time, location, sky condition observed, turbulence, icing, weather. Source: pilots reporting in-flight conditions. Useful for hazard awareness.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'avwx.station_summary',
+    mcpName: 'avwx.stations.summary',
+    title: 'AVWX Station Summary',
+    description:
+      'Composite report for one airport — latest parsed METAR + TAF + station info (name, lat/lon/elev, type) in one call. Cheaper than three separate calls if you need the full picture.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
 ];

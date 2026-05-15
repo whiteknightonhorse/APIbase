@@ -3473,6 +3473,244 @@ tools:
     price_usd: "0.001"
     cache_ttl: 900
 
+  # --- UC-425: Razorpay IFSC ---
+  - tool_id: razorpayifsc.lookup
+    name: Razorpay IFSC Bank Lookup
+    provider: razorpayifsc
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  # --- UC-416: Lichess ---
+  - tool_id: lichess.user_profile
+    name: Lichess User Profile
+    provider: lichess
+    price_usd: "0.001"
+    cache_ttl: 300
+  - tool_id: lichess.top_players
+    name: Lichess Top Players
+    provider: lichess
+    price_usd: "0.001"
+    cache_ttl: 600
+  - tool_id: lichess.daily_puzzle
+    name: Lichess Daily Puzzle
+    provider: lichess
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  # --- UC-417: Chess.com Public Data API ---
+  - tool_id: chesscom.player_profile
+    name: Chess.com Player Profile
+    provider: chesscom
+    price_usd: "0.001"
+    cache_ttl: 600
+  - tool_id: chesscom.player_stats
+    name: Chess.com Player Stats
+    provider: chesscom
+    price_usd: "0.001"
+    cache_ttl: 600
+  - tool_id: chesscom.titled_players
+    name: Chess.com Titled Players List
+    provider: chesscom
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  # --- UC-422: NOAA Aviation Weather Center (AWC) ---
+  - tool_id: awc.metar
+    name: Aviation METAR Weather Report
+    provider: awc
+    price_usd: "0.001"
+    cache_ttl: 1800
+  - tool_id: awc.taf
+    name: Aviation TAF Terminal Forecast
+    provider: awc
+    price_usd: "0.002"
+    cache_ttl: 7200
+  - tool_id: awc.sigmet
+    name: Aviation SIGMET / AIRMET Hazard Alerts
+    provider: awc
+    price_usd: "0.002"
+    cache_ttl: 900
+
+  # --- UC-429: UK Food Standards Agency (FSA) — Food Hygiene Rating Scheme ---
+  - tool_id: ukfsa.establishment_search
+    name: UK FSA Food Business Search
+    provider: ukfsa
+    price_usd: "0.002"
+    cache_ttl: 3600
+  - tool_id: ukfsa.establishment_details
+    name: UK FSA Food Business Details
+    provider: ukfsa
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: ukfsa.local_authorities
+    name: UK FSA Local Authorities
+    provider: ukfsa
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  # --- UC-430: GOV.UK Content API (Cabinet Office, UK) ---
+  - tool_id: govuk.search
+    name: GOV.UK Content Search
+    provider: govuk
+    price_usd: "0.002"
+    cache_ttl: 1800
+  - tool_id: govuk.content
+    name: GOV.UK Document Content
+    provider: govuk
+    price_usd: "0.002"
+    cache_ttl: 3600
+  - tool_id: govuk.organisations
+    name: GOV.UK Organisations Directory
+    provider: govuk
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  # --- UC-431: Statistics Sweden (SCB) ---
+  - tool_id: scb.catalog
+    name: SCB Sweden Statistics Catalog
+    provider: scb
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: scb.table_metadata
+    name: SCB Sweden Table Metadata
+    provider: scb
+    price_usd: "0.002"
+    cache_ttl: 3600
+  - tool_id: scb.table_query
+    name: SCB Sweden Table Query
+    provider: scb
+    price_usd: "0.003"
+    cache_ttl: 1800
+
+  # --- UC-426: IRCTC Indian Railways (via RapidAPI) ---
+  - tool_id: irctc.train_search
+    name: IRCTC Train Search Between Stations
+    provider: irctc
+    price_usd: "0.005"
+    cache_ttl: 600
+  - tool_id: irctc.train_status
+    name: IRCTC Live Train Running Status
+    provider: irctc
+    price_usd: "0.005"
+    cache_ttl: 300
+  - tool_id: irctc.station_search
+    name: IRCTC Railway Station Lookup
+    provider: irctc
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  # --- UC-413: NIST National Vulnerability Database (NVD) ---
+  - tool_id: nvd.cve_search
+    name: NIST NVD CVE Search
+    provider: nvd
+    price_usd: "0.002"
+    cache_ttl: 3600
+  - tool_id: nvd.cve_detail
+    name: NIST NVD CVE Detail
+    provider: nvd
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: nvd.cpe_search
+    name: NIST NVD CPE Product Lookup
+    provider: nvd
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  # --- UC-415: USAJOBS — Office of Personnel Management ---
+  - tool_id: usajobs.search
+    name: USAJOBS Federal Job Search
+    provider: usajobs
+    price_usd: "0.002"
+    cache_ttl: 1800
+  - tool_id: usajobs.position_detail
+    name: USAJOBS Position Detail
+    provider: usajobs
+    price_usd: "0.001"
+    cache_ttl: 1800
+  - tool_id: usajobs.code_lists
+    name: USAJOBS Reference Code Lists
+    provider: usajobs
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  # --- UC-414: NREL — AFDC (EV chargers) + PVWatts (solar) ---
+  - tool_id: nrel.afdc_stations_nearest
+    name: NREL AFDC Nearest Alt-Fuel Stations
+    provider: nrel
+    price_usd: "0.002"
+    cache_ttl: 3600
+  - tool_id: nrel.afdc_stations_search
+    name: NREL AFDC Alt-Fuel Stations Search
+    provider: nrel
+    price_usd: "0.002"
+    cache_ttl: 3600
+  - tool_id: nrel.afdc_station_detail
+    name: NREL AFDC Station Detail
+    provider: nrel
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: nrel.pvwatts_estimate
+    name: NREL PVWatts Solar PV Production Estimate
+    provider: nrel
+    price_usd: "0.003"
+    cache_ttl: 86400
+
+  # --- UC-423: CheckWX Aviation Weather ---
+  - tool_id: checkwx.metar_decoded
+    name: CheckWX Decoded METAR
+    provider: checkwx
+    price_usd: "0.002"
+    cache_ttl: 1800
+  - tool_id: checkwx.taf_decoded
+    name: CheckWX Decoded TAF
+    provider: checkwx
+    price_usd: "0.003"
+    cache_ttl: 7200
+  - tool_id: checkwx.station_info
+    name: CheckWX Station Information
+    provider: checkwx
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  # --- UC-424: AVWX Aviation Weather ---
+  - tool_id: avwx.notams
+    name: AVWX Parsed NOTAMs
+    provider: avwx
+    price_usd: "0.003"
+    cache_ttl: 1800
+  - tool_id: avwx.pireps
+    name: AVWX Parsed PIREPs
+    provider: avwx
+    price_usd: "0.002"
+    cache_ttl: 900
+  - tool_id: avwx.station_summary
+    name: AVWX Station Summary
+    provider: avwx
+    price_usd: "0.003"
+    cache_ttl: 1800
+
+  # --- UC-418: OpenDota ---
+  - tool_id: opendota.player_summary
+    name: OpenDota Player Summary
+    provider: opendota
+    price_usd: "0.001"
+    cache_ttl: 1800
+  - tool_id: opendota.player_matches
+    name: OpenDota Player Match History
+    provider: opendota
+    price_usd: "0.002"
+    cache_ttl: 600
+  - tool_id: opendota.match_detail
+    name: OpenDota Match Detail
+    provider: opendota
+    price_usd: "0.002"
+    cache_ttl: 86400
+  - tool_id: opendota.pro_teams
+    name: OpenDota Pro Teams
+    provider: opendota
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

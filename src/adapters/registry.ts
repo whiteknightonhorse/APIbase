@@ -178,6 +178,19 @@ import { NoaaTidesAdapter } from './noaa-tides';
 import { MetMuseumAdapter } from './met-museum';
 import { RijksmuseumAdapter } from './rijksmuseum';
 import { CmaAdapter } from './cma';
+import { RazorpayIfscAdapter } from './razorpayifsc';
+import { LichessAdapter } from './lichess';
+import { ChesscomAdapter } from './chesscom';
+import { AwcAdapter } from './awc';
+import { UkfsaAdapter } from './ukfsa';
+import { GovukAdapter } from './govuk';
+import { ScbAdapter } from './scb';
+import { NvdAdapter } from './nvd';
+import { UsajobsAdapter } from './usajobs';
+import { NrelAdapter } from './nrel';
+import { OpenDotaAdapter } from './opendota';
+import { CheckWxAdapter } from './checkwx';
+import { AvwxAdapter } from './avwx';
 import { config } from '../config';
 
 /**
@@ -1091,6 +1104,69 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'cma':
       // Cleveland Museum of Art — 64K+ artworks, CC0, no auth (UC-381)
       return getOrCreate('cma', () => new CmaAdapter());
+    case 'razorpayifsc':
+      // Razorpay IFSC — Indian bank branch lookup, MIT, no auth (UC-425)
+      return getOrCreate('razorpayifsc', () => new RazorpayIfscAdapter());
+    case 'lichess':
+      // Lichess — chess platform: user profiles, top players, daily puzzle, no auth (UC-416)
+      return getOrCreate('lichess', () => new LichessAdapter());
+    case 'chesscom':
+      // Chess.com Public Data API — player profiles, stats, titled players, no auth (UC-417)
+      return getOrCreate('chesscom', () => new ChesscomAdapter());
+    case 'awc':
+      // NOAA Aviation Weather Center — METAR/TAF/SIGMET, no auth, US public domain (UC-422)
+      return getOrCreate('awc', () => new AwcAdapter());
+    case 'ukfsa':
+      // UK Food Standards Agency — Food Hygiene Rating Scheme, OGL v3, no auth (UC-429)
+      return getOrCreate('ukfsa', () => new UkfsaAdapter());
+    case 'govuk':
+      // GOV.UK Content API — 700K+ UK government documents, OGL v3, no auth (UC-430)
+      return getOrCreate('govuk', () => new GovukAdapter());
+    case 'scb':
+      // Statistics Sweden (SCB) PXWeb API — open national statistics, no auth (UC-431)
+      return getOrCreate('scb', () => new ScbAdapter());
+    case 'nvd': {
+      // NIST National Vulnerability Database — CVE/CPE canonical records (UC-413)
+      const nvdKey = (config as Record<string, unknown>).PROVIDER_KEY_NVD as string | undefined;
+      if (!nvdKey) return undefined;
+      return getOrCreate('nvd', () => new NvdAdapter(nvdKey));
+    }
+    case 'usajobs': {
+      // USAJOBS — Office of Personnel Management, US federal civil-service postings (UC-415)
+      const usajobsKey = (config as Record<string, unknown>).PROVIDER_KEY_USAJOBS as
+        | string
+        | undefined;
+      if (!usajobsKey) return undefined;
+      return getOrCreate('usajobs', () => new UsajobsAdapter(usajobsKey));
+    }
+    case 'nrel': {
+      // NREL — AFDC (EV chargers) + PVWatts (solar) (UC-414) — 1000 req/hour shared
+      const nrelKey = (config as Record<string, unknown>).PROVIDER_KEY_NREL as string | undefined;
+      if (!nrelKey) return undefined;
+      return getOrCreate('nrel', () => new NrelAdapter(nrelKey));
+    }
+    case 'opendota': {
+      // OpenDota — Dota 2 statistics API (UC-418) — unlimited/day, 3000 req/min
+      const opendotaKey = (config as Record<string, unknown>).PROVIDER_KEY_OPENDOTA as
+        | string
+        | undefined;
+      if (!opendotaKey) return undefined;
+      return getOrCreate('opendota', () => new OpenDotaAdapter(opendotaKey));
+    }
+    case 'checkwx': {
+      // CheckWX Aviation Weather — pre-decoded METAR/TAF/station JSON (UC-423)
+      const checkwxKey = (config as Record<string, unknown>).PROVIDER_KEY_CHECKWX as
+        | string
+        | undefined;
+      if (!checkwxKey) return undefined;
+      return getOrCreate('checkwx', () => new CheckWxAdapter(checkwxKey));
+    }
+    case 'avwx': {
+      // AVWX Aviation Weather — parsed NOTAMs + PIREPs + station summary (UC-424)
+      const avwxKey = (config as Record<string, unknown>).PROVIDER_KEY_AVWX as string | undefined;
+      if (!avwxKey) return undefined;
+      return getOrCreate('avwx', () => new AvwxAdapter(avwxKey));
+    }
     default:
       return undefined;
   }
