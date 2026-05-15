@@ -185,6 +185,7 @@ import { ukfsaSchemas } from './ukfsa.schema';
 import { govukSchemas } from './govuk.schema';
 import { scbSchemas } from './scb.schema';
 import { irctcSchemas } from './irctc.schema';
+import { nvdSchemas } from './nvd.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -373,4 +374,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...govukSchemas,
   ...scbSchemas,
   ...irctcSchemas,
+  ...nvdSchemas,
 };

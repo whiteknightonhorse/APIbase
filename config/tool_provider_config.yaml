@@ -3577,6 +3577,23 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-413: NIST National Vulnerability Database (NVD) ---
+  - tool_id: nvd.cve_search
+    name: NIST NVD CVE Search
+    provider: nvd
+    price_usd: "0.002"
+    cache_ttl: 3600
+  - tool_id: nvd.cve_detail
+    name: NIST NVD CVE Detail
+    provider: nvd
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: nvd.cpe_search
+    name: NIST NVD CPE Product Lookup
+    provider: nvd
+    price_usd: "0.002"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

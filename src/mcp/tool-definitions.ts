@@ -6166,4 +6166,35 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'travel',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // NIST National Vulnerability Database (NVD) (UC-413, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'nvd.cve_search',
+    mcpName: 'nvd.cves.search',
+    title: 'NIST NVD CVE Search',
+    description:
+      'Search the National Vulnerability Database for CVE records by keyword, vendor, product, CVSS severity, or publication date range. Returns CVE-ID, summary, CVSS v3 base score, severity (LOW/MEDIUM/HIGH/CRITICAL), affected CPE configurations, references. Distinct from OSV: NVD provides canonical NIST records with CVSS v3 scores, CWE weakness types, and CPE configurations.',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nvd.cve_detail',
+    mcpName: 'nvd.cves.detail',
+    title: 'NIST NVD CVE Detail',
+    description:
+      'Fetch the canonical NVD record for a specific CVE-ID — full English description, CVSS v3 + v2 vectors and scores, weakness types (CWE), affected CPE configurations with version ranges, and all references with tags. Example: CVE-2021-44228 for Log4Shell.',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nvd.cpe_search',
+    mcpName: 'nvd.cpes.search',
+    title: 'NIST NVD CPE Product Lookup',
+    description:
+      'Search the Common Platform Enumeration (CPE) dictionary for product identifiers used by CVEs. Returns CPE 2.3 URI (cpe:2.3:a:vendor:product:version:...), title, deprecation status. Use this to find the exact CPE string before searching CVEs by affected product.',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
 ];

@@ -184,6 +184,7 @@ import { AwcAdapter } from './awc';
 import { UkfsaAdapter } from './ukfsa';
 import { GovukAdapter } from './govuk';
 import { ScbAdapter } from './scb';
+import { NvdAdapter } from './nvd';
 import { config } from '../config';
 
 /**
@@ -1113,6 +1114,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'scb':
       // Statistics Sweden (SCB) PXWeb API — open national statistics, no auth (UC-431)
       return getOrCreate('scb', () => new ScbAdapter());
+    case 'nvd': {
+      // NIST National Vulnerability Database — CVE/CPE canonical records (UC-413)
+      const nvdKey = (config as Record<string, unknown>).PROVIDER_KEY_NVD as string | undefined;
+      if (!nvdKey) return undefined;
+      return getOrCreate('nvd', () => new NvdAdapter(nvdKey));
+    }
     default:
       return undefined;
   }

@@ -1662,5 +1662,14 @@
     "reset_period": "monthly",
     "docs_url": "https://rapidapi.com/IRCTCAPI/api/irctc1/pricing",
     "limit_proof": "RapidAPI Basic plan includes limited free requests/month; conservative default 500 req/month. Exact limit depends on subscribed plan — see rapidapi.com/IRCTCAPI/api/irctc1/pricing."
+  },
+  "nvd": {
+    "display_name": "NIST National Vulnerability Database",
+    "health_url": "https://services.nvd.nist.gov/rest/json/cves/2.0?resultsPerPage=1",
+    "limit_type": "hourly",
+    "free_limit": 100,
+    "reset_period": "hourly",
+    "docs_url": "https://nvd.nist.gov/developers/start-here",
+    "limit_proof": "With API key: 50 requests per 30-second rolling window (~100/min). Without key: 5 requests per 30-second window. US public domain, commercial use OK."
   }
 }

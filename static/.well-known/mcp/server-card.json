@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 598 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 601 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -34275,6 +34275,187 @@
         "required": [
           "train_number"
         ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "nvd.cpes.search",
+      "title": "NIST NVD CPE Product Lookup",
+      "description": "Search the Common Platform Enumeration (CPE) dictionary for product identifiers used by CVEs. Returns CPE 2.3 URI (cpe:2.3:a:vendor:product:version:...), title, deprecation status. Use this to find the exact CPE string before searching CVEs by affected product.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "keyword": {
+            "type": "string",
+            "description": "Product keyword to search the CPE dictionary. Examples: 'openssl', 'apache tomcat', 'nginx 1.18'. Returns CPE 2.3 URIs used to identify affected products in CVE records."
+          },
+          "results_per_page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000,
+            "description": "Number of CPE records to return per page. Range: 1\u20131000. Default: 20."
+          },
+          "start_index": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Zero-based offset for pagination. Use with results_per_page to page through large result sets. Default: 0."
+          }
+        },
+        "required": [
+          "keyword"
+        ],
+        "description": "Search the CPE dictionary to find product identifiers used in CVE configurations."
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "nvd.cves.detail",
+      "title": "NIST NVD CVE Detail",
+      "description": "Fetch the canonical NVD record for a specific CVE-ID \u2014 full English description, CVSS v3 + v2 vectors and scores, weakness types (CWE), affected CPE configurations with version ranges, and all references with tags. Example: CVE-2021-44228 for Log4Shell.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "cve_id": {
+            "type": "string",
+            "description": "Full CVE identifier in canonical form (e.g. 'CVE-2021-44228' for Log4Shell). Format: CVE-YYYY-NNNN+ where YYYY is the year and NNNN+ is a sequence number of four or more digits."
+          }
+        },
+        "required": [
+          "cve_id"
+        ],
+        "description": "Fetch the canonical NVD record for a single CVE by its ID."
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "nvd.cves.search",
+      "title": "NIST NVD CVE Search",
+      "description": "Search the National Vulnerability Database for CVE records by keyword, vendor, product, CVSS severity, or publication date range. Returns CVE-ID, summary, CVSS v3 base score, severity (LOW/MEDIUM/HIGH/CRITICAL), affected CPE configurations, references. Distinct from OSV: NVD provides canonical NIST records with CVSS v3 scores, CWE weakness types, and CPE configurations.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "keyword": {
+            "type": "string",
+            "description": "Free-text keyword to search CVE records. Examples: 'log4j', 'OpenSSL CVE-2023', 'Linux kernel use-after-free'. Combined with other filters using AND logic."
+          },
+          "cvss_v3_severity": {
+            "type": "string",
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH",
+              "CRITICAL"
+            ],
+            "description": "Filter by CVSS v3 base severity. LOW = 0.1\u20133.9, MEDIUM = 4.0\u20136.9, HIGH = 7.0\u20138.9, CRITICAL = 9.0\u201310.0. Omit to return all severities."
+          },
+          "pub_start_date": {
+            "type": "string",
+            "description": "Earliest CVE publication date in ISO 8601 extended format with timezone offset (e.g. '2024-01-01T00:00:00.000+00:00'). Maximum 120-day window per request when combined with pub_end_date."
+          },
+          "pub_end_date": {
+            "type": "string",
+            "description": "Latest CVE publication date in ISO 8601 extended format with timezone offset (e.g. '2024-12-31T23:59:59.999+00:00'). Must be paired with pub_start_date. Maximum 120-day window."
+          },
+          "results_per_page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2000,
+            "description": "Number of CVE records to return per page. Range: 1\u20132000. Default: 20."
+          },
+          "start_index": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Zero-based offset for pagination. Use with results_per_page to page through large result sets. Default: 0."
+          }
+        },
+        "description": "Search NVD CVE records by keyword, severity, or date range."
       },
       "outputSchema": {
         "type": "object",
