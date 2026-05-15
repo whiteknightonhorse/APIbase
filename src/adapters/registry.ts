@@ -184,6 +184,7 @@ import { AwcAdapter } from './awc';
 import { UkfsaAdapter } from './ukfsa';
 import { GovukAdapter } from './govuk';
 import { ScbAdapter } from './scb';
+import { CbsAdapter } from './cbs';
 import { config } from '../config';
 
 /**
@@ -1113,6 +1114,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'scb':
       // Statistics Sweden (SCB) PXWeb API — open national statistics, no auth (UC-431)
       return getOrCreate('scb', () => new ScbAdapter());
+    case 'cbs':
+      // Statistics Netherlands (CBS) OData v3 — 4000+ tables, CC0, no auth (UC-432)
+      return getOrCreate('cbs', () => new CbsAdapter());
     default:
       return undefined;
   }
