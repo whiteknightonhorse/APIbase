@@ -6135,34 +6135,4 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
-  // ---------------------------------------------------------------------------
-  // Statistics Netherlands — CBS (UC-432)
-  // ---------------------------------------------------------------------------
-  {
-    toolId: 'cbs.catalog_search',
-    mcpName: 'cbs.catalog.search',
-    title: 'CBS Netherlands Table Search',
-    description:
-      "Search the CBS Statistics Netherlands open data catalog by keyword — returns matching tables (datasets) with their Identifier code (e.g. '85619NED'), Title, ShortDescription, Theme (Population, Economy, Labour, Health, etc.), and Frequency. 4000+ statistical tables available.",
-    category: 'world',
-    annotations: READ_ONLY,
-  },
-  {
-    toolId: 'cbs.table_metadata',
-    mcpName: 'cbs.tables.metadata',
-    title: 'CBS Netherlands Table Metadata',
-    description:
-      'Get metadata for a CBS table by Identifier — title, dimensions list, period coverage, last modification date. Use this BEFORE cbs.table_data to learn dimension codes and valid filter values.',
-    category: 'world',
-    annotations: READ_ONLY,
-  },
-  {
-    toolId: 'cbs.table_data',
-    mcpName: 'cbs.tables.data',
-    title: 'CBS Netherlands Table Data',
-    description:
-      'Retrieve data rows from a CBS table with optional OData filter — returns observations with dimension values. Supports $filter (OData syntax), $top (max rows), $select (columns), $skip (pagination).',
-    category: 'world',
-    annotations: READ_ONLY,
-  },
 ];

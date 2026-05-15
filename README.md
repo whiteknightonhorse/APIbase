@@ -1,6 +1,6 @@
 # APIbase.pro — The API Hub for AI Agents
 
-> One MCP endpoint. 598 tools. 185 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
+> One MCP endpoint. 595 tools. 184 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Frameworks](https://apibase.pro/frameworks)** | **[Dashboard](https://apibase.pro/dashboard)**
 
@@ -27,7 +27,7 @@ https://github.com/user-attachments/assets/9e598d61-b2d0-486c-bd34-f0cb0354d09c
 
 ## What is APIbase?
 
-Production MCP server that gives AI agents access to 598 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, check weather and tides, query US Census and CDC health data, search ML models on HuggingFace, look up World Bank indicators, track streamflow from USGS stations, search 7M+ CS papers on DBLP, generate images, send emails, decode VINs, look up chemical compounds, scan npm/PyPI vulnerabilities, find EV chargers, search art at the Met Museum, batch multiple calls, track usage analytics — and 300+ more tools across 30+ categories.
+Production MCP server that gives AI agents access to 595 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, check weather and tides, query US Census and CDC health data, search ML models on HuggingFace, look up World Bank indicators, track streamflow from USGS stations, search 7M+ CS papers on DBLP, generate images, send emails, decode VINs, look up chemical compounds, scan npm/PyPI vulnerabilities, find EV chargers, search art at the Met Museum, batch multiple calls, track usage analytics — and 300+ more tools across 30+ categories.
 
 **Built for AI agents, not humans.** Auto-registration, zero setup, pay-per-call via x402 USDC micropayments on Base or MPP (Machine Payments Protocol) on Tempo.
 
@@ -91,7 +91,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 
 ---
 
-## Tool Categories (598 tools, 165 providers)
+## Tool Categories (595 tools, 164 providers)
 
 | Category | Tools | Providers | Examples |
 |----------|-------|-----------|----------|
@@ -162,7 +162,6 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 | **Brazilian Gov Data** | 17 | BrasilAPI, IBGE, BCB SGS | CNPJ/CEP/banks/PIX, census/municipalities, SELIC/CDI/IPCA/USD-BRL |
 | **EU & UK Gov Data** | 7 | Eurostat, UK Police | EU unemployment/inflation/GDP, UK street-level crime |
 | **Nordic Statistics** | 3 | Statistics Sweden (SCB) | Sweden population, labour market, national accounts, prices — PXWeb API |
-| **Netherlands Statistics** | 3 | Statistics Netherlands (CBS) | 4000+ Dutch stats tables — population, economy, labour, housing, OData v3 |
 | **Singapore Gov Data** | 4 | data.gov.sg | Live weather/PM2.5/rainfall/taxi |
 | **US Cultural Archives** | 3 | US Library of Congress | 415K digitized historical items |
 | **Platform** | 6 | APIbase (internal) | Usage analytics, tool quality index, batch calls |
