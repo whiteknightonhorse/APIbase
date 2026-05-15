@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 601 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 604 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -34456,6 +34456,194 @@
           }
         },
         "description": "Search NVD CVE records by keyword, severity, or date range."
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "usajobs.codes.list",
+      "title": "USAJOBS Reference Code Lists",
+      "description": "Fetch reference code lists used by USAJOBS \u2014 agency codes, pay grades, hiring paths, occupational series, security clearance levels, work schedules. Use to discover valid values for search filters.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "code_list": {
+            "type": "string",
+            "enum": [
+              "agencysubelements",
+              "occupationalseries",
+              "paygrades",
+              "hiringpaths",
+              "securityclearances",
+              "applicantsuppliers",
+              "geoloccodes",
+              "postalcodes",
+              "cyberworkroles",
+              "workschedules",
+              "traveldescriptions"
+            ],
+            "description": "Reference code list name. Options: agencysubelements (all federal agencies and sub-orgs), occupationalseries (4-digit job-family codes, e.g. 2210=IT Specialist), paygrades (GS-1 through SES), hiringpaths (public/veteran/student/disability), securityclearances (Public Trust to TS/SCI), applicantsuppliers (hiring authority types), geoloccodes (geographic location codes), postalcodes (ZIP code lookup), cyberworkroles (NICE Cybersecurity Workforce Framework roles), workschedules (full-time/part-time/intermittent), traveldescriptions (travel requirement levels)."
+          }
+        },
+        "required": [
+          "code_list"
+        ],
+        "description": "Fetch reference code lists used by USAJOBS \u2014 agency codes, pay grades, hiring paths, occupational series, and more."
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "usajobs.positions.detail",
+      "title": "USAJOBS Position Detail",
+      "description": "Get full detail for a specific federal job posting by control number (PositionID) \u2014 full description, qualifications, duties, benefits summary, application instructions, security clearance level, telework eligibility.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "control_number": {
+            "type": "string",
+            "description": "PositionID from a search result (digits-only string, e.g. \"856924100\"). Found in the MatchedObjectId field."
+          }
+        },
+        "required": [
+          "control_number"
+        ],
+        "description": "Fetch full detail for a specific federal job posting by control number."
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "usajobs.jobs.search",
+      "title": "USAJOBS Federal Job Search",
+      "description": "Search US federal civil-service job postings \u2014 by keyword, location, pay grade (GS-1 to GS-15, SES), agency, position type. Returns position title, agency, location, salary range, grade, open period, application URL. USAJOBS is the ONLY source for US federal civil-service postings, distinct from BLS, ESCO, CareerJet, Adzuna, Reed, Jooble, Arbeitnow, Remotive, and TheirStack.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "keyword": {
+            "type": "string",
+            "description": "Free-text search across job title + description. Examples: 'software engineer', 'cybersecurity analyst', 'data scientist'."
+          },
+          "location_name": {
+            "type": "string",
+            "description": "Location filter. City + state, ZIP, or state name. Examples: 'Washington, DC', 'San Francisco, CA', '94102'."
+          },
+          "pay_grade_low": {
+            "type": "string",
+            "description": "Minimum federal pay grade. Format: 'GS01'-'GS15', 'SES', or 'EX-V'. Default: any."
+          },
+          "pay_grade_high": {
+            "type": "string",
+            "description": "Maximum federal pay grade (same format as pay_grade_low)."
+          },
+          "organization": {
+            "type": "string",
+            "description": "Agency code or name fragment. Examples: 'DOD' (Defense), 'VA' (Veterans Affairs), 'HHS' (Health and Human Services)."
+          },
+          "position_title": {
+            "type": "string",
+            "description": "Strict position-title filter. Use keyword for fuzzy match."
+          },
+          "results_per_page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 500,
+            "description": "Results per page (1-500, default 25).",
+            "default": 25
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Page number for pagination (default 1).",
+            "default": 1
+          }
+        },
+        "description": "Search US federal civil-service job postings by keyword, location, pay grade, agency, or position title."
       },
       "outputSchema": {
         "type": "object",

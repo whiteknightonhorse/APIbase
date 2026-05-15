@@ -367,6 +367,9 @@ export const appEnvSchema = z.object({
   // NIST NVD (UC-413) — CVE/CPE vulnerability database, 50 req/30s with key
   PROVIDER_KEY_NVD: z.string().optional().default(''),
 
+  // USAJOBS OPM (UC-415) — US federal civil-service job postings
+  PROVIDER_KEY_USAJOBS: z.string().optional().default(''),
+
   // Polymarket trading — Phase 2 (UC-001 §3-§8)
   POLYMARKET_WALLET_ADDRESS: z.string().startsWith('0x').optional().default(''),
   POLYMARKET_PRIVATE_KEY: z.string().optional().default(''),

@@ -6197,4 +6197,33 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'developer',
     annotations: READ_ONLY,
   },
+
+  // USAJOBS — Office of Personnel Management (UC-415, 3 tools)
+  {
+    toolId: 'usajobs.search',
+    mcpName: 'usajobs.jobs.search',
+    title: 'USAJOBS Federal Job Search',
+    description:
+      'Search US federal civil-service job postings — by keyword, location, pay grade (GS-1 to GS-15, SES), agency, position type. Returns position title, agency, location, salary range, grade, open period, application URL. USAJOBS is the ONLY source for US federal civil-service postings, distinct from BLS, ESCO, CareerJet, Adzuna, Reed, Jooble, Arbeitnow, Remotive, and TheirStack.',
+    category: 'jobs',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'usajobs.position_detail',
+    mcpName: 'usajobs.positions.detail',
+    title: 'USAJOBS Position Detail',
+    description:
+      'Get full detail for a specific federal job posting by control number (PositionID) — full description, qualifications, duties, benefits summary, application instructions, security clearance level, telework eligibility.',
+    category: 'jobs',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'usajobs.code_lists',
+    mcpName: 'usajobs.codes.list',
+    title: 'USAJOBS Reference Code Lists',
+    description:
+      'Fetch reference code lists used by USAJOBS — agency codes, pay grades, hiring paths, occupational series, security clearance levels, work schedules. Use to discover valid values for search filters.',
+    category: 'jobs',
+    annotations: READ_ONLY,
+  },
 ];

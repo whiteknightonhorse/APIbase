@@ -1671,5 +1671,14 @@
     "reset_period": "hourly",
     "docs_url": "https://nvd.nist.gov/developers/start-here",
     "limit_proof": "With API key: 50 requests per 30-second rolling window (~100/min). Without key: 5 requests per 30-second window. US public domain, commercial use OK."
+  },
+  "usajobs": {
+    "display_name": "USAJOBS (OPM)",
+    "health_url": "https://data.usajobs.gov/api/codelist/paygrades",
+    "limit_type": "hourly",
+    "free_limit": 10,
+    "reset_period": "hourly",
+    "docs_url": "https://developer.usajobs.gov/general/getting-started",
+    "limit_proof": "Authenticated users: up to 10 requests per second burst, general fair use; no published hard cap. US Federal public information, commercial use OK."
   }
 }

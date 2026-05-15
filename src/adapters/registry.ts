@@ -185,6 +185,7 @@ import { UkfsaAdapter } from './ukfsa';
 import { GovukAdapter } from './govuk';
 import { ScbAdapter } from './scb';
 import { NvdAdapter } from './nvd';
+import { UsajobsAdapter } from './usajobs';
 import { config } from '../config';
 
 /**
@@ -1119,6 +1120,14 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const nvdKey = (config as Record<string, unknown>).PROVIDER_KEY_NVD as string | undefined;
       if (!nvdKey) return undefined;
       return getOrCreate('nvd', () => new NvdAdapter(nvdKey));
+    }
+    case 'usajobs': {
+      // USAJOBS — Office of Personnel Management, US federal civil-service postings (UC-415)
+      const usajobsKey = (config as Record<string, unknown>).PROVIDER_KEY_USAJOBS as
+        | string
+        | undefined;
+      if (!usajobsKey) return undefined;
+      return getOrCreate('usajobs', () => new UsajobsAdapter(usajobsKey));
     }
     default:
       return undefined;
