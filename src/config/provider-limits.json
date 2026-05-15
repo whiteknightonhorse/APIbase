@@ -1653,5 +1653,14 @@
     "reset_period": "none",
     "docs_url": "https://www.scb.se/en/services/open-data-api/api-for-the-statistical-database/",
     "limit_proof": "Open data, no auth required, no documented rate limits. Commercial use explicitly permitted under SCB open data license."
+  },
+  "irctc": {
+    "display_name": "IRCTC Indian Railways",
+    "health_url": "https://irctc1.p.rapidapi.com/api/v1/searchStation?query=Delhi",
+    "limit_type": "monthly",
+    "free_limit": 500,
+    "reset_period": "monthly",
+    "docs_url": "https://rapidapi.com/IRCTCAPI/api/irctc1/pricing",
+    "limit_proof": "RapidAPI Basic plan includes limited free requests/month; conservative default 500 req/month. Exact limit depends on subscribed plan — see rapidapi.com/IRCTCAPI/api/irctc1/pricing."
   }
 }

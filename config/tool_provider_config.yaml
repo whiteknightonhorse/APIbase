@@ -3560,6 +3560,23 @@ tools:
     price_usd: "0.003"
     cache_ttl: 1800
 
+  # --- UC-426: IRCTC Indian Railways (via RapidAPI) ---
+  - tool_id: irctc.train_search
+    name: IRCTC Train Search Between Stations
+    provider: irctc
+    price_usd: "0.005"
+    cache_ttl: 600
+  - tool_id: irctc.train_status
+    name: IRCTC Live Train Running Status
+    provider: irctc
+    price_usd: "0.005"
+    cache_ttl: 300
+  - tool_id: irctc.station_search
+    name: IRCTC Railway Station Lookup
+    provider: irctc
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

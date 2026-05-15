@@ -6135,4 +6135,35 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // IRCTC Indian Railways via RapidAPI (UC-426)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'irctc.train_search',
+    mcpName: 'irctc.trains.search',
+    title: 'IRCTC Train Search Between Stations',
+    description:
+      'Search trains running between two Indian railway stations. Returns train number, name, departure/arrival time, distance, class availability (1A/2A/3A/SL/CC/EC), and running days (Mon-Sun).',
+    category: 'travel',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'irctc.train_status',
+    mcpName: 'irctc.trains.status',
+    title: 'IRCTC Live Train Running Status',
+    description:
+      'Get live running status of an Indian train for today or a specific date — current station, expected arrival/departure, delay in minutes, distance covered, full station-by-station schedule.',
+    category: 'travel',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'irctc.station_search',
+    mcpName: 'irctc.stations.search',
+    title: 'IRCTC Railway Station Lookup',
+    description:
+      'Search Indian Railways stations by name or partial code. Returns station code, full name, state. Use this to discover station codes for irctc.train_search/status.',
+    category: 'travel',
+    annotations: READ_ONLY,
+  },
 ];

@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 595 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 598 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -34116,6 +34116,164 @@
         "required": [
           "table_path",
           "query"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "irctc.stations.search",
+      "title": "IRCTC Railway Station Lookup",
+      "description": "Search Indian Railways stations by name or partial code. Returns station code, full name, state. Use this to discover station codes for irctc.train_search/status.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Station name fragment or partial station code to search for. Case-insensitive. Examples: \"Mumbai\" returns CSMT/BCT/LTT/etc., \"delhi\" returns NDLS/DLI/NZM, \"HWH\" returns Howrah. Returns up to 20 matches."
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "irctc.trains.search",
+      "title": "IRCTC Train Search Between Stations",
+      "description": "Search trains running between two Indian railway stations. Returns train number, name, departure/arrival time, distance, class availability (1A/2A/3A/SL/CC/EC), and running days (Mon-Sun).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "from_station_code": {
+            "type": "string",
+            "description": "Origin station code (3-5 uppercase letters). Examples: NDLS (New Delhi), CSMT (Mumbai CST), HWH (Howrah Kolkata), MAS (Chennai Central), SBC (Bengaluru)."
+          },
+          "to_station_code": {
+            "type": "string",
+            "description": "Destination station code (3-5 uppercase letters, same format as from_station_code). Use irctc.station_search to discover codes by name."
+          },
+          "date_of_journey": {
+            "type": "string",
+            "description": "Journey date in YYYY-MM-DD format. Must be within the next 120 days from today. Example: 2026-05-15."
+          }
+        },
+        "required": [
+          "from_station_code",
+          "to_station_code",
+          "date_of_journey"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "irctc.trains.status",
+      "title": "IRCTC Live Train Running Status",
+      "description": "Get live running status of an Indian train for today or a specific date \u2014 current station, expected arrival/departure, delay in minutes, distance covered, full station-by-station schedule.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "train_number": {
+            "type": "string",
+            "description": "5-digit Indian Railways train number. Examples: '12951' (Mumbai Rajdhani Express), '12303' (Poorva Express), '22691' (Rajdhani Express Bangalore)."
+          },
+          "start_day": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4,
+            "description": "Day offset for the train journey start relative to today (0=today, 1=yesterday, 2=two days ago, up to 4). Use non-zero for multi-day trains that departed before today.",
+            "default": 0
+          }
+        },
+        "required": [
+          "train_number"
         ]
       },
       "outputSchema": {
