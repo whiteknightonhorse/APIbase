@@ -61,6 +61,21 @@ Combine APIbase (real-world APIs) with Playwright (browser) and Context7 (docs):
 }
 ```
 
+### With Base MCP (pay from your Base Account)
+
+[Base MCP](https://mcp.base.org) launched May 2026 with native x402 support. APIbase is x402-native on Base mainnet — the two pair cleanly. Base MCP signs payments from your Base Account; APIbase serves 600+ external API tools.
+
+```json
+{
+  "mcpServers": {
+    "base-mcp": { "url": "https://mcp.base.org" },
+    "apibase":  { "url": "https://apibase.pro/mcp" }
+  }
+}
+```
+
+Zero API-key management (Base Account handles auth + signing), zero per-provider signup (APIbase aggregates 191 providers). Full guide: [apibase.pro/frameworks#base-mcp](https://apibase.pro/frameworks#base-mcp).
+
 ### Via npm (stdio bridge)
 
 ```json

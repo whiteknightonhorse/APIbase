@@ -265,6 +265,38 @@ async with MCPServerManager(
     )
     result = await Runner.run(agent, "Get AAPL stock price")</pre>
 
+<h2 id="base-mcp">Base MCP Companion <span class="badge">Pay From Your Base Account</span></h2>
+<p>Base launched their official <a href="https://mcp.base.org" target="_blank" rel="noopener">Base MCP</a> server in May 2026 with native <strong>x402 payment support</strong>. APIbase is x402-native on Base mainnet via a self-hosted facilitator &mdash; the two pair cleanly. Base MCP signs payments from your Base Account; APIbase serves the 600+ tools your agent actually uses.</p>
+
+<h3>Combined config (Claude Desktop / Cursor / Windsurf)</h3>
+<pre>{
+  "mcpServers": {
+    "base-mcp": {
+      "url": "https://mcp.base.org"
+    },
+    "apibase": {
+      "url": "https://apibase.pro/mcp",
+      "transport": "streamable-http"
+    }
+  }
+}</pre>
+
+<h3>What each one does</h3>
+<div class="card">
+<p><strong>Base MCP</strong> &mdash; wallet ops, on-chain swaps (Uniswap, Aerodrome), lending (Morpho, Moonwell), perps (Avantis), and <strong>x402 payment signing</strong>. Your Base Account handles user approval per transaction.</p>
+<p><strong>APIbase</strong> &mdash; 600+ external API tools (flights, stocks, weather, jobs, music, chess, EV charging, food safety, government docs, &hellip;). Pay per call via x402 USDC on Base &mdash; signed by your Base Account, settled on-chain by our facilitator.</p>
+</div>
+<p class="note">For Base App users this is the cleanest path: zero API key management (Base Account handles auth), zero per-provider signup (APIbase aggregates 191 providers), one approval flow (Base App pops up for each paid call). Compatible because both sides speak EIP-3009 <code>transferWithAuthorization</code> on Base mainnet.</p>
+
+<h3>Quick test from Claude Desktop</h3>
+<p>After adding both MCP servers to your config and authenticating Base MCP:</p>
+<pre>You: "What's the current price of AAPL?"
+Agent: [calls APIbase finnhub.quote — gets 402 with x402 challenge]
+Agent: [hands payment challenge to Base MCP — user approves in Base Account popup]
+Agent: [retries with X-Payment header — APIbase settles on-chain via local facilitator]
+Agent: "AAPL is trading at $187.42 (+0.34%) as of 14:23 ET."</pre>
+<p class="note">First paid call may take 2&ndash;3s longer than free tools (Base mainnet finality). Cache hits on the same tool within TTL skip the on-chain settle entirely &mdash; 10% of full price billed via balance debit.</p>
+
 <h3>LangChain (multi-server)</h3>
 <pre>async with MultiServerMCPClient({
     "apibase": {"url": "https://apibase.pro/mcp", "transport": "streamable_http"},
