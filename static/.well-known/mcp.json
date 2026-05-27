@@ -24,6 +24,37 @@
     "prompts": true,
     "resources": false
   },
+  "payment": {
+    "x402": {
+      "enabled": true,
+      "version": 2,
+      "network": "eip155:8453",
+      "network_name": "Base mainnet",
+      "asset": "USDC",
+      "asset_address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "pay_to": "0x50EbDa9dA5dC19c302Ca059d7B9E06e264936480",
+      "facilitator": "self-hosted",
+      "scheme": "exact"
+    },
+    "mpp": {
+      "enabled": true,
+      "version": "draft-ryan-httpauth-payment",
+      "network": "tempo",
+      "asset": "USDC"
+    }
+  },
+  "compatible_with": [
+    "base-mcp",
+    "claude-desktop",
+    "claude-code",
+    "chatgpt",
+    "cursor",
+    "windsurf",
+    "openai-agents-sdk",
+    "langchain",
+    "google-adk",
+    "crewai"
+  ],
   "prompts": [
     "discover_tools",
     "find_cheapest_flight",
@@ -36,5 +67,5 @@
   "server_card": "https://apibase.pro/.well-known/mcp/server-card.json",
   "source": "https://github.com/whiteknightonhorse/APIbase",
   "status": "active",
-  "updated_at": "2026-04-01"
+  "updated_at": "2026-05-27"
 }
