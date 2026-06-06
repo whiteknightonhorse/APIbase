@@ -44,6 +44,13 @@ export const ProviderErrorCode = {
   UNAVAILABLE: 'provider_unavailable',
   RATE_LIMIT: 'provider_rate_limit',
   INVALID_RESPONSE: 'provider_invalid_response',
+  /** Upstream rejected the CALLER's input (4xx other than 401/402/403/429):
+   *  bad/missing params, not-found, unprocessable. The caller should fix the
+   *  request — surfaced as HTTP 422, distinct from genuine provider failures. */
+  INPUT_REJECTED: 'provider_input_rejected',
+  /** Upstream rejected OUR credentials/quota (401/402/403): the provider key is
+   *  invalid or out of credits. Not the caller's fault — surfaced as HTTP 503. */
+  PROVIDER_AUTH: 'provider_auth_error',
   FORMAT_ERROR: 'provider_format_error',
   RESPONSE_TOO_LARGE: 'provider_response_too_large',
 } as const;

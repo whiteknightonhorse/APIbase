@@ -41,18 +41,21 @@ function mockFetchResponse(body: unknown, status = 200, headers?: Record<string,
   const bodyText = JSON.stringify(body);
   const bodyBytes = new TextEncoder().encode(bodyText);
 
-  return new Response(new ReadableStream({
-    start(controller) {
-      controller.enqueue(bodyBytes);
-      controller.close();
+  return new Response(
+    new ReadableStream({
+      start(controller) {
+        controller.enqueue(bodyBytes);
+        controller.close();
+      },
+    }),
+    {
+      status,
+      headers: {
+        'Content-Type': 'application/json',
+        ...headers,
+      },
     },
-  }), {
-    status,
-    headers: {
-      'Content-Type': 'application/json',
-      ...headers,
-    },
-  });
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -124,9 +127,11 @@ describe('BaseAdapter', () => {
   });
 
   it('throws RATE_LIMIT on 429 and does not retry', async () => {
-    globalThis.fetch = jest.fn().mockResolvedValue(
-      mockFetchResponse({ error: 'rate limited' }, 429, { 'Retry-After': '30' }),
-    );
+    globalThis.fetch = jest
+      .fn()
+      .mockResolvedValue(
+        mockFetchResponse({ error: 'rate limited' }, 429, { 'Retry-After': '30' }),
+      );
 
     try {
       await adapter.call(makeRequest());
@@ -142,9 +147,7 @@ describe('BaseAdapter', () => {
   });
 
   it('throws UNAVAILABLE on 5xx and retries', async () => {
-    globalThis.fetch = jest.fn().mockResolvedValue(
-      mockFetchResponse({ error: 'internal' }, 500),
-    );
+    globalThis.fetch = jest.fn().mockResolvedValue(mockFetchResponse({ error: 'internal' }, 500));
 
     try {
       await adapter.call(makeRequest());
@@ -158,32 +161,59 @@ describe('BaseAdapter', () => {
     }
   });
 
-  it('throws INVALID_RESPONSE on 4xx client error without retry', async () => {
-    globalThis.fetch = jest.fn().mockResolvedValue(
-      mockFetchResponse({ error: 'bad request' }, 400),
-    );
+  it.each([400, 404, 409, 422])(
+    'throws INPUT_REJECTED (HTTP 422) on upstream %s without retry',
+    async (status) => {
+      globalThis.fetch = jest
+        .fn()
+        .mockResolvedValue(mockFetchResponse({ error: 'bad request' }, status));
 
-    try {
-      await adapter.call(makeRequest());
-      fail('Expected ProviderError to be thrown');
-    } catch (error) {
-      const pe = error as ProviderError;
-      expect(pe.code).toBe(ProviderErrorCode.INVALID_RESPONSE);
-      expect(pe.httpStatus).toBe(502);
-      // 4xx is not retryable — only 1 attempt
-      expect(globalThis.fetch).toHaveBeenCalledTimes(1);
-    }
-  });
+      try {
+        await adapter.call(makeRequest());
+        fail('Expected ProviderError to be thrown');
+      } catch (error) {
+        const pe = error as ProviderError;
+        // Caller-input errors surface as 422, distinct from provider failures.
+        expect(pe.code).toBe(ProviderErrorCode.INPUT_REJECTED);
+        expect(pe.httpStatus).toBe(422);
+        // Not retryable — only 1 attempt
+        expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+      }
+    },
+  );
+
+  it.each([401, 402, 403])(
+    'throws PROVIDER_AUTH (HTTP 503) on upstream %s without retry',
+    async (status) => {
+      globalThis.fetch = jest
+        .fn()
+        .mockResolvedValue(mockFetchResponse({ error: 'access denied' }, status));
+
+      try {
+        await adapter.call(makeRequest());
+        fail('Expected ProviderError to be thrown');
+      } catch (error) {
+        const pe = error as ProviderError;
+        // Our-credential/account failure — not the caller's fault.
+        expect(pe.code).toBe(ProviderErrorCode.PROVIDER_AUTH);
+        expect(pe.httpStatus).toBe(503);
+        expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+      }
+    },
+  );
 
   it('throws INVALID_RESPONSE on invalid JSON', async () => {
     const bodyBytes = new TextEncoder().encode('not json');
     globalThis.fetch = jest.fn().mockResolvedValue(
-      new Response(new ReadableStream({
-        start(controller) {
-          controller.enqueue(bodyBytes);
-          controller.close();
-        },
-      }), { status: 200 }),
+      new Response(
+        new ReadableStream({
+          start(controller) {
+            controller.enqueue(bodyBytes);
+            controller.close();
+          },
+        }),
+        { status: 200 },
+      ),
     );
 
     try {
@@ -201,12 +231,15 @@ describe('BaseAdapter', () => {
     const bigBody = 'x'.repeat(2000);
     const bodyBytes = new TextEncoder().encode(bigBody);
     globalThis.fetch = jest.fn().mockResolvedValue(
-      new Response(new ReadableStream({
-        start(controller) {
-          controller.enqueue(bodyBytes);
-          controller.close();
-        },
-      }), { status: 200 }),
+      new Response(
+        new ReadableStream({
+          start(controller) {
+            controller.enqueue(bodyBytes);
+            controller.close();
+          },
+        }),
+        { status: 200 },
+      ),
     );
 
     try {

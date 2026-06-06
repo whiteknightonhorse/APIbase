@@ -35,6 +35,7 @@ import { ZeroBounceAdapter } from './zerobounce';
 import { AviasalesAdapter } from './aviasales';
 import { WalkScoreAdapter } from './walkscore';
 import { UsRealEstateAdapter } from './usrealestate';
+import { IrctcAdapter } from './irctc';
 import { SerperAdapter } from './serper';
 import { TavilyAdapter } from './tavily';
 import { ExaAdapter } from './exa';
@@ -621,6 +622,15 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
         | undefined;
       if (!rapidKey) return undefined;
       return getOrCreate('usrealestate', () => new UsRealEstateAdapter(rapidKey));
+    }
+    case 'irctc': {
+      // Reuses the shared RapidAPI key (UC-426). Without this case all
+      // irctc.* tools 503 "No adapter registered" despite being seeded.
+      const rapidKey = (config as Record<string, unknown>).PROVIDER_KEY_RAPIDAPI as
+        | string
+        | undefined;
+      if (!rapidKey) return undefined;
+      return getOrCreate('irctc', () => new IrctcAdapter(rapidKey));
     }
     case 'walkscore': {
       const wsKey = (config as Record<string, unknown>).PROVIDER_KEY_WALKSCORE as

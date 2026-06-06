@@ -175,12 +175,31 @@ export abstract class BaseAdapter {
       });
     }
 
+    // Upstream 401/402/403 = OUR credential/account problem (key invalid or
+    // out of quota/credits), NOT the caller's fault and not retryable.
+    if (response.status === 401 || response.status === 402 || response.status === 403) {
+      const detail = bodyText.length > 0 ? `: ${bodyText.slice(0, 300)}` : '';
+      throw createProviderError({
+        code: ProviderErrorCode.PROVIDER_AUTH,
+        httpStatus: 503,
+        message: `Provider rejected our credentials (HTTP ${response.status})${detail}`,
+        provider: this.provider,
+        toolId: req.toolId,
+        durationMs,
+        retryAfter: 60,
+      });
+    }
+
+    // Other upstream 4xx = the CALLER's input was rejected (bad/missing params,
+    // not-found, unprocessable). Surface as a 422 client error so agents fix
+    // their request instead of treating it as a gateway/provider failure —
+    // previously all 4xx were lumped into INVALID_RESPONSE → HTTP 502.
     if (response.status >= 400) {
       const detail = bodyText.length > 0 ? `: ${bodyText.slice(0, 500)}` : '';
       throw createProviderError({
-        code: ProviderErrorCode.INVALID_RESPONSE,
-        httpStatus: 502,
-        message: `Provider returned client error ${response.status}${detail}`,
+        code: ProviderErrorCode.INPUT_REJECTED,
+        httpStatus: 422,
+        message: `Provider rejected the request (HTTP ${response.status})${detail}`,
         provider: this.provider,
         toolId: req.toolId,
         durationMs,

@@ -83,6 +83,7 @@ executeRouter.post(
         401: 'fix_request',
         403: 'fix_request',
         404: 'use_different_tool',
+        422: 'fix_request',
         429: 'retry_after_delay',
         500: 'contact_support',
         502: 'retry_after_delay',
