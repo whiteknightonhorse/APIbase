@@ -11,8 +11,16 @@ export interface AgentContext {
 }
 
 export interface X402PaymentInfo {
+  /** Payment header present & structurally well-formed. NOT a cryptographic
+   *  binding — authoritative verification against server requirements happens
+   *  in the ESCROW pipeline stage (issue #103). */
   verified: boolean;
+  /** Placeholder ('pending') at middleware time; the real on-chain payer is
+   *  resolved by ESCROW from the authoritative verify result. */
   payer: string;
+  /** UNVERIFIED placeholders set by middleware — do NOT treat as server-enforced
+   *  values. The bound amount/network are derived from server config + tool
+   *  price inside ESCROW, never from these fields. */
   amount: string;
   network: string;
   scheme: string;

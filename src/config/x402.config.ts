@@ -50,3 +50,47 @@ export function getX402Config(): X402Config {
   }
   return frozen;
 }
+
+/**
+ * Convert a USD price to integer micro-USDC (6 decimals) as a string.
+ *
+ * SINGLE source of rounding for the on-chain amount. Both the 402 challenge
+ * (`buildPaymentRequiredResponse`) and the server-trusted binding requirements
+ * (`buildServerX402Requirements`) MUST use this so the value the client signs
+ * over and the value the facilitator enforces are byte-identical — the exact
+ * scheme requires `authorization.value === requirements.amount` (issue #103).
+ */
+export function toMicroUsdc(priceUsd: number): string {
+  return String(Math.round(priceUsd * 1_000_000));
+}
+
+export interface ServerX402Requirements {
+  scheme: string;
+  network: string;
+  asset: string;
+  amount: string;
+  payTo: string;
+  maxTimeoutSeconds: number;
+  extra: Record<string, unknown>;
+}
+
+/**
+ * Build x402 payment requirements from SERVER-trusted config + the tool's real
+ * price. This is the authoritative anchor for payment verification and
+ * settlement — it must NEVER be derived from the client-supplied
+ * `payload.accepted` (that was the issue #103 bypass). The facilitator's exact
+ * scheme binds the signed authorization to `payTo`, `amount`, `network`, and
+ * `asset` from these requirements, rejecting any mismatch.
+ */
+export function buildServerX402Requirements(priceUsd: number): ServerX402Requirements {
+  const cfg = getX402Config();
+  return {
+    scheme: 'exact',
+    network: cfg.network,
+    asset: cfg.usdcAddress,
+    amount: toMicroUsdc(priceUsd),
+    payTo: cfg.paymentAddress,
+    maxTimeoutSeconds: cfg.maxTimeoutSeconds,
+    extra: { name: 'USD Coin', version: '2' },
+  };
+}

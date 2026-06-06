@@ -8,7 +8,7 @@ const declareDiscoveryExtension = bazaarMod.declareDiscoveryExtension as (opts: 
   description: string;
   transport: string;
 }) => Record<string, unknown>;
-import { getX402Config } from '../../config/x402.config';
+import { getX402Config, buildServerX402Requirements } from '../../config/x402.config';
 import { getCdpConfig } from '../../config/cdp.config';
 import { getSharedResourceServer } from '../../services/x402-server.service';
 import { TOOL_DEFINITIONS } from '../../mcp/tool-definitions';
@@ -34,6 +34,9 @@ function lookupToolDescription(toolId: string): string {
  */
 export async function settleX402(ctx: PipelineContext): Promise<void> {
   if (!ctx.x402PaymentHeader) return;
+  // Free tools never settle on-chain — guard against an amount:0
+  // transferWithAuthorization (issue #103 red-team).
+  if ((ctx.toolPrice ?? 0) <= 0) return;
 
   try {
     const decoded = decodePaymentSignatureHeader(ctx.x402PaymentHeader);
@@ -104,10 +107,10 @@ export async function settleX402(ctx: PipelineContext): Promise<void> {
         },
       };
     } else {
-      requirements = {
-        ...payload.accepted,
-        extra: payload.accepted.extra ?? {},
-      };
+      // v2: settle against SERVER-trusted requirements (NOT client
+      // payload.accepted — issue #103). ESCROW already verified the signed
+      // authorization matches these exact values, so settle succeeds.
+      requirements = buildServerX402Requirements(ctx.toolPrice ?? 0);
     }
 
     const server = getSharedResourceServer();
