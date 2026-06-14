@@ -56,3 +56,10 @@ plan.md
 TASK-FOR-AIPUSH-CLAUDE.md
 static/video/*.mov
 static/video/*.mp4
+
+# MCP registry publish tokens (secrets — never commit)
+.mcpregistry_github_token
+.mcpregistry_registry_token
+
+# Deploy state (written by scripts/deploy.sh on the server)
+.last-successful-sha
