@@ -7,7 +7,7 @@ export class FatSecretAdapter extends BaseAdapter {
   private currentToken = '';
 
   constructor(clientId: string, clientSecret: string) {
-    super({ timeout: 10_000, maxRetries: 2, maxResponseSize: 512_000 });
+    super({ provider: 'fatsecret', baseUrl: 'https://platform.fatsecret.com', maxRetries: 2 });
     this.auth = new FatSecretAuth(clientId, clientSecret);
   }
 
@@ -33,7 +33,7 @@ export class FatSecretAdapter extends BaseAdapter {
           url: 'https://platform.fatsecret.com/rest/server.api',
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${this.currentToken}`,
+            Authorization: `Bearer ${this.currentToken}`,
             'Content-Type': 'application/x-www-form-urlencoded',
           },
           body: `method=foods.search&search_expression=${encodeURIComponent(query)}&page_number=${page}&max_results=${maxResults}&format=json`,
@@ -46,7 +46,7 @@ export class FatSecretAdapter extends BaseAdapter {
           url: 'https://platform.fatsecret.com/rest/server.api',
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${this.currentToken}`,
+            Authorization: `Bearer ${this.currentToken}`,
             'Content-Type': 'application/x-www-form-urlencoded',
           },
           body: `method=food.get.v4&food_id=${encodeURIComponent(foodId)}&format=json`,
@@ -59,8 +59,7 @@ export class FatSecretAdapter extends BaseAdapter {
   }
 
   parseResponse(raw: ProviderRawResponse, _req: ProviderRequest): ProviderRawResponse {
-    const body =
-      typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body;
+    const body = typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body;
 
     if (body?.error) {
       return {
@@ -99,9 +98,7 @@ export class FatSecretAdapter extends BaseAdapter {
     if (body?.food) {
       const f = body.food;
       const servings = f.servings?.serving;
-      const servingList = servings
-        ? (Array.isArray(servings) ? servings : [servings])
-        : [];
+      const servingList = servings ? (Array.isArray(servings) ? servings : [servings]) : [];
 
       return {
         ...raw,

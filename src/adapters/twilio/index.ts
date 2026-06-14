@@ -1,5 +1,9 @@
 import { BaseAdapter } from '../base.adapter';
-import { type ProviderRequest, type ProviderRawResponse, ProviderErrorCode } from '../../types/provider';
+import {
+  type ProviderRequest,
+  type ProviderRawResponse,
+  ProviderErrorCode,
+} from '../../types/provider';
 
 /**
  * Twilio adapter (UC-086).
@@ -17,13 +21,20 @@ export class TwilioAdapter extends BaseAdapter {
     this.authToken = authToken;
   }
 
-  protected buildRequest(req: ProviderRequest) {
+  protected buildRequest(req: ProviderRequest): {
+    url: string;
+    method: string;
+    headers: Record<string, string>;
+    body?: string;
+  } {
     const p = req.params as Record<string, unknown>;
     const basicAuth = Buffer.from(`${this.accountSid}:${this.authToken}`).toString('base64');
 
     switch (req.toolId) {
       case 'twilio.lookup': {
-        const phone = String(p.phone_number).startsWith('+') ? String(p.phone_number) : `+${String(p.phone_number)}`;
+        const phone = String(p.phone_number).startsWith('+')
+          ? String(p.phone_number)
+          : `+${String(p.phone_number)}`;
         const fields: string[] = [];
         if (p.include_carrier) fields.push('line_type_intelligence');
         if (p.include_caller_name) fields.push('caller_name');
@@ -50,7 +61,14 @@ export class TwilioAdapter extends BaseAdapter {
         };
       }
       default:
-        throw { code: ProviderErrorCode.INVALID_RESPONSE, httpStatus: 502, message: `Unsupported: ${req.toolId}`, provider: this.provider, toolId: req.toolId, durationMs: 0 };
+        throw {
+          code: ProviderErrorCode.INVALID_RESPONSE,
+          httpStatus: 502,
+          message: `Unsupported: ${req.toolId}`,
+          provider: this.provider,
+          toolId: req.toolId,
+          durationMs: 0,
+        };
     }
   }
 

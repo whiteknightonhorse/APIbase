@@ -5,7 +5,7 @@ const UA = 'APIbase/1.0 api@apibase.pro';
 
 export class EdgarAdapter extends BaseAdapter {
   constructor() {
-    super({ timeout: 10_000, maxRetries: 2, maxResponseSize: 1_048_576 });
+    super({ provider: 'edgar', baseUrl: 'https://data.sec.gov', maxRetries: 2 });
   }
 
   buildRequest(req: ProviderRequest): {

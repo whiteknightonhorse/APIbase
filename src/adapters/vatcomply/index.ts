@@ -3,7 +3,7 @@ import type { ProviderRequest, ProviderRawResponse } from '../../types/provider'
 
 export class VatcomplyAdapter extends BaseAdapter {
   constructor() {
-    super({ timeout: 10_000, maxRetries: 2, maxResponseSize: 512_000 });
+    super({ provider: 'vatcomply', baseUrl: 'https://api.vatcomply.com', maxRetries: 2 });
   }
 
   buildRequest(req: ProviderRequest): {
@@ -17,7 +17,11 @@ export class VatcomplyAdapter extends BaseAdapter {
     switch (req.toolId) {
       case 'vatcomply.validate': {
         const vatNumber = String(params.vat_number ?? '');
-        return { url: `${base}/vat?vat_number=${encodeURIComponent(vatNumber)}`, method: 'GET', headers: {} };
+        return {
+          url: `${base}/vat?vat_number=${encodeURIComponent(vatNumber)}`,
+          method: 'GET',
+          headers: {},
+        };
       }
 
       case 'vatcomply.rates': {
@@ -36,8 +40,7 @@ export class VatcomplyAdapter extends BaseAdapter {
   }
 
   parseResponse(raw: ProviderRawResponse, req: ProviderRequest): ProviderRawResponse {
-    const body =
-      typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body;
+    const body = typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body;
 
     if (req.toolId === 'vatcomply.validate') {
       return {

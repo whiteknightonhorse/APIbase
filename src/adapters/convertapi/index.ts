@@ -5,7 +5,7 @@ export class ConvertApiAdapter extends BaseAdapter {
   private readonly apiSecret: string;
 
   constructor(apiSecret: string) {
-    super({ timeout: 60_000, maxRetries: 1, maxResponseSize: 1_048_576 });
+    super({ provider: 'convertapi', baseUrl: 'https://v2.convertapi.com', maxRetries: 1 });
     this.apiSecret = apiSecret;
   }
 
@@ -27,7 +27,8 @@ export class ConvertApiAdapter extends BaseAdapter {
           { Name: 'StoreFile', Value: true },
         ];
         if (params.page_size) parameters.push({ Name: 'PageSize', Value: params.page_size });
-        if (params.orientation) parameters.push({ Name: 'PageOrientation', Value: params.orientation });
+        if (params.orientation)
+          parameters.push({ Name: 'PageOrientation', Value: params.orientation });
         return {
           url: `${base}/${from}/to/pdf?Secret=${this.apiSecret}`,
           method: 'POST',
@@ -56,7 +57,8 @@ export class ConvertApiAdapter extends BaseAdapter {
           { Name: 'Url', Value: params.url },
           { Name: 'StoreFile', Value: true },
         ];
-        if (params.viewport_width) parameters.push({ Name: 'ViewportWidth', Value: params.viewport_width });
+        if (params.viewport_width)
+          parameters.push({ Name: 'ViewportWidth', Value: params.viewport_width });
         if (params.delay) parameters.push({ Name: 'WaitTime', Value: params.delay });
         if (params.load_lazy_content) parameters.push({ Name: 'LoadLazyContent', Value: true });
         return {
@@ -73,8 +75,7 @@ export class ConvertApiAdapter extends BaseAdapter {
   }
 
   parseResponse(raw: ProviderRawResponse, _req: ProviderRequest): ProviderRawResponse {
-    const body =
-      typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body;
+    const body = typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body;
 
     if (body?.Code) {
       return {

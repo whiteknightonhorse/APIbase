@@ -5,7 +5,7 @@ export class AssemblyAIAdapter extends BaseAdapter {
   private readonly apiKey: string;
 
   constructor(apiKey: string) {
-    super({ timeout: 30_000, maxRetries: 1, maxResponseSize: 1_048_576 });
+    super({ provider: 'assemblyai', baseUrl: 'https://api.assemblyai.com', maxRetries: 1 });
     this.apiKey = apiKey;
   }
 
@@ -18,7 +18,7 @@ export class AssemblyAIAdapter extends BaseAdapter {
     const params = (req.params ?? {}) as Record<string, unknown>;
     const base = 'https://api.assemblyai.com/v2';
     const headers = {
-      'Authorization': this.apiKey,
+      Authorization: this.apiKey,
       'Content-Type': 'application/json',
     };
 
@@ -30,17 +30,30 @@ export class AssemblyAIAdapter extends BaseAdapter {
         };
         if (params.language_code) payload.language_code = params.language_code;
         if (params.speaker_labels) payload.speaker_labels = true;
-        return { url: `${base}/transcript`, method: 'POST', headers, body: JSON.stringify(payload) };
+        return {
+          url: `${base}/transcript`,
+          method: 'POST',
+          headers,
+          body: JSON.stringify(payload),
+        };
       }
 
       case 'transcribe.status': {
         const id = String(params.transcript_id ?? '');
-        return { url: `${base}/transcript/${id}`, method: 'GET', headers: { 'Authorization': this.apiKey } };
+        return {
+          url: `${base}/transcript/${id}`,
+          method: 'GET',
+          headers: { Authorization: this.apiKey },
+        };
       }
 
       case 'transcribe.result': {
         const id = String(params.transcript_id ?? '');
-        return { url: `${base}/transcript/${id}`, method: 'GET', headers: { 'Authorization': this.apiKey } };
+        return {
+          url: `${base}/transcript/${id}`,
+          method: 'GET',
+          headers: { Authorization: this.apiKey },
+        };
       }
 
       default:
@@ -49,8 +62,7 @@ export class AssemblyAIAdapter extends BaseAdapter {
   }
 
   parseResponse(raw: ProviderRawResponse, req: ProviderRequest): ProviderRawResponse {
-    const body =
-      typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body;
+    const body = typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body;
 
     if (body?.error) {
       return { ...raw, status: 502, body: { error: body.error } };
@@ -63,7 +75,8 @@ export class AssemblyAIAdapter extends BaseAdapter {
           transcript_id: body.id,
           status: body.status,
           audio_url: body.audio_url,
-          message: 'Transcription queued. Use transcribe.status or transcribe.result with this transcript_id to check progress.',
+          message:
+            'Transcription queued. Use transcribe.status or transcribe.result with this transcript_id to check progress.',
         },
       };
     }
@@ -75,11 +88,12 @@ export class AssemblyAIAdapter extends BaseAdapter {
           transcript_id: body.id,
           status: body.status,
           audio_duration_seconds: body.audio_duration,
-          message: body.status === 'completed'
-            ? 'Transcription complete. Use transcribe.result to get the text.'
-            : body.status === 'error'
-              ? `Transcription failed: ${body.error}`
-              : 'Still processing. Check again in a few seconds.',
+          message:
+            body.status === 'completed'
+              ? 'Transcription complete. Use transcribe.result to get the text.'
+              : body.status === 'error'
+                ? `Transcription failed: ${body.error}`
+                : 'Still processing. Check again in a few seconds.',
         },
       };
     }
@@ -91,9 +105,10 @@ export class AssemblyAIAdapter extends BaseAdapter {
           body: {
             transcript_id: body.id,
             status: body.status,
-            message: body.status === 'error'
-              ? `Transcription failed: ${body.error}`
-              : 'Not ready yet. Check status first.',
+            message:
+              body.status === 'error'
+                ? `Transcription failed: ${body.error}`
+                : 'Not ready yet. Check status first.',
           },
         };
       }
@@ -109,7 +124,7 @@ export class AssemblyAIAdapter extends BaseAdapter {
       };
 
       if (body.utterances) {
-        result.speakers = (body.utterances as Array<Record<string, unknown>>).map(u => ({
+        result.speakers = (body.utterances as Array<Record<string, unknown>>).map((u) => ({
           speaker: u.speaker,
           text: u.text,
           start: u.start,

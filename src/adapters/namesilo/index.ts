@@ -5,7 +5,7 @@ export class NameSiloAdapter extends BaseAdapter {
   private readonly apiKey: string;
 
   constructor(apiKey: string) {
-    super({ timeout: 15_000, maxRetries: 1, maxResponseSize: 512_000 });
+    super({ provider: 'namesilo', baseUrl: 'https://www.namesilo.com', maxRetries: 1 });
     this.apiKey = apiKey;
   }
 
@@ -21,14 +21,22 @@ export class NameSiloAdapter extends BaseAdapter {
     switch (req.toolId) {
       case 'namesilo.domain_check': {
         const domains = String(params.domains ?? '');
-        return { url: `${base}/checkRegisterAvailability?${qs}&domains=${encodeURIComponent(domains)}`, method: 'GET', headers: {} };
+        return {
+          url: `${base}/checkRegisterAvailability?${qs}&domains=${encodeURIComponent(domains)}`,
+          method: 'GET',
+          headers: {},
+        };
       }
 
       case 'namesilo.domain_register': {
         const domain = String(params.domain ?? '');
         const years = params.years ?? 1;
         const priv = params.private !== false ? 1 : 0;
-        return { url: `${base}/registerDomain?${qs}&domain=${encodeURIComponent(domain)}&years=${years}&private=${priv}&auto_renew=0`, method: 'GET', headers: {} };
+        return {
+          url: `${base}/registerDomain?${qs}&domain=${encodeURIComponent(domain)}&years=${years}&private=${priv}&auto_renew=0`,
+          method: 'GET',
+          headers: {},
+        };
       }
 
       case 'namesilo.domain_list': {
@@ -37,7 +45,11 @@ export class NameSiloAdapter extends BaseAdapter {
 
       case 'namesilo.domain_info': {
         const domain = String(params.domain ?? '');
-        return { url: `${base}/getDomainInfo?${qs}&domain=${encodeURIComponent(domain)}`, method: 'GET', headers: {} };
+        return {
+          url: `${base}/getDomainInfo?${qs}&domain=${encodeURIComponent(domain)}`,
+          method: 'GET',
+          headers: {},
+        };
       }
 
       case 'namesilo.get_prices': {
@@ -54,12 +66,24 @@ export class NameSiloAdapter extends BaseAdapter {
     const reply = body?.reply;
 
     if (!reply || (reply.code && reply.code !== 300)) {
-      return { ...raw, status: 502, body: { error: reply?.detail ?? 'NameSilo request failed', code: reply?.code } };
+      return {
+        ...raw,
+        status: 502,
+        body: { error: reply?.detail ?? 'NameSilo request failed', code: reply?.code },
+      };
     }
 
     if (req.toolId === 'namesilo.domain_check') {
-      const available = reply.available ? (Array.isArray(reply.available) ? reply.available : [reply.available]) : [];
-      const unavailable = reply.unavailable ? (Array.isArray(reply.unavailable) ? reply.unavailable : [reply.unavailable]) : [];
+      const available = reply.available
+        ? Array.isArray(reply.available)
+          ? reply.available
+          : [reply.available]
+        : [];
+      const unavailable = reply.unavailable
+        ? Array.isArray(reply.unavailable)
+          ? reply.unavailable
+          : [reply.unavailable]
+        : [];
       return {
         ...raw,
         body: {
@@ -69,7 +93,9 @@ export class NameSiloAdapter extends BaseAdapter {
             renew_usd: d.renew,
             premium: d.premium === 1,
           })),
-          unavailable: unavailable.map((d: unknown) => typeof d === 'string' ? d : (d as Record<string, unknown>).domain),
+          unavailable: unavailable.map((d: unknown) =>
+            typeof d === 'string' ? d : (d as Record<string, unknown>).domain,
+          ),
         },
       };
     }
@@ -102,7 +128,11 @@ export class NameSiloAdapter extends BaseAdapter {
           status: reply.status,
           locked: reply.locked === 'Yes',
           auto_renew: reply.auto_renew === 'Yes',
-          nameservers: reply.nameservers ? (Array.isArray(reply.nameservers.nameserver) ? reply.nameservers.nameserver : [reply.nameservers.nameserver]) : [],
+          nameservers: reply.nameservers
+            ? Array.isArray(reply.nameservers.nameserver)
+              ? reply.nameservers.nameserver
+              : [reply.nameservers.nameserver]
+            : [],
           contact_id: reply.contact_id,
         },
       };
@@ -110,7 +140,25 @@ export class NameSiloAdapter extends BaseAdapter {
 
     if (req.toolId === 'namesilo.get_prices') {
       const prices: Record<string, unknown>[] = [];
-      const popular = ['com', 'net', 'org', 'io', 'dev', 'app', 'ai', 'co', 'xyz', 'me', 'info', 'biz', 'pro', 'tech', 'online', 'store', 'site'];
+      const popular = [
+        'com',
+        'net',
+        'org',
+        'io',
+        'dev',
+        'app',
+        'ai',
+        'co',
+        'xyz',
+        'me',
+        'info',
+        'biz',
+        'pro',
+        'tech',
+        'online',
+        'store',
+        'site',
+      ];
       for (const tld of popular) {
         const t = reply[tld];
         if (t) {
@@ -122,7 +170,13 @@ export class NameSiloAdapter extends BaseAdapter {
           });
         }
       }
-      return { ...raw, body: { prices, tld_count: Object.keys(reply).filter(k => k !== 'code' && k !== 'detail').length } };
+      return {
+        ...raw,
+        body: {
+          prices,
+          tld_count: Object.keys(reply).filter((k) => k !== 'code' && k !== 'detail').length,
+        },
+      };
     }
 
     return raw;

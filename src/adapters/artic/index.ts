@@ -5,7 +5,7 @@ const IIIF_BASE = 'https://www.artic.edu/iiif/2';
 
 export class ArticAdapter extends BaseAdapter {
   constructor() {
-    super({ timeout: 10_000, maxRetries: 2, maxResponseSize: 512_000 });
+    super({ provider: 'artic', baseUrl: 'https://api.artic.edu', maxRetries: 2 });
   }
 
   buildRequest(req: ProviderRequest): {
@@ -21,9 +21,16 @@ export class ArticAdapter extends BaseAdapter {
         const qs = new URLSearchParams();
         qs.set('q', String(params.q ?? ''));
         qs.set('limit', String(params.limit ?? 10));
-        qs.set('fields', 'id,title,artist_display,date_display,medium_display,dimensions,image_id,category_titles,style_title,classification_title,is_public_domain');
+        qs.set(
+          'fields',
+          'id,title,artist_display,date_display,medium_display,dimensions,image_id,category_titles,style_title,classification_title,is_public_domain',
+        );
         if (params.page) qs.set('page', String(params.page));
-        return { url: `${base}/artworks/search?${qs}`, method: 'GET', headers: { 'User-Agent': 'APIbase/1.0' } };
+        return {
+          url: `${base}/artworks/search?${qs}`,
+          method: 'GET',
+          headers: { 'User-Agent': 'APIbase/1.0' },
+        };
       }
 
       case 'artic.artwork': {
@@ -40,7 +47,11 @@ export class ArticAdapter extends BaseAdapter {
         qs.set('q', String(params.q ?? ''));
         qs.set('limit', String(params.limit ?? 10));
         qs.set('fields', 'id,title,birth_date,death_date,description,is_artist');
-        return { url: `${base}/agents/search?${qs}`, method: 'GET', headers: { 'User-Agent': 'APIbase/1.0' } };
+        return {
+          url: `${base}/agents/search?${qs}`,
+          method: 'GET',
+          headers: { 'User-Agent': 'APIbase/1.0' },
+        };
       }
 
       default:
@@ -49,8 +60,7 @@ export class ArticAdapter extends BaseAdapter {
   }
 
   parseResponse(raw: ProviderRawResponse, req: ProviderRequest): ProviderRawResponse {
-    const body =
-      typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body;
+    const body = typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body;
 
     if (body?.error) {
       return { ...raw, status: 502, body: { error: body.error } };
@@ -115,7 +125,10 @@ export class ArticAdapter extends BaseAdapter {
         description: a.description ? String(a.description).slice(0, 500) : null,
         is_artist: a.is_artist,
       }));
-      return { ...raw, body: { artists: items, total: body.pagination?.total ?? 0, count: items.length } };
+      return {
+        ...raw,
+        body: { artists: items, total: body.pagination?.total ?? 0, count: items.length },
+      };
     }
 
     return raw;

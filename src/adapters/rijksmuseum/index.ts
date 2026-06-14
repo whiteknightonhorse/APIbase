@@ -45,10 +45,13 @@ export class RijksmuseumAdapter extends BaseAdapter {
       case 'rijks.details': {
         const objectId = String(params.object_id).replace(/[^0-9]/g, '');
         if (!objectId) {
+          // Caller-supplied input error (non-numeric object_id), not an upstream
+          // fault. Surface as 422 INPUT_REJECTED so agents fix the request rather
+          // than reading it as a gateway 502 (flywheel rule 2026-06-06).
           throw {
-            code: ProviderErrorCode.INVALID_RESPONSE,
-            httpStatus: 400,
-            message: `Invalid object_id: must be numeric (e.g. "200107928" for The Night Watch)`,
+            code: ProviderErrorCode.INPUT_REJECTED,
+            httpStatus: 422,
+            message: `Invalid object_id: must be the numeric Rijksmuseum ID (e.g. "200107928" for The Night Watch). Call rijks.search first and pass the "id" field from a result — not a title or object_number like "SK-C-5".`,
             provider: this.provider,
             toolId: req.toolId,
             durationMs: 0,

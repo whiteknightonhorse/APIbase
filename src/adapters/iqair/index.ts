@@ -5,7 +5,7 @@ export class IqairAdapter extends BaseAdapter {
   private readonly apiKey: string;
 
   constructor(apiKey: string) {
-    super({ timeout: 10_000, maxRetries: 2, maxResponseSize: 512_000 });
+    super({ provider: 'iqair', baseUrl: 'http://api.airvisual.com', maxRetries: 2 });
     this.apiKey = apiKey;
   }
 
@@ -44,8 +44,7 @@ export class IqairAdapter extends BaseAdapter {
   }
 
   parseResponse(raw: ProviderRawResponse, _req: ProviderRequest): ProviderRawResponse {
-    const body =
-      typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body;
+    const body = typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body;
 
     if (body?.status !== 'success' || !body?.data) {
       return {

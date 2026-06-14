@@ -212,6 +212,21 @@ function getOrCreate<T extends BaseAdapter>(key: string, factory: () => T): T {
 }
 
 /**
+ * Read a provider credential from config, treating an empty string or the
+ * `MANUAL_REQUIRED` placeholder (used in `.env` for un-provisioned keys) as
+ * absent. Without this, a placeholder value is truthy, so a provider gets an
+ * adapter built around a bogus credential and surfaces a confusing upstream
+ * 401 (or "Unsupported tool" 502) instead of a clean "not configured" 503.
+ */
+function cfgKey(name: string): string | undefined {
+  const v = (config as Record<string, unknown>)[name];
+  if (typeof v !== 'string') return undefined;
+  const trimmed = v.trim();
+  if (!trimmed || trimmed === 'MANUAL_REQUIRED') return undefined;
+  return trimmed;
+}
+
+/**
  * Resolve the adapter for a given tool ID.
  * Tool IDs follow the pattern: `{provider}.{action}`.
  * Returns undefined if no adapter is registered for the provider.
@@ -227,9 +242,7 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'aster':
       return getOrCreate('asterdex', () => new AsterDexAdapter());
     case 'weather': {
-      const key = (config as Record<string, unknown>).PROVIDER_KEY_OPENWEATHER as
-        | string
-        | undefined;
+      const key = cfgKey('PROVIDER_KEY_OPENWEATHER');
       if (!key) return undefined;
       return getOrCreate('openweathermap', () => new OpenWeatherMapAdapter(key));
     }

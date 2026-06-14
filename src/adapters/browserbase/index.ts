@@ -6,7 +6,7 @@ export class BrowserbaseAdapter extends BaseAdapter {
   private readonly projectId: string;
 
   constructor(apiKey: string, projectId: string) {
-    super({ timeout: 30_000, maxRetries: 1, maxResponseSize: 1_048_576 });
+    super({ provider: 'browserbase', baseUrl: 'https://www.browserbase.com', maxRetries: 1 });
     this.apiKey = apiKey;
     this.projectId = projectId;
   }
@@ -29,7 +29,12 @@ export class BrowserbaseAdapter extends BaseAdapter {
         const payload: Record<string, unknown> = { projectId: this.projectId };
         if (params.proxy) payload.proxies = true;
         if (params.region) payload.region = params.region;
-        return { url: `${base}/sessions`, method: 'POST', headers: this.headers(), body: JSON.stringify(payload) };
+        return {
+          url: `${base}/sessions`,
+          method: 'POST',
+          headers: this.headers(),
+          body: JSON.stringify(payload),
+        };
       }
 
       case 'browser.session_status': {
@@ -39,11 +44,19 @@ export class BrowserbaseAdapter extends BaseAdapter {
 
       case 'browser.session_content': {
         const sessionId = String(params.session_id ?? '');
-        return { url: `${base}/sessions/${sessionId}/downloads`, method: 'GET', headers: this.headers() };
+        return {
+          url: `${base}/sessions/${sessionId}/downloads`,
+          method: 'GET',
+          headers: this.headers(),
+        };
       }
 
       case 'browser.list_sessions': {
-        return { url: `${base}/sessions?status=${params.status ?? 'RUNNING'}`, method: 'GET', headers: this.headers() };
+        return {
+          url: `${base}/sessions?status=${params.status ?? 'RUNNING'}`,
+          method: 'GET',
+          headers: this.headers(),
+        };
       }
 
       default:
@@ -55,7 +68,11 @@ export class BrowserbaseAdapter extends BaseAdapter {
     const body = typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body;
 
     if (body?.error) {
-      return { ...raw, status: 502, body: { error: body.error?.message ?? body.error ?? 'Browserbase request failed' } };
+      return {
+        ...raw,
+        status: 502,
+        body: { error: body.error?.message ?? body.error ?? 'Browserbase request failed' },
+      };
     }
 
     if (req.toolId === 'browser.create_session') {
@@ -68,7 +85,8 @@ export class BrowserbaseAdapter extends BaseAdapter {
           started_at: body.startedAt,
           expires_at: body.expiresAt,
           connect_url: `wss://connect.browserbase.com?apiKey=${this.apiKey}&sessionId=${body.id}`,
-          message: 'Session created. Use session_id with Puppeteer/Playwright to control the browser, or check status with browser.session_status.',
+          message:
+            'Session created. Use session_id with Puppeteer/Playwright to control the browser, or check status with browser.session_status.',
         },
       };
     }

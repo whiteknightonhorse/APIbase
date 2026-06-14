@@ -7,7 +7,7 @@ export class PodcastIndexAdapter extends BaseAdapter {
   private readonly apiSecret: string;
 
   constructor(apiKey: string, apiSecret: string) {
-    super({ timeout: 10_000, maxRetries: 2, maxResponseSize: 512_000 });
+    super({ provider: 'podcastindex', baseUrl: 'https://api.podcastindex.org', maxRetries: 2 });
     this.apiKey = apiKey;
     this.apiSecret = apiSecret;
   }
@@ -20,7 +20,7 @@ export class PodcastIndexAdapter extends BaseAdapter {
     return {
       'X-Auth-Key': this.apiKey,
       'X-Auth-Date': ts,
-      'Authorization': hash,
+      Authorization: hash,
       'User-Agent': 'APIbase/1.0',
     };
   }
@@ -49,7 +49,11 @@ export class PodcastIndexAdapter extends BaseAdapter {
         if (params.lang) qs.set('lang', String(params.lang));
         if (params.cat) qs.set('cat', String(params.cat));
         if (params.since) qs.set('since', String(params.since));
-        return { url: `${base}/podcasts/trending?${qs}`, method: 'GET', headers: this.authHeaders() };
+        return {
+          url: `${base}/podcasts/trending?${qs}`,
+          method: 'GET',
+          headers: this.authHeaders(),
+        };
       }
 
       case 'podcast.episodes': {
@@ -57,12 +61,20 @@ export class PodcastIndexAdapter extends BaseAdapter {
         qs.set('id', String(params.id ?? ''));
         if (params.max) qs.set('max', String(params.max));
         if (params.since) qs.set('since', String(params.since));
-        return { url: `${base}/episodes/byfeedid?${qs}`, method: 'GET', headers: this.authHeaders() };
+        return {
+          url: `${base}/episodes/byfeedid?${qs}`,
+          method: 'GET',
+          headers: this.authHeaders(),
+        };
       }
 
       case 'podcast.by_feed': {
         const id = String(params.id ?? '');
-        return { url: `${base}/podcasts/byfeedid?id=${id}`, method: 'GET', headers: this.authHeaders() };
+        return {
+          url: `${base}/podcasts/byfeedid?id=${id}`,
+          method: 'GET',
+          headers: this.authHeaders(),
+        };
       }
 
       default:
@@ -71,11 +83,14 @@ export class PodcastIndexAdapter extends BaseAdapter {
   }
 
   parseResponse(raw: ProviderRawResponse, req: ProviderRequest): ProviderRawResponse {
-    const body =
-      typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body;
+    const body = typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body;
 
     if (body?.status === 'false' || body?.status === false) {
-      return { ...raw, status: 502, body: { error: body?.description ?? 'PodcastIndex request failed' } };
+      return {
+        ...raw,
+        status: 502,
+        body: { error: body?.description ?? 'PodcastIndex request failed' },
+      };
     }
 
     // search + trending → feeds[]

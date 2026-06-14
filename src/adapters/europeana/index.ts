@@ -5,7 +5,7 @@ export class EuropeanaAdapter extends BaseAdapter {
   private readonly apiKey: string;
 
   constructor(apiKey: string) {
-    super({ timeout: 10_000, maxRetries: 2, maxResponseSize: 512_000 });
+    super({ provider: 'europeana', baseUrl: 'https://api.europeana.eu', maxRetries: 2 });
     this.apiKey = apiKey;
   }
 
@@ -44,8 +44,7 @@ export class EuropeanaAdapter extends BaseAdapter {
   }
 
   parseResponse(raw: ProviderRawResponse, req: ProviderRequest): ProviderRawResponse {
-    const body =
-      typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body;
+    const body = typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body;
 
     if (!body?.success) {
       return {
@@ -87,7 +86,10 @@ export class EuropeanaAdapter extends BaseAdapter {
         body: {
           id: obj.about,
           title: proxy.dcTitle?.def?.[0] ?? proxy.dcTitle?.en?.[0] ?? null,
-          description: (proxy.dcDescription?.def?.[0] ?? proxy.dcDescription?.en?.[0] ?? '').slice(0, 1000),
+          description: (proxy.dcDescription?.def?.[0] ?? proxy.dcDescription?.en?.[0] ?? '').slice(
+            0,
+            1000,
+          ),
           creator: proxy.dcCreator?.def?.[0] ?? null,
           type: proxy.dcType?.def?.[0] ?? null,
           date: proxy.dctermsCreated?.def?.[0] ?? proxy.dcDate?.def?.[0] ?? null,

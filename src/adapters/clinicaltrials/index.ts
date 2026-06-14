@@ -3,7 +3,7 @@ import type { ProviderRequest, ProviderRawResponse } from '../../types/provider'
 
 export class ClinicalTrialsAdapter extends BaseAdapter {
   constructor() {
-    super({ timeout: 10_000, maxRetries: 2, maxResponseSize: 512_000 });
+    super({ provider: 'clinicaltrials', baseUrl: 'https://clinicaltrials.gov', maxRetries: 2 });
   }
 
   buildRequest(req: ProviderRequest): {
@@ -22,7 +22,10 @@ export class ClinicalTrialsAdapter extends BaseAdapter {
         if (params.intervention) qs.set('query.intr', String(params.intervention));
         if (params.status) qs.set('filter.overallStatus', String(params.status));
         qs.set('pageSize', String(params.limit ?? 10));
-        qs.set('fields', 'NCTId,BriefTitle,OverallStatus,Condition,InterventionName,LeadSponsorName,EnrollmentCount,StartDate,CompletionDate,Phase,StudyType');
+        qs.set(
+          'fields',
+          'NCTId,BriefTitle,OverallStatus,Condition,InterventionName,LeadSponsorName,EnrollmentCount,StartDate,CompletionDate,Phase,StudyType',
+        );
         return { url: `${base}/studies?${qs}`, method: 'GET', headers: {} };
       }
 
@@ -60,7 +63,9 @@ export class ClinicalTrialsAdapter extends BaseAdapter {
           title: id?.briefTitle,
           status: status?.overallStatus,
           conditions: (conditions?.conditions as string[]) ?? [],
-          interventions: ((arms?.interventions as Array<Record<string, unknown>>) ?? []).map(i => i.name),
+          interventions: ((arms?.interventions as Array<Record<string, unknown>>) ?? []).map(
+            (i) => i.name,
+          ),
           sponsor: leadSponsor?.name,
           enrollment: enroll?.count,
           phase: (design?.phases as string[]) ?? [],
@@ -69,7 +74,10 @@ export class ClinicalTrialsAdapter extends BaseAdapter {
           completion_date: (status?.completionDateStruct as Record<string, unknown>)?.date,
         };
       });
-      return { ...raw, body: { studies, count: studies.length, total: body.totalCount ?? studies.length } };
+      return {
+        ...raw,
+        body: { studies, count: studies.length, total: body.totalCount ?? studies.length },
+      };
     }
 
     if (req.toolId === 'clinical.study') {
@@ -96,9 +104,13 @@ export class ClinicalTrialsAdapter extends BaseAdapter {
           official_title: id?.officialTitle,
           status: (status as Record<string, unknown>)?.overallStatus,
           conditions: (conditions?.conditions as string[]) ?? [],
-          interventions: ((arms?.interventions as Array<Record<string, unknown>>) ?? []).map(i => ({
-            name: i.name, type: i.type, description: String(i.description ?? '').slice(0, 300),
-          })),
+          interventions: ((arms?.interventions as Array<Record<string, unknown>>) ?? []).map(
+            (i) => ({
+              name: i.name,
+              type: i.type,
+              description: String(i.description ?? '').slice(0, 300),
+            }),
+          ),
           sponsor: leadSponsor.name,
           sponsor_class: leadSponsor.class,
           enrollment: enroll.count,
@@ -111,11 +123,18 @@ export class ClinicalTrialsAdapter extends BaseAdapter {
             min_age: eligibility?.minimumAge,
             max_age: eligibility?.maximumAge,
           },
-          primary_outcomes: ((outcomes?.primaryOutcomes as Array<Record<string, unknown>>) ?? []).map(o => ({
-            measure: o.measure, time_frame: o.timeFrame,
+          primary_outcomes: (
+            (outcomes?.primaryOutcomes as Array<Record<string, unknown>>) ?? []
+          ).map((o) => ({
+            measure: o.measure,
+            time_frame: o.timeFrame,
           })),
-          start_date: ((status as Record<string, unknown>)?.startDateStruct as Record<string, unknown>)?.date,
-          completion_date: ((status as Record<string, unknown>)?.completionDateStruct as Record<string, unknown>)?.date,
+          start_date: (
+            (status as Record<string, unknown>)?.startDateStruct as Record<string, unknown>
+          )?.date,
+          completion_date: (
+            (status as Record<string, unknown>)?.completionDateStruct as Record<string, unknown>
+          )?.date,
         },
       };
     }

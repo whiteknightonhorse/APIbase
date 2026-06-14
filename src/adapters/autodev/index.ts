@@ -5,7 +5,7 @@ export class AutoDevAdapter extends BaseAdapter {
   private readonly apiKey: string;
 
   constructor(apiKey: string) {
-    super({ timeout: 10_000, maxRetries: 2, maxResponseSize: 512_000 });
+    super({ provider: 'autodev', baseUrl: 'https://api.auto.dev', maxRetries: 2 });
     this.apiKey = apiKey;
   }
 
@@ -32,8 +32,7 @@ export class AutoDevAdapter extends BaseAdapter {
   }
 
   parseResponse(raw: ProviderRawResponse, _req: ProviderRequest): ProviderRawResponse {
-    const body =
-      typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body;
+    const body = typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body;
 
     if (!body?.vin || body?.vinValid === false) {
       return {

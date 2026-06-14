@@ -5,7 +5,7 @@ export class Api2PdfAdapter extends BaseAdapter {
   private readonly apiKey: string;
 
   constructor(apiKey: string) {
-    super({ timeout: 30_000, maxRetries: 1, maxResponseSize: 512_000 });
+    super({ provider: 'api2pdf', baseUrl: 'https://v2.api2pdf.com', maxRetries: 1 });
     this.apiKey = apiKey;
   }
 
@@ -17,7 +17,7 @@ export class Api2PdfAdapter extends BaseAdapter {
   } {
     const params = (req.params ?? {}) as Record<string, unknown>;
     const headers = {
-      'Authorization': this.apiKey,
+      Authorization: this.apiKey,
       'Content-Type': 'application/json',
     };
 
@@ -28,7 +28,12 @@ export class Api2PdfAdapter extends BaseAdapter {
         };
         if (params.fileName) payload.fileName = params.fileName;
         if (params.options) payload.options = params.options;
-        return { url: 'https://v2.api2pdf.com/chrome/html', method: 'POST', headers, body: JSON.stringify(payload) };
+        return {
+          url: 'https://v2.api2pdf.com/chrome/html',
+          method: 'POST',
+          headers,
+          body: JSON.stringify(payload),
+        };
       }
 
       case 'pdf.from_url': {
@@ -37,7 +42,12 @@ export class Api2PdfAdapter extends BaseAdapter {
         };
         if (params.fileName) payload.fileName = params.fileName;
         if (params.options) payload.options = params.options;
-        return { url: 'https://v2.api2pdf.com/chrome/url', method: 'POST', headers, body: JSON.stringify(payload) };
+        return {
+          url: 'https://v2.api2pdf.com/chrome/url',
+          method: 'POST',
+          headers,
+          body: JSON.stringify(payload),
+        };
       }
 
       case 'pdf.merge': {
@@ -45,7 +55,12 @@ export class Api2PdfAdapter extends BaseAdapter {
           urls: params.urls,
         };
         if (params.fileName) payload.fileName = params.fileName;
-        return { url: 'https://v2.api2pdf.com/merge', method: 'POST', headers, body: JSON.stringify(payload) };
+        return {
+          url: 'https://v2.api2pdf.com/merge',
+          method: 'POST',
+          headers,
+          body: JSON.stringify(payload),
+        };
       }
 
       default:
@@ -54,8 +69,7 @@ export class Api2PdfAdapter extends BaseAdapter {
   }
 
   parseResponse(raw: ProviderRawResponse, _req: ProviderRequest): ProviderRawResponse {
-    const body =
-      typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body;
+    const body = typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body;
 
     if (!body?.success || body?.error) {
       return {

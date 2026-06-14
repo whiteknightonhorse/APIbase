@@ -8,7 +8,7 @@ export class BlueskyAdapter extends BaseAdapter {
   private tokenExpiresAt = 0;
 
   constructor(handle: string, appPassword: string) {
-    super({ timeout: 10_000, maxRetries: 2, maxResponseSize: 512_000 });
+    super({ provider: 'bluesky', baseUrl: 'https://bsky.social', maxRetries: 2 });
     this.handle = handle;
     this.appPassword = appPassword;
   }
@@ -43,7 +43,7 @@ export class BlueskyAdapter extends BaseAdapter {
     const params = (req.params ?? {}) as Record<string, unknown>;
     const base = 'https://bsky.social/xrpc';
     const headers = {
-      'Authorization': `Bearer ${this.accessToken}`,
+      Authorization: `Bearer ${this.accessToken}`,
     };
 
     switch (req.toolId) {
@@ -58,13 +58,21 @@ export class BlueskyAdapter extends BaseAdapter {
 
       case 'bluesky.profile': {
         const actor = String(params.handle ?? '');
-        return { url: `${base}/app.bsky.actor.getProfile?actor=${encodeURIComponent(actor)}`, method: 'GET', headers };
+        return {
+          url: `${base}/app.bsky.actor.getProfile?actor=${encodeURIComponent(actor)}`,
+          method: 'GET',
+          headers,
+        };
       }
 
       case 'bluesky.feed': {
         const actor = String(params.handle ?? '');
         const limit = params.limit ?? 20;
-        return { url: `${base}/app.bsky.feed.getAuthorFeed?actor=${encodeURIComponent(actor)}&limit=${limit}`, method: 'GET', headers };
+        return {
+          url: `${base}/app.bsky.feed.getAuthorFeed?actor=${encodeURIComponent(actor)}&limit=${limit}`,
+          method: 'GET',
+          headers,
+        };
       }
 
       default:
@@ -73,8 +81,7 @@ export class BlueskyAdapter extends BaseAdapter {
   }
 
   parseResponse(raw: ProviderRawResponse, req: ProviderRequest): ProviderRawResponse {
-    const body =
-      typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body;
+    const body = typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body;
 
     if (body?.error) {
       return { ...raw, status: 502, body: { error: body.message ?? body.error } };

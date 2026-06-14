@@ -3,7 +3,7 @@ import type { ProviderRequest, ProviderRawResponse } from '../../types/provider'
 
 export class GleifAdapter extends BaseAdapter {
   constructor() {
-    super({ timeout: 10_000, maxRetries: 2, maxResponseSize: 512_000 });
+    super({ provider: 'gleif', baseUrl: 'https://api.gleif.org', maxRetries: 2 });
   }
 
   buildRequest(req: ProviderRequest): {
@@ -13,7 +13,7 @@ export class GleifAdapter extends BaseAdapter {
   } {
     const params = (req.params ?? {}) as Record<string, unknown>;
     const base = 'https://api.gleif.org/api/v1';
-    const headers = { 'Accept': 'application/json' };
+    const headers = { Accept: 'application/json' };
 
     switch (req.toolId) {
       case 'lei.search': {
@@ -31,7 +31,11 @@ export class GleifAdapter extends BaseAdapter {
 
       case 'lei.relationships': {
         const lei = String(params.lei ?? '');
-        return { url: `${base}/lei-records/${lei}/direct-parent-relationship`, method: 'GET', headers };
+        return {
+          url: `${base}/lei-records/${lei}/direct-parent-relationship`,
+          method: 'GET',
+          headers,
+        };
       }
 
       default:
@@ -40,11 +44,14 @@ export class GleifAdapter extends BaseAdapter {
   }
 
   parseResponse(raw: ProviderRawResponse, req: ProviderRequest): ProviderRawResponse {
-    const body =
-      typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body;
+    const body = typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body;
 
     if (body?.errors) {
-      return { ...raw, status: 502, body: { error: body.errors[0]?.detail ?? 'GLEIF request failed' } };
+      return {
+        ...raw,
+        status: 502,
+        body: { error: body.errors[0]?.detail ?? 'GLEIF request failed' },
+      };
     }
 
     if (req.toolId === 'lei.search') {
@@ -89,10 +96,12 @@ export class GleifAdapter extends BaseAdapter {
             country: legalAddr?.country,
             postal_code: legalAddr?.postalCode,
           },
-          headquarters: hqAddr ? {
-            city: hqAddr.city,
-            country: hqAddr.country,
-          } : null,
+          headquarters: hqAddr
+            ? {
+                city: hqAddr.city,
+                country: hqAddr.country,
+              }
+            : null,
           status: reg?.status,
           category: entity?.category,
           legal_form: (entity?.legalForm as Record<string, unknown>)?.id,

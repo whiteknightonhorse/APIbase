@@ -5,7 +5,7 @@ export class PexelsAdapter extends BaseAdapter {
   private readonly apiKey: string;
 
   constructor(apiKey: string) {
-    super({ timeout: 10_000, maxRetries: 2, maxResponseSize: 512_000 });
+    super({ provider: 'pexels', baseUrl: 'https://api.pexels.com', maxRetries: 2 });
     this.apiKey = apiKey;
   }
 
@@ -15,7 +15,7 @@ export class PexelsAdapter extends BaseAdapter {
     headers: Record<string, string>;
   } {
     const params = (req.params ?? {}) as Record<string, unknown>;
-    const headers = { 'Authorization': this.apiKey };
+    const headers = { Authorization: this.apiKey };
 
     switch (req.toolId) {
       case 'pexels.search_photos': {
@@ -75,12 +75,15 @@ export class PexelsAdapter extends BaseAdapter {
           pexels_url: p.url,
         };
       });
-      return { ...raw, body: { photos, total: body.total_results ?? photos.length, count: photos.length } };
+      return {
+        ...raw,
+        body: { photos, total: body.total_results ?? photos.length, count: photos.length },
+      };
     }
 
     if (req.toolId === 'pexels.search_videos') {
       const videos = (body.videos ?? []).map((v: Record<string, unknown>) => {
-        const files = (v.video_files as Array<Record<string, unknown>> ?? [])
+        const files = ((v.video_files as Array<Record<string, unknown>>) ?? [])
           .filter((f: Record<string, unknown>) => f.quality === 'hd' || f.quality === 'sd')
           .slice(0, 3)
           .map((f: Record<string, unknown>) => ({
@@ -100,7 +103,10 @@ export class PexelsAdapter extends BaseAdapter {
           pexels_url: v.url,
         };
       });
-      return { ...raw, body: { videos, total: body.total_results ?? videos.length, count: videos.length } };
+      return {
+        ...raw,
+        body: { videos, total: body.total_results ?? videos.length, count: videos.length },
+      };
     }
 
     return raw;
