@@ -6954,4 +6954,42 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'health',
     annotations: READ_ONLY,
   },
+
+  // MyChem.info (4)
+  {
+    toolId: 'mychem.search',
+    mcpName: 'mychem.chemicals.search',
+    title: 'Search Chemical Compounds',
+    description:
+      'Search the MyChem.info database of 197M+ annotated chemical compounds using a flexible query syntax. Query by: common name (e.g. "aspirin"), IUPAC name (e.g. "acetylsalicylic acid"), InChIKey (e.g. "BSYNRYMUTXBXSQ-UHFFFAOYSA-N"), molecular formula (e.g. "C9H8O4"), ChEMBL ID (e.g. "CHEMBL25"), PubChem CID (e.g. "pubchem.cid:2244"), DrugBank ID (e.g. "DB00945"), or field-scoped queries (e.g. "drugbank.groups:approved AND chembl.max_phase:4"). Each result includes chemical names across databases (ChEBI, ChEMBL, DrugBank, PharmGKB), structural properties (molecular formula, weight, XLogP, H-bond donors/acceptors, TPSA, rotatable bonds), drug development phase, ATC classification codes, and approval status. Integrates DrugBank, ChEMBL, ChEBI, PubChem, PharmGKB, SIDER, DrugCentral, NDC, and 16+ annotation sources.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'mychem.annotation',
+    mcpName: 'mychem.chemicals.annotation',
+    title: 'Get Chemical Annotation Details',
+    description:
+      'Retrieve comprehensive annotation for a single chemical compound by its InChIKey (e.g. "BSYNRYMUTXBXSQ-UHFFFAOYSA-N"), ChEMBL ID (e.g. "CHEMBL25"), PubChem CID (e.g. "CID2244"), or DrugBank ID (e.g. "DB00945"). Returns complete annotation from 16+ integrated databases: ChEBI chemical definition, IUPAC name, and synonyms; ChEMBL clinical development phase (0–4), molecule type, ATC therapeutic classification, Lipinski Ro5 properties (MW, XLogP, HBD, HBA, PSA, rotatable bonds), black-box warning flag, and withdrawal status; PubChem structural identifiers (CID, molecular formula, molecular weight, InChI, SMILES, heavy atom count, complexity score); DrugBank approved indication, mechanism of action, drug targets with gene names and pharmacological actions; PharmGKB clinical pharmacogenomics annotation count; SIDER reported side effects; and NDC product codes. Essential for drug discovery, cheminformatics pipelines, pharmacogenomics analysis, and clinical safety review.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'mychem.batch_query',
+    mcpName: 'mychem.chemicals.batch_query',
+    title: 'Batch Query Chemical Compounds',
+    description:
+      'Retrieve annotations for up to 100 chemical compounds in a single request by providing an array of chemical names or identifiers. Returns ChEBI name, ChEMBL preferred name and clinical phase, PubChem CID, molecular formula and weight, DrugBank drug groups, and PharmGKB name for each compound in one call. Ideal for enriching compound lists from drug screening assays, annotating molecule libraries, building pharmacology databases, or cross-referencing chemicals across naming conventions (INN, brand names, IUPAC names). Compounds not found in any database are marked with found=false. Mix different name formats and identifiers freely in a single batch request.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'mychem.metadata',
+    mcpName: 'mychem.chemicals.metadata',
+    title: 'Get MyChem API Metadata',
+    description:
+      'Retrieve build metadata and data source statistics for the MyChem.info API. Returns the current database build version (e.g. "20260525"), build date, total number of chemical records (197M+), and a list of integrated annotation sources with their versions, URLs, and license information. Sources include DrugBank, ChEMBL, ChEBI, PubChem, PharmGKB, SIDER, DrugCentral, UMLS, NDC, UniChem, GSRS, FDA Orphan Drug, GtoPdb (pharmacology), AEOLUS (adverse events), GINAS, and UNII. Use to verify data currency before large annotation jobs or to cite specific source versions in research publications.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
 ];

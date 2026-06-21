@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 661 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 665 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -38209,6 +38209,228 @@
           "error": {
             "type": "object",
             "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "mychem.chemicals.annotation",
+      "title": "Get Chemical Annotation Details",
+      "description": "Retrieve comprehensive annotation for a single chemical compound by its InChIKey (e.g. \"BSYNRYMUTXBXSQ-UHFFFAOYSA-N\"), ChEMBL ID (e.g. \"CHEMBL25\"), PubChem CID (e.g. \"CID2244\"), or DrugBank ID (e.g. \"DB00945\"). Returns complete annotation from 16+ integrated databases: ChEBI chemical definition, IUPAC name, and synonyms; ChEMBL clinical development phase (0\u20134), molecule type, ATC therapeutic classification, Lipinski Ro5 properties (MW, XLogP, HBD, HBA, PSA, rotatable bonds), black-box warning flag, and withdrawal status; PubChem structural identifiers (CID, molecular formula, molecular weight, InChI, SMILES, heavy atom count, complexity score); DrugBank approved indication, mechanism of action, drug targets with gene names and pharmacological actions; PharmGKB clinical pharmacogenomics annotation count; SIDER reported side effects; and NDC product codes. Essential for drug discovery, cheminformatics pipelines, pharmacogenomics analysis, and clinical safety review.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "chem_id": {
+            "type": "string",
+            "description": "Chemical identifier to look up. Accepts: InChIKey (primary ID, e.g. \"BSYNRYMUTXBXSQ-UHFFFAOYSA-N\"), ChEMBL ID (e.g. \"CHEMBL25\"), PubChem CID (e.g. \"CID2244\"), or DrugBank ID (e.g. \"DB00945\"). InChIKey is the most stable identifier \u2014 obtain from mychem.search results or external databases (ChEMBL, PubChem, ChEBI).",
+            "minLength": 1
+          },
+          "fields": {
+            "type": "string",
+            "description": "Comma-separated annotation fields to retrieve. Default: chebi.name, chebi.definition, chebi.formula, chebi.mass, chembl.pref_name, chembl.max_phase, chembl.molecule_properties, pubchem.cid, pubchem.molecular_formula, pubchem.molecular_weight, drugbank.name, drugbank.groups, pharmgkb.name. For drug targets, add \"drugbank.targets\". For full ChEBI annotations, add \"chebi\". Use \"all\" for complete annotation from all 16 sources including SIDER (side effects), DrugCentral (clinical info), PharmGKB (pharmacogenomics), and NDC (drug codes)."
+          }
+        },
+        "required": [
+          "chem_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "mychem.chemicals.batch_query",
+      "title": "Batch Query Chemical Compounds",
+      "description": "Retrieve annotations for up to 100 chemical compounds in a single request by providing an array of chemical names or identifiers. Returns ChEBI name, ChEMBL preferred name and clinical phase, PubChem CID, molecular formula and weight, DrugBank drug groups, and PharmGKB name for each compound in one call. Ideal for enriching compound lists from drug screening assays, annotating molecule libraries, building pharmacology databases, or cross-referencing chemicals across naming conventions (INN, brand names, IUPAC names). Compounds not found in any database are marked with found=false. Mix different name formats and identifiers freely in a single batch request.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "A chemical name, synonym, or identifier to look up."
+            },
+            "description": "Array of chemical queries to look up in a single request. Each element can be a chemical name, synonym, or identifier (up to 100 entries). Example: [\"aspirin\", \"ibuprofen\", \"acetaminophen\"]. Each query is matched against common names, synonyms, and identifiers. Returns one best-match annotation per query.",
+            "minItems": 1,
+            "maxItems": 100
+          },
+          "fields": {
+            "type": "string",
+            "description": "Comma-separated annotation fields to return for each chemical. Default: chebi.name, chebi.definition, chebi.formula, chebi.mass, chembl.pref_name, chembl.max_phase, chembl.molecule_properties, pubchem.cid, pubchem.molecular_formula, pubchem.molecular_weight, drugbank.name, drugbank.groups, pharmgkb.name. Limit fields for large batches to reduce response size."
+          },
+          "scopes": {
+            "type": "string",
+            "description": "Comma-separated fields to search within for each query in the batch. Default: chebi.name,chembl.pref_name,drugbank.name,pubchem.cid \u2014 searches across common name fields. Use \"chebi.inchikey\" to match exact InChIKeys.",
+            "default": "chebi.name,chembl.pref_name,drugbank.name,pubchem.cid"
+          }
+        },
+        "required": [
+          "q"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "mychem.chemicals.metadata",
+      "title": "Get MyChem API Metadata",
+      "description": "Retrieve build metadata and data source statistics for the MyChem.info API. Returns the current database build version (e.g. \"20260525\"), build date, total number of chemical records (197M+), and a list of integrated annotation sources with their versions, URLs, and license information. Sources include DrugBank, ChEMBL, ChEBI, PubChem, PharmGKB, SIDER, DrugCentral, UMLS, NDC, UniChem, GSRS, FDA Orphan Drug, GtoPdb (pharmacology), AEOLUS (adverse events), GINAS, and UNII. Use to verify data currency before large annotation jobs or to cite specific source versions in research publications.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "detail": {
+            "type": "boolean",
+            "description": "If true, include full source metadata with download dates, record counts per source, code repository links, and license URLs. If false (default), return only build version, build date, total chemical count, and a summary list of source names.",
+            "default": false
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "mychem.chemicals.search",
+      "title": "Search Chemical Compounds",
+      "description": "Search the MyChem.info database of 197M+ annotated chemical compounds using a flexible query syntax. Query by: common name (e.g. \"aspirin\"), IUPAC name (e.g. \"acetylsalicylic acid\"), InChIKey (e.g. \"BSYNRYMUTXBXSQ-UHFFFAOYSA-N\"), molecular formula (e.g. \"C9H8O4\"), ChEMBL ID (e.g. \"CHEMBL25\"), PubChem CID (e.g. \"pubchem.cid:2244\"), DrugBank ID (e.g. \"DB00945\"), or field-scoped queries (e.g. \"drugbank.groups:approved AND chembl.max_phase:4\"). Each result includes chemical names across databases (ChEBI, ChEMBL, DrugBank, PharmGKB), structural properties (molecular formula, weight, XLogP, H-bond donors/acceptors, TPSA, rotatable bonds), drug development phase, ATC classification codes, and approval status. Integrates DrugBank, ChEMBL, ChEBI, PubChem, PharmGKB, SIDER, DrugCentral, NDC, and 16+ annotation sources.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "description": "Chemical search query. Supports: common name (e.g. \"aspirin\"), IUPAC name (e.g. \"acetylsalicylic acid\"), InChIKey (e.g. \"BSYNRYMUTXBXSQ-UHFFFAOYSA-N\"), molecular formula (e.g. \"C9H8O4\"), ChEMBL ID (e.g. \"CHEMBL25\"), PubChem CID (e.g. \"pubchem.cid:2244\"), DrugBank ID (e.g. \"DB00945\"), or field-scoped queries (e.g. \"chebi.name:ibuprofen\", \"drugbank.groups:approved\", \"chembl.max_phase:4\"). Supports Lucene boolean operators AND/OR/NOT.",
+            "minLength": 1
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Maximum number of chemical results to return (1\u201350, default 10).",
+            "default": 10
+          },
+          "fields": {
+            "type": "string",
+            "description": "Comma-separated annotation fields to return per hit. Default: chebi.name, chebi.definition, chebi.formula, chebi.mass, chembl.pref_name, chembl.max_phase, chembl.molecule_properties, pubchem.cid, pubchem.molecular_formula, pubchem.molecular_weight, pubchem.xlogp, drugbank.name, drugbank.groups, pharmgkb.name. Use \"all\" for every source."
+          },
+          "scopes": {
+            "type": "string",
+            "description": "Comma-separated fields to search within. Default: searches all text fields. Examples: \"chebi.name,chembl.pref_name,drugbank.name\" to search only common names, or \"chebi.inchikey\" to search by exact InChIKey structure."
+          }
+        },
+        "required": [
+          "q"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
           }
         },
         "required": [

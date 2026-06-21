@@ -206,6 +206,7 @@ import { eonetSchemas } from './eonet.schema';
 import { rxnormSchemas } from './rxnorm.schema';
 import { mygeneSchemas } from './mygene.schema';
 import { myvariantSchemas } from './myvariant.schema';
+import { mychemSchemas } from './mychem.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -415,4 +416,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...rxnormSchemas,
   ...mygeneSchemas,
   ...myvariantSchemas,
+  ...mychemSchemas,
 };

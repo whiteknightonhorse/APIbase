@@ -4061,6 +4061,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-481: MyChem.info ---
+  - tool_id: mychem.search
+    name: Search Chemical Compounds
+    provider: mychem
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: mychem.annotation
+    name: Get Chemical Annotation Details
+    provider: mychem
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: mychem.batch_query
+    name: Batch Query Chemical Compounds
+    provider: mychem
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: mychem.metadata
+    name: Get MyChem API Metadata
+    provider: mychem
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform
