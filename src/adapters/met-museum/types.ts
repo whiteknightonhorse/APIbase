@@ -26,3 +26,22 @@ export interface MetDetailsOutput {
   accession_number: string;
   url: string;
 }
+
+export interface MetDepartment {
+  department_id: number;
+  name: string;
+}
+
+export interface MetDepartmentsOutput {
+  total: number;
+  departments: MetDepartment[];
+}
+
+export interface MetBrowseOutput {
+  department_id: number;
+  total: number;
+  page: number;
+  per_page: number;
+  total_pages: number;
+  object_ids: number[];
+}

@@ -51318,6 +51318,175 @@
         ]
       }
     },
+    "/api/v1/tools/met.departments/call": {
+      "post": {
+        "operationId": "met_departments",
+        "summary": "List Met Museum Departments",
+        "description": "List all 19 curatorial departments at The Metropolitan Museum of Art with their IDs and names — American Decorative Arts, Egyptian Art, European Paintings, Greek and Roman Art, Modern Art, and more. Use department IDs with met.browse to explore a collection area or with met.search to filter searches. CC0 public domain (Met Museum)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "met.departments"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sort_by": {
+                    "type": "string",
+                    "enum": [
+                      "id",
+                      "name"
+                    ],
+                    "description": "Sort order for the department list: \"id\" (numeric, default) or \"name\" (alphabetical)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/met.browse/call": {
+      "post": {
+        "operationId": "met_browse",
+        "summary": "Browse Met Museum Department",
+        "description": "Browse all artworks in a Met Museum department by department ID, with pagination. Returns a page of object IDs — use met.details to fetch full artwork metadata for each ID. Use met.departments to get department IDs (e.g. 10=Egyptian Art, 11=European Paintings, 21=Modern Art). CC0 public domain (Met Museum)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "met.browse"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "department_id": {
+                    "type": "integer",
+                    "description": "Department ID to browse. Use met.departments to get IDs. Examples: 10=Egyptian Art, 11=European Paintings, 13=Greek and Roman Art, 21=Modern Art",
+                    "minimum": 1
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Page number for pagination (1-based, default 1). Each page returns up to 100 object IDs."
+                  },
+                  "per_page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Number of object IDs per page (1–100, default 50). Use with met.details to fetch artwork metadata."
+                  }
+                },
+                "required": [
+                  "department_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/rijks.search/call": {
       "post": {
         "operationId": "rijks_search",

@@ -49,7 +49,49 @@ const details = z
   })
   .strip();
 
+const departments = z
+  .object({
+    sort_by: z
+      .enum(['id', 'name'])
+      .optional()
+      .describe(
+        'Sort order for the department list: "id" (numeric, default) or "name" (alphabetical)',
+      ),
+  })
+  .strip();
+
+const browse = z
+  .object({
+    department_id: z
+      .number()
+      .int()
+      .min(1)
+      .describe(
+        'Department ID to browse. Use met.departments to get IDs. Examples: 10=Egyptian Art, 11=European Paintings, 13=Greek and Roman Art, 21=Modern Art',
+      ),
+    page: z
+      .number()
+      .int()
+      .min(1)
+      .optional()
+      .describe(
+        'Page number for pagination (1-based, default 1). Each page returns up to 100 object IDs.',
+      ),
+    per_page: z
+      .number()
+      .int()
+      .min(1)
+      .max(100)
+      .optional()
+      .describe(
+        'Number of object IDs per page (1–100, default 50). Use with met.details to fetch artwork metadata.',
+      ),
+  })
+  .strip();
+
 export const metSchemas: Record<string, ZodSchema> = {
   'met.search': search,
   'met.details': details,
+  'met.departments': departments,
+  'met.browse': browse,
 };

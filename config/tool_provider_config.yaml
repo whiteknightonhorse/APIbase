@@ -3402,6 +3402,16 @@ tools:
     provider: met-museum
     price_usd: "0.001"
     cache_ttl: 86400
+  - tool_id: met.departments
+    name: List Met Museum Departments
+    provider: met-museum
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: met.browse
+    name: Browse Met Museum Department
+    provider: met-museum
+    price_usd: "0.001"
+    cache_ttl: 3600
 
   # NOAA Tides & Currents (UC-374) — tide predictions + water levels
   - tool_id: tides.predictions

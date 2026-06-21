@@ -4,7 +4,12 @@ import {
   type ProviderRawResponse,
   ProviderErrorCode,
 } from '../../types/provider';
-import type { MetSearchOutput, MetDetailsOutput } from './types';
+import type {
+  MetSearchOutput,
+  MetDetailsOutput,
+  MetDepartmentsOutput,
+  MetBrowseOutput,
+} from './types';
 
 const MET_BASE = 'https://collectionapi.metmuseum.org/public/collection/v1';
 
@@ -57,6 +62,29 @@ export class MetMuseumAdapter extends BaseAdapter {
         return { url: `${MET_BASE}/objects/${objectId}`, method: 'GET', headers };
       }
 
+      case 'met.departments': {
+        return { url: `${MET_BASE}/departments`, method: 'GET', headers };
+      }
+
+      case 'met.browse': {
+        const departmentId = Number(params.department_id);
+        if (!Number.isInteger(departmentId) || departmentId <= 0) {
+          throw {
+            code: ProviderErrorCode.INVALID_RESPONSE,
+            httpStatus: 400,
+            message: `Invalid department_id: must be a positive integer. Use met.departments to list valid IDs.`,
+            provider: this.provider,
+            toolId: req.toolId,
+            durationMs: 0,
+          };
+        }
+        return {
+          url: `${MET_BASE}/objects?departmentIds=${departmentId}`,
+          method: 'GET',
+          headers,
+        };
+      }
+
       default:
         throw {
           code: ProviderErrorCode.INVALID_RESPONSE,
@@ -71,12 +99,17 @@ export class MetMuseumAdapter extends BaseAdapter {
 
   protected parseResponse(raw: ProviderRawResponse, req: ProviderRequest): unknown {
     const body = raw.body as Record<string, unknown>;
+    const params = req.params as Record<string, unknown>;
 
     switch (req.toolId) {
       case 'met.search':
         return this.parseSearch(body);
       case 'met.details':
         return this.parseDetails(body);
+      case 'met.departments':
+        return this.parseDepartments(body, params);
+      case 'met.browse':
+        return this.parseBrowse(body, params);
       default:
         return body;
     }
@@ -121,6 +154,49 @@ export class MetMuseumAdapter extends BaseAdapter {
       gallery_number: String(body.GalleryNumber ?? ''),
       accession_number: String(body.accessionNumber ?? ''),
       url: String(body.objectURL ?? ''),
+    };
+  }
+
+  private parseDepartments(
+    body: Record<string, unknown>,
+    params: Record<string, unknown>,
+  ): MetDepartmentsOutput {
+    const raw = (body.departments ?? []) as Array<{ departmentId: number; displayName: string }>;
+    const sortBy = String(params.sort_by ?? 'id');
+
+    const departments = raw.map((d) => ({
+      department_id: d.departmentId,
+      name: d.displayName,
+    }));
+
+    if (sortBy === 'name') {
+      departments.sort((a, b) => a.name.localeCompare(b.name));
+    } else {
+      departments.sort((a, b) => a.department_id - b.department_id);
+    }
+
+    return { total: departments.length, departments };
+  }
+
+  private parseBrowse(
+    body: Record<string, unknown>,
+    params: Record<string, unknown>,
+  ): MetBrowseOutput {
+    const allIds = (body.objectIDs ?? []) as number[];
+    const total = Number(body.total ?? allIds.length);
+    const page = Math.max(1, Number(params.page ?? 1));
+    const perPage = Math.min(100, Math.max(1, Number(params.per_page ?? 50)));
+    const totalPages = Math.ceil(total / perPage);
+    const start = (page - 1) * perPage;
+    const object_ids = allIds.slice(start, start + perPage);
+
+    return {
+      department_id: Number(params.department_id),
+      total,
+      page,
+      per_page: perPage,
+      total_pages: totalPages,
+      object_ids,
     };
   }
 }

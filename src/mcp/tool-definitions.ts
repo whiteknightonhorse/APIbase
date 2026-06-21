@@ -5866,6 +5866,24 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'entertainment',
     annotations: READ_ONLY,
   },
+  {
+    toolId: 'met.departments',
+    mcpName: 'met.collection.departments',
+    title: 'List Met Museum Departments',
+    description:
+      'List all 19 curatorial departments at The Metropolitan Museum of Art with their IDs and names — American Decorative Arts, Egyptian Art, European Paintings, Greek and Roman Art, Modern Art, and more. Use department IDs with met.browse to explore a collection area or with met.search to filter searches. CC0 public domain (Met Museum)',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'met.browse',
+    mcpName: 'met.collection.browse',
+    title: 'Browse Met Museum Department',
+    description:
+      'Browse all artworks in a Met Museum department by department ID, with pagination. Returns a page of object IDs — use met.details to fetch full artwork metadata for each ID. Use met.departments to get department IDs (e.g. 10=Egyptian Art, 11=European Paintings, 21=Modern Art). CC0 public domain (Met Museum)',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
   // ---------------------------------------------------------------------------
   // Rijksmuseum — Dutch national museum art collection (UC-379)
   // ---------------------------------------------------------------------------

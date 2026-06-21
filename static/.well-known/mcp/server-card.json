@@ -1,399 +1,8 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 626 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 608 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
-    {
-      "name": "weather.conditions.current",
-      "description": "Get current weather conditions for a location",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "location": {
-            "type": "string",
-            "description": "City name, coordinates (lat,lon), or zip code"
-          },
-          "units": {
-            "type": "string",
-            "enum": [
-              "metric",
-              "imperial"
-            ],
-            "description": "Temperature units system"
-          }
-        },
-        "required": [
-          "location"
-        ]
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      },
-      "outputSchema": {
-        "type": "object",
-        "properties": {
-          "result": {
-            "type": [
-              "object",
-              "array",
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ],
-            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
-          },
-          "error": {
-            "type": "object",
-            "description": "Present only when the call failed. Includes error code, message, request_id."
-          }
-        },
-        "required": [
-          "result"
-        ],
-        "additionalProperties": false
-      }
-    },
-    {
-      "name": "weather.conditions.forecast",
-      "description": "Get weather forecast for a location",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "location": {
-            "type": "string",
-            "description": "City name, coordinates (lat,lon), or zip code"
-          },
-          "type": {
-            "type": "string",
-            "enum": [
-              "hourly",
-              "daily",
-              "both"
-            ],
-            "description": "Forecast granularity: hourly, daily, or both"
-          },
-          "units": {
-            "type": "string",
-            "enum": [
-              "metric",
-              "imperial"
-            ],
-            "description": "Temperature units system"
-          }
-        },
-        "required": [
-          "location"
-        ]
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      },
-      "outputSchema": {
-        "type": "object",
-        "properties": {
-          "result": {
-            "type": [
-              "object",
-              "array",
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ],
-            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
-          },
-          "error": {
-            "type": "object",
-            "description": "Present only when the call failed. Includes error code, message, request_id."
-          }
-        },
-        "required": [
-          "result"
-        ],
-        "additionalProperties": false
-      }
-    },
-    {
-      "name": "weather.alerts.get",
-      "description": "Get active weather alerts for a location",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "location": {
-            "type": "string",
-            "description": "City name, coordinates (lat,lon), or zip code"
-          }
-        },
-        "required": [
-          "location"
-        ]
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      },
-      "outputSchema": {
-        "type": "object",
-        "properties": {
-          "result": {
-            "type": [
-              "object",
-              "array",
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ],
-            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
-          },
-          "error": {
-            "type": "object",
-            "description": "Present only when the call failed. Includes error code, message, request_id."
-          }
-        },
-        "required": [
-          "result"
-        ],
-        "additionalProperties": false
-      }
-    },
-    {
-      "name": "weather.conditions.history",
-      "description": "Get historical weather data for a location and date",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "location": {
-            "type": "string",
-            "description": "City name, coordinates (lat,lon), or zip code"
-          },
-          "date": {
-            "type": "string",
-            "description": "Historical date in YYYY-MM-DD format"
-          },
-          "units": {
-            "type": "string",
-            "enum": [
-              "metric",
-              "imperial"
-            ],
-            "description": "Temperature units system"
-          }
-        },
-        "required": [
-          "location",
-          "date"
-        ]
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      },
-      "outputSchema": {
-        "type": "object",
-        "properties": {
-          "result": {
-            "type": [
-              "object",
-              "array",
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ],
-            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
-          },
-          "error": {
-            "type": "object",
-            "description": "Present only when the call failed. Includes error code, message, request_id."
-          }
-        },
-        "required": [
-          "result"
-        ],
-        "additionalProperties": false
-      }
-    },
-    {
-      "name": "weather.air.quality",
-      "description": "Get air quality index for a location",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "location": {
-            "type": "string",
-            "description": "City name, coordinates (lat,lon), or zip code"
-          },
-          "include_forecast": {
-            "type": "boolean",
-            "description": "Include air quality forecast for next 24h"
-          }
-        },
-        "required": [
-          "location"
-        ]
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      },
-      "outputSchema": {
-        "type": "object",
-        "properties": {
-          "result": {
-            "type": [
-              "object",
-              "array",
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ],
-            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
-          },
-          "error": {
-            "type": "object",
-            "description": "Present only when the call failed. Includes error code, message, request_id."
-          }
-        },
-        "required": [
-          "result"
-        ],
-        "additionalProperties": false
-      }
-    },
-    {
-      "name": "weather.location.geocode",
-      "description": "Geocode a location query to coordinates",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "query": {
-            "type": "string",
-            "description": "Location name or coordinates to geocode"
-          },
-          "type": {
-            "type": "string",
-            "enum": [
-              "forward",
-              "reverse"
-            ],
-            "description": "Geocoding direction: forward (name to coords) or reverse (coords to name)"
-          },
-          "limit": {
-            "type": "integer",
-            "maximum": 5,
-            "description": "Max number of results (1-5)"
-          }
-        },
-        "required": [
-          "query"
-        ]
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      },
-      "outputSchema": {
-        "type": "object",
-        "properties": {
-          "result": {
-            "type": [
-              "object",
-              "array",
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ],
-            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
-          },
-          "error": {
-            "type": "object",
-            "description": "Present only when the call failed. Includes error code, message, request_id."
-          }
-        },
-        "required": [
-          "result"
-        ],
-        "additionalProperties": false
-      }
-    },
-    {
-      "name": "weather.conditions.compare",
-      "description": "Compare weather across multiple locations",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "locations": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "description": "City name or coordinates"
-            },
-            "description": "List of 2-5 locations to compare",
-            "minItems": 2,
-            "maxItems": 5
-          },
-          "units": {
-            "type": "string",
-            "enum": [
-              "metric",
-              "imperial"
-            ],
-            "description": "Temperature units system"
-          }
-        },
-        "required": [
-          "locations"
-        ]
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      },
-      "outputSchema": {
-        "type": "object",
-        "properties": {
-          "result": {
-            "type": [
-              "object",
-              "array",
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ],
-            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
-          },
-          "error": {
-            "type": "object",
-            "description": "Present only when the call failed. Includes error code, message, request_id."
-          }
-        },
-        "required": [
-          "result"
-        ],
-        "additionalProperties": false
-      }
-    },
     {
       "name": "crypto.price.current",
       "description": "Get current prices for cryptocurrencies",
@@ -12962,76 +12571,6 @@
       }
     },
     {
-      "name": "stocks.market.candles",
-      "description": "Historical OHLCV candlestick data \u2014 open, high, low, close, volume with configurable resolution (1min to monthly). Use for charting and technical analysis (Finnhub)",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "symbol": {
-            "type": "string",
-            "description": "Stock ticker symbol (e.g. \"AAPL\")",
-            "minLength": 1,
-            "maxLength": 10
-          },
-          "resolution": {
-            "type": "string",
-            "enum": [
-              "1",
-              "5",
-              "15",
-              "30",
-              "60",
-              "D",
-              "W",
-              "M"
-            ],
-            "description": "Candle resolution: \"1\",\"5\",\"15\",\"30\",\"60\" (minutes), \"D\" (day), \"W\" (week), \"M\" (month). Default: \"D\""
-          },
-          "from": {
-            "type": "integer",
-            "description": "Start timestamp (Unix seconds). Default: 30 days ago"
-          },
-          "to": {
-            "type": "integer",
-            "description": "End timestamp (Unix seconds). Default: now"
-          }
-        },
-        "required": [
-          "symbol"
-        ]
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      },
-      "outputSchema": {
-        "type": "object",
-        "properties": {
-          "result": {
-            "type": [
-              "object",
-              "array",
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ],
-            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
-          },
-          "error": {
-            "type": "object",
-            "description": "Present only when the call failed. Includes error code, message, request_id."
-          }
-        },
-        "required": [
-          "result"
-        ],
-        "additionalProperties": false
-      }
-    },
-    {
       "name": "stocks.market.news",
       "description": "General market news \u2014 categories: general, forex, crypto, merger. Top headlines with source, summary, and images (Finnhub)",
       "inputSchema": {
@@ -17138,226 +16677,6 @@
         },
         "required": [
           "url"
-        ]
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      },
-      "outputSchema": {
-        "type": "object",
-        "properties": {
-          "result": {
-            "type": [
-              "object",
-              "array",
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ],
-            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
-          },
-          "error": {
-            "type": "object",
-            "description": "Present only when the call failed. Includes error code, message, request_id."
-          }
-        },
-        "required": [
-          "result"
-        ],
-        "additionalProperties": false
-      }
-    },
-    {
-      "name": "document.pdf.from_html",
-      "description": "Convert HTML content to a PDF document using headless Chrome \u2014 full CSS + JavaScript rendering, custom page size, margins, headers/footers, background colors. Returns a temporary download URL for the generated PDF (API2PDF)",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "html": {
-            "type": "string",
-            "description": "HTML content to convert to PDF (full document or fragment, e.g. \"<h1>Report</h1><p>Content here</p>\")",
-            "minLength": 1
-          },
-          "fileName": {
-            "type": "string",
-            "description": "Output filename (e.g. \"report.pdf\")"
-          },
-          "options": {
-            "type": "object",
-            "properties": {
-              "landscape": {
-                "type": "boolean",
-                "description": "Landscape orientation (default false)"
-              },
-              "printBackground": {
-                "type": "boolean",
-                "description": "Render background colors and images (default true)"
-              },
-              "displayHeaderFooter": {
-                "type": "boolean",
-                "description": "Show header/footer (default false)"
-              },
-              "headerTemplate": {
-                "type": "string",
-                "description": "HTML template for page header"
-              },
-              "footerTemplate": {
-                "type": "string",
-                "description": "HTML template for page footer"
-              },
-              "paperWidth": {
-                "type": "number",
-                "description": "Page width in inches (default 8.27 for A4)"
-              },
-              "paperHeight": {
-                "type": "number",
-                "description": "Page height in inches (default 11.69 for A4)"
-              },
-              "marginTop": {
-                "type": "number",
-                "description": "Top margin in inches (default 0.4)"
-              },
-              "marginBottom": {
-                "type": "number",
-                "description": "Bottom margin in inches (default 0.4)"
-              }
-            },
-            "description": "PDF rendering options (page size, margins, header/footer)"
-          }
-        },
-        "required": [
-          "html"
-        ]
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      },
-      "outputSchema": {
-        "type": "object",
-        "properties": {
-          "result": {
-            "type": [
-              "object",
-              "array",
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ],
-            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
-          },
-          "error": {
-            "type": "object",
-            "description": "Present only when the call failed. Includes error code, message, request_id."
-          }
-        },
-        "required": [
-          "result"
-        ],
-        "additionalProperties": false
-      }
-    },
-    {
-      "name": "document.pdf.from_url",
-      "description": "Capture any web page URL as a PDF using headless Chrome with full JS rendering \u2014 perfect for archiving pages, generating reports from dashboards, or creating printable snapshots. Returns temporary PDF download URL (API2PDF)",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "url": {
-            "type": "string",
-            "description": "URL to capture as PDF (e.g. \"https://example.com/report\")"
-          },
-          "fileName": {
-            "type": "string",
-            "description": "Output filename (e.g. \"snapshot.pdf\")"
-          },
-          "options": {
-            "type": "object",
-            "properties": {
-              "landscape": {
-                "type": "boolean",
-                "description": "Landscape orientation (default false)"
-              },
-              "printBackground": {
-                "type": "boolean",
-                "description": "Render background colors (default true)"
-              },
-              "paperWidth": {
-                "type": "number",
-                "description": "Page width in inches"
-              },
-              "paperHeight": {
-                "type": "number",
-                "description": "Page height in inches"
-              }
-            },
-            "description": "PDF rendering options"
-          }
-        },
-        "required": [
-          "url"
-        ]
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      },
-      "outputSchema": {
-        "type": "object",
-        "properties": {
-          "result": {
-            "type": [
-              "object",
-              "array",
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ],
-            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
-          },
-          "error": {
-            "type": "object",
-            "description": "Present only when the call failed. Includes error code, message, request_id."
-          }
-        },
-        "required": [
-          "result"
-        ],
-        "additionalProperties": false
-      }
-    },
-    {
-      "name": "document.pdf.merge",
-      "description": "Merge 2-20 PDF documents (provided as URLs) into a single combined PDF. Preserves page order. Returns temporary download URL for the merged result (API2PDF)",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "urls": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "Ordered list of PDF URLs to merge (2-20 URLs)",
-            "minItems": 2,
-            "maxItems": 20
-          },
-          "fileName": {
-            "type": "string",
-            "description": "Output filename for merged PDF (e.g. \"combined.pdf\")"
-          }
-        },
-        "required": [
-          "urls"
         ]
       },
       "annotations": {
@@ -21768,144 +21087,6 @@
       }
     },
     {
-      "name": "web.scrape.extract",
-      "description": "Extract raw HTML from any URL \u2014 cheapest web scraping API ($0.00013 for simple sites). Returns decoded HTML content, HTTP status code, and content length. Use for data extraction, content analysis, or price monitoring. Handles anti-bot protection automatically (Zyte)",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "url": {
-            "type": "string",
-            "description": "URL to scrape \u2014 returns raw HTML content. Fast and cheap ($0.00013 for simple sites). Example: \"https://example.com\""
-          }
-        },
-        "required": [
-          "url"
-        ]
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      },
-      "outputSchema": {
-        "type": "object",
-        "properties": {
-          "result": {
-            "type": [
-              "object",
-              "array",
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ],
-            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
-          },
-          "error": {
-            "type": "object",
-            "description": "Present only when the call failed. Includes error code, message, request_id."
-          }
-        },
-        "required": [
-          "result"
-        ],
-        "additionalProperties": false
-      }
-    },
-    {
-      "name": "web.scrape.browser",
-      "description": "Render a URL with headless browser and return JS-rendered HTML. Use for SPAs, React/Vue apps, or pages with dynamic content that raw HTTP cannot capture. Returns fully rendered DOM as HTML text (Zyte)",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "url": {
-            "type": "string",
-            "description": "URL to render with headless browser \u2014 returns JS-rendered HTML. Use for SPAs, dynamic content. More expensive than extract. Example: \"https://example.com\""
-          }
-        },
-        "required": [
-          "url"
-        ]
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      },
-      "outputSchema": {
-        "type": "object",
-        "properties": {
-          "result": {
-            "type": [
-              "object",
-              "array",
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ],
-            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
-          },
-          "error": {
-            "type": "object",
-            "description": "Present only when the call failed. Includes error code, message, request_id."
-          }
-        },
-        "required": [
-          "result"
-        ],
-        "additionalProperties": false
-      }
-    },
-    {
-      "name": "web.scrape.screenshot",
-      "description": "Capture a full-page screenshot of any URL \u2014 returns base64-encoded PNG image. Use for visual verification, monitoring, or archiving. Headless browser renders the page before capture (Zyte)",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "url": {
-            "type": "string",
-            "description": "URL to screenshot \u2014 returns base64-encoded PNG image. Use for visual verification or page capture. Example: \"https://example.com\""
-          }
-        },
-        "required": [
-          "url"
-        ]
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      },
-      "outputSchema": {
-        "type": "object",
-        "properties": {
-          "result": {
-            "type": [
-              "object",
-              "array",
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ],
-            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
-          },
-          "error": {
-            "type": "object",
-            "description": "Present only when the call failed. Includes error code, message, request_id."
-          }
-        },
-        "required": [
-          "result"
-        ],
-        "additionalProperties": false
-      }
-    },
-    {
       "name": "vehicle.carmarket.search",
       "description": "Search millions of active US car listings by make, model, year, price range, mileage, ZIP code, and radius. Returns VIN, price, miles, dealer info, Carfax status, and days on market. Filter by seller type (dealer/private) and color. Data from all major US marketplaces (MarketCheck)",
       "inputSchema": {
@@ -22014,147 +21195,6 @@
         },
         "required": [
           "id"
-        ]
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      },
-      "outputSchema": {
-        "type": "object",
-        "properties": {
-          "result": {
-            "type": [
-              "object",
-              "array",
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ],
-            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
-          },
-          "error": {
-            "type": "object",
-            "description": "Present only when the call failed. Includes error code, message, request_id."
-          }
-        },
-        "required": [
-          "result"
-        ],
-        "additionalProperties": false
-      }
-    },
-    {
-      "name": "security.threatintel.reputation",
-      "description": "Get domain reputation score (0-100) with detailed security test results \u2014 WHOIS age, SSL validity, mail server config, blacklist status, and more. Higher score = safer domain. Essential for security agents evaluating domain trustworthiness (Threat Intelligence Platform)",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "domain": {
-            "type": "string",
-            "description": "Domain name to check reputation (e.g. \"google.com\", \"suspicious-site.xyz\"). Returns reputation score 0-100 and security test results",
-            "minLength": 1
-          }
-        },
-        "required": [
-          "domain"
-        ]
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      },
-      "outputSchema": {
-        "type": "object",
-        "properties": {
-          "result": {
-            "type": [
-              "object",
-              "array",
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ],
-            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
-          },
-          "error": {
-            "type": "object",
-            "description": "Present only when the call failed. Includes error code, message, request_id."
-          }
-        },
-        "required": [
-          "result"
-        ],
-        "additionalProperties": false
-      }
-    },
-    {
-      "name": "security.threatintel.malware",
-      "description": "Check if a domain is associated with malware, phishing, or other threats. Returns safe score (0-100) and detailed warning descriptions. Use for URL safety verification before agent navigation (Threat Intelligence Platform)",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "domain": {
-            "type": "string",
-            "description": "Domain name to check for malware and phishing (e.g. \"example.com\"). Returns safe score 0-100 and warning details",
-            "minLength": 1
-          }
-        },
-        "required": [
-          "domain"
-        ]
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      },
-      "outputSchema": {
-        "type": "object",
-        "properties": {
-          "result": {
-            "type": [
-              "object",
-              "array",
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ],
-            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
-          },
-          "error": {
-            "type": "object",
-            "description": "Present only when the call failed. Includes error code, message, request_id."
-          }
-        },
-        "required": [
-          "result"
-        ],
-        "additionalProperties": false
-      }
-    },
-    {
-      "name": "security.threatintel.infrastructure",
-      "description": "Analyze domain infrastructure \u2014 all associated IPv4 addresses, geolocation (country, city, region), subnets, and resource types (web, mail, DNS). Reveals hosting setup, CDN usage, and geographic distribution (Threat Intelligence Platform)",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "domain": {
-            "type": "string",
-            "description": "Domain name to analyze infrastructure (e.g. \"google.com\"). Returns all associated IPs, geolocation, subnets, and resource types",
-            "minLength": 1
-          }
-        },
-        "required": [
-          "domain"
         ]
       },
       "annotations": {
@@ -34150,164 +33190,6 @@
       }
     },
     {
-      "name": "irctc.stations.search",
-      "title": "IRCTC Railway Station Lookup",
-      "description": "Search Indian Railways stations by name or partial code. Returns station code, full name, state. Use this to discover station codes for irctc.train_search/status.",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "query": {
-            "type": "string",
-            "description": "Station name fragment or partial station code to search for. Case-insensitive. Examples: \"Mumbai\" returns CSMT/BCT/LTT/etc., \"delhi\" returns NDLS/DLI/NZM, \"HWH\" returns Howrah. Returns up to 20 matches."
-          }
-        },
-        "required": [
-          "query"
-        ]
-      },
-      "outputSchema": {
-        "type": "object",
-        "properties": {
-          "result": {
-            "type": [
-              "object",
-              "array",
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ],
-            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
-          },
-          "error": {
-            "type": "object",
-            "description": "Present only when the call failed. Includes error code, message, request_id."
-          }
-        },
-        "required": [
-          "result"
-        ],
-        "additionalProperties": false
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      }
-    },
-    {
-      "name": "irctc.trains.search",
-      "title": "IRCTC Train Search Between Stations",
-      "description": "Search trains running between two Indian railway stations. Returns train number, name, departure/arrival time, distance, class availability (1A/2A/3A/SL/CC/EC), and running days (Mon-Sun).",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "from_station_code": {
-            "type": "string",
-            "description": "Origin station code (3-5 uppercase letters). Examples: NDLS (New Delhi), CSMT (Mumbai CST), HWH (Howrah Kolkata), MAS (Chennai Central), SBC (Bengaluru)."
-          },
-          "to_station_code": {
-            "type": "string",
-            "description": "Destination station code (3-5 uppercase letters, same format as from_station_code). Use irctc.station_search to discover codes by name."
-          },
-          "date_of_journey": {
-            "type": "string",
-            "description": "Journey date in YYYY-MM-DD format. Must be within the next 120 days from today. Example: 2026-05-15."
-          }
-        },
-        "required": [
-          "from_station_code",
-          "to_station_code",
-          "date_of_journey"
-        ]
-      },
-      "outputSchema": {
-        "type": "object",
-        "properties": {
-          "result": {
-            "type": [
-              "object",
-              "array",
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ],
-            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
-          },
-          "error": {
-            "type": "object",
-            "description": "Present only when the call failed. Includes error code, message, request_id."
-          }
-        },
-        "required": [
-          "result"
-        ],
-        "additionalProperties": false
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      }
-    },
-    {
-      "name": "irctc.trains.status",
-      "title": "IRCTC Live Train Running Status",
-      "description": "Get live running status of an Indian train for today or a specific date \u2014 current station, expected arrival/departure, delay in minutes, distance covered, full station-by-station schedule.",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "train_number": {
-            "type": "string",
-            "description": "5-digit Indian Railways train number. Examples: '12951' (Mumbai Rajdhani Express), '12303' (Poorva Express), '22691' (Rajdhani Express Bangalore)."
-          },
-          "start_day": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 4,
-            "description": "Day offset for the train journey start relative to today (0=today, 1=yesterday, 2=two days ago, up to 4). Use non-zero for multi-day trains that departed before today.",
-            "default": 0
-          }
-        },
-        "required": [
-          "train_number"
-        ]
-      },
-      "outputSchema": {
-        "type": "object",
-        "properties": {
-          "result": {
-            "type": [
-              "object",
-              "array",
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ],
-            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
-          },
-          "error": {
-            "type": "object",
-            "description": "Present only when the call failed. Includes error code, message, request_id."
-          }
-        },
-        "required": [
-          "result"
-        ],
-        "additionalProperties": false
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      }
-    },
-    {
       "name": "nvd.cpes.search",
       "title": "NIST NVD CPE Product Lookup",
       "description": "Search the Common Platform Enumeration (CPE) dictionary for product identifiers used by CVEs. Returns CPE 2.3 URI (cpe:2.3:a:vendor:product:version:...), title, deprecation status. Use this to find the exact CPE string before searching CVEs by affected product.",
@@ -35921,6 +34803,113 @@
           "sort": {
             "type": "string",
             "description": "Sort field and direction (e.g. \"date_proceeding_created,DESC\" or \"total_filing_count,DESC\"). Default: newest first."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "met.collection.browse",
+      "title": "Browse Met Museum Department",
+      "description": "Browse all artworks in a Met Museum department by department ID, with pagination. Returns a page of object IDs \u2014 use met.details to fetch full artwork metadata for each ID. Use met.departments to get department IDs (e.g. 10=Egyptian Art, 11=European Paintings, 21=Modern Art). CC0 public domain (Met Museum)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "department_id": {
+            "type": "integer",
+            "description": "Department ID to browse. Use met.departments to get IDs. Examples: 10=Egyptian Art, 11=European Paintings, 13=Greek and Roman Art, 21=Modern Art",
+            "minimum": 1
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number for pagination (1-based, default 1). Each page returns up to 100 object IDs."
+          },
+          "per_page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Number of object IDs per page (1\u2013100, default 50). Use with met.details to fetch artwork metadata."
+          }
+        },
+        "required": [
+          "department_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "met.collection.departments",
+      "title": "List Met Museum Departments",
+      "description": "List all 19 curatorial departments at The Metropolitan Museum of Art with their IDs and names \u2014 American Decorative Arts, Egyptian Art, European Paintings, Greek and Roman Art, Modern Art, and more. Use department IDs with met.browse to explore a collection area or with met.search to filter searches. CC0 public domain (Met Museum)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "sort_by": {
+            "type": "string",
+            "enum": [
+              "id",
+              "name"
+            ],
+            "description": "Sort order for the department list: \"id\" (numeric, default) or \"name\" (alphabetical)"
           }
         }
       },
