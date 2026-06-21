@@ -3743,6 +3743,55 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-456: NASA Exoplanet Archive ---
+  - tool_id: nasaexoplanet.search
+    name: Search Exoplanets
+    provider: nasaexoplanet
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: nasaexoplanet.planet_detail
+    name: Exoplanet Detail
+    provider: nasaexoplanet
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: nasaexoplanet.habitable
+    name: Habitable Zone Candidates
+    provider: nasaexoplanet
+    price_usd: "0.002"
+    cache_ttl: 86400
+  - tool_id: nasaexoplanet.stats
+    name: Exoplanet Discovery Statistics
+    provider: nasaexoplanet
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  # --- UC-457: UN SDG API ---
+  - tool_id: unsdg.goals.list
+    name: UN SDG Goals
+    provider: unsdg
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: unsdg.targets.list
+    name: UN SDG Targets
+    provider: unsdg
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: unsdg.indicators.list
+    name: UN SDG Indicators
+    provider: unsdg
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: unsdg.data.query
+    name: UN SDG Data Query
+    provider: unsdg
+    price_usd: "0.002"
+    cache_ttl: 3600
+  - tool_id: unsdg.geo.countries
+    name: UN SDG Geo Areas
+    provider: unsdg
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

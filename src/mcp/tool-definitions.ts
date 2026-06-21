@@ -6453,4 +6453,90 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'legal',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // NASA Exoplanet Archive (UC-456, 4 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'nasaexoplanet.search',
+    mcpName: 'nasaexoplanet.planets.search',
+    title: 'Search Exoplanets',
+    description:
+      'Search NASA Exoplanet Archive for confirmed exoplanets by name, host star, discovery method, year range, radius, or mass. Returns orbital period, radius, mass, equilibrium temperature, discovery year and facility, and system distance. 6,298+ confirmed planets from Transit, Radial Velocity, Imaging, and Microlensing surveys (NASA Exoplanet Archive).',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nasaexoplanet.planet_detail',
+    mcpName: 'nasaexoplanet.planets.detail',
+    title: 'Exoplanet Detail',
+    description:
+      'Get full parameters for a specific exoplanet by exact name from NASA Exoplanet Archive. Returns orbital period, radius, mass, equilibrium temperature, insolation flux, semi-major axis, host star spectral type and temperature, sky coordinates (RA/Dec), and last parameter update date. Example planets: "HD 209458 b", "TRAPPIST-1 e", "Kepler-452 b" (NASA Exoplanet Archive).',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nasaexoplanet.habitable',
+    mcpName: 'nasaexoplanet.planets.habitable',
+    title: 'Habitable Zone Candidates',
+    description:
+      'Find potentially habitable exoplanets in the conservative habitable zone — planets with Earth-like radius (0.5–2.0 R⊕) and equilibrium temperature suitable for liquid water (180–310 K). Sorted by radius ascending. Returns radius, mass, orbital period, equilibrium temperature, insolation flux, and host star details. Customisable temperature and radius bounds for optimistic or strict filtering (NASA Exoplanet Archive — pscomppars table).',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nasaexoplanet.stats',
+    mcpName: 'nasaexoplanet.planets.stats',
+    title: 'Exoplanet Discovery Statistics',
+    description:
+      'Get discovery statistics for confirmed exoplanets aggregated by method, year, or facility. Group by "method" to see Transit vs Radial Velocity vs Imaging counts, "year" for annual discovery trends since 1988, or "facility" to rank observatories and missions (Kepler, TESS, Keck, etc.) by total discoveries (NASA Exoplanet Archive).',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
+  // UN SDG API (5) — UC-457
+  {
+    toolId: 'unsdg.goals.list',
+    mcpName: 'unsdg.goals.list',
+    title: 'UN SDG Goals',
+    description:
+      'List all 17 UN Sustainable Development Goals (SDGs) with their official titles and full descriptions. Covers the complete 2030 Agenda: No Poverty, Zero Hunger, Good Health, Quality Education, Gender Equality, Clean Water, Clean Energy, Decent Work, Industry & Innovation, Reduced Inequalities, Sustainable Cities, Responsible Consumption, Climate Action, Life Below Water, Life on Land, Peace & Justice, and Partnerships. Use goal codes (1–17) as inputs to unsdg.targets.list and unsdg.indicators.list.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'unsdg.targets.list',
+    mcpName: 'unsdg.targets.list',
+    title: 'UN SDG Targets',
+    description:
+      'List all 169 UN SDG targets with their official descriptions. Optionally filter by goal number (1–17) to get only the targets for that goal. Each target has a code like "1.1", "3.3", or "13.2" that identifies it uniquely. Use target codes with unsdg.indicators.list to drill into specific measurement indicators.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'unsdg.indicators.list',
+    mcpName: 'unsdg.indicators.list',
+    title: 'UN SDG Indicators',
+    description:
+      'List UN SDG monitoring indicators with their series codes, tier classifications (Tier I = established methodology, Tier II = methodology in development, Tier III = no agreed methodology), and associated data series codes. Optionally filter by goal (1–17) or target (e.g. "3.3"). Series codes (e.g. "SI_POV_DAY1", "SH_STA_MORT") are the inputs to unsdg.data.query for fetching actual country-level time series data.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'unsdg.data.query',
+    mcpName: 'unsdg.data.query',
+    title: 'UN SDG Data Query',
+    description:
+      'Query UN SDG time-series indicator data by series code. Returns country-level or regional annual measurements for indicators like poverty rates, maternal mortality, CO2 emissions, literacy rates, and more. Filter by UN M49 geo area code (e.g. "356" for India, "840" for USA) and/or year range. Each record includes the geo area, year, value, source, and any disaggregation dimensions (age, sex, urbanization). Get series codes from unsdg.indicators.list; get geo area codes from unsdg.geo.countries.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'unsdg.geo.countries',
+    mcpName: 'unsdg.geo.countries',
+    title: 'UN SDG Geo Areas',
+    description:
+      'List all 460 countries, territories, and world regions available in the UN SDG database using UN M49 numeric codes. Includes individual countries (e.g. India = 356, USA = 840, Brazil = 76) as well as aggregate regions (e.g. Africa = 2, Asia = 142, Latin America = 419, Least Developed Countries = 199). Use these geo area codes with unsdg.data.query to filter data by location.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

@@ -1661,7 +1661,7 @@
     "free_limit": 500,
     "reset_period": "monthly",
     "docs_url": "https://rapidapi.com/IRCTCAPI/api/irctc1/pricing",
-    "limit_proof": "RapidAPI Basic plan includes limited free requests/month; conservative default 500 req/month. Exact limit depends on subscribed plan — see rapidapi.com/IRCTCAPI/api/irctc1/pricing."
+    "limit_proof": "RapidAPI Basic plan includes limited free requests/month; conservative default 500 req/month. Exact limit depends on subscribed plan \u2014 see rapidapi.com/IRCTCAPI/api/irctc1/pricing."
   },
   "nvd": {
     "display_name": "NIST National Vulnerability Database",
@@ -1707,7 +1707,7 @@
     "free_limit": 10000,
     "reset_period": "monthly",
     "docs_url": "https://www.checkwxapi.com/documentation",
-    "limit_proof": "Free tier: 10,000 calls/month. AMBER ToS — commercial use OK with attribution. Requires API key."
+    "limit_proof": "Free tier: 10,000 calls/month. AMBER ToS \u2014 commercial use OK with attribution. Requires API key."
   },
   "avwx": {
     "display_name": "AVWX Aviation Weather",
@@ -1736,5 +1736,23 @@
     "reset_period": "none",
     "docs_url": "https://geo.fcc.gov/api/census/block/find",
     "limit_proof": "US Government open data (FCC); geo.fcc.gov is unauthenticated and unlimited; ECFS API via api.data.gov shared key at 1,000 req/hr"
+  },
+  "nasaexoplanet": {
+    "display_name": "NASA Exoplanet Archive",
+    "health_url": "https://exoplanetarchive.ipac.caltech.edu/TAP/sync?query=SELECT+TOP+1+pl_name+FROM+ps&format=json",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://exoplanetarchive.ipac.caltech.edu/docs/TAP/usingTAP.html",
+    "limit_proof": "US Government / Caltech IPAC public access; no auth required, no documented rate limits, 17 USC \u00a7105"
+  },
+  "unsdg": {
+    "display_name": "UN SDG Statistics",
+    "health_url": "https://unstats.un.org/sdgs/UNSDGAPIV5/v1/sdg/Goal/List",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://unstats.un.org/sdgs/UNSDGAPIV5/swagger/",
+    "limit_proof": "UN Statistics Division open public API; no authentication required, no documented rate limits, open data"
   }
 }

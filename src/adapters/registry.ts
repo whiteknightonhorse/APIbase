@@ -64,6 +64,7 @@ import { NpsAdapter } from './nps';
 import { EiaAdapter } from './eia';
 import { FecAdapter } from './fec';
 import { FccAdapter } from './fcc';
+import { NasaExoplanetAdapter } from './nasaexoplanet';
 import { LangblyAdapter } from './langbly';
 import { ApiSportsAdapter } from './apisports';
 import { ApiFlashAdapter } from './apiflash';
@@ -193,6 +194,7 @@ import { OpenDotaAdapter } from './opendota';
 import { CheckWxAdapter } from './checkwx';
 import { AvwxAdapter } from './avwx';
 import { NihReporterAdapter } from './nihreporter';
+import { UnsdgAdapter } from './unsdg';
 import { config } from '../config';
 
 /**
@@ -1195,6 +1197,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'nihreporter':
       // NIH Reporter — NIH-funded research grants and publications, no auth (UC-454)
       return getOrCreate('nihreporter', () => new NihReporterAdapter());
+    case 'nasaexoplanet':
+      // NASA Exoplanet Archive TAP — 6298+ confirmed exoplanets, no auth (UC-456)
+      return getOrCreate('nasaexoplanet', () => new NasaExoplanetAdapter());
+    case 'unsdg':
+      // UN SDG API — 17 goals, 231 indicators, time-series data, no auth (UC-457)
+      return getOrCreate('unsdg', () => new UnsdgAdapter());
     default:
       return undefined;
   }

@@ -56505,6 +56505,805 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/nasaexoplanet.search/call": {
+      "post": {
+        "operationId": "nasaexoplanet_search",
+        "summary": "Search Exoplanets",
+        "description": "Search NASA Exoplanet Archive for confirmed exoplanets by name, host star, discovery method, year range, radius, or mass. Returns orbital period, radius, mass, equilibrium temperature, discovery year and facility, and system distance. 6,298+ confirmed planets from Transit, Radial Velocity, Imaging, and Microlensing surveys (NASA Exoplanet Archive).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nasaexoplanet.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "planet_name": {
+                    "type": "string",
+                    "description": "Planet name or partial name to search (e.g. \"Kepler-22 b\", \"TOI-700\")"
+                  },
+                  "host_name": {
+                    "type": "string",
+                    "description": "Host star name or partial name (e.g. \"51 Peg\", \"Kepler-442\")"
+                  },
+                  "discovery_method": {
+                    "type": "string",
+                    "enum": [
+                      "Transit",
+                      "Radial Velocity",
+                      "Microlensing",
+                      "Imaging",
+                      "Astrometry",
+                      "Transit Timing Variations",
+                      "Orbital Brightness Modulation",
+                      "Pulsar Timing",
+                      "Pulsation Timing Variations",
+                      "Disk Kinematics",
+                      "Eclipse Timing Variations"
+                    ],
+                    "description": "Discovery method filter (e.g. \"Transit\", \"Radial Velocity\", \"Imaging\")"
+                  },
+                  "disc_year_min": {
+                    "type": "integer",
+                    "minimum": 1988,
+                    "maximum": 2030,
+                    "description": "Minimum discovery year (e.g. 2010 to filter planets found in 2010 or later)"
+                  },
+                  "disc_year_max": {
+                    "type": "integer",
+                    "minimum": 1988,
+                    "maximum": 2030,
+                    "description": "Maximum discovery year (e.g. 2020 to filter planets found before 2021)"
+                  },
+                  "radius_min": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Minimum planet radius in Earth radii (e.g. 0.5 for sub-Earths and above)"
+                  },
+                  "radius_max": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Maximum planet radius in Earth radii (e.g. 2.0 for super-Earths; 11 ≈ Jupiter)"
+                  },
+                  "mass_min": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Minimum planet mass in Earth masses (e.g. 0.1 for sub-Earths)"
+                  },
+                  "mass_max": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Maximum planet mass in Earth masses (e.g. 318 ≈ 1 Jupiter mass)"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of results to return (default 20, max 100)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/nasaexoplanet.planet_detail/call": {
+      "post": {
+        "operationId": "nasaexoplanet_planet_detail",
+        "summary": "Exoplanet Detail",
+        "description": "Get full parameters for a specific exoplanet by exact name from NASA Exoplanet Archive. Returns orbital period, radius, mass, equilibrium temperature, insolation flux, semi-major axis, host star spectral type and temperature, sky coordinates (RA/Dec), and last parameter update date. Example planets: \"HD 209458 b\", \"TRAPPIST-1 e\", \"Kepler-452 b\" (NASA Exoplanet Archive).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nasaexoplanet.planet_detail"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "planet_name": {
+                    "type": "string",
+                    "description": "Exact planet name for detail lookup (e.g. \"HD 209458 b\", \"TRAPPIST-1 e\", \"Kepler-452 b\")"
+                  }
+                },
+                "required": [
+                  "planet_name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/nasaexoplanet.habitable/call": {
+      "post": {
+        "operationId": "nasaexoplanet_habitable",
+        "summary": "Habitable Zone Candidates",
+        "description": "Find potentially habitable exoplanets in the conservative habitable zone — planets with Earth-like radius (0.5–2.0 R⊕) and equilibrium temperature suitable for liquid water (180–310 K). Sorted by radius ascending. Returns radius, mass, orbital period, equilibrium temperature, insolation flux, and host star details. Customisable temperature and radius bounds for optimistic or strict filtering (NASA Exoplanet Archive — pscomppars table).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nasaexoplanet.habitable"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "radius_min": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Minimum planet radius in Earth radii (default 0.5 — filters sub-Earth bodies)"
+                  },
+                  "radius_max": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Maximum planet radius in Earth radii (default 2.0 — upper limit for rocky planets)"
+                  },
+                  "temp_min": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Minimum equilibrium temperature in Kelvin (default 180 — conservative habitable zone lower bound)"
+                  },
+                  "temp_max": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Maximum equilibrium temperature in Kelvin (default 310 — conservative habitable zone upper bound)"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of candidates to return (default 20, max 100)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/nasaexoplanet.stats/call": {
+      "post": {
+        "operationId": "nasaexoplanet_stats",
+        "summary": "Exoplanet Discovery Statistics",
+        "description": "Get discovery statistics for confirmed exoplanets aggregated by method, year, or facility. Group by \"method\" to see Transit vs Radial Velocity vs Imaging counts, \"year\" for annual discovery trends since 1988, or \"facility\" to rank observatories and missions (Kepler, TESS, Keck, etc.) by total discoveries (NASA Exoplanet Archive).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nasaexoplanet.stats"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "group_by": {
+                    "type": "string",
+                    "enum": [
+                      "method",
+                      "year",
+                      "facility"
+                    ],
+                    "description": "Dimension to aggregate by: \"method\" (discovery method counts), \"year\" (annual discoveries), or \"facility\" (telescope/observatory counts). Default: method"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of groups to return (default 50, max 100)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/unsdg.goals.list/call": {
+      "post": {
+        "operationId": "unsdg_goals_list",
+        "summary": "UN SDG Goals",
+        "description": "List all 17 UN Sustainable Development Goals (SDGs) with their official titles and full descriptions. Covers the complete 2030 Agenda: No Poverty, Zero Hunger, Good Health, Quality Education, Gender Equality, Clean Water, Clean Energy, Decent Work, Industry & Innovation, Reduced Inequalities, Sustainable Cities, Responsible Consumption, Climate Action, Life Below Water, Life on Land, Peace & Justice, and Partnerships. Use goal codes (1–17) as inputs to unsdg.targets.list and unsdg.indicators.list.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "unsdg.goals.list"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "locale": {
+                    "type": "string",
+                    "description": "Response locale code (e.g. \"en\" for English, \"fr\" for French). Defaults to English. Currently only English is supported by the UN SDG API."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/unsdg.targets.list/call": {
+      "post": {
+        "operationId": "unsdg_targets_list",
+        "summary": "UN SDG Targets",
+        "description": "List all 169 UN SDG targets with their official descriptions. Optionally filter by goal number (1–17) to get only the targets for that goal. Each target has a code like \"1.1\", \"3.3\", or \"13.2\" that identifies it uniquely. Use target codes with unsdg.indicators.list to drill into specific measurement indicators.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "unsdg.targets.list"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "goal": {
+                    "type": "string",
+                    "description": "Filter by SDG goal number (e.g. \"1\" for No Poverty, \"13\" for Climate Action). If omitted, all 169 targets across all 17 goals are returned."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/unsdg.indicators.list/call": {
+      "post": {
+        "operationId": "unsdg_indicators_list",
+        "summary": "UN SDG Indicators",
+        "description": "List UN SDG monitoring indicators with their series codes, tier classifications (Tier I = established methodology, Tier II = methodology in development, Tier III = no agreed methodology), and associated data series codes. Optionally filter by goal (1–17) or target (e.g. \"3.3\"). Series codes (e.g. \"SI_POV_DAY1\", \"SH_STA_MORT\") are the inputs to unsdg.data.query for fetching actual country-level time series data.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "unsdg.indicators.list"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "goal": {
+                    "type": "string",
+                    "description": "Filter indicators by SDG goal number (e.g. \"1\", \"3\", \"13\"). If omitted, all 231 indicators across all 17 goals are returned."
+                  },
+                  "target": {
+                    "type": "string",
+                    "description": "Filter indicators by target code (e.g. \"1.1\", \"3.3\", \"13.2\"). Requires goal to be set for best results."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/unsdg.data.query/call": {
+      "post": {
+        "operationId": "unsdg_data_query",
+        "summary": "UN SDG Data Query",
+        "description": "Query UN SDG time-series indicator data by series code. Returns country-level or regional annual measurements for indicators like poverty rates, maternal mortality, CO2 emissions, literacy rates, and more. Filter by UN M49 geo area code (e.g. \"356\" for India, \"840\" for USA) and/or year range. Each record includes the geo area, year, value, source, and any disaggregation dimensions (age, sex, urbanization). Get series codes from unsdg.indicators.list; get geo area codes from unsdg.geo.countries.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "unsdg.data.query"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "series_code": {
+                    "type": "string",
+                    "description": "UN SDG series code to query (e.g. \"SI_POV_DAY1\" for poverty rate, \"SH_STA_MORT\" for maternal mortality, \"EN_ATM_CO2\" for CO2 emissions). Obtain series codes from unsdg.indicators.list."
+                  },
+                  "geo_area_code": {
+                    "type": "string",
+                    "description": "UN M49 numeric geo area code to filter by country or region (e.g. \"356\" for India, \"840\" for USA, \"076\" for Brazil). Use unsdg.geo.countries to look up codes."
+                  },
+                  "start_year": {
+                    "type": "integer",
+                    "minimum": 1990,
+                    "maximum": 2030,
+                    "description": "Filter data records starting from this year (e.g. 2010). Combined with end_year to define a time range."
+                  },
+                  "end_year": {
+                    "type": "integer",
+                    "minimum": 1990,
+                    "maximum": 2030,
+                    "description": "Filter data records up to and including this year (e.g. 2023). Combined with start_year to define a time range."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 200,
+                    "description": "Maximum number of records to return per page (1-200, default 50). Large series may have thousands of records across countries and years."
+                  }
+                },
+                "required": [
+                  "series_code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/unsdg.geo.countries/call": {
+      "post": {
+        "operationId": "unsdg_geo_countries",
+        "summary": "UN SDG Geo Areas",
+        "description": "List all 460 countries, territories, and world regions available in the UN SDG database using UN M49 numeric codes. Includes individual countries (e.g. India = 356, USA = 840, Brazil = 76) as well as aggregate regions (e.g. Africa = 2, Asia = 142, Latin America = 419, Least Developed Countries = 199). Use these geo area codes with unsdg.data.query to filter data by location.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "unsdg.geo.countries"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "filter": {
+                    "type": "string",
+                    "description": "Optional substring to filter country/region names (case-insensitive, e.g. \"Africa\", \"Asia\", \"Latin\"). If omitted, all 460 geo areas are returned."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {
