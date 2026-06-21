@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 653 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 657 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -37749,6 +37749,231 @@
         },
         "required": [
           "rxcui"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "mygene.genes.batch",
+      "title": "Batch Fetch Multiple Genes",
+      "description": "Retrieve annotation data for up to 1000 genes in a single request by providing a comma-separated list of NCBI Entrez Gene IDs or Ensembl gene IDs. Returns the same fields as mygene.genes.info for each gene: symbol, name, gene type, taxon, summary, Ensembl IDs, UniProt accession, genomic coordinates, and pathway memberships. Ideal for enriching gene lists from RNA-seq experiments, GWAS results, or drug target panels. Mix of NCBI Entrez and Ensembl IDs is supported in the same request.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "string",
+            "description": "Comma-separated list of NCBI Entrez Gene IDs or Ensembl gene IDs to retrieve in one request (e.g. \"1017,1018,1019\" for CDK2/CDK3/CDK4, or \"ENSG00000123374,ENSG00000012048\"). Maximum 1000 IDs per call.",
+            "minLength": 1
+          },
+          "fields": {
+            "type": "string",
+            "description": "Comma-separated fields to return for each gene. Default: symbol, name, taxid, entrezgene, type_of_gene, summary, ensembl, uniprot, alias, genomic_pos, pathway. Limit fields to reduce response size for large batches."
+          }
+        },
+        "required": [
+          "ids"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "mygene.genes.info",
+      "title": "Get Comprehensive Gene Details",
+      "description": "Retrieve comprehensive annotation data for a single gene by its NCBI Entrez Gene ID or Ensembl gene ID. Returns the full gene record including: official symbol and name, gene type (protein-coding, ncRNA, pseudo, etc.), species taxon, gene summary, Ensembl transcript and protein IDs, UniProt Swiss-Prot accession, gene aliases, genomic coordinates (chromosome, start, end, strand), KEGG and Reactome pathway memberships, and Gene Ontology (GO) annotations across biological process, cellular component, and molecular function. Use mygene.genes.search or mygene.genes.symbol to discover Entrez Gene IDs first.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "gene_id": {
+            "type": "string",
+            "description": "Gene identifier \u2014 NCBI Entrez Gene ID (e.g. \"1017\" for CDK2, \"672\" for BRCA1) or Ensembl gene ID (e.g. \"ENSG00000123374\"). Obtain Entrez Gene IDs from mygene.search or mygene.query_by_symbol results.",
+            "minLength": 1
+          },
+          "fields": {
+            "type": "string",
+            "description": "Comma-separated fields to return. Default includes: symbol, name, taxid, entrezgene, type_of_gene, summary, ensembl, uniprot, alias, genomic_pos, pathway. Use \"all\" to fetch every available annotation (includes GO terms, RefSeq, PDB, OMIM, etc.)."
+          }
+        },
+        "required": [
+          "gene_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "mygene.genes.symbol",
+      "title": "Look Up Gene by Official Symbol",
+      "description": "Find a gene by its official gene symbol with an exact match for a specific species. Returns a single best-matching gene with full annotation: NCBI Entrez Gene ID, Ensembl gene ID, gene name, type, taxon, summary, UniProt accession, genomic coordinates, pathway memberships, and GO terms. Faster and more precise than full-text search when the official symbol is known. Case-insensitive (BRCA1, brca1, Brca1 all match). For human genes, use HGNC symbols (e.g. \"TP53\", \"EGFR\", \"KRAS\", \"VEGFA\"). Results can be used directly with mygene.genes.batch for comparative multi-gene analysis.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "description": "Official HGNC gene symbol (for human) or equivalent gene symbol in the target species. Case-insensitive (e.g. \"BRCA1\", \"TP53\", \"EGFR\", \"KRAS\"). Performs an exact symbol match and returns the single best-matching gene.",
+            "minLength": 1
+          },
+          "species": {
+            "type": "string",
+            "description": "Target species for the symbol lookup. Common values: \"human\", \"mouse\", \"rat\", \"fruitfly\", \"zebrafish\", \"chicken\", \"pig\", \"dog\". Can also use NCBI taxid (e.g. \"9606\" for human). Defaults to \"human\".",
+            "default": "human"
+          },
+          "fields": {
+            "type": "string",
+            "description": "Comma-separated fields to include in the response. Default includes: symbol, name, taxid, entrezgene, type_of_gene, summary, ensembl, uniprot, alias, genomic_pos, pathway. Use \"all\" for complete gene annotations."
+          }
+        },
+        "required": [
+          "symbol"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "mygene.genes.search",
+      "title": "Search Genes by Keyword or Symbol",
+      "description": "Search the MyGene.info gene database by keyword, gene symbol, gene name, GO term, or any other gene annotation. Backed by NCBI Entrez Gene, Ensembl, UniProt, and other authoritative databases aggregated by the BioThings project. Returns NCBI Gene IDs, symbols, names, gene type, taxon, and summary text. Supports wildcard queries (e.g. \"CDK*\" returns all CDK family members) and species filtering. Use the returned Entrez Gene IDs with mygene.genes.info or mygene.genes.batch for full annotations including GO terms, KEGG/Reactome pathways, UniProt accessions, and genomic coordinates.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "description": "Gene query string. Supports full-text search by gene symbol (e.g. \"BRCA1\"), gene name (e.g. \"breast cancer 1\"), keyword (e.g. \"kinase\"), GO term ID (e.g. \"GO:0006915\"), or Entrez Gene ID (e.g. \"1017\"). Wildcards supported: \"CDK*\" matches CDK1, CDK2, etc.",
+            "minLength": 1
+          },
+          "species": {
+            "type": "string",
+            "description": "Filter by species. Common values: \"human\" (Homo sapiens, taxid 9606), \"mouse\" (Mus musculus, taxid 10090), \"rat\" (Rattus norvegicus), \"fruitfly\" (Drosophila melanogaster), \"zebrafish\" (Danio rerio). Can also use NCBI taxid directly (e.g. \"9606\"). Use \"all\" to search across all species.",
+            "default": "human"
+          },
+          "fields": {
+            "type": "string",
+            "description": "Comma-separated fields to return per hit. Default: symbol,name,taxid,entrezgene,type_of_gene,summary. Other useful fields: ensembl.gene, uniprot, alias, genomic_pos, go, pathway. Use \"all\" for every available field."
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Maximum number of gene results to return (1\u201350, default 10).",
+            "default": 10
+          }
+        },
+        "required": [
+          "q"
         ]
       },
       "outputSchema": {

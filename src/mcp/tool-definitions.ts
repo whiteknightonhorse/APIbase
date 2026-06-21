@@ -6880,4 +6880,41 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'health',
     annotations: READ_ONLY,
   },
+  // MyGene.info (4)
+  {
+    toolId: 'mygene.search',
+    mcpName: 'mygene.genes.search',
+    title: 'Search Genes by Keyword or Symbol',
+    description:
+      'Search the MyGene.info gene database by keyword, gene symbol, gene name, GO term, or any other gene annotation. Backed by NCBI Entrez Gene, Ensembl, UniProt, and other authoritative databases aggregated by the BioThings project. Returns NCBI Gene IDs, symbols, names, gene type, taxon, and summary text. Supports wildcard queries (e.g. "CDK*" returns all CDK family members) and species filtering. Use the returned Entrez Gene IDs with mygene.genes.info or mygene.genes.batch for full annotations including GO terms, KEGG/Reactome pathways, UniProt accessions, and genomic coordinates.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'mygene.gene_info',
+    mcpName: 'mygene.genes.info',
+    title: 'Get Comprehensive Gene Details',
+    description:
+      'Retrieve comprehensive annotation data for a single gene by its NCBI Entrez Gene ID or Ensembl gene ID. Returns the full gene record including: official symbol and name, gene type (protein-coding, ncRNA, pseudo, etc.), species taxon, gene summary, Ensembl transcript and protein IDs, UniProt Swiss-Prot accession, gene aliases, genomic coordinates (chromosome, start, end, strand), KEGG and Reactome pathway memberships, and Gene Ontology (GO) annotations across biological process, cellular component, and molecular function. Use mygene.genes.search or mygene.genes.symbol to discover Entrez Gene IDs first.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'mygene.batch_genes',
+    mcpName: 'mygene.genes.batch',
+    title: 'Batch Fetch Multiple Genes',
+    description:
+      'Retrieve annotation data for up to 1000 genes in a single request by providing a comma-separated list of NCBI Entrez Gene IDs or Ensembl gene IDs. Returns the same fields as mygene.genes.info for each gene: symbol, name, gene type, taxon, summary, Ensembl IDs, UniProt accession, genomic coordinates, and pathway memberships. Ideal for enriching gene lists from RNA-seq experiments, GWAS results, or drug target panels. Mix of NCBI Entrez and Ensembl IDs is supported in the same request.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'mygene.query_by_symbol',
+    mcpName: 'mygene.genes.symbol',
+    title: 'Look Up Gene by Official Symbol',
+    description:
+      'Find a gene by its official gene symbol with an exact match for a specific species. Returns a single best-matching gene with full annotation: NCBI Entrez Gene ID, Ensembl gene ID, gene name, type, taxon, summary, UniProt accession, genomic coordinates, pathway memberships, and GO terms. Faster and more precise than full-text search when the official symbol is known. Case-insensitive (BRCA1, brca1, Brca1 all match). For human genes, use HGNC symbols (e.g. "TP53", "EGFR", "KRAS", "VEGFA"). Results can be used directly with mygene.genes.batch for comparative multi-gene analysis.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
 ];

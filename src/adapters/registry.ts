@@ -204,6 +204,7 @@ import { CernOpenDataAdapter } from './cernopendata';
 import { CelesTrakAdapter } from './celestrak';
 import { EonetAdapter } from './eonet';
 import { RxNormAdapter } from './rxnorm';
+import { MyGeneAdapter } from './mygene';
 import { config } from '../config';
 
 /**
@@ -1239,6 +1240,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'rxnorm':
       // RxNorm — NIH NLM drug nomenclature, RxCUI lookup, NDC status, drug classification, no auth (UC-478)
       return getOrCreate('rxnorm', () => new RxNormAdapter());
+    case 'mygene':
+      // MyGene.info — BioThings gene annotation API, NCBI/Ensembl IDs, GO/pathway data, no auth (UC-479)
+      return getOrCreate('mygene', () => new MyGeneAdapter());
     default:
       return undefined;
   }

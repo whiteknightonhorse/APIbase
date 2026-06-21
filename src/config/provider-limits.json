@@ -1835,5 +1835,14 @@
     "reset_period": "none",
     "docs_url": "https://lhncbc.nlm.nih.gov/RxNav/APIs/api-RxNorm.html",
     "limit_proof": "US Government open data (NIH NLM) \u2014 no auth required, no documented rate limits per RxNav API docs"
+  },
+  "mygene": {
+    "display_name": "MyGene.info",
+    "health_url": "https://mygene.info/v3/query?q=CDK2&size=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://docs.mygene.info/en/latest/doc/data.html",
+    "limit_proof": "BioThings open data (CC0) \u2014 no auth required, no documented rate limits per MyGene.info API docs"
   }
 }

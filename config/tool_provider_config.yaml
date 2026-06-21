@@ -4011,6 +4011,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-479: MyGene.info ---
+  - tool_id: mygene.search
+    name: Search Genes by Keyword or Symbol
+    provider: mygene
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: mygene.gene_info
+    name: Get Comprehensive Gene Details
+    provider: mygene
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: mygene.batch_genes
+    name: Batch Fetch Multiple Genes
+    provider: mygene
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: mygene.query_by_symbol
+    name: Look Up Gene by Official Symbol
+    provider: mygene
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform
