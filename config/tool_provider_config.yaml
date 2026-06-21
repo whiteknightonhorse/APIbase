@@ -3667,6 +3667,28 @@ tools:
     price_usd: "0.003"
     cache_ttl: 1800
 
+  # --- UC-454: NIH Reporter (NIH-funded research grants & publications) ---
+  - tool_id: nihreporter.projects.search
+    name: NIH Grant Search
+    provider: nihreporter
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: nihreporter.projects.by_org
+    name: NIH Grants by Institution
+    provider: nihreporter
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: nihreporter.projects.by_pi
+    name: NIH Grants by Principal Investigator
+    provider: nihreporter
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: nihreporter.publications.by_project
+    name: NIH Grant Publications
+    provider: nihreporter
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   # --- UC-418: OpenDota ---
   - tool_id: opendota.player_summary
     name: OpenDota Player Summary

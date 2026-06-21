@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 618 tools across 191 providers. Pay-per-call via x402 (USDC on Base) or MPP (USDC on Tempo). Self-hosted on-chain settlement — no third-party facilitator. Compatible side-by-side with Base MCP — pay APIbase calls directly from your Base Account in Claude, ChatGPT, or Cursor.",
+  "description": "Unified MCP gateway to 622 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -35432,6 +35432,276 @@
         },
         "required": [
           "icao_code"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "nihreporter.projects.by_org",
+      "title": "NIH Grants by Institution",
+      "description": "Find all NIH research grants awarded to a specific university, hospital, or research institute. Provide the institution name (partial uppercase match supported, e.g. \"JOHNS HOPKINS\", \"MAYO CLINIC\", \"MIT\"). Optionally filter by fiscal year or active status. Returns award amount, PI, title, and activity code.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "org_name": {
+            "type": "string",
+            "description": "Institution or university name to search (e.g. \"JOHNS HOPKINS UNIVERSITY\", \"HARVARD UNIVERSITY\", \"MAYO CLINIC\"). Partial uppercase match."
+          },
+          "fiscal_year": {
+            "type": "integer",
+            "minimum": 1985,
+            "maximum": 2030,
+            "description": "Fiscal year to filter (e.g. 2024). NIH fiscal year runs Oct 1 \u2013 Sep 30"
+          },
+          "is_active": {
+            "type": "boolean",
+            "description": "When true, return only currently active/ongoing projects"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 25,
+            "description": "Number of results to return (1\u201325, default 10)"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Pagination offset \u2014 number of results to skip (default 0)"
+          }
+        },
+        "required": [
+          "org_name"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "nihreporter.projects.by_pi",
+      "title": "NIH Grants by Principal Investigator",
+      "description": "Find NIH-funded research projects by principal investigator (PI) last name. Optionally narrow by first name, fiscal year, or active status. Returns the researcher's funded projects with award amounts, institutions, titles, and abstract excerpts. Useful for biosketches, grant history lookups, and conflict-of-interest checks.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "last_name": {
+            "type": "string",
+            "description": "Principal investigator last name (e.g. \"BHATT\", \"FAUCI\", \"COLLINS\"). Case-insensitive, automatically uppercased."
+          },
+          "first_name": {
+            "type": "string",
+            "description": "Principal investigator first name for disambiguation (optional, automatically uppercased)"
+          },
+          "fiscal_year": {
+            "type": "integer",
+            "minimum": 1985,
+            "maximum": 2030,
+            "description": "Fiscal year to filter (e.g. 2024). NIH fiscal year runs Oct 1 \u2013 Sep 30"
+          },
+          "is_active": {
+            "type": "boolean",
+            "description": "When true, return only currently active/ongoing projects"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 25,
+            "description": "Number of results to return (1\u201325, default 10)"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Pagination offset \u2014 number of results to skip (default 0)"
+          }
+        },
+        "required": [
+          "last_name"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "nihreporter.projects.search",
+      "title": "NIH Grant Search",
+      "description": "Search NIH-funded research projects by keyword, disease, drug, or technique. Returns up to 25 grants per call with PI names, institution, award amount, fiscal year, activity code (R01/U54/F32/etc.), abstract excerpt, and a URL to the full project on reporter.nih.gov. Filter by NIH institute/agency (e.g. NCI, NIDDK, NIAID, NIMH) and fiscal year. Sorted by award amount descending.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "keyword": {
+            "type": "string",
+            "description": "Research topic, disease, drug name, or technique to search (e.g. \"mRNA cancer vaccine\", \"Alzheimer amyloid\", \"CRISPR\")"
+          },
+          "fiscal_year": {
+            "type": "integer",
+            "minimum": 1985,
+            "maximum": 2030,
+            "description": "Fiscal year to filter results (e.g. 2024). NIH fiscal year runs Oct 1 \u2013 Sep 30"
+          },
+          "agency": {
+            "type": "string",
+            "description": "NIH institute or agency code to filter by (e.g. \"NCI\" for cancer, \"NIDDK\" for diabetes, \"NIMH\" for mental health, \"NIAID\" for infectious disease)"
+          },
+          "is_active": {
+            "type": "boolean",
+            "description": "When true, return only currently active/ongoing projects"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 25,
+            "description": "Number of results to return (1\u201325, default 10)"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Pagination offset \u2014 number of results to skip (default 0)"
+          }
+        },
+        "required": [
+          "keyword"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "nihreporter.publications.by_project",
+      "title": "NIH Grant Publications",
+      "description": "Retrieve PubMed IDs (PMIDs) of publications linked to a specific NIH core project number (e.g. \"R01CA123456\"). Returns up to 100 PMIDs per call with direct PubMed URLs. Use the core_project_num field from nihreporter.projects.search results. Chain with education.pubmed_search to fetch full titles and abstracts.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "core_project_num": {
+            "type": "string",
+            "description": "NIH core project number (e.g. \"R01CA123456\", \"U54GM115371\"). Returned as core_project_num in projects.search results."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Number of publication PMIDs to return (1\u2013100, default 50)"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Pagination offset \u2014 number of results to skip (default 0)"
+          }
+        },
+        "required": [
+          "core_project_num"
         ]
       },
       "outputSchema": {

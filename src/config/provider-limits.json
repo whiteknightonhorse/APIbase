@@ -1718,5 +1718,14 @@
     "paid_balance": true,
     "docs_url": "https://avwx.rest/documentation#section/Authentication",
     "limit_proof": "Free tier: 1,000 requests/month. Commercial use OK. Paid plans start at $10/month for higher volume."
+  },
+  "nihreporter": {
+    "display_name": "NIH Reporter",
+    "health_url": "https://api.reporter.nih.gov/v2/projects/search",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://api.reporter.nih.gov/",
+    "limit_proof": "US Government open data (NIH); no authentication required, no documented rate limits, public domain"
   }
 }

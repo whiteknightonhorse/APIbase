@@ -6360,4 +6360,42 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'weather',
     annotations: READ_ONLY,
   },
+
+  // NIH Reporter (4) — UC-454
+  {
+    toolId: 'nihreporter.projects.search',
+    mcpName: 'nihreporter.projects.search',
+    title: 'NIH Grant Search',
+    description:
+      'Search NIH-funded research projects by keyword, disease, drug, or technique. Returns up to 25 grants per call with PI names, institution, award amount, fiscal year, activity code (R01/U54/F32/etc.), abstract excerpt, and a URL to the full project on reporter.nih.gov. Filter by NIH institute/agency (e.g. NCI, NIDDK, NIAID, NIMH) and fiscal year. Sorted by award amount descending.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nihreporter.projects.by_org',
+    mcpName: 'nihreporter.projects.by_org',
+    title: 'NIH Grants by Institution',
+    description:
+      'Find all NIH research grants awarded to a specific university, hospital, or research institute. Provide the institution name (partial uppercase match supported, e.g. "JOHNS HOPKINS", "MAYO CLINIC", "MIT"). Optionally filter by fiscal year or active status. Returns award amount, PI, title, and activity code.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nihreporter.projects.by_pi',
+    mcpName: 'nihreporter.projects.by_pi',
+    title: 'NIH Grants by Principal Investigator',
+    description:
+      "Find NIH-funded research projects by principal investigator (PI) last name. Optionally narrow by first name, fiscal year, or active status. Returns the researcher's funded projects with award amounts, institutions, titles, and abstract excerpts. Useful for biosketches, grant history lookups, and conflict-of-interest checks.",
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nihreporter.publications.by_project',
+    mcpName: 'nihreporter.publications.by_project',
+    title: 'NIH Grant Publications',
+    description:
+      'Retrieve PubMed IDs (PMIDs) of publications linked to a specific NIH core project number (e.g. "R01CA123456"). Returns up to 100 PMIDs per call with direct PubMed URLs. Use the core_project_num field from nihreporter.projects.search results. Chain with education.pubmed_search to fetch full titles and abstracts.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
 ];

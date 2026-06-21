@@ -191,6 +191,7 @@ import { NrelAdapter } from './nrel';
 import { OpenDotaAdapter } from './opendota';
 import { CheckWxAdapter } from './checkwx';
 import { AvwxAdapter } from './avwx';
+import { NihReporterAdapter } from './nihreporter';
 import { config } from '../config';
 
 /**
@@ -1184,6 +1185,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       if (!avwxKey) return undefined;
       return getOrCreate('avwx', () => new AvwxAdapter(avwxKey));
     }
+    case 'nihreporter':
+      // NIH Reporter — NIH-funded research grants and publications, no auth (UC-454)
+      return getOrCreate('nihreporter', () => new NihReporterAdapter());
     default:
       return undefined;
   }
