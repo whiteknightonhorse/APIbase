@@ -210,6 +210,7 @@ import { MyChemAdapter } from './mychem';
 import { DroughtMonitorAdapter } from './drought-monitor';
 import { EuropepmcAdapter } from './europepmc';
 import { RorAdapter } from './ror';
+import { CatalogueOfLifeAdapter } from './catalogue-of-life';
 import { config } from '../config';
 
 /**
@@ -1263,6 +1264,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'ror':
       // ROR — Research Organization Registry, 110K+ orgs, no auth (UC-491)
       return getOrCreate('ror', () => new RorAdapter());
+    case 'col':
+      // Catalogue of Life — ~10M known species, CC BY 4.0, no auth (UC-492)
+      return getOrCreate('col', () => new CatalogueOfLifeAdapter());
     default:
       return undefined;
   }

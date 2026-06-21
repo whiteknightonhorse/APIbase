@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 677 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 681 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -39189,6 +39189,273 @@
           "error": {
             "type": "object",
             "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "col.species.children",
+      "title": "List Child Taxa in Catalogue of Life",
+      "description": "List the immediate child taxa of a given taxon in the Catalogue of Life taxonomic tree. For example: pass the ID for a family to get its genera; pass a genus ID to list its species; pass an order ID to enumerate its families. Returns paginated results with up to 100 children per call, each including taxon ID, scientific name, rank, status, and higher classification. Use offset for pagination over large groups (e.g. Coleoptera has 400K+ species). Obtain the taxon_id from col.species.search or col.species.suggest. CC BY 4.0 \u2014 ~10 million taxa across all kingdoms including Animalia, Plantae, Fungi, Bacteria, Archaea, Protista, Chromista, and Viruses.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "taxon_id": {
+            "type": "string",
+            "description": "Catalogue of Life usage ID of the parent taxon whose immediate children to list (e.g. the ID for a family returns its genera; a genus returns its species). Obtain from col.search or col.suggest results.",
+            "minLength": 1
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Maximum number of child taxa to return (1\u2013100, default 20)."
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Zero-based pagination offset for large genera with many species (default 0)."
+          }
+        },
+        "required": [
+          "taxon_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "col.species.detail",
+      "title": "Get Taxon Details from Catalogue of Life",
+      "description": "Retrieve full taxonomic details for a specific taxon in the Catalogue of Life by its COL usage ID. Returns scientific name with authorship, taxonomic rank, acceptance status, extinction flag, parent taxon ID, scrutinizer (the expert who verified the record), scrutinizer date, and an external link to the COL web page for the taxon. Unlike col.species.search, the detail record does not include full higher-classification breadcrumbs \u2014 use the parent_id to walk the tree or pass the scientific name to col.species.search with rank=KINGDOM/PHYLUM etc. to retrieve ancestors. Obtain the taxon_id from a prior col.species.search or col.species.suggest call.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "taxon_id": {
+            "type": "string",
+            "description": "Catalogue of Life usage ID for the taxon (e.g. \"lom19ReAZMtfEGnM999rz1\"). Obtain from col.search or col.suggest results.",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "taxon_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "col.species.search",
+      "title": "Search Species in Catalogue of Life",
+      "description": "Search the Catalogue of Life (COL) for species, genera, families, and other taxa by scientific or common name. COL is the most comprehensive global index of known species, covering ~10 million extant and extinct taxa assembled from 600+ peer-reviewed checklists. Returns paginated results including taxon ID, scientific name with authorship, rank, taxonomic status (accepted/synonym), higher classification (kingdom through genus), and English vernacular names where available. Filter by taxonomic rank (SPECIES, GENUS, FAMILY, ORDER, CLASS, PHYLUM, KINGDOM) or status (accepted, synonym) to narrow results. Use the returned taxon ID with col.species.detail to retrieve full details, or col.species.children to list child taxa. Data is CC BY 4.0; cite as \"Catalogue of Life (COL)\" with the access date.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Scientific or common name to search (e.g. \"Homo sapiens\", \"Pinus sylvestris\", \"oak\"). Partial names and genus-level queries are supported.",
+            "minLength": 1
+          },
+          "rank": {
+            "type": "string",
+            "enum": [
+              "KINGDOM",
+              "PHYLUM",
+              "CLASS",
+              "ORDER",
+              "SUPERFAMILY",
+              "FAMILY",
+              "TRIBE",
+              "GENUS",
+              "SPECIES",
+              "SUBSPECIES",
+              "VARIETY",
+              "FORM"
+            ],
+            "description": "Restrict results to a specific taxonomic rank. One of: KINGDOM, PHYLUM, CLASS, ORDER, SUPERFAMILY, FAMILY, TRIBE, GENUS, SPECIES, SUBSPECIES, VARIETY, FORM."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "accepted",
+              "synonym",
+              "ambiguous synonym",
+              "misapplied",
+              "provisionally accepted"
+            ],
+            "description": "Filter by taxonomic status. Use \"accepted\" to return only currently accepted names, \"synonym\" for synonyms, or omit to return all."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Maximum number of results to return (1\u201350, default 10)."
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Zero-based pagination offset for retrieving additional result pages (default 0)."
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "col.species.suggest",
+      "title": "Autocomplete Species Name in Catalogue of Life",
+      "description": "Autocomplete a partial species or taxon name against the Catalogue of Life working draft, returning up to 25 ranked suggestions. Each suggestion includes the usage ID (for passing to col.species.detail or col.species.children), the matched name string, taxonomic rank, status (accepted/synonym), taxonomic group (e.g. \"insects\", \"flowering plants\", \"birds\"), higher-taxon context (e.g. \"Hominidae\"), and a human-readable suggestion string. Ideal for type-ahead name disambiguation in scientific workflows, species identification pipelines, or biodiversity data cleaning tasks. Optionally restrict suggestions to a specific rank (e.g. GENUS to return only genus-level matches).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Partial or full name prefix for autocomplete (e.g. \"Homo\", \"Pinus syl\", \"Pan tr\"). Returns ranked suggestions from the COL working draft.",
+            "minLength": 1
+          },
+          "rank": {
+            "type": "string",
+            "enum": [
+              "KINGDOM",
+              "PHYLUM",
+              "CLASS",
+              "ORDER",
+              "SUPERFAMILY",
+              "FAMILY",
+              "TRIBE",
+              "GENUS",
+              "SPECIES",
+              "SUBSPECIES",
+              "VARIETY",
+              "FORM"
+            ],
+            "description": "Restrict suggestions to a specific taxonomic rank (e.g. SPECIES, GENUS, FAMILY). Omit to return suggestions across all ranks."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 25,
+            "description": "Maximum number of autocomplete suggestions to return (1\u201325, default 10)."
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
           }
         },
         "required": [

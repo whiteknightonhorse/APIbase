@@ -210,6 +210,7 @@ import { mychemSchemas } from './mychem.schema';
 import { droughtMonitorSchemas } from './drought-monitor.schema';
 import { europepmcSchemas } from './europepmc.schema';
 import { rorSchemas } from './ror.schema';
+import { catalogueOfLifeSchemas } from './catalogue-of-life.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -423,4 +424,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...droughtMonitorSchemas,
   ...europepmcSchemas,
   ...rorSchemas,
+  ...catalogueOfLifeSchemas,
 };

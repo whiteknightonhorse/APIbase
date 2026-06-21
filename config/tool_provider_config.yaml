@@ -4161,6 +4161,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-492: Catalogue of Life ---
+  - tool_id: col.search
+    name: Search Species in Catalogue of Life
+    provider: col
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: col.detail
+    name: Get Taxon Details from Catalogue of Life
+    provider: col
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: col.suggest
+    name: Autocomplete Species Name in Catalogue of Life
+    provider: col
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: col.children
+    name: List Child Taxa in Catalogue of Life
+    provider: col
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

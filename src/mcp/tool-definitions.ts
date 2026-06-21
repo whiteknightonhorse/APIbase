@@ -7164,4 +7164,72 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'health',
     annotations: READ_ONLY,
   },
+
+  // Catalogue of Life (4)
+  {
+    toolId: 'col.search',
+    mcpName: 'col.species.search',
+    title: 'Search Species in Catalogue of Life',
+    description:
+      'Search the Catalogue of Life (COL) for species, genera, families, and other taxa by ' +
+      'scientific or common name. COL is the most comprehensive global index of known species, ' +
+      'covering ~10 million extant and extinct taxa assembled from 600+ peer-reviewed checklists. ' +
+      'Returns paginated results including taxon ID, scientific name with authorship, rank, ' +
+      'taxonomic status (accepted/synonym), higher classification (kingdom through genus), ' +
+      'and English vernacular names where available. Filter by taxonomic rank (SPECIES, GENUS, ' +
+      'FAMILY, ORDER, CLASS, PHYLUM, KINGDOM) or status (accepted, synonym) to narrow results. ' +
+      'Use the returned taxon ID with col.species.detail to retrieve full details, or ' +
+      'col.species.children to list child taxa. Data is CC BY 4.0; cite as ' +
+      '"Catalogue of Life (COL)" with the access date.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'col.detail',
+    mcpName: 'col.species.detail',
+    title: 'Get Taxon Details from Catalogue of Life',
+    description:
+      'Retrieve full taxonomic details for a specific taxon in the Catalogue of Life by its COL ' +
+      'usage ID. Returns scientific name with authorship, taxonomic rank, acceptance status, ' +
+      'extinction flag, parent taxon ID, scrutinizer (the expert who verified the record), ' +
+      'scrutinizer date, and an external link to the COL web page for the taxon. ' +
+      'Unlike col.species.search, the detail record does not include full higher-classification ' +
+      'breadcrumbs — use the parent_id to walk the tree or pass the scientific name to ' +
+      'col.species.search with rank=KINGDOM/PHYLUM etc. to retrieve ancestors. ' +
+      'Obtain the taxon_id from a prior col.species.search or col.species.suggest call.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'col.suggest',
+    mcpName: 'col.species.suggest',
+    title: 'Autocomplete Species Name in Catalogue of Life',
+    description:
+      'Autocomplete a partial species or taxon name against the Catalogue of Life working draft, ' +
+      'returning up to 25 ranked suggestions. Each suggestion includes the usage ID (for passing ' +
+      'to col.species.detail or col.species.children), the matched name string, taxonomic rank, ' +
+      'status (accepted/synonym), taxonomic group (e.g. "insects", "flowering plants", ' +
+      '"birds"), higher-taxon context (e.g. "Hominidae"), and a human-readable suggestion string. ' +
+      'Ideal for type-ahead name disambiguation in scientific workflows, species identification ' +
+      'pipelines, or biodiversity data cleaning tasks. Optionally restrict suggestions to a ' +
+      'specific rank (e.g. GENUS to return only genus-level matches).',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'col.children',
+    mcpName: 'col.species.children',
+    title: 'List Child Taxa in Catalogue of Life',
+    description:
+      'List the immediate child taxa of a given taxon in the Catalogue of Life taxonomic tree. ' +
+      'For example: pass the ID for a family to get its genera; pass a genus ID to list its ' +
+      'species; pass an order ID to enumerate its families. Returns paginated results with up ' +
+      'to 100 children per call, each including taxon ID, scientific name, rank, status, ' +
+      'and higher classification. Use offset for pagination over large groups (e.g. Coleoptera ' +
+      'has 400K+ species). Obtain the taxon_id from col.species.search or col.species.suggest. ' +
+      'CC BY 4.0 — ~10 million taxa across all kingdoms including Animalia, Plantae, Fungi, ' +
+      'Bacteria, Archaea, Protista, Chromista, and Viruses.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];
