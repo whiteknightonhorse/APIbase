@@ -4036,6 +4036,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-480: MyVariant.info ---
+  - tool_id: myvariant.search
+    name: Search Genetic Variants
+    provider: myvariant
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: myvariant.variant_info
+    name: Get Variant Annotation Details
+    provider: myvariant
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: myvariant.batch_variants
+    name: Batch Fetch Variant Annotations
+    provider: myvariant
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: myvariant.metadata
+    name: Get MyVariant API Metadata
+    provider: myvariant
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

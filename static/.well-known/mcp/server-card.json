@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 657 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 661 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -37993,6 +37993,222 @@
           "error": {
             "type": "object",
             "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "myvariant.variants.batch",
+      "title": "Batch Fetch Variant Annotations",
+      "description": "Retrieve annotations for up to 1000 genetic variants in a single request by providing a comma-separated list of dbSNP rsIDs or HGVS variant IDs. Returns ClinVar significance, CADD scores, gnomAD allele frequencies, and functional consequence predictions for each variant in one call. Ideal for annotating VCF files, enriching GWAS hit lists, building polygenic risk score pipelines, or bulk pharmacogenomics analysis. Variants not found in the database are marked with found=false. Mix rsIDs from different chromosomes freely \u2014 no grouping by position required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "string",
+            "description": "Comma-separated list of variant identifiers to retrieve in a single request. Accepts dbSNP rsIDs (e.g. \"rs58991260,rs671,rs1801133\") or HGVS genomic IDs. Mix of rsIDs is supported. Maximum 1000 IDs per call. Returns annotation for each variant including ClinVar significance, CADD score, gnomAD allele frequencies, and functional consequences.",
+            "minLength": 1
+          },
+          "fields": {
+            "type": "string",
+            "description": "Comma-separated annotation fields to return for each variant. Default: dbsnp,clinvar,cadd,gnomad_exome,gnomad_genome,snpeff,vcf,chrom,hg19. Limit fields for large batches to reduce response size."
+          }
+        },
+        "required": [
+          "ids"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "myvariant.variants.metadata",
+      "title": "Get MyVariant API Metadata",
+      "description": "Retrieve build metadata and data source statistics for the MyVariant.info API. Returns the current database build version (e.g. \"20250624\"), build date, total number of variant records, and a list of integrated annotation sources with their versions, URLs, and license information. Sources include ClinVar, gnomAD, CADD, dbSNP v156, COSMIC, CIViC, ExAC, GWAS Catalog, SnpEff, EVS, EMV, and 20+ additional variant databases. Use to verify data currency before running large annotation jobs or to cite specific source versions in research.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "detail": {
+            "type": "boolean",
+            "description": "If true, include full source metadata (download dates, record counts per source, code repository links). If false (default), return only build version, build date, and a list of source names and URLs.",
+            "default": false
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "myvariant.variants.search",
+      "title": "Search Genetic Variants",
+      "description": "Search the MyVariant.info database of 450M+ annotated human genetic variants using a flexible query syntax. Query by: dbSNP rsID (e.g. \"rs58991260\"), gene symbol (e.g. \"dbsnp.gene.symbol:BRCA1\"), ClinVar clinical significance (e.g. \"clinvar.rcv.clinical_significance:Pathogenic\"), CADD pathogenicity score (e.g. \"cadd.phred:>30\"), chromosomal position range (e.g. \"chrom:17 AND hg19.start:[41196312 TO 41277500]\"), or disease/phenotype keywords (e.g. \"clinvar.rcv.conditions.name:breast cancer\"). Each hit includes chromosome, genomic position (hg19/hg38), rsID, reference/alternate alleles, CADD PHRED score, ClinVar clinical significance, gnomAD allele frequency, and predicted functional consequences (SnpEff). Data integrates ClinVar, gnomAD, CADD, dbSNP, COSMIC, CIViC, ExAC, and 30+ annotation sources.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "description": "Variant query string. Supports: rsID (e.g. \"rs58991260\"), gene symbol (e.g. \"dbsnp.gene.symbol:BRCA1\"), CADD score filter (e.g. \"cadd.phred:>20\"), ClinVar significance (e.g. \"clinvar.rcv.clinical_significance:Pathogenic\"), chromosome position (e.g. \"chrom:7 AND hg19.start:[140453000 TO 140454000]\"), or disease/phenotype keywords (e.g. \"clinvar.rcv.conditions.name:breast cancer\").",
+            "minLength": 1
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Maximum number of variant results to return (1\u201350, default 10).",
+            "default": 10
+          },
+          "fields": {
+            "type": "string",
+            "description": "Comma-separated fields to return per hit. Default: dbsnp,clinvar,cadd,gnomad_exome,gnomad_genome,snpeff,vcf,chrom,hg19. Other useful fields: dbnsfp,cosmic,civic,gwassnps,hg38. Use \"all\" for every available annotation source."
+          },
+          "assembly": {
+            "type": "string",
+            "enum": [
+              "hg19",
+              "hg38"
+            ],
+            "description": "Genome assembly for coordinate fields in results. \"hg19\" (GRCh37) or \"hg38\" (GRCh38). Defaults to hg19."
+          }
+        },
+        "required": [
+          "q"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "myvariant.variants.info",
+      "title": "Get Variant Annotation Details",
+      "description": "Retrieve comprehensive annotation for a single genetic variant by its dbSNP rsID (e.g. \"rs671\") or HGVS genomic notation. Returns complete annotation from 30+ integrated databases: ClinVar clinical significance and disease conditions, CADD pathogenicity scores (raw + PHRED), gnomAD exome and genome allele frequencies across ancestry groups (AFR, EUR, EAS, AMR, ASJ), SnpEff predicted functional consequences with HGVS coding and protein notations, dbSNP allele frequency data, COSMIC somatic mutation records, CIViC clinical interpretations, and genomic coordinates in both GRCh37 (hg19) and GRCh38 (hg38). Essential for variant interpretation pipelines, pharmacogenomics analysis, and clinical variant classification (ACMG guidelines).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "variant_id": {
+            "type": "string",
+            "description": "Variant identifier \u2014 dbSNP rsID (e.g. \"rs58991260\"), or HGVS genomic notation (e.g. \"chr7:g.140453134A>T\" \u2014 use URL-encoded form when needed). rsIDs are preferred as they are stable across assemblies. Obtain IDs from myvariant.search results.",
+            "minLength": 1
+          },
+          "fields": {
+            "type": "string",
+            "description": "Comma-separated annotation fields to retrieve. Default: dbsnp,clinvar,cadd,gnomad_exome,gnomad_genome,snpeff,vcf,chrom,hg19. Optional: dbnsfp (functional predictions), cosmic (somatic), civic (clinical), gwassnps (GWAS associations), hg38 (GRCh38 coordinates). Use \"all\" for complete annotation."
+          }
+        },
+        "required": [
+          "variant_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
           }
         },
         "required": [

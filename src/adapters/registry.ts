@@ -205,6 +205,7 @@ import { CelesTrakAdapter } from './celestrak';
 import { EonetAdapter } from './eonet';
 import { RxNormAdapter } from './rxnorm';
 import { MyGeneAdapter } from './mygene';
+import { MyVariantAdapter } from './myvariant';
 import { config } from '../config';
 
 /**
@@ -1243,6 +1244,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'mygene':
       // MyGene.info — BioThings gene annotation API, NCBI/Ensembl IDs, GO/pathway data, no auth (UC-479)
       return getOrCreate('mygene', () => new MyGeneAdapter());
+    case 'myvariant':
+      // MyVariant.info — BioThings variant annotation API, ClinVar/gnomAD/CADD scores, no auth (UC-480)
+      return getOrCreate('myvariant', () => new MyVariantAdapter());
     default:
       return undefined;
   }

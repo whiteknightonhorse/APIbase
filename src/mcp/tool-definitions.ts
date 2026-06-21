@@ -6917,4 +6917,41 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'health',
     annotations: READ_ONLY,
   },
+  // MyVariant.info (4)
+  {
+    toolId: 'myvariant.search',
+    mcpName: 'myvariant.variants.search',
+    title: 'Search Genetic Variants',
+    description:
+      'Search the MyVariant.info database of 450M+ annotated human genetic variants using a flexible query syntax. Query by: dbSNP rsID (e.g. "rs58991260"), gene symbol (e.g. "dbsnp.gene.symbol:BRCA1"), ClinVar clinical significance (e.g. "clinvar.rcv.clinical_significance:Pathogenic"), CADD pathogenicity score (e.g. "cadd.phred:>30"), chromosomal position range (e.g. "chrom:17 AND hg19.start:[41196312 TO 41277500]"), or disease/phenotype keywords (e.g. "clinvar.rcv.conditions.name:breast cancer"). Each hit includes chromosome, genomic position (hg19/hg38), rsID, reference/alternate alleles, CADD PHRED score, ClinVar clinical significance, gnomAD allele frequency, and predicted functional consequences (SnpEff). Data integrates ClinVar, gnomAD, CADD, dbSNP, COSMIC, CIViC, ExAC, and 30+ annotation sources.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'myvariant.variant_info',
+    mcpName: 'myvariant.variants.info',
+    title: 'Get Variant Annotation Details',
+    description:
+      'Retrieve comprehensive annotation for a single genetic variant by its dbSNP rsID (e.g. "rs671") or HGVS genomic notation. Returns complete annotation from 30+ integrated databases: ClinVar clinical significance and disease conditions, CADD pathogenicity scores (raw + PHRED), gnomAD exome and genome allele frequencies across ancestry groups (AFR, EUR, EAS, AMR, ASJ), SnpEff predicted functional consequences with HGVS coding and protein notations, dbSNP allele frequency data, COSMIC somatic mutation records, CIViC clinical interpretations, and genomic coordinates in both GRCh37 (hg19) and GRCh38 (hg38). Essential for variant interpretation pipelines, pharmacogenomics analysis, and clinical variant classification (ACMG guidelines).',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'myvariant.batch_variants',
+    mcpName: 'myvariant.variants.batch',
+    title: 'Batch Fetch Variant Annotations',
+    description:
+      'Retrieve annotations for up to 1000 genetic variants in a single request by providing a comma-separated list of dbSNP rsIDs or HGVS variant IDs. Returns ClinVar significance, CADD scores, gnomAD allele frequencies, and functional consequence predictions for each variant in one call. Ideal for annotating VCF files, enriching GWAS hit lists, building polygenic risk score pipelines, or bulk pharmacogenomics analysis. Variants not found in the database are marked with found=false. Mix rsIDs from different chromosomes freely — no grouping by position required.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'myvariant.metadata',
+    mcpName: 'myvariant.variants.metadata',
+    title: 'Get MyVariant API Metadata',
+    description:
+      'Retrieve build metadata and data source statistics for the MyVariant.info API. Returns the current database build version (e.g. "20250624"), build date, total number of variant records, and a list of integrated annotation sources with their versions, URLs, and license information. Sources include ClinVar, gnomAD, CADD, dbSNP v156, COSMIC, CIViC, ExAC, GWAS Catalog, SnpEff, EVS, EMV, and 20+ additional variant databases. Use to verify data currency before running large annotation jobs or to cite specific source versions in research.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
 ];
