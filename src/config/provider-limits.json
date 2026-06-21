@@ -1754,5 +1754,14 @@
     "reset_period": "none",
     "docs_url": "https://unstats.un.org/sdgs/UNSDGAPIV5/swagger/",
     "limit_proof": "UN Statistics Division open public API; no authentication required, no documented rate limits, open data"
+  },
+  "datacite": {
+    "display_name": "DataCite",
+    "health_url": "https://api.datacite.org/dois?page%5Bsize%5D=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://support.datacite.org/docs/api",
+    "limit_proof": "DataCite REST API is fully public and open; no authentication required, no documented rate limits for read-only queries, CC0 metadata"
   }
 }

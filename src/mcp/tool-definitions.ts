@@ -6539,4 +6539,42 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+
+  // DataCite (4) — UC-458
+  {
+    toolId: 'datacite.doi.search',
+    mcpName: 'datacite.doi.search',
+    title: 'DataCite DOI Search',
+    description:
+      'Search 70M+ DataCite-registered DOIs for research outputs: datasets, software, preprints, journal articles, dissertations, and more. Filter by keyword, resource type (dataset/software/preprint/etc.), publication year, repository (Zenodo, Figshare, Dryad), or funder. Returns normalized metadata including title, creators, publisher, year, abstract, license, subjects, and usage metrics (views, downloads, citations). Results include facets for resource types and top providers. DataCite covers outputs from 3,500+ repositories worldwide including arXiv, Zenodo, Mendeley Data, and IEEE DataPort.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'datacite.doi.lookup',
+    mcpName: 'datacite.doi.lookup',
+    title: 'DataCite DOI Lookup',
+    description:
+      'Get full metadata for a specific DataCite DOI. Returns the complete scholarly metadata record: title, all creators with ORCID identifiers and affiliations, publisher, publication year, resource type, abstract, subjects, license, funding references (funder name, award number), related identifiers, language, formats, usage metrics (views, downloads, citations), and registration/update timestamps. Accepts bare DOI (e.g. "10.5281/zenodo.3490396") or full URL form. Most Zenodo, Dryad, Figshare, and institutional repository DOIs are registered with DataCite.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'datacite.works.stats',
+    mcpName: 'datacite.works.stats',
+    title: 'DataCite Works Statistics',
+    description:
+      'Get aggregated statistics across DataCite research outputs. Returns total DOI count, breakdown by resource type (datasets 70M+, software, preprints, journal articles, dissertations), registration year distribution, top contributing organizations (arXiv, CERN/Zenodo, Figshare, Mendeley), and top repositories. Optionally scope to a keyword query or specific resource type/year to get focused analytics. Useful for understanding the research landscape in a topic area — e.g. how many climate datasets exist, which repositories host the most neuroscience data.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'datacite.client.search',
+    mcpName: 'datacite.client.search',
+    title: 'DataCite Repository Search',
+    description:
+      'Search the 3,500+ DataCite member repositories (called "clients") by name or keyword. Returns repository ID, name, symbol (short code like "cern.zenodo"), description, URL, and total DOI count. Repository IDs can be used with datacite.doi.search to filter results to a specific repository. Examples: Zenodo (cern.zenodo, 150K+ DOIs), figshare (figshare.ars, 42K+ DOIs), Mendeley Data (bl.mendeley, 10K+ DOIs), IEEE DataPort (ieee.dataport, 5K+ DOIs), Open Science Framework (cos.osf, 4K+ DOIs).',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
 ];

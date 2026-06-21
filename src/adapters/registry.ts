@@ -195,6 +195,7 @@ import { CheckWxAdapter } from './checkwx';
 import { AvwxAdapter } from './avwx';
 import { NihReporterAdapter } from './nihreporter';
 import { UnsdgAdapter } from './unsdg';
+import { DataCiteAdapter } from './datacite';
 import { config } from '../config';
 
 /**
@@ -1203,6 +1204,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'unsdg':
       // UN SDG API — 17 goals, 231 indicators, time-series data, no auth (UC-457)
       return getOrCreate('unsdg', () => new UnsdgAdapter());
+    case 'datacite':
+      // DataCite REST API — 70M+ DOI metadata, research data registry, no auth (UC-458)
+      return getOrCreate('datacite', () => new DataCiteAdapter());
     default:
       return undefined;
   }

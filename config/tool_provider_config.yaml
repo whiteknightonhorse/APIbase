@@ -3792,6 +3792,28 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-458: DataCite ---
+  - tool_id: datacite.doi.search
+    name: DataCite DOI Search
+    provider: datacite
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: datacite.doi.lookup
+    name: DataCite DOI Lookup
+    provider: datacite
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: datacite.works.stats
+    name: DataCite Works Statistics
+    provider: datacite
+    price_usd: "0.002"
+    cache_ttl: 3600
+  - tool_id: datacite.client.search
+    name: DataCite Repository Search
+    provider: datacite
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

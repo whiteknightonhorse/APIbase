@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 617 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 621 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -35450,6 +35450,280 @@
           "error": {
             "type": "object",
             "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "datacite.client.search",
+      "title": "DataCite Repository Search",
+      "description": "Search the 3,500+ DataCite member repositories (called \"clients\") by name or keyword. Returns repository ID, name, symbol (short code like \"cern.zenodo\"), description, URL, and total DOI count. Repository IDs can be used with datacite.doi.search to filter results to a specific repository. Examples: Zenodo (cern.zenodo, 150K+ DOIs), figshare (figshare.ars, 42K+ DOIs), Mendeley Data (bl.mendeley, 10K+ DOIs), IEEE DataPort (ieee.dataport, 5K+ DOIs), Open Science Framework (cos.osf, 4K+ DOIs).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search DataCite member repositories by name or keyword. Examples: \"zenodo\", \"dryad\", \"figshare\", \"harvard\", \"pangaea\". Returns matching repositories with their DOI counts."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of repositories per page (1\u201350, default 10)."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number for pagination (default 1)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "datacite.doi.lookup",
+      "title": "DataCite DOI Lookup",
+      "description": "Get full metadata for a specific DataCite DOI. Returns the complete scholarly metadata record: title, all creators with ORCID identifiers and affiliations, publisher, publication year, resource type, abstract, subjects, license, funding references (funder name, award number), related identifiers, language, formats, usage metrics (views, downloads, citations), and registration/update timestamps. Accepts bare DOI (e.g. \"10.5281/zenodo.3490396\") or full URL form. Most Zenodo, Dryad, Figshare, and institutional repository DOIs are registered with DataCite.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "doi": {
+            "type": "string",
+            "description": "The DOI to look up. Accepts bare DOI (e.g. \"10.5281/zenodo.3490396\") or full URL form (\"https://doi.org/10.5281/zenodo.3490396\"). Must be a DataCite-registered DOI."
+          }
+        },
+        "required": [
+          "doi"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "datacite.doi.search",
+      "title": "DataCite DOI Search",
+      "description": "Search 70M+ DataCite-registered DOIs for research outputs: datasets, software, preprints, journal articles, dissertations, and more. Filter by keyword, resource type (dataset/software/preprint/etc.), publication year, repository (Zenodo, Figshare, Dryad), or funder. Returns normalized metadata including title, creators, publisher, year, abstract, license, subjects, and usage metrics (views, downloads, citations). Results include facets for resource types and top providers. DataCite covers outputs from 3,500+ repositories worldwide including arXiv, Zenodo, Mendeley Data, and IEEE DataPort.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Full-text search query across DOI metadata: titles, abstracts, creator names, subjects. Examples: \"climate change\", \"CRISPR gene editing\", \"COVID-19 epidemiology\"."
+          },
+          "resource_type": {
+            "type": "string",
+            "enum": [
+              "dataset",
+              "software",
+              "text",
+              "image",
+              "audiovisual",
+              "collection",
+              "preprint",
+              "journal-article",
+              "conference-paper",
+              "dissertation",
+              "report",
+              "model",
+              "workflow",
+              "computational-notebook",
+              "other"
+            ],
+            "description": "Filter by DataCite resource type. \"dataset\" returns data files, \"software\" returns code repositories, \"preprint\" returns preprints (mostly arXiv/Zenodo), \"text\" includes general text outputs."
+          },
+          "publication_year": {
+            "type": "integer",
+            "minimum": 1900,
+            "maximum": 2030,
+            "description": "Filter by publication year (e.g. 2023). Returns only DOIs published in that calendar year."
+          },
+          "client_id": {
+            "type": "string",
+            "description": "Filter by DataCite repository/client ID. Examples: \"cern.zenodo\" (Zenodo), \"figshare.ars\" (figshare), \"bl.mendeley\" (Mendeley Data), \"cos.osf\" (Open Science Framework). Get IDs from datacite.client.search."
+          },
+          "funder_id": {
+            "type": "string",
+            "description": "Filter by funder ROR ID or Crossref Funder ID. Examples: \"https://doi.org/10.13039/100000001\" (US NSF), \"https://doi.org/10.13039/100004440\" (Wellcome Trust)."
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "relevance",
+              "published",
+              "-published",
+              "created",
+              "-created"
+            ],
+            "description": "Sort order for results. \"relevance\" (default) uses full-text score. \"-published\" returns newest first. \"published\" returns oldest first."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of results per page (1\u201350, default 10)."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number for pagination (default 1)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "datacite.works.stats",
+      "title": "DataCite Works Statistics",
+      "description": "Get aggregated statistics across DataCite research outputs. Returns total DOI count, breakdown by resource type (datasets 70M+, software, preprints, journal articles, dissertations), registration year distribution, top contributing organizations (arXiv, CERN/Zenodo, Figshare, Mendeley), and top repositories. Optionally scope to a keyword query or specific resource type/year to get focused analytics. Useful for understanding the research landscape in a topic area \u2014 e.g. how many climate datasets exist, which repositories host the most neuroscience data.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Optional keyword query to scope the statistics (e.g. \"machine learning\" returns stats only for ML-related DOIs). If omitted, stats cover all 70M+ DataCite works."
+          },
+          "resource_type": {
+            "type": "string",
+            "enum": [
+              "dataset",
+              "software",
+              "text",
+              "image",
+              "audiovisual",
+              "collection",
+              "preprint",
+              "journal-article",
+              "conference-paper",
+              "dissertation",
+              "report",
+              "model",
+              "workflow",
+              "computational-notebook",
+              "other"
+            ],
+            "description": "Scope statistics to a single resource type (e.g. \"dataset\" to see dataset-specific provider breakdowns)."
+          },
+          "publication_year": {
+            "type": "integer",
+            "minimum": 1900,
+            "maximum": 2030,
+            "description": "Scope statistics to a specific publication year."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
           }
         },
         "required": [
