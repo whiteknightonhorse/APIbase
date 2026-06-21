@@ -200,6 +200,7 @@ import { SsbNorwayAdapter } from './ssbnorway';
 import { OverpassAdapter } from './overpass';
 import { ZenodoAdapter } from './zenodo';
 import { NasaNtrsAdapter } from './nasantrs';
+import { CernOpenDataAdapter } from './cernopendata';
 import { config } from '../config';
 
 /**
@@ -1223,6 +1224,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'nasantrs':
       // NASA Technical Reports Server — 645K+ space/aeronautics reports, no auth (UC-474)
       return getOrCreate('nasantrs', () => new NasaNtrsAdapter());
+    case 'cernopendata':
+      // CERN Open Data — 80K+ physics records, particle physics datasets, no auth (UC-475)
+      return getOrCreate('cernopendata', () => new CernOpenDataAdapter());
     default:
       return undefined;
   }

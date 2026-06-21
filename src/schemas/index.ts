@@ -200,6 +200,7 @@ import { ssbnorwaySchemas } from './ssbnorway.schema';
 import { overpassSchemas } from './overpass.schema';
 import { zenodoSchemas } from './zenodo.schema';
 import { nasantrsSchemas } from './nasantrs.schema';
+import { cernopendataSchemas } from './cernopendata.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -403,4 +404,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...overpassSchemas,
   ...zenodoSchemas,
   ...nasantrsSchemas,
+  ...cernopendataSchemas,
 };

@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 637 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 641 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -36841,6 +36841,267 @@
           "error": {
             "type": "object",
             "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "cernopendata.datasets.browse",
+      "title": "CERN Open Data Datasets Browser",
+      "description": "Browse and filter CERN Open Data collision and simulated datasets by experiment, publication year, collision energy, and keyword. Returns only records of type Dataset (66,000+ datasets). Useful for finding specific NanoAOD or MiniAOD simulation samples, real collision data, or derived datasets for a given LHC run period. LHC Run 1 data: 2010\u20132012 at 7\u20138 TeV; Run 2 data: 2015\u20132016 at 13 TeV. Experiments: CMS (57K+), ALICE (171), ATLAS (184), LHCb (7K+), DELPHI (12K+). Supports pagination for large result sets.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "experiment": {
+            "type": "string",
+            "enum": [
+              "CMS",
+              "ATLAS",
+              "ALICE",
+              "LHCb",
+              "DELPHI",
+              "JADE",
+              "OPERA",
+              "TOTEM",
+              "PHENIX"
+            ],
+            "description": "Filter by CERN experiment. CMS has 57K+ datasets, LHCb has 7K+, DELPHI has 12K+."
+          },
+          "year": {
+            "type": "string",
+            "description": "Filter by publication year (e.g. \"2015\", \"2016\", \"2012\"). LHC Run 1: 2010\u20132013, Run 2: 2015\u20132016."
+          },
+          "collision_energy": {
+            "type": "string",
+            "description": "Filter by collision energy (e.g. \"13TeV\", \"8TeV\", \"7TeV\"). Run 2 used 13 TeV, Run 1 used 7\u20138 TeV."
+          },
+          "q": {
+            "type": "string",
+            "description": "Keyword filter within datasets (e.g. \"NanoAOD\", \"MiniAOD\", \"Higgs\")"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 25,
+            "description": "Number of datasets to return (1\u201325, default 10)"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number for pagination (default 1)"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "cernopendata.records.detail",
+      "title": "CERN Open Data Record Detail",
+      "description": "Fetch full metadata for a specific CERN Open Data record by its ID. Returns complete details: title, type, experiment, publication date, abstract (HTML stripped), collections, availability, collision energy and type, accelerator, authors with ORCIDs, file listing (up to 5 files with sizes and EOS URIs), keywords, license, run period, and external links. Use cernopendata.records.search or cernopendata.datasets.browse to discover record IDs. IDs can be numeric (e.g. \"5209\") or string anchors for glossary terms (e.g. \"AOD\"). Most datasets are CC0 or CC-BY licensed.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Record ID from CERN Open Data portal (e.g. \"5209\", \"50\", \"AOD\"). Numeric for datasets/docs, string anchors for glossary terms."
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "cernopendata.glossary.lookup",
+      "title": "CERN HEP Physics Glossary",
+      "description": "Look up particle physics and high-energy physics (HEP) terms from the CERN Open Data glossary of 1,000+ terms. Returns matching entries with the term name, all known aliases/synonyms, a plain-text definition, category (generic, cms, etc.), related terms (see_also), and Wikipedia/external links. Ideal for AI agents that need to explain or understand HEP concepts like \"quark\", \"hadron\", \"luminosity\", \"trigger\", \"AOD\", \"CMSSW\", \"jet\", \"b-tagging\", or any other particle physics terminology.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "term": {
+            "type": "string",
+            "description": "Physics term to look up in the HEP glossary (e.g. \"quark\", \"hadron\", \"luminosity\", \"jet\", \"muon\")"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 25,
+            "description": "Maximum number of matching terms to return (1\u201325, default 10)"
+          }
+        },
+        "required": [
+          "term"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "cernopendata.records.search",
+      "title": "CERN Open Data Search",
+      "description": "Search 80,000+ particle physics records from the CERN Open Data portal, covering CMS, ATLAS, ALICE, LHCb, and legacy experiments. Filter by record type (Dataset, Documentation, Software, Supplementaries), experiment, and keyword. Each record includes title, type, experiment, publication date, availability, collision energy, abstract snippet, and collections. Supports pagination. Free, no auth required. Records include collision and simulated datasets in NanoAOD/MiniAOD/AOD format, plus educational resources, software, and documentation from the Large Hadron Collider era.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "description": "Full-text search query (e.g. \"higgs boson\", \"dark matter\", \"Z boson decay\")"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "Dataset",
+              "Documentation",
+              "Software",
+              "Supplementaries",
+              "Environment",
+              "Glossary",
+              "News"
+            ],
+            "description": "Filter by record type: Dataset (collision/simulated data), Documentation, Software, Supplementaries, Environment, Glossary, News"
+          },
+          "experiment": {
+            "type": "string",
+            "enum": [
+              "CMS",
+              "ATLAS",
+              "ALICE",
+              "LHCb",
+              "DELPHI",
+              "JADE",
+              "OPERA",
+              "TOTEM",
+              "PHENIX"
+            ],
+            "description": "Filter by CERN experiment (e.g. CMS, ATLAS, ALICE, LHCb). CMS has the most open data."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 25,
+            "description": "Number of results to return (1\u201325, default 10)"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number for pagination (default 1)"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
           }
         },
         "required": [

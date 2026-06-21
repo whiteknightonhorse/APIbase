@@ -6729,4 +6729,42 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'space',
     annotations: READ_ONLY,
   },
+
+  // CERN Open Data (4)
+  {
+    toolId: 'cernopendata.search',
+    mcpName: 'cernopendata.records.search',
+    title: 'CERN Open Data Search',
+    description:
+      'Search 80,000+ particle physics records from the CERN Open Data portal, covering CMS, ATLAS, ALICE, LHCb, and legacy experiments. Filter by record type (Dataset, Documentation, Software, Supplementaries), experiment, and keyword. Each record includes title, type, experiment, publication date, availability, collision energy, abstract snippet, and collections. Supports pagination. Free, no auth required. Records include collision and simulated datasets in NanoAOD/MiniAOD/AOD format, plus educational resources, software, and documentation from the Large Hadron Collider era.',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'cernopendata.detail',
+    mcpName: 'cernopendata.records.detail',
+    title: 'CERN Open Data Record Detail',
+    description:
+      'Fetch full metadata for a specific CERN Open Data record by its ID. Returns complete details: title, type, experiment, publication date, abstract (HTML stripped), collections, availability, collision energy and type, accelerator, authors with ORCIDs, file listing (up to 5 files with sizes and EOS URIs), keywords, license, run period, and external links. Use cernopendata.records.search or cernopendata.datasets.browse to discover record IDs. IDs can be numeric (e.g. "5209") or string anchors for glossary terms (e.g. "AOD"). Most datasets are CC0 or CC-BY licensed.',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'cernopendata.datasets',
+    mcpName: 'cernopendata.datasets.browse',
+    title: 'CERN Open Data Datasets Browser',
+    description:
+      'Browse and filter CERN Open Data collision and simulated datasets by experiment, publication year, collision energy, and keyword. Returns only records of type Dataset (66,000+ datasets). Useful for finding specific NanoAOD or MiniAOD simulation samples, real collision data, or derived datasets for a given LHC run period. LHC Run 1 data: 2010–2012 at 7–8 TeV; Run 2 data: 2015–2016 at 13 TeV. Experiments: CMS (57K+), ALICE (171), ATLAS (184), LHCb (7K+), DELPHI (12K+). Supports pagination for large result sets.',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'cernopendata.glossary',
+    mcpName: 'cernopendata.glossary.lookup',
+    title: 'CERN HEP Physics Glossary',
+    description:
+      'Look up particle physics and high-energy physics (HEP) terms from the CERN Open Data glossary of 1,000+ terms. Returns matching entries with the term name, all known aliases/synonyms, a plain-text definition, category (generic, cms, etc.), related terms (see_also), and Wikipedia/external links. Ideal for AI agents that need to explain or understand HEP concepts like "quark", "hadron", "luminosity", "trigger", "AOD", "CMSSW", "jet", "b-tagging", or any other particle physics terminology.',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
 ];

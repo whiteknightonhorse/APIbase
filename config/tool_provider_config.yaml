@@ -3911,6 +3911,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-475: CERN Open Data ---
+  - tool_id: cernopendata.search
+    name: CERN Open Data Search
+    provider: cernopendata
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: cernopendata.detail
+    name: CERN Open Data Record Detail
+    provider: cernopendata
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: cernopendata.datasets
+    name: CERN Open Data Datasets Browser
+    provider: cernopendata
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: cernopendata.glossary
+    name: CERN HEP Physics Glossary
+    provider: cernopendata
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

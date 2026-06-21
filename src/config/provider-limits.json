@@ -1799,5 +1799,14 @@
     "reset_period": "none",
     "docs_url": "https://ntrs.nasa.gov/about",
     "limit_proof": "US Government open data, no authentication required, no documented rate limits; NASA public domain"
+  },
+  "cernopendata": {
+    "display_name": "CERN Open Data",
+    "health_url": "https://opendata.cern.ch/api/records/?size=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://opendata.cern.ch/docs/faq",
+    "limit_proof": "Public portal, no auth, no documented rate limits \u2014 CERN open science initiative, CC0/CC-BY licensed"
   }
 }
