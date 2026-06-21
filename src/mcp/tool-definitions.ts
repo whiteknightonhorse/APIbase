@@ -7082,6 +7082,79 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'health',
     annotations: READ_ONLY,
   },
+  // ROR — Research Organization Registry (4)
+  {
+    toolId: 'ror.search',
+    mcpName: 'ror.organizations.search',
+    title: 'Search Research Organizations',
+    description:
+      'Search the Research Organization Registry (ROR) for research institutions, universities, ' +
+      'hospitals, companies, government agencies, and funders by name, acronym, or keyword. ' +
+      'ROR is the open community-driven registry of 110,000+ research organizations worldwide, ' +
+      'maintained by DataCite, CrossRef, and the California Digital Library. Each organization ' +
+      'has a unique persistent ROR ID (e.g. https://ror.org/042nb2s44 for MIT) used in scholarly ' +
+      'metadata, grant systems, and repositories like PubMed, Zenodo, and DataCite. ' +
+      'Returns up to 20 results per page with name, acronym, types (Education/Funder/Healthcare/etc.), ' +
+      'status, country, city, founding year, and website. Use page parameter to paginate. ' +
+      'Ideal for disambiguating author affiliations, validating institution names, and ' +
+      'building bibliometric analyses of research output by organization.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ror.get',
+    mcpName: 'ror.organizations.get',
+    title: 'Get Research Organization by ROR ID',
+    description:
+      'Retrieve full details for a specific research organization from the Research Organization ' +
+      'Registry (ROR) using its unique ROR identifier. Accepts the full URL format ' +
+      '(https://ror.org/042nb2s44) or the short alphanumeric ID (042nb2s44). ' +
+      'Returns comprehensive organization metadata including all name variants in multiple languages, ' +
+      'organization type (Education, Funder, Healthcare, Company, Government, etc.), current status, ' +
+      'founding year, primary location with coordinates, official website and Wikipedia URL, ' +
+      'cross-registry identifiers (GRID, ISNI, Wikidata, FundRef), and parent/child/related ' +
+      'organization relationships. Use after ror.organizations.search to get complete details for ' +
+      'a found organization, or when you already know the ROR ID from scholarly metadata.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ror.filter',
+    mcpName: 'ror.organizations.filter',
+    title: 'Filter Research Organizations',
+    description:
+      'Filter the Research Organization Registry (ROR) by organization type, country, and/or ' +
+      'status to browse subsets of the 110,000+ global research organizations. Supports combining ' +
+      'multiple filters with an optional keyword query. Organization types include: Education ' +
+      '(universities, colleges), Healthcare (hospitals, clinics), Company (industry research), ' +
+      'Archive (data repositories, libraries), Nonprofit (NGOs, foundations), Government ' +
+      '(agencies, national labs), Facility (research infrastructures, telescopes), Funder ' +
+      '(grant agencies, funding bodies), and Other. Country is specified as ISO 3166-1 alpha-2 ' +
+      'code (US, DE, GB, JP, CN, etc.). Returns total match count and up to 20 results per page ' +
+      'with name, type, status, country, city, and website. Useful for generating lists of ' +
+      'institutions in a specific country, enumerating funders by country, or counting research ' +
+      'organizations by type.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ror.affiliation',
+    mcpName: 'ror.organizations.affiliation',
+    title: 'Match Affiliation String to Organizations',
+    description:
+      'Intelligently match a free-text affiliation string (as found in academic paper bylines or ' +
+      'grant records) to research organizations in the ROR registry. Pass the raw affiliation text ' +
+      'exactly as it appears — e.g. "Dept. of Physics, Univ. of California, Berkeley, CA, USA" or ' +
+      '"Max-Planck-Institut für Astronomie, Heidelberg". ROR\'s affiliation matching algorithm ' +
+      'performs substring detection, name-variant lookup, and scoring to identify candidate ' +
+      'organizations. Returns each candidate with: confidence score (0–1), a "chosen" boolean ' +
+      '(the best single match), matching_type (e.g. SINGLE SEARCH, COMMON TERMS), and the ' +
+      "organization's ROR ID, canonical name, type, and country. " +
+      'Ideal for metadata curation, ORCID affiliation disambiguation, funder acknowledgment ' +
+      'normalization, and building organization-level research analytics from unstructured text.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
   {
     toolId: 'mychem.metadata',
     mcpName: 'mychem.chemicals.metadata',

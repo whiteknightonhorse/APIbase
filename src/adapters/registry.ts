@@ -209,6 +209,7 @@ import { MyVariantAdapter } from './myvariant';
 import { MyChemAdapter } from './mychem';
 import { DroughtMonitorAdapter } from './drought-monitor';
 import { EuropepmcAdapter } from './europepmc';
+import { RorAdapter } from './ror';
 import { config } from '../config';
 
 /**
@@ -1259,6 +1260,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'europepmc':
       // Europe PMC — EBI biomedical literature API, 42M+ articles, no auth (UC-490)
       return getOrCreate('europepmc', () => new EuropepmcAdapter());
+    case 'ror':
+      // ROR — Research Organization Registry, 110K+ orgs, no auth (UC-491)
+      return getOrCreate('ror', () => new RorAdapter());
     default:
       return undefined;
   }

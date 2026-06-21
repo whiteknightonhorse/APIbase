@@ -4136,6 +4136,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-491: ROR (Research Organization Registry) ---
+  - tool_id: ror.search
+    name: Search Research Organizations
+    provider: ror
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: ror.get
+    name: Get Research Organization by ROR ID
+    provider: ror
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: ror.filter
+    name: Filter Research Organizations
+    provider: ror
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: ror.affiliation
+    name: Match Affiliation String to Organizations
+    provider: ror
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform
