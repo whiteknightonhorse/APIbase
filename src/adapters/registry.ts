@@ -203,6 +203,7 @@ import { NasaNtrsAdapter } from './nasantrs';
 import { CernOpenDataAdapter } from './cernopendata';
 import { CelesTrakAdapter } from './celestrak';
 import { EonetAdapter } from './eonet';
+import { RxNormAdapter } from './rxnorm';
 import { config } from '../config';
 
 /**
@@ -1235,6 +1236,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'eonet':
       // NASA EONET v3 — natural event tracking (wildfires, storms, floods, etc.), no auth (UC-477)
       return getOrCreate('eonet', () => new EonetAdapter());
+    case 'rxnorm':
+      // RxNorm — NIH NLM drug nomenclature, RxCUI lookup, NDC status, drug classification, no auth (UC-478)
+      return getOrCreate('rxnorm', () => new RxNormAdapter());
     default:
       return undefined;
   }

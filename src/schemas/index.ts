@@ -203,6 +203,7 @@ import { nasantrsSchemas } from './nasantrs.schema';
 import { cernopendataSchemas } from './cernopendata.schema';
 import { celestrakSchemas } from './celestrak.schema';
 import { eonetSchemas } from './eonet.schema';
+import { rxnormSchemas } from './rxnorm.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -409,4 +410,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...cernopendataSchemas,
   ...celestrakSchemas,
   ...eonetSchemas,
+  ...rxnormSchemas,
 };

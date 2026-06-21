@@ -6843,4 +6843,41 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+  // RxNorm (4)
+  {
+    toolId: 'rxnorm.drug_search',
+    mcpName: 'rxnorm.drugs.search',
+    title: 'Search RxNorm Drugs by Name',
+    description:
+      'Search the NIH RxNorm drug database by generic name, brand name, or ingredient. Returns standardized drug concepts with their RxCUI identifiers, term types (ingredient, brand name, clinical drug, branded drug), and synonyms. RxNorm is the US standard drug nomenclature used by EHRs, pharmacies, and insurers. Use the RxCUI from results with rxnorm.drugs.properties and rxnorm.drugs.class for deeper drug information. Filter by term type (tty) to focus on ingredients (IN), brand names (BN), or clinical drug formulations (SCD/SBD).',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'rxnorm.rxcui_properties',
+    mcpName: 'rxnorm.drugs.properties',
+    title: 'Get RxNorm Drug Properties',
+    description:
+      'Retrieve detailed RxNorm properties for a drug concept identified by its RxCUI (RxNorm Concept Unique Identifier). Returns the canonical name, synonym, term type (TTY), language, and suppression status. The RxCUI is the definitive US drug identifier — used in medication reconciliation, clinical decision support, and insurance formularies. Obtain the RxCUI by searching with rxnorm.drugs.search first.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'rxnorm.ndc_lookup',
+    mcpName: 'rxnorm.drugs.ndc_lookup',
+    title: 'Look Up Drug by NDC Code',
+    description:
+      'Look up a drug product by its National Drug Code (NDC) to retrieve its RxNorm mapping and active status. The NDC is the 10- or 11-digit code printed on every US drug package. Returns the standardized 11-digit NDC, current active/inactive status in RxNorm, the mapped RxCUI, the concept name, and the data sources that include this NDC. Useful for medication verification, formulary checks, and cross-referencing between pharmacy systems and RxNorm.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'rxnorm.drug_class',
+    mcpName: 'rxnorm.drugs.class',
+    title: 'Get Drug Classification',
+    description:
+      'Retrieve pharmacological and therapeutic classifications for a drug by its RxCUI. Returns mappings to multiple classification systems: ATC (WHO Anatomical Therapeutic Chemical hierarchy used globally), VA Drug Class (US Veterans Affairs system), EPC (FDA Established Pharmacologic Class from drug labels), MOA (Mechanism of Action), and PE (Physiologic Effect). Useful for therapeutic substitution, formulary management, drug utilization reviews, and identifying drug classes for adverse event analysis. Each classification entry includes the class ID, name, type, relationship, and source system.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
 ];

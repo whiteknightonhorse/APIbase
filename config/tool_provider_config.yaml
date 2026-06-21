@@ -3986,6 +3986,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-478: RxNorm ---
+  - tool_id: rxnorm.drug_search
+    name: Search RxNorm Drugs by Name
+    provider: rxnorm
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: rxnorm.rxcui_properties
+    name: Get RxNorm Drug Properties
+    provider: rxnorm
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: rxnorm.ndc_lookup
+    name: Look Up Drug by NDC Code
+    provider: rxnorm
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: rxnorm.drug_class
+    name: Get Drug Classification
+    provider: rxnorm
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

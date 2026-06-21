@@ -1826,5 +1826,14 @@
     "reset_period": "none",
     "docs_url": "https://eonet.gsfc.nasa.gov/docs/v3",
     "limit_proof": "US Government open data (NASA) \u2014 no auth required, no documented rate limits"
+  },
+  "rxnorm": {
+    "display_name": "RxNorm (NIH NLM)",
+    "health_url": "https://rxnav.nlm.nih.gov/REST/drugs.json?name=aspirin",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://lhncbc.nlm.nih.gov/RxNav/APIs/api-RxNorm.html",
+    "limit_proof": "US Government open data (NIH NLM) \u2014 no auth required, no documented rate limits per RxNav API docs"
   }
 }

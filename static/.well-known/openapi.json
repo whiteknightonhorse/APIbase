@@ -60389,6 +60389,355 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/rxnorm.drug_search/call": {
+      "post": {
+        "operationId": "rxnorm_drug_search",
+        "summary": "Search RxNorm Drugs by Name",
+        "description": "Search the NIH RxNorm drug database by generic name, brand name, or ingredient. Returns standardized drug concepts with their RxCUI identifiers, term types (ingredient, brand name, clinical drug, branded drug), and synonyms. RxNorm is the US standard drug nomenclature used by EHRs, pharmacies, and insurers. Use the RxCUI from results with rxnorm.drugs.properties and rxnorm.drugs.class for deeper drug information. Filter by term type (tty) to focus on ingredients (IN), brand names (BN), or clinical drug formulations (SCD/SBD).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "rxnorm.drug_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Drug name to search — generic name (e.g. \"aspirin\"), brand name (e.g. \"Tylenol\"), or ingredient (e.g. \"acetaminophen\")",
+                    "minLength": 1
+                  },
+                  "tty": {
+                    "type": "string",
+                    "enum": [
+                      "IN",
+                      "PIN",
+                      "MIN",
+                      "SCD",
+                      "SBD",
+                      "BN",
+                      "SCDC",
+                      "SCDF",
+                      "SBDC",
+                      "SBDF",
+                      "GPCK",
+                      "BPCK"
+                    ],
+                    "description": "Filter by RxNorm term type (TTY). Common values: IN=Ingredient, BN=Brand Name, SCD=Semantic Clinical Drug (includes dose/form), SBD=Semantic Branded Drug. Omit to return all types."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of drug concepts to return (1–100, default 20)",
+                    "default": 20
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/rxnorm.rxcui_properties/call": {
+      "post": {
+        "operationId": "rxnorm_rxcui_properties",
+        "summary": "Get RxNorm Drug Properties",
+        "description": "Retrieve detailed RxNorm properties for a drug concept identified by its RxCUI (RxNorm Concept Unique Identifier). Returns the canonical name, synonym, term type (TTY), language, and suppression status. The RxCUI is the definitive US drug identifier — used in medication reconciliation, clinical decision support, and insurance formularies. Obtain the RxCUI by searching with rxnorm.drugs.search first.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "rxnorm.rxcui_properties"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "rxcui": {
+                    "type": "string",
+                    "description": "RxNorm concept unique identifier (RxCUI) — a numeric string assigned by NLM (e.g. \"1191\" for aspirin, \"161\" for acetaminophen). Obtain from rxnorm.drug_search.",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "rxcui"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/rxnorm.ndc_lookup/call": {
+      "post": {
+        "operationId": "rxnorm_ndc_lookup",
+        "summary": "Look Up Drug by NDC Code",
+        "description": "Look up a drug product by its National Drug Code (NDC) to retrieve its RxNorm mapping and active status. The NDC is the 10- or 11-digit code printed on every US drug package. Returns the standardized 11-digit NDC, current active/inactive status in RxNorm, the mapped RxCUI, the concept name, and the data sources that include this NDC. Useful for medication verification, formulary checks, and cross-referencing between pharmacy systems and RxNorm.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "rxnorm.ndc_lookup"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ndc": {
+                    "type": "string",
+                    "description": "National Drug Code (NDC) in any of the standard formats: 10-digit (0069-3060-86), 11-digit (00069306086), or hyphenated (0069-3060-86). Found on drug packaging labels in the US.",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "ndc"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/rxnorm.drug_class/call": {
+      "post": {
+        "operationId": "rxnorm_drug_class",
+        "summary": "Get Drug Classification",
+        "description": "Retrieve pharmacological and therapeutic classifications for a drug by its RxCUI. Returns mappings to multiple classification systems: ATC (WHO Anatomical Therapeutic Chemical hierarchy used globally), VA Drug Class (US Veterans Affairs system), EPC (FDA Established Pharmacologic Class from drug labels), MOA (Mechanism of Action), and PE (Physiologic Effect). Useful for therapeutic substitution, formulary management, drug utilization reviews, and identifying drug classes for adverse event analysis. Each classification entry includes the class ID, name, type, relationship, and source system.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "rxnorm.drug_class"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "rxcui": {
+                    "type": "string",
+                    "description": "RxNorm concept unique identifier (RxCUI) of the drug ingredient or concept (e.g. \"1191\" for aspirin). Obtain from rxnorm.drug_search or rxnorm.rxcui_properties.",
+                    "minLength": 1
+                  },
+                  "class_types": {
+                    "type": "string",
+                    "description": "Space-separated list of drug classification systems to query. Options: ATC1-4 (WHO Anatomical Therapeutic Chemical), VA (VA Drug Class), EPC (FDA Established Pharmacologic Class), MOA (Mechanism of Action), PE (Physiologic Effect), MESH (MeSH pharmacological actions), DISEASE (indications). Omit to return all available classifications."
+                  },
+                  "source": {
+                    "type": "string",
+                    "description": "Filter by classification source. Options: ATCPROD (ATC WHO), VA (Veterans Affairs), FDASPL (FDA SPL/EPC), DAILYMED (DailyMed), RXNORM (RxNorm). Omit to include all sources."
+                  }
+                },
+                "required": [
+                  "rxcui"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {
