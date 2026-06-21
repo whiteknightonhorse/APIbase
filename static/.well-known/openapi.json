@@ -58969,6 +58969,352 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/nasantrs.search/call": {
+      "post": {
+        "operationId": "nasantrs_search",
+        "summary": "Search NASA Technical Reports",
+        "description": "Full-text search across 645,000+ NASA technical reports, conference papers, contractor reports, presentations, and memoranda spanning 1915 to present. Filter by NASA center (JPL, GSFC, JSC, MSFC, LaRC, ARC, GRC, KSC) and sort by relevance or date. Returns title, abstract, authors with affiliations, document type, publication date, subject categories, keywords, and direct PDF download URLs. Covers aeronautics, space exploration, Earth science, astrophysics, propulsion, materials science, robotics, and all NASA research domains. Free and open access — US Government public domain.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nasantrs.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Full-text search query. Searches titles, abstracts, keywords, and author names (e.g. \"solar wind\", \"lunar lander\", \"propulsion system\"). Leave empty to browse all documents."
+                  },
+                  "center": {
+                    "type": "string",
+                    "description": "Filter by NASA center code. Examples: JPL (Jet Propulsion Laboratory), GSFC (Goddard Space Flight Center), JSC (Johnson), MSFC (Marshall), LaRC (Langley), ARC (Ames), GRC (Glenn), KSC (Kennedy)."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 25,
+                    "description": "Number of results to return per page (1–25, default 10)."
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Page number for pagination (default 1). Use with limit to browse large result sets."
+                  },
+                  "sort": {
+                    "type": "string",
+                    "enum": [
+                      "score",
+                      "releaseDate",
+                      "submittedDate"
+                    ],
+                    "description": "Sort order: \"score\" (relevance, default), \"releaseDate\" (public release date), \"submittedDate\" (submission date)."
+                  },
+                  "order": {
+                    "type": "string",
+                    "enum": [
+                      "asc",
+                      "desc"
+                    ],
+                    "description": "Sort direction: \"asc\" (ascending) or \"desc\" (descending, default for date sorts)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/nasantrs.report/call": {
+      "post": {
+        "operationId": "nasantrs_report",
+        "summary": "Get NASA Technical Report Details",
+        "description": "Get the full citation and metadata for a specific NASA technical report by its numeric NTRS ID. Returns complete record: title, full abstract, all authors with organizational affiliations, document type, NASA center, publication and submission dates, subject categories, keywords, report numbers, and direct PDF/fulltext download URLs. Use nasantrs.reports.search or nasantrs.reports.recent to find NTRS IDs, or extract the ID from the URL at ntrs.nasa.gov/citations/{id}. PDF download links point directly to the NASA server — freely accessible without authentication.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nasantrs.report"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "report_id": {
+                    "type": "integer",
+                    "description": "Numeric NTRS submission/citation ID (e.g. 20140017767). Obtain from nasantrs.reports.search or nasantrs.reports.recent results."
+                  }
+                },
+                "required": [
+                  "report_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/nasantrs.recent/call": {
+      "post": {
+        "operationId": "nasantrs_recent",
+        "summary": "Get Recent NASA Technical Reports",
+        "description": "Retrieve the most recently published NASA technical reports, sorted by public release date (newest first). Optionally filter by NASA center to monitor new publications from JPL, GSFC, JSC, MSFC, LaRC, ARC, GRC, or KSC. Returns title, release date, NASA center, document type, and NTRS ID for each report. Useful for tracking the latest NASA research across any discipline — space exploration, aeronautics, Earth science, technology development, and more. All documents are open access under US Government public domain.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nasantrs.recent"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 25,
+                    "description": "Number of recent reports to return (1–25, default 10)."
+                  },
+                  "center": {
+                    "type": "string",
+                    "description": "Filter by NASA center code to see only recent publications from a specific center (e.g. JPL, GSFC, JSC, MSFC, LaRC, ARC, GRC, KSC)."
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Page number for pagination (default 1)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/nasantrs.stats/call": {
+      "post": {
+        "operationId": "nasantrs_stats",
+        "summary": "Get NASA Technical Reports Corpus Statistics",
+        "description": "Get aggregate statistics for the entire NASA Technical Reports Server corpus. Returns total document count (645,000+) and breakdowns by: document type (conference paper, contractor report, technical memorandum, presentation, reprint, etc.), subject category (astrophysics, aerodynamics, geophysics, propulsion, etc.), and NASA center (JPL, GSFC, LaRC, MSFC, ARC, JSC, etc.). Also returns the top research keywords across the corpus. Useful for understanding the scope and distribution of NASA's documented research output.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nasantrs.stats"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "detail": {
+                    "type": "boolean",
+                    "description": "When true, returns full aggregation breakdowns by document type, subject category, NASA center, and top keywords. Always true — parameter reserved for future use."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

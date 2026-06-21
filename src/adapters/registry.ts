@@ -199,6 +199,7 @@ import { DataCiteAdapter } from './datacite';
 import { SsbNorwayAdapter } from './ssbnorway';
 import { OverpassAdapter } from './overpass';
 import { ZenodoAdapter } from './zenodo';
+import { NasaNtrsAdapter } from './nasantrs';
 import { config } from '../config';
 
 /**
@@ -1219,6 +1220,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'zenodo':
       // Zenodo — open-access research repository (CERN/OpenAIRE), no auth (UC-461)
       return getOrCreate('zenodo', () => new ZenodoAdapter());
+    case 'nasantrs':
+      // NASA Technical Reports Server — 645K+ space/aeronautics reports, no auth (UC-474)
+      return getOrCreate('nasantrs', () => new NasaNtrsAdapter());
     default:
       return undefined;
   }

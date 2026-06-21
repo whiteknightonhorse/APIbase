@@ -3886,6 +3886,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-474: NASA Technical Reports Server (NTRS) ---
+  - tool_id: nasantrs.search
+    name: Search NASA Technical Reports
+    provider: nasantrs
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: nasantrs.report
+    name: Get NASA Technical Report Details
+    provider: nasantrs
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: nasantrs.recent
+    name: Get Recent NASA Technical Reports
+    provider: nasantrs
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: nasantrs.stats
+    name: Get NASA Technical Reports Corpus Statistics
+    provider: nasantrs
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

@@ -6691,4 +6691,42 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'education',
     annotations: READ_ONLY,
   },
+
+  // NASA Technical Reports Server — NTRS (4) — UC-474
+  {
+    toolId: 'nasantrs.search',
+    mcpName: 'nasantrs.reports.search',
+    title: 'Search NASA Technical Reports',
+    description:
+      'Full-text search across 645,000+ NASA technical reports, conference papers, contractor reports, presentations, and memoranda spanning 1915 to present. Filter by NASA center (JPL, GSFC, JSC, MSFC, LaRC, ARC, GRC, KSC) and sort by relevance or date. Returns title, abstract, authors with affiliations, document type, publication date, subject categories, keywords, and direct PDF download URLs. Covers aeronautics, space exploration, Earth science, astrophysics, propulsion, materials science, robotics, and all NASA research domains. Free and open access — US Government public domain.',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nasantrs.report',
+    mcpName: 'nasantrs.reports.detail',
+    title: 'Get NASA Technical Report Details',
+    description:
+      'Get the full citation and metadata for a specific NASA technical report by its numeric NTRS ID. Returns complete record: title, full abstract, all authors with organizational affiliations, document type, NASA center, publication and submission dates, subject categories, keywords, report numbers, and direct PDF/fulltext download URLs. Use nasantrs.reports.search or nasantrs.reports.recent to find NTRS IDs, or extract the ID from the URL at ntrs.nasa.gov/citations/{id}. PDF download links point directly to the NASA server — freely accessible without authentication.',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nasantrs.recent',
+    mcpName: 'nasantrs.reports.recent',
+    title: 'Get Recent NASA Technical Reports',
+    description:
+      'Retrieve the most recently published NASA technical reports, sorted by public release date (newest first). Optionally filter by NASA center to monitor new publications from JPL, GSFC, JSC, MSFC, LaRC, ARC, GRC, or KSC. Returns title, release date, NASA center, document type, and NTRS ID for each report. Useful for tracking the latest NASA research across any discipline — space exploration, aeronautics, Earth science, technology development, and more. All documents are open access under US Government public domain.',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nasantrs.stats',
+    mcpName: 'nasantrs.reports.stats',
+    title: 'Get NASA Technical Reports Corpus Statistics',
+    description:
+      "Get aggregate statistics for the entire NASA Technical Reports Server corpus. Returns total document count (645,000+) and breakdowns by: document type (conference paper, contractor report, technical memorandum, presentation, reprint, etc.), subject category (astrophysics, aerodynamics, geophysics, propulsion, etc.), and NASA center (JPL, GSFC, LaRC, MSFC, ARC, JSC, etc.). Also returns the top research keywords across the corpus. Useful for understanding the scope and distribution of NASA's documented research output.",
+    category: 'space',
+    annotations: READ_ONLY,
+  },
 ];

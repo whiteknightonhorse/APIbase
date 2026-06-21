@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 633 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 637 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -36619,6 +36619,228 @@
           "error": {
             "type": "object",
             "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "nasantrs.reports.recent",
+      "title": "Get Recent NASA Technical Reports",
+      "description": "Retrieve the most recently published NASA technical reports, sorted by public release date (newest first). Optionally filter by NASA center to monitor new publications from JPL, GSFC, JSC, MSFC, LaRC, ARC, GRC, or KSC. Returns title, release date, NASA center, document type, and NTRS ID for each report. Useful for tracking the latest NASA research across any discipline \u2014 space exploration, aeronautics, Earth science, technology development, and more. All documents are open access under US Government public domain.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 25,
+            "description": "Number of recent reports to return (1\u201325, default 10)."
+          },
+          "center": {
+            "type": "string",
+            "description": "Filter by NASA center code to see only recent publications from a specific center (e.g. JPL, GSFC, JSC, MSFC, LaRC, ARC, GRC, KSC)."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number for pagination (default 1)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "nasantrs.reports.detail",
+      "title": "Get NASA Technical Report Details",
+      "description": "Get the full citation and metadata for a specific NASA technical report by its numeric NTRS ID. Returns complete record: title, full abstract, all authors with organizational affiliations, document type, NASA center, publication and submission dates, subject categories, keywords, report numbers, and direct PDF/fulltext download URLs. Use nasantrs.reports.search or nasantrs.reports.recent to find NTRS IDs, or extract the ID from the URL at ntrs.nasa.gov/citations/{id}. PDF download links point directly to the NASA server \u2014 freely accessible without authentication.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "report_id": {
+            "type": "integer",
+            "description": "Numeric NTRS submission/citation ID (e.g. 20140017767). Obtain from nasantrs.reports.search or nasantrs.reports.recent results."
+          }
+        },
+        "required": [
+          "report_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "nasantrs.reports.search",
+      "title": "Search NASA Technical Reports",
+      "description": "Full-text search across 645,000+ NASA technical reports, conference papers, contractor reports, presentations, and memoranda spanning 1915 to present. Filter by NASA center (JPL, GSFC, JSC, MSFC, LaRC, ARC, GRC, KSC) and sort by relevance or date. Returns title, abstract, authors with affiliations, document type, publication date, subject categories, keywords, and direct PDF download URLs. Covers aeronautics, space exploration, Earth science, astrophysics, propulsion, materials science, robotics, and all NASA research domains. Free and open access \u2014 US Government public domain.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Full-text search query. Searches titles, abstracts, keywords, and author names (e.g. \"solar wind\", \"lunar lander\", \"propulsion system\"). Leave empty to browse all documents."
+          },
+          "center": {
+            "type": "string",
+            "description": "Filter by NASA center code. Examples: JPL (Jet Propulsion Laboratory), GSFC (Goddard Space Flight Center), JSC (Johnson), MSFC (Marshall), LaRC (Langley), ARC (Ames), GRC (Glenn), KSC (Kennedy)."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 25,
+            "description": "Number of results to return per page (1\u201325, default 10)."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number for pagination (default 1). Use with limit to browse large result sets."
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "score",
+              "releaseDate",
+              "submittedDate"
+            ],
+            "description": "Sort order: \"score\" (relevance, default), \"releaseDate\" (public release date), \"submittedDate\" (submission date)."
+          },
+          "order": {
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "description": "Sort direction: \"asc\" (ascending) or \"desc\" (descending, default for date sorts)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "nasantrs.reports.stats",
+      "title": "Get NASA Technical Reports Corpus Statistics",
+      "description": "Get aggregate statistics for the entire NASA Technical Reports Server corpus. Returns total document count (645,000+) and breakdowns by: document type (conference paper, contractor report, technical memorandum, presentation, reprint, etc.), subject category (astrophysics, aerodynamics, geophysics, propulsion, etc.), and NASA center (JPL, GSFC, LaRC, MSFC, ARC, JSC, etc.). Also returns the top research keywords across the corpus. Useful for understanding the scope and distribution of NASA's documented research output.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "detail": {
+            "type": "boolean",
+            "description": "When true, returns full aggregation breakdowns by document type, subject category, NASA center, and top keywords. Always true \u2014 parameter reserved for future use."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
           }
         },
         "required": [

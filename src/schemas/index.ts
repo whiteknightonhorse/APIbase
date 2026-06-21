@@ -199,6 +199,7 @@ import { dataciteSchemas } from './datacite.schema';
 import { ssbnorwaySchemas } from './ssbnorway.schema';
 import { overpassSchemas } from './overpass.schema';
 import { zenodoSchemas } from './zenodo.schema';
+import { nasantrsSchemas } from './nasantrs.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -401,4 +402,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...ssbnorwaySchemas,
   ...overpassSchemas,
   ...zenodoSchemas,
+  ...nasantrsSchemas,
 };

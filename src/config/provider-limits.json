@@ -1790,5 +1790,14 @@
     "reset_period": "none",
     "docs_url": "https://developers.zenodo.org/",
     "limit_proof": "Zenodo REST API is open access with no documented rate limits for read endpoints; operated by CERN under OpenAIRE; metadata is CC0"
+  },
+  "nasantrs": {
+    "display_name": "NASA Technical Reports Server",
+    "health_url": "https://ntrs.nasa.gov/api/citations/search?q=*&limit=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://ntrs.nasa.gov/about",
+    "limit_proof": "US Government open data, no authentication required, no documented rate limits; NASA public domain"
   }
 }
