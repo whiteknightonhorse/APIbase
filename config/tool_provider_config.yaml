@@ -3861,6 +3861,31 @@ tools:
     price_usd: "0.002"
     cache_ttl: 300
 
+  # --- UC-461: Zenodo ---
+  - tool_id: zenodo.search
+    name: Search Zenodo Research Records
+    provider: zenodo
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: zenodo.record
+    name: Get Zenodo Record Details
+    provider: zenodo
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: zenodo.files
+    name: List Zenodo Record Files
+    provider: zenodo
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: zenodo.communities
+    name: Search Zenodo Communities
+    provider: zenodo
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

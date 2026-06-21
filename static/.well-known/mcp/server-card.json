@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 629 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 633 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -36356,6 +36356,269 @@
           "error": {
             "type": "object",
             "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "zenodo.communities.search",
+      "title": "Search Zenodo Communities",
+      "description": "Search Zenodo communities \u2014 curated subject-specific collections maintained by researchers and institutions. Communities group related records by discipline, project, or institution (e.g. \"astronomy\", \"bioinformatics\", \"EU Horizon projects\", \"CERN data\"). Returns community ID, title, description, and URL. Each community has a dedicated landing page on Zenodo with all its member records. Use the community ID with the Zenodo website to browse records within a specific collection. Zenodo currently hosts 5,000+ communities covering all scientific disciplines.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search term to filter communities by name or topic (e.g. \"astronomy\", \"machine learning\", \"climate\", \"bioinformatics\")."
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "bestmatch",
+              "newest",
+              "oldest"
+            ],
+            "description": "Sort order: \"bestmatch\" (relevance), \"newest\", or \"oldest\". Default: bestmatch."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of communities to return (default 10, max 50)."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number for pagination (default 1)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "zenodo.records.files",
+      "title": "List Zenodo Record Files",
+      "description": "List all downloadable files for a Zenodo record. Returns filename, MIME type, size in bytes, checksum (MD5), and a direct download URL for each file. Zenodo records can contain multiple files (data CSVs, code archives, supplementary PDFs, images, etc.). Use zenodo.records.search or zenodo.records.detail to find the record ID, then call this tool to get the file manifest with direct download links. All files in open-access records are freely downloadable without authentication.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "record_id": {
+            "type": "string",
+            "description": "Zenodo record ID whose files to list (numeric, e.g. 10487285). Obtain from zenodo.records.search or zenodo.records.detail."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Maximum number of files to return (default 50, max 100)."
+          }
+        },
+        "required": [
+          "record_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "zenodo.records.detail",
+      "title": "Get Zenodo Record Details",
+      "description": "Get full metadata for a specific Zenodo research record by its numeric record ID. Returns title, DOI, creators with affiliations and ORCID, publication date, resource type, abstract/description, keywords, license, access right, related communities, file count, download and view statistics, and a link to the Zenodo page. Use zenodo.records.search to find record IDs, or extract the ID from a DOI like \"10.5281/zenodo.10487285\" \u2192 ID is 10487285. To list downloadable files, follow up with zenodo.records.files.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "record_id": {
+            "type": "string",
+            "description": "Zenodo record ID (numeric, e.g. 10487285) or DOI suffix. Find IDs via zenodo.records.search or from a DOI like \"10.5281/zenodo.10487285\"."
+          }
+        },
+        "required": [
+          "record_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "zenodo.records.search",
+      "title": "Search Zenodo Research Records",
+      "description": "Search 3.5M+ open-access research outputs on Zenodo \u2014 publications, datasets, software, presentations, posters, videos, and more. Filter by type, access right (open/embargoed/restricted), and publication date range. Sort by relevance, recency, most-viewed, or most-downloaded. Each result includes DOI, title, creators, resource type, access right, keywords, view/download stats, and a direct URL. Zenodo is operated by CERN under the OpenAIRE program and hosts research from EU-funded projects, science institutions worldwide, and individual researchers. All metadata is CC0.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Free-text search query across title, description, creators, and keywords (e.g. \"CRISPR gene editing\", \"climate change datasets\", \"machine learning\")."
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "publication",
+              "poster",
+              "presentation",
+              "dataset",
+              "image",
+              "video",
+              "software",
+              "lesson",
+              "physicalobject",
+              "other"
+            ],
+            "description": "Filter by record type: \"publication\" (papers/preprints), \"dataset\", \"software\", \"presentation\", \"poster\", \"image\", \"video\", \"lesson\", \"physicalobject\", or \"other\"."
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "bestmatch",
+              "mostrecent",
+              "mostviewed",
+              "mostdownloaded"
+            ],
+            "description": "Sort order: \"bestmatch\" (relevance), \"mostrecent\" (newest first), \"mostviewed\", or \"mostdownloaded\". Default: bestmatch."
+          },
+          "access_right": {
+            "type": "string",
+            "enum": [
+              "open",
+              "embargoed",
+              "restricted",
+              "closed"
+            ],
+            "description": "Filter by access right: \"open\" (freely downloadable), \"embargoed\", \"restricted\", or \"closed\"."
+          },
+          "date_from": {
+            "type": "string",
+            "description": "Filter records published on or after this date in ISO 8601 format (e.g. \"2023-01-01\")."
+          },
+          "date_to": {
+            "type": "string",
+            "description": "Filter records published on or before this date in ISO 8601 format (e.g. \"2024-12-31\")."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of results to return per page (default 10, max 50)."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number for pagination (default 1). Combine with limit for paging."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
           }
         },
         "required": [

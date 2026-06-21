@@ -198,6 +198,7 @@ import { UnsdgAdapter } from './unsdg';
 import { DataCiteAdapter } from './datacite';
 import { SsbNorwayAdapter } from './ssbnorway';
 import { OverpassAdapter } from './overpass';
+import { ZenodoAdapter } from './zenodo';
 import { config } from '../config';
 
 /**
@@ -1215,6 +1216,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'overpass':
       // Overpass API — OpenStreetMap geospatial query engine, no auth (UC-460)
       return getOrCreate('overpass', () => new OverpassAdapter());
+    case 'zenodo':
+      // Zenodo — open-access research repository (CERN/OpenAIRE), no auth (UC-461)
+      return getOrCreate('zenodo', () => new ZenodoAdapter());
     default:
       return undefined;
   }

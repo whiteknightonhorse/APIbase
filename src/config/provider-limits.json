@@ -1781,5 +1781,14 @@
     "reset_period": "none",
     "docs_url": "https://wiki.openstreetmap.org/wiki/Overpass_API#Public_API_endpoints",
     "limit_proof": "Public endpoint at overpass-api.de; rate limit is 2 concurrent queries per IP, no daily cap; OSM data is ODbL licensed (free reuse with attribution)"
+  },
+  "zenodo": {
+    "display_name": "Zenodo (CERN/OpenAIRE)",
+    "health_url": "https://zenodo.org/api/records?q=test&size=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://developers.zenodo.org/",
+    "limit_proof": "Zenodo REST API is open access with no documented rate limits for read endpoints; operated by CERN under OpenAIRE; metadata is CC0"
   }
 }

@@ -6653,4 +6653,42 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'location',
     annotations: READ_ONLY,
   },
+
+  // Zenodo (4) — UC-461
+  {
+    toolId: 'zenodo.search',
+    mcpName: 'zenodo.records.search',
+    title: 'Search Zenodo Research Records',
+    description:
+      'Search 3.5M+ open-access research outputs on Zenodo — publications, datasets, software, presentations, posters, videos, and more. Filter by type, access right (open/embargoed/restricted), and publication date range. Sort by relevance, recency, most-viewed, or most-downloaded. Each result includes DOI, title, creators, resource type, access right, keywords, view/download stats, and a direct URL. Zenodo is operated by CERN under the OpenAIRE program and hosts research from EU-funded projects, science institutions worldwide, and individual researchers. All metadata is CC0.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'zenodo.record',
+    mcpName: 'zenodo.records.detail',
+    title: 'Get Zenodo Record Details',
+    description:
+      'Get full metadata for a specific Zenodo research record by its numeric record ID. Returns title, DOI, creators with affiliations and ORCID, publication date, resource type, abstract/description, keywords, license, access right, related communities, file count, download and view statistics, and a link to the Zenodo page. Use zenodo.records.search to find record IDs, or extract the ID from a DOI like "10.5281/zenodo.10487285" → ID is 10487285. To list downloadable files, follow up with zenodo.records.files.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'zenodo.files',
+    mcpName: 'zenodo.records.files',
+    title: 'List Zenodo Record Files',
+    description:
+      'List all downloadable files for a Zenodo record. Returns filename, MIME type, size in bytes, checksum (MD5), and a direct download URL for each file. Zenodo records can contain multiple files (data CSVs, code archives, supplementary PDFs, images, etc.). Use zenodo.records.search or zenodo.records.detail to find the record ID, then call this tool to get the file manifest with direct download links. All files in open-access records are freely downloadable without authentication.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'zenodo.communities',
+    mcpName: 'zenodo.communities.search',
+    title: 'Search Zenodo Communities',
+    description:
+      'Search Zenodo communities — curated subject-specific collections maintained by researchers and institutions. Communities group related records by discipline, project, or institution (e.g. "astronomy", "bioinformatics", "EU Horizon projects", "CERN data"). Returns community ID, title, description, and URL. Each community has a dedicated landing page on Zenodo with all its member records. Use the community ID with the Zenodo website to browse records within a specific collection. Zenodo currently hosts 5,000+ communities covering all scientific disciplines.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
 ];
