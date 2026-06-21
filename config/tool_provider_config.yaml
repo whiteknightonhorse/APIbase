@@ -3814,6 +3814,28 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-459: Statistics Norway (SSB) ---
+  - tool_id: ssbnorway.search
+    name: SSB Norway Table Search
+    provider: ssbnorway
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: ssbnorway.metadata
+    name: SSB Norway Table Metadata
+    provider: ssbnorway
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: ssbnorway.query
+    name: SSB Norway Table Data
+    provider: ssbnorway
+    price_usd: "0.002"
+    cache_ttl: 3600
+  - tool_id: ssbnorway.population
+    name: SSB Norway Population Statistics
+    provider: ssbnorway
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

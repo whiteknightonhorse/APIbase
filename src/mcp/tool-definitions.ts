@@ -6577,4 +6577,42 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'education',
     annotations: READ_ONLY,
   },
+
+  // Statistics Norway / SSB (4) — UC-459
+  {
+    toolId: 'ssbnorway.search',
+    mcpName: 'ssbnorway.data.search',
+    title: 'SSB Norway Table Search',
+    description:
+      'Search 300K+ Statistics Norway (SSB) statistical tables by keyword. Returns matching table IDs, full titles, subject paths, relevance scores, and publication dates. SSB is the Norwegian national statistics authority and covers population, GDP, employment, prices, energy, immigration, health, education, trade, and more. Use the returned table ID with ssbnorway.data.metadata to discover dimension codes, then ssbnorway.data.query to fetch data. Example keywords: "population", "gdp", "unemployment", "cpi inflation", "exports", "immigration", "energy", "housing prices", "fertility".',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ssbnorway.metadata',
+    mcpName: 'ssbnorway.data.metadata',
+    title: 'SSB Norway Table Metadata',
+    description:
+      'Get the full metadata for a specific SSB table — dimension codes, valid value codes, and human-readable labels needed to construct a data query. Returns table title, last-updated timestamp, and an array of variables (dimensions) each with its code (e.g. "Region"), readable name, list of valid value codes, and corresponding labels. This is the required second step before querying data: call ssbnorway.data.search to find a table ID, then ssbnorway.data.metadata to learn the dimension codes and valid values, then ssbnorway.data.query to retrieve actual data. Common table IDs: "07459" (population by region/sex/age/year), "09842" (GDP per capita), "05111" (labour force), "03013" (CPI).',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ssbnorway.query',
+    mcpName: 'ssbnorway.data.query',
+    title: 'SSB Norway Table Data',
+    description:
+      'Fetch statistical data from a specific SSB Norway table using dimension filters. Returns a JSON-stat2 dataset with dimension labels, value arrays, and metadata (updated timestamp, source, notes). Use ssbnorway.data.search to find the table ID, ssbnorway.data.metadata to get valid dimension codes and values, then pass them here as a query array. Each filter specifies a dimension code and selected values. Use filter="item" with specific value codes to select rows, filter="top" with count to get the N most recent years. Unfiltered dimensions with elimination=true are aggregated into totals. Covers 1,900+ statistical domains across Norway.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ssbnorway.population',
+    mcpName: 'ssbnorway.stats.population',
+    title: 'SSB Norway Population Statistics',
+    description:
+      'Get Norwegian population statistics from the official SSB population register (table 07459). Returns total resident population by year as a JSON-stat2 dataset. Covers Norway as a whole (region_code="0") or any county/municipality by region code. Data goes back to 1986 and is updated annually (reference date January 1st each year). Region codes: "0" = whole country, "03" = Oslo, "11" = Rogaland, "15" = Møre og Romsdal, "18" = Nordland, "46" = Vestland, "50" = Trøndelag. Use ssbnorway.data.metadata on table 07459 to get all 994 municipality-level region codes. This is a simplified shortcut — for sex/age breakdowns use ssbnorway.data.query with table 07459 and the Kjonn/Alder dimension codes from ssbnorway.data.metadata.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

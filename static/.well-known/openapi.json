@@ -57702,6 +57702,370 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/ssbnorway.search/call": {
+      "post": {
+        "operationId": "ssbnorway_search",
+        "summary": "SSB Norway Table Search",
+        "description": "Search 300K+ Statistics Norway (SSB) statistical tables by keyword. Returns matching table IDs, full titles, subject paths, relevance scores, and publication dates. SSB is the Norwegian national statistics authority and covers population, GDP, employment, prices, energy, immigration, health, education, trade, and more. Use the returned table ID with ssbnorway.data.metadata to discover dimension codes, then ssbnorway.data.query to fetch data. Example keywords: \"population\", \"gdp\", \"unemployment\", \"cpi inflation\", \"exports\", \"immigration\", \"energy\", \"housing prices\", \"fertility\".",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ssbnorway.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Keyword to search for in SSB table titles. Examples: \"population\", \"gdp\", \"unemployment\", \"inflation\", \"energy\", \"immigration\", \"agriculture\", \"exports\". Returns tables matching the keyword with IDs, titles, and publication dates."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of tables to return (1–50, default 10).",
+                    "default": 10
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ssbnorway.metadata/call": {
+      "post": {
+        "operationId": "ssbnorway_metadata",
+        "summary": "SSB Norway Table Metadata",
+        "description": "Get the full metadata for a specific SSB table — dimension codes, valid value codes, and human-readable labels needed to construct a data query. Returns table title, last-updated timestamp, and an array of variables (dimensions) each with its code (e.g. \"Region\"), readable name, list of valid value codes, and corresponding labels. This is the required second step before querying data: call ssbnorway.data.search to find a table ID, then ssbnorway.data.metadata to learn the dimension codes and valid values, then ssbnorway.data.query to retrieve actual data. Common table IDs: \"07459\" (population by region/sex/age/year), \"09842\" (GDP per capita), \"05111\" (labour force), \"03013\" (CPI).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ssbnorway.metadata"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "table_id": {
+                    "type": "string",
+                    "description": "SSB table ID (numeric string). Obtain from ssbnorway.search results. Common tables: \"07459\" (population by region/sex/age/year), \"09842\" (GDP per capita by year), \"05111\" (labour force status by sex/age/year), \"03013\" (CPI / consumer price index by year), \"08655\" (exports/imports by product/country/year). Returns dimension codes and valid values required for ssbnorway.query."
+                  }
+                },
+                "required": [
+                  "table_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ssbnorway.query/call": {
+      "post": {
+        "operationId": "ssbnorway_query",
+        "summary": "SSB Norway Table Data",
+        "description": "Fetch statistical data from a specific SSB Norway table using dimension filters. Returns a JSON-stat2 dataset with dimension labels, value arrays, and metadata (updated timestamp, source, notes). Use ssbnorway.data.search to find the table ID, ssbnorway.data.metadata to get valid dimension codes and values, then pass them here as a query array. Each filter specifies a dimension code and selected values. Use filter=\"item\" with specific value codes to select rows, filter=\"top\" with count to get the N most recent years. Unfiltered dimensions with elimination=true are aggregated into totals. Covers 1,900+ statistical domains across Norway.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ssbnorway.query"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "table_id": {
+                    "type": "string",
+                    "description": "SSB table ID to query — the numeric ID from ssbnorway.search or ssbnorway.metadata. Example: \"07459\" for population, \"09842\" for GDP."
+                  },
+                  "query": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "description": "Dimension code from ssbnorway.metadata variables[].code. Examples: 'Region', 'Kjonn', 'Alder', 'ContentsCode', 'Tid'."
+                        },
+                        "selection": {
+                          "type": "object",
+                          "properties": {
+                            "filter": {
+                              "type": "string",
+                              "description": "Filter type. Use 'item' to select specific values by code, 'top' to select the N most recent periods (for Tid/year dimensions, e.g. values=[\"3\"]), 'all' to include all values for a dimension."
+                            },
+                            "values": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              },
+                              "description": "Array of value codes. For filter='item': codes from ssbnorway.metadata variables[].values (e.g. [\"0\"] for 'The whole country' in Region). For filter='top': a single count string like [\"5\"] for 5 most recent years. For filter='all': use [\"*\"]."
+                            }
+                          },
+                          "required": [
+                            "filter",
+                            "values"
+                          ],
+                          "description": "Selection criteria for this dimension."
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "selection"
+                      ],
+                      "description": "Filter specifying which values to include for one table dimension."
+                    },
+                    "description": "Array of dimension filters. Each filter selects specific values for one variable. Unfiltered dimensions are aggregated (eliminated) if elimination=true, or omitted. Example: [{code:'ContentsCode',selection:{filter:'item',values:['Personer1']}}, {code:'Tid',selection:{filter:'top',values:['3']}}]. Response is JSON-stat2 with label, updated, dimension map, and values array."
+                  }
+                },
+                "required": [
+                  "table_id",
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ssbnorway.population/call": {
+      "post": {
+        "operationId": "ssbnorway_population",
+        "summary": "SSB Norway Population Statistics",
+        "description": "Get Norwegian population statistics from the official SSB population register (table 07459). Returns total resident population by year as a JSON-stat2 dataset. Covers Norway as a whole (region_code=\"0\") or any county/municipality by region code. Data goes back to 1986 and is updated annually (reference date January 1st each year). Region codes: \"0\" = whole country, \"03\" = Oslo, \"11\" = Rogaland, \"15\" = Møre og Romsdal, \"18\" = Nordland, \"46\" = Vestland, \"50\" = Trøndelag. Use ssbnorway.data.metadata on table 07459 to get all 994 municipality-level region codes. This is a simplified shortcut — for sex/age breakdowns use ssbnorway.data.query with table 07459 and the Kjonn/Alder dimension codes from ssbnorway.data.metadata.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ssbnorway.population"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "region_code": {
+                    "type": "string",
+                    "description": "Norwegian region code from SSB classification. \"0\" = The whole country (default). County codes (2024 structure): \"31\" Østfold, \"32\" Akershus, \"03\" Oslo, \"33\" Buskerud, \"34\" Innlandet, \"38\" Telemark, \"39\" Vestfold, \"40\" Aust-Agder, \"42\" Vest-Agder, \"11\" Rogaland, \"46\" Vestland, \"15\" Møre og Romsdal, \"50\" Trøndelag, \"18\" Nordland, \"55\" Troms, \"56\" Finnmark. Use ssbnorway.metadata on table 07459 for all valid municipality codes.",
+                    "default": "0"
+                  },
+                  "years": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20,
+                    "description": "Number of most recent years to include (1–20, default 5). Table 07459 covers 1986 to the current reference year.",
+                    "default": 5
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

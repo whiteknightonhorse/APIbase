@@ -196,6 +196,7 @@ import { AvwxAdapter } from './avwx';
 import { NihReporterAdapter } from './nihreporter';
 import { UnsdgAdapter } from './unsdg';
 import { DataCiteAdapter } from './datacite';
+import { SsbNorwayAdapter } from './ssbnorway';
 import { config } from '../config';
 
 /**
@@ -1207,6 +1208,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'datacite':
       // DataCite REST API — 70M+ DOI metadata, research data registry, no auth (UC-458)
       return getOrCreate('datacite', () => new DataCiteAdapter());
+    case 'ssbnorway':
+      // Statistics Norway (SSB) PXWeb API — 300K+ time-series tables, no auth (UC-459)
+      return getOrCreate('ssbnorway', () => new SsbNorwayAdapter());
     default:
       return undefined;
   }
