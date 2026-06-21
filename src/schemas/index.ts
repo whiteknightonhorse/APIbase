@@ -208,6 +208,7 @@ import { mygeneSchemas } from './mygene.schema';
 import { myvariantSchemas } from './myvariant.schema';
 import { mychemSchemas } from './mychem.schema';
 import { droughtMonitorSchemas } from './drought-monitor.schema';
+import { europepmcSchemas } from './europepmc.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -419,4 +420,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...myvariantSchemas,
   ...mychemSchemas,
   ...droughtMonitorSchemas,
+  ...europepmcSchemas,
 };

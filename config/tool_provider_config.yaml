@@ -4111,6 +4111,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-490: Europe PMC ---
+  - tool_id: europepmc.search
+    name: Search Biomedical Literature
+    provider: europepmc
+    price_usd: "0.001"
+    cache_ttl: 300
+
+  - tool_id: europepmc.article
+    name: Get Biomedical Article Details
+    provider: europepmc
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: europepmc.citations
+    name: Get Article Citations
+    provider: europepmc
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: europepmc.references
+    name: Get Article References
+    provider: europepmc
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

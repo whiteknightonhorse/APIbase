@@ -208,6 +208,7 @@ import { MyGeneAdapter } from './mygene';
 import { MyVariantAdapter } from './myvariant';
 import { MyChemAdapter } from './mychem';
 import { DroughtMonitorAdapter } from './drought-monitor';
+import { EuropepmcAdapter } from './europepmc';
 import { config } from '../config';
 
 /**
@@ -1255,6 +1256,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'drought':
     case 'drought-monitor':
       return getOrCreate('drought-monitor', () => new DroughtMonitorAdapter());
+    case 'europepmc':
+      // Europe PMC — EBI biomedical literature API, 42M+ articles, no auth (UC-490)
+      return getOrCreate('europepmc', () => new EuropepmcAdapter());
     default:
       return undefined;
   }

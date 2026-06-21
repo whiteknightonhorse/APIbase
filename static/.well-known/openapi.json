@@ -62080,6 +62080,414 @@
         ]
       }
     },
+    "/api/v1/tools/europepmc.search/call": {
+      "post": {
+        "operationId": "europepmc_search",
+        "summary": "Search Biomedical Literature",
+        "description": "Search the Europe PubMed Central (Europe PMC) database of 42M+ biomedical articles, preprints, books, and patents from PubMed/MEDLINE, PubMed Central, and bioRxiv/medRxiv. Supports rich query syntax: free-text terms, field-specific filters (TITLE:\"breast cancer\", AUTH:\"Smith J\", JOURNAL:\"Nature\", DISEASE:\"diabetes\", MH:\"neoplasms\" for MeSH, GRANT_AGENCY:\"Wellcome Trust\", OPEN_ACCESS:Y), and Boolean operators (AND, OR, NOT). Sort by relevance, date, or citation count. Returns article metadata including PMID, DOI, title, authors, journal, year, abstract (with result_type=core), open-access status, and citation count.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "europepmc.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Europe PMC search query. Supports full-text search and field-specific syntax: TITLE:\"breast cancer\", AUTH:\"Smith J\", JOURNAL:\"Nature\", DISEASE:\"diabetes\", MH:\"neoplasms\" (MeSH), GRANT_AGENCY:\"Wellcome Trust\", OPEN_ACCESS:Y. Free-text queries search across title, abstract, and MeSH terms.",
+                    "minLength": 1
+                  },
+                  "page_size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Number of results to return per page (1–100, default 10)."
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Page number for pagination (default 1)."
+                  },
+                  "result_type": {
+                    "type": "string",
+                    "enum": [
+                      "lite",
+                      "core"
+                    ],
+                    "description": "Detail level of results. \"lite\" returns basic bibliographic fields (title, authors, journal, year, DOI, PMID). \"core\" adds abstract, keywords, MeSH terms, affiliation, and citation count. Default: \"lite\"."
+                  },
+                  "sort": {
+                    "type": "string",
+                    "enum": [
+                      "RELEVANCE",
+                      "DATE",
+                      "CITED"
+                    ],
+                    "description": "Sort order for results. \"RELEVANCE\" (default) ranks by relevance score. \"DATE\" returns newest first. \"CITED\" returns most-cited first."
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/europepmc.article/call": {
+      "post": {
+        "operationId": "europepmc_article",
+        "summary": "Get Biomedical Article Details",
+        "description": "Retrieve full bibliographic details for a specific biomedical article from Europe PMC by its unique identifier. Provide a PubMed ID (PMID) for journal articles in MEDLINE, a PMC ID for full-text articles in PubMed Central, or other source-specific IDs. Returns complete metadata: title, authors, journal, publication year, abstract, keywords, MeSH terms, DOI, open-access flag, PMC full-text availability, citation count, publication types, and affiliation. Use this after a search to retrieve the full record for a specific paper.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "europepmc.article"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Article identifier. For PubMed articles use the numeric PMID (e.g. \"33000001\"). For PMC full-text articles use the PMC ID without prefix (e.g. \"7520369\"). For other sources use the source-specific external ID.",
+                    "minLength": 1
+                  },
+                  "src": {
+                    "type": "string",
+                    "enum": [
+                      "MED",
+                      "PMC",
+                      "PPR",
+                      "PAT",
+                      "NBK",
+                      "ETH",
+                      "HIR",
+                      "CTX"
+                    ],
+                    "description": "Source database for the article. \"MED\" = PubMed/MEDLINE (default, covers most biomedical literature). \"PMC\" = PubMed Central full-text repository. \"PPR\" = preprints (bioRxiv, medRxiv). \"PAT\" = patents. \"NBK\" = NCBI Bookshelf. \"ETH\" = EthOS theses."
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/europepmc.citations/call": {
+      "post": {
+        "operationId": "europepmc_citations",
+        "summary": "Get Article Citations",
+        "description": "Retrieve a list of articles that cite a given biomedical publication in Europe PMC. Provide the article PMID (for PubMed/MEDLINE) or other source-specific ID. Returns the total citation count and bibliographic details for each citing article (title, authors, journal, year, PMID, DOI). Paginate through all citing articles with page_size and page parameters. Useful for forward citation tracking, identifying follow-up research, measuring impact of specific papers, and discovering related work published after the original article.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "europepmc.citations"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Numeric PMID (for MED/PubMed) or other source-specific ID of the article whose citing papers you want to retrieve (e.g. \"30449648\").",
+                    "minLength": 1
+                  },
+                  "src": {
+                    "type": "string",
+                    "enum": [
+                      "MED",
+                      "PMC",
+                      "PPR",
+                      "PAT",
+                      "NBK",
+                      "ETH",
+                      "HIR",
+                      "CTX"
+                    ],
+                    "description": "Source database of the target article. \"MED\" = PubMed (default). \"PMC\" = PubMed Central full-text. Use the same src you used to find the article."
+                  },
+                  "page_size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 1000,
+                    "description": "Number of citing articles to return per page (1–1000, default 10)."
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Page number for pagination when there are many citing articles (default 1)."
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/europepmc.references/call": {
+      "post": {
+        "operationId": "europepmc_references",
+        "summary": "Get Article References",
+        "description": "Retrieve the bibliography (reference list) of a biomedical article from Europe PMC. Provide the article PMID (for PubMed/MEDLINE) or other source-specific ID. Returns the total reference count and bibliographic details for each reference (title, authors, journal abbreviation, year, PMID, DOI where available). Paginate through all references with page_size and page parameters. Useful for backward citation tracking, understanding research foundations, identifying cited authors, and building citation networks.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "europepmc.references"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Numeric PMID (for MED/PubMed) or other source-specific ID of the article whose bibliography you want to retrieve (e.g. \"30449648\").",
+                    "minLength": 1
+                  },
+                  "src": {
+                    "type": "string",
+                    "enum": [
+                      "MED",
+                      "PMC",
+                      "PPR",
+                      "PAT",
+                      "NBK",
+                      "ETH",
+                      "HIR",
+                      "CTX"
+                    ],
+                    "description": "Source database of the target article. \"MED\" = PubMed (default). \"PMC\" = PubMed Central full-text. Use the same src you used to find the article."
+                  },
+                  "page_size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 1000,
+                    "description": "Number of references to return per page (1–1000, default 10)."
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Page number for pagination when a paper has many references (default 1)."
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/mychem.metadata/call": {
       "post": {
         "operationId": "mychem_metadata",

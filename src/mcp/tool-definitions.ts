@@ -7020,6 +7020,68 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'weather',
     annotations: READ_ONLY,
   },
+  // Europe PMC (4)
+  {
+    toolId: 'europepmc.search',
+    mcpName: 'europepmc.literature.search',
+    title: 'Search Biomedical Literature',
+    description:
+      'Search the Europe PubMed Central (Europe PMC) database of 42M+ biomedical articles, ' +
+      'preprints, books, and patents from PubMed/MEDLINE, PubMed Central, and bioRxiv/medRxiv. ' +
+      'Supports rich query syntax: free-text terms, field-specific filters ' +
+      '(TITLE:"breast cancer", AUTH:"Smith J", JOURNAL:"Nature", DISEASE:"diabetes", ' +
+      'MH:"neoplasms" for MeSH, GRANT_AGENCY:"Wellcome Trust", OPEN_ACCESS:Y), and Boolean ' +
+      'operators (AND, OR, NOT). Sort by relevance, date, or citation count. ' +
+      'Returns article metadata including PMID, DOI, title, authors, journal, year, abstract ' +
+      '(with result_type=core), open-access status, and citation count.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'europepmc.article',
+    mcpName: 'europepmc.literature.article',
+    title: 'Get Biomedical Article Details',
+    description:
+      'Retrieve full bibliographic details for a specific biomedical article from Europe PMC ' +
+      'by its unique identifier. Provide a PubMed ID (PMID) for journal articles in MEDLINE, ' +
+      'a PMC ID for full-text articles in PubMed Central, or other source-specific IDs. ' +
+      'Returns complete metadata: title, authors, journal, publication year, abstract, ' +
+      'keywords, MeSH terms, DOI, open-access flag, PMC full-text availability, ' +
+      'citation count, publication types, and affiliation. ' +
+      'Use this after a search to retrieve the full record for a specific paper.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'europepmc.citations',
+    mcpName: 'europepmc.literature.citations',
+    title: 'Get Article Citations',
+    description:
+      'Retrieve a list of articles that cite a given biomedical publication in Europe PMC. ' +
+      'Provide the article PMID (for PubMed/MEDLINE) or other source-specific ID. ' +
+      'Returns the total citation count and bibliographic details for each citing article ' +
+      '(title, authors, journal, year, PMID, DOI). Paginate through all citing articles ' +
+      'with page_size and page parameters. Useful for forward citation tracking, ' +
+      'identifying follow-up research, measuring impact of specific papers, and ' +
+      'discovering related work published after the original article.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'europepmc.references',
+    mcpName: 'europepmc.literature.references',
+    title: 'Get Article References',
+    description:
+      'Retrieve the bibliography (reference list) of a biomedical article from Europe PMC. ' +
+      'Provide the article PMID (for PubMed/MEDLINE) or other source-specific ID. ' +
+      'Returns the total reference count and bibliographic details for each reference ' +
+      '(title, authors, journal abbreviation, year, PMID, DOI where available). ' +
+      'Paginate through all references with page_size and page parameters. ' +
+      'Useful for backward citation tracking, understanding research foundations, ' +
+      'identifying cited authors, and building citation networks.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
   {
     toolId: 'mychem.metadata',
     mcpName: 'mychem.chemicals.metadata',
