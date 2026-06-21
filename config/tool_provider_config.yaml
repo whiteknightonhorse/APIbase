@@ -3836,6 +3836,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-460: Overpass API (OpenStreetMap) ---
+  - tool_id: overpass.amenities
+    name: Find OSM Amenities in Bounding Box
+    provider: overpass
+    price_usd: "0.002"
+    cache_ttl: 300
+
+  - tool_id: overpass.pois_nearby
+    name: Find POIs Near a Coordinate
+    provider: overpass
+    price_usd: "0.002"
+    cache_ttl: 300
+
+  - tool_id: overpass.named_place
+    name: Search Named Places and Landmarks
+    provider: overpass
+    price_usd: "0.002"
+    cache_ttl: 300
+
+  - tool_id: overpass.public_transport
+    name: Find Public Transport Stops
+    provider: overpass
+    price_usd: "0.002"
+    cache_ttl: 300
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

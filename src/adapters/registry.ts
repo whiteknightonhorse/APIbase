@@ -197,6 +197,7 @@ import { NihReporterAdapter } from './nihreporter';
 import { UnsdgAdapter } from './unsdg';
 import { DataCiteAdapter } from './datacite';
 import { SsbNorwayAdapter } from './ssbnorway';
+import { OverpassAdapter } from './overpass';
 import { config } from '../config';
 
 /**
@@ -1211,6 +1212,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'ssbnorway':
       // Statistics Norway (SSB) PXWeb API — 300K+ time-series tables, no auth (UC-459)
       return getOrCreate('ssbnorway', () => new SsbNorwayAdapter());
+    case 'overpass':
+      // Overpass API — OpenStreetMap geospatial query engine, no auth (UC-460)
+      return getOrCreate('overpass', () => new OverpassAdapter());
     default:
       return undefined;
   }

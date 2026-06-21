@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 625 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 629 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -35964,6 +35964,398 @@
           "error": {
             "type": "object",
             "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "overpass.search.amenities",
+      "title": "Find OSM Amenities in Bounding Box",
+      "description": "Search OpenStreetMap (OSM) for amenities of a specific type within a geographic bounding box. Returns name, coordinates, address, phone, website, and opening hours for each result. Covers restaurants, cafes, bars, banks, ATMs, pharmacies, hospitals, schools, universities, fuel stations, parking lots, hotels, supermarkets, post offices, police stations, cinemas, museums, and more. Data sourced from the global OpenStreetMap database via Overpass API \u2014 no authentication required. Ideal for finding local services near a point of interest.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "amenity_type": {
+            "type": "string",
+            "enum": [
+              "restaurant",
+              "cafe",
+              "bar",
+              "pub",
+              "fast_food",
+              "bank",
+              "atm",
+              "pharmacy",
+              "hospital",
+              "clinic",
+              "doctors",
+              "dentist",
+              "school",
+              "university",
+              "library",
+              "fuel",
+              "parking",
+              "hotel",
+              "supermarket",
+              "marketplace",
+              "post_office",
+              "police",
+              "fire_station",
+              "cinema",
+              "theatre",
+              "museum",
+              "place_of_worship",
+              "toilets",
+              "charging_station"
+            ],
+            "description": "OSM amenity type to search for (e.g. \"restaurant\", \"cafe\", \"atm\", \"hospital\", \"pharmacy\", \"school\")."
+          },
+          "lat_min": {
+            "type": "number",
+            "description": "Southern boundary latitude of the search bounding box (e.g. 51.50).",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "lon_min": {
+            "type": "number",
+            "description": "Western boundary longitude of the search bounding box (e.g. -0.13).",
+            "minimum": -180,
+            "maximum": 180
+          },
+          "lat_max": {
+            "type": "number",
+            "description": "Northern boundary latitude of the search bounding box (e.g. 51.52).",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "lon_max": {
+            "type": "number",
+            "description": "Eastern boundary longitude of the search bounding box (e.g. -0.10).",
+            "minimum": -180,
+            "maximum": 180
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Maximum number of results to return (1\u201350, default 20)."
+          }
+        },
+        "required": [
+          "amenity_type",
+          "lat_min",
+          "lon_min",
+          "lat_max",
+          "lon_max"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "overpass.search.named",
+      "title": "Search Named Places and Landmarks",
+      "description": "Search OpenStreetMap for named geographic features \u2014 streets, parks, landmarks, rivers, mountains, districts, or any named OSM element \u2014 by partial name (case-insensitive). Optionally constrain results to a bounding box. Filter by element type: node (point features like fountains, statues), way (roads, paths, area outlines), relation (complex features like national parks, city boundaries), or all. Returns name, coordinates or centroid, place type, and all OSM tags. Useful for locating specific landmarks or verifying a place exists in a region.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name or partial name to search for (case-insensitive regex). E.g. \"Central Park\", \"Baker Street\", \"Eiffel\".",
+            "minLength": 2,
+            "maxLength": 200
+          },
+          "feature_type": {
+            "type": "string",
+            "enum": [
+              "all",
+              "node",
+              "way",
+              "relation"
+            ],
+            "description": "OSM element type to search: \"node\" (points), \"way\" (roads/areas), \"relation\" (complex features), \"all\" (default)."
+          },
+          "lat_min": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90,
+            "description": "Optional southern boundary latitude to constrain the search area."
+          },
+          "lon_min": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180,
+            "description": "Optional western boundary longitude to constrain the search area."
+          },
+          "lat_max": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90,
+            "description": "Optional northern boundary latitude to constrain the search area."
+          },
+          "lon_max": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180,
+            "description": "Optional eastern boundary longitude to constrain the search area."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30,
+            "description": "Maximum number of results to return (1\u201330, default 10)."
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "overpass.search.nearby",
+      "title": "Find POIs Near a Coordinate",
+      "description": "Find OpenStreetMap points of interest within a configurable radius (up to 5 km) around a latitude/longitude coordinate. Optionally filter by amenity type (e.g. \"cafe\", \"atm\", \"pharmacy\"). Without a filter, returns all amenities, tourism features, and shops in the area. Results include name, coordinates, address details, phone, website, and opening hours. Useful for answering \"what is near me?\" or \"what restaurants are within 500 m of this hotel?\". Data sourced from Overpass API (OpenStreetMap).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number",
+            "description": "Center point latitude (e.g. 48.8566 for Paris).",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "lon": {
+            "type": "number",
+            "description": "Center point longitude (e.g. 2.3522 for Paris).",
+            "minimum": -180,
+            "maximum": 180
+          },
+          "radius_m": {
+            "type": "integer",
+            "minimum": 50,
+            "maximum": 5000,
+            "description": "Search radius in meters from the center point (50\u20135000, default 500)."
+          },
+          "amenity_type": {
+            "type": "string",
+            "enum": [
+              "restaurant",
+              "cafe",
+              "bar",
+              "pub",
+              "fast_food",
+              "bank",
+              "atm",
+              "pharmacy",
+              "hospital",
+              "clinic",
+              "doctors",
+              "dentist",
+              "school",
+              "university",
+              "library",
+              "fuel",
+              "parking",
+              "hotel",
+              "supermarket",
+              "marketplace",
+              "post_office",
+              "police",
+              "fire_station",
+              "cinema",
+              "theatre",
+              "museum",
+              "place_of_worship",
+              "toilets",
+              "charging_station"
+            ],
+            "description": "Optional amenity type filter. Omit to search all OSM amenities, tourism, and shops within the radius."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Maximum number of results to return (1\u201350, default 20)."
+          }
+        },
+        "required": [
+          "lat",
+          "lon"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "overpass.search.transit",
+      "title": "Find Public Transport Stops",
+      "description": "Find public transport infrastructure within a geographic bounding box. Supports bus stops, railway stations, subway/metro stations, tram stops, and ferry terminals. Returns stop name, transport type, coordinates, network/operator name, route reference, and wheelchair accessibility. Filter by transport type or fetch all transit infrastructure in the area. Data sourced from OpenStreetMap via Overpass API \u2014 especially comprehensive for European cities. Useful for trip planning, accessibility analysis, and finding the nearest metro or train station.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "lat_min": {
+            "type": "number",
+            "description": "Southern boundary latitude of the search bounding box.",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "lon_min": {
+            "type": "number",
+            "description": "Western boundary longitude of the search bounding box.",
+            "minimum": -180,
+            "maximum": 180
+          },
+          "lat_max": {
+            "type": "number",
+            "description": "Northern boundary latitude of the search bounding box.",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "lon_max": {
+            "type": "number",
+            "description": "Eastern boundary longitude of the search bounding box.",
+            "minimum": -180,
+            "maximum": 180
+          },
+          "transport_type": {
+            "type": "string",
+            "enum": [
+              "all",
+              "bus",
+              "train",
+              "subway",
+              "tram",
+              "ferry"
+            ],
+            "description": "Type of public transport to find: \"bus\" (bus stops), \"train\" (railway stations), \"subway\" (metro stations), \"tram\" (tram stops), \"ferry\" (ferry terminals), \"all\" (all types, default)."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Maximum number of results to return (1\u201350, default 20)."
+          }
+        },
+        "required": [
+          "lat_min",
+          "lon_min",
+          "lat_max",
+          "lon_max"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
           }
         },
         "required": [

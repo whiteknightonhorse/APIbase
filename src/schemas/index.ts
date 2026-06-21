@@ -197,6 +197,7 @@ import { nasaexoplanetSchemas } from './nasaexoplanet.schema';
 import { unsdgSchemas } from './unsdg.schema';
 import { dataciteSchemas } from './datacite.schema';
 import { ssbnorwaySchemas } from './ssbnorway.schema';
+import { overpassSchemas } from './overpass.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -397,4 +398,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...unsdgSchemas,
   ...dataciteSchemas,
   ...ssbnorwaySchemas,
+  ...overpassSchemas,
 };

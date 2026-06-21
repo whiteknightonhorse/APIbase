@@ -6615,4 +6615,42 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+
+  // Overpass API (4)
+  {
+    toolId: 'overpass.amenities',
+    mcpName: 'overpass.search.amenities',
+    title: 'Find OSM Amenities in Bounding Box',
+    description:
+      'Search OpenStreetMap (OSM) for amenities of a specific type within a geographic bounding box. Returns name, coordinates, address, phone, website, and opening hours for each result. Covers restaurants, cafes, bars, banks, ATMs, pharmacies, hospitals, schools, universities, fuel stations, parking lots, hotels, supermarkets, post offices, police stations, cinemas, museums, and more. Data sourced from the global OpenStreetMap database via Overpass API — no authentication required. Ideal for finding local services near a point of interest.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'overpass.pois_nearby',
+    mcpName: 'overpass.search.nearby',
+    title: 'Find POIs Near a Coordinate',
+    description:
+      'Find OpenStreetMap points of interest within a configurable radius (up to 5 km) around a latitude/longitude coordinate. Optionally filter by amenity type (e.g. "cafe", "atm", "pharmacy"). Without a filter, returns all amenities, tourism features, and shops in the area. Results include name, coordinates, address details, phone, website, and opening hours. Useful for answering "what is near me?" or "what restaurants are within 500 m of this hotel?". Data sourced from Overpass API (OpenStreetMap).',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'overpass.named_place',
+    mcpName: 'overpass.search.named',
+    title: 'Search Named Places and Landmarks',
+    description:
+      'Search OpenStreetMap for named geographic features — streets, parks, landmarks, rivers, mountains, districts, or any named OSM element — by partial name (case-insensitive). Optionally constrain results to a bounding box. Filter by element type: node (point features like fountains, statues), way (roads, paths, area outlines), relation (complex features like national parks, city boundaries), or all. Returns name, coordinates or centroid, place type, and all OSM tags. Useful for locating specific landmarks or verifying a place exists in a region.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'overpass.public_transport',
+    mcpName: 'overpass.search.transit',
+    title: 'Find Public Transport Stops',
+    description:
+      'Find public transport infrastructure within a geographic bounding box. Supports bus stops, railway stations, subway/metro stations, tram stops, and ferry terminals. Returns stop name, transport type, coordinates, network/operator name, route reference, and wheelchair accessibility. Filter by transport type or fetch all transit infrastructure in the area. Data sourced from OpenStreetMap via Overpass API — especially comprehensive for European cities. Useful for trip planning, accessibility analysis, and finding the nearest metro or train station.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
 ];

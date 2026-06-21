@@ -58066,6 +58066,522 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/overpass.amenities/call": {
+      "post": {
+        "operationId": "overpass_amenities",
+        "summary": "Find OSM Amenities in Bounding Box",
+        "description": "Search OpenStreetMap (OSM) for amenities of a specific type within a geographic bounding box. Returns name, coordinates, address, phone, website, and opening hours for each result. Covers restaurants, cafes, bars, banks, ATMs, pharmacies, hospitals, schools, universities, fuel stations, parking lots, hotels, supermarkets, post offices, police stations, cinemas, museums, and more. Data sourced from the global OpenStreetMap database via Overpass API — no authentication required. Ideal for finding local services near a point of interest.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "overpass.amenities"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amenity_type": {
+                    "type": "string",
+                    "enum": [
+                      "restaurant",
+                      "cafe",
+                      "bar",
+                      "pub",
+                      "fast_food",
+                      "bank",
+                      "atm",
+                      "pharmacy",
+                      "hospital",
+                      "clinic",
+                      "doctors",
+                      "dentist",
+                      "school",
+                      "university",
+                      "library",
+                      "fuel",
+                      "parking",
+                      "hotel",
+                      "supermarket",
+                      "marketplace",
+                      "post_office",
+                      "police",
+                      "fire_station",
+                      "cinema",
+                      "theatre",
+                      "museum",
+                      "place_of_worship",
+                      "toilets",
+                      "charging_station"
+                    ],
+                    "description": "OSM amenity type to search for (e.g. \"restaurant\", \"cafe\", \"atm\", \"hospital\", \"pharmacy\", \"school\")."
+                  },
+                  "lat_min": {
+                    "type": "number",
+                    "description": "Southern boundary latitude of the search bounding box (e.g. 51.50).",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "lon_min": {
+                    "type": "number",
+                    "description": "Western boundary longitude of the search bounding box (e.g. -0.13).",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  "lat_max": {
+                    "type": "number",
+                    "description": "Northern boundary latitude of the search bounding box (e.g. 51.52).",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "lon_max": {
+                    "type": "number",
+                    "description": "Eastern boundary longitude of the search bounding box (e.g. -0.10).",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of results to return (1–50, default 20)."
+                  }
+                },
+                "required": [
+                  "amenity_type",
+                  "lat_min",
+                  "lon_min",
+                  "lat_max",
+                  "lon_max"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/overpass.pois_nearby/call": {
+      "post": {
+        "operationId": "overpass_pois_nearby",
+        "summary": "Find POIs Near a Coordinate",
+        "description": "Find OpenStreetMap points of interest within a configurable radius (up to 5 km) around a latitude/longitude coordinate. Optionally filter by amenity type (e.g. \"cafe\", \"atm\", \"pharmacy\"). Without a filter, returns all amenities, tourism features, and shops in the area. Results include name, coordinates, address details, phone, website, and opening hours. Useful for answering \"what is near me?\" or \"what restaurants are within 500 m of this hotel?\". Data sourced from Overpass API (OpenStreetMap).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "overpass.pois_nearby"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "lat": {
+                    "type": "number",
+                    "description": "Center point latitude (e.g. 48.8566 for Paris).",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "lon": {
+                    "type": "number",
+                    "description": "Center point longitude (e.g. 2.3522 for Paris).",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  "radius_m": {
+                    "type": "integer",
+                    "minimum": 50,
+                    "maximum": 5000,
+                    "description": "Search radius in meters from the center point (50–5000, default 500)."
+                  },
+                  "amenity_type": {
+                    "type": "string",
+                    "enum": [
+                      "restaurant",
+                      "cafe",
+                      "bar",
+                      "pub",
+                      "fast_food",
+                      "bank",
+                      "atm",
+                      "pharmacy",
+                      "hospital",
+                      "clinic",
+                      "doctors",
+                      "dentist",
+                      "school",
+                      "university",
+                      "library",
+                      "fuel",
+                      "parking",
+                      "hotel",
+                      "supermarket",
+                      "marketplace",
+                      "post_office",
+                      "police",
+                      "fire_station",
+                      "cinema",
+                      "theatre",
+                      "museum",
+                      "place_of_worship",
+                      "toilets",
+                      "charging_station"
+                    ],
+                    "description": "Optional amenity type filter. Omit to search all OSM amenities, tourism, and shops within the radius."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of results to return (1–50, default 20)."
+                  }
+                },
+                "required": [
+                  "lat",
+                  "lon"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/overpass.named_place/call": {
+      "post": {
+        "operationId": "overpass_named_place",
+        "summary": "Search Named Places and Landmarks",
+        "description": "Search OpenStreetMap for named geographic features — streets, parks, landmarks, rivers, mountains, districts, or any named OSM element — by partial name (case-insensitive). Optionally constrain results to a bounding box. Filter by element type: node (point features like fountains, statues), way (roads, paths, area outlines), relation (complex features like national parks, city boundaries), or all. Returns name, coordinates or centroid, place type, and all OSM tags. Useful for locating specific landmarks or verifying a place exists in a region.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "overpass.named_place"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Name or partial name to search for (case-insensitive regex). E.g. \"Central Park\", \"Baker Street\", \"Eiffel\".",
+                    "minLength": 2,
+                    "maxLength": 200
+                  },
+                  "feature_type": {
+                    "type": "string",
+                    "enum": [
+                      "all",
+                      "node",
+                      "way",
+                      "relation"
+                    ],
+                    "description": "OSM element type to search: \"node\" (points), \"way\" (roads/areas), \"relation\" (complex features), \"all\" (default)."
+                  },
+                  "lat_min": {
+                    "type": "number",
+                    "minimum": -90,
+                    "maximum": 90,
+                    "description": "Optional southern boundary latitude to constrain the search area."
+                  },
+                  "lon_min": {
+                    "type": "number",
+                    "minimum": -180,
+                    "maximum": 180,
+                    "description": "Optional western boundary longitude to constrain the search area."
+                  },
+                  "lat_max": {
+                    "type": "number",
+                    "minimum": -90,
+                    "maximum": 90,
+                    "description": "Optional northern boundary latitude to constrain the search area."
+                  },
+                  "lon_max": {
+                    "type": "number",
+                    "minimum": -180,
+                    "maximum": 180,
+                    "description": "Optional eastern boundary longitude to constrain the search area."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 30,
+                    "description": "Maximum number of results to return (1–30, default 10)."
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/overpass.public_transport/call": {
+      "post": {
+        "operationId": "overpass_public_transport",
+        "summary": "Find Public Transport Stops",
+        "description": "Find public transport infrastructure within a geographic bounding box. Supports bus stops, railway stations, subway/metro stations, tram stops, and ferry terminals. Returns stop name, transport type, coordinates, network/operator name, route reference, and wheelchair accessibility. Filter by transport type or fetch all transit infrastructure in the area. Data sourced from OpenStreetMap via Overpass API — especially comprehensive for European cities. Useful for trip planning, accessibility analysis, and finding the nearest metro or train station.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "overpass.public_transport"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "lat_min": {
+                    "type": "number",
+                    "description": "Southern boundary latitude of the search bounding box.",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "lon_min": {
+                    "type": "number",
+                    "description": "Western boundary longitude of the search bounding box.",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  "lat_max": {
+                    "type": "number",
+                    "description": "Northern boundary latitude of the search bounding box.",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "lon_max": {
+                    "type": "number",
+                    "description": "Eastern boundary longitude of the search bounding box.",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  "transport_type": {
+                    "type": "string",
+                    "enum": [
+                      "all",
+                      "bus",
+                      "train",
+                      "subway",
+                      "tram",
+                      "ferry"
+                    ],
+                    "description": "Type of public transport to find: \"bus\" (bus stops), \"train\" (railway stations), \"subway\" (metro stations), \"tram\" (tram stops), \"ferry\" (ferry terminals), \"all\" (all types, default)."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of results to return (1–50, default 20)."
+                  }
+                },
+                "required": [
+                  "lat_min",
+                  "lon_min",
+                  "lat_max",
+                  "lon_max"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {
