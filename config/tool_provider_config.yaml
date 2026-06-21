@@ -3936,6 +3936,56 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+# --- UC-476: CelesTrak ---
+  - tool_id: celestrak.tle
+    name: Get Satellite Orbital Elements by NORAD ID
+    provider: celestrak
+    price_usd: "0.001"
+    cache_ttl: 300
+
+  - tool_id: celestrak.search
+    name: Search Satellites by Name
+    provider: celestrak
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: celestrak.group
+    name: Get Satellite Group Orbital Elements
+    provider: celestrak
+    price_usd: "0.001"
+    cache_ttl: 300
+
+  - tool_id: celestrak.intdes
+    name: Get Satellite by International Designator
+    provider: celestrak
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  # --- UC-477: NASA EONET ---
+  - tool_id: eonet.events
+    name: List Natural Disaster Events
+    provider: eonet
+    price_usd: "0.001"
+    cache_ttl: 60
+
+  - tool_id: eonet.event_detail
+    name: Get Natural Event Detail
+    provider: eonet
+    price_usd: "0.001"
+    cache_ttl: 60
+
+  - tool_id: eonet.categories
+    name: List EONET Event Categories
+    provider: eonet
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: eonet.layers
+    name: Get EONET GIS Visualization Layers
+    provider: eonet
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

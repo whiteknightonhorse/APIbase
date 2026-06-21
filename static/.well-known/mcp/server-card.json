@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 641 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 649 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -37084,6 +37084,447 @@
             "description": "Page number for pagination (default 1)"
           }
         }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "celestrak.satellite.group",
+      "title": "Get Satellite Group Orbital Elements",
+      "description": "Retrieve TLE orbital element sets for an entire predefined satellite group from CelesTrak. Returns all satellites in the group with NORAD catalog number, international designator, epoch, and full orbital parameters. Supported groups: \"stations\" (ISS, CSS, Tiangong), \"starlink\" (SpaceX constellation ~6000 sats), \"active\" (all active satellites ~7000), \"gps-ops\" (GPS operational), \"glo-ops\" (GLONASS), \"galileo\" (EU), \"beidou\" (Chinese), \"weather\" (all weather satellites), \"noaa\" (NOAA series), \"goes\" (GOES geostationary weather), \"geo\" (all geostationary), \"amateur\" (amateur radio), \"cubesat\" (CubeSats), \"last-30-days\" (recent launches), \"iridium\", \"iridium-NEXT\", \"globalstar\", \"orbcomm\", \"oneweb\", \"intelsat\", \"ses\", \"planet\", \"spire\". Data from US Space Force, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "group": {
+            "type": "string",
+            "enum": [
+              "stations",
+              "weather",
+              "noaa",
+              "goes",
+              "resource",
+              "sarsat",
+              "dmc",
+              "tdrss",
+              "argos",
+              "planet",
+              "spire",
+              "geo",
+              "intelsat",
+              "ses",
+              "iridium",
+              "iridium-NEXT",
+              "starlink",
+              "oneweb",
+              "orbcomm",
+              "globalstar",
+              "amateur",
+              "cubesat",
+              "other",
+              "last-30-days",
+              "active",
+              "analyst",
+              "gps-ops",
+              "glo-ops",
+              "galileo",
+              "beidou",
+              "sbas"
+            ],
+            "description": "Predefined satellite group. Key groups: \"stations\" (ISS, CSS, Tiangong), \"starlink\" (SpaceX Starlink ~6000 sats), \"active\" (all active satellites ~7000), \"gps-ops\" (GPS operational), \"glo-ops\" (GLONASS), \"galileo\" (EU Galileo), \"beidou\" (Chinese BeiDou), \"weather\" (weather satellites), \"noaa\" (NOAA weather), \"goes\" (GOES geostationary weather), \"geo\" (all geostationary), \"amateur\" (amateur radio), \"cubesat\" (CubeSats), \"last-30-days\" (recent launches), \"starlink\", \"oneweb\", \"iridium\", \"iridium-NEXT\", \"globalstar\", \"orbcomm\", \"intelsat\", \"ses\", \"planet\", \"spire\", \"sarsat\", \"dmc\", \"tdrss\", \"argos\", \"resource\", \"analyst\"."
+          }
+        },
+        "required": [
+          "group"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "celestrak.satellite.intdes",
+      "title": "Get Satellite by International Designator",
+      "description": "Look up satellite orbital elements using the international designator (COSPAR ID / Harvard designation). Returns orbital element sets for all objects associated with the designator: primary payload (suffix A), rocket body (B), and debris fragments (C onward). Format is YYYY-NNNX where YYYY=launch year, NNN=launch number of year (zero-padded to 3 digits), X=piece letter. Examples: \"1998-067A\" (ISS ZARYA module launched 1998, 67th launch, primary payload), \"1990-037B\" (Hubble Space Telescope), \"2019-029B\" (Starlink batch 1 rocket body). Useful when you know the mission designator but not the NORAD catalog number. Data from US Space Force via CelesTrak.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "intdes": {
+            "type": "string",
+            "description": "International designator (COSPAR ID) for the launch or object. Format: YYYY-NNNX where YYYY is launch year, NNN is launch number of that year (3 digits), and X is the piece letter (A=primary payload). Examples: \"1998-067A\" (ISS ZARYA module), \"1990-037B\" (Hubble Space Telescope), \"2019-029B\" (Starlink batch 1). The suffix letter distinguishes primary payload (A), rocket body (B), debris (C onward)."
+          }
+        },
+        "required": [
+          "intdes"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "celestrak.satellite.search",
+      "title": "Search Satellites by Name",
+      "description": "Search the NORAD satellite catalog by name substring (case-insensitive). Returns all satellites whose name contains the query string, each with NORAD catalog number, international designator (COSPAR ID), epoch, and full orbital element set. Useful for finding the NORAD IDs and TLEs of satellites by operator or mission name (e.g. \"STARLINK\" returns all ~6000 Starlink satellites, \"NOAA\" returns NOAA weather sats, \"GPS\" returns GPS block satellites, \"FENGYUN\" returns Chinese weather satellites, \"ISS\" returns ISS modules). Data from US Space Force via CelesTrak, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Satellite name substring to search (case-insensitive). Examples: \"ISS\", \"STARLINK\", \"GPS\", \"NOAA\", \"GOES\", \"HUBBLE\", \"FENGYUN\". Returns all satellites whose name contains this string. Minimum 2 characters.",
+            "minLength": 2
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "celestrak.satellite.tle",
+      "title": "Get Satellite Orbital Elements by NORAD ID",
+      "description": "Retrieve the current Two-Line Element (TLE) orbital data for a specific satellite using its NORAD catalog number. Returns the full GP (General Perturbations) element set: epoch, inclination, RAAN, eccentricity, argument of perigee, mean anomaly, mean motion (revolutions/day), B* drag coefficient, and computed orbital period in minutes. Data is sourced from the US Space Force 18th Space Control Squadron via CelesTrak. Useful for orbital mechanics calculations, satellite pass predictions, and tracking any of the 27,000+ catalogued space objects. Popular NORAD IDs: 25544 (ISS), 20580 (Hubble), 33591 (NOAA-18).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "catnr": {
+            "type": "string",
+            "description": "NORAD catalog number (satellite ID). Examples: 25544 (ISS), 20580 (Hubble Space Telescope), 48274 (Starlink-1007). Integer between 1 and 99999. Obtain from celestrak.satellite.search or celestrak.satellite.group."
+          }
+        },
+        "required": [
+          "catnr"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "eonet.events.categories",
+      "title": "List EONET Event Categories",
+      "description": "List all available natural event categories in the NASA EONET system with their IDs, titles, and descriptions. Returns all 13 categories: drought, dustHaze, earthquakes, floods, landslides, manmade, seaLakeIce, severeStorms, snow, tempExtremes, volcanoes, waterColor, wildfires. Use category IDs as the \"category\" filter in eonet.events.list and as the \"category_id\" parameter in eonet.events.layers. No auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locale": {
+            "type": "string",
+            "description": "Reserved for future use. Currently EONET returns English-only category names and descriptions."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "eonet.events.detail",
+      "title": "Get Natural Event Detail",
+      "description": "Retrieve the full detail record for a specific NASA EONET natural disaster event by its EONET event ID (e.g. \"EONET_20606\"). Returns all geometry points (coordinates, magnitude, timestamps) for the entire event lifecycle, associated categories, and primary data source URLs. Useful for tracking the full track of a hurricane, the spread of a wildfire, or the progression of a flood. Obtain EONET IDs from the eonet.events.list tool.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "EONET event ID (e.g. \"EONET_20606\"). Obtain from the eonet.events.list tool."
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "eonet.events.list",
+      "title": "List Natural Disaster Events",
+      "description": "Retrieve natural disaster and extreme weather events tracked by NASA Earth Observatory Natural Event Tracker (EONET). Returns events with geolocation, magnitude, data sources, and category. Supports filtering by status (open=ongoing, closed=resolved), event category (wildfires, severeStorms, volcanoes, earthquakes, floods, etc.), date range, data source, bounding box, and result count. Each event includes one or more geometry points with coordinates and timestamps. Ideal for real-time situational awareness, disaster monitoring, and geospatial analysis. Data sourced from GDACS, JTWC, USGS, IRWIN, FIRMS and 10+ other agencies. No auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "description": "Filter events by data source ID (e.g. \"GDACS\", \"IRWIN\", \"JTWC\", \"PDC\"). Multiple sources separated by commas."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "open",
+              "closed",
+              "all"
+            ],
+            "description": "Event status filter: \"open\" for ongoing events, \"closed\" for resolved events, \"all\" for both. Defaults to \"open\"."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000,
+            "description": "Maximum number of events to return (1\u20131000). Defaults to 10."
+          },
+          "days": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9999,
+            "description": "Return events from the last N days (1\u20139999). Overrides start/end when provided."
+          },
+          "start": {
+            "type": "string",
+            "description": "Start date for event filter in ISO 8601 format (YYYY-MM-DD)."
+          },
+          "end": {
+            "type": "string",
+            "description": "End date for event filter in ISO 8601 format (YYYY-MM-DD)."
+          },
+          "category": {
+            "type": "string",
+            "description": "Filter by event category ID. Available categories: drought, dustHaze, earthquakes, floods, landslides, manmade, seaLakeIce, severeStorms, snow, tempExtremes, volcanoes, waterColor, wildfires."
+          },
+          "bbox": {
+            "type": "string",
+            "description": "Bounding box filter as comma-separated decimal degrees: \"minLon,minLat,maxLon,maxLat\" (e.g. \"-180,-90,180,90\" for global). Event must have at least one geometry point within the box."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "eonet.events.layers",
+      "title": "Get EONET GIS Visualization Layers",
+      "description": "Retrieve GIS web service layers available for a specific EONET event category. Returns WMTS/WMS layer configurations from NASA GIBS (Global Imagery Browse Services) that can be used to visualize satellite imagery relevant to the event type (e.g. fire radiative power for wildfires, aerosol optical depth for dust/haze, sea surface temperature for storms). Each layer includes service URL, tile matrix set, and image format for integration with mapping tools like Leaflet, OpenLayers, or QGIS. Pass a category ID from eonet.events.categories.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "category_id": {
+            "type": "string",
+            "description": "Category ID to retrieve GIS web service layers for. Available IDs: drought, dustHaze, earthquakes, floods, landslides, manmade, seaLakeIce, severeStorms, snow, tempExtremes, volcanoes, waterColor, wildfires."
+          }
+        },
+        "required": [
+          "category_id"
+        ]
       },
       "outputSchema": {
         "type": "object",

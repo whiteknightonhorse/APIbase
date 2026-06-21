@@ -6767,4 +6767,80 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'space',
     annotations: READ_ONLY,
   },
+
+  // CelesTrak GP (4)
+  {
+    toolId: 'celestrak.tle',
+    mcpName: 'celestrak.satellite.tle',
+    title: 'Get Satellite Orbital Elements by NORAD ID',
+    description:
+      'Retrieve the current Two-Line Element (TLE) orbital data for a specific satellite using its NORAD catalog number. Returns the full GP (General Perturbations) element set: epoch, inclination, RAAN, eccentricity, argument of perigee, mean anomaly, mean motion (revolutions/day), B* drag coefficient, and computed orbital period in minutes. Data is sourced from the US Space Force 18th Space Control Squadron via CelesTrak. Useful for orbital mechanics calculations, satellite pass predictions, and tracking any of the 27,000+ catalogued space objects. Popular NORAD IDs: 25544 (ISS), 20580 (Hubble), 33591 (NOAA-18).',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'celestrak.search',
+    mcpName: 'celestrak.satellite.search',
+    title: 'Search Satellites by Name',
+    description:
+      'Search the NORAD satellite catalog by name substring (case-insensitive). Returns all satellites whose name contains the query string, each with NORAD catalog number, international designator (COSPAR ID), epoch, and full orbital element set. Useful for finding the NORAD IDs and TLEs of satellites by operator or mission name (e.g. "STARLINK" returns all ~6000 Starlink satellites, "NOAA" returns NOAA weather sats, "GPS" returns GPS block satellites, "FENGYUN" returns Chinese weather satellites, "ISS" returns ISS modules). Data from US Space Force via CelesTrak, no auth required.',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'celestrak.group',
+    mcpName: 'celestrak.satellite.group',
+    title: 'Get Satellite Group Orbital Elements',
+    description:
+      'Retrieve TLE orbital element sets for an entire predefined satellite group from CelesTrak. Returns all satellites in the group with NORAD catalog number, international designator, epoch, and full orbital parameters. Supported groups: "stations" (ISS, CSS, Tiangong), "starlink" (SpaceX constellation ~6000 sats), "active" (all active satellites ~7000), "gps-ops" (GPS operational), "glo-ops" (GLONASS), "galileo" (EU), "beidou" (Chinese), "weather" (all weather satellites), "noaa" (NOAA series), "goes" (GOES geostationary weather), "geo" (all geostationary), "amateur" (amateur radio), "cubesat" (CubeSats), "last-30-days" (recent launches), "iridium", "iridium-NEXT", "globalstar", "orbcomm", "oneweb", "intelsat", "ses", "planet", "spire". Data from US Space Force, no auth required.',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'celestrak.intdes',
+    mcpName: 'celestrak.satellite.intdes',
+    title: 'Get Satellite by International Designator',
+    description:
+      'Look up satellite orbital elements using the international designator (COSPAR ID / Harvard designation). Returns orbital element sets for all objects associated with the designator: primary payload (suffix A), rocket body (B), and debris fragments (C onward). Format is YYYY-NNNX where YYYY=launch year, NNN=launch number of year (zero-padded to 3 digits), X=piece letter. Examples: "1998-067A" (ISS ZARYA module launched 1998, 67th launch, primary payload), "1990-037B" (Hubble Space Telescope), "2019-029B" (Starlink batch 1 rocket body). Useful when you know the mission designator but not the NORAD catalog number. Data from US Space Force via CelesTrak.',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
+
+  // NASA EONET v3 (4)
+  {
+    toolId: 'eonet.events',
+    mcpName: 'eonet.events.list',
+    title: 'List Natural Disaster Events',
+    description:
+      'Retrieve natural disaster and extreme weather events tracked by NASA Earth Observatory Natural Event Tracker (EONET). Returns events with geolocation, magnitude, data sources, and category. Supports filtering by status (open=ongoing, closed=resolved), event category (wildfires, severeStorms, volcanoes, earthquakes, floods, etc.), date range, data source, bounding box, and result count. Each event includes one or more geometry points with coordinates and timestamps. Ideal for real-time situational awareness, disaster monitoring, and geospatial analysis. Data sourced from GDACS, JTWC, USGS, IRWIN, FIRMS and 10+ other agencies. No auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'eonet.event_detail',
+    mcpName: 'eonet.events.detail',
+    title: 'Get Natural Event Detail',
+    description:
+      'Retrieve the full detail record for a specific NASA EONET natural disaster event by its EONET event ID (e.g. "EONET_20606"). Returns all geometry points (coordinates, magnitude, timestamps) for the entire event lifecycle, associated categories, and primary data source URLs. Useful for tracking the full track of a hurricane, the spread of a wildfire, or the progression of a flood. Obtain EONET IDs from the eonet.events.list tool.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'eonet.categories',
+    mcpName: 'eonet.events.categories',
+    title: 'List EONET Event Categories',
+    description:
+      'List all available natural event categories in the NASA EONET system with their IDs, titles, and descriptions. Returns all 13 categories: drought, dustHaze, earthquakes, floods, landslides, manmade, seaLakeIce, severeStorms, snow, tempExtremes, volcanoes, waterColor, wildfires. Use category IDs as the "category" filter in eonet.events.list and as the "category_id" parameter in eonet.events.layers. No auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'eonet.layers',
+    mcpName: 'eonet.events.layers',
+    title: 'Get EONET GIS Visualization Layers',
+    description:
+      'Retrieve GIS web service layers available for a specific EONET event category. Returns WMTS/WMS layer configurations from NASA GIBS (Global Imagery Browse Services) that can be used to visualize satellite imagery relevant to the event type (e.g. fire radiative power for wildfires, aerosol optical depth for dust/haze, sea surface temperature for storms). Each layer includes service URL, tile matrix set, and image format for integration with mapping tools like Leaflet, OpenLayers, or QGIS. Pass a category ID from eonet.events.categories.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

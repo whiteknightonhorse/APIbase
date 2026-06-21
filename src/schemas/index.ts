@@ -201,6 +201,8 @@ import { overpassSchemas } from './overpass.schema';
 import { zenodoSchemas } from './zenodo.schema';
 import { nasantrsSchemas } from './nasantrs.schema';
 import { cernopendataSchemas } from './cernopendata.schema';
+import { celestrakSchemas } from './celestrak.schema';
+import { eonetSchemas } from './eonet.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -405,4 +407,6 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...zenodoSchemas,
   ...nasantrsSchemas,
   ...cernopendataSchemas,
+  ...celestrakSchemas,
+  ...eonetSchemas,
 };

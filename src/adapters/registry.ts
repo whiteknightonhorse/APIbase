@@ -201,6 +201,8 @@ import { OverpassAdapter } from './overpass';
 import { ZenodoAdapter } from './zenodo';
 import { NasaNtrsAdapter } from './nasantrs';
 import { CernOpenDataAdapter } from './cernopendata';
+import { CelesTrakAdapter } from './celestrak';
+import { EonetAdapter } from './eonet';
 import { config } from '../config';
 
 /**
@@ -1227,6 +1229,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'cernopendata':
       // CERN Open Data — 80K+ physics records, particle physics datasets, no auth (UC-475)
       return getOrCreate('cernopendata', () => new CernOpenDataAdapter());
+    case 'celestrak':
+      // CelesTrak GP — NORAD two-line element sets for 27000+ satellites, no auth (UC-476)
+      return getOrCreate('celestrak', () => new CelesTrakAdapter());
+    case 'eonet':
+      // NASA EONET v3 — natural event tracking (wildfires, storms, floods, etc.), no auth (UC-477)
+      return getOrCreate('eonet', () => new EonetAdapter());
     default:
       return undefined;
   }

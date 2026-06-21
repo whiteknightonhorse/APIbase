@@ -1808,5 +1808,23 @@
     "reset_period": "none",
     "docs_url": "https://opendata.cern.ch/docs/faq",
     "limit_proof": "Public portal, no auth, no documented rate limits \u2014 CERN open science initiative, CC0/CC-BY licensed"
+  },
+  "celestrak": {
+    "display_name": "CelesTrak GP",
+    "health_url": "https://celestrak.org/NORAD/elements/gp.php?CATNR=25544&FORMAT=json",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://celestrak.org/NORAD/elements/",
+    "limit_proof": "US Space Force public release \u2014 no auth, no documented rate limits, data classified UNCLASSIFIED AND APPROVED FOR PUBLIC RELEASE"
+  },
+  "eonet": {
+    "display_name": "NASA EONET",
+    "health_url": "https://eonet.gsfc.nasa.gov/api/v3/categories",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://eonet.gsfc.nasa.gov/docs/v3",
+    "limit_proof": "US Government open data (NASA) \u2014 no auth required, no documented rate limits"
   }
 }
