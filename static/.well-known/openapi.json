@@ -55992,6 +55992,350 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/fcc.geo.block_fips/call": {
+      "post": {
+        "operationId": "fcc_geo_block_fips",
+        "summary": "FCC Census Block FIPS Lookup",
+        "description": "Look up the US Census Block FIPS code, county FIPS, and state for any US latitude/longitude coordinate using the FCC Census Block API. Returns the 15-digit Block FIPS (state + county + tract + block), bounding box, county name, and state code. Useful for determining which regulatory jurisdiction, broadband program, or census reporting area a location falls within. No API key required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fcc.geo.block_fips"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "latitude": {
+                    "type": "number",
+                    "description": "Latitude of the location (e.g. 38.9072)."
+                  },
+                  "longitude": {
+                    "type": "number",
+                    "description": "Longitude of the location (e.g. -77.0369)."
+                  },
+                  "census_year": {
+                    "type": "string",
+                    "enum": [
+                      "2000",
+                      "2010",
+                      "2020"
+                    ],
+                    "description": "Census year for block boundaries: \"2000\", \"2010\", or \"2020\" (default current)."
+                  }
+                },
+                "required": [
+                  "latitude",
+                  "longitude"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/fcc.regulatory.proceedings/call": {
+      "post": {
+        "operationId": "fcc_regulatory_proceedings",
+        "summary": "FCC Regulatory Proceedings Search",
+        "description": "Search FCC regulatory proceedings and rulemaking dockets from the Electronic Comment Filing System (ECFS). Returns docket numbers, descriptions, bureaus, filing counts, and dates. Use to research telecom regulatory actions on topics like net neutrality, spectrum allocation, broadband deployment, and consumer protection. Filter by bureau (WC, MB, WTB, OET) or keyword.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fcc.regulatory.proceedings"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "q": {
+                    "type": "string",
+                    "description": "Free-text search query across proceeding descriptions (e.g. \"net neutrality\", \"broadband\", \"spectrum\")."
+                  },
+                  "bureau": {
+                    "type": "string",
+                    "description": "FCC bureau code to filter by (e.g. \"WC\" Wireline, \"MB\" Media, \"WTB\" Wireless, \"OET\" Engineering)."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 25,
+                    "description": "Number of proceedings to return (default 10, max 25)."
+                  },
+                  "sort": {
+                    "type": "string",
+                    "description": "Sort field and direction (e.g. \"date_proceeding_created,DESC\" or \"total_filing_count,DESC\"). Default: newest first."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/fcc.regulatory.filings/call": {
+      "post": {
+        "operationId": "fcc_regulatory_filings",
+        "summary": "FCC Regulatory Filings Search",
+        "description": "Search FCC regulatory filings, public comments, and orders within ECFS proceedings. Returns filer names, law firms, submission types, document links, and dates. Use to find public comments on FCC rules, industry petitions, and official orders. Filter by docket number (e.g. \"17-108\" for Restoring Internet Freedom, \"22-461\" for broadband) or browse recent filings.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fcc.regulatory.filings"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "docket": {
+                    "type": "string",
+                    "description": "FCC docket/proceeding number to filter filings by (e.g. \"17-108\", \"22-461\", \"21-93\")."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 25,
+                    "description": "Number of filings to return (default 10, max 25)."
+                  },
+                  "sort": {
+                    "type": "string",
+                    "description": "Sort field and direction (e.g. \"date_received,DESC\" or \"date_disseminated,ASC\"). Default: newest received first."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/fcc.regulatory.proceeding_detail/call": {
+      "post": {
+        "operationId": "fcc_regulatory_proceeding_detail",
+        "summary": "FCC Proceeding Detail",
+        "description": "Get full details of a specific FCC proceeding by docket number from ECFS. Returns the description, bureau, type (Rulemaking vs Docket), open/closed status, filing count, and all key dates (created, NPRM, public notice). Use after fcc.regulatory.search_proceedings to get full details of a specific docket.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fcc.regulatory.proceeding_detail"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "docket": {
+                    "type": "string",
+                    "description": "FCC docket number to look up (e.g. \"17-108\" for Restoring Internet Freedom, \"22-461\" for broadband rules)."
+                  }
+                },
+                "required": [
+                  "docket"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

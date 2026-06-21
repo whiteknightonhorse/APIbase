@@ -192,6 +192,7 @@ import { opendotaSchemas } from './opendota.schema';
 import { checkwxSchemas } from './checkwx.schema';
 import { avwxSchemas } from './avwx.schema';
 import { nihreporterSchemas } from './nihreporter.schema';
+import { fccSchemas } from './fcc.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -387,4 +388,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...checkwxSchemas,
   ...avwxSchemas,
   ...nihreporterSchemas,
+  ...fccSchemas,
 };

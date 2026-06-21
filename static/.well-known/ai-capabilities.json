@@ -2,8 +2,8 @@
   "platform": "APIbase",
   "version": "2.0",
   "updated_at": "2026-04-01T00:00:00Z",
-  "tools_count": 602,
-  "providers_count": 187,
+  "tools_count": 606,
+  "providers_count": 188,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
@@ -109,9 +109,9 @@
     },
     {
       "name": "legal",
-      "tools": 18,
-      "providers": "Regulations.gov, Federal Register, CourtListener, GOV.UK Content API",
-      "examples": "regulations, court opinions, federal rules, UK government documents"
+      "tools": 22,
+      "providers": "Regulations.gov, Federal Register, CourtListener, GOV.UK Content API, FCC Open Data",
+      "examples": "regulations, court opinions, federal rules, UK government documents, FCC filings"
     },
     {
       "name": "business",

@@ -1727,5 +1727,14 @@
     "reset_period": "none",
     "docs_url": "https://api.reporter.nih.gov/",
     "limit_proof": "US Government open data (NIH); no authentication required, no documented rate limits, public domain"
+  },
+  "fcc": {
+    "display_name": "FCC Open Data",
+    "health_url": "https://geo.fcc.gov/api/census/block/find?latitude=38.9&longitude=-77.0&format=json",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://geo.fcc.gov/api/census/block/find",
+    "limit_proof": "US Government open data (FCC); geo.fcc.gov is unauthenticated and unlimited; ECFS API via api.data.gov shared key at 1,000 req/hr"
   }
 }

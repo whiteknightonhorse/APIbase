@@ -63,6 +63,7 @@ import { AirNowAdapter } from './airnow';
 import { NpsAdapter } from './nps';
 import { EiaAdapter } from './eia';
 import { FecAdapter } from './fec';
+import { FccAdapter } from './fcc';
 import { LangblyAdapter } from './langbly';
 import { ApiSportsAdapter } from './apisports';
 import { ApiFlashAdapter } from './apiflash';
@@ -569,6 +570,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const k = (config as Record<string, unknown>).PROVIDER_KEY_API_DATA_GOV as string | undefined;
       if (!k) return undefined;
       return getOrCreate('fec', () => new FecAdapter(k));
+    }
+    case 'fcc': {
+      // FCC Open Data — Census Block geo + ECFS regulatory filings via api.data.gov key (UC-455)
+      const k = (config as Record<string, unknown>).PROVIDER_KEY_API_DATA_GOV as string | undefined;
+      if (!k) return undefined;
+      return getOrCreate('fcc', () => new FccAdapter(k));
     }
     case 'stability': {
       const stabKey = (config as Record<string, unknown>).PROVIDER_KEY_STABILITY as

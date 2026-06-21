@@ -6398,4 +6398,41 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'health',
     annotations: READ_ONLY,
   },
+  // FCC Open Data (4) — UC-455
+  {
+    toolId: 'fcc.geo.block_fips',
+    mcpName: 'fcc.geo.block_fips',
+    title: 'FCC Census Block FIPS Lookup',
+    description:
+      'Look up the US Census Block FIPS code, county FIPS, and state for any US latitude/longitude coordinate using the FCC Census Block API. Returns the 15-digit Block FIPS (state + county + tract + block), bounding box, county name, and state code. Useful for determining which regulatory jurisdiction, broadband program, or census reporting area a location falls within. No API key required.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'fcc.regulatory.proceedings',
+    mcpName: 'fcc.regulatory.search_proceedings',
+    title: 'FCC Regulatory Proceedings Search',
+    description:
+      'Search FCC regulatory proceedings and rulemaking dockets from the Electronic Comment Filing System (ECFS). Returns docket numbers, descriptions, bureaus, filing counts, and dates. Use to research telecom regulatory actions on topics like net neutrality, spectrum allocation, broadband deployment, and consumer protection. Filter by bureau (WC, MB, WTB, OET) or keyword.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'fcc.regulatory.filings',
+    mcpName: 'fcc.regulatory.search_filings',
+    title: 'FCC Regulatory Filings Search',
+    description:
+      'Search FCC regulatory filings, public comments, and orders within ECFS proceedings. Returns filer names, law firms, submission types, document links, and dates. Use to find public comments on FCC rules, industry petitions, and official orders. Filter by docket number (e.g. "17-108" for Restoring Internet Freedom, "22-461" for broadband) or browse recent filings.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'fcc.regulatory.proceeding_detail',
+    mcpName: 'fcc.regulatory.proceeding_detail',
+    title: 'FCC Proceeding Detail',
+    description:
+      'Get full details of a specific FCC proceeding by docket number from ECFS. Returns the description, bureau, type (Rulemaking vs Docket), open/closed status, filing count, and all key dates (created, NPRM, public notice). Use after fcc.regulatory.search_proceedings to get full details of a specific docket.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
 ];

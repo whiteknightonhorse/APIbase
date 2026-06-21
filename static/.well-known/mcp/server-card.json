@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 622 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 626 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -35703,6 +35703,226 @@
         "required": [
           "core_project_num"
         ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "fcc.geo.block_fips",
+      "title": "FCC Census Block FIPS Lookup",
+      "description": "Look up the US Census Block FIPS code, county FIPS, and state for any US latitude/longitude coordinate using the FCC Census Block API. Returns the 15-digit Block FIPS (state + county + tract + block), bounding box, county name, and state code. Useful for determining which regulatory jurisdiction, broadband program, or census reporting area a location falls within. No API key required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "latitude": {
+            "type": "number",
+            "description": "Latitude of the location (e.g. 38.9072)."
+          },
+          "longitude": {
+            "type": "number",
+            "description": "Longitude of the location (e.g. -77.0369)."
+          },
+          "census_year": {
+            "type": "string",
+            "enum": [
+              "2000",
+              "2010",
+              "2020"
+            ],
+            "description": "Census year for block boundaries: \"2000\", \"2010\", or \"2020\" (default current)."
+          }
+        },
+        "required": [
+          "latitude",
+          "longitude"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "fcc.regulatory.search_filings",
+      "title": "FCC Regulatory Filings Search",
+      "description": "Search FCC regulatory filings, public comments, and orders within ECFS proceedings. Returns filer names, law firms, submission types, document links, and dates. Use to find public comments on FCC rules, industry petitions, and official orders. Filter by docket number (e.g. \"17-108\" for Restoring Internet Freedom, \"22-461\" for broadband) or browse recent filings.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "docket": {
+            "type": "string",
+            "description": "FCC docket/proceeding number to filter filings by (e.g. \"17-108\", \"22-461\", \"21-93\")."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 25,
+            "description": "Number of filings to return (default 10, max 25)."
+          },
+          "sort": {
+            "type": "string",
+            "description": "Sort field and direction (e.g. \"date_received,DESC\" or \"date_disseminated,ASC\"). Default: newest received first."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "fcc.regulatory.proceeding_detail",
+      "title": "FCC Proceeding Detail",
+      "description": "Get full details of a specific FCC proceeding by docket number from ECFS. Returns the description, bureau, type (Rulemaking vs Docket), open/closed status, filing count, and all key dates (created, NPRM, public notice). Use after fcc.regulatory.search_proceedings to get full details of a specific docket.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "docket": {
+            "type": "string",
+            "description": "FCC docket number to look up (e.g. \"17-108\" for Restoring Internet Freedom, \"22-461\" for broadband rules)."
+          }
+        },
+        "required": [
+          "docket"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "fcc.regulatory.search_proceedings",
+      "title": "FCC Regulatory Proceedings Search",
+      "description": "Search FCC regulatory proceedings and rulemaking dockets from the Electronic Comment Filing System (ECFS). Returns docket numbers, descriptions, bureaus, filing counts, and dates. Use to research telecom regulatory actions on topics like net neutrality, spectrum allocation, broadband deployment, and consumer protection. Filter by bureau (WC, MB, WTB, OET) or keyword.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "description": "Free-text search query across proceeding descriptions (e.g. \"net neutrality\", \"broadband\", \"spectrum\")."
+          },
+          "bureau": {
+            "type": "string",
+            "description": "FCC bureau code to filter by (e.g. \"WC\" Wireline, \"MB\" Media, \"WTB\" Wireless, \"OET\" Engineering)."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 25,
+            "description": "Number of proceedings to return (default 10, max 25)."
+          },
+          "sort": {
+            "type": "string",
+            "description": "Sort field and direction (e.g. \"date_proceeding_created,DESC\" or \"total_filing_count,DESC\"). Default: newest first."
+          }
+        }
       },
       "outputSchema": {
         "type": "object",

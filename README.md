@@ -1,6 +1,6 @@
 # APIbase.pro — The API Hub for AI Agents
 
-> One MCP endpoint. 602 tools. 187 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
+> One MCP endpoint. 606 tools. 188 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Frameworks](https://apibase.pro/frameworks)** | **[Dashboard](https://apibase.pro/dashboard)**
 
@@ -27,7 +27,7 @@ https://github.com/user-attachments/assets/9e598d61-b2d0-486c-bd34-f0cb0354d09c
 
 ## What is APIbase?
 
-Production MCP server that gives AI agents access to 602 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, check weather and tides, query US Census and CDC health data, search ML models on HuggingFace, look up World Bank indicators, track streamflow from USGS stations, search 7M+ CS papers on DBLP, generate images, send emails, decode VINs, look up chemical compounds, scan npm/PyPI vulnerabilities, search NIST NVD CVE records, find EV chargers, estimate solar PV output, search art at the Met Museum, look up Dota 2 match stats, get decoded aviation METAR/TAF, look up parsed NOTAMs and PIREPs, batch multiple calls, track usage analytics — and 300+ more tools across 30+ categories.
+Production MCP server that gives AI agents access to 606 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, check weather and tides, query US Census and CDC health data, search ML models on HuggingFace, look up World Bank indicators, track streamflow from USGS stations, search 7M+ CS papers on DBLP, generate images, send emails, decode VINs, look up chemical compounds, scan npm/PyPI vulnerabilities, search NIST NVD CVE records, find EV chargers, estimate solar PV output, search art at the Met Museum, look up Dota 2 match stats, get decoded aviation METAR/TAF, look up parsed NOTAMs and PIREPs, batch multiple calls, track usage analytics — and 300+ more tools across 30+ categories.
 
 **Built for AI agents, not humans.** Auto-registration, zero setup, pay-per-call via x402 USDC micropayments on Base or MPP (Machine Payments Protocol) on Tempo.
 
@@ -74,7 +74,7 @@ Combine APIbase (real-world APIs) with Playwright (browser) and Context7 (docs):
 }
 ```
 
-Zero API-key management (Base Account handles auth + signing), zero per-provider signup (APIbase aggregates 187 providers). Full guide: [apibase.pro/frameworks#base-mcp](https://apibase.pro/frameworks#base-mcp).
+Zero API-key management (Base Account handles auth + signing), zero per-provider signup (APIbase aggregates 188 providers). Full guide: [apibase.pro/frameworks#base-mcp](https://apibase.pro/frameworks#base-mcp).
 
 ### Via npm (stdio bridge)
 
@@ -106,7 +106,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 
 ---
 
-## Tool Categories (602 tools, 187 providers)
+## Tool Categories (606 tools, 188 providers)
 
 | Category | Tools | Providers | Examples |
 |----------|-------|-----------|----------|
@@ -136,7 +136,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 | **Nutrition Database** | 2 | FatSecret | 2.3M+ foods, calories, macros, vitamins |
 | **Education & Research** | 9 | OpenAlex, arXiv, PubMed, CrossRef, DBLP | Papers, colleges, DOI lookup, CS bibliography |
 | **Jobs & Career** | 23 | Adzuna, TheirStack, Jooble, Reed, Remotive, Arbeitnow, BLS, ESCO, USAJOBS | Global job search, UK/EU/remote, salary data, tech stack analysis, US federal civil-service |
-| **Legal & Regulatory** | 11 | Regulations.gov, Federal Register, CourtListener, GOV.UK Content API | US/UK regulations, court opinions, government publications |
+| **Legal & Regulatory** | 15 | Regulations.gov, Federal Register, CourtListener, GOV.UK Content API, FCC Open Data | US/UK regulations, court opinions, government publications, FCC proceedings |
 | **Air Quality** | 2 | IQAir AirVisual | AQI, pollutants (PM2.5/O3), 30K+ stations |
 | **Weather** | 19 | WeatherAPI.com, NWS, NOAA, NASA FIRMS, NOAA AWC, CheckWX, AVWX | Current/forecast, hourly, observations, astronomy, alerts, fire detection, aviation METAR/TAF/SIGMET (raw + decoded JSON), parsed NOTAMs and PIREPs |
 | **Space & Astronomy** | 13 | NASA, JPL, NOAA SWPC | APOD, asteroids, fireballs, solar flares |

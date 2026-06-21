@@ -3711,6 +3711,28 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-455: FCC Open Data ---
+  - tool_id: fcc.geo.block_fips
+    name: FCC Census Block FIPS Lookup
+    provider: fcc
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: fcc.regulatory.proceedings
+    name: FCC Regulatory Proceedings Search
+    provider: fcc
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: fcc.regulatory.filings
+    name: FCC Regulatory Filings Search
+    provider: fcc
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: fcc.regulatory.proceeding_detail
+    name: FCC Proceeding Detail
+    provider: fcc
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform
