@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 665 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 669 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -38412,6 +38412,264 @@
         },
         "required": [
           "q"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "drought.county.stats",
+      "title": "US County Drought Statistics",
+      "description": "Retrieve weekly county-level drought statistics from the USDA/NOAA US Drought Monitor for a specific county or all counties in a US state. Pass a 5-digit FIPS code (e.g. \"48113\" for Dallas County TX, \"06037\" for Los Angeles County CA) to get a single county, or a 2-letter state abbreviation (e.g. \"TX\", \"CA\", \"NE\") to get all counties in that state. Returns drought severity by area (square miles) at each drought level (D0\u2013D4) per week. Useful for granular agricultural impact assessment, insurance risk modeling, and local government drought planning.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "aoi": {
+            "type": "string",
+            "description": "Area of interest: either a 5-digit county FIPS code (e.g. \"48113\" for Dallas County TX, \"06037\" for Los Angeles County CA) or a 2-letter state abbreviation to get all counties in a state (e.g. \"TX\", \"CA\", \"NE\")."
+          },
+          "start_date": {
+            "type": "string",
+            "description": "Start date for the query range in YYYY-MM-DD format (e.g. \"2022-08-01\"). USDM publishes weekly on Tuesdays; dates snap to the nearest release."
+          },
+          "end_date": {
+            "type": "string",
+            "description": "End date for the query range in YYYY-MM-DD format (e.g. \"2022-08-14\"). Maximum range is 1 year from start_date."
+          },
+          "statistics_type": {
+            "type": "string",
+            "enum": [
+              "cumulative",
+              "categorical"
+            ],
+            "description": "How drought levels are counted: \"cumulative\" (default) means each D-level includes worse levels; \"categorical\" means each level is non-overlapping and mutually exclusive."
+          }
+        },
+        "required": [
+          "aoi",
+          "start_date",
+          "end_date"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "drought.national.dsci",
+      "title": "US Drought Severity and Coverage Index",
+      "description": "Retrieve the Drought Severity and Coverage Index (DSCI) for the US from the USDA/NOAA US Drought Monitor. DSCI is a single composite score per week ranging from 0 (no drought anywhere) to 500 (100% of the area in D4 Exceptional Drought), calculated as the weighted sum D0%\u00d71 + D1%\u00d72 + D2%\u00d73 + D3%\u00d74 + D4%\u00d75. Returns DSCI values for both CONUS and the total US (including Alaska/Hawaii/territories) with a descriptive severity classification (none/low/moderate/severe/extreme/exceptional). Useful for tracking drought trends over time, comparing drought years, and integrating a single drought severity metric into dashboards or alerts.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "start_date": {
+            "type": "string",
+            "description": "Start date for the query range in YYYY-MM-DD format (e.g. \"2024-01-01\"). USDM publishes weekly on Tuesdays; dates snap to the nearest release."
+          },
+          "end_date": {
+            "type": "string",
+            "description": "End date for the query range in YYYY-MM-DD format (e.g. \"2024-01-08\"). Maximum range is 1 year from start_date."
+          }
+        },
+        "required": [
+          "start_date",
+          "end_date"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "drought.national.stats",
+      "title": "US National Drought Statistics",
+      "description": "Retrieve weekly US national drought statistics from the USDA/NOAA US Drought Monitor for a date range. Returns drought coverage by severity level (D0 Abnormally Dry through D4 Exceptional Drought) for CONUS and the total US (including Alaska/Hawaii/territories), reported as either square miles (\"area\") or percent of total land area (\"percent\"). Choose \"cumulative\" statistics_type to see how much area is in each level or worse (D1 includes D2+D3+D4); choose \"categorical\" for non-overlapping, mutually exclusive counts. Data is published weekly on Tuesdays \u2014 dates automatically snap to the nearest valid release. Maximum query window: 1 year. Useful for climate risk analysis, agricultural planning, and drought trend monitoring.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "start_date": {
+            "type": "string",
+            "description": "Start date for the query range in YYYY-MM-DD format (e.g. \"2024-01-01\"). USDM publishes weekly on Tuesdays; dates snap to the nearest release."
+          },
+          "end_date": {
+            "type": "string",
+            "description": "End date for the query range in YYYY-MM-DD format (e.g. \"2024-01-08\"). Maximum range is 1 year from start_date."
+          },
+          "metric": {
+            "type": "string",
+            "enum": [
+              "area",
+              "percent"
+            ],
+            "description": "Measurement unit: \"area\" returns drought coverage in square miles (default); \"percent\" returns drought coverage as a percentage of total US land area."
+          },
+          "statistics_type": {
+            "type": "string",
+            "enum": [
+              "cumulative",
+              "categorical"
+            ],
+            "description": "How drought levels are counted: \"cumulative\" (default) means each D-level includes worse levels (D1 includes D1+D2+D3+D4); \"categorical\" means each level is non-overlapping and mutually exclusive."
+          }
+        },
+        "required": [
+          "start_date",
+          "end_date"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "drought.county.weeks",
+      "title": "Counties by Weeks in Drought",
+      "description": "Find US counties that experienced at least N weeks of drought at or above a specified drought severity level during a given time period, using data from the USDA/NOAA US Drought Monitor. Filter by state (or all states), drought level (D0\u2013D4), minimum weeks threshold, and whether to count consecutive or total (non-consecutive) weeks. Returns a list of matching counties with their FIPS codes, state, and week counts. Useful for identifying persistent drought-affected regions, prioritizing disaster relief, analyzing multi-year drought patterns, and supporting agricultural or water resource planning.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "drought_level": {
+            "type": "integer",
+            "description": "Minimum drought severity level to count: 0=D0 Abnormally Dry, 1=D1 Moderate Drought, 2=D2 Severe Drought, 3=D3 Extreme Drought, 4=D4 Exceptional Drought.",
+            "minimum": 0,
+            "maximum": 4
+          },
+          "min_weeks": {
+            "type": "integer",
+            "description": "Minimum number of weeks that a county must have been at or above the drought_level threshold to be included in results (e.g. 4 for counties with at least 4 weeks of drought).",
+            "minimum": 1
+          },
+          "start_date": {
+            "type": "string",
+            "description": "Start date for the analysis period in YYYY-MM-DD format (e.g. \"2022-01-01\"). Maximum range is 1 year from start_date."
+          },
+          "end_date": {
+            "type": "string",
+            "description": "End date for the analysis period in YYYY-MM-DD format (e.g. \"2023-01-01\"). Maximum range is 1 year from start_date."
+          },
+          "state": {
+            "type": "string",
+            "description": "Two-letter US state abbreviation to filter results to one state (e.g. \"NE\", \"TX\", \"CA\"). Leave empty to return counties from all states."
+          },
+          "consecutive": {
+            "type": "boolean",
+            "description": "If true, counts only consecutive weeks in drought; if false or omitted (default), counts all weeks (consecutive + non-consecutive) spent at or above the threshold."
+          }
+        },
+        "required": [
+          "drought_level",
+          "min_weeks",
+          "start_date",
+          "end_date"
         ]
       },
       "outputSchema": {

@@ -207,6 +207,7 @@ import { RxNormAdapter } from './rxnorm';
 import { MyGeneAdapter } from './mygene';
 import { MyVariantAdapter } from './myvariant';
 import { MyChemAdapter } from './mychem';
+import { DroughtMonitorAdapter } from './drought-monitor';
 import { config } from '../config';
 
 /**
@@ -1251,6 +1252,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'mychem':
       // MyChem.info — BioThings chemical annotation API, 197M+ compounds, DrugBank/ChEMBL/PubChem, no auth (UC-481)
       return getOrCreate('mychem', () => new MyChemAdapter());
+    case 'drought':
+    case 'drought-monitor':
+      return getOrCreate('drought-monitor', () => new DroughtMonitorAdapter());
     default:
       return undefined;
   }

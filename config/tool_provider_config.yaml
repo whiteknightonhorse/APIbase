@@ -4086,6 +4086,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-482: US Drought Monitor ---
+  - tool_id: drought.national_stats
+    name: US National Drought Statistics
+    provider: drought-monitor
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: drought.dsci
+    name: US Drought Severity and Coverage Index
+    provider: drought-monitor
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: drought.county_stats
+    name: US County Drought Statistics
+    provider: drought-monitor
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: drought.weeks_in_drought
+    name: Counties by Weeks in Drought
+    provider: drought-monitor
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

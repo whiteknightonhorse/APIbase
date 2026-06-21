@@ -6983,6 +6983,43 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'health',
     annotations: READ_ONLY,
   },
+  // US Drought Monitor (4)
+  {
+    toolId: 'drought.national_stats',
+    mcpName: 'drought.national.stats',
+    title: 'US National Drought Statistics',
+    description:
+      'Retrieve weekly US national drought statistics from the USDA/NOAA US Drought Monitor for a date range. Returns drought coverage by severity level (D0 Abnormally Dry through D4 Exceptional Drought) for CONUS and the total US (including Alaska/Hawaii/territories), reported as either square miles ("area") or percent of total land area ("percent"). Choose "cumulative" statistics_type to see how much area is in each level or worse (D1 includes D2+D3+D4); choose "categorical" for non-overlapping, mutually exclusive counts. Data is published weekly on Tuesdays — dates automatically snap to the nearest valid release. Maximum query window: 1 year. Useful for climate risk analysis, agricultural planning, and drought trend monitoring.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'drought.dsci',
+    mcpName: 'drought.national.dsci',
+    title: 'US Drought Severity and Coverage Index',
+    description:
+      'Retrieve the Drought Severity and Coverage Index (DSCI) for the US from the USDA/NOAA US Drought Monitor. DSCI is a single composite score per week ranging from 0 (no drought anywhere) to 500 (100% of the area in D4 Exceptional Drought), calculated as the weighted sum D0%×1 + D1%×2 + D2%×3 + D3%×4 + D4%×5. Returns DSCI values for both CONUS and the total US (including Alaska/Hawaii/territories) with a descriptive severity classification (none/low/moderate/severe/extreme/exceptional). Useful for tracking drought trends over time, comparing drought years, and integrating a single drought severity metric into dashboards or alerts.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'drought.county_stats',
+    mcpName: 'drought.county.stats',
+    title: 'US County Drought Statistics',
+    description:
+      'Retrieve weekly county-level drought statistics from the USDA/NOAA US Drought Monitor for a specific county or all counties in a US state. Pass a 5-digit FIPS code (e.g. "48113" for Dallas County TX, "06037" for Los Angeles County CA) to get a single county, or a 2-letter state abbreviation (e.g. "TX", "CA", "NE") to get all counties in that state. Returns drought severity by area (square miles) at each drought level (D0–D4) per week. Useful for granular agricultural impact assessment, insurance risk modeling, and local government drought planning.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'drought.weeks_in_drought',
+    mcpName: 'drought.county.weeks',
+    title: 'Counties by Weeks in Drought',
+    description:
+      'Find US counties that experienced at least N weeks of drought at or above a specified drought severity level during a given time period, using data from the USDA/NOAA US Drought Monitor. Filter by state (or all states), drought level (D0–D4), minimum weeks threshold, and whether to count consecutive or total (non-consecutive) weeks. Returns a list of matching counties with their FIPS codes, state, and week counts. Useful for identifying persistent drought-affected regions, prioritizing disaster relief, analyzing multi-year drought patterns, and supporting agricultural or water resource planning.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
   {
     toolId: 'mychem.metadata',
     mcpName: 'mychem.chemicals.metadata',
