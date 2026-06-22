@@ -4161,6 +4161,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-493: Open Context ---
+  - tool_id: opencontext.search
+    name: Search Open Context Archaeological Records
+    provider: opencontext
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: opencontext.detail
+    name: Get Open Context Item Detail
+    provider: opencontext
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: opencontext.facets
+    name: Get Open Context Search Facets
+    provider: opencontext
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: opencontext.projects
+    name: Search Open Context Excavation Projects
+    provider: opencontext
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   # --- UC-492: Catalogue of Life ---
   - tool_id: col.search
     name: Search Species in Catalogue of Life

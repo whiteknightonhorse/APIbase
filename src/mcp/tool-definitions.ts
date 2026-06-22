@@ -7216,6 +7216,76 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+  // Open Context (4)
+  {
+    toolId: 'opencontext.search',
+    mcpName: 'opencontext.archaeology.search',
+    title: 'Search Open Context Archaeological Records',
+    description:
+      'Full-text search across Open Context 200,000+ published archaeological records, ' +
+      'including excavated objects (pottery, tools, bones, coins), site contexts (trenches, ' +
+      'rooms, floors), media (photographs, 3D models, drawings), and field documents. ' +
+      'Returns paginated list of matching items with label, URI, excavation project, geographic ' +
+      'context (site → region hierarchy), latitude/longitude, date range (BCE/CE), item category, ' +
+      'and a text snippet. Filter by item type (subjects/media/documents) or search all at once. ' +
+      'Data is CC BY 4.0 from 220+ published excavation projects worldwide, maintained by the ' +
+      'Alexandria Archive Institute. Response includes items per page and start offset for pagination.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'opencontext.detail',
+    mcpName: 'opencontext.archaeology.detail',
+    title: 'Get Open Context Item Detail',
+    description:
+      'Retrieve full archaeological record details for a specific Open Context item by UUID and ' +
+      'type. Returns the complete structured data including: label, category (e.g. Pottery, Coin, ' +
+      'Human Bone), Dublin Core metadata (title, issued date, modified date), full context path ' +
+      '(geographic hierarchy: continent → country → site → trench → unit), latitude/longitude, ' +
+      'temporal coverage with BCE/CE ranges and period labels, creator attribution, subject tags, ' +
+      'project membership, license, and all project-defined observations (attributes and values ' +
+      'recorded during excavation, such as fabric type, condition, size, vessel form, description). ' +
+      'Obtain the UUID from the last path segment of any opencontext.archaeology.search result URI. ' +
+      'Item types: "subjects" for excavated objects and site contexts (default), "projects" for ' +
+      'excavation projects, "media" for images and 3D models, "documents" for field notes.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'opencontext.facets',
+    mcpName: 'opencontext.archaeology.facets',
+    title: 'Get Open Context Search Facets',
+    description:
+      'Retrieve aggregated facet statistics for a search query across Open Context without ' +
+      'downloading individual records. Returns: total matched record count, query time, ' +
+      'earliest and latest date range in BCE/CE across all matches, geographic distribution ' +
+      '(continent-level facets with counts, e.g. Asia 99K, Europe 89K), item type breakdown ' +
+      '(Subjects of Observation, Media, Documents, Projects), top matching excavation projects ' +
+      'with counts, and linked-data description facets (Creator, License, Subject, etc.). ' +
+      'Use this tool to quickly understand the scope and geographic/temporal distribution of ' +
+      'archaeological records matching a query before retrieving individual items with ' +
+      'opencontext.archaeology.search. Pass an empty string to get global database statistics.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'opencontext.projects',
+    mcpName: 'opencontext.archaeology.projects',
+    title: 'Search Open Context Excavation Projects',
+    description:
+      'Search for archaeological excavation projects and collections published in Open Context. ' +
+      'Returns a paginated list of matching projects with label, URI, publication date, and last ' +
+      'update date. Each project represents a distinct archaeological investigation — from major ' +
+      'multi-season excavations (e.g. Petra Great Temple Excavations, Murlo, Kenan Tepe) to ' +
+      'regional surveys (e.g. Eastern Korinthia Archaeological Survey) and collaborative datasets ' +
+      '(e.g. Digital Index of North American Archaeology — DINAA). Use the returned URI path ' +
+      'segment as the UUID in opencontext.archaeology.detail (with item_type="projects") to ' +
+      'retrieve full project metadata including description, geographic coverage, contributors, ' +
+      'and linked data. Combine with opencontext.archaeology.search to find specific item types ' +
+      'within a known project (not yet supported via API — use facets for project-based counts).',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
   {
     toolId: 'col.children',
     mcpName: 'col.species.children',

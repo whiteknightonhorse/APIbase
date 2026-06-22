@@ -1898,5 +1898,14 @@
     "reset_period": "none",
     "docs_url": "https://api.catalogueoflife.org",
     "limit_proof": "Open public API \u2014 no auth, no documented rate limits. CC BY 4.0. ~10M taxa from 600+ peer-reviewed checklists. Hosted by GBIF on behalf of COL."
+  },
+  "opencontext": {
+    "display_name": "Open Context",
+    "health_url": "https://opencontext.org/query/.json?q=pottery&rows=1&response=uri-meta",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://opencontext.org/about/services",
+    "limit_proof": "CC BY 4.0 open archaeological data. RSL permits 'ai-all' usage. No auth, no documented rate limits. 200K+ records from 220+ excavation projects."
   }
 }

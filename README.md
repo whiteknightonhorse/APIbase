@@ -1,6 +1,6 @@
 # APIbase.pro — The API Hub for AI Agents
 
-> One MCP endpoint. 681 tools. 206 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
+> One MCP endpoint. 685 tools. 207 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Frameworks](https://apibase.pro/frameworks)** | **[Dashboard](https://apibase.pro/dashboard)**
 
@@ -74,7 +74,7 @@ Combine APIbase (real-world APIs) with Playwright (browser) and Context7 (docs):
 }
 ```
 
-Zero API-key management (Base Account handles auth + signing), zero per-provider signup (APIbase aggregates 206 providers). Full guide: [apibase.pro/frameworks#base-mcp](https://apibase.pro/frameworks#base-mcp).
+Zero API-key management (Base Account handles auth + signing), zero per-provider signup (APIbase aggregates 207 providers). Full guide: [apibase.pro/frameworks#base-mcp](https://apibase.pro/frameworks#base-mcp).
 
 ### Via npm (stdio bridge)
 
@@ -106,7 +106,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 
 ---
 
-## Tool Categories (681 tools, 206 providers)
+## Tool Categories (685 tools, 207 providers)
 
 | Category | Tools | Providers | Examples |
 |----------|-------|-----------|----------|

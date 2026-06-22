@@ -1,7 +1,7 @@
 # APIbase — Universal API Hub for AI Agents
 # https://apibase.pro
 
-> 681 API tools from 206 providers via one MCP endpoint.
+> 685 API tools from 207 providers via one MCP endpoint.
 > Supports x402 (USDC on Base) and MPP payments.
 
 ## Quick Start for Agents

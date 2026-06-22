@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 681 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 685 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -39456,6 +39456,248 @@
           "error": {
             "type": "object",
             "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "opencontext.archaeology.detail",
+      "title": "Get Open Context Item Detail",
+      "description": "Retrieve full archaeological record details for a specific Open Context item by UUID and type. Returns the complete structured data including: label, category (e.g. Pottery, Coin, Human Bone), Dublin Core metadata (title, issued date, modified date), full context path (geographic hierarchy: continent \u2192 country \u2192 site \u2192 trench \u2192 unit), latitude/longitude, temporal coverage with BCE/CE ranges and period labels, creator attribution, subject tags, project membership, license, and all project-defined observations (attributes and values recorded during excavation, such as fabric type, condition, size, vessel form, description). Obtain the UUID from the last path segment of any opencontext.archaeology.search result URI. Item types: \"subjects\" for excavated objects and site contexts (default), \"projects\" for excavation projects, \"media\" for images and 3D models, \"documents\" for field notes.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "description": "UUID of the Open Context item to retrieve (e.g. \"013860d8-a5c9-48fc-d695-0ab6cc7c94b0\"). Obtain from opencontext.archaeology.search results (last path segment of the URI).",
+            "minLength": 1
+          },
+          "item_type": {
+            "type": "string",
+            "enum": [
+              "subjects",
+              "projects",
+              "media",
+              "documents"
+            ],
+            "description": "Item category for routing to the correct endpoint. \"subjects\" for excavated objects/finds/contexts (default); \"projects\" for excavation projects; \"media\" for images/3D models; \"documents\" for field notes/reports. Matches the path segment in the item URI (e.g. opencontext.org/subjects/...)."
+          }
+        },
+        "required": [
+          "uuid"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "opencontext.archaeology.facets",
+      "title": "Get Open Context Search Facets",
+      "description": "Retrieve aggregated facet statistics for a search query across Open Context without downloading individual records. Returns: total matched record count, query time, earliest and latest date range in BCE/CE across all matches, geographic distribution (continent-level facets with counts, e.g. Asia 99K, Europe 89K), item type breakdown (Subjects of Observation, Media, Documents, Projects), top matching excavation projects with counts, and linked-data description facets (Creator, License, Subject, etc.). Use this tool to quickly understand the scope and geographic/temporal distribution of archaeological records matching a query before retrieving individual items with opencontext.archaeology.search. Pass an empty string to get global database statistics.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query to compute facets for (e.g. \"Roman pottery\", \"Bronze Age\"). Use an empty string \"\" to get facets across the entire Open Context database."
+          },
+          "item_type": {
+            "type": "string",
+            "enum": [
+              "subjects",
+              "media",
+              "documents",
+              "all"
+            ],
+            "description": "Optional filter to restrict facet computation to a specific item type. \"subjects\" for excavated objects; \"media\" for images/3D; \"documents\" for field notes; \"all\" or omit to aggregate across all types."
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "opencontext.archaeology.projects",
+      "title": "Search Open Context Excavation Projects",
+      "description": "Search for archaeological excavation projects and collections published in Open Context. Returns a paginated list of matching projects with label, URI, publication date, and last update date. Each project represents a distinct archaeological investigation \u2014 from major multi-season excavations (e.g. Petra Great Temple Excavations, Murlo, Kenan Tepe) to regional surveys (e.g. Eastern Korinthia Archaeological Survey) and collaborative datasets (e.g. Digital Index of North American Archaeology \u2014 DINAA). Use the returned URI path segment as the UUID in opencontext.archaeology.detail (with item_type=\"projects\") to retrieve full project metadata including description, geographic coverage, contributors, and linked data. Combine with opencontext.archaeology.search to find specific item types within a known project (not yet supported via API \u2014 use facets for project-based counts).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query for archaeological excavation projects or collections (e.g. \"Turkey\", \"Roman\", \"DINAA\", \"Petra\"). Use an empty string \"\" to browse all available projects."
+          },
+          "rows": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of project results to return (1\u201350, default 10)."
+          },
+          "start": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Zero-based pagination offset for browsing large result sets (default 0)."
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "opencontext.archaeology.search",
+      "title": "Search Open Context Archaeological Records",
+      "description": "Full-text search across Open Context 200,000+ published archaeological records, including excavated objects (pottery, tools, bones, coins), site contexts (trenches, rooms, floors), media (photographs, 3D models, drawings), and field documents. Returns paginated list of matching items with label, URI, excavation project, geographic context (site \u2192 region hierarchy), latitude/longitude, date range (BCE/CE), item category, and a text snippet. Filter by item type (subjects/media/documents) or search all at once. Data is CC BY 4.0 from 220+ published excavation projects worldwide, maintained by the Alexandria Archive Institute. Response includes items per page and start offset for pagination.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Full-text search query for archaeological items (e.g. \"Roman pottery\", \"Bronze Age burial\", \"Petra temple\", \"obsidian flake\"). Searches labels, descriptions, and project metadata across 200K+ records.",
+            "minLength": 1
+          },
+          "item_type": {
+            "type": "string",
+            "enum": [
+              "subjects",
+              "media",
+              "documents",
+              "all"
+            ],
+            "description": "Filter by item category. \"subjects\" for excavated objects and contexts (default); \"media\" for images, 3D models, and videos; \"documents\" for field notes and reports; \"all\" to search across all types."
+          },
+          "rows": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of results to return per page (1\u201350, default 10)."
+          },
+          "start": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Zero-based pagination offset. Use with rows to page through results (e.g. start=10, rows=10 to get the second page)."
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
           }
         },
         "required": [

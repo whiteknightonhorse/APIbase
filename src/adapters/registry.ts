@@ -211,6 +211,7 @@ import { DroughtMonitorAdapter } from './drought-monitor';
 import { EuropepmcAdapter } from './europepmc';
 import { RorAdapter } from './ror';
 import { CatalogueOfLifeAdapter } from './catalogue-of-life';
+import { OpenContextAdapter } from './opencontext';
 import { config } from '../config';
 
 /**
@@ -1267,6 +1268,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'col':
       // Catalogue of Life — ~10M known species, CC BY 4.0, no auth (UC-492)
       return getOrCreate('col', () => new CatalogueOfLifeAdapter());
+    case 'opencontext':
+      // Open Context — archaeological open data, 200K+ finds/sites/projects, CC BY 4.0, no auth (UC-493)
+      return getOrCreate('opencontext', () => new OpenContextAdapter());
     default:
       return undefined;
   }
