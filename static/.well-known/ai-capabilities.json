@@ -2,8 +2,8 @@
   "platform": "APIbase",
   "version": "2.0",
   "updated_at": "2026-04-01T00:00:00Z",
-  "tools_count": 689,
-  "providers_count": 208,
+  "tools_count": 693,
+  "providers_count": 209,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
@@ -115,9 +115,9 @@
     },
     {
       "name": "business",
-      "tools": 8,
-      "providers": "GLEIF, Companies House, Hunter.io",
-      "examples": "LEI lookup, UK companies, email enrichment"
+      "tools": 12,
+      "providers": "GLEIF, Companies House, Hunter.io, INSEE Sirene",
+      "examples": "LEI lookup, UK companies, email enrichment, French SIREN/SIRET lookup"
     },
     {
       "name": "developer",

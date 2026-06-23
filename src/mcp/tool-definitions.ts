@@ -7378,4 +7378,73 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+
+  // INSEE Sirene (4)
+  {
+    toolId: 'insee.company_by_siren',
+    mcpName: 'insee.company.by_siren',
+    title: 'Lookup French Company by SIREN',
+    description:
+      'Retrieve the official record of a French legal unit (company, association, sole trader) ' +
+      'from the INSEE Sirene national registry using its 9-digit SIREN identifier. ' +
+      'Returns the current company name, acronym, administrative status (active/ceased), ' +
+      'NAF/APE activity code, legal category code, creation date, company-size band (TPE/PME/ETI/GE), ' +
+      'and head-office NIC. ' +
+      'The Sirene database covers all ~30M French legal units registered since 1973, updated daily. ' +
+      'Use insee.establishment.by_siret for physical address and site-level details, or ' +
+      'insee.company.search to find companies by name or activity code.',
+    category: 'business',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'insee.establishment_by_siret',
+    mcpName: 'insee.establishment.by_siret',
+    title: 'Lookup French Establishment by SIRET',
+    description:
+      'Retrieve the official record of a French establishment (physical site/branch) from the ' +
+      'INSEE Sirene registry using its 14-digit SIRET number (SIREN + NIC). ' +
+      'Returns the establishment status (active/closed), NAF activity code, creation date, ' +
+      'full postal address (street, postal code, city), head-office flag, and the parent ' +
+      'company (legal unit) record. ' +
+      'The Sirene database covers ~40M French establishments; address data is geocoded by INSEE. ' +
+      'Use insee.company.by_siren to look up only the parent company, or ' +
+      'insee.establishment.search to find establishments by postal code or city.',
+    category: 'business',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'insee.search_companies',
+    mcpName: 'insee.company.search',
+    title: 'Search French Companies in Sirene',
+    description:
+      'Search French legal units (companies, associations, sole traders) in the INSEE Sirene ' +
+      'national registry using a Lucene-style filter query. ' +
+      'Supports filtering by company name (denominationUniteLegale), NAF activity code ' +
+      '(activitePrincipaleUniteLegale, e.g. "62.01Z" for software publishing), ' +
+      'administrative status (etatAdministratifUniteLegale: A=active, C=ceased), ' +
+      'and legal category code (categorieJuridiqueUniteLegale, e.g. 5710 for SA). ' +
+      'Combine clauses with AND / OR operators. Returns SIREN, name, acronym, status, ' +
+      'NAF code, legal category, and creation date for each matching company. ' +
+      'Use insee.company.by_siren to retrieve full details for a specific SIREN number.',
+    category: 'business',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'insee.search_establishments',
+    mcpName: 'insee.establishment.search',
+    title: 'Search French Establishments in Sirene',
+    description:
+      'Search French establishments (physical sites, branches, stores) in the INSEE Sirene ' +
+      'registry using a Lucene-style filter query. ' +
+      'Supports filtering by postal code (codePostalEtablissement, e.g. "75008"), ' +
+      'city name (libelleCommuneEtablissement, e.g. "PARIS"), ' +
+      'NAF activity code (activitePrincipaleEtablissement, e.g. "47.11B" for supermarkets), ' +
+      'status (etatAdministratifEtablissement: A=active, F=closed), ' +
+      'and parent company name (denominationUniteLegale). ' +
+      'Combine clauses with AND / OR operators. Returns SIRET, address, status, NAF code, ' +
+      'head-office flag, and parent company summary for each matching establishment. ' +
+      'Use insee.establishment.by_siret to retrieve full details for a specific SIRET.',
+    category: 'business',
+    annotations: READ_ONLY,
+  },
 ];

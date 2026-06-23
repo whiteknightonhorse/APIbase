@@ -1916,5 +1916,14 @@
     "reset_period": "hourly",
     "docs_url": "https://apiportal.wto.org/api-details#api=TimeSeries-prod&operation=get-data",
     "limit_proof": "WTO API portal: free tier 10 requests/second, 10,000 requests/hour per subscription key. Two keys in .env for failover."
+  },
+  "insee": {
+    "display_name": "INSEE Sirene API",
+    "health_url": "https://api.insee.fr/api-sirene/3.11/informations",
+    "limit_type": "monthly",
+    "free_limit": 500000,
+    "reset_period": "monthly",
+    "docs_url": "https://portail-api.insee.fr/catalog/api/2ba0e549-5587-3ef1-9082-99cd865de66f/doc",
+    "limit_proof": "INSEE portail API: free plan 30 req/min, 500,000 calls/month per consumer key."
   }
 }

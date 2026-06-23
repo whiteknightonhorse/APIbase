@@ -213,6 +213,7 @@ import { RorAdapter } from './ror';
 import { CatalogueOfLifeAdapter } from './catalogue-of-life';
 import { OpenContextAdapter } from './opencontext';
 import { WtoAdapter } from './wto';
+import { InseeAdapter } from './insee';
 import { config } from '../config';
 
 /**
@@ -1282,6 +1283,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
             process.env.PROVIDER_KEY_WTO_SECONDARY ?? '',
           ),
       );
+    case 'insee':
+      // INSEE Sirene API — French company/establishment registry, SIREN/SIRET lookup (UC-495)
+      return getOrCreate('insee', () => new InseeAdapter(process.env.PROVIDER_KEY_INSEE ?? ''));
     default:
       return undefined;
   }

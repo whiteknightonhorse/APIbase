@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 689 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 693 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -39900,6 +39900,216 @@
           "error": {
             "type": "object",
             "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "insee.company.by_siren",
+      "title": "Lookup French Company by SIREN",
+      "description": "Retrieve the official record of a French legal unit (company, association, sole trader) from the INSEE Sirene national registry using its 9-digit SIREN identifier. Returns the current company name, acronym, administrative status (active/ceased), NAF/APE activity code, legal category code, creation date, company-size band (TPE/PME/ETI/GE), and head-office NIC. The Sirene database covers all ~30M French legal units registered since 1973, updated daily. Use insee.establishment.by_siret for physical address and site-level details, or insee.company.search to find companies by name or activity code.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "siren": {
+            "type": "string",
+            "description": "SIREN company identifier \u2014 exactly 9 digits (e.g. 552081317 for EDF). Spaces are stripped automatically."
+          }
+        },
+        "required": [
+          "siren"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "insee.establishment.by_siret",
+      "title": "Lookup French Establishment by SIRET",
+      "description": "Retrieve the official record of a French establishment (physical site/branch) from the INSEE Sirene registry using its 14-digit SIRET number (SIREN + NIC). Returns the establishment status (active/closed), NAF activity code, creation date, full postal address (street, postal code, city), head-office flag, and the parent company (legal unit) record. The Sirene database covers ~40M French establishments; address data is geocoded by INSEE. Use insee.company.by_siren to look up only the parent company, or insee.establishment.search to find establishments by postal code or city.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "siret": {
+            "type": "string",
+            "description": "SIRET establishment identifier \u2014 exactly 14 digits (SIREN + NIC, e.g. 55208131766522). Spaces are stripped automatically."
+          }
+        },
+        "required": [
+          "siret"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "insee.company.search",
+      "title": "Search French Companies in Sirene",
+      "description": "Search French legal units (companies, associations, sole traders) in the INSEE Sirene national registry using a Lucene-style filter query. Supports filtering by company name (denominationUniteLegale), NAF activity code (activitePrincipaleUniteLegale, e.g. \"62.01Z\" for software publishing), administrative status (etatAdministratifUniteLegale: A=active, C=ceased), and legal category code (categorieJuridiqueUniteLegale, e.g. 5710 for SA). Combine clauses with AND / OR operators. Returns SIREN, name, acronym, status, NAF code, legal category, and creation date for each matching company. Use insee.company.by_siren to retrieve full details for a specific SIREN number.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "description": "Lucene-style filter expression on legal-unit fields. Examples: \"denominationUniteLegale:AIRBUS\" searches by company name; \"activitePrincipaleUniteLegale:62.01Z\" searches by NAF activity code; \"etatAdministratifUniteLegale:A\" returns only active companies (A=active, C=ceased); \"categorieJuridiqueUniteLegale:5710\" searches by legal category code. Combine with AND / OR operators."
+          },
+          "max": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "Maximum number of results to return (1\u201320, default 10)."
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Zero-based starting offset for pagination (default 0)."
+          }
+        },
+        "required": [
+          "q"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "insee.establishment.search",
+      "title": "Search French Establishments in Sirene",
+      "description": "Search French establishments (physical sites, branches, stores) in the INSEE Sirene registry using a Lucene-style filter query. Supports filtering by postal code (codePostalEtablissement, e.g. \"75008\"), city name (libelleCommuneEtablissement, e.g. \"PARIS\"), NAF activity code (activitePrincipaleEtablissement, e.g. \"47.11B\" for supermarkets), status (etatAdministratifEtablissement: A=active, F=closed), and parent company name (denominationUniteLegale). Combine clauses with AND / OR operators. Returns SIRET, address, status, NAF code, head-office flag, and parent company summary for each matching establishment. Use insee.establishment.by_siret to retrieve full details for a specific SIRET.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "description": "Lucene-style filter expression on establishment fields. Examples: \"codePostalEtablissement:75008\" searches by French postal code; \"libelleCommuneEtablissement:PARIS\" searches by city name; \"activitePrincipaleEtablissement:47.11B\" searches by NAF activity code; \"etatAdministratifEtablissement:A\" returns only active establishments (A=active, F=closed); \"denominationUniteLegale:CARREFOUR\" filters by parent company name. Combine with AND / OR operators."
+          },
+          "max": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "Maximum number of results to return (1\u201320, default 10)."
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Zero-based starting offset for pagination (default 0)."
+          }
+        },
+        "required": [
+          "q"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
           }
         },
         "required": [

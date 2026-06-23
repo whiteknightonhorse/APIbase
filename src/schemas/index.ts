@@ -213,6 +213,7 @@ import { rorSchemas } from './ror.schema';
 import { catalogueOfLifeSchemas } from './catalogue-of-life.schema';
 import { opencontextSchemas } from './opencontext.schema';
 import { wtoSchemas } from './wto.schema';
+import { inseeSchemas } from './insee.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -429,4 +430,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...catalogueOfLifeSchemas,
   ...opencontextSchemas,
   ...wtoSchemas,
+  ...inseeSchemas,
 };
