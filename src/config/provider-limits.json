@@ -1988,5 +1988,14 @@
     "reset_period": "none",
     "docs_url": "https://www.marinespecies.org/rest/",
     "limit_proof": "WoRMS REST API: no authentication required, no rate limits documented. CC BY 4.0 open access, 240K+ accepted marine species."
+  },
+  "bankofcanada": {
+    "display_name": "Bank of Canada",
+    "health_url": "https://www.bankofcanada.ca/valet/observations/FXCADUSD/json?recent=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.bankofcanada.ca/valet/docs",
+    "limit_proof": "Bank of Canada Valet API: no authentication required, no documented rate limits. Open data, attribution required per Terms of Use."
   }
 }

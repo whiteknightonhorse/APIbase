@@ -4436,6 +4436,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-503: Bank of Canada ---
+  - tool_id: bankofcanada.fx_rates
+    name: Bank of Canada CAD FX Rates
+    provider: bankofcanada
+    price_usd: "0.001"
+    cache_ttl: 300
+
+  - tool_id: bankofcanada.policy_rate
+    name: Bank of Canada Policy & Prime Rate
+    provider: bankofcanada
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: bankofcanada.inflation
+    name: Bank of Canada Inflation (CPI)
+    provider: bankofcanada
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: bankofcanada.series
+    name: Bank of Canada Valet Series Lookup
+    provider: bankofcanada
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

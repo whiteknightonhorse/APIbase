@@ -7835,4 +7835,67 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'education',
     annotations: READ_ONLY,
   },
+  // Bank of Canada (4)
+  {
+    toolId: 'bankofcanada.fx_rates',
+    mcpName: 'bankofcanada.fx.rates',
+    title: 'Bank of Canada CAD FX Rates',
+    description:
+      'Get Canadian dollar (CAD) exchange rates against major world currencies from the Bank of Canada Valet API. ' +
+      'Returns daily average reciprocal rates: 1 CAD expressed in foreign currency units (e.g. FXCADUSD = 0.7061 means 1 CAD = 0.7061 USD). ' +
+      'Default currencies: USD, EUR, GBP, JPY, AUD, CHF, MXN, SEK, NOK, HKD. ' +
+      'Specify custom ISO 4217 codes via the currencies parameter. ' +
+      'Fetch the latest rate (recent=1, default), N most-recent observations, or a date range (start_date + end_date). ' +
+      'Data published on each Bank of Canada business day. ' +
+      'Source: Bank of Canada, www.bankofcanada.ca — open data, attribution required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bankofcanada.policy_rate',
+    mcpName: 'bankofcanada.rates.policy',
+    title: 'Bank of Canada Policy & Prime Rate',
+    description:
+      'Get Bank of Canada overnight target rate and prime lending rate history from the Valet API. ' +
+      'overnight_rate_pct (series V39079): the Bank of Canada target for the overnight rate — its primary monetary policy instrument. ' +
+      'prime_rate_pct (series V80691311): the prime lending rate set by financial institutions as a function of the overnight rate. ' +
+      'Rate changes occur on scheduled Bank of Canada announcement dates (approximately 8 times per year). ' +
+      'Returns the 10 most-recent observations by default; use start_date/end_date for historical ranges going back to 1994. ' +
+      'Essential for Canadian mortgage, loan, and bond analysis. ' +
+      'Source: Bank of Canada, www.bankofcanada.ca — open data, attribution required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bankofcanada.inflation',
+    mcpName: 'bankofcanada.rates.inflation',
+    title: 'Bank of Canada Inflation (CPI)',
+    description:
+      'Get Canadian Consumer Price Index (CPI) inflation measures published by the Bank of Canada Valet API. ' +
+      'Returns four monthly series as year-over-year percentage changes: ' +
+      'total_cpi_yoy_pct (all-items CPI), core_cpi_yoy_pct (CPI excluding food and energy), ' +
+      'cpiw_yoy_pct (CPIW — basket-weight-adjusted measure), cpi_median_yoy_pct (median year-over-year CPI change). ' +
+      'Default: 12 most-recent monthly observations (one year). ' +
+      'Use start_date/end_date for historical ranges. ' +
+      "These are the Bank of Canada's key inflation tracking measures, used to assess achievement of the 2% inflation target. " +
+      'Source: Bank of Canada, www.bankofcanada.ca — open data, attribution required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bankofcanada.series',
+    mcpName: 'bankofcanada.data.series',
+    title: 'Bank of Canada Valet Series Lookup',
+    description:
+      'Retrieve observations for any Bank of Canada Valet series by series code(s). ' +
+      'Supports one or multiple comma-separated codes (e.g. "FXCADUSD,FXCADEUR" or "V39079"). ' +
+      'Browse all available series at https://www.bankofcanada.ca/valet/lists/series/json — ' +
+      'over 8,000 series covering FX rates, interest rates, inflation, commodity prices, credit aggregates, and more. ' +
+      'Key codes: FXCADUSD (CAD/USD), V39079 (overnight target rate), V80691311 (prime rate), ' +
+      'STATIC_TOTALCPICHANGE (total CPI % YoY), CPIW, CPI_MEDIAN, A.BCPI (annual commodity price index). ' +
+      'Returns latest values, full series metadata, and history for the requested date range. ' +
+      'Source: Bank of Canada, www.bankofcanada.ca — open data, attribution required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
 ];

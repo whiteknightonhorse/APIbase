@@ -221,6 +221,7 @@ import { vamSchemas } from './vam.schema';
 import { pharmgkbSchemas } from './pharmgkb.schema';
 import { brregSchemas } from './brreg.schema';
 import { wormsSchemas } from './worms.schema';
+import { bankofcanadaSchemas } from './bankofcanada.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -445,4 +446,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...pharmgkbSchemas,
   ...brregSchemas,
   ...wormsSchemas,
+  ...bankofcanadaSchemas,
 };

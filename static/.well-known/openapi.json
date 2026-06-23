@@ -66826,6 +66826,362 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/bankofcanada.fx_rates/call": {
+      "post": {
+        "operationId": "bankofcanada_fx_rates",
+        "summary": "Bank of Canada CAD FX Rates",
+        "description": "Get Canadian dollar (CAD) exchange rates against major world currencies from the Bank of Canada Valet API. Returns daily average reciprocal rates: 1 CAD expressed in foreign currency units (e.g. FXCADUSD = 0.7061 means 1 CAD = 0.7061 USD). Default currencies: USD, EUR, GBP, JPY, AUD, CHF, MXN, SEK, NOK, HKD. Specify custom ISO 4217 codes via the currencies parameter. Fetch the latest rate (recent=1, default), N most-recent observations, or a date range (start_date + end_date). Data published on each Bank of Canada business day. Source: Bank of Canada, www.bankofcanada.ca — open data, attribution required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bankofcanada.fx_rates"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "currencies": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 3,
+                      "maxLength": 3
+                    },
+                    "description": "ISO 4217 currency codes to fetch CAD rates for (e.g. [\"USD\",\"EUR\",\"GBP\",\"JPY\"]). Omit to get all 10 default major currencies: USD, EUR, GBP, JPY, AUD, CHF, MXN, SEK, NOK, HKD."
+                  },
+                  "recent": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 1000,
+                    "description": "Number of most-recent observations to return (default 1 = latest rate only). Ignored when start_date or end_date is provided."
+                  },
+                  "start_date": {
+                    "type": "string",
+                    "description": "Start date for historical range in YYYY-MM-DD format (e.g. \"2026-01-01\"). Use with end_date to get a specific date range."
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "End date for historical range in YYYY-MM-DD format (e.g. \"2026-06-22\"). Use with start_date to get a specific date range."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/bankofcanada.policy_rate/call": {
+      "post": {
+        "operationId": "bankofcanada_policy_rate",
+        "summary": "Bank of Canada Policy & Prime Rate",
+        "description": "Get Bank of Canada overnight target rate and prime lending rate history from the Valet API. overnight_rate_pct (series V39079): the Bank of Canada target for the overnight rate — its primary monetary policy instrument. prime_rate_pct (series V80691311): the prime lending rate set by financial institutions as a function of the overnight rate. Rate changes occur on scheduled Bank of Canada announcement dates (approximately 8 times per year). Returns the 10 most-recent observations by default; use start_date/end_date for historical ranges going back to 1994. Essential for Canadian mortgage, loan, and bond analysis. Source: Bank of Canada, www.bankofcanada.ca — open data, attribution required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bankofcanada.policy_rate"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "recent": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 1000,
+                    "description": "Number of most-recent observations to return (default 10). Rate changes occur on scheduled BoC announcement dates (roughly 8 times per year). Ignored when start_date or end_date is provided."
+                  },
+                  "start_date": {
+                    "type": "string",
+                    "description": "Start date for historical range in YYYY-MM-DD format (e.g. \"2020-01-01\"). Overnight rate history goes back to 1994."
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "End date for historical range in YYYY-MM-DD format (e.g. \"2026-06-22\"). Defaults to the most recent available date."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/bankofcanada.inflation/call": {
+      "post": {
+        "operationId": "bankofcanada_inflation",
+        "summary": "Bank of Canada Inflation (CPI)",
+        "description": "Get Canadian Consumer Price Index (CPI) inflation measures published by the Bank of Canada Valet API. Returns four monthly series as year-over-year percentage changes: total_cpi_yoy_pct (all-items CPI), core_cpi_yoy_pct (CPI excluding food and energy), cpiw_yoy_pct (CPIW — basket-weight-adjusted measure), cpi_median_yoy_pct (median year-over-year CPI change). Default: 12 most-recent monthly observations (one year). Use start_date/end_date for historical ranges. These are the Bank of Canada's key inflation tracking measures, used to assess achievement of the 2% inflation target. Source: Bank of Canada, www.bankofcanada.ca — open data, attribution required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bankofcanada.inflation"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "recent": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 120,
+                    "description": "Number of most-recent monthly observations to return (default 12 = one year). CPI data is published monthly by Statistics Canada. Ignored when start_date or end_date is provided."
+                  },
+                  "start_date": {
+                    "type": "string",
+                    "description": "Start date for historical range in YYYY-MM-DD format (e.g. \"2020-01-01\"). Monthly data — use the first of the month."
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "End date for historical range in YYYY-MM-DD format (e.g. \"2026-05-01\"). Defaults to the most recent available month."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/bankofcanada.series/call": {
+      "post": {
+        "operationId": "bankofcanada_series",
+        "summary": "Bank of Canada Valet Series Lookup",
+        "description": "Retrieve observations for any Bank of Canada Valet series by series code(s). Supports one or multiple comma-separated codes (e.g. \"FXCADUSD,FXCADEUR\" or \"V39079\"). Browse all available series at https://www.bankofcanada.ca/valet/lists/series/json — over 8,000 series covering FX rates, interest rates, inflation, commodity prices, credit aggregates, and more. Key codes: FXCADUSD (CAD/USD), V39079 (overnight target rate), V80691311 (prime rate), STATIC_TOTALCPICHANGE (total CPI % YoY), CPIW, CPI_MEDIAN, A.BCPI (annual commodity price index). Returns latest values, full series metadata, and history for the requested date range. Source: Bank of Canada, www.bankofcanada.ca — open data, attribution required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bankofcanada.series"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "series_codes": {
+                    "type": "string",
+                    "description": "One or more Bank of Canada Valet series codes, comma-separated (e.g. \"FXCADUSD\", \"V39079,V80691311\", \"STATIC_TOTALCPICHANGE\"). Browse available series at https://www.bankofcanada.ca/valet/lists/series/json. Key codes: FXCADUSD (CAD/USD rate), V39079 (overnight target rate), V80691311 (prime rate), STATIC_TOTALCPICHANGE (total CPI % change YoY), CPIW (CPIW % change YoY), CPI_MEDIAN (CPI-median), A.BCPI (annual commodity price index)."
+                  },
+                  "recent": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 1000,
+                    "description": "Number of most-recent observations to return (default 10). Ignored when start_date or end_date is provided."
+                  },
+                  "start_date": {
+                    "type": "string",
+                    "description": "Start date for historical range in YYYY-MM-DD format (e.g. \"2020-01-01\")."
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "End date for historical range in YYYY-MM-DD format (e.g. \"2026-06-22\")."
+                  }
+                },
+                "required": [
+                  "series_codes"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {
