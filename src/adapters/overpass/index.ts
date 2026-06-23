@@ -122,7 +122,7 @@ export class OverpassAdapter extends BaseAdapter {
   }
 
   private buildNamedPlaceQuery(params: Record<string, unknown>): string {
-    const name = String(params.name).replace(/"/g, '\\"');
+    const name = String(params.name).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
     const limit = Math.min(Number(params.limit ?? 10), 30);
     const timeout = 20;
     const featureType = String(params.feature_type ?? 'all');

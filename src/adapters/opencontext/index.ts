@@ -22,6 +22,16 @@ const OC_BASE = 'https://opencontext.org';
  * Archaeological open data — 200K+ finds, sites, projects. CC BY 4.0. No auth.
  * Anubis bot protection bypassed by setting User-Agent to include "research-client".
  */
+const _stripTags = (s: unknown): string => {
+  let r = String(s ?? '');
+  let p = '';
+  while (r !== p) {
+    p = r;
+    r = r.replace(/<[^>]*>/g, '');
+  }
+  return r;
+};
+
 export class OpenContextAdapter extends BaseAdapter {
   constructor() {
     super({ provider: 'opencontext', baseUrl: OC_BASE });
@@ -125,7 +135,7 @@ export class OpenContextAdapter extends BaseAdapter {
         early_bce_ce: it['early bce/ce'] ?? null,
         late_bce_ce: it['late bce/ce'] ?? null,
         item_category: it['item category'] ?? '',
-        snippet: (it.snippet ?? '').replace(/<[^>]+>/g, '').trim(),
+        snippet: _stripTags(it.snippet).trim(),
         thumbnail: it.thumbnail ?? '',
         published: it.published ?? '',
         updated: it.updated ?? '',
@@ -171,7 +181,7 @@ export class OpenContextAdapter extends BaseAdapter {
               const obj = v as Record<string, unknown>;
               const text =
                 (obj['@en'] as string) ?? (obj.label as string) ?? (obj.slug as string) ?? '';
-              return text.replace(/<[^>]+>/g, '').trim();
+              return _stripTags(text).trim();
             }
             return String(v ?? '');
           })
