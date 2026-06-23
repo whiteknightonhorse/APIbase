@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 717 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 721 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -41525,6 +41525,210 @@
         },
         "required": [
           "org_number"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "worms.species.classification",
+      "title": "WoRMS Taxonomic Classification",
+      "description": "Get the full taxonomic classification tree for a marine taxon by AphiaID. Returns the complete nested hierarchy from Superdomain/Biota down to the queried taxon \u2014 each node has AphiaID, rank, and scientific name. Ideal for building taxonomic trees, verifying rank placement, or navigating the WoRMS backbone. Source: World Register of Marine Species, CC BY 4.0.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "aphia_id": {
+            "type": "integer",
+            "description": "WoRMS AphiaID of the taxon whose full classification tree you want to retrieve (e.g. 137102 for Orcinus orca).",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "aphia_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "worms.species.details",
+      "title": "WoRMS Species Details",
+      "description": "Retrieve the full WoRMS Aphia record for a taxon by its AphiaID. Returns complete taxonomy (kingdom to genus), accepted name and authority, valid AphiaID for synonyms, citation string, LSID (life science identifier), habitat flags, and last-modified date. Use this to resolve synonym chains \u2014 if status is \"unaccepted\", valid_AphiaID points to the accepted taxon. Source: World Register of Marine Species, CC BY 4.0.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "aphia_id": {
+            "type": "integer",
+            "description": "WoRMS AphiaID \u2014 the unique numeric identifier for a taxon (e.g. 137102 for Orcinus orca). Obtain via worms.species.search.",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "aphia_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "worms.species.search",
+      "title": "WoRMS Species Search",
+      "description": "Search 240K+ accepted marine species by scientific or partial name in the World Register of Marine Species (WoRMS). Returns AphiaID, accepted scientific name, authority, taxonomic status, kingdom/phylum/class/order/family/genus, LSID, and habitat flags (marine/brackish/freshwater/terrestrial/extinct). Supports fuzzy matching and optional restriction to marine-only taxa. Use the AphiaID from results with worms.species.details, worms.species.classification, or worms.species.vernaculars. Source: WoRMS Editorial Board, CC BY 4.0.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Scientific or partial name to search (e.g. \"Orcinus orca\", \"Tursiops\", \"Gadus morhua\"). Case-insensitive."
+          },
+          "like": {
+            "type": "boolean",
+            "description": "Enable fuzzy/partial match (default true). Set false for exact scientific name match only."
+          },
+          "marine_only": {
+            "type": "boolean",
+            "description": "Restrict results to marine species only (default true). Set false to include brackish/freshwater/terrestrial."
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Pagination offset \u2014 return records starting at this position (default 1, max 50 per page)."
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "worms.species.vernaculars",
+      "title": "WoRMS Vernacular Names",
+      "description": "Retrieve all registered vernacular (common) names for a marine taxon by AphiaID across all languages. Each entry includes the common name, ISO language code, and full language name. For example, AphiaID 137102 (Orcinus orca) returns \"killer whale\" (English), \"orca\" (Spanish), \"\u00e9paulard\" (French), and dozens more. Useful for multilingual species identification, biodiversity apps, and natural-history content. Source: World Register of Marine Species, CC BY 4.0.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "aphia_id": {
+            "type": "integer",
+            "description": "WoRMS AphiaID of the taxon whose vernacular (common) names you want \u2014 returns names across all registered languages (e.g. \"killer whale\" in English, \"orca\" in Spanish).",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "aphia_id"
         ]
       },
       "outputSchema": {

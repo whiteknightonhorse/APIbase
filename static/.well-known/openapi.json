@@ -66498,6 +66498,334 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/worms.species.search/call": {
+      "post": {
+        "operationId": "worms_species_search",
+        "summary": "WoRMS Species Search",
+        "description": "Search 240K+ accepted marine species by scientific or partial name in the World Register of Marine Species (WoRMS). Returns AphiaID, accepted scientific name, authority, taxonomic status, kingdom/phylum/class/order/family/genus, LSID, and habitat flags (marine/brackish/freshwater/terrestrial/extinct). Supports fuzzy matching and optional restriction to marine-only taxa. Use the AphiaID from results with worms.species.details, worms.species.classification, or worms.species.vernaculars. Source: WoRMS Editorial Board, CC BY 4.0.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "worms.species.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Scientific or partial name to search (e.g. \"Orcinus orca\", \"Tursiops\", \"Gadus morhua\"). Case-insensitive."
+                  },
+                  "like": {
+                    "type": "boolean",
+                    "description": "Enable fuzzy/partial match (default true). Set false for exact scientific name match only."
+                  },
+                  "marine_only": {
+                    "type": "boolean",
+                    "description": "Restrict results to marine species only (default true). Set false to include brackish/freshwater/terrestrial."
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Pagination offset — return records starting at this position (default 1, max 50 per page)."
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/worms.species.details/call": {
+      "post": {
+        "operationId": "worms_species_details",
+        "summary": "WoRMS Species Details",
+        "description": "Retrieve the full WoRMS Aphia record for a taxon by its AphiaID. Returns complete taxonomy (kingdom to genus), accepted name and authority, valid AphiaID for synonyms, citation string, LSID (life science identifier), habitat flags, and last-modified date. Use this to resolve synonym chains — if status is \"unaccepted\", valid_AphiaID points to the accepted taxon. Source: World Register of Marine Species, CC BY 4.0.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "worms.species.details"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "aphia_id": {
+                    "type": "integer",
+                    "description": "WoRMS AphiaID — the unique numeric identifier for a taxon (e.g. 137102 for Orcinus orca). Obtain via worms.species.search.",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "aphia_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/worms.species.classification/call": {
+      "post": {
+        "operationId": "worms_species_classification",
+        "summary": "WoRMS Taxonomic Classification",
+        "description": "Get the full taxonomic classification tree for a marine taxon by AphiaID. Returns the complete nested hierarchy from Superdomain/Biota down to the queried taxon — each node has AphiaID, rank, and scientific name. Ideal for building taxonomic trees, verifying rank placement, or navigating the WoRMS backbone. Source: World Register of Marine Species, CC BY 4.0.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "worms.species.classification"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "aphia_id": {
+                    "type": "integer",
+                    "description": "WoRMS AphiaID of the taxon whose full classification tree you want to retrieve (e.g. 137102 for Orcinus orca).",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "aphia_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/worms.species.vernaculars/call": {
+      "post": {
+        "operationId": "worms_species_vernaculars",
+        "summary": "WoRMS Vernacular Names",
+        "description": "Retrieve all registered vernacular (common) names for a marine taxon by AphiaID across all languages. Each entry includes the common name, ISO language code, and full language name. For example, AphiaID 137102 (Orcinus orca) returns \"killer whale\" (English), \"orca\" (Spanish), \"épaulard\" (French), and dozens more. Useful for multilingual species identification, biodiversity apps, and natural-history content. Source: World Register of Marine Species, CC BY 4.0.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "worms.species.vernaculars"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "aphia_id": {
+                    "type": "integer",
+                    "description": "WoRMS AphiaID of the taxon whose vernacular (common) names you want — returns names across all registered languages (e.g. \"killer whale\" in English, \"orca\" in Spanish).",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "aphia_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

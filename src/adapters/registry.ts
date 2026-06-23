@@ -220,6 +220,7 @@ import { OpenstatesAdapter } from './openstates';
 import { VamAdapter } from './vam';
 import { PharmGkbAdapter } from './pharmgkb';
 import { BrregAdapter } from './brreg';
+import { WormsAdapter } from './worms';
 import { config } from '../config';
 
 /**
@@ -1313,6 +1314,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'brreg':
       // Brreg (UC-501) — Norway business registry, 1M+ entities, no auth
       return getOrCreate('brreg', () => new BrregAdapter());
+    case 'worms':
+      // WoRMS (UC-502) — World Register of Marine Species, 240K+ taxa, no auth
+      return getOrCreate('worms', () => new WormsAdapter());
     default:
       return undefined;
   }

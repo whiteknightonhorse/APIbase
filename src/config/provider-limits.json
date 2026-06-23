@@ -1979,5 +1979,14 @@
     "reset_period": "none",
     "docs_url": "https://data.brreg.no/enhetsregisteret/api/docs",
     "limit_proof": "Brønnøysundregistrene API: no authentication required, no rate limits documented. Open data NLOD 2.0 — commercial use permitted."
+  },
+  "worms": {
+    "display_name": "WoRMS (Marine Species)",
+    "health_url": "https://www.marinespecies.org/rest/AphiaRecordByAphiaID/137102",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.marinespecies.org/rest/",
+    "limit_proof": "WoRMS REST API: no authentication required, no rate limits documented. CC BY 4.0 open access, 240K+ accepted marine species."
   }
 }

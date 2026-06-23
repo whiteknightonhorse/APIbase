@@ -7781,4 +7781,58 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'business',
     annotations: READ_ONLY,
   },
+  // WoRMS — World Register of Marine Species (4)
+  {
+    toolId: 'worms.species.search',
+    mcpName: 'worms.species.search',
+    title: 'WoRMS Species Search',
+    description:
+      'Search 240K+ accepted marine species by scientific or partial name in the World Register of Marine Species (WoRMS). ' +
+      'Returns AphiaID, accepted scientific name, authority, taxonomic status, kingdom/phylum/class/order/family/genus, ' +
+      'LSID, and habitat flags (marine/brackish/freshwater/terrestrial/extinct). ' +
+      'Supports fuzzy matching and optional restriction to marine-only taxa. ' +
+      'Use the AphiaID from results with worms.species.details, worms.species.classification, or worms.species.vernaculars. ' +
+      'Source: WoRMS Editorial Board, CC BY 4.0.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'worms.species.details',
+    mcpName: 'worms.species.details',
+    title: 'WoRMS Species Details',
+    description:
+      'Retrieve the full WoRMS Aphia record for a taxon by its AphiaID. ' +
+      'Returns complete taxonomy (kingdom to genus), accepted name and authority, valid AphiaID for synonyms, ' +
+      'citation string, LSID (life science identifier), habitat flags, and last-modified date. ' +
+      'Use this to resolve synonym chains — if status is "unaccepted", valid_AphiaID points to the accepted taxon. ' +
+      'Source: World Register of Marine Species, CC BY 4.0.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'worms.species.classification',
+    mcpName: 'worms.species.classification',
+    title: 'WoRMS Taxonomic Classification',
+    description:
+      'Get the full taxonomic classification tree for a marine taxon by AphiaID. ' +
+      'Returns the complete nested hierarchy from Superdomain/Biota down to the queried taxon — ' +
+      'each node has AphiaID, rank, and scientific name. ' +
+      'Ideal for building taxonomic trees, verifying rank placement, or navigating the WoRMS backbone. ' +
+      'Source: World Register of Marine Species, CC BY 4.0.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'worms.species.vernaculars',
+    mcpName: 'worms.species.vernaculars',
+    title: 'WoRMS Vernacular Names',
+    description:
+      'Retrieve all registered vernacular (common) names for a marine taxon by AphiaID across all languages. ' +
+      'Each entry includes the common name, ISO language code, and full language name. ' +
+      'For example, AphiaID 137102 (Orcinus orca) returns "killer whale" (English), "orca" (Spanish), "épaulard" (French), ' +
+      'and dozens more. Useful for multilingual species identification, biodiversity apps, and natural-history content. ' +
+      'Source: World Register of Marine Species, CC BY 4.0.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
 ];

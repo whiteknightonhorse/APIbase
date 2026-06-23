@@ -4411,6 +4411,31 @@ tools:
     price_usd: "0.002"
     cache_ttl: 3600
 
+  # --- UC-502: WoRMS ---
+  - tool_id: worms.species.search
+    name: WoRMS Species Search
+    provider: worms
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: worms.species.details
+    name: WoRMS Species Details
+    provider: worms
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: worms.species.classification
+    name: WoRMS Taxonomic Classification
+    provider: worms
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: worms.species.vernaculars
+    name: WoRMS Vernacular Names
+    provider: worms
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform
