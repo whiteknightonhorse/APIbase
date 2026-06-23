@@ -1,6 +1,6 @@
 # APIbase.pro — The API Hub for AI Agents
 
-> One MCP endpoint. 701 tools. 211 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
+> One MCP endpoint. 705 tools. 212 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Frameworks](https://apibase.pro/frameworks)** | **[Dashboard](https://apibase.pro/dashboard)**
 
@@ -74,7 +74,7 @@ Combine APIbase (real-world APIs) with Playwright (browser) and Context7 (docs):
 }
 ```
 
-Zero API-key management (Base Account handles auth + signing), zero per-provider signup (APIbase aggregates 211 providers). Full guide: [apibase.pro/frameworks#base-mcp](https://apibase.pro/frameworks#base-mcp).
+Zero API-key management (Base Account handles auth + signing), zero per-provider signup (APIbase aggregates 212 providers). Full guide: [apibase.pro/frameworks#base-mcp](https://apibase.pro/frameworks#base-mcp).
 
 ### Via npm (stdio bridge)
 
@@ -106,7 +106,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 
 ---
 
-## Tool Categories (701 tools, 211 providers)
+## Tool Categories (705 tools, 212 providers)
 
 | Category | Tools | Providers | Examples |
 |----------|-------|-----------|----------|
@@ -136,7 +136,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 | **Nutrition Database** | 2 | FatSecret | 2.3M+ foods, calories, macros, vitamins |
 | **Education & Research** | 50 | OpenAlex, arXiv, PubMed, CrossRef, DBLP, Zenodo, DataCite, ROR, BHL | Papers, colleges, DOI lookup, CS bibliography, research datasets, research org registry, 60M-page biodiversity literature |
 | **Jobs & Career** | 23 | Adzuna, TheirStack, Jooble, Reed, Remotive, Arbeitnow, BLS, ESCO, USAJOBS | Global job search, UK/EU/remote, salary data, tech stack analysis, US federal civil-service |
-| **Legal & Regulatory** | 15 | Regulations.gov, Federal Register, CourtListener, GOV.UK Content API, FCC Open Data | US/UK regulations, court opinions, government publications, FCC proceedings |
+| **Legal & Regulatory** | 19 | Regulations.gov, Federal Register, CourtListener, GOV.UK Content API, FCC Open Data, OpenStates | US/UK regulations, court opinions, government publications, FCC proceedings, US state bills and legislators |
 | **Air Quality** | 2 | IQAir AirVisual | AQI, pollutants (PM2.5/O3), 30K+ stations |
 | **Weather** | 23 | WeatherAPI.com, NWS, NOAA, NASA FIRMS, NOAA AWC, CheckWX, AVWX, US Drought Monitor | Current/forecast, hourly, observations, astronomy, alerts, fire detection, aviation METAR/TAF/SIGMET (raw + decoded JSON), parsed NOTAMs and PIREPs, drought severity statistics |
 | **Space & Astronomy** | 21 | NASA, JPL, NOAA SWPC, NTRS, CERN Open Data | APOD, asteroids, fireballs, solar flares, technical reports, particle physics datasets |

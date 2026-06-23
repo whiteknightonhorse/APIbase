@@ -65033,6 +65033,388 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/openstates.people_search/call": {
+      "post": {
+        "operationId": "openstates_people_search",
+        "summary": "Search State Legislators",
+        "description": "Search current US state legislators across all 50 states. Filter by state jurisdiction, name, political party, or district. Returns legislator profiles including name, party affiliation, chamber role (Senator/Representative/Delegate), district, jurisdiction, and profile image. Powered by OpenStates (open-data, CC-licensed). Use jurisdiction codes such as \"ca\" (California), \"tx\" (Texas), \"ny\" (New York).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "openstates.people_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "jurisdiction": {
+                    "type": "string",
+                    "description": "State or jurisdiction abbreviation to filter legislators (e.g. \"ca\" for California, \"tx\" for Texas, \"ny\" for New York). Required unless name is provided."
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Search legislators by full or partial name (e.g. \"Pelosi\", \"Nancy Pelosi\"). Case-insensitive substring match."
+                  },
+                  "party": {
+                    "type": "string",
+                    "description": "Filter by political party affiliation (e.g. \"Democratic\", \"Republican\", \"Independent\")."
+                  },
+                  "district": {
+                    "type": "string",
+                    "description": "Filter by legislative district number or name (e.g. \"12\", \"Senate District 5\")."
+                  },
+                  "per_page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Number of results per page (1–50, default 20)."
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Page number for pagination (default 1)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/openstates.bills_search/call": {
+      "post": {
+        "operationId": "openstates_bills_search",
+        "summary": "Search State Bills",
+        "description": "Search US state legislative bills by jurisdiction, keyword, session, or subject. Returns bill summaries with identifier, title, latest action, passage date, and link to the OpenStates detail page. Covers all 50 US states and territories. Filter by session (e.g. \"20252026\"), classification (bill/resolution), or subject tag. Use bills_detail to fetch full text, sponsors, and voting records.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "openstates.bills_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "jurisdiction": {
+                    "type": "string",
+                    "description": "State or jurisdiction abbreviation to search bills in (e.g. \"ca\", \"tx\", \"ny\"). Required unless q is provided."
+                  },
+                  "q": {
+                    "type": "string",
+                    "description": "Full-text keyword search across bill titles and text (e.g. \"climate change\", \"education funding\")."
+                  },
+                  "session": {
+                    "type": "string",
+                    "description": "Legislative session identifier to filter bills (e.g. \"20252026\" for 2025-2026 session). Format varies by state."
+                  },
+                  "classification": {
+                    "type": "string",
+                    "description": "Filter by bill type classification (e.g. \"bill\", \"resolution\", \"joint resolution\", \"concurrent resolution\")."
+                  },
+                  "subject": {
+                    "type": "string",
+                    "description": "Filter by subject/topic tag assigned to the bill (e.g. \"Education\", \"Environment\", \"Health Care\")."
+                  },
+                  "per_page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Number of results per page (1–50, default 20)."
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Page number for pagination (default 1)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/openstates.bill_detail/call": {
+      "post": {
+        "operationId": "openstates_bill_detail",
+        "summary": "Get Bill Details",
+        "description": "Get full details for a specific US state bill by jurisdiction, session, and bill identifier. Returns complete legislative history including all actions (committee referrals, readings, amendments, final votes), sponsor information, abstract/summary, and roll-call vote counts. Obtain jurisdiction and session from bills_search results. Example: jurisdiction=\"ca\", session=\"20252026\", bill_id=\"SB 700\".",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "openstates.bill_detail"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "jurisdiction": {
+                    "type": "string",
+                    "description": "State abbreviation where the bill was introduced (e.g. \"ca\" for California, \"ny\" for New York)."
+                  },
+                  "session": {
+                    "type": "string",
+                    "description": "Legislative session identifier the bill belongs to (e.g. \"20252026\", \"2024\"). Obtain from bills_search results."
+                  },
+                  "bill_id": {
+                    "type": "string",
+                    "description": "Bill identifier within the session (e.g. \"SB 700\", \"HB 1234\", \"SR 5\"). Obtain from bills_search results."
+                  }
+                },
+                "required": [
+                  "jurisdiction",
+                  "session",
+                  "bill_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/openstates.committees/call": {
+      "post": {
+        "operationId": "openstates_committees",
+        "summary": "List Legislative Committees",
+        "description": "List legislative committees for a US state, optionally filtered by chamber (upper/lower) or type (committee/subcommittee). Returns committee name, chamber, jurisdiction, and parent committee for subcommittees. Useful for identifying which committee oversees a policy area or finding where a bill is assigned. Use jurisdiction codes such as \"ca\", \"tx\", \"ny\".",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "openstates.committees"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "jurisdiction": {
+                    "type": "string",
+                    "description": "State or jurisdiction abbreviation to list committees for (e.g. \"ca\", \"tx\", \"ny\")."
+                  },
+                  "chamber": {
+                    "type": "string",
+                    "description": "Filter by chamber (e.g. \"upper\" for Senate, \"lower\" for House/Assembly, \"legislature\" for joint committees)."
+                  },
+                  "classification": {
+                    "type": "string",
+                    "description": "Filter by committee classification (e.g. \"committee\", \"subcommittee\")."
+                  },
+                  "per_page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Number of results per page (1–50, default 20)."
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Page number for pagination (default 1)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

@@ -7565,4 +7565,60 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // OpenStates (UC-498) — US state legislative data: bills, legislators, committees (4 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'openstates.people_search',
+    mcpName: 'openstates.legislature.people_search',
+    title: 'Search State Legislators',
+    description:
+      'Search current US state legislators across all 50 states. Filter by state jurisdiction, ' +
+      'name, political party, or district. Returns legislator profiles including name, party ' +
+      'affiliation, chamber role (Senator/Representative/Delegate), district, jurisdiction, ' +
+      'and profile image. Powered by OpenStates (open-data, CC-licensed). ' +
+      'Use jurisdiction codes such as "ca" (California), "tx" (Texas), "ny" (New York).',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'openstates.bills_search',
+    mcpName: 'openstates.legislature.bills_search',
+    title: 'Search State Bills',
+    description:
+      'Search US state legislative bills by jurisdiction, keyword, session, or subject. ' +
+      'Returns bill summaries with identifier, title, latest action, passage date, and link ' +
+      'to the OpenStates detail page. Covers all 50 US states and territories. ' +
+      'Filter by session (e.g. "20252026"), classification (bill/resolution), or subject tag. ' +
+      'Use bills_detail to fetch full text, sponsors, and voting records.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'openstates.bill_detail',
+    mcpName: 'openstates.legislature.bill_detail',
+    title: 'Get Bill Details',
+    description:
+      'Get full details for a specific US state bill by jurisdiction, session, and bill identifier. ' +
+      'Returns complete legislative history including all actions (committee referrals, readings, ' +
+      'amendments, final votes), sponsor information, abstract/summary, and roll-call vote counts. ' +
+      'Obtain jurisdiction and session from bills_search results. ' +
+      'Example: jurisdiction="ca", session="20252026", bill_id="SB 700".',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'openstates.committees',
+    mcpName: 'openstates.legislature.committees',
+    title: 'List Legislative Committees',
+    description:
+      'List legislative committees for a US state, optionally filtered by chamber (upper/lower) ' +
+      'or type (committee/subcommittee). Returns committee name, chamber, jurisdiction, and ' +
+      'parent committee for subcommittees. Useful for identifying which committee oversees a ' +
+      'policy area or finding where a bill is assigned. ' +
+      'Use jurisdiction codes such as "ca", "tx", "ny".',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
 ];

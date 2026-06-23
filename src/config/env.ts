@@ -395,6 +395,9 @@ export const appEnvSchema = z.object({
   // Global Fishing Watch (UC-497) — fishing vessel tracking, AIS events, fishing effort; Bearer JWT
   PROVIDER_KEY_GFW: z.string().optional().default(''),
 
+  // OpenStates (UC-498) — US state legislative data; bills, legislators, committees; X-API-Key header
+  PROVIDER_KEY_OPENSTATES: z.string().optional().default(''),
+
   // Polymarket trading — Phase 2 (UC-001 §3-§8)
   POLYMARKET_WALLET_ADDRESS: z.string().startsWith('0x').optional().default(''),
   POLYMARKET_PRIVATE_KEY: z.string().optional().default(''),

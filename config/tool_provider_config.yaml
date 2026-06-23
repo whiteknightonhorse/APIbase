@@ -4311,6 +4311,31 @@ tools:
     price_usd: "0.003"
     cache_ttl: 3600
 
+  # --- UC-498: OpenStates ---
+  - tool_id: openstates.people_search
+    name: Search State Legislators
+    provider: openstates
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: openstates.bills_search
+    name: Search State Bills
+    provider: openstates
+    price_usd: "0.001"
+    cache_ttl: 1800
+
+  - tool_id: openstates.bill_detail
+    name: Get Bill Details
+    provider: openstates
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: openstates.committees
+    name: List Legislative Committees
+    provider: openstates
+    price_usd: "0.001"
+    cache_ttl: 7200
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

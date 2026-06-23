@@ -1943,5 +1943,14 @@
     "reset_period": "daily",
     "docs_url": "https://globalfishingwatch.org/our-apis/",
     "limit_proof": "Response headers show x-ratelimit-daily-limit-requests: 50000 and x-ratelimit-monthly-limit-requests: 1500000 on free tier accounts."
+  },
+  "openstates": {
+    "display_name": "OpenStates",
+    "health_url": "https://v3.openstates.org/bills?jurisdiction=ca&per_page=1",
+    "limit_type": "daily",
+    "free_limit": 500,
+    "reset_period": "daily",
+    "docs_url": "https://docs.openstates.org/api-v3/",
+    "limit_proof": "Free tier: 500 requests/day, 10 requests/min (rate limit header: 10/min). Documented at https://docs.openstates.org/api-v3/"
   }
 }

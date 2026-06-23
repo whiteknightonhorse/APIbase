@@ -216,6 +216,7 @@ import { wtoSchemas } from './wto.schema';
 import { inseeSchemas } from './insee.schema';
 import { bhlSchemas } from './bhl.schema';
 import { gfwSchemas } from './gfw.schema';
+import { openstatesSchemas } from './openstates.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -435,4 +436,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...inseeSchemas,
   ...bhlSchemas,
   ...gfwSchemas,
+  ...openstatesSchemas,
 };

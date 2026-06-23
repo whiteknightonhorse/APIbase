@@ -216,6 +216,7 @@ import { WtoAdapter } from './wto';
 import { InseeAdapter } from './insee';
 import { BhlAdapter } from './bhl';
 import { GfwAdapter } from './gfw';
+import { OpenstatesAdapter } from './openstates';
 import { config } from '../config';
 
 /**
@@ -1294,6 +1295,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'gfw':
       // Global Fishing Watch — vessel tracking, AIS fishing events, fishing effort (UC-497)
       return getOrCreate('gfw', () => new GfwAdapter(process.env.PROVIDER_KEY_GFW ?? ''));
+    case 'openstates':
+      // OpenStates (UC-498) — US state legislative data; bills, legislators, committees
+      return getOrCreate(
+        'openstates',
+        () => new OpenstatesAdapter(process.env.PROVIDER_KEY_OPENSTATES ?? ''),
+      );
     default:
       return undefined;
   }
