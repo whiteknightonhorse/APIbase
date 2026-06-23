@@ -4461,6 +4461,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-505: OpenFDA Devices ---
+  - tool_id: openfda_devices.recalls
+    name: FDA Medical Device Recalls
+    provider: openfda_devices
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: openfda_devices.clearances_510k
+    name: FDA 510(k) Premarket Clearances
+    provider: openfda_devices
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: openfda_devices.adverse_events
+    name: FDA Medical Device Adverse Events (MAUDE)
+    provider: openfda_devices
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: openfda_devices.classification
+    name: FDA Medical Device Classification
+    provider: openfda_devices
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   # --- UC-504: OpenSenseMap ---
   - tool_id: opensensemap.box_search
     name: OpenSenseMap Station Search

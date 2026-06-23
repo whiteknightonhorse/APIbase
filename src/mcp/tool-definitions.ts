@@ -7945,6 +7945,64 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'weather',
     annotations: READ_ONLY,
   },
+  // OpenFDA Medical Devices (UC-505) — 4 tools
+  {
+    toolId: 'openfda_devices.recalls',
+    mcpName: 'openfda_devices.safety.recalls',
+    title: 'FDA Medical Device Recalls',
+    description:
+      'Search FDA medical device recall records — 58,000+ recalls across all device types since 1976. ' +
+      'Returns recall status (Ongoing/Terminated/Completed), reason for recall, affected product descriptions, ' +
+      'recalling firm, distribution pattern, corrective action taken, and product codes. ' +
+      'Filter by device name, firm, status, or date using Lucene syntax: device_name:"insulin pump" or recall_status:"Ongoing". ' +
+      'Essential for medical device safety research, regulatory compliance, and patient risk assessment. ' +
+      'Source: FDA CFRES database, US public domain.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'openfda_devices.clearances_510k',
+    mcpName: 'openfda_devices.clearance.premarket_510k',
+    title: 'FDA 510(k) Premarket Clearances',
+    description:
+      'Search FDA 510(k) premarket clearance submissions — 175,000+ cleared medical devices. ' +
+      'Returns k_number, device name, applicant, decision (SESE=cleared), decision date, product code, ' +
+      'advisory committee specialty, and clearance type (Traditional/Special/Abbreviated). ' +
+      'Filter by device name, k-number, applicant, or product code. ' +
+      'A 510(k) clearance means FDA determined the device is substantially equivalent to a legally marketed predicate device. ' +
+      'Useful for market research, competitive analysis, and regulatory pathway planning. ' +
+      'Source: FDA CDRH 510(k) database, US public domain.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'openfda_devices.adverse_events',
+    mcpName: 'openfda_devices.safety.adverse_events',
+    title: 'FDA Medical Device Adverse Events (MAUDE)',
+    description:
+      'Search FDA MAUDE database for medical device adverse event reports — 25M+ records of device malfunctions, injuries, and deaths. ' +
+      'Returns event type (Malfunction/Injury/Death), device brand name, device class, manufacturer, ' +
+      'report date, event date, event location, and report source type. ' +
+      'Filter using Lucene syntax: device.brand_name:"pacemaker" or event_type:"Death". ' +
+      'MAUDE (Manufacturer and User Facility Device Experience) is the primary FDA device safety surveillance database. ' +
+      'Source: FDA MAUDE database, US public domain.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'openfda_devices.classification',
+    mcpName: 'openfda_devices.reference.classification',
+    title: 'FDA Medical Device Classification',
+    description:
+      'Search FDA medical device classification database — 7,000+ product codes with risk class and regulatory requirements. ' +
+      'Returns device name, product code, device class (1=low/exempt, 2=moderate/510k, 3=high/PMA), ' +
+      'medical specialty, regulation number, definition, life-sustain/implant flags. ' +
+      'Filter by device name, product code, device class, or specialty description. ' +
+      'Device class determines the regulatory pathway: Class I (General Controls), Class II (510k), Class III (PMA). ' +
+      'Source: FDA CDRH device classification database, US public domain.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
   {
     toolId: 'opensensemap.sensor_timeseries',
     mcpName: 'opensensemap.sensors.timeseries',

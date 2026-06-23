@@ -223,6 +223,7 @@ import { BrregAdapter } from './brreg';
 import { WormsAdapter } from './worms';
 import { BankOfCanadaAdapter } from './bankofcanada';
 import { OpenSenseMapAdapter } from './opensensemap';
+import { OpenFdaDevicesAdapter } from './openfda-devices';
 import { config } from '../config';
 
 /**
@@ -1325,6 +1326,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'opensensemap':
       // OpenSenseMap (UC-504) — 15K+ crowdsourced env sensor stations, PM2.5/temp/humidity/UV, no auth
       return getOrCreate('opensensemap', () => new OpenSenseMapAdapter());
+    case 'openfda_devices': {
+      // OpenFDA Devices (UC-505) — FDA medical device recalls, 510(k) clearances, MAUDE adverse events, classification
+      const fdaKey = (config as Record<string, unknown>).PROVIDER_KEY_OPENFDA as string | undefined;
+      return getOrCreate('openfda_devices', () => new OpenFdaDevicesAdapter(fdaKey || ''));
+    }
     default:
       return undefined;
   }

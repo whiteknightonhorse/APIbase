@@ -223,6 +223,7 @@ import { brregSchemas } from './brreg.schema';
 import { wormsSchemas } from './worms.schema';
 import { bankofcanadaSchemas } from './bankofcanada.schema';
 import { opensensemapSchemas } from './opensensemap.schema';
+import { openfdaDevicesSchemas } from './openfda-devices.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -449,4 +450,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...wormsSchemas,
   ...bankofcanadaSchemas,
   ...opensensemapSchemas,
+  ...openfdaDevicesSchemas,
 };
