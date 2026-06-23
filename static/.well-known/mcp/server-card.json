@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 693 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 697 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -40091,6 +40091,220 @@
         },
         "required": [
           "q"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "bhl.literature.by_subject",
+      "title": "Browse BHL Subject Tags",
+      "description": "Browse the Biodiversity Heritage Library subject index to discover subject tags related to a natural-history discipline or concept (e.g. \"ornithology\", \"botany\", \"entomology\", \"paleontology\"). Returns a list of matching subject strings used to classify BHL holdings. Use the returned subjects as precise search terms in bhl.literature.search to retrieve publications filed under that subject heading.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "subject": {
+            "type": "string",
+            "description": "Subject keyword used in BHL classification (e.g. \"ornithology\", \"botany\", \"entomology\")",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "subject"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "bhl.literature.fulltext",
+      "title": "Search BHL Full Text",
+      "description": "Search within the digitized full text of Biodiversity Heritage Library publications for a specific term or phrase. Unlike the catalog search, full-text search scans the OCR-transcribed content of scanned pages, making it possible to find publications that mention a specific organism, location, concept, or measurement even when the keyword does not appear in title or subject metadata. Returns matching publications with title, authors, publisher, date, and direct BHL URLs. Use bhl.literature.search for faster metadata-only catalog queries.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Term or phrase to search within the digitized full text of BHL publications (e.g. \"symbiosis nitrogen fixation\")",
+            "minLength": 1
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of results per page (1\u201350, default 10)"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number for pagination (default 1)"
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "bhl.literature.search",
+      "title": "Search BHL Publications (Catalog)",
+      "description": "Search the Biodiversity Heritage Library catalog by keyword across title, author, subject, and publisher fields. BHL is the world's largest open-access library of biodiversity literature \u2014 60M+ pages of digitized natural-history books, journals, and manuscripts from 1469 to the present, all public domain. Returns item and title IDs, full title, authors, publisher, publication date, genre, and direct URLs to the digitized item and bibliography page. Use bhl.literature.fulltext to search within the scanned text of publications.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Keyword to search for \u2014 matches title, author, subject, and publisher fields (e.g. \"Darwin birds Galapagos\")",
+            "minLength": 1
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of results per page (1\u201350, default 10)"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number for pagination (default 1)"
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "bhl.taxonomy.name_search",
+      "title": "Search BHL Taxonomic Names",
+      "description": "Search the Biodiversity Heritage Library for confirmed scientific (Latin) names matching a given taxonomic query. Useful for discovering historical name variants, author citations, and subspecies/variety designations for a taxon as recorded in classic natural-history literature. Returns a list of confirmed name strings in the form \"Genus species Author, Year\". Use bhl.literature.search with the confirmed name to find publications containing it.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Scientific name to look up in BHL \u2014 full or partial Latin binomial (e.g. \"Quercus robur\", \"Homo sapiens\")",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "name"
         ]
       },
       "outputSchema": {

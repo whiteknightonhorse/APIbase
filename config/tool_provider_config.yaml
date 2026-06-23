@@ -4261,6 +4261,31 @@ tools:
     price_usd: "0.002"
     cache_ttl: 3600
 
+  # --- UC-496: Biodiversity Heritage Library ---
+  - tool_id: bhl.literature.search
+    name: Search BHL Publications (Catalog)
+    provider: bhl
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: bhl.literature.fulltext
+    name: Search BHL Full Text
+    provider: bhl
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: bhl.taxonomy.name_search
+    name: Search BHL Taxonomic Names
+    provider: bhl
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: bhl.literature.by_subject
+    name: Browse BHL Subject Tags
+    provider: bhl
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

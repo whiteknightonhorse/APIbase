@@ -214,6 +214,7 @@ import { CatalogueOfLifeAdapter } from './catalogue-of-life';
 import { OpenContextAdapter } from './opencontext';
 import { WtoAdapter } from './wto';
 import { InseeAdapter } from './insee';
+import { BhlAdapter } from './bhl';
 import { config } from '../config';
 
 /**
@@ -1286,6 +1287,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'insee':
       // INSEE Sirene API — French company/establishment registry, SIREN/SIRET lookup (UC-495)
       return getOrCreate('insee', () => new InseeAdapter(process.env.PROVIDER_KEY_INSEE ?? ''));
+    case 'bhl':
+      // Biodiversity Heritage Library — public-domain natural-history literature (UC-496)
+      return getOrCreate('bhl', () => new BhlAdapter(process.env.PROVIDER_KEY_BHL ?? ''));
     default:
       return undefined;
   }

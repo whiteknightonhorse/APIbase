@@ -7447,4 +7447,63 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'business',
     annotations: READ_ONLY,
   },
+
+  // Biodiversity Heritage Library (4)
+  {
+    toolId: 'bhl.literature.search',
+    mcpName: 'bhl.literature.search',
+    title: 'Search BHL Publications (Catalog)',
+    description:
+      'Search the Biodiversity Heritage Library catalog by keyword across title, author, ' +
+      "subject, and publisher fields. BHL is the world's largest open-access library of " +
+      'biodiversity literature — 60M+ pages of digitized natural-history books, journals, ' +
+      'and manuscripts from 1469 to the present, all public domain. ' +
+      'Returns item and title IDs, full title, authors, publisher, publication date, genre, ' +
+      'and direct URLs to the digitized item and bibliography page. ' +
+      'Use bhl.literature.fulltext to search within the scanned text of publications.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bhl.literature.fulltext',
+    mcpName: 'bhl.literature.fulltext',
+    title: 'Search BHL Full Text',
+    description:
+      'Search within the digitized full text of Biodiversity Heritage Library publications ' +
+      'for a specific term or phrase. Unlike the catalog search, full-text search scans the ' +
+      'OCR-transcribed content of scanned pages, making it possible to find publications ' +
+      'that mention a specific organism, location, concept, or measurement even when the ' +
+      'keyword does not appear in title or subject metadata. ' +
+      'Returns matching publications with title, authors, publisher, date, and direct BHL URLs. ' +
+      'Use bhl.literature.search for faster metadata-only catalog queries.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bhl.taxonomy.name_search',
+    mcpName: 'bhl.taxonomy.name_search',
+    title: 'Search BHL Taxonomic Names',
+    description:
+      'Search the Biodiversity Heritage Library for confirmed scientific (Latin) names ' +
+      'matching a given taxonomic query. Useful for discovering historical name variants, ' +
+      'author citations, and subspecies/variety designations for a taxon as recorded in ' +
+      'classic natural-history literature. Returns a list of confirmed name strings ' +
+      'in the form "Genus species Author, Year". ' +
+      'Use bhl.literature.search with the confirmed name to find publications containing it.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bhl.literature.by_subject',
+    mcpName: 'bhl.literature.by_subject',
+    title: 'Browse BHL Subject Tags',
+    description:
+      'Browse the Biodiversity Heritage Library subject index to discover subject tags ' +
+      'related to a natural-history discipline or concept (e.g. "ornithology", "botany", ' +
+      '"entomology", "paleontology"). Returns a list of matching subject strings used to ' +
+      'classify BHL holdings. Use the returned subjects as precise search terms in ' +
+      'bhl.literature.search to retrieve publications filed under that subject heading.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
 ];

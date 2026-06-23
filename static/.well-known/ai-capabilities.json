@@ -2,8 +2,8 @@
   "platform": "APIbase",
   "version": "2.0",
   "updated_at": "2026-04-01T00:00:00Z",
-  "tools_count": 693,
-  "providers_count": 209,
+  "tools_count": 697,
+  "providers_count": 210,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
@@ -85,9 +85,9 @@
     },
     {
       "name": "education",
-      "tools": 38,
-      "providers": "OpenAlex, arXiv, PubMed, Open Library, College Scorecard, DBLP",
-      "examples": "papers, books, colleges"
+      "tools": 42,
+      "providers": "OpenAlex, arXiv, PubMed, Open Library, College Scorecard, DBLP, BHL",
+      "examples": "papers, books, colleges, biodiversity literature"
     },
     {
       "name": "jobs",

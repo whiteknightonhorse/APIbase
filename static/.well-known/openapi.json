@@ -64320,6 +64320,344 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/bhl.literature.search/call": {
+      "post": {
+        "operationId": "bhl_literature_search",
+        "summary": "Search BHL Publications (Catalog)",
+        "description": "Search the Biodiversity Heritage Library catalog by keyword across title, author, subject, and publisher fields. BHL is the world's largest open-access library of biodiversity literature — 60M+ pages of digitized natural-history books, journals, and manuscripts from 1469 to the present, all public domain. Returns item and title IDs, full title, authors, publisher, publication date, genre, and direct URLs to the digitized item and bibliography page. Use bhl.literature.fulltext to search within the scanned text of publications.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bhl.literature.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Keyword to search for — matches title, author, subject, and publisher fields (e.g. \"Darwin birds Galapagos\")",
+                    "minLength": 1
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Number of results per page (1–50, default 10)"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Page number for pagination (default 1)"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/bhl.literature.fulltext/call": {
+      "post": {
+        "operationId": "bhl_literature_fulltext",
+        "summary": "Search BHL Full Text",
+        "description": "Search within the digitized full text of Biodiversity Heritage Library publications for a specific term or phrase. Unlike the catalog search, full-text search scans the OCR-transcribed content of scanned pages, making it possible to find publications that mention a specific organism, location, concept, or measurement even when the keyword does not appear in title or subject metadata. Returns matching publications with title, authors, publisher, date, and direct BHL URLs. Use bhl.literature.search for faster metadata-only catalog queries.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bhl.literature.fulltext"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Term or phrase to search within the digitized full text of BHL publications (e.g. \"symbiosis nitrogen fixation\")",
+                    "minLength": 1
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Number of results per page (1–50, default 10)"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Page number for pagination (default 1)"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/bhl.taxonomy.name_search/call": {
+      "post": {
+        "operationId": "bhl_taxonomy_name_search",
+        "summary": "Search BHL Taxonomic Names",
+        "description": "Search the Biodiversity Heritage Library for confirmed scientific (Latin) names matching a given taxonomic query. Useful for discovering historical name variants, author citations, and subspecies/variety designations for a taxon as recorded in classic natural-history literature. Returns a list of confirmed name strings in the form \"Genus species Author, Year\". Use bhl.literature.search with the confirmed name to find publications containing it.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bhl.taxonomy.name_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Scientific name to look up in BHL — full or partial Latin binomial (e.g. \"Quercus robur\", \"Homo sapiens\")",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/bhl.literature.by_subject/call": {
+      "post": {
+        "operationId": "bhl_literature_by_subject",
+        "summary": "Browse BHL Subject Tags",
+        "description": "Browse the Biodiversity Heritage Library subject index to discover subject tags related to a natural-history discipline or concept (e.g. \"ornithology\", \"botany\", \"entomology\", \"paleontology\"). Returns a list of matching subject strings used to classify BHL holdings. Use the returned subjects as precise search terms in bhl.literature.search to retrieve publications filed under that subject heading.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bhl.literature.by_subject"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "subject": {
+                    "type": "string",
+                    "description": "Subject keyword used in BHL classification (e.g. \"ornithology\", \"botany\", \"entomology\")",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "subject"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {
