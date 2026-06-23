@@ -7898,4 +7898,66 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+  // OpenSenseMap (4)
+  {
+    toolId: 'opensensemap.box_search',
+    mcpName: 'opensensemap.boxes.search',
+    title: 'OpenSenseMap Station Search',
+    description:
+      'Search OpenSenseMap crowdsourced environmental sensor stations by location, name, group tag, exposure type, or measured phenomenon. ' +
+      'Returns up to 100 stations with their sensors and latest measurement values. ' +
+      'OpenSenseMap hosts 15,000+ community-operated senseBox stations worldwide measuring PM2.5, temperature, humidity, UV, pressure, CO₂, and more. ' +
+      'Location search: provide latitude+longitude to find stations within max_distance meters (default 5 km). ' +
+      'Name search: pass name to filter by station name substring (e.g. "berlin", "school"). ' +
+      'Phenomenon filter: use "Temperatur", "PM2.5", "rel. Luftfeuchte", "Luftdruck", or "UV-Intensität" to find stations measuring a specific sensor type. ' +
+      'Exposure filter: "outdoor" for weather/air-quality monitors, "indoor" for home sensors. ' +
+      'Each result includes station ID (use with box_detail or sensors_latest), coordinates, sensor list, and last measurement values. ' +
+      'Data is PDDL 1.0 public domain, no attribution required. Source: https://opensensemap.org',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'opensensemap.box_detail',
+    mcpName: 'opensensemap.boxes.detail',
+    title: 'OpenSenseMap Station Detail',
+    description:
+      'Get full metadata and sensor list for a specific OpenSenseMap sensor station by its box ID. ' +
+      'Returns station name, coordinates, exposure type, hardware model, creation date, and a complete list of all sensors with their IDs, titles, units, sensor types, and latest measurement values. ' +
+      'Use this to discover the sensor IDs needed for sensor_timeseries calls. ' +
+      'A station typically has 3–12 sensors covering combinations of: temperature (°C), relative humidity (%), air pressure (hPa), PM2.5 (µg/m³), PM10 (µg/m³), UV intensity (µW/cm²), illuminance (lx), CO₂ (ppm), and more. ' +
+      'Obtain the box_id from box_search results. ' +
+      'Source: OpenSenseMap, PDDL 1.0 public domain.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'opensensemap.sensors_latest',
+    mcpName: 'opensensemap.sensors.latest',
+    title: 'OpenSenseMap Latest Sensor Readings',
+    description:
+      'Get the latest measurement value for every sensor on an OpenSenseMap station in a single call. ' +
+      'Returns all sensor readings simultaneously: temperature, humidity, pressure, PM2.5, PM10, UV, CO₂, and any other sensors installed on the station. ' +
+      'Each reading includes sensor ID, title, unit, sensor type, current value, and timestamp of measurement. ' +
+      'Sensors with no recent data show last_value: null. ' +
+      'Use box_search or box_detail to find the box_id first, then use sensor IDs from results with sensor_timeseries for historical data. ' +
+      'Ideal for real-time environmental monitoring dashboards. ' +
+      'Source: OpenSenseMap, PDDL 1.0 public domain.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'opensensemap.sensor_timeseries',
+    mcpName: 'opensensemap.sensors.timeseries',
+    title: 'OpenSenseMap Sensor Time-Series Data',
+    description:
+      'Retrieve historical time-series measurements for a specific sensor on an OpenSenseMap station. ' +
+      'Returns up to 10,000 measurement points (value + ISO 8601 timestamp) in reverse-chronological order (newest first). ' +
+      'Specify box_id and sensor_id (both from box_search or sensors_latest), and optionally narrow the window with from_date/to_date in ISO 8601 format. ' +
+      'Sensors on active stations record every 1–10 minutes, so a 24-hour window for a station with 5-min intervals yields ~288 data points. ' +
+      'Useful for charting pollution spikes, computing daily averages, building climate datasets, or triggering alerts on threshold crossings. ' +
+      'Supports any sensor type: PM2.5 (µg/m³), temperature (°C), relative humidity (%), air pressure (hPa), UV intensity, CO₂ (ppm), and more. ' +
+      'Source: OpenSenseMap, PDDL 1.0 public domain.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
 ];

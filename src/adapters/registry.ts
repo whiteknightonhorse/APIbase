@@ -222,6 +222,7 @@ import { PharmGkbAdapter } from './pharmgkb';
 import { BrregAdapter } from './brreg';
 import { WormsAdapter } from './worms';
 import { BankOfCanadaAdapter } from './bankofcanada';
+import { OpenSenseMapAdapter } from './opensensemap';
 import { config } from '../config';
 
 /**
@@ -1321,6 +1322,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'bankofcanada':
       // Bank of Canada (UC-503) — CAD FX rates, overnight/prime rate, CPI inflation, no auth
       return getOrCreate('bankofcanada', () => new BankOfCanadaAdapter());
+    case 'opensensemap':
+      // OpenSenseMap (UC-504) — 15K+ crowdsourced env sensor stations, PM2.5/temp/humidity/UV, no auth
+      return getOrCreate('opensensemap', () => new OpenSenseMapAdapter());
     default:
       return undefined;
   }

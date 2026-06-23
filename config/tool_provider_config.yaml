@@ -4461,6 +4461,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-504: OpenSenseMap ---
+  - tool_id: opensensemap.box_search
+    name: OpenSenseMap Station Search
+    provider: opensensemap
+    price_usd: "0.002"
+    cache_ttl: 300
+
+  - tool_id: opensensemap.box_detail
+    name: OpenSenseMap Station Detail
+    provider: opensensemap
+    price_usd: "0.001"
+    cache_ttl: 300
+
+  - tool_id: opensensemap.sensors_latest
+    name: OpenSenseMap Latest Sensor Readings
+    provider: opensensemap
+    price_usd: "0.001"
+    cache_ttl: 60
+
+  - tool_id: opensensemap.sensor_timeseries
+    name: OpenSenseMap Sensor Time-Series Data
+    provider: opensensemap
+    price_usd: "0.002"
+    cache_ttl: 300
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

@@ -67182,6 +67182,382 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/opensensemap.box_search/call": {
+      "post": {
+        "operationId": "opensensemap_box_search",
+        "summary": "OpenSenseMap Station Search",
+        "description": "Search OpenSenseMap crowdsourced environmental sensor stations by location, name, group tag, exposure type, or measured phenomenon. Returns up to 100 stations with their sensors and latest measurement values. OpenSenseMap hosts 15,000+ community-operated senseBox stations worldwide measuring PM2.5, temperature, humidity, UV, pressure, CO₂, and more. Location search: provide latitude+longitude to find stations within max_distance meters (default 5 km). Name search: pass name to filter by station name substring (e.g. \"berlin\", \"school\"). Phenomenon filter: use \"Temperatur\", \"PM2.5\", \"rel. Luftfeuchte\", \"Luftdruck\", or \"UV-Intensität\" to find stations measuring a specific sensor type. Exposure filter: \"outdoor\" for weather/air-quality monitors, \"indoor\" for home sensors. Each result includes station ID (use with box_detail or sensors_latest), coordinates, sensor list, and last measurement values. Data is PDDL 1.0 public domain, no attribution required. Source: https://opensensemap.org",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "opensensemap.box_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "latitude": {
+                    "type": "number",
+                    "minimum": -90,
+                    "maximum": 90,
+                    "description": "Latitude of the search center point (WGS84, e.g. 52.52 for Berlin). Required when longitude is provided."
+                  },
+                  "longitude": {
+                    "type": "number",
+                    "minimum": -180,
+                    "maximum": 180,
+                    "description": "Longitude of the search center point (WGS84, e.g. 13.40 for Berlin). Required when latitude is provided."
+                  },
+                  "max_distance": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Maximum search radius in meters when using lat/lng search (default 5000, i.e. 5 km).",
+                    "default": 5000
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Filter stations by name substring (case-insensitive). Example: \"berlin\" returns all stations with \"berlin\" in their name."
+                  },
+                  "grouptag": {
+                    "type": "string",
+                    "description": "Filter stations by group tag. Tags are set by station owners to identify communities or projects (e.g. \"luftdaten\", \"sensebox\", \"airrohr\")."
+                  },
+                  "exposure": {
+                    "type": "string",
+                    "enum": [
+                      "indoor",
+                      "outdoor",
+                      "mobile",
+                      "unknown"
+                    ],
+                    "description": "Filter stations by sensor placement: \"outdoor\" for weather/air-quality monitors, \"indoor\" for home environment sensors, \"mobile\" for moving sensors."
+                  },
+                  "phenomenon": {
+                    "type": "string",
+                    "description": "Filter stations that measure a specific phenomenon by sensor title (e.g. \"Temperatur\", \"PM2.5\", \"rel. Luftfeuchte\", \"Luftdruck\", \"UV\"). Case-insensitive."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of stations to return (1–100, default 20).",
+                    "default": 20
+                  }
+                },
+                "description": "Search parameters for OpenSenseMap station lookup"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/opensensemap.box_detail/call": {
+      "post": {
+        "operationId": "opensensemap_box_detail",
+        "summary": "OpenSenseMap Station Detail",
+        "description": "Get full metadata and sensor list for a specific OpenSenseMap sensor station by its box ID. Returns station name, coordinates, exposure type, hardware model, creation date, and a complete list of all sensors with their IDs, titles, units, sensor types, and latest measurement values. Use this to discover the sensor IDs needed for sensor_timeseries calls. A station typically has 3–12 sensors covering combinations of: temperature (°C), relative humidity (%), air pressure (hPa), PM2.5 (µg/m³), PM10 (µg/m³), UV intensity (µW/cm²), illuminance (lx), CO₂ (ppm), and more. Obtain the box_id from box_search results. Source: OpenSenseMap, PDDL 1.0 public domain.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "opensensemap.box_detail"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "box_id": {
+                    "type": "string",
+                    "description": "OpenSenseMap station (box) ID — the 24-character MongoDB ObjectId from box_search results (e.g. \"578207d56fea661300861f3b\")."
+                  }
+                },
+                "required": [
+                  "box_id"
+                ],
+                "description": "Station ID to fetch details for"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/opensensemap.sensors_latest/call": {
+      "post": {
+        "operationId": "opensensemap_sensors_latest",
+        "summary": "OpenSenseMap Latest Sensor Readings",
+        "description": "Get the latest measurement value for every sensor on an OpenSenseMap station in a single call. Returns all sensor readings simultaneously: temperature, humidity, pressure, PM2.5, PM10, UV, CO₂, and any other sensors installed on the station. Each reading includes sensor ID, title, unit, sensor type, current value, and timestamp of measurement. Sensors with no recent data show last_value: null. Use box_search or box_detail to find the box_id first, then use sensor IDs from results with sensor_timeseries for historical data. Ideal for real-time environmental monitoring dashboards. Source: OpenSenseMap, PDDL 1.0 public domain.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "opensensemap.sensors_latest"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "box_id": {
+                    "type": "string",
+                    "description": "OpenSenseMap station (box) ID — the 24-character MongoDB ObjectId from box_search results. Returns the latest measurement value for every sensor on this station."
+                  }
+                },
+                "required": [
+                  "box_id"
+                ],
+                "description": "Station ID to fetch latest sensor readings for"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/opensensemap.sensor_timeseries/call": {
+      "post": {
+        "operationId": "opensensemap_sensor_timeseries",
+        "summary": "OpenSenseMap Sensor Time-Series Data",
+        "description": "Retrieve historical time-series measurements for a specific sensor on an OpenSenseMap station. Returns up to 10,000 measurement points (value + ISO 8601 timestamp) in reverse-chronological order (newest first). Specify box_id and sensor_id (both from box_search or sensors_latest), and optionally narrow the window with from_date/to_date in ISO 8601 format. Sensors on active stations record every 1–10 minutes, so a 24-hour window for a station with 5-min intervals yields ~288 data points. Useful for charting pollution spikes, computing daily averages, building climate datasets, or triggering alerts on threshold crossings. Supports any sensor type: PM2.5 (µg/m³), temperature (°C), relative humidity (%), air pressure (hPa), UV intensity, CO₂ (ppm), and more. Source: OpenSenseMap, PDDL 1.0 public domain.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "opensensemap.sensor_timeseries"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "box_id": {
+                    "type": "string",
+                    "description": "OpenSenseMap station (box) ID — the 24-character MongoDB ObjectId from box_search or box_detail results (e.g. \"578207d56fea661300861f3b\")."
+                  },
+                  "sensor_id": {
+                    "type": "string",
+                    "description": "Sensor ID within the station — the 24-character MongoDB ObjectId found in sensors_latest or box_detail sensor list (e.g. \"578207d56fea661300861f3d\")."
+                  },
+                  "from_date": {
+                    "type": "string",
+                    "description": "Start of time range in ISO 8601 format (e.g. \"2024-01-01T00:00:00.000Z\"). Defaults to 2 days ago."
+                  },
+                  "to_date": {
+                    "type": "string",
+                    "description": "End of time range in ISO 8601 format (e.g. \"2024-01-02T00:00:00.000Z\"). Defaults to now."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10000,
+                    "description": "Maximum number of measurements to return, newest first (1–10000, default 100).",
+                    "default": 100
+                  }
+                },
+                "required": [
+                  "box_id",
+                  "sensor_id"
+                ],
+                "description": "Sensor ID and time range for time-series data retrieval"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {
