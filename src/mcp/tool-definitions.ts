@@ -7302,4 +7302,80 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+
+  // WTO Timeseries API (4) — UC-494
+  {
+    toolId: 'wto.trade_data',
+    mcpName: 'wto.trade.data',
+    title: 'Query WTO Trade and Tariff Time-Series Data',
+    description:
+      'Retrieve official World Trade Organization time-series data for trade and tariff ' +
+      'indicators by reporting economy and year. Covers 58 indicators across three domains: ' +
+      'tariff profiles (MFN applied/bound tariff averages, HS-level ad valorem duties by product), ' +
+      'merchandise trade values (exports and imports by product group, quarterly and monthly), ' +
+      'and commercial services trade (exports and imports by sector and partner). ' +
+      'Returns structured data rows with indicator code, reporting economy, partner economy ' +
+      '(for bilateral flows), product/sector classification, year, value, and unit. ' +
+      'Example queries: US MFN applied tariff in 2022 (indicator TP_A_0010, reporter 840), ' +
+      'China merchandise exports 2018-2022 (ITS_MTV_AX, reporter 156), ' +
+      'EU commercial services exports (ITS_CS_AX6, reporter 097). ' +
+      'Use wto.trade.indicators to discover indicator codes with their categories, units, ' +
+      'and year ranges. Use wto.trade.reporters to look up 3-digit economy codes. ' +
+      'Data is updated annually/quarterly by WTO Statistics Division. Free tier: 10 req/s.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'wto.indicators',
+    mcpName: 'wto.trade.indicators',
+    title: 'List WTO Trade and Tariff Indicators',
+    description:
+      'List all available World Trade Organization time-series indicators with metadata. ' +
+      'Returns indicator code, name, category (TAR=tariff, ITS_M=merchandise trade, ' +
+      'ITS_S=commercial services), subcategory, unit (e.g. percent, USD millions), ' +
+      'frequency (annual/quarterly/monthly), year coverage (startYear–endYear), ' +
+      'number of reporting economies covered, and estimated datapoint count. ' +
+      'Use this tool before wto.trade.data to identify the correct indicator codes. ' +
+      'Filter by topic_id (use wto.trade.topics to enumerate topic IDs) or by category code ' +
+      '(TAR for tariff indicators, ITS_M for merchandise trade, ITS_S for services). ' +
+      'Key indicators: TP_A_0010 (MFN applied tariff, all products), TP_B_0090 (bound tariff), ' +
+      'ITS_MTV_AX (merchandise exports by product group, annual), ' +
+      'ITS_CS_AX6 (commercial services exports by sector and partner). ' +
+      'Returns the full catalogue of 58+ indicators maintained by the WTO Statistics Division.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'wto.reporters',
+    mcpName: 'wto.trade.reporters',
+    title: 'List WTO Reporting Economies',
+    description:
+      'List all 288 reporting economies (countries and economic groups) recognized by the WTO ' +
+      'time-series database, with their 3-digit numeric codes, ISO 3-letter country codes, ' +
+      'and display names. Use these codes in wto.trade.data reporter_codes and partner_codes ' +
+      'parameters. Includes individual WTO members (e.g. 840=USA, 156=China, 276=Germany, ' +
+      '392=Japan, 356=India, 036=Australia), geographic aggregates (e.g. 097=European Union, ' +
+      '413=LDC group), and the world total (000=World). ' +
+      'Filter results client-side by name substring (e.g. "Africa", "European", "United") ' +
+      'to find the relevant codes for your query. ' +
+      'Data sourced from the WTO Statistics Division; economy composition reflects WTO membership.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'wto.topics',
+    mcpName: 'wto.trade.topics',
+    title: 'List WTO Data Topic Categories',
+    description:
+      'List all WTO time-series database topic categories with their numeric IDs and names. ' +
+      'Topics group related datasets — for example: World Tariff Profiles (topic 3), ' +
+      'I-TIP non-tariff measures (topic 1), Merchandise Trade Values (topic 7), ' +
+      'Commercial Services Trade (topic 12). ' +
+      'Use the topic ID in wto.trade.indicators (topic_id parameter) to filter and discover ' +
+      'the specific indicator codes available within that data domain. ' +
+      'Returned topics correspond to the WTO Statistics Portal database groupings maintained ' +
+      'by the WTO Statistics Division.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
 ];

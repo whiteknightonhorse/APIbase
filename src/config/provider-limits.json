@@ -1907,5 +1907,14 @@
     "reset_period": "none",
     "docs_url": "https://opencontext.org/about/services",
     "limit_proof": "CC BY 4.0 open archaeological data. RSL permits 'ai-all' usage. No auth, no documented rate limits. 200K+ records from 220+ excavation projects."
+  },
+  "wto": {
+    "display_name": "WTO Timeseries API",
+    "health_url": "https://api.wto.org/timeseries/v1/topics?lang=1",
+    "limit_type": "hourly",
+    "free_limit": 10000,
+    "reset_period": "hourly",
+    "docs_url": "https://apiportal.wto.org/api-details#api=TimeSeries-prod&operation=get-data",
+    "limit_proof": "WTO API portal: free tier 10 requests/second, 10,000 requests/hour per subscription key. Two keys in .env for failover."
   }
 }

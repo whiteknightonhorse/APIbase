@@ -63205,6 +63205,372 @@
         ]
       }
     },
+    "/api/v1/tools/opencontext.search/call": {
+      "post": {
+        "operationId": "opencontext_search",
+        "summary": "Search Open Context Archaeological Records",
+        "description": "Full-text search across Open Context 200,000+ published archaeological records, including excavated objects (pottery, tools, bones, coins), site contexts (trenches, rooms, floors), media (photographs, 3D models, drawings), and field documents. Returns paginated list of matching items with label, URI, excavation project, geographic context (site → region hierarchy), latitude/longitude, date range (BCE/CE), item category, and a text snippet. Filter by item type (subjects/media/documents) or search all at once. Data is CC BY 4.0 from 220+ published excavation projects worldwide, maintained by the Alexandria Archive Institute. Response includes items per page and start offset for pagination.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "opencontext.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Full-text search query for archaeological items (e.g. \"Roman pottery\", \"Bronze Age burial\", \"Petra temple\", \"obsidian flake\"). Searches labels, descriptions, and project metadata across 200K+ records.",
+                    "minLength": 1
+                  },
+                  "item_type": {
+                    "type": "string",
+                    "enum": [
+                      "subjects",
+                      "media",
+                      "documents",
+                      "all"
+                    ],
+                    "description": "Filter by item category. \"subjects\" for excavated objects and contexts (default); \"media\" for images, 3D models, and videos; \"documents\" for field notes and reports; \"all\" to search across all types."
+                  },
+                  "rows": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Number of results to return per page (1–50, default 10)."
+                  },
+                  "start": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Zero-based pagination offset. Use with rows to page through results (e.g. start=10, rows=10 to get the second page)."
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/opencontext.detail/call": {
+      "post": {
+        "operationId": "opencontext_detail",
+        "summary": "Get Open Context Item Detail",
+        "description": "Retrieve full archaeological record details for a specific Open Context item by UUID and type. Returns the complete structured data including: label, category (e.g. Pottery, Coin, Human Bone), Dublin Core metadata (title, issued date, modified date), full context path (geographic hierarchy: continent → country → site → trench → unit), latitude/longitude, temporal coverage with BCE/CE ranges and period labels, creator attribution, subject tags, project membership, license, and all project-defined observations (attributes and values recorded during excavation, such as fabric type, condition, size, vessel form, description). Obtain the UUID from the last path segment of any opencontext.archaeology.search result URI. Item types: \"subjects\" for excavated objects and site contexts (default), \"projects\" for excavation projects, \"media\" for images and 3D models, \"documents\" for field notes.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "opencontext.detail"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "uuid": {
+                    "type": "string",
+                    "description": "UUID of the Open Context item to retrieve (e.g. \"013860d8-a5c9-48fc-d695-0ab6cc7c94b0\"). Obtain from opencontext.archaeology.search results (last path segment of the URI).",
+                    "minLength": 1
+                  },
+                  "item_type": {
+                    "type": "string",
+                    "enum": [
+                      "subjects",
+                      "projects",
+                      "media",
+                      "documents"
+                    ],
+                    "description": "Item category for routing to the correct endpoint. \"subjects\" for excavated objects/finds/contexts (default); \"projects\" for excavation projects; \"media\" for images/3D models; \"documents\" for field notes/reports. Matches the path segment in the item URI (e.g. opencontext.org/subjects/...)."
+                  }
+                },
+                "required": [
+                  "uuid"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/opencontext.facets/call": {
+      "post": {
+        "operationId": "opencontext_facets",
+        "summary": "Get Open Context Search Facets",
+        "description": "Retrieve aggregated facet statistics for a search query across Open Context without downloading individual records. Returns: total matched record count, query time, earliest and latest date range in BCE/CE across all matches, geographic distribution (continent-level facets with counts, e.g. Asia 99K, Europe 89K), item type breakdown (Subjects of Observation, Media, Documents, Projects), top matching excavation projects with counts, and linked-data description facets (Creator, License, Subject, etc.). Use this tool to quickly understand the scope and geographic/temporal distribution of archaeological records matching a query before retrieving individual items with opencontext.archaeology.search. Pass an empty string to get global database statistics.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "opencontext.facets"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search query to compute facets for (e.g. \"Roman pottery\", \"Bronze Age\"). Use an empty string \"\" to get facets across the entire Open Context database."
+                  },
+                  "item_type": {
+                    "type": "string",
+                    "enum": [
+                      "subjects",
+                      "media",
+                      "documents",
+                      "all"
+                    ],
+                    "description": "Optional filter to restrict facet computation to a specific item type. \"subjects\" for excavated objects; \"media\" for images/3D; \"documents\" for field notes; \"all\" or omit to aggregate across all types."
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/opencontext.projects/call": {
+      "post": {
+        "operationId": "opencontext_projects",
+        "summary": "Search Open Context Excavation Projects",
+        "description": "Search for archaeological excavation projects and collections published in Open Context. Returns a paginated list of matching projects with label, URI, publication date, and last update date. Each project represents a distinct archaeological investigation — from major multi-season excavations (e.g. Petra Great Temple Excavations, Murlo, Kenan Tepe) to regional surveys (e.g. Eastern Korinthia Archaeological Survey) and collaborative datasets (e.g. Digital Index of North American Archaeology — DINAA). Use the returned URI path segment as the UUID in opencontext.archaeology.detail (with item_type=\"projects\") to retrieve full project metadata including description, geographic coverage, contributors, and linked data. Combine with opencontext.archaeology.search to find specific item types within a known project (not yet supported via API — use facets for project-based counts).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "opencontext.projects"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search query for archaeological excavation projects or collections (e.g. \"Turkey\", \"Roman\", \"DINAA\", \"Petra\"). Use an empty string \"\" to browse all available projects."
+                  },
+                  "rows": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Number of project results to return (1–50, default 10)."
+                  },
+                  "start": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Zero-based pagination offset for browsing large result sets (default 0)."
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/col.children/call": {
       "post": {
         "operationId": "col_children",
@@ -63258,6 +63624,332 @@
                 "required": [
                   "taxon_id"
                 ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/wto.trade_data/call": {
+      "post": {
+        "operationId": "wto_trade_data",
+        "summary": "Query WTO Trade and Tariff Time-Series Data",
+        "description": "Retrieve official World Trade Organization time-series data for trade and tariff indicators by reporting economy and year. Covers 58 indicators across three domains: tariff profiles (MFN applied/bound tariff averages, HS-level ad valorem duties by product), merchandise trade values (exports and imports by product group, quarterly and monthly), and commercial services trade (exports and imports by sector and partner). Returns structured data rows with indicator code, reporting economy, partner economy (for bilateral flows), product/sector classification, year, value, and unit. Example queries: US MFN applied tariff in 2022 (indicator TP_A_0010, reporter 840), China merchandise exports 2018-2022 (ITS_MTV_AX, reporter 156), EU commercial services exports (ITS_CS_AX6, reporter 097). Use wto.trade.indicators to discover indicator codes with their categories, units, and year ranges. Use wto.trade.reporters to look up 3-digit economy codes. Data is updated annually/quarterly by WTO Statistics Division. Free tier: 10 req/s.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "wto.trade_data"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "indicator_codes": {
+                    "type": "string",
+                    "description": "Comma-separated WTO indicator code(s) to retrieve data for. Examples: \"TP_A_0010\" (MFN applied tariff, all products), \"ITS_MTV_AX\" (merchandise exports by product group, annual), \"ITS_CS_AX6\" (commercial services exports by sector). Use wto.trade.indicators to discover available codes."
+                  },
+                  "reporter_codes": {
+                    "type": "string",
+                    "description": "Comma-separated WTO reporter economy code(s). Use the 3-digit numeric codes from wto.trade.reporters — e.g. \"840\" for USA, \"276\" for Germany, \"156\" for China, \"392\" for Japan, \"000\" for World aggregate. Multiple codes accepted (e.g. \"840,276,156\")."
+                  },
+                  "years": {
+                    "type": "string",
+                    "description": "Comma-separated year(s) or year-ranges to retrieve (e.g. \"2022\", \"2020,2021,2022\", \"2015-2022\"). Omit to get all available years for the indicator. Most tariff/trade indicators cover 2005–2024."
+                  },
+                  "partner_codes": {
+                    "type": "string",
+                    "description": "Comma-separated partner economy code(s) for bilateral trade data. Only applicable to indicators that have partner dimension (bilateral trade flows). Use \"000\" for world total. Omit for indicators without partner dimension (e.g. tariffs)."
+                  },
+                  "max_rows": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 500,
+                    "description": "Maximum number of data rows to return (1–500, default 100). Lower values are faster; raise for multi-year/multi-country queries."
+                  }
+                },
+                "required": [
+                  "indicator_codes",
+                  "reporter_codes"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/wto.indicators/call": {
+      "post": {
+        "operationId": "wto_indicators",
+        "summary": "List WTO Trade and Tariff Indicators",
+        "description": "List all available World Trade Organization time-series indicators with metadata. Returns indicator code, name, category (TAR=tariff, ITS_M=merchandise trade, ITS_S=commercial services), subcategory, unit (e.g. percent, USD millions), frequency (annual/quarterly/monthly), year coverage (startYear–endYear), number of reporting economies covered, and estimated datapoint count. Use this tool before wto.trade.data to identify the correct indicator codes. Filter by topic_id (use wto.trade.topics to enumerate topic IDs) or by category code (TAR for tariff indicators, ITS_M for merchandise trade, ITS_S for services). Key indicators: TP_A_0010 (MFN applied tariff, all products), TP_B_0090 (bound tariff), ITS_MTV_AX (merchandise exports by product group, annual), ITS_CS_AX6 (commercial services exports by sector and partner). Returns the full catalogue of 58+ indicators maintained by the WTO Statistics Division.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "wto.indicators"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "topic_id": {
+                    "type": "integer",
+                    "description": "Filter indicators by WTO topic ID (1–N). Use wto.trade.topics to list topic IDs. Example: topic 3 = World Tariff Profiles. Omit to list all 58+ indicators."
+                  },
+                  "category": {
+                    "type": "string",
+                    "description": "Filter indicators by category code. Known values: \"TAR\" (tariff profiles), \"ITS_M\" (merchandise trade values/indices), \"ITS_S\" (commercial services trade). Omit to return all categories."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/wto.reporters/call": {
+      "post": {
+        "operationId": "wto_reporters",
+        "summary": "List WTO Reporting Economies",
+        "description": "List all 288 reporting economies (countries and economic groups) recognized by the WTO time-series database, with their 3-digit numeric codes, ISO 3-letter country codes, and display names. Use these codes in wto.trade.data reporter_codes and partner_codes parameters. Includes individual WTO members (e.g. 840=USA, 156=China, 276=Germany, 392=Japan, 356=India, 036=Australia), geographic aggregates (e.g. 097=European Union, 413=LDC group), and the world total (000=World). Filter results client-side by name substring (e.g. \"Africa\", \"European\", \"United\") to find the relevant codes for your query. Data sourced from the WTO Statistics Division; economy composition reflects WTO membership.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "wto.reporters"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "filter": {
+                    "type": "string",
+                    "description": "Optional case-insensitive substring to filter reporters by name (e.g. \"European\", \"Africa\", \"United\"). Applied client-side — returns full list if omitted (288 economies)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/wto.topics/call": {
+      "post": {
+        "operationId": "wto_topics",
+        "summary": "List WTO Data Topic Categories",
+        "description": "List all WTO time-series database topic categories with their numeric IDs and names. Topics group related datasets — for example: World Tariff Profiles (topic 3), I-TIP non-tariff measures (topic 1), Merchandise Trade Values (topic 7), Commercial Services Trade (topic 12). Use the topic ID in wto.trade.indicators (topic_id parameter) to filter and discover the specific indicator codes available within that data domain. Returned topics correspond to the WTO Statistics Portal database groupings maintained by the WTO Statistics Division.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "wto.topics"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "locale": {
+                    "type": "string",
+                    "description": "Response language. Currently only English is supported by the WTO API (lang=1). Reserved for future use; leave unset."
+                  }
+                }
               }
             }
           }

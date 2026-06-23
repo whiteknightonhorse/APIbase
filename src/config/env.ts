@@ -382,6 +382,10 @@ export const appEnvSchema = z.object({
   // AVWX Aviation Weather (UC-424) — Authorization: BEARER header, parsed NOTAMs + PIREPs
   PROVIDER_KEY_AVWX: z.string().optional().default(''),
 
+  // WTO Timeseries API (UC-494) — Azure APIM, 10 req/s, 10K/h per key
+  PROVIDER_KEY_WTO: z.string().optional().default(''),
+  PROVIDER_KEY_WTO_SECONDARY: z.string().optional().default(''),
+
   // Polymarket trading — Phase 2 (UC-001 §3-§8)
   POLYMARKET_WALLET_ADDRESS: z.string().startsWith('0x').optional().default(''),
   POLYMARKET_PRIVATE_KEY: z.string().optional().default(''),

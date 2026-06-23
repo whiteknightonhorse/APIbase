@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 685 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 689 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -39698,6 +39698,208 @@
           "error": {
             "type": "object",
             "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "wto.trade.indicators",
+      "title": "List WTO Trade Indicators",
+      "description": "List all available World Trade Organization time-series indicators with metadata. Returns indicator code, name, category (TAR=tariff, ITS_M=merchandise trade, ITS_S=commercial services), subcategory, unit (e.g. percent, USD millions), frequency (annual/quarterly/monthly), year coverage (startYear\u2013endYear), number of reporting economies covered, and estimated datapoint count. Use this tool before wto.trade.data to identify the correct indicator codes. Filter by topic_id (use wto.trade.topics to enumerate topic IDs) or by category code (TAR for tariff indicators, ITS_M for merchandise trade, ITS_S for services). Key indicators: TP_A_0010 (MFN applied tariff, all products), TP_B_0090 (bound tariff), ITS_MTV_AX (merchandise exports by product group, annual), ITS_CS_AX6 (commercial services exports by sector and partner). Returns the full catalogue of 58+ indicators maintained by the WTO Statistics Division.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "topic_id": {
+            "type": "integer",
+            "description": "Filter indicators by WTO topic ID (1\u2013N). Use wto.trade.topics to list topic IDs. Example: topic 3 = World Tariff Profiles. Omit to list all 58+ indicators."
+          },
+          "category": {
+            "type": "string",
+            "description": "Filter indicators by category code. Known values: \"TAR\" (tariff profiles), \"ITS_M\" (merchandise trade values/indices), \"ITS_S\" (commercial services trade). Omit to return all categories."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "wto.trade.reporters",
+      "title": "List WTO Reporting Economies",
+      "description": "List all 288 reporting economies (countries and economic groups) recognized by the WTO time-series database, with their 3-digit numeric codes, ISO 3-letter country codes, and display names. Use these codes in wto.trade.data reporter_codes and partner_codes parameters. Includes individual WTO members (e.g. 840=USA, 156=China, 276=Germany, 392=Japan, 356=India, 036=Australia), geographic aggregates (e.g. 097=European Union, 413=LDC group), and the world total (000=World). Filter results client-side by name substring (e.g. \"Africa\", \"European\", \"United\") to find the relevant codes for your query. Data sourced from the WTO Statistics Division; economy composition reflects WTO membership.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "filter": {
+            "type": "string",
+            "description": "Optional case-insensitive substring to filter reporters by name (e.g. \"European\", \"Africa\", \"United\"). Applied client-side \u2014 returns full list if omitted (288 economies)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "wto.trade.topics",
+      "title": "List WTO Data Topics",
+      "description": "List all WTO time-series database topic categories with their numeric IDs and names. Topics group related datasets \u2014 for example: World Tariff Profiles (topic 3), I-TIP non-tariff measures (topic 1), Merchandise Trade Values (topic 7), Commercial Services Trade (topic 12). Use the topic ID in wto.trade.indicators (topic_id parameter) to filter and discover the specific indicator codes available within that data domain. Returned topics correspond to the WTO Statistics Portal database groupings maintained by the WTO Statistics Division.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locale": {
+            "type": "string",
+            "description": "Response language. Currently only English is supported by the WTO API (lang=1). Reserved for future use; leave unset."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "wto.trade.data",
+      "title": "Query WTO Trade and Tariff Data",
+      "description": "Retrieve official World Trade Organization time-series data for trade and tariff indicators by reporting economy and year. Covers 58 indicators across three domains: tariff profiles (MFN applied/bound tariff averages, HS-level ad valorem duties by product), merchandise trade values (exports and imports by product group, quarterly and monthly), and commercial services trade (exports and imports by sector and partner). Returns structured data rows with indicator code, reporting economy, partner economy (for bilateral flows), product/sector classification, year, value, and unit. Example queries: US MFN applied tariff in 2022 (indicator TP_A_0010, reporter 840), China merchandise exports 2018-2022 (ITS_MTV_AX, reporter 156), EU commercial services exports (ITS_CS_AX6, reporter 097). Use wto.trade.indicators to discover indicator codes with their categories, units, and year ranges. Use wto.trade.reporters to look up 3-digit economy codes. Data is updated annually/quarterly by WTO Statistics Division. Free tier: 10 req/s.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "indicator_codes": {
+            "type": "string",
+            "description": "Comma-separated WTO indicator code(s) to retrieve data for. Examples: \"TP_A_0010\" (MFN applied tariff, all products), \"ITS_MTV_AX\" (merchandise exports by product group, annual), \"ITS_CS_AX6\" (commercial services exports by sector). Use wto.trade.indicators to discover available codes."
+          },
+          "reporter_codes": {
+            "type": "string",
+            "description": "Comma-separated WTO reporter economy code(s). Use the 3-digit numeric codes from wto.trade.reporters \u2014 e.g. \"840\" for USA, \"276\" for Germany, \"156\" for China, \"392\" for Japan, \"000\" for World aggregate. Multiple codes accepted (e.g. \"840,276,156\")."
+          },
+          "years": {
+            "type": "string",
+            "description": "Comma-separated year(s) or year-ranges to retrieve (e.g. \"2022\", \"2020,2021,2022\", \"2015-2022\"). Omit to get all available years for the indicator. Most tariff/trade indicators cover 2005\u20132024."
+          },
+          "partner_codes": {
+            "type": "string",
+            "description": "Comma-separated partner economy code(s) for bilateral trade data. Only applicable to indicators that have partner dimension (bilateral trade flows). Use \"000\" for world total. Omit for indicators without partner dimension (e.g. tariffs)."
+          },
+          "max_rows": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 500,
+            "description": "Maximum number of data rows to return (1\u2013500, default 100). Lower values are faster; raise for multi-year/multi-country queries."
+          }
+        },
+        "required": [
+          "indicator_codes",
+          "reporter_codes"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
           }
         },
         "required": [

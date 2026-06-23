@@ -4211,6 +4211,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-494: WTO Timeseries API ---
+  - tool_id: wto.trade_data
+    name: Query WTO Trade and Tariff Data
+    provider: wto
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: wto.indicators
+    name: List WTO Trade Indicators
+    provider: wto
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: wto.reporters
+    name: List WTO Reporting Economies
+    provider: wto
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: wto.topics
+    name: List WTO Data Topics
+    provider: wto
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

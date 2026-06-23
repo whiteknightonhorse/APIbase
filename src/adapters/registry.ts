@@ -212,6 +212,7 @@ import { EuropepmcAdapter } from './europepmc';
 import { RorAdapter } from './ror';
 import { CatalogueOfLifeAdapter } from './catalogue-of-life';
 import { OpenContextAdapter } from './opencontext';
+import { WtoAdapter } from './wto';
 import { config } from '../config';
 
 /**
@@ -1271,6 +1272,16 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'opencontext':
       // Open Context — archaeological open data, 200K+ finds/sites/projects, CC BY 4.0, no auth (UC-493)
       return getOrCreate('opencontext', () => new OpenContextAdapter());
+    case 'wto':
+      // WTO Timeseries API — trade/tariff statistics, 58 indicators, 288 economies (UC-494)
+      return getOrCreate(
+        'wto',
+        () =>
+          new WtoAdapter(
+            process.env.PROVIDER_KEY_WTO ?? '',
+            process.env.PROVIDER_KEY_WTO_SECONDARY ?? '',
+          ),
+      );
     default:
       return undefined;
   }

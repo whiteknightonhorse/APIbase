@@ -2,8 +2,8 @@
   "platform": "APIbase",
   "version": "2.0",
   "updated_at": "2026-04-01T00:00:00Z",
-  "tools_count": 685,
-  "providers_count": 207,
+  "tools_count": 689,
+  "providers_count": 208,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
@@ -43,7 +43,7 @@
     },
     {
       "name": "finance",
-      "tools": 43,
+      "tools": 47,
       "providers": "Finnhub, FRED, FDIC, ECB, RateAPI, IBAN, World Bank, Razorpay IFSC",
       "examples": "stock quotes, FX rates, economic data, mortgage rates, global indicators"
     },

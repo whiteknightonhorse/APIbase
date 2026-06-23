@@ -212,6 +212,7 @@ import { europepmcSchemas } from './europepmc.schema';
 import { rorSchemas } from './ror.schema';
 import { catalogueOfLifeSchemas } from './catalogue-of-life.schema';
 import { opencontextSchemas } from './opencontext.schema';
+import { wtoSchemas } from './wto.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -427,4 +428,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...rorSchemas,
   ...catalogueOfLifeSchemas,
   ...opencontextSchemas,
+  ...wtoSchemas,
 };
