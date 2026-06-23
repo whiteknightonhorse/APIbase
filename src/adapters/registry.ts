@@ -217,6 +217,7 @@ import { InseeAdapter } from './insee';
 import { BhlAdapter } from './bhl';
 import { GfwAdapter } from './gfw';
 import { OpenstatesAdapter } from './openstates';
+import { VamAdapter } from './vam';
 import { config } from '../config';
 
 /**
@@ -1301,6 +1302,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
         'openstates',
         () => new OpenstatesAdapter(process.env.PROVIDER_KEY_OPENSTATES ?? ''),
       );
+    case 'vam':
+      // Victoria and Albert Museum (UC-499) — 1M+ collection objects, no auth
+      return getOrCreate('vam', () => new VamAdapter());
     default:
       return undefined;
   }

@@ -1,6 +1,6 @@
 # APIbase.pro — The API Hub for AI Agents
 
-> One MCP endpoint. 705 tools. 212 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
+> One MCP endpoint. 709 tools. 213 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Frameworks](https://apibase.pro/frameworks)** | **[Dashboard](https://apibase.pro/dashboard)**
 
@@ -74,7 +74,7 @@ Combine APIbase (real-world APIs) with Playwright (browser) and Context7 (docs):
 }
 ```
 
-Zero API-key management (Base Account handles auth + signing), zero per-provider signup (APIbase aggregates 212 providers). Full guide: [apibase.pro/frameworks#base-mcp](https://apibase.pro/frameworks#base-mcp).
+Zero API-key management (Base Account handles auth + signing), zero per-provider signup (APIbase aggregates 213 providers). Full guide: [apibase.pro/frameworks#base-mcp](https://apibase.pro/frameworks#base-mcp).
 
 ### Via npm (stdio bridge)
 
@@ -106,7 +106,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 
 ---
 
-## Tool Categories (705 tools, 212 providers)
+## Tool Categories (709 tools, 213 providers)
 
 | Category | Tools | Providers | Examples |
 |----------|-------|-----------|----------|
@@ -123,7 +123,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 | **Address (US/CA)** | 2 | Geocodio | Geocode, reverse geocode, USPS-standard |
 | **Real Estate** | 4 | Walk Score, US Real Estate | Walkability, property listings, details |
 | **Entertainment** | 40 | TMDB, Ticketmaster, RAWG, IGDB, Jikan, Lichess, Chess.com, Met Museum, Rijksmuseum, CMA, OpenDota | Movies, events, games, anime, chess/esports, art collections, Dota 2 |
-| **Art & Culture** | 5 | Europeana, ARTIC | 50M+ EU objects + 120K Chicago artworks |
+| **Art & Culture** | 9 | Europeana, ARTIC, V&A Museum | 50M+ EU objects + 120K Chicago artworks + 1M+ V&A collection objects |
 | **Stock Media** | 3 | Pexels | Free stock photos & videos, commercial use |
 | **Music** | 9 | MusicBrainz, ListenBrainz, RadioBrowser, AudD | Artists, albums, radio, song recognition, lyrics |
 | **Podcasts** | 7 | PodcastIndex, Listen Notes | Search 4M+ podcasts, 186M+ episodes, best by genre |

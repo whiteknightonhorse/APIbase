@@ -7621,4 +7621,55 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'legal',
     annotations: READ_ONLY,
   },
+
+  // Victoria and Albert Museum (4)
+  {
+    toolId: 'vam.search',
+    mcpName: 'vam.collections.search',
+    title: 'V&A Collection Search',
+    description:
+      'Search 1M+ objects in the Victoria and Albert Museum collection by keyword, object type, ' +
+      'date range, and display status. Returns object type, title, maker, date, place of origin, ' +
+      'thumbnail URL, and IIIF image base for each result. Filter by on_display=true to find ' +
+      'objects currently on display in London. Source: V&A public API (no auth required).',
+    category: 'media',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'vam.object',
+    mcpName: 'vam.collections.object',
+    title: 'V&A Museum Object Details',
+    description:
+      'Get full details for a specific V&A museum object by its system number (e.g. "O429002"). ' +
+      'Returns complete record: title, summary and physical descriptions, all makers with roles, ' +
+      'materials, techniques, categories, styles, production date range, place of origin, ' +
+      'gallery location, IIIF image URL, and direct link to the V&A collections page.',
+    category: 'media',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'vam.by_maker',
+    mcpName: 'vam.collections.by_maker',
+    title: 'V&A Objects by Maker',
+    description:
+      'Search V&A collection objects created by a specific artist, designer, or maker. ' +
+      'Returns objects with maker name, date, object type, place, thumbnail URL, and display ' +
+      'status. Supports partial name matching. Examples: "Wedgwood" (1,300+ ceramics), ' +
+      '"William Morris" (textiles/designs), "Constable" (paintings), "Beatrix Potter" (drawings).',
+    category: 'media',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'vam.by_category',
+    mcpName: 'vam.collections.by_category',
+    title: 'V&A Objects by Category',
+    description:
+      'Browse V&A collection objects by museum category using a thesaurus ID. Major categories: ' +
+      'THES48982 (Ceramics, 73K+), THES48917 (Paintings, 23K+), THES48968 (Designs, 25K+), ' +
+      'THES48966 (Drawings, 18K+), THES48903 (Prints, 15K+), THES48885 (Textiles, 7K+), ' +
+      'THES48910 (Photographs, 4K+), THES48920 (Metalwork, 4K+). ' +
+      'Optionally refine with a keyword query and filter to on-display objects only.',
+    category: 'media',
+    annotations: READ_ONLY,
+  },
 ];

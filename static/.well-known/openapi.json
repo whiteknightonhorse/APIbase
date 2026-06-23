@@ -65415,6 +65415,381 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/vam.search/call": {
+      "post": {
+        "operationId": "vam_search",
+        "summary": "V&A Collection Search",
+        "description": "Search 1M+ objects in the Victoria and Albert Museum collection by keyword, object type, date range, and display status. Returns object type, title, maker, date, place of origin, thumbnail URL, and IIIF image base for each result. Filter by on_display=true to find objects currently on display in London. Source: V&A public API (no auth required).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "vam.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Keyword search across titles, descriptions, maker names, and materials (e.g. \"teapot\", \"William Morris\", \"silk embroidery\"). Leave empty to browse all objects."
+                  },
+                  "object_type": {
+                    "type": "string",
+                    "description": "Filter by object type (e.g. \"Painting\", \"Vase\", \"Tile\", \"Photograph\", \"Drawing\", \"Print\", \"Textile\"). Case-sensitive; use exact V&A category names."
+                  },
+                  "on_display": {
+                    "type": "boolean",
+                    "description": "When true, return only objects currently on display in V&A galleries. When false or omitted, include objects in storage too."
+                  },
+                  "year_from": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2100,
+                    "description": "Earliest production year filter (e.g. 1750)."
+                  },
+                  "year_to": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2100,
+                    "description": "Latest production year filter (e.g. 1850)."
+                  },
+                  "page_size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 30,
+                    "description": "Number of results per page (1-30, default 10)."
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Page number for paginating through results (default 1)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/vam.object/call": {
+      "post": {
+        "operationId": "vam_object",
+        "summary": "V&A Museum Object Details",
+        "description": "Get full details for a specific V&A museum object by its system number (e.g. \"O429002\"). Returns complete record: title, summary and physical descriptions, all makers with roles, materials, techniques, categories, styles, production date range, place of origin, gallery location, IIIF image URL, and direct link to the V&A collections page.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "vam.object"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "system_number": {
+                    "type": "string",
+                    "description": "V&A system number identifying the museum object (e.g. \"O429002\", \"O64940\"). Returned in search results as system_number."
+                  }
+                },
+                "required": [
+                  "system_number"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/vam.by_maker/call": {
+      "post": {
+        "operationId": "vam_by_maker",
+        "summary": "V&A Objects by Maker",
+        "description": "Search V&A collection objects created by a specific artist, designer, or maker. Returns objects with maker name, date, object type, place, thumbnail URL, and display status. Supports partial name matching. Examples: \"Wedgwood\" (1,300+ ceramics), \"William Morris\" (textiles/designs), \"Constable\" (paintings), \"Beatrix Potter\" (drawings).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "vam.by_maker"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "maker": {
+                    "type": "string",
+                    "description": "Artist or maker name to search for (e.g. \"Wedgwood\", \"William Morris\", \"Constable\", \"Beatrix Potter\"). Partial matches are supported.",
+                    "minLength": 1
+                  },
+                  "object_type": {
+                    "type": "string",
+                    "description": "Filter maker results by object type (e.g. \"Painting\", \"Ceramic\", \"Print\")."
+                  },
+                  "page_size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 30,
+                    "description": "Number of results per page (1-30, default 10)."
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Page number for pagination (default 1)."
+                  }
+                },
+                "required": [
+                  "maker"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/vam.by_category/call": {
+      "post": {
+        "operationId": "vam_by_category",
+        "summary": "V&A Objects by Category",
+        "description": "Browse V&A collection objects by museum category using a thesaurus ID. Major categories: THES48982 (Ceramics, 73K+), THES48917 (Paintings, 23K+), THES48968 (Designs, 25K+), THES48966 (Drawings, 18K+), THES48903 (Prints, 15K+), THES48885 (Textiles, 7K+), THES48910 (Photographs, 4K+), THES48920 (Metalwork, 4K+). Optionally refine with a keyword query and filter to on-display objects only.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "vam.by_category"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "category_id": {
+                    "type": "string",
+                    "description": "V&A thesaurus category ID to browse. Common categories: \"THES48982\" (Ceramics, 73K+ objects), \"THES48917\" (Paintings, 23K+), \"THES48968\" (Designs, 25K+), \"THES48966\" (Drawings, 18K+), \"THES48903\" (Prints, 15K+), \"THES48885\" (Textiles, 7K+), \"THES48910\" (Photographs, 4K+), \"THES48920\" (Metalwork, 4K+)."
+                  },
+                  "query": {
+                    "type": "string",
+                    "description": "Optional keyword to refine results within the category."
+                  },
+                  "on_display": {
+                    "type": "boolean",
+                    "description": "When true, return only objects on display in V&A galleries."
+                  },
+                  "page_size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 30,
+                    "description": "Number of results per page (1-30, default 10)."
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Page number for pagination (default 1)."
+                  }
+                },
+                "required": [
+                  "category_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

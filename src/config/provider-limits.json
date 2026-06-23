@@ -1952,5 +1952,14 @@
     "reset_period": "daily",
     "docs_url": "https://docs.openstates.org/api-v3/",
     "limit_proof": "Free tier: 500 requests/day, 10 requests/min (rate limit header: 10/min). Documented at https://docs.openstates.org/api-v3/"
+  },
+  "vam": {
+    "display_name": "Victoria and Albert Museum",
+    "health_url": "https://api.vam.ac.uk/v2/objects/search?q=test&page_size=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://api.vam.ac.uk/docs/",
+    "limit_proof": "V&A public API: no authentication, no documented rate limits, open access to 1M+ collection objects. Commercial use confirmed by operator."
   }
 }

@@ -4336,6 +4336,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 7200
 
+  # --- UC-499: Victoria and Albert Museum ---
+  - tool_id: vam.search
+    name: V&A Collection Search
+    provider: vam
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: vam.object
+    name: V&A Museum Object Details
+    provider: vam
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: vam.by_maker
+    name: V&A Objects by Maker
+    provider: vam
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: vam.by_category
+    name: V&A Objects by Category
+    provider: vam
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform
