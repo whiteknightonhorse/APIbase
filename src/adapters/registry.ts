@@ -218,6 +218,7 @@ import { BhlAdapter } from './bhl';
 import { GfwAdapter } from './gfw';
 import { OpenstatesAdapter } from './openstates';
 import { VamAdapter } from './vam';
+import { PharmGkbAdapter } from './pharmgkb';
 import { config } from '../config';
 
 /**
@@ -1305,6 +1306,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'vam':
       // Victoria and Albert Museum (UC-499) — 1M+ collection objects, no auth
       return getOrCreate('vam', () => new VamAdapter());
+    case 'pharmgkb':
+      // PharmGKB (UC-500) — pharmacogenomics gene/drug/variant DB, no auth
+      return getOrCreate('pharmgkb', () => new PharmGkbAdapter());
     default:
       return undefined;
   }

@@ -7672,4 +7672,57 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'media',
     annotations: READ_ONLY,
   },
+
+  // PharmGKB (4)
+  {
+    toolId: 'pharmgkb.gene_search',
+    mcpName: 'pharmgkb.pharmacology.gene_search',
+    title: 'PharmGKB Gene Search',
+    description:
+      'Search PharmGKB for a pharmacogenomics gene by HGNC symbol (e.g. CYP2C9, CYP2D6, BRCA1, VKORC1, TPMT). ' +
+      'Returns the PharmGKB gene ID, chromosomal location (GRCh38), strand, CPIC/AMP gene status, allele type, ' +
+      'VIP tier, and plain-text clinical summary. CPIC genes have validated drug-dosing guidelines. ' +
+      'AMP genes are on the AMP Tier I/II actionable list. Source: PharmGKB, CC BY-SA 4.0.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'pharmgkb.drug_search',
+    mcpName: 'pharmgkb.pharmacology.drug_search',
+    title: 'PharmGKB Drug Search',
+    description:
+      'Search the PharmGKB curated drug/chemical database by name (e.g. warfarin, clopidogrel, tamoxifen, codeine). ' +
+      'Returns PharmGKB ID, canonical name, trade names, generic names, drug types, SMILES, InChI, ' +
+      'ATC code, ChEBI ID, DrugBank ID, and pediatric annotation flag. ' +
+      'PharmGKB covers 3,000+ pharmacologically relevant compounds with PGx relationships. Source: PharmGKB, CC BY-SA 4.0.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'pharmgkb.variant_lookup',
+    mcpName: 'pharmgkb.pharmacology.variant_lookup',
+    title: 'PharmGKB Variant Lookup',
+    description:
+      'Look up pharmacogenomic details for a genetic variant by dbSNP rsID (e.g. rs1799853 for CYP2C9*2, ' +
+      'rs4244285 for CYP2C19*2, rs12248560 for CYP2C19*17). Returns variant ID, change classification ' +
+      '(Missense/Synonymous/Intronic), clinical significance (drug-response/pathogenic), variant type (SNP/Indel), ' +
+      'chromosomal position (GRCh38), associated genes, rarity flag, and ClinVar IDs. ' +
+      'Focused on variants with known drug-response relevance. Source: PharmGKB, CC BY-SA 4.0.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'pharmgkb.drug_labels',
+    mcpName: 'pharmgkb.pharmacology.drug_labels',
+    title: 'PharmGKB Drug Label Annotations',
+    description:
+      'Retrieve pharmacogenomics (PGx) drug label annotations from regulatory agencies curated by PharmGKB. ' +
+      'Supports FDA (500+ labels), EMA, PMDA (Japan), HCSC (Canada), SWISSMEDIC, and AEMPS (Spain). ' +
+      'Each annotation links a drug label to PGx biomarkers, indicates whether it includes dosing guidance, ' +
+      'whether an alternate drug is recommended, cancer-genome relevance, pediatric tags, and testing information. ' +
+      'Filter to dosing-information-only labels for actionable prescribing guidance. Paginated (up to 100/page). ' +
+      'Source: PharmGKB, CC BY-SA 4.0.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
 ];

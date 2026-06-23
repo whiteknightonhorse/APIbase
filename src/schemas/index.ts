@@ -218,6 +218,7 @@ import { bhlSchemas } from './bhl.schema';
 import { gfwSchemas } from './gfw.schema';
 import { openstatesSchemas } from './openstates.schema';
 import { vamSchemas } from './vam.schema';
+import { pharmgkbSchemas } from './pharmgkb.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -439,4 +440,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...gfwSchemas,
   ...openstatesSchemas,
   ...vamSchemas,
+  ...pharmgkbSchemas,
 };

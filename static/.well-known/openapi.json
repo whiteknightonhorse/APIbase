@@ -65790,6 +65790,335 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/pharmgkb.gene_search/call": {
+      "post": {
+        "operationId": "pharmgkb_gene_search",
+        "summary": "PharmGKB Gene Search",
+        "description": "Search PharmGKB for a pharmacogenomics gene by HGNC symbol (e.g. CYP2C9, CYP2D6, BRCA1, VKORC1, TPMT). Returns the PharmGKB gene ID, chromosomal location (GRCh38), strand, CPIC/AMP gene status, allele type, VIP tier, and plain-text clinical summary. CPIC genes have validated drug-dosing guidelines. AMP genes are on the AMP Tier I/II actionable list. Source: PharmGKB, CC BY-SA 4.0.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pharmgkb.gene_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string",
+                    "description": "HGNC gene symbol to search for (e.g. CYP2C9, CYP2D6, BRCA1, VKORC1, TPMT). Case-insensitive. Use the official gene symbol as listed by HGNC."
+                  }
+                },
+                "required": [
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/pharmgkb.drug_search/call": {
+      "post": {
+        "operationId": "pharmgkb_drug_search",
+        "summary": "PharmGKB Drug Search",
+        "description": "Search the PharmGKB curated drug/chemical database by name (e.g. warfarin, clopidogrel, tamoxifen, codeine). Returns PharmGKB ID, canonical name, trade names, generic names, drug types, SMILES, InChI, ATC code, ChEBI ID, DrugBank ID, and pediatric annotation flag. PharmGKB covers 3,000+ pharmacologically relevant compounds with PGx relationships. Source: PharmGKB, CC BY-SA 4.0.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pharmgkb.drug_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Drug or chemical name to search for (e.g. warfarin, clopidogrel, tamoxifen, codeine). Searches PharmGKB curated database of 3,000+ pharmacologically relevant compounds."
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/pharmgkb.variant_lookup/call": {
+      "post": {
+        "operationId": "pharmgkb_variant_lookup",
+        "summary": "PharmGKB Variant Lookup",
+        "description": "Look up pharmacogenomic details for a genetic variant by dbSNP rsID (e.g. rs1799853 for CYP2C9*2, rs4244285 for CYP2C19*2, rs12248560 for CYP2C19*17). Returns variant ID, change classification (Missense/Synonymous/Intronic), clinical significance (drug-response/pathogenic), variant type (SNP/Indel), chromosomal position (GRCh38), associated genes, rarity flag, and ClinVar IDs. Focused on variants with known drug-response relevance. Source: PharmGKB, CC BY-SA 4.0.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pharmgkb.variant_lookup"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "rsid": {
+                    "type": "string",
+                    "description": "dbSNP reference SNP ID for the variant (e.g. rs1799853, rs4244285, rs12248560). Must be prefixed with \"rs\" followed by digits. PharmGKB annotates variants with known pharmacogenomic relevance."
+                  }
+                },
+                "required": [
+                  "rsid"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/pharmgkb.drug_labels/call": {
+      "post": {
+        "operationId": "pharmgkb_drug_labels",
+        "summary": "PharmGKB Drug Label Annotations",
+        "description": "Retrieve pharmacogenomics (PGx) drug label annotations from regulatory agencies curated by PharmGKB. Supports FDA (500+ labels), EMA, PMDA (Japan), HCSC (Canada), SWISSMEDIC, and AEMPS (Spain). Each annotation links a drug label to PGx biomarkers, indicates whether it includes dosing guidance, whether an alternate drug is recommended, cancer-genome relevance, pediatric tags, and testing information. Filter to dosing-information-only labels for actionable prescribing guidance. Paginated (up to 100/page). Source: PharmGKB, CC BY-SA 4.0.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pharmgkb.drug_labels"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "source": {
+                    "type": "string",
+                    "enum": [
+                      "FDA",
+                      "EMA",
+                      "PMDA",
+                      "HCSC",
+                      "SWISSMEDIC",
+                      "AEMPS"
+                    ],
+                    "description": "Regulatory authority whose drug label annotations to retrieve. FDA=US Food & Drug Administration (largest set), EMA=European Medicines Agency, PMDA=Japan, HCSC=Canada, SWISSMEDIC=Switzerland, AEMPS=Spain. Defaults to FDA.",
+                    "default": "FDA"
+                  },
+                  "dosing_only": {
+                    "type": "boolean",
+                    "description": "When true, return only labels that include pharmacogenomics-based dosing information (dosingInformation=true). Useful for finding actionable prescribing guidance.",
+                    "default": false
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Page number for pagination (1-indexed). Each page returns up to 100 results. FDA source has 500+ annotations.",
+                    "default": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

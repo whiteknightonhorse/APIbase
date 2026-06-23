@@ -1961,5 +1961,14 @@
     "reset_period": "none",
     "docs_url": "https://api.vam.ac.uk/docs/",
     "limit_proof": "V&A public API: no authentication, no documented rate limits, open access to 1M+ collection objects. Commercial use confirmed by operator."
+  },
+  "pharmgkb": {
+    "display_name": "PharmGKB",
+    "health_url": "https://api.pharmgkb.org/v1/data/gene?symbol=CYP2C9&view=min",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://api.pharmgkb.org/v1",
+    "limit_proof": "PharmGKB REST API: no authentication required, no rate limits documented, open access CC BY-SA 4.0 pharmacogenomics data."
   }
 }
