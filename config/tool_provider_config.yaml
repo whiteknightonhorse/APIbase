@@ -4386,6 +4386,31 @@ tools:
     price_usd: "0.002"
     cache_ttl: 3600
 
+  # --- UC-501: Brreg ---
+  - tool_id: brreg.search
+    name: Brreg Company Search
+    provider: brreg
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: brreg.entity
+    name: Brreg Entity Detail
+    provider: brreg
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: brreg.sub_units
+    name: Brreg Sub-Units
+    provider: brreg
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: brreg.roles
+    name: Brreg Company Roles
+    provider: brreg
+    price_usd: "0.002"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

@@ -219,6 +219,7 @@ import { GfwAdapter } from './gfw';
 import { OpenstatesAdapter } from './openstates';
 import { VamAdapter } from './vam';
 import { PharmGkbAdapter } from './pharmgkb';
+import { BrregAdapter } from './brreg';
 import { config } from '../config';
 
 /**
@@ -1309,6 +1310,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'pharmgkb':
       // PharmGKB (UC-500) — pharmacogenomics gene/drug/variant DB, no auth
       return getOrCreate('pharmgkb', () => new PharmGkbAdapter());
+    case 'brreg':
+      // Brreg (UC-501) — Norway business registry, 1M+ entities, no auth
+      return getOrCreate('brreg', () => new BrregAdapter());
     default:
       return undefined;
   }

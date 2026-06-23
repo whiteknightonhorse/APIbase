@@ -7725,4 +7725,60 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'health',
     annotations: READ_ONLY,
   },
+  // Brreg (4)
+  {
+    toolId: 'brreg.search',
+    mcpName: 'brreg.registry.search',
+    title: 'Brreg Company Search',
+    description:
+      "Search Norway's official business registry (Brønnøysundregistrene) for companies and organisations. " +
+      'Filter by company name, municipality (4-digit code), organisation form (AS/ASA/ENK/NUF etc.), ' +
+      'or NACE industry code. Returns organisation number, name, org form, VAT status, employee count, ' +
+      'address, primary NACE industry code, and bankruptcy/winding-up flags. ' +
+      'Over 1 million entities registered. Data is NLOD 2.0 (commercial use permitted). No API key required.',
+    category: 'business',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'brreg.entity',
+    mcpName: 'brreg.registry.entity',
+    title: 'Brreg Entity Detail',
+    description:
+      'Retrieve full details for a specific Norwegian company or organisation by its 9-digit organisation number. ' +
+      'Returns: name, organisation form, website, phone, email, employee count, registration date, ' +
+      'founding date, VAT registration, bankruptcy/winding-up status, up to 3 NACE industry codes, ' +
+      'municipality, postal address, business address, last annual report year, and parent entity. ' +
+      'Ideal for KYB (Know Your Business) verification of Norwegian entities. ' +
+      'Source: Brønnøysundregistrene, NLOD 2.0.',
+    category: 'business',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'brreg.sub_units',
+    mcpName: 'brreg.registry.sub_units',
+    title: 'Brreg Sub-Units',
+    description:
+      'List all registered sub-units (underenheter) for a Norwegian parent company — branches, ' +
+      'departments, production sites, and physical locations. Each sub-unit has its own organisation number, ' +
+      'name, org form, NACE industry code, municipality, and employee count. ' +
+      "Useful for mapping a company's operational footprint across Norway. " +
+      'Large companies like Equinor or NHO can have hundreds of sub-units. Paginated (up to 50/page). ' +
+      'Source: Brønnøysundregistrene, NLOD 2.0.',
+    category: 'business',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'brreg.roles',
+    mcpName: 'brreg.registry.roles',
+    title: 'Brreg Company Roles',
+    description:
+      'Retrieve statutory management roles for a Norwegian company — board of directors (STYR), ' +
+      'CEO/daily manager (DAGL), auditor (REVI), chairman (LEDE), deputy members, signature rights, ' +
+      "and other registered positions. Each role entry includes the person's first/last name, birth year, " +
+      "whether the role is still active, and (for corporate roles) the linked entity's org number and name. " +
+      'Essential for due diligence, UBO (Ultimate Beneficial Owner) research, and corporate governance checks. ' +
+      'Source: Brønnøysundregistrene, NLOD 2.0.',
+    category: 'business',
+    annotations: READ_ONLY,
+  },
 ];

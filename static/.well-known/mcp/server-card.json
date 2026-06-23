@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 713 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 717 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -41289,6 +41289,261 @@
           "error": {
             "type": "object",
             "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "brreg.registry.entity",
+      "title": "Brreg Entity Detail",
+      "description": "Retrieve full details for a specific Norwegian company or organisation by its 9-digit organisation number. Returns: name, organisation form, website, phone, email, employee count, registration date, founding date, VAT registration, bankruptcy/winding-up status, up to 3 NACE industry codes, municipality, postal address, business address, last annual report year, and parent entity. Ideal for KYB (Know Your Business) verification of Norwegian entities. Source: Br\u00f8nn\u00f8ysundregistrene, NLOD 2.0.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "org_number": {
+            "type": "string",
+            "description": "Norwegian organisation number \u2014 exactly 9 digits (e.g. \"923609016\" for Equinor, \"982463718\" for DNB). No spaces or dashes."
+          }
+        },
+        "required": [
+          "org_number"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "brreg.registry.roles",
+      "title": "Brreg Company Roles",
+      "description": "Retrieve statutory management roles for a Norwegian company \u2014 board of directors (STYR), CEO/daily manager (DAGL), auditor (REVI), chairman (LEDE), deputy members, signature rights, and other registered positions. Each role entry includes the person's first/last name, birth year, whether the role is still active, and (for corporate roles) the linked entity's org number and name. Essential for due diligence, UBO (Ultimate Beneficial Owner) research, and corporate governance checks. Source: Br\u00f8nn\u00f8ysundregistrene, NLOD 2.0.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "org_number": {
+            "type": "string",
+            "description": "Organisation number of the company to retrieve roles for (9 digits). Returns all registered role groups including board of directors (STYR), CEO (DAGL), auditor (REVI), and other statutory positions."
+          }
+        },
+        "required": [
+          "org_number"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "brreg.registry.search",
+      "title": "Brreg Company Search",
+      "description": "Search Norway's official business registry (Br\u00f8nn\u00f8ysundregistrene) for companies and organisations. Filter by company name, municipality (4-digit code), organisation form (AS/ASA/ENK/NUF etc.), or NACE industry code. Returns organisation number, name, org form, VAT status, employee count, address, primary NACE industry code, and bankruptcy/winding-up flags. Over 1 million entities registered. Data is NLOD 2.0 (commercial use permitted). No API key required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Company name or partial name to search (e.g. \"Equinor\", \"Telenor\", \"DNB\"). Case-insensitive. At least one filter (name, municipality_number, org_form, nace_code) is recommended."
+          },
+          "municipality_number": {
+            "type": "string",
+            "minLength": 4,
+            "maxLength": 4,
+            "description": "Norwegian municipality number (4-digit code, e.g. \"0301\" for Oslo, \"1103\" for Stavanger). Restricts results to companies registered in that municipality."
+          },
+          "org_form": {
+            "type": "string",
+            "enum": [
+              "AS",
+              "ASA",
+              "ENK",
+              "ANS",
+              "DA",
+              "NUF",
+              "BA",
+              "SA",
+              "STI",
+              "FLI",
+              "BO",
+              "BRL",
+              "ESEK",
+              "GFS",
+              "IKJP",
+              "IKS",
+              "KBO",
+              "KF",
+              "KFFK",
+              "KS",
+              "NP",
+              "OPMV",
+              "ORG",
+              "PERS",
+              "PK",
+              "PRE",
+              "SF",
+              "SPA",
+              "STAT",
+              "S\u00c6R",
+              "TVAM",
+              "VPFO"
+            ],
+            "description": "Organization form code to filter by. Common values: AS=Private Limited Company, ASA=Public Limited Company, ENK=Sole Proprietorship, NUF=Foreign Entity Norwegian Branch, BA/SA=Cooperative, STI=Foundation, FLI=Non-Profit Association."
+          },
+          "nace_code": {
+            "type": "string",
+            "description": "NACE industry code to filter by (e.g. \"06.100\" for Extraction of crude oil, \"47.110\" for Retail in non-specialised stores, \"62.010\" for Computer programming). Matches primary industry code (naeringskode1)."
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "Number of results per page (1\u201320, default 5)."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Zero-based page number for pagination (default 0)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "brreg.registry.sub_units",
+      "title": "Brreg Sub-Units",
+      "description": "List all registered sub-units (underenheter) for a Norwegian parent company \u2014 branches, departments, production sites, and physical locations. Each sub-unit has its own organisation number, name, org form, NACE industry code, municipality, and employee count. Useful for mapping a company's operational footprint across Norway. Large companies like Equinor or NHO can have hundreds of sub-units. Paginated (up to 50/page). Source: Br\u00f8nn\u00f8ysundregistrene, NLOD 2.0.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "org_number": {
+            "type": "string",
+            "description": "Organisation number of the parent company (9 digits). Returns all registered sub-units (branches, departments, locations) that belong to this parent entity."
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of sub-units per page (1\u201350, default 10)."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Zero-based page number for pagination (default 0)."
+          }
+        },
+        "required": [
+          "org_number"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
           }
         },
         "required": [
