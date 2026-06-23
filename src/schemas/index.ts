@@ -215,6 +215,7 @@ import { opencontextSchemas } from './opencontext.schema';
 import { wtoSchemas } from './wto.schema';
 import { inseeSchemas } from './insee.schema';
 import { bhlSchemas } from './bhl.schema';
+import { gfwSchemas } from './gfw.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -433,4 +434,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...wtoSchemas,
   ...inseeSchemas,
   ...bhlSchemas,
+  ...gfwSchemas,
 };

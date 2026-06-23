@@ -64658,6 +64658,381 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/gfw.vessel.search/call": {
+      "post": {
+        "operationId": "gfw_vessel_search",
+        "summary": "Search Fishing Vessels",
+        "description": "Search the Global Fishing Watch database for fishing and commercial vessels by name, MMSI (9-digit AIS identifier), IMO number, or call sign. Returns vessel identities with flag state, gear types (trawlers, longliners, purse seiners, etc.), ship types, and AIS transmission date ranges. GFW tracks 60,000+ active fishing vessels using satellite AIS data covering 2012–present. Optionally filter results by flag state using ISO 3-letter country code. Use gfw.vessel.details for full registry information.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "gfw.vessel.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Vessel name, MMSI (9-digit AIS identifier), IMO number, or call sign to search for (e.g. \"Atlantic Star\", \"123456789\", \"IMO9234567\"). Partial names are supported.",
+                    "minLength": 1
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of vessels to return (1–50, default 10)."
+                  },
+                  "flag": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 3,
+                    "description": "ISO 3166-1 alpha-3 country code to filter by flag state (e.g. \"CHN\" for China, \"USA\" for United States, \"PAN\" for Panama)."
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/gfw.vessel.details/call": {
+      "post": {
+        "operationId": "gfw_vessel_details",
+        "summary": "Get Vessel Details",
+        "description": "Retrieve complete identity and activity profile for a specific vessel using its Global Fishing Watch vessel UUID. Returns self-reported AIS data (name, flag, MMSI, IMO, call sign), inferred gear and ship types from neural-network analysis of movement patterns, official registry records (where available), and AIS coverage statistics (total messages, positions, active date range). Vessel UUIDs are obtained from gfw.vessel.search.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "gfw.vessel.details"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "vessel_id": {
+                    "type": "string",
+                    "description": "Global Fishing Watch vessel UUID as returned by gfw.vessel.search (e.g. \"1f1f12b24-4dfb-e5c8-90b0-32f8e79402c1\").",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "vessel_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/gfw.vessel.fishing_events/call": {
+      "post": {
+        "operationId": "gfw_vessel_fishing_events",
+        "summary": "Get Vessel Fishing Events",
+        "description": "Retrieve AIS-detected maritime events for a specific vessel — either fishing activity episodes or port visits. Fishing events capture when a vessel slowed and maneuvered in patterns consistent with active fishing (coordinates, duration, EEZ/RFMO/FAO area codes, distance from shore and port). Port visits capture anchorage and berthing stops (port name, flag, entry/exit times). Results are paginated; use offset for subsequent pages. Vessel UUID is obtained from gfw.vessel.search.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "gfw.vessel.fishing_events"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "vessel_id": {
+                    "type": "string",
+                    "description": "GFW vessel UUID as returned by gfw.vessel.search (e.g. \"1f1f12b24-4dfb-e5c8-90b0-32f8e79402c1\").",
+                    "minLength": 1
+                  },
+                  "event_type": {
+                    "type": "string",
+                    "enum": [
+                      "fishing",
+                      "port_visit"
+                    ],
+                    "description": "Type of maritime event to retrieve. \"fishing\" returns AIS-detected fishing activity events; \"port_visit\" returns port calls and anchorage stops. Default: \"fishing\"."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Number of events per page (1–50, default 10)."
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Pagination offset — number of events to skip (default 0)."
+                  },
+                  "start_date": {
+                    "type": "string",
+                    "description": "Filter events starting on or after this date in ISO format YYYY-MM-DD (e.g. \"2023-01-01\")."
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "Filter events ending on or before this date in ISO format YYYY-MM-DD (e.g. \"2023-12-31\")."
+                  }
+                },
+                "required": [
+                  "vessel_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/gfw.ocean.fishing_effort/call": {
+      "post": {
+        "operationId": "gfw_ocean_fishing_effort",
+        "summary": "Analyze Fishing Effort",
+        "description": "Analyze fishing effort intensity across a geographic polygon for a specified date range, aggregated by gear type (trawlers, longliners, purse seiners, squid jiggers, etc.). Returns a grid of 0.1-degree cells with fishing hours and vessel counts per month or year, drawn from Global Fishing Watch's public AIS-based fishing effort dataset covering 2012–present. Useful for marine protected area monitoring, fisheries research, and vessel traffic analysis. Define the study area with a closed polygon in [longitude, latitude] coordinates.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "gfw.ocean.fishing_effort"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "start_date": {
+                    "type": "string",
+                    "description": "Start of the analysis period in ISO format YYYY-MM-DD (e.g. \"2023-01-01\"). GFW data coverage starts from 2012."
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "End of the analysis period in ISO format YYYY-MM-DD (e.g. \"2023-06-30\"). Must be after start_date; keep ranges under 12 months for manageable response sizes."
+                  },
+                  "coordinates": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    },
+                    "minItems": 4,
+                    "description": "Polygon boundary as an array of [longitude, latitude] pairs defining the analysis area. The polygon must be closed (first and last coordinate identical). Example: [[-10,35],[-5,35],[-5,40],[-10,40],[-10,35]] for a box in the NE Atlantic. Omit to analyze global waters."
+                  },
+                  "temporal_resolution": {
+                    "type": "string",
+                    "enum": [
+                      "MONTHLY",
+                      "YEARLY"
+                    ],
+                    "description": "Time granularity for effort aggregation. \"MONTHLY\" groups data by calendar month; \"YEARLY\" by year. Default: \"MONTHLY\"."
+                  }
+                },
+                "required": [
+                  "start_date",
+                  "end_date"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

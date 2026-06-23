@@ -2,8 +2,8 @@
   "platform": "APIbase",
   "version": "2.0",
   "updated_at": "2026-04-01T00:00:00Z",
-  "tools_count": 697,
-  "providers_count": 210,
+  "tools_count": 701,
+  "providers_count": 211,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
@@ -151,9 +151,9 @@
     },
     {
       "name": "world",
-      "tools": 49,
-      "providers": "REST Countries, Nager.Date, GDACS, VATcomply, Open Food Facts, USGS Water, NOAA Tides, Statistics Sweden (SCB), Statistics Norway (SSB), NREL AFDC, NREL PVWatts",
-      "examples": "countries, holidays, disasters, VAT, food products, streamflow, water quality, tides & currents, Sweden statistics, Norway statistics, US alt-fuel stations, solar PV output estimation"
+      "tools": 53,
+      "providers": "REST Countries, Nager.Date, GDACS, VATcomply, Open Food Facts, USGS Water, NOAA Tides, Statistics Sweden (SCB), Statistics Norway (SSB), NREL AFDC, NREL PVWatts, Global Fishing Watch",
+      "examples": "countries, holidays, disasters, VAT, food products, streamflow, water quality, tides & currents, Sweden statistics, Norway statistics, US alt-fuel stations, solar PV output estimation, fishing vessel tracking, AIS events, fishing effort"
     }
   ]
 }

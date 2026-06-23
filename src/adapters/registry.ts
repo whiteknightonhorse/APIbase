@@ -215,6 +215,7 @@ import { OpenContextAdapter } from './opencontext';
 import { WtoAdapter } from './wto';
 import { InseeAdapter } from './insee';
 import { BhlAdapter } from './bhl';
+import { GfwAdapter } from './gfw';
 import { config } from '../config';
 
 /**
@@ -1290,6 +1291,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'bhl':
       // Biodiversity Heritage Library — public-domain natural-history literature (UC-496)
       return getOrCreate('bhl', () => new BhlAdapter(process.env.PROVIDER_KEY_BHL ?? ''));
+    case 'gfw':
+      // Global Fishing Watch — vessel tracking, AIS fishing events, fishing effort (UC-497)
+      return getOrCreate('gfw', () => new GfwAdapter(process.env.PROVIDER_KEY_GFW ?? ''));
     default:
       return undefined;
   }

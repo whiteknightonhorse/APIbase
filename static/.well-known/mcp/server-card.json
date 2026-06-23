@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 697 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 701 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -40324,6 +40324,257 @@
           "error": {
             "type": "object",
             "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "gfw.ocean.fishing_effort",
+      "title": "Analyze Fishing Effort",
+      "description": "Analyze fishing effort intensity across a geographic polygon for a specified date range, aggregated by gear type (trawlers, longliners, purse seiners, squid jiggers, etc.). Returns a grid of 0.1-degree cells with fishing hours and vessel counts per month or year, drawn from Global Fishing Watch's public AIS-based fishing effort dataset covering 2012\u2013present. Useful for marine protected area monitoring, fisheries research, and vessel traffic analysis. Define the study area with a closed polygon in [longitude, latitude] coordinates.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "start_date": {
+            "type": "string",
+            "description": "Start of the analysis period in ISO format YYYY-MM-DD (e.g. \"2023-01-01\"). GFW data coverage starts from 2012."
+          },
+          "end_date": {
+            "type": "string",
+            "description": "End of the analysis period in ISO format YYYY-MM-DD (e.g. \"2023-06-30\"). Must be after start_date; keep ranges under 12 months for manageable response sizes."
+          },
+          "coordinates": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "minItems": 4,
+            "description": "Polygon boundary as an array of [longitude, latitude] pairs defining the analysis area. The polygon must be closed (first and last coordinate identical). Example: [[-10,35],[-5,35],[-5,40],[-10,40],[-10,35]] for a box in the NE Atlantic. Omit to analyze global waters."
+          },
+          "temporal_resolution": {
+            "type": "string",
+            "enum": [
+              "MONTHLY",
+              "YEARLY"
+            ],
+            "description": "Time granularity for effort aggregation. \"MONTHLY\" groups data by calendar month; \"YEARLY\" by year. Default: \"MONTHLY\"."
+          }
+        },
+        "required": [
+          "start_date",
+          "end_date"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "gfw.vessel.details",
+      "title": "Get Vessel Details",
+      "description": "Retrieve complete identity and activity profile for a specific vessel using its Global Fishing Watch vessel UUID. Returns self-reported AIS data (name, flag, MMSI, IMO, call sign), inferred gear and ship types from neural-network analysis of movement patterns, official registry records (where available), and AIS coverage statistics (total messages, positions, active date range). Vessel UUIDs are obtained from gfw.vessel.search.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "vessel_id": {
+            "type": "string",
+            "description": "Global Fishing Watch vessel UUID as returned by gfw.vessel.search (e.g. \"1f1f12b24-4dfb-e5c8-90b0-32f8e79402c1\").",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "vessel_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "gfw.vessel.fishing_events",
+      "title": "Get Vessel Fishing Events",
+      "description": "Retrieve AIS-detected maritime events for a specific vessel \u2014 either fishing activity episodes or port visits. Fishing events capture when a vessel slowed and maneuvered in patterns consistent with active fishing (coordinates, duration, EEZ/RFMO/FAO area codes, distance from shore and port). Port visits capture anchorage and berthing stops (port name, flag, entry/exit times). Results are paginated; use offset for subsequent pages. Vessel UUID is obtained from gfw.vessel.search.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "vessel_id": {
+            "type": "string",
+            "description": "GFW vessel UUID as returned by gfw.vessel.search (e.g. \"1f1f12b24-4dfb-e5c8-90b0-32f8e79402c1\").",
+            "minLength": 1
+          },
+          "event_type": {
+            "type": "string",
+            "enum": [
+              "fishing",
+              "port_visit"
+            ],
+            "description": "Type of maritime event to retrieve. \"fishing\" returns AIS-detected fishing activity events; \"port_visit\" returns port calls and anchorage stops. Default: \"fishing\"."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of events per page (1\u201350, default 10)."
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Pagination offset \u2014 number of events to skip (default 0)."
+          },
+          "start_date": {
+            "type": "string",
+            "description": "Filter events starting on or after this date in ISO format YYYY-MM-DD (e.g. \"2023-01-01\")."
+          },
+          "end_date": {
+            "type": "string",
+            "description": "Filter events ending on or before this date in ISO format YYYY-MM-DD (e.g. \"2023-12-31\")."
+          }
+        },
+        "required": [
+          "vessel_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "gfw.vessel.search",
+      "title": "Search Fishing Vessels",
+      "description": "Search the Global Fishing Watch database for fishing and commercial vessels by name, MMSI (9-digit AIS identifier), IMO number, or call sign. Returns vessel identities with flag state, gear types (trawlers, longliners, purse seiners, etc.), ship types, and AIS transmission date ranges. GFW tracks 60,000+ active fishing vessels using satellite AIS data covering 2012\u2013present. Optionally filter results by flag state using ISO 3-letter country code. Use gfw.vessel.details for full registry information.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Vessel name, MMSI (9-digit AIS identifier), IMO number, or call sign to search for (e.g. \"Atlantic Star\", \"123456789\", \"IMO9234567\"). Partial names are supported.",
+            "minLength": 1
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Maximum number of vessels to return (1\u201350, default 10)."
+          },
+          "flag": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "ISO 3166-1 alpha-3 country code to filter by flag state (e.g. \"CHN\" for China, \"USA\" for United States, \"PAN\" for Panama)."
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
           }
         },
         "required": [

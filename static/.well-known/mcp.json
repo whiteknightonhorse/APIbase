@@ -1,14 +1,14 @@
 {
   "name": "APIbase",
-  "description": "Unified MCP gateway to 697+ API tools from 210 providers. Pay-per-call via x402 USDC micropayments.",
+  "description": "Unified MCP gateway to 701+ API tools from 211 providers. Pay-per-call via x402 USDC micropayments.",
   "protocol": "MCP",
   "protocolVersion": "2025-03-26",
   "transport": "streamable-http",
   "url": "https://apibase.pro/mcp",
   "version": "2.1.0",
   "tools_endpoint": "https://apibase.pro/api/v1/tools",
-  "tools_count": 697,
-  "providers_count": 210,
+  "tools_count": 701,
+  "providers_count": 211,
   "categories_count": 21,
   "authentication": {
     "type": "bearer",

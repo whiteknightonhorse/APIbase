@@ -7506,4 +7506,63 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'education',
     annotations: READ_ONLY,
   },
+
+  // Global Fishing Watch (4) — UC-497
+  {
+    toolId: 'gfw.vessel.search',
+    mcpName: 'gfw.vessel.search',
+    title: 'Search Fishing Vessels',
+    description:
+      'Search the Global Fishing Watch database for fishing and commercial vessels by name, ' +
+      'MMSI (9-digit AIS identifier), IMO number, or call sign. Returns vessel identities with ' +
+      'flag state, gear types (trawlers, longliners, purse seiners, etc.), ship types, and AIS ' +
+      'transmission date ranges. GFW tracks 60,000+ active fishing vessels using satellite AIS ' +
+      'data covering 2012–present. Optionally filter results by flag state using ISO 3-letter ' +
+      'country code. Use gfw.vessel.details for full registry information.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'gfw.vessel.details',
+    mcpName: 'gfw.vessel.details',
+    title: 'Get Vessel Details',
+    description:
+      'Retrieve complete identity and activity profile for a specific vessel using its ' +
+      'Global Fishing Watch vessel UUID. Returns self-reported AIS data (name, flag, MMSI, ' +
+      'IMO, call sign), inferred gear and ship types from neural-network analysis of movement ' +
+      'patterns, official registry records (where available), and AIS coverage statistics ' +
+      '(total messages, positions, active date range). Vessel UUIDs are obtained from ' +
+      'gfw.vessel.search.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'gfw.vessel.fishing_events',
+    mcpName: 'gfw.vessel.fishing_events',
+    title: 'Get Vessel Fishing Events',
+    description:
+      'Retrieve AIS-detected maritime events for a specific vessel — either fishing activity ' +
+      'episodes or port visits. Fishing events capture when a vessel slowed and maneuvered in ' +
+      'patterns consistent with active fishing (coordinates, duration, EEZ/RFMO/FAO area codes, ' +
+      'distance from shore and port). Port visits capture anchorage and berthing stops (port ' +
+      'name, flag, entry/exit times). Results are paginated; use offset for subsequent pages. ' +
+      'Vessel UUID is obtained from gfw.vessel.search.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'gfw.ocean.fishing_effort',
+    mcpName: 'gfw.ocean.fishing_effort',
+    title: 'Analyze Fishing Effort',
+    description:
+      'Analyze fishing effort intensity across a geographic polygon for a specified date range, ' +
+      'aggregated by gear type (trawlers, longliners, purse seiners, squid jiggers, etc.). ' +
+      'Returns a grid of 0.1-degree cells with fishing hours and vessel counts per month or year, ' +
+      "drawn from Global Fishing Watch's public AIS-based fishing effort dataset covering " +
+      '2012–present. Useful for marine protected area monitoring, fisheries research, ' +
+      'and vessel traffic analysis. Define the study area with a closed polygon in ' +
+      '[longitude, latitude] coordinates.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

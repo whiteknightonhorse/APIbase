@@ -4286,6 +4286,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-497: Global Fishing Watch ---
+  - tool_id: gfw.vessel.search
+    name: Search Fishing Vessels
+    provider: gfw
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: gfw.vessel.details
+    name: Get Vessel Details
+    provider: gfw
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: gfw.vessel.fishing_events
+    name: Get Vessel Fishing Events
+    provider: gfw
+    price_usd: "0.002"
+    cache_ttl: 1800
+
+  - tool_id: gfw.ocean.fishing_effort
+    name: Analyze Fishing Effort
+    provider: gfw
+    price_usd: "0.003"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

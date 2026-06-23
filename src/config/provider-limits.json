@@ -1934,5 +1934,14 @@
     "reset_period": "none",
     "docs_url": "https://www.biodiversitylibrary.org/api3",
     "limit_proof": "BHL API docs state no documented rate limits; public-domain open access library funded by the Smithsonian and partners."
+  },
+  "gfw": {
+    "display_name": "Global Fishing Watch",
+    "health_url": "https://gateway.api.globalfishingwatch.org/v3/vessels/search?query=test&datasets%5B0%5D=public-global-vessel-identity:latest&limit=1",
+    "limit_type": "daily",
+    "free_limit": 50000,
+    "reset_period": "daily",
+    "docs_url": "https://globalfishingwatch.org/our-apis/",
+    "limit_proof": "Response headers show x-ratelimit-daily-limit-requests: 50000 and x-ratelimit-monthly-limit-requests: 1500000 on free tier accounts."
   }
 }
