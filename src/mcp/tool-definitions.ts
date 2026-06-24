@@ -8436,4 +8436,61 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'location',
     annotations: READ_ONLY,
   },
+
+  // UK National Grid Carbon Intensity (UC-513, 4 tools)
+  {
+    toolId: 'carbonintensity.current',
+    mcpName: 'carbonintensity.energy.current',
+    title: 'UK Carbon Intensity — Current',
+    description:
+      'Get the current national carbon intensity of UK electricity generation from the National Grid ESO. ' +
+      'Returns the half-hour period timestamps, forecast intensity in gCO2/kWh, actual intensity in gCO2/kWh ' +
+      '(when available), and a qualitative index (very low / low / moderate / high / very high). ' +
+      'Data is updated every 30 minutes. Lower values indicate cleaner electricity — useful for smart ' +
+      'energy scheduling, EV charging optimisation, and sustainability dashboards. CC BY 4.0, no upstream cost.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'carbonintensity.generation',
+    mcpName: 'carbonintensity.energy.generation',
+    title: 'UK Carbon Intensity — Generation Mix',
+    description:
+      'Get the current UK national electricity generation mix by fuel source from the National Grid ESO. ' +
+      'Returns the percentage contribution of each fuel type: biomass, coal, imports, gas, nuclear, other, ' +
+      'hydro, solar, and wind. Data is updated every 30 minutes. ' +
+      'Useful for understanding real-time renewable vs fossil fuel share, carbon-aware computing, ' +
+      'and energy transition analysis. CC BY 4.0, no upstream cost.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'carbonintensity.regional',
+    mcpName: 'carbonintensity.energy.regional',
+    title: 'UK Carbon Intensity — Regional Breakdown',
+    description:
+      'Get carbon intensity and generation mix for UK electricity distribution regions. ' +
+      'Returns data for all 14–18 UK DNO (Distribution Network Operator) regions, or a single region ' +
+      'by region ID (1=North Scotland, 2=South Scotland, 3=North West England, 4=North East England, ' +
+      '5=Yorkshire, 6=North Wales & Mersey, 7=South Wales, 8=West Midlands, 9=East Midlands, ' +
+      '10=East England, 11=South West England, 12=South England, 13=London, 14=South East England). ' +
+      'Each region includes forecast intensity in gCO2/kWh, qualitative index, and generation mix percentages. ' +
+      'Useful for location-aware carbon-minimising energy decisions. CC BY 4.0, no upstream cost.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'carbonintensity.forecast',
+    mcpName: 'carbonintensity.energy.forecast',
+    title: 'UK Carbon Intensity — 24-Hour Forecast',
+    description:
+      'Get the 24-hour ahead forecast of UK national carbon intensity from the National Grid ESO. ' +
+      'Returns up to 48 half-hour periods (fully covering the next 24 hours), each with a forecast ' +
+      'intensity in gCO2/kWh and a qualitative index (very low / low / moderate / high / very high). ' +
+      'Use the optional periods parameter to limit results (e.g. periods=6 for 3 hours ahead). ' +
+      'Ideal for scheduling carbon-intensive workloads, EV charging, or energy storage dispatch ' +
+      'at the lowest-carbon future window. CC BY 4.0, no upstream cost.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

@@ -2078,5 +2078,14 @@
     "reset_period": "hourly",
     "docs_url": "https://www.geonames.org/export/web-services.html",
     "limit_proof": "Free registered account: 20,000 credits/hour. Most endpoints cost 1 credit per call. Commercial server requires registration."
+  },
+  "carbon-intensity-uk": {
+    "display_name": "UK Carbon Intensity (National Grid ESO)",
+    "health_url": "https://api.carbonintensity.org.uk/intensity",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://carbon-intensity.github.io/api-definitions/",
+    "limit_proof": "CC BY 4.0 open data from UK National Grid ESO. No auth required, no documented rate limits."
   }
 }

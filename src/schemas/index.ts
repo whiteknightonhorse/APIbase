@@ -231,6 +231,7 @@ import { blsMacroSchemas } from './bls-macro.schema';
 import { mbtaTransitSchemas } from './mbta-transit.schema';
 import { unhcrSchemas } from './unhcr.schema';
 import { geonamesSchemas } from './geonames.schema';
+import { carbonIntensityUkSchemas } from './carbon-intensity-uk.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -465,4 +466,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...mbtaTransitSchemas,
   ...unhcrSchemas,
   ...geonamesSchemas,
+  ...carbonIntensityUkSchemas,
 };

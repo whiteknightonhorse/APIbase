@@ -70593,6 +70593,310 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/carbonintensity.current/call": {
+      "post": {
+        "operationId": "carbonintensity_current",
+        "summary": "UK Carbon Intensity — Current",
+        "description": "Get the current national carbon intensity of UK electricity generation from the National Grid ESO. Returns the half-hour period timestamps, forecast intensity in gCO2/kWh, actual intensity in gCO2/kWh (when available), and a qualitative index (very low / low / moderate / high / very high). Data is updated every 30 minutes. Lower values indicate cleaner electricity — useful for smart energy scheduling, EV charging optimisation, and sustainability dashboards. CC BY 4.0, no upstream cost.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "carbonintensity.current"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "locale": {
+                    "type": "string",
+                    "description": "Reserved for future use. Omit for standard response."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/carbonintensity.generation/call": {
+      "post": {
+        "operationId": "carbonintensity_generation",
+        "summary": "UK Carbon Intensity — Generation Mix",
+        "description": "Get the current UK national electricity generation mix by fuel source from the National Grid ESO. Returns the percentage contribution of each fuel type: biomass, coal, imports, gas, nuclear, other, hydro, solar, and wind. Data is updated every 30 minutes. Useful for understanding real-time renewable vs fossil fuel share, carbon-aware computing, and energy transition analysis. CC BY 4.0, no upstream cost.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "carbonintensity.generation"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "locale": {
+                    "type": "string",
+                    "description": "Reserved for future use. Omit for standard response."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/carbonintensity.regional/call": {
+      "post": {
+        "operationId": "carbonintensity_regional",
+        "summary": "UK Carbon Intensity — Regional Breakdown",
+        "description": "Get carbon intensity and generation mix for UK electricity distribution regions. Returns data for all 14–18 UK DNO (Distribution Network Operator) regions, or a single region by region ID (1=North Scotland, 2=South Scotland, 3=North West England, 4=North East England, 5=Yorkshire, 6=North Wales & Mersey, 7=South Wales, 8=West Midlands, 9=East Midlands, 10=East England, 11=South West England, 12=South England, 13=London, 14=South East England). Each region includes forecast intensity in gCO2/kWh, qualitative index, and generation mix percentages. Useful for location-aware carbon-minimising energy decisions. CC BY 4.0, no upstream cost.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "carbonintensity.regional"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "region_id": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 18,
+                    "description": "UK DNO region ID (1–14 for primary regions, up to 18 for all). Omit to return all regions. 1=North Scotland, 2=South Scotland, 3=North West England, 4=North East England, 5=Yorkshire, 6=North Wales & Mersey, 7=South Wales, 8=West Midlands, 9=East Midlands, 10=East England, 11=South West England, 12=South England, 13=London, 14=South East England"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/carbonintensity.forecast/call": {
+      "post": {
+        "operationId": "carbonintensity_forecast",
+        "summary": "UK Carbon Intensity — 24-Hour Forecast",
+        "description": "Get the 24-hour ahead forecast of UK national carbon intensity from the National Grid ESO. Returns up to 48 half-hour periods (fully covering the next 24 hours), each with a forecast intensity in gCO2/kWh and a qualitative index (very low / low / moderate / high / very high). Use the optional periods parameter to limit results (e.g. periods=6 for 3 hours ahead). Ideal for scheduling carbon-intensive workloads, EV charging, or energy storage dispatch at the lowest-carbon future window. CC BY 4.0, no upstream cost.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "carbonintensity.forecast"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "periods": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 48,
+                    "description": "Number of 30-minute forecast periods to return (1–48, default: all 48 covering 24 hours)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

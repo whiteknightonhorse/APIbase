@@ -231,6 +231,7 @@ import { BlsMacroAdapter } from './bls-macro';
 import { MbtaTransitAdapter } from './mbta-transit';
 import { UnhcrAdapter } from './unhcr';
 import { GeoNamesAdapter } from './geonames';
+import { CarbonIntensityUkAdapter } from './carbon-intensity-uk';
 import { config } from '../config';
 
 /**
@@ -1364,6 +1365,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
         'geonames',
         () => new GeoNamesAdapter(process.env.GEONAMES_USERNAME ?? 'APIbase'),
       );
+    case 'carbonintensity':
+      // UK National Grid Carbon Intensity (UC-513) — real-time intensity, generation mix, regional, 24h forecast; no auth
+      return getOrCreate('carbonintensity', () => new CarbonIntensityUkAdapter());
     default:
       return undefined;
   }

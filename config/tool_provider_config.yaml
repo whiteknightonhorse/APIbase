@@ -4686,6 +4686,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-513: UK National Grid Carbon Intensity ---
+  - tool_id: carbonintensity.current
+    name: UK Carbon Intensity — Current
+    provider: carbon-intensity-uk
+    price_usd: "0.001"
+    cache_ttl: 300
+
+  - tool_id: carbonintensity.generation
+    name: UK Carbon Intensity — Generation Mix
+    provider: carbon-intensity-uk
+    price_usd: "0.001"
+    cache_ttl: 300
+
+  - tool_id: carbonintensity.regional
+    name: UK Carbon Intensity — Regional Breakdown
+    provider: carbon-intensity-uk
+    price_usd: "0.001"
+    cache_ttl: 300
+
+  - tool_id: carbonintensity.forecast
+    name: UK Carbon Intensity — 24-Hour Forecast
+    provider: carbon-intensity-uk
+    price_usd: "0.001"
+    cache_ttl: 1800
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform
