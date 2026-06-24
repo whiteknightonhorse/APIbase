@@ -232,6 +232,7 @@ import { MbtaTransitAdapter } from './mbta-transit';
 import { UnhcrAdapter } from './unhcr';
 import { GeoNamesAdapter } from './geonames';
 import { CarbonIntensityUkAdapter } from './carbon-intensity-uk';
+import { OpenTopoDataAdapter } from './opentopodata';
 import { config } from '../config';
 
 /**
@@ -1368,6 +1369,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'carbonintensity':
       // UK National Grid Carbon Intensity (UC-513) — real-time intensity, generation mix, regional, 24h forecast; no auth
       return getOrCreate('carbonintensity', () => new CarbonIntensityUkAdapter());
+    case 'opentopodata':
+      // Open Topo Data (UC-514) — global elevation API: SRTM 90m/30m, NED 10m, EU-DEM 25m, ASTER 30m, GEBCO bathymetry; no auth
+      return getOrCreate('opentopodata', () => new OpenTopoDataAdapter());
     default:
       return undefined;
   }

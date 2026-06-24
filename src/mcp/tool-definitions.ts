@@ -8493,4 +8493,61 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+
+  // Open Topo Data (4)
+  {
+    toolId: 'opentopodata.point',
+    mcpName: 'opentopodata.elevation.point',
+    title: 'Open Topo Data — Single Point Elevation',
+    description:
+      'Get land surface elevation (metres above sea level) for a single latitude/longitude coordinate. ' +
+      'Supports three global datasets: srtm90m (NASA SRTM 90m resolution, default), srtm30m (NASA SRTM 30m), ' +
+      'and aster30m (ASTER 30m, best for high-altitude regions like Everest). ' +
+      'Returns elevation in metres with the dataset name and the snapped coordinates. ' +
+      'Use for terrain analysis, hiking route planning, flight-path clearance checks, and GIS workflows. ' +
+      'MIT licence, no auth, no upstream cost.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'opentopodata.batch',
+    mcpName: 'opentopodata.elevation.batch',
+    title: 'Open Topo Data — Batch Elevation Query',
+    description:
+      'Get land surface elevation for up to 100 lat/lon coordinates in a single request. ' +
+      'All points share the same dataset (srtm90m default, srtm30m, or aster30m). ' +
+      'Returns an array of results, each with elevation_m, lat, lon, and dataset. ' +
+      'Ideal for elevation profiling along a route, contour-line computation, or bulk terrain analysis. ' +
+      'MIT licence, no auth, no upstream cost.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'opentopodata.high_res',
+    mcpName: 'opentopodata.elevation.high_res',
+    title: 'Open Topo Data — High-Resolution Regional Elevation',
+    description:
+      'Get high-resolution elevation for a single coordinate using regional datasets: ' +
+      'ned10m (USGS National Elevation Dataset 10m, continental US only) or ' +
+      'eudem25m (EU-DEM 25m, Europe only). ' +
+      'Returns elevation in metres with dataset name. Use ned10m for US urban/terrain analysis ' +
+      'and eudem25m for European geospatial workflows requiring higher accuracy than SRTM. ' +
+      'MIT licence, no auth, no upstream cost.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'opentopodata.ocean',
+    mcpName: 'opentopodata.elevation.ocean',
+    title: 'Open Topo Data — Ocean Depth (Bathymetry)',
+    description:
+      'Get ocean floor depth (metres, negative values below sea level) at a lat/lon coordinate ' +
+      'using the GEBCO 2020 global bathymetric dataset (450m resolution). ' +
+      'Returns depth in metres; negative values indicate depth below sea level, ' +
+      'positive values indicate land elevation above sea level. ' +
+      'Use for marine navigation planning, submarine cable routing, oceanographic research, ' +
+      'and coastal engineering. MIT licence, no auth, no upstream cost.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
 ];

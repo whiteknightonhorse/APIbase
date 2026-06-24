@@ -4711,6 +4711,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 1800
 
+  # --- UC-514: Open Topo Data ---
+  - tool_id: opentopodata.point
+    name: Open Topo Data — Single Point Elevation
+    provider: opentopodata
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: opentopodata.batch
+    name: Open Topo Data — Batch Elevation Query
+    provider: opentopodata
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: opentopodata.high_res
+    name: Open Topo Data — High-Resolution Regional Elevation
+    provider: opentopodata
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: opentopodata.ocean
+    name: Open Topo Data — Ocean Depth (Bathymetry)
+    provider: opentopodata
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

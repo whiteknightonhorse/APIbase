@@ -2087,5 +2087,14 @@
     "reset_period": "none",
     "docs_url": "https://carbon-intensity.github.io/api-definitions/",
     "limit_proof": "CC BY 4.0 open data from UK National Grid ESO. No auth required, no documented rate limits."
+  },
+  "opentopodata": {
+    "display_name": "Open Topo Data",
+    "health_url": "https://api.opentopodata.org/v1/srtm90m?locations=0,0",
+    "limit_type": "daily",
+    "free_limit": 1000,
+    "reset_period": "daily",
+    "docs_url": "https://www.opentopodata.org/api/",
+    "limit_proof": "Free hosted API: 1 request/second, 100 locations/request. MIT licence, self-host for unlimited."
   }
 }

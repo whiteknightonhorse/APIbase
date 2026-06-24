@@ -2,8 +2,8 @@
   "platform": "APIbase",
   "version": "2.0",
   "updated_at": "2026-04-01T00:00:00Z",
-  "tools_count": 765,
-  "providers_count": 227,
+  "tools_count": 769,
+  "providers_count": 228,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
@@ -67,7 +67,7 @@
     },
     {
       "name": "location",
-      "tools": 31,
+      "tools": 35,
       "providers": "Geoapify, GeoNames, Geocodio, Foursquare, Walk Score, Realtor, Open Charge Map",
       "examples": "geocoding, place search, postal codes, country info, timezone lookup, routing, real estate"
     },
