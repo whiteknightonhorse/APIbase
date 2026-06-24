@@ -235,6 +235,7 @@ import { CarbonIntensityUkAdapter } from './carbon-intensity-uk';
 import { OpenTopoDataAdapter } from './opentopodata';
 import { MetNorwayAdapter } from './met-norway';
 import { FrankfurterAdapter } from './frankfurter';
+import { SunriseSunsetAdapter } from './sunrisesunset';
 import { config } from '../config';
 
 /**
@@ -1380,6 +1381,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'frankfurter':
       // Frankfurter.dev (UC-516) — ECB exchange rates, 33 currencies, historical since 1999; no auth
       return getOrCreate('frankfurter', () => new FrankfurterAdapter());
+    case 'sunrisesunset':
+      // SunriseSunset.io (UC-517) — sunrise/sunset/moon phase/golden hour/sun position; no auth
+      return getOrCreate('sunrisesunset', () => new SunriseSunsetAdapter());
     default:
       return undefined;
   }

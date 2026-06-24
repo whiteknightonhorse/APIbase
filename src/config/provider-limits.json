@@ -2114,5 +2114,14 @@
     "reset_period": "none",
     "docs_url": "https://frankfurter.dev/docs",
     "limit_proof": "No auth required, no documented rate limits. Public domain ECB exchange rate data. Open-source project (MIT)."
+  },
+  "sunrisesunset": {
+    "display_name": "SunriseSunset.io",
+    "health_url": "https://api.sunrisesunset.io/json?lat=40.7128&lng=-74.0060&date=today",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://sunrisesunset.io/api/",
+    "limit_proof": "No auth required, no documented rate limits. Attribution required. Free for commercial use. Source: sunrisesunset.io/api/"
   }
 }

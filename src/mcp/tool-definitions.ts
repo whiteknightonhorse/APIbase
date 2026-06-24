@@ -8665,4 +8665,64 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+  // SunriseSunset.io (4)
+  {
+    toolId: 'sunrisesunset.daily',
+    mcpName: 'sunrisesunset.astronomy.daily',
+    title: 'SunriseSunset — Daily Sun & Moon Times',
+    description:
+      'Get complete daily astronomical data for any lat/lng and date from SunriseSunset.io. ' +
+      'Returns sunrise, sunset, dawn, dusk, first/last light, solar noon, golden hour, day length, ' +
+      'nautical twilight, current sun altitude and azimuth, moonrise, moonset, moon phase name, ' +
+      'moon illumination percentage, and lunar phase value (0–1 cycle). ' +
+      'Supports "today", "tomorrow", or any YYYY-MM-DD date. ' +
+      'Timezone auto-detected from coordinates or specify an IANA name. ' +
+      'Time format: 12h, 24h, or Unix timestamps. No auth required; free commercial use.',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'sunrisesunset.range',
+    mcpName: 'sunrisesunset.astronomy.range',
+    title: 'SunriseSunset — Date Range Sun & Moon Data',
+    description:
+      'Get sunrise/sunset/moon phase data for a date range of up to 365 days for any global coordinate. ' +
+      'Returns an array of daily records each with: sunrise, sunset, solar noon, golden hour, day length, ' +
+      'moon phase name, and moon illumination percentage. ' +
+      'Useful for seasonal planning, photography planning, agriculture, and event scheduling. ' +
+      'Specify date_start and date_end in YYYY-MM-DD format; max 365 days per call. ' +
+      'No auth required; free commercial use. Source: SunriseSunset.io.',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'sunrisesunset.moon_phase',
+    mcpName: 'sunrisesunset.moon.phase',
+    title: 'SunriseSunset — Moon Phase & Lunar Times',
+    description:
+      'Get moon phase, lunar illumination, and moonrise/moonset times for any location and date. ' +
+      'Returns: moon phase name (New Moon, Waxing Crescent, First Quarter, Waxing Gibbous, Full Moon, ' +
+      'Waning Gibbous, Last Quarter, Waning Crescent), phase value (0–1 cycle fraction), ' +
+      'moon illumination percentage (0–100), moonrise time, moonset time, ' +
+      'and flags for polar cases (moon_always_up / moon_always_down). ' +
+      'No auth required; free commercial use. Source: SunriseSunset.io.',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'sunrisesunset.sun_position',
+    mcpName: 'sunrisesunset.sun.position',
+    title: 'SunriseSunset — Sun Position & Golden Hour',
+    description:
+      'Get the current sun position (altitude and azimuth), sunrise/sunset compass bearings, ' +
+      'golden hour window, and solar noon time for any location and date. ' +
+      'Sun altitude is the elevation angle above the horizon (negative = below). ' +
+      'Sun azimuth is the compass direction of the sun (0=North, 90=East, 180=South, 270=West). ' +
+      'Golden hour is the last hour before sunset — ideal for photography. ' +
+      'Includes dawn, dusk, and day length. ' +
+      'Useful for solar panel orientation, photography planning, outdoor event scheduling, and navigation. ' +
+      'No auth required; free commercial use. Source: SunriseSunset.io.',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
 ];

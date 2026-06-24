@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 777 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 781 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -45212,6 +45212,295 @@
         },
         "required": [
           "start_date"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "sunrisesunset.astronomy.daily",
+      "title": "SunriseSunset \u2014 Daily Sun & Moon Times",
+      "description": "Get complete daily astronomical data for any lat/lng and date from SunriseSunset.io. Returns sunrise, sunset, dawn, dusk, first/last light, solar noon, golden hour, day length, nautical twilight, current sun altitude and azimuth, moonrise, moonset, moon phase name, moon illumination percentage, and lunar phase value (0\u20131 cycle). Supports \"today\", \"tomorrow\", or any YYYY-MM-DD date. Timezone auto-detected from coordinates or specify an IANA name. Time format: 12h, 24h, or Unix timestamps. No auth required; free commercial use.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number",
+            "description": "Latitude of the target location (-90 to 90). Positive = North, Negative = South.",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "lng": {
+            "type": "number",
+            "description": "Longitude of the target location (-180 to 180). Positive = East, Negative = West.",
+            "minimum": -180,
+            "maximum": 180
+          },
+          "date": {
+            "type": "string",
+            "description": "Date to query: \"today\", \"tomorrow\", or ISO date YYYY-MM-DD (e.g. 2026-01-15). Defaults to today."
+          },
+          "timezone": {
+            "type": "string",
+            "description": "IANA timezone name for output times (e.g. America/New_York, Europe/London, Asia/Tokyo). Auto-detected from lat/lng if omitted."
+          },
+          "time_format": {
+            "type": "string",
+            "enum": [
+              "0",
+              "1",
+              "2"
+            ],
+            "description": "Time output format: \"0\"=12-hour AM/PM (e.g. 5:26:02 AM), \"1\"=24-hour (e.g. 05:26:02), \"2\"=Unix timestamp seconds. Defaults to \"0\"."
+          }
+        },
+        "required": [
+          "lat",
+          "lng"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "sunrisesunset.moon.phase",
+      "title": "SunriseSunset \u2014 Moon Phase & Lunar Times",
+      "description": "Get moon phase, lunar illumination, and moonrise/moonset times for any location and date. Returns: moon phase name (New Moon, Waxing Crescent, First Quarter, Waxing Gibbous, Full Moon, Waning Gibbous, Last Quarter, Waning Crescent), phase value (0\u20131 cycle fraction), moon illumination percentage (0\u2013100), moonrise time, moonset time, and flags for polar cases (moon_always_up / moon_always_down). No auth required; free commercial use. Source: SunriseSunset.io.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number",
+            "description": "Latitude of the target location (-90 to 90). Positive = North, Negative = South.",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "lng": {
+            "type": "number",
+            "description": "Longitude of the target location (-180 to 180). Positive = East, Negative = West.",
+            "minimum": -180,
+            "maximum": 180
+          },
+          "date": {
+            "type": "string",
+            "description": "Date to query: \"today\", \"tomorrow\", or ISO date YYYY-MM-DD (e.g. 2026-01-15). Defaults to today."
+          },
+          "timezone": {
+            "type": "string",
+            "description": "IANA timezone name for output times (e.g. America/New_York, Europe/London, Asia/Tokyo). Auto-detected from lat/lng if omitted."
+          }
+        },
+        "required": [
+          "lat",
+          "lng"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "sunrisesunset.astronomy.range",
+      "title": "SunriseSunset \u2014 Date Range Sun & Moon Data",
+      "description": "Get sunrise/sunset/moon phase data for a date range of up to 365 days for any global coordinate. Returns an array of daily records each with: sunrise, sunset, solar noon, golden hour, day length, moon phase name, and moon illumination percentage. Useful for seasonal planning, photography planning, agriculture, and event scheduling. Specify date_start and date_end in YYYY-MM-DD format; max 365 days per call. No auth required; free commercial use. Source: SunriseSunset.io.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number",
+            "description": "Latitude of the target location (-90 to 90). Positive = North, Negative = South.",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "lng": {
+            "type": "number",
+            "description": "Longitude of the target location (-180 to 180). Positive = East, Negative = West.",
+            "minimum": -180,
+            "maximum": 180
+          },
+          "date_start": {
+            "type": "string",
+            "description": "Start date of range in ISO format YYYY-MM-DD (e.g. 2026-06-01)."
+          },
+          "date_end": {
+            "type": "string",
+            "description": "End date of range in ISO format YYYY-MM-DD (e.g. 2026-06-30). Maximum 365 days from start date."
+          },
+          "timezone": {
+            "type": "string",
+            "description": "IANA timezone name for output times (e.g. America/New_York, Europe/London, Asia/Tokyo). Auto-detected from lat/lng if omitted."
+          },
+          "time_format": {
+            "type": "string",
+            "enum": [
+              "0",
+              "1",
+              "2"
+            ],
+            "description": "Time output format: \"0\"=12-hour AM/PM (e.g. 5:26:02 AM), \"1\"=24-hour (e.g. 05:26:02), \"2\"=Unix timestamp seconds. Defaults to \"0\"."
+          }
+        },
+        "required": [
+          "lat",
+          "lng",
+          "date_start",
+          "date_end"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "sunrisesunset.sun.position",
+      "title": "SunriseSunset \u2014 Sun Position & Golden Hour",
+      "description": "Get the current sun position (altitude and azimuth), sunrise/sunset compass bearings, golden hour window, and solar noon time for any location and date. Sun altitude is the elevation angle above the horizon (negative = below). Sun azimuth is the compass direction of the sun (0=North, 90=East, 180=South, 270=West). Golden hour is the last hour before sunset \u2014 ideal for photography. Includes dawn, dusk, and day length. Useful for solar panel orientation, photography planning, outdoor event scheduling, and navigation. No auth required; free commercial use. Source: SunriseSunset.io.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number",
+            "description": "Latitude of the target location (-90 to 90). Positive = North, Negative = South.",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "lng": {
+            "type": "number",
+            "description": "Longitude of the target location (-180 to 180). Positive = East, Negative = West.",
+            "minimum": -180,
+            "maximum": 180
+          },
+          "date": {
+            "type": "string",
+            "description": "Date to query: \"today\", \"tomorrow\", or ISO date YYYY-MM-DD (e.g. 2026-01-15). Defaults to today."
+          },
+          "timezone": {
+            "type": "string",
+            "description": "IANA timezone name for output times (e.g. America/New_York, Europe/London, Asia/Tokyo). Auto-detected from lat/lng if omitted."
+          },
+          "time_format": {
+            "type": "string",
+            "enum": [
+              "0",
+              "1",
+              "2"
+            ],
+            "description": "Time output format: \"0\"=12-hour AM/PM (e.g. 5:26:02 AM), \"1\"=24-hour (e.g. 05:26:02), \"2\"=Unix timestamp seconds. Defaults to \"0\"."
+          }
+        },
+        "required": [
+          "lat",
+          "lng"
         ]
       },
       "outputSchema": {

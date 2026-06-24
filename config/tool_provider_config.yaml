@@ -4786,6 +4786,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-517: SunriseSunset.io ---
+  - tool_id: sunrisesunset.daily
+    name: SunriseSunset — Daily Sun & Moon Times
+    provider: sunrisesunset
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: sunrisesunset.range
+    name: SunriseSunset — Date Range Sun & Moon Data
+    provider: sunrisesunset
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: sunrisesunset.moon_phase
+    name: SunriseSunset — Moon Phase & Lunar Times
+    provider: sunrisesunset
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: sunrisesunset.sun_position
+    name: SunriseSunset — Sun Position & Golden Hour
+    provider: sunrisesunset
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

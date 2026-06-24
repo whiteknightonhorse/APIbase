@@ -235,6 +235,7 @@ import { carbonIntensityUkSchemas } from './carbon-intensity-uk.schema';
 import { opentopoDataSchemas } from './opentopodata.schema';
 import { metNorwaySchemas } from './met-norway.schema';
 import { frankfurterSchemas } from './frankfurter.schema';
+import { sunrisesunsetSchemas } from './sunrisesunset.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -473,4 +474,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...opentopoDataSchemas,
   ...metNorwaySchemas,
   ...frankfurterSchemas,
+  ...sunrisesunsetSchemas,
 };
