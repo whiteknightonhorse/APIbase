@@ -8256,4 +8256,67 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+
+  // MBTA Transit (UC-510) — 4 tools
+  {
+    toolId: 'mbta-transit.routes',
+    mcpName: 'mbta.transit.routes',
+    title: 'MBTA Routes List',
+    description:
+      'List Boston MBTA transit routes by type — subway (Red/Orange/Blue/Green lines), ' +
+      'commuter rail (Providence, Fairmount, etc.), bus, and ferry. ' +
+      'Returns route ID, long name, type label, direction names and destinations, fare class, and brand color. ' +
+      'Route IDs returned here are used as filter inputs for mbta-transit.stops, mbta-transit.alerts, ' +
+      'and mbta-transit.predictions. Filter by type: 0=Light Rail, 1=Heavy Rail/Subway, ' +
+      '2=Commuter Rail, 3=Bus, 4=Ferry. MassDOT Open Data License, no upstream cost.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'mbta-transit.stops',
+    mcpName: 'mbta.transit.stops',
+    title: 'MBTA Stops & Stations',
+    description:
+      'Find Boston MBTA stops and stations — filter by route ID or by geographic coordinates + radius. ' +
+      'Returns stop ID, name, latitude/longitude, municipality, vehicle type, platform info, ' +
+      'and wheelchair boarding status. Stop IDs returned here are used as filter inputs for ' +
+      'mbta-transit.alerts and mbta-transit.predictions. Use location_type=1 to return only ' +
+      'major stations (parent stops); location_type=0 for individual platforms. ' +
+      'Example: route="Red" returns all 22 Red Line stops from Alewife to Braintree/Ashmont. ' +
+      'MassDOT Open Data License, no upstream cost.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'mbta-transit.alerts',
+    mcpName: 'mbta.transit.alerts',
+    title: 'MBTA Service Alerts',
+    description:
+      'Get active Boston MBTA service disruption alerts — delays, cancellations, detours, ' +
+      'shuttle buses, station closures, and elevator/escalator outages. ' +
+      'Returns alert header, effect type, cause, severity (0–10), lifecycle status, ' +
+      'affected routes and stops, and active time period. ' +
+      'Filter by route ID (e.g. "Red"), stop ID, minimum severity, lifecycle ' +
+      '(ONGOING/UPCOMING/NEW), or effect type (DELAY/CANCELLATION/SHUTTLE/DETOUR/SUSPENSION). ' +
+      'Severity 7+ = moderate disruption; 9–10 = major service change. ' +
+      'MassDOT Open Data License, real-time data, no upstream cost.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'mbta-transit.predictions',
+    mcpName: 'mbta.transit.predictions',
+    title: 'MBTA Real-Time Predictions',
+    description:
+      'Get real-time arrival and departure predictions for Boston MBTA stops — ' +
+      'live vehicle tracking data for subway, bus, commuter rail, and ferry. ' +
+      'Returns predicted arrival_time, departure_time (ISO 8601), direction, ' +
+      'status (e.g. "Boarding"), schedule relationship (SCHEDULED/SKIPPED/NO_DATA), ' +
+      'and associated route, stop, trip, and vehicle IDs. ' +
+      'Requires at least one filter: stop ID (e.g. "place-sstat" for South Station, ' +
+      '"place-pktrm" for Park Street) or route ID. Use direction_id to filter inbound (1) ' +
+      'vs outbound (0). MassDOT Open Data License, real-time live data, no upstream cost.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

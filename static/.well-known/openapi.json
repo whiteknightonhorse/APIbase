@@ -69384,6 +69384,439 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/mbta-transit.routes/call": {
+      "post": {
+        "operationId": "mbta-transit_routes",
+        "summary": "MBTA Routes List",
+        "description": "List Boston MBTA transit routes by type — subway (Red/Orange/Blue/Green lines), commuter rail (Providence, Fairmount, etc.), bus, and ferry. Returns route ID, long name, type label, direction names and destinations, fare class, and brand color. Route IDs returned here are used as filter inputs for mbta-transit.stops, mbta-transit.alerts, and mbta-transit.predictions. Filter by type: 0=Light Rail, 1=Heavy Rail/Subway, 2=Commuter Rail, 3=Bus, 4=Ferry. MassDOT Open Data License, no upstream cost.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "mbta-transit.routes"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "0",
+                      "1",
+                      "2",
+                      "3",
+                      "4"
+                    ],
+                    "description": "Filter by route type: 0=Light Rail, 1=Heavy Rail/Subway, 2=Commuter Rail, 3=Bus, 4=Ferry. Omit for all types."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of routes to return (default 50, max 100)"
+                  },
+                  "sort": {
+                    "type": "string",
+                    "enum": [
+                      "long_name",
+                      "-long_name",
+                      "sort_order",
+                      "-sort_order",
+                      "type",
+                      "-type"
+                    ],
+                    "description": "Sort order: \"sort_order\" (default MBTA order), \"long_name\" alphabetical, prefix \"-\" for descending"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/mbta-transit.stops/call": {
+      "post": {
+        "operationId": "mbta-transit_stops",
+        "summary": "MBTA Stops & Stations",
+        "description": "Find Boston MBTA stops and stations — filter by route ID or by geographic coordinates + radius. Returns stop ID, name, latitude/longitude, municipality, vehicle type, platform info, and wheelchair boarding status. Stop IDs returned here are used as filter inputs for mbta-transit.alerts and mbta-transit.predictions. Use location_type=1 to return only major stations (parent stops); location_type=0 for individual platforms. Example: route=\"Red\" returns all 22 Red Line stops from Alewife to Braintree/Ashmont. MassDOT Open Data License, no upstream cost.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "mbta-transit.stops"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "route": {
+                    "type": "string",
+                    "description": "Filter stops by route ID (e.g. \"Red\" for Red Line, \"1\" for Route 1 bus, \"CR-Fairmount\" for commuter rail). Use mbta-transit.routes to get route IDs."
+                  },
+                  "latitude": {
+                    "type": "number",
+                    "minimum": -90,
+                    "maximum": 90,
+                    "description": "Center latitude for proximity search. Must be paired with longitude and radius (e.g. 42.3601 for Boston)"
+                  },
+                  "longitude": {
+                    "type": "number",
+                    "minimum": -180,
+                    "maximum": 180,
+                    "description": "Center longitude for proximity search. Must be paired with latitude and radius (e.g. -71.0589 for Boston)"
+                  },
+                  "radius": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Search radius in degrees around lat/lon (approx 0.01° ≈ 1 km). Use with latitude+longitude."
+                  },
+                  "location_type": {
+                    "type": "string",
+                    "enum": [
+                      "0",
+                      "1",
+                      "2"
+                    ],
+                    "description": "Filter by location type: 0=individual stop/platform, 1=station (parent), 2=station entrance/exit"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of stops to return (default 25, max 100)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/mbta-transit.alerts/call": {
+      "post": {
+        "operationId": "mbta-transit_alerts",
+        "summary": "MBTA Service Alerts",
+        "description": "Get active Boston MBTA service disruption alerts — delays, cancellations, detours, shuttle buses, station closures, and elevator/escalator outages. Returns alert header, effect type, cause, severity (0–10), lifecycle status, affected routes and stops, and active time period. Filter by route ID (e.g. \"Red\"), stop ID, minimum severity, lifecycle (ONGOING/UPCOMING/NEW), or effect type (DELAY/CANCELLATION/SHUTTLE/DETOUR/SUSPENSION). Severity 7+ = moderate disruption; 9–10 = major service change. MassDOT Open Data License, real-time data, no upstream cost.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "mbta-transit.alerts"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "route": {
+                    "type": "string",
+                    "description": "Filter alerts by route ID (e.g. \"Red\", \"Green-B\", \"1\", \"CR-Providence\"). Use mbta-transit.routes to get IDs."
+                  },
+                  "stop": {
+                    "type": "string",
+                    "description": "Filter alerts by stop ID (e.g. \"place-sstat\" for South Station). Use mbta-transit.stops to get IDs."
+                  },
+                  "severity": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 10,
+                    "description": "Minimum severity level 0–10: 0–3=informational, 4–6=minor disruption, 7–8=moderate, 9–10=major/shutdown. Omit for all."
+                  },
+                  "lifecycle": {
+                    "type": "string",
+                    "enum": [
+                      "NEW",
+                      "ONGOING",
+                      "ONGOING_UPCOMING",
+                      "UPCOMING"
+                    ],
+                    "description": "Filter by alert lifecycle: \"ONGOING\" (active now), \"UPCOMING\" (future planned), \"NEW\" (just created)"
+                  },
+                  "effect": {
+                    "type": "string",
+                    "enum": [
+                      "ACCESS_ISSUE",
+                      "ADDITIONAL_SERVICE",
+                      "CANCELLATION",
+                      "DELAY",
+                      "DETOUR",
+                      "DOCK_CLOSURE",
+                      "DOCK_ISSUE",
+                      "EXTRA_SERVICE",
+                      "FACILITY_ISSUE",
+                      "MODIFIED_SERVICE",
+                      "NO_SERVICE",
+                      "OTHER_EFFECT",
+                      "PARKING_CLOSURE",
+                      "PARKING_ISSUE",
+                      "POLICY_CHANGE",
+                      "SCHEDULE_CHANGE",
+                      "SERVICE_CHANGE",
+                      "SHUTTLE",
+                      "SNOW_ROUTE",
+                      "STATION_CLOSURE",
+                      "STATION_ISSUE",
+                      "STOP_CLOSURE",
+                      "STOP_MOVE",
+                      "STOP_SHOVELING",
+                      "SUMMARY",
+                      "SUSPENSION",
+                      "TRACK_CHANGE"
+                    ],
+                    "description": "Filter by disruption effect type: \"DELAY\", \"CANCELLATION\", \"SUSPENSION\", \"SHUTTLE\", \"DETOUR\", \"STATION_CLOSURE\", etc."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of alerts to return (default 20, max 50)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/mbta-transit.predictions/call": {
+      "post": {
+        "operationId": "mbta-transit_predictions",
+        "summary": "MBTA Real-Time Predictions",
+        "description": "Get real-time arrival and departure predictions for Boston MBTA stops — live vehicle tracking data for subway, bus, commuter rail, and ferry. Returns predicted arrival_time, departure_time (ISO 8601), direction, status (e.g. \"Boarding\"), schedule relationship (SCHEDULED/SKIPPED/NO_DATA), and associated route, stop, trip, and vehicle IDs. Requires at least one filter: stop ID (e.g. \"place-sstat\" for South Station, \"place-pktrm\" for Park Street) or route ID. Use direction_id to filter inbound (1) vs outbound (0). MassDOT Open Data License, real-time live data, no upstream cost.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "mbta-transit.predictions"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "stop": {
+                    "type": "string",
+                    "description": "Stop or station ID for arrival/departure predictions (e.g. \"place-sstat\" for South Station, \"place-pktrm\" for Park Street). Use mbta-transit.stops to find stop IDs."
+                  },
+                  "route": {
+                    "type": "string",
+                    "description": "Route ID to get predictions for (e.g. \"Red\", \"Green-B\", \"1\"). At least one of stop or route is required."
+                  },
+                  "direction_id": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Filter by direction: 0=outbound (away from downtown/terminus), 1=inbound (toward downtown/terminus). See mbta-transit.routes for direction names."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of predictions to return (default 10, max 50). Each prediction is one scheduled stop for one vehicle."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

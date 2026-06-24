@@ -4611,6 +4611,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-510: MBTA Transit ---
+  - tool_id: mbta-transit.routes
+    name: MBTA Routes List
+    provider: mbta-transit
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: mbta-transit.stops
+    name: MBTA Stops & Stations
+    provider: mbta-transit
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: mbta-transit.alerts
+    name: MBTA Service Alerts
+    provider: mbta-transit
+    price_usd: "0.001"
+    cache_ttl: 60
+
+  - tool_id: mbta-transit.predictions
+    name: MBTA Real-Time Predictions
+    provider: mbta-transit
+    price_usd: "0.002"
+    cache_ttl: 15
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

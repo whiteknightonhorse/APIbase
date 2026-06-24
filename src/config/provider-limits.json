@@ -1978,7 +1978,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://data.brreg.no/enhetsregisteret/api/docs",
-    "limit_proof": "Brønnøysundregistrene API: no authentication required, no rate limits documented. Open data NLOD 2.0 — commercial use permitted."
+    "limit_proof": "Br\u00f8nn\u00f8ysundregistrene API: no authentication required, no rate limits documented. Open data NLOD 2.0 \u2014 commercial use permitted."
   },
   "worms": {
     "display_name": "WoRMS (Marine Species)",
@@ -2051,5 +2051,14 @@
     "reset_period": "daily",
     "docs_url": "https://www.bls.gov/developers/api_faqs.htm",
     "limit_proof": "BLS API FAQs: registered key = 500 queries/day, 50 series/request, 10 years/query. Unregistered: 25 queries/day. Free registration at bls.gov/developers."
+  },
+  "mbta-transit": {
+    "display_name": "MBTA Transit",
+    "health_url": "https://api-v3.mbta.com/routes?page[limit]=1",
+    "limit_type": "daily",
+    "free_limit": 500,
+    "reset_period": "daily",
+    "docs_url": "https://www.mbta.com/developers/v3-api",
+    "limit_proof": "No API key: 20 req/min, 500 req/day. Free API key increases limit."
   }
 }
