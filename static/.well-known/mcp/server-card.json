@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 773 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 777 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -45004,6 +45004,233 @@
           "error": {
             "type": "object",
             "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "frankfurter.currency.list",
+      "title": "Frankfurter \u2014 List Supported Currencies",
+      "description": "Returns all 33 currencies supported by the Frankfurter.dev ECB exchange rate API with their full English names. Use this to discover valid currency codes before calling frankfurter.currency.latest, frankfurter.currency.historical, or frankfurter.currency.series. No parameters required. No auth; public domain ECB data.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locale": {
+            "type": "string",
+            "description": "Reserved for future use. The API returns currency names in English regardless. Pass any value."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "frankfurter.currency.historical",
+      "title": "Frankfurter \u2014 Historical ECB Rates by Date",
+      "description": "Retrieve ECB reference exchange rates for a specific historical date from Frankfurter.dev. Coverage starts from 1999-01-04 (Euro launch). If the requested date falls on a weekend or ECB holiday, the preceding business day is returned. Supports optional base currency, target currency filter, and amount scaling. Returns 33 major currencies: AUD, BRL, CAD, CHF, CNY, CZK, DKK, GBP, HKD, HUF, IDR, ILS, INR, ISK, JPY, KRW, MXN, MYR, NOK, NZD, PHP, PLN, RON, SEK, SGD, THB, TRY, USD, ZAR and more. No auth required; public domain ECB data.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "Historical date in YYYY-MM-DD format. ECB data available from 1999-01-04. Weekends/holidays return the preceding business day."
+          },
+          "base": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "Base currency ISO 4217 code (default: EUR). Supported: AUD,BRL,CAD,CHF,CNY,CZK,DKK,EUR,GBP,HKD,HUF,IDR,ILS,INR,ISK,JPY,KRW,MXN,MYR,NOK,NZD,PHP,PLN,RON,SEK,SGD,THB,TRY,USD,ZAR"
+          },
+          "symbols": {
+            "type": "string",
+            "description": "Comma-separated target currency codes (e.g. USD,GBP). Omit for all 33 currencies."
+          },
+          "amount": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Amount to convert (default: 1.0)."
+          }
+        },
+        "required": [
+          "date"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "frankfurter.currency.latest",
+      "title": "Frankfurter \u2014 Latest ECB Exchange Rates",
+      "description": "Get the latest European Central Bank (ECB) reference exchange rates from Frankfurter.dev (api.frankfurter.dev/v1). Returns rates for 33 major currencies relative to a base currency (default EUR). Rates are updated each business day at ~16:00 CET by the ECB. Supports optional base currency override, target currency filter, and amount scaling for instant conversion. No auth required; public domain ECB data. Ideal for FX dashboards, invoicing, and multi-currency apps.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "base": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "Base currency ISO 4217 code to convert from (default: EUR). Supported: AUD,BRL,CAD,CHF,CNY,CZK,DKK,EUR,GBP,HKD,HUF,IDR,ILS,INR,ISK,JPY,KRW,MXN,MYR,NOK,NZD,PHP,PLN,RON,SEK,SGD,THB,TRY,USD,ZAR"
+          },
+          "symbols": {
+            "type": "string",
+            "description": "Comma-separated target currency codes to return (e.g. USD,GBP,JPY). Omit for all 33 currencies."
+          },
+          "amount": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Amount to convert (default: 1.0). Returns rates scaled to this amount."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "frankfurter.currency.series",
+      "title": "Frankfurter \u2014 ECB Rate Time Series",
+      "description": "Fetch a time series of ECB exchange rates between two dates from Frankfurter.dev. Returns a date-keyed map of rates covering every business day in the range. Coverage starts from 1999-01-04. Omit end_date to get rates through the latest available date. Narrow results to specific currencies with the symbols parameter to reduce response size. Use for trend analysis, backtesting, historical P&L calculations, and charting FX movements. No auth required; public domain ECB data.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "start_date": {
+            "type": "string",
+            "description": "Start date of the time series in YYYY-MM-DD format. ECB data available from 1999-01-04."
+          },
+          "end_date": {
+            "type": "string",
+            "description": "End date of the time series in YYYY-MM-DD format. Defaults to the latest available date."
+          },
+          "base": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "Base currency ISO 4217 code (default: EUR). Supported: AUD,BRL,CAD,CHF,CNY,CZK,DKK,EUR,GBP,HKD,HUF,IDR,ILS,INR,ISK,JPY,KRW,MXN,MYR,NOK,NZD,PHP,PLN,RON,SEK,SGD,THB,TRY,USD,ZAR"
+          },
+          "symbols": {
+            "type": "string",
+            "description": "Comma-separated target currency codes (e.g. USD,GBP,JPY). Omit for all 33 currencies. Use specific symbols to reduce response size."
+          },
+          "amount": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Amount to convert (default: 1.0)."
+          }
+        },
+        "required": [
+          "start_date"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
           }
         },
         "required": [

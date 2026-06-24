@@ -4761,6 +4761,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-516: Frankfurter.dev ---
+  - tool_id: frankfurter.latest
+    name: Frankfurter — Latest ECB Exchange Rates
+    provider: frankfurter
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: frankfurter.historical
+    name: Frankfurter — Historical ECB Rates by Date
+    provider: frankfurter
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: frankfurter.series
+    name: Frankfurter — ECB Rate Time Series
+    provider: frankfurter
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: frankfurter.currencies
+    name: Frankfurter — List Supported Currencies
+    provider: frankfurter
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

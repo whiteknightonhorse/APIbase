@@ -234,6 +234,7 @@ import { GeoNamesAdapter } from './geonames';
 import { CarbonIntensityUkAdapter } from './carbon-intensity-uk';
 import { OpenTopoDataAdapter } from './opentopodata';
 import { MetNorwayAdapter } from './met-norway';
+import { FrankfurterAdapter } from './frankfurter';
 import { config } from '../config';
 
 /**
@@ -1376,6 +1377,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'metno':
       // MET Norway (UC-515) — Norwegian Met Institute: 9-day forecast, nowcast, weather alerts, sunrise/moonrise; no auth
       return getOrCreate('metno', () => new MetNorwayAdapter());
+    case 'frankfurter':
+      // Frankfurter.dev (UC-516) — ECB exchange rates, 33 currencies, historical since 1999; no auth
+      return getOrCreate('frankfurter', () => new FrankfurterAdapter());
     default:
       return undefined;
   }

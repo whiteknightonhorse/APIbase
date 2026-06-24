@@ -8609,4 +8609,60 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'weather',
     annotations: READ_ONLY,
   },
+
+  // Frankfurter.dev (4)
+  {
+    toolId: 'frankfurter.latest',
+    mcpName: 'frankfurter.currency.latest',
+    title: 'Frankfurter — Latest ECB Exchange Rates',
+    description:
+      'Get the latest European Central Bank (ECB) reference exchange rates from Frankfurter.dev (api.frankfurter.dev/v1). ' +
+      'Returns rates for 33 major currencies relative to a base currency (default EUR). ' +
+      'Rates are updated each business day at ~16:00 CET by the ECB. ' +
+      'Supports optional base currency override, target currency filter, and amount scaling for instant conversion. ' +
+      'No auth required; public domain ECB data. ' +
+      'Ideal for FX dashboards, invoicing, and multi-currency apps.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'frankfurter.historical',
+    mcpName: 'frankfurter.currency.historical',
+    title: 'Frankfurter — Historical ECB Rates by Date',
+    description:
+      'Retrieve ECB reference exchange rates for a specific historical date from Frankfurter.dev. ' +
+      'Coverage starts from 1999-01-04 (Euro launch). ' +
+      'If the requested date falls on a weekend or ECB holiday, the preceding business day is returned. ' +
+      'Supports optional base currency, target currency filter, and amount scaling. ' +
+      'Returns 33 major currencies: AUD, BRL, CAD, CHF, CNY, CZK, DKK, GBP, HKD, HUF, IDR, ILS, INR, ISK, JPY, KRW, MXN, MYR, NOK, NZD, PHP, PLN, RON, SEK, SGD, THB, TRY, USD, ZAR and more. ' +
+      'No auth required; public domain ECB data.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'frankfurter.series',
+    mcpName: 'frankfurter.currency.series',
+    title: 'Frankfurter — ECB Rate Time Series',
+    description:
+      'Fetch a time series of ECB exchange rates between two dates from Frankfurter.dev. ' +
+      'Returns a date-keyed map of rates covering every business day in the range. ' +
+      'Coverage starts from 1999-01-04. Omit end_date to get rates through the latest available date. ' +
+      'Narrow results to specific currencies with the symbols parameter to reduce response size. ' +
+      'Use for trend analysis, backtesting, historical P&L calculations, and charting FX movements. ' +
+      'No auth required; public domain ECB data.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'frankfurter.currencies',
+    mcpName: 'frankfurter.currency.list',
+    title: 'Frankfurter — List Supported Currencies',
+    description:
+      'Returns all 33 currencies supported by the Frankfurter.dev ECB exchange rate API with their full English names. ' +
+      'Use this to discover valid currency codes before calling frankfurter.currency.latest, ' +
+      'frankfurter.currency.historical, or frankfurter.currency.series. ' +
+      'No parameters required. No auth; public domain ECB data.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
 ];
