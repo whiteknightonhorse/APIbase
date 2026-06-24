@@ -2096,5 +2096,14 @@
     "reset_period": "daily",
     "docs_url": "https://www.opentopodata.org/api/",
     "limit_proof": "Free hosted API: 1 request/second, 100 locations/request. MIT licence, self-host for unlimited."
+  },
+  "met-norway": {
+    "display_name": "MET Norway",
+    "health_url": "https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=59.91&lon=10.75",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://api.met.no/weatherapi/locationforecast/2.0/documentation",
+    "limit_proof": "No documented rate limits. ToS requires User-Agent header with contact info. CC BY 4.0 + NLOD 2.0, free for commercial use."
   }
 }

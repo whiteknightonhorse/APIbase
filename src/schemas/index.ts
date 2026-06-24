@@ -233,6 +233,7 @@ import { unhcrSchemas } from './unhcr.schema';
 import { geonamesSchemas } from './geonames.schema';
 import { carbonIntensityUkSchemas } from './carbon-intensity-uk.schema';
 import { opentopoDataSchemas } from './opentopodata.schema';
+import { metNorwaySchemas } from './met-norway.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -469,4 +470,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...geonamesSchemas,
   ...carbonIntensityUkSchemas,
   ...opentopoDataSchemas,
+  ...metNorwaySchemas,
 };

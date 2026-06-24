@@ -71317,6 +71317,383 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/metno.forecast/call": {
+      "post": {
+        "operationId": "metno_forecast",
+        "summary": "MET Norway — 9-Day Hourly Weather Forecast",
+        "description": "Get a 9-day (216-hour) hourly weather forecast for any global lat/lon point from the Norwegian Meteorological Institute Locationforecast 2.0 model. Returns air temperature, wind speed/direction/gusts, cloud cover, humidity, pressure, UV index, precipitation amounts and probability, and symbolic weather codes (e.g. clearsky_day, rain). Global coverage. CC BY 4.0 + NLOD 2.0, no auth, no upstream cost.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "metno.forecast"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "lat": {
+                    "type": "number",
+                    "description": "Latitude in decimal degrees (e.g. 59.91 for Oslo, -33.87 for Sydney)",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "lon": {
+                    "type": "number",
+                    "description": "Longitude in decimal degrees (e.g. 10.75 for Oslo, 151.21 for Sydney)",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  "altitude": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9000,
+                    "description": "Station altitude in metres above sea level. Improves pressure correction."
+                  },
+                  "hours": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 216,
+                    "description": "Number of hourly forecast entries to return (1–216, default 48). Full 9-day range = 216."
+                  }
+                },
+                "required": [
+                  "lat",
+                  "lon"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/metno.nowcast/call": {
+      "post": {
+        "operationId": "metno_nowcast",
+        "summary": "MET Norway — Precipitation Nowcast (2-Hour)",
+        "description": "Get a short-term precipitation nowcast with 5-minute intervals for the next ~2 hours from the Norwegian Meteorological Institute Nowcast 2.0 radar model. Returns precipitation rate, air temperature, wind speed/direction/gusts, relative humidity, UV index, and weather symbol codes. Coverage: Norway and Scandinavia (approx 53–90°N, 20°W–40°E). Ideal for hyperlocal outdoor activity planning, event logistics, and real-time rainfall monitoring. CC BY 4.0 + NLOD 2.0, no auth, no upstream cost.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "metno.nowcast"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "lat": {
+                    "type": "number",
+                    "description": "Latitude in decimal degrees. Coverage: Norway and Scandinavia (approx 53–90°N).",
+                    "minimum": 53,
+                    "maximum": 90
+                  },
+                  "lon": {
+                    "type": "number",
+                    "description": "Longitude in decimal degrees. Coverage: Norway and Scandinavia (approx −20–40°E).",
+                    "minimum": -20,
+                    "maximum": 40
+                  }
+                },
+                "required": [
+                  "lat",
+                  "lon"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/metno.alerts/call": {
+      "post": {
+        "operationId": "metno_alerts",
+        "summary": "MET Norway — Active Weather Alerts",
+        "description": "Get all active weather alerts issued by the Norwegian Meteorological Institute for Norway. Alerts cover events such as gale, storm, heavy rain, snow, ice, avalanche, and fog. Each alert includes event type, awareness level (green/yellow/orange/red), severity, certainty, affected counties, description, consequences, and valid time interval. Filter by event type slug (wind, rain, snow, ice, fog, avalanche) or by county name. Returns English or Norwegian text. CC BY 4.0 + NLOD 2.0, no auth, no upstream cost.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "metno.alerts"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "lang": {
+                    "type": "string",
+                    "enum": [
+                      "en",
+                      "no"
+                    ],
+                    "description": "Language for alert text. \"en\" = English (default), \"no\" = Norwegian."
+                  },
+                  "event_type": {
+                    "type": "string",
+                    "description": "Filter by event type slug (e.g. \"wind\", \"rain\", \"snow\", \"ice\", \"fog\", \"avalanche\"). Leave empty for all active alerts."
+                  },
+                  "county": {
+                    "type": "string",
+                    "description": "Filter alerts by Norwegian county name substring (e.g. \"Oslo\", \"Viken\", \"Troms\"). Case-insensitive partial match."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/metno.sunrise/call": {
+      "post": {
+        "operationId": "metno_sunrise",
+        "summary": "MET Norway — Sunrise, Sunset & Moon Times",
+        "description": "Get precise sunrise, sunset, solar noon, and solar midnight times for any global coordinate and date from the Norwegian Meteorological Institute Sunrise 3.0 API. For the Sun: returns sunrise time + azimuth, sunset time + azimuth, solar noon elevation and visibility. For the Moon: returns moonrise, moonset, high moon, low moon, and lunar phase (0–360°). Supports UTC offset for local time output. Global coverage; handles polar day/night (midnight sun / polar night). CC BY 4.0 + NLOD 2.0, no auth, no upstream cost.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "metno.sunrise"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "lat": {
+                    "type": "number",
+                    "description": "Latitude in decimal degrees (e.g. 59.91 for Oslo, 51.5 for London)",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "lon": {
+                    "type": "number",
+                    "description": "Longitude in decimal degrees (e.g. 10.75 for Oslo, -0.12 for London)",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  "date": {
+                    "type": "string",
+                    "description": "Date to compute times for in ISO 8601 format YYYY-MM-DD (e.g. \"2026-06-24\")"
+                  },
+                  "body": {
+                    "type": "string",
+                    "enum": [
+                      "sun",
+                      "moon"
+                    ],
+                    "description": "Celestial body: \"sun\" returns sunrise/sunset/solarnoon (default), \"moon\" returns moonrise/moonset/phase."
+                  },
+                  "offset": {
+                    "type": "string",
+                    "description": "UTC offset for local time output in ±HH:MM format (e.g. \"+02:00\" for CEST). Defaults to UTC."
+                  }
+                },
+                "required": [
+                  "lat",
+                  "lon",
+                  "date"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

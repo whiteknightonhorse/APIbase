@@ -8550,4 +8550,63 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'location',
     annotations: READ_ONLY,
   },
+
+  // MET Norway (UC-515) — Norwegian Meteorological Institute (4 tools)
+  {
+    toolId: 'metno.forecast',
+    mcpName: 'metno.weather.forecast',
+    title: 'MET Norway — 9-Day Hourly Weather Forecast',
+    description:
+      'Get a 9-day (216-hour) hourly weather forecast for any global lat/lon point from the ' +
+      'Norwegian Meteorological Institute Locationforecast 2.0 model. ' +
+      'Returns air temperature, wind speed/direction/gusts, cloud cover, humidity, pressure, UV index, ' +
+      'precipitation amounts and probability, and symbolic weather codes (e.g. clearsky_day, rain). ' +
+      'Global coverage. CC BY 4.0 + NLOD 2.0, no auth, no upstream cost.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'metno.nowcast',
+    mcpName: 'metno.weather.nowcast',
+    title: 'MET Norway — Precipitation Nowcast (2-Hour)',
+    description:
+      'Get a short-term precipitation nowcast with 5-minute intervals for the next ~2 hours ' +
+      'from the Norwegian Meteorological Institute Nowcast 2.0 radar model. ' +
+      'Returns precipitation rate, air temperature, wind speed/direction/gusts, relative humidity, ' +
+      'UV index, and weather symbol codes. ' +
+      'Coverage: Norway and Scandinavia (approx 53–90°N, 20°W–40°E). ' +
+      'Ideal for hyperlocal outdoor activity planning, event logistics, and real-time rainfall monitoring. ' +
+      'CC BY 4.0 + NLOD 2.0, no auth, no upstream cost.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'metno.alerts',
+    mcpName: 'metno.weather.alerts',
+    title: 'MET Norway — Active Weather Alerts',
+    description:
+      'Get all active weather alerts issued by the Norwegian Meteorological Institute for Norway. ' +
+      'Alerts cover events such as gale, storm, heavy rain, snow, ice, avalanche, and fog. ' +
+      'Each alert includes event type, awareness level (green/yellow/orange/red), severity, certainty, ' +
+      'affected counties, description, consequences, and valid time interval. ' +
+      'Filter by event type slug (wind, rain, snow, ice, fog, avalanche) or by county name. ' +
+      'Returns English or Norwegian text. CC BY 4.0 + NLOD 2.0, no auth, no upstream cost.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'metno.sunrise',
+    mcpName: 'metno.astronomy.sunrise',
+    title: 'MET Norway — Sunrise, Sunset & Moon Times',
+    description:
+      'Get precise sunrise, sunset, solar noon, and solar midnight times for any global coordinate ' +
+      'and date from the Norwegian Meteorological Institute Sunrise 3.0 API. ' +
+      'For the Sun: returns sunrise time + azimuth, sunset time + azimuth, solar noon elevation and visibility. ' +
+      'For the Moon: returns moonrise, moonset, high moon, low moon, and lunar phase (0–360°). ' +
+      'Supports UTC offset for local time output. ' +
+      'Global coverage; handles polar day/night (midnight sun / polar night). ' +
+      'CC BY 4.0 + NLOD 2.0, no auth, no upstream cost.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
 ];

@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 769 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 773 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -44732,6 +44732,259 @@
         "required": [
           "lat",
           "lon"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "metno.weather.alerts",
+      "title": "MET Norway \u2014 Active Weather Alerts",
+      "description": "Get all active weather alerts issued by the Norwegian Meteorological Institute for Norway. Alerts cover events such as gale, storm, heavy rain, snow, ice, avalanche, and fog. Each alert includes event type, awareness level (green/yellow/orange/red), severity, certainty, affected counties, description, consequences, and valid time interval. Filter by event type slug (wind, rain, snow, ice, fog, avalanche) or by county name. Returns English or Norwegian text. CC BY 4.0 + NLOD 2.0, no auth, no upstream cost.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "lang": {
+            "type": "string",
+            "enum": [
+              "en",
+              "no"
+            ],
+            "description": "Language for alert text. \"en\" = English (default), \"no\" = Norwegian."
+          },
+          "event_type": {
+            "type": "string",
+            "description": "Filter by event type slug (e.g. \"wind\", \"rain\", \"snow\", \"ice\", \"fog\", \"avalanche\"). Leave empty for all active alerts."
+          },
+          "county": {
+            "type": "string",
+            "description": "Filter alerts by Norwegian county name substring (e.g. \"Oslo\", \"Viken\", \"Troms\"). Case-insensitive partial match."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "metno.weather.forecast",
+      "title": "MET Norway \u2014 9-Day Hourly Weather Forecast",
+      "description": "Get a 9-day (216-hour) hourly weather forecast for any global lat/lon point from the Norwegian Meteorological Institute Locationforecast 2.0 model. Returns air temperature, wind speed/direction/gusts, cloud cover, humidity, pressure, UV index, precipitation amounts and probability, and symbolic weather codes (e.g. clearsky_day, rain). Global coverage. CC BY 4.0 + NLOD 2.0, no auth, no upstream cost.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number",
+            "description": "Latitude in decimal degrees (e.g. 59.91 for Oslo, -33.87 for Sydney)",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "lon": {
+            "type": "number",
+            "description": "Longitude in decimal degrees (e.g. 10.75 for Oslo, 151.21 for Sydney)",
+            "minimum": -180,
+            "maximum": 180
+          },
+          "altitude": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9000,
+            "description": "Station altitude in metres above sea level. Improves pressure correction."
+          },
+          "hours": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 216,
+            "description": "Number of hourly forecast entries to return (1\u2013216, default 48). Full 9-day range = 216."
+          }
+        },
+        "required": [
+          "lat",
+          "lon"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "metno.weather.nowcast",
+      "title": "MET Norway \u2014 Precipitation Nowcast (2-Hour)",
+      "description": "Get a short-term precipitation nowcast with 5-minute intervals for the next ~2 hours from the Norwegian Meteorological Institute Nowcast 2.0 radar model. Returns precipitation rate, air temperature, wind speed/direction/gusts, relative humidity, UV index, and weather symbol codes. Coverage: Norway and Scandinavia (approx 53\u201390\u00b0N, 20\u00b0W\u201340\u00b0E). Ideal for hyperlocal outdoor activity planning, event logistics, and real-time rainfall monitoring. CC BY 4.0 + NLOD 2.0, no auth, no upstream cost.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number",
+            "description": "Latitude in decimal degrees. Coverage: Norway and Scandinavia (approx 53\u201390\u00b0N).",
+            "minimum": 53,
+            "maximum": 90
+          },
+          "lon": {
+            "type": "number",
+            "description": "Longitude in decimal degrees. Coverage: Norway and Scandinavia (approx \u221220\u201340\u00b0E).",
+            "minimum": -20,
+            "maximum": 40
+          }
+        },
+        "required": [
+          "lat",
+          "lon"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "metno.astronomy.sunrise",
+      "title": "MET Norway \u2014 Sunrise, Sunset & Moon Times",
+      "description": "Get precise sunrise, sunset, solar noon, and solar midnight times for any global coordinate and date from the Norwegian Meteorological Institute Sunrise 3.0 API. For the Sun: returns sunrise time + azimuth, sunset time + azimuth, solar noon elevation and visibility. For the Moon: returns moonrise, moonset, high moon, low moon, and lunar phase (0\u2013360\u00b0). Supports UTC offset for local time output. Global coverage; handles polar day/night (midnight sun / polar night). CC BY 4.0 + NLOD 2.0, no auth, no upstream cost.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number",
+            "description": "Latitude in decimal degrees (e.g. 59.91 for Oslo, 51.5 for London)",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "lon": {
+            "type": "number",
+            "description": "Longitude in decimal degrees (e.g. 10.75 for Oslo, -0.12 for London)",
+            "minimum": -180,
+            "maximum": 180
+          },
+          "date": {
+            "type": "string",
+            "description": "Date to compute times for in ISO 8601 format YYYY-MM-DD (e.g. \"2026-06-24\")"
+          },
+          "body": {
+            "type": "string",
+            "enum": [
+              "sun",
+              "moon"
+            ],
+            "description": "Celestial body: \"sun\" returns sunrise/sunset/solarnoon (default), \"moon\" returns moonrise/moonset/phase."
+          },
+          "offset": {
+            "type": "string",
+            "description": "UTC offset for local time output in \u00b1HH:MM format (e.g. \"+02:00\" for CEST). Defaults to UTC."
+          }
+        },
+        "required": [
+          "lat",
+          "lon",
+          "date"
         ]
       },
       "outputSchema": {

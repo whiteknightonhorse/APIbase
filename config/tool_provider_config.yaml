@@ -4736,6 +4736,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-515: MET Norway ---
+  - tool_id: metno.forecast
+    name: MET Norway — 9-Day Hourly Weather Forecast
+    provider: met-norway
+    price_usd: "0.002"
+    cache_ttl: 1800
+
+  - tool_id: metno.nowcast
+    name: MET Norway — Precipitation Nowcast (2-Hour)
+    provider: met-norway
+    price_usd: "0.001"
+    cache_ttl: 300
+
+  - tool_id: metno.alerts
+    name: MET Norway — Active Weather Alerts
+    provider: met-norway
+    price_usd: "0.001"
+    cache_ttl: 300
+
+  - tool_id: metno.sunrise
+    name: MET Norway — Sunrise, Sunset & Moon Times
+    provider: met-norway
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform
