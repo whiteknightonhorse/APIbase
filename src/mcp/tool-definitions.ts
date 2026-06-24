@@ -8193,4 +8193,67 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'health',
     annotations: READ_ONLY,
   },
+
+  // BLS Macro — CPI, unemployment, payrolls, generic series (UC-509, 4 tools)
+  {
+    toolId: 'bls-macro.series',
+    mcpName: 'bls.macro.series',
+    title: 'BLS Time Series Lookup',
+    description:
+      'Fetch one or more U.S. Bureau of Labor Statistics (BLS) time series by series ID. ' +
+      'Accepts up to 5 comma-separated series IDs and an optional year range (up to 10 years with a registered key). ' +
+      'Returns chronological data points with year, period, period name, and numeric value. ' +
+      'Common series IDs: CUUR0000SA0 (CPI All Items), LNS14000000 (Unemployment Rate), ' +
+      'CES0000000001 (Total Nonfarm Payrolls), PRS85006092 (Nonfarm Business Productivity), ' +
+      'CIU1010000000000A (Employment Cost Index). ' +
+      'Find additional series IDs at bls.gov/data/. US Gov public domain, no upstream cost.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bls-macro.cpi',
+    mcpName: 'bls.macro.cpi',
+    title: 'Consumer Price Index (Inflation)',
+    description:
+      'Get U.S. Consumer Price Index (CPI-U) data by item category and year range. ' +
+      'Returns monthly values, year-over-year percentage change, and a full data series. ' +
+      'Categories: "all" = All Items (headline inflation), "food", "energy", "shelter", ' +
+      '"core" = All Items Less Food and Energy. ' +
+      'Covers data from 1913 (All Items) through the most recently released month. ' +
+      'Ideal for inflation analysis, cost-of-living calculations, real-return adjustments, ' +
+      'and economic research. Data source: BLS Consumer Expenditure Survey, CPI-U series (urban consumers).',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bls-macro.unemployment',
+    mcpName: 'bls.macro.unemployment',
+    title: 'U.S. Unemployment Rate',
+    description:
+      'Get U.S. national labor market data from the BLS Current Population Survey. ' +
+      'Measures: "rate" = Unemployment Rate % (U-3, official), ' +
+      '"participation" = Labor Force Participation Rate %, ' +
+      '"employment_ratio" = Employment-Population Ratio %, ' +
+      '"long_term" = Long-term Unemployed (27+ weeks, in thousands). ' +
+      'Returns monthly data series with latest value and full history up to 10 years. ' +
+      'Data goes back to 1948 for the unemployment rate. ' +
+      'Use for macroeconomic research, labor market trend analysis, and policy evaluation.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bls-macro.payrolls',
+    mcpName: 'bls.macro.payrolls',
+    title: 'U.S. Nonfarm Payroll Employment',
+    description:
+      'Get U.S. nonfarm payroll employment data from the BLS Current Employment Statistics (CES) survey. ' +
+      'Returns seasonally adjusted monthly payroll counts in thousands of jobs. ' +
+      'Industries: "total" = Total Nonfarm, "private" = Total Private, "manufacturing", ' +
+      '"construction", "professional" = Professional & Business Services, ' +
+      '"healthcare" = Healthcare & Social Assistance, "retail" = Retail Trade, "finance" = Financial Activities. ' +
+      'Monthly jobs report data — the most closely watched U.S. economic indicator. ' +
+      'Use for labor market analysis, sector employment trends, and economic research.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
 ];

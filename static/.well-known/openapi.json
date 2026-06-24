@@ -69010,6 +69010,380 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/bls-macro.series/call": {
+      "post": {
+        "operationId": "bls-macro_series",
+        "summary": "BLS Time Series Lookup",
+        "description": "Fetch one or more U.S. Bureau of Labor Statistics (BLS) time series by series ID. Accepts up to 5 comma-separated series IDs and an optional year range (up to 10 years with a registered key). Returns chronological data points with year, period, period name, and numeric value. Common series IDs: CUUR0000SA0 (CPI All Items), LNS14000000 (Unemployment Rate), CES0000000001 (Total Nonfarm Payrolls), PRS85006092 (Nonfarm Business Productivity), CIU1010000000000A (Employment Cost Index). Find additional series IDs at bls.gov/data/. US Gov public domain, no upstream cost.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bls-macro.series"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "series_ids": {
+                    "type": "string",
+                    "description": "Comma-separated BLS series ID(s), up to 5 (e.g. \"CUUR0000SA0,LNS14000000\"). Find IDs at bls.gov/data."
+                  },
+                  "start_year": {
+                    "type": "integer",
+                    "minimum": 1913,
+                    "maximum": 2030,
+                    "description": "First year of data to retrieve (default: current year - 2)."
+                  },
+                  "end_year": {
+                    "type": "integer",
+                    "minimum": 1913,
+                    "maximum": 2030,
+                    "description": "Last year of data to retrieve (default: current year). Max 10-year span per BLS limits."
+                  }
+                },
+                "required": [
+                  "series_ids"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/bls-macro.cpi/call": {
+      "post": {
+        "operationId": "bls-macro_cpi",
+        "summary": "Consumer Price Index (Inflation)",
+        "description": "Get U.S. Consumer Price Index (CPI-U) data by item category and year range. Returns monthly values, year-over-year percentage change, and a full data series. Categories: \"all\" = All Items (headline inflation), \"food\", \"energy\", \"shelter\", \"core\" = All Items Less Food and Energy. Covers data from 1913 (All Items) through the most recently released month. Ideal for inflation analysis, cost-of-living calculations, real-return adjustments, and economic research. Data source: BLS Consumer Expenditure Survey, CPI-U series (urban consumers).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bls-macro.cpi"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "item": {
+                    "type": "string",
+                    "enum": [
+                      "all",
+                      "food",
+                      "energy",
+                      "shelter",
+                      "core"
+                    ],
+                    "description": "CPI category: \"all\" = All Items CPI-U (default), \"food\" = Food, \"energy\" = Energy, \"shelter\" = Shelter, \"core\" = All Items Less Food and Energy."
+                  },
+                  "start_year": {
+                    "type": "integer",
+                    "minimum": 1913,
+                    "maximum": 2030,
+                    "description": "First year of CPI data (default: current year - 4)."
+                  },
+                  "end_year": {
+                    "type": "integer",
+                    "minimum": 1913,
+                    "maximum": 2030,
+                    "description": "Last year of CPI data (default: current year)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/bls-macro.unemployment/call": {
+      "post": {
+        "operationId": "bls-macro_unemployment",
+        "summary": "U.S. Unemployment Rate",
+        "description": "Get U.S. national labor market data from the BLS Current Population Survey. Measures: \"rate\" = Unemployment Rate % (U-3, official), \"participation\" = Labor Force Participation Rate %, \"employment_ratio\" = Employment-Population Ratio %, \"long_term\" = Long-term Unemployed (27+ weeks, in thousands). Returns monthly data series with latest value and full history up to 10 years. Data goes back to 1948 for the unemployment rate. Use for macroeconomic research, labor market trend analysis, and policy evaluation.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bls-macro.unemployment"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "measure": {
+                    "type": "string",
+                    "enum": [
+                      "rate",
+                      "participation",
+                      "employment_ratio",
+                      "long_term"
+                    ],
+                    "description": "Labor market measure: \"rate\" = Unemployment Rate % (default), \"participation\" = Labor Force Participation Rate %, \"employment_ratio\" = Employment-Population Ratio %, \"long_term\" = Long-term Unemployed 27+ weeks (thousands)."
+                  },
+                  "start_year": {
+                    "type": "integer",
+                    "minimum": 1948,
+                    "maximum": 2030,
+                    "description": "First year of data (default: current year - 4)."
+                  },
+                  "end_year": {
+                    "type": "integer",
+                    "minimum": 1948,
+                    "maximum": 2030,
+                    "description": "Last year of data (default: current year)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/bls-macro.payrolls/call": {
+      "post": {
+        "operationId": "bls-macro_payrolls",
+        "summary": "U.S. Nonfarm Payroll Employment",
+        "description": "Get U.S. nonfarm payroll employment data from the BLS Current Employment Statistics (CES) survey. Returns seasonally adjusted monthly payroll counts in thousands of jobs. Industries: \"total\" = Total Nonfarm, \"private\" = Total Private, \"manufacturing\", \"construction\", \"professional\" = Professional & Business Services, \"healthcare\" = Healthcare & Social Assistance, \"retail\" = Retail Trade, \"finance\" = Financial Activities. Monthly jobs report data — the most closely watched U.S. economic indicator. Use for labor market analysis, sector employment trends, and economic research.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bls-macro.payrolls"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "industry": {
+                    "type": "string",
+                    "enum": [
+                      "total",
+                      "private",
+                      "manufacturing",
+                      "construction",
+                      "professional",
+                      "healthcare",
+                      "retail",
+                      "finance"
+                    ],
+                    "description": "Industry sector: \"total\" = Total Nonfarm (default), \"private\" = Total Private, \"manufacturing\", \"construction\", \"professional\" = Professional & Business Services, \"healthcare\" = Healthcare & Social Assistance, \"retail\" = Retail Trade, \"finance\" = Financial Activities."
+                  },
+                  "start_year": {
+                    "type": "integer",
+                    "minimum": 1939,
+                    "maximum": 2030,
+                    "description": "First year of payroll data (default: current year - 4)."
+                  },
+                  "end_year": {
+                    "type": "integer",
+                    "minimum": 1939,
+                    "maximum": 2030,
+                    "description": "Last year of payroll data (default: current year)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

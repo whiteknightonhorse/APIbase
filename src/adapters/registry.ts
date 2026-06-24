@@ -227,6 +227,7 @@ import { OpenFdaDevicesAdapter } from './openfda-devices';
 import { MarineAdapter } from './marine';
 import { MfapiAdapter } from './mfapi';
 import { SdwisAdapter } from './sdwis';
+import { BlsMacroAdapter } from './bls-macro';
 import { config } from '../config';
 
 /**
@@ -1098,6 +1099,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'sdwis':
       // EPA SDWIS — Safe Drinking Water Information System, no auth (UC-508)
       return getOrCreate('sdwis', () => new SdwisAdapter());
+    case 'bls-macro': {
+      // BLS Macro — CPI, unemployment, payrolls, generic series (UC-509)
+      const blsKey = (config as Record<string, unknown>).PROVIDER_KEY_BLS as string | undefined;
+      return getOrCreate('bls-macro', () => new BlsMacroAdapter(blsKey ?? ''));
+    }
     case 'ncei': {
       const nceiToken = (config as Record<string, unknown>).PROVIDER_KEY_NOAA_NCEI as
         | string

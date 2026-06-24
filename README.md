@@ -1,6 +1,6 @@
 # APIbase.pro — The API Hub for AI Agents
 
-> One MCP endpoint. 745 tools. 222 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
+> One MCP endpoint. 749 tools. 223 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Frameworks](https://apibase.pro/frameworks)** | **[Dashboard](https://apibase.pro/dashboard)**
 
@@ -27,7 +27,7 @@ https://github.com/user-attachments/assets/9e598d61-b2d0-486c-bd34-f0cb0354d09c
 
 ## What is APIbase?
 
-Production MCP server that gives AI agents access to 745 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, check weather and tides, forecast ocean waves and swell, query US Census and CDC health data, search ML models on HuggingFace, look up World Bank indicators, query UN SDG development goals data, track streamflow from USGS stations, search 7M+ CS papers on DBLP, generate images, send emails, decode VINs, look up chemical compounds, scan npm/PyPI vulnerabilities, search NIST NVD CVE records, find EV chargers, estimate solar PV output, search art at the Met Museum, look up Dota 2 match stats, get decoded aviation METAR/TAF, look up parsed NOTAMs and PIREPs, search FDA medical device recalls and 510(k) clearances, batch multiple calls, track usage analytics — and 300+ more tools across 30+ categories.
+Production MCP server that gives AI agents access to 749 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, check weather and tides, forecast ocean waves and swell, query US Census and CDC health data, search ML models on HuggingFace, look up World Bank indicators, query UN SDG development goals data, track streamflow from USGS stations, search 7M+ CS papers on DBLP, generate images, send emails, decode VINs, look up chemical compounds, scan npm/PyPI vulnerabilities, search NIST NVD CVE records, find EV chargers, estimate solar PV output, search art at the Met Museum, look up Dota 2 match stats, get decoded aviation METAR/TAF, look up parsed NOTAMs and PIREPs, search FDA medical device recalls and 510(k) clearances, batch multiple calls, track usage analytics — and 300+ more tools across 30+ categories.
 
 **Built for AI agents, not humans.** Auto-registration, zero setup, pay-per-call via x402 USDC micropayments on Base or MPP (Machine Payments Protocol) on Tempo.
 
@@ -74,7 +74,7 @@ Combine APIbase (real-world APIs) with Playwright (browser) and Context7 (docs):
 }
 ```
 
-Zero API-key management (Base Account handles auth + signing), zero per-provider signup (APIbase aggregates 222 providers). Full guide: [apibase.pro/frameworks#base-mcp](https://apibase.pro/frameworks#base-mcp).
+Zero API-key management (Base Account handles auth + signing), zero per-provider signup (APIbase aggregates 223 providers). Full guide: [apibase.pro/frameworks#base-mcp](https://apibase.pro/frameworks#base-mcp).
 
 ### Via npm (stdio bridge)
 
@@ -106,7 +106,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 
 ---
 
-## Tool Categories (745 tools, 222 providers)
+## Tool Categories (749 tools, 223 providers)
 
 | Category | Tools | Providers | Examples |
 |----------|-------|-----------|----------|
@@ -114,7 +114,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 | **News & Events** | 10 | NewsData, GDELT, Mastodon, Currents API | Global news (65 langs), crypto news, trending |
 | **Social** | 7 | Bluesky, TwitterAPI.io | Search posts, profiles, feeds (AT Protocol, X/Twitter) |
 | **Travel & Flights** | 20 | Amadeus, Sabre, Aviasales, IRCTC Indian Railways | Flight search, pricing, status, airports, Indian train schedules/live status |
-| **Finance & Stocks** | 29 | Finnhub, CoinGecko, ECB, FRED, World Bank, WTO, Bank of Canada, MFAPI | Stock quotes, OHLCV, FX rates, economic data, global indicators, WTO trade/tariff statistics, CAD FX rates + policy rates + CPI, India mutual fund NAV data |
+| **Finance & Stocks** | 33 | Finnhub, CoinGecko, ECB, FRED, World Bank, WTO, Bank of Canada, MFAPI, BLS | Stock quotes, OHLCV, FX rates, economic data, global indicators, WTO trade/tariff, BLS CPI/unemployment/payrolls, India mutual fund NAV data |
 | **Banking Data** | 7 | FDIC BankFind, IBANAPI, Razorpay IFSC | US bank financials, branch locations, institution search, IBAN validation, Indian IFSC lookup |
 | **Company Data** | 12 | SEC EDGAR, Companies House, GLEIF, INSEE Sirene | US filings + UK registry + global LEI + French SIREN/SIRET registry |
 | **Currency Conversion** | 2 | ExchangeRate-API | 160+ currencies, real-time conversion |

@@ -2042,5 +2042,14 @@
     "reset_period": "none",
     "docs_url": "https://www.epa.gov/enviro/sdwis-model",
     "limit_proof": "EPA EFSERVICE is US Gov public domain with no documented rate limits. No authentication required. SDWIS data under Safe Drinking Water Act mandatory public disclosure."
+  },
+  "bls-macro": {
+    "display_name": "BLS Macro (Bureau of Labor Statistics)",
+    "health_url": "https://api.bls.gov/publicAPI/v2/timeseries/data/CUUR0000SA0?startyear=2024&endyear=2024",
+    "limit_type": "daily",
+    "free_limit": 500,
+    "reset_period": "daily",
+    "docs_url": "https://www.bls.gov/developers/api_faqs.htm",
+    "limit_proof": "BLS API FAQs: registered key = 500 queries/day, 50 series/request, 10 years/query. Unregistered: 25 queries/day. Free registration at bls.gov/developers."
   }
 }

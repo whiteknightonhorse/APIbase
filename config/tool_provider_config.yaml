@@ -4586,6 +4586,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-509: BLS Macro (Bureau of Labor Statistics) ---
+  - tool_id: bls-macro.series
+    name: BLS Time Series Lookup
+    provider: bls-macro
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: bls-macro.cpi
+    name: Consumer Price Index (Inflation)
+    provider: bls-macro
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: bls-macro.unemployment
+    name: U.S. Unemployment Rate
+    provider: bls-macro
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: bls-macro.payrolls
+    name: U.S. Nonfarm Payroll Employment
+    provider: bls-macro
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform
