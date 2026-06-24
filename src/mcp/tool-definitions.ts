@@ -8377,4 +8377,63 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+
+  // GeoNames geographical database (UC-512, 4 tools)
+  {
+    toolId: 'geonames.place.search',
+    mcpName: 'geonames.place.search',
+    title: 'GeoNames Place Search',
+    description:
+      'Search the GeoNames geographical database for places, populated areas, mountains, rivers, ' +
+      'and 12M+ geographical features worldwide. Filter by country (ISO-3166 2-letter code), ' +
+      'feature class (A=administrative, P=populated place, T=mountain, H=water body, S=building/spot), ' +
+      'and feature code (e.g. PPLC=capital, MT=mountain, STM=stream). ' +
+      'Results include geoname_id, lat/lng, country, admin1/admin2, population, and Wikipedia link. ' +
+      'Order by relevance (default), population, elevation, or Wikipedia linkage. ' +
+      'Supports multilingual name lookup via lang parameter. CC BY 4.0 open data, no upstream cost.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'geonames.postal.lookup',
+    mcpName: 'geonames.postal.lookup',
+    title: 'GeoNames Postal Code Lookup',
+    description:
+      'Look up postal / ZIP codes and their place names across 100+ countries using the GeoNames database. ' +
+      'Search by postal code (e.g. "10001" for NYC, "SW1A 1AA" for London, "75001" for Paris) ' +
+      'or by place name. Returns matching postal codes with lat/lng, admin area names, ' +
+      'and ISO-3166-2 subdivision codes. Use the country filter (ISO-3166 2-letter) to narrow results. ' +
+      'Covers US, UK, Germany, France, Australia, Canada, Japan, India, Brazil, and 90+ more. ' +
+      'CC BY 4.0 open data, no upstream cost.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'geonames.country.info',
+    mcpName: 'geonames.country.info',
+    title: 'GeoNames Country Info',
+    description:
+      'Get structured metadata for any country or all countries from the GeoNames database. ' +
+      'Returns country code (ISO-3166 alpha-2/alpha-3/numeric), capital, continent, official languages, ' +
+      'population, area in km², currency code, postal code format/regex, geoname_id, ' +
+      'and a bounding box (north/south/east/west lat-lng). ' +
+      'Omit country to retrieve all 250 countries in a single response. ' +
+      'Supports localized country names via lang parameter. CC BY 4.0 open data, no upstream cost.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'geonames.place.timezone',
+    mcpName: 'geonames.place.timezone',
+    title: 'GeoNames Timezone Lookup',
+    description:
+      'Look up the timezone for any coordinates on Earth using the GeoNames database. ' +
+      'Returns IANA timezone ID (e.g. "America/New_York", "Europe/London"), ' +
+      'GMT offset, DST offset, raw (winter) offset, current local time, ' +
+      "today's sunrise and sunset times (local), and the country at those coordinates. " +
+      'Useful for scheduling tasks across time zones, converting UTC timestamps, ' +
+      'or annotating location data with timezone context. CC BY 4.0 open data, no upstream cost.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
 ];

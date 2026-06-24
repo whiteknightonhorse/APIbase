@@ -2069,5 +2069,14 @@
     "reset_period": "none",
     "docs_url": "https://api.unhcr.org/docs/",
     "limit_proof": "UNHCR Data License — open humanitarian data, no auth required, no documented rate limits."
+  },
+  "geonames": {
+    "display_name": "GeoNames Geographical Database",
+    "health_url": "https://secure.geonames.org/countryInfoJSON?country=US&username=APIbase",
+    "limit_type": "hourly",
+    "free_limit": 20000,
+    "reset_period": "hourly",
+    "docs_url": "https://www.geonames.org/export/web-services.html",
+    "limit_proof": "Free registered account: 20,000 credits/hour. Most endpoints cost 1 credit per call. Commercial server requires registration."
   }
 }

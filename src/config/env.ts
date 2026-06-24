@@ -398,6 +398,9 @@ export const appEnvSchema = z.object({
   // OpenStates (UC-498) — US state legislative data; bills, legislators, committees; X-API-Key header
   PROVIDER_KEY_OPENSTATES: z.string().optional().default(''),
 
+  // GeoNames geographical database (UC-512) — place search, postal codes, country info, timezones
+  GEONAMES_USERNAME: z.string().optional().default('APIbase'),
+
   // Polymarket trading — Phase 2 (UC-001 §3-§8)
   POLYMARKET_WALLET_ADDRESS: z.string().startsWith('0x').optional().default(''),
   POLYMARKET_PRIVATE_KEY: z.string().optional().default(''),

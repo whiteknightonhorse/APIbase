@@ -4661,6 +4661,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-512: GeoNames ---
+  - tool_id: geonames.place.search
+    name: GeoNames Place Search
+    provider: geonames
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: geonames.postal.lookup
+    name: GeoNames Postal Code Lookup
+    provider: geonames
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: geonames.country.info
+    name: GeoNames Country Info
+    provider: geonames
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: geonames.place.timezone
+    name: GeoNames Timezone Lookup
+    provider: geonames
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

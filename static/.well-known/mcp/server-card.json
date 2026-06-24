@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 757 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 761 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -44007,6 +44007,274 @@
           "error": {
             "type": "object",
             "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "geonames.country.info",
+      "title": "GeoNames Country Info",
+      "description": "Get structured metadata for any country or all countries from the GeoNames database. Returns country code (ISO-3166 alpha-2/alpha-3/numeric), capital, continent, official languages, population, area in km\u00b2, currency code, postal code format/regex, geoname_id, and a bounding box (north/south/east/west lat-lng). Omit country to retrieve all 250 countries in a single response. Supports localized country names via lang parameter. CC BY 4.0 open data, no upstream cost.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "country": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "ISO-3166 2-letter country code (e.g. \"US\", \"DE\", \"JP\"). Omit to retrieve all countries."
+          },
+          "language": {
+            "type": "string",
+            "description": "ISO 639-1 language code for localized country names (e.g. \"en\", \"fr\", \"es\")"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "geonames.place.search",
+      "title": "GeoNames Place Search",
+      "description": "Search the GeoNames geographical database for places, populated areas, mountains, rivers, and 12M+ geographical features worldwide. Filter by country (ISO-3166 2-letter code), feature class (A=administrative, P=populated place, T=mountain, H=water body, S=building/spot), and feature code (e.g. PPLC=capital, MT=mountain, STM=stream). Results include geoname_id, lat/lng, country, admin1/admin2, population, and Wikipedia link. Order by relevance (default), population, elevation, or Wikipedia linkage. Supports multilingual name lookup via lang parameter. CC BY 4.0 open data, no upstream cost.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "description": "Full-text search query across place names, alternate names, and feature codes (e.g. \"Paris\", \"Mont Blanc\")"
+          },
+          "name": {
+            "type": "string",
+            "description": "Search by exact or partial official place name (more precise than q; e.g. \"New York\")"
+          },
+          "country": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "Filter results to this ISO-3166 2-letter country code (e.g. \"US\", \"FR\", \"DE\")"
+          },
+          "feature_class": {
+            "type": "string",
+            "enum": [
+              "A",
+              "H",
+              "L",
+              "P",
+              "R",
+              "S",
+              "T",
+              "U",
+              "V"
+            ],
+            "description": "GeoNames feature class: A=administrative, H=hydrographic, L=parks/area, P=populated place, R=road, S=spot/building, T=mountain/hill, U=undersea, V=vegetation"
+          },
+          "feature_code": {
+            "type": "string",
+            "description": "GeoNames feature code for fine-grained filtering (e.g. \"PPLC\"=capital, \"MT\"=mountain, \"STM\"=stream)"
+          },
+          "language": {
+            "type": "string",
+            "description": "ISO 639-1 language code for localized names in the response (e.g. \"en\", \"fr\", \"de\")"
+          },
+          "max_rows": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000,
+            "description": "Maximum number of results to return (default 10, max 1000)"
+          },
+          "start_row": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Zero-based offset for pagination (default 0)"
+          },
+          "order_by": {
+            "type": "string",
+            "enum": [
+              "relevance",
+              "population",
+              "elevation",
+              "wikipedia"
+            ],
+            "description": "Sort order: \"relevance\" (default, best name match), \"population\" (largest first), \"elevation\" (highest first), \"wikipedia\" (most linked)"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "geonames.place.timezone",
+      "title": "GeoNames Timezone Lookup",
+      "description": "Look up the timezone for any coordinates on Earth using the GeoNames database. Returns IANA timezone ID (e.g. \"America/New_York\", \"Europe/London\"), GMT offset, DST offset, raw (winter) offset, current local time, today's sunrise and sunset times (local), and the country at those coordinates. Useful for scheduling tasks across time zones, converting UTC timestamps, or annotating location data with timezone context. CC BY 4.0 open data, no upstream cost.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "latitude": {
+            "type": "number",
+            "description": "Latitude of the location to look up (-90 to 90, e.g. 40.7128 for New York City)",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "longitude": {
+            "type": "number",
+            "description": "Longitude of the location to look up (-180 to 180, e.g. -74.0060 for New York City)",
+            "minimum": -180,
+            "maximum": 180
+          },
+          "language": {
+            "type": "string",
+            "description": "ISO 639-1 language code for the country name in the response (e.g. \"en\", \"de\")"
+          }
+        },
+        "required": [
+          "latitude",
+          "longitude"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "geonames.postal.lookup",
+      "title": "GeoNames Postal Code Lookup",
+      "description": "Look up postal / ZIP codes and their place names across 100+ countries using the GeoNames database. Search by postal code (e.g. \"10001\" for NYC, \"SW1A 1AA\" for London, \"75001\" for Paris) or by place name. Returns matching postal codes with lat/lng, admin area names, and ISO-3166-2 subdivision codes. Use the country filter (ISO-3166 2-letter) to narrow results. Covers US, UK, Germany, France, Australia, Canada, Japan, India, Brazil, and 90+ more. CC BY 4.0 open data, no upstream cost.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "postal_code": {
+            "type": "string",
+            "description": "Postal / ZIP code to look up (e.g. \"10001\" for New York, \"SW1A 1AA\" for London)"
+          },
+          "place_name": {
+            "type": "string",
+            "description": "Place or city name to search postal codes for (e.g. \"Berlin\", \"Sydney\"). Use with country for best results."
+          },
+          "country": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "ISO-3166 2-letter country code to restrict the postal code search (e.g. \"US\", \"GB\", \"DE\")"
+          },
+          "max_rows": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000,
+            "description": "Maximum number of results to return (default 10, max 1000)"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
           }
         },
         "required": [

@@ -230,6 +230,7 @@ import { SdwisAdapter } from './sdwis';
 import { BlsMacroAdapter } from './bls-macro';
 import { MbtaTransitAdapter } from './mbta-transit';
 import { UnhcrAdapter } from './unhcr';
+import { GeoNamesAdapter } from './geonames';
 import { config } from '../config';
 
 /**
@@ -1357,6 +1358,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'unhcr':
       // UNHCR Population (UC-511) — global refugee/displaced-person statistics 1951–present, no auth
       return getOrCreate('unhcr', () => new UnhcrAdapter());
+    case 'geonames':
+      // GeoNames geographical database (UC-512) — place search, postal codes, country info, timezones
+      return getOrCreate(
+        'geonames',
+        () => new GeoNamesAdapter(process.env.GEONAMES_USERNAME ?? 'APIbase'),
+      );
     default:
       return undefined;
   }
