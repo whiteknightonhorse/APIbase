@@ -224,6 +224,7 @@ import { WormsAdapter } from './worms';
 import { BankOfCanadaAdapter } from './bankofcanada';
 import { OpenSenseMapAdapter } from './opensensemap';
 import { OpenFdaDevicesAdapter } from './openfda-devices';
+import { MarineAdapter } from './marine';
 import { config } from '../config';
 
 /**
@@ -1331,6 +1332,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const fdaKey = (config as Record<string, unknown>).PROVIDER_KEY_OPENFDA as string | undefined;
       return getOrCreate('openfda_devices', () => new OpenFdaDevicesAdapter(fdaKey || ''));
     }
+    case 'marine':
+      // Open-Meteo Marine (UC-506) — wave height/direction/period, swell, sea surface temperature; no auth
+      return getOrCreate('marine', () => new MarineAdapter());
     default:
       return undefined;
   }

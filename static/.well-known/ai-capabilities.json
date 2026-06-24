@@ -2,8 +2,8 @@
   "platform": "APIbase",
   "version": "2.0",
   "updated_at": "2026-04-01T00:00:00Z",
-  "tools_count": 733,
-  "providers_count": 219,
+  "tools_count": 737,
+  "providers_count": 220,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
@@ -37,9 +37,9 @@
     },
     {
       "name": "weather",
-      "tools": 38,
-      "providers": "OpenWeatherMap, NWS, IQAir, NOAA, NOAA AWC, CheckWX, AVWX, US Drought Monitor, OpenSenseMap",
-      "examples": "current weather, forecast, alerts, air quality, aviation METAR/TAF/SIGMET (raw + decoded JSON), parsed NOTAMs and PIREPs, drought severity statistics, crowdsourced IoT sensor data (PM2.5/temp/humidity/UV)"
+      "tools": 42,
+      "providers": "OpenWeatherMap, NWS, IQAir, NOAA, NOAA AWC, CheckWX, AVWX, US Drought Monitor, OpenSenseMap, Open-Meteo Marine",
+      "examples": "current weather, forecast, alerts, air quality, aviation METAR/TAF/SIGMET (raw + decoded JSON), parsed NOTAMs and PIREPs, drought severity statistics, crowdsourced IoT sensor data (PM2.5/temp/humidity/UV), ocean wave/swell/sea-surface-temperature forecast"
     },
     {
       "name": "finance",

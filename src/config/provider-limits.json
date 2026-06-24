@@ -2015,5 +2015,14 @@
     "reset_period": "daily",
     "docs_url": "https://open.fda.gov/apis/device/",
     "limit_proof": "OpenFDA docs: 1,000 req/day without API key; 120,000 req/day with free API key. US Government public domain data, no ToS restrictions on redistribution."
+  },
+  "marine": {
+    "display_name": "Open-Meteo Marine",
+    "health_url": "https://marine-api.open-meteo.com/v1/marine?latitude=48.5&longitude=-14.0&hourly=wave_height&forecast_days=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://open-meteo.com/en/terms",
+    "limit_proof": "Open-Meteo Terms: free for non-commercial and commercial use with attribution (CC BY 4.0). No authentication required, no documented rate limits."
   }
 }

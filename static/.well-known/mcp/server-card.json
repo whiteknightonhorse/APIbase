@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 733 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 737 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -42456,6 +42456,274 @@
           "error": {
             "type": "object",
             "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "marine.ocean.forecast",
+      "title": "Marine Comprehensive Forecast",
+      "description": "Full hourly marine forecast at any ocean coordinate up to 16 days ahead. Returns all marine variables: significant wave height (m), mean wave direction (\u00b0), mean wave period (s), swell wave height (m), swell direction (\u00b0), swell period (s), and sea surface temperature (\u00b0C). Data is sourced from CMEMS ERA5 reanalysis and global wave models (ERA5-Ocean, MEPS, GFS). Ideal for offshore operations, ship routing, marine research, and multi-variable coastal planning. Supply latitude/longitude of an open-ocean or coastal point; land coordinates return null values. Source: Open-Meteo Marine API, CC BY 4.0, no authentication required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "latitude": {
+            "type": "number",
+            "description": "Latitude of the ocean location in decimal degrees (e.g. 51.5 for English Channel, 48.5 for Bay of Biscay). Must be over open water \u2014 land coordinates return null values.",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "longitude": {
+            "type": "number",
+            "description": "Longitude of the ocean location in decimal degrees (e.g. -14.0 for Atlantic, 2.3 for North Sea).",
+            "minimum": -180,
+            "maximum": 180
+          },
+          "forecast_days": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 16,
+            "description": "Number of days to forecast (1\u201316). Defaults to 7. Hourly data is returned for each day."
+          },
+          "timezone": {
+            "type": "string",
+            "description": "Timezone for the returned time values (e.g. \"UTC\", \"Europe/London\", \"America/New_York\"). Defaults to UTC."
+          }
+        },
+        "required": [
+          "latitude",
+          "longitude"
+        ],
+        "description": "Comprehensive hourly marine forecast at an ocean coordinate. Returns all variables: wave height, wave direction, wave period, swell height, swell direction, swell period, and sea surface temperature."
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "marine.ocean.temperature",
+      "title": "Sea Surface Temperature Forecast",
+      "description": "Hourly sea surface temperature (SST) forecast in degrees Celsius at an ocean coordinate for up to 16 days. SST is the temperature of the top layer of the ocean (~1m depth) and affects weather patterns, marine ecosystems, and fishing conditions. Useful for coral bleaching risk assessment, fishery management, coastal tourism planning, and climate monitoring. Returns time-indexed hourly values; null indicates no data (land areas or model gaps). Source: Open-Meteo Marine API, CC BY 4.0, no authentication required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "latitude": {
+            "type": "number",
+            "description": "Latitude of the ocean location in decimal degrees (e.g. 51.5 for English Channel, 48.5 for Bay of Biscay). Must be over open water \u2014 land coordinates return null values.",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "longitude": {
+            "type": "number",
+            "description": "Longitude of the ocean location in decimal degrees (e.g. -14.0 for Atlantic, 2.3 for North Sea).",
+            "minimum": -180,
+            "maximum": 180
+          },
+          "forecast_days": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 16,
+            "description": "Number of days to forecast (1\u201316). Defaults to 7. Hourly data is returned for each day."
+          },
+          "timezone": {
+            "type": "string",
+            "description": "Timezone for the returned time values (e.g. \"UTC\", \"Europe/London\", \"America/New_York\"). Defaults to UTC."
+          }
+        },
+        "required": [
+          "latitude",
+          "longitude"
+        ],
+        "description": "Hourly sea surface temperature (SST) forecast at an ocean coordinate. Returns temperature in degrees Celsius."
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "marine.ocean.swell",
+      "title": "Marine Swell Forecast",
+      "description": "Hourly swell forecast at an ocean coordinate \u2014 swell wave height (m), swell direction (\u00b0), and swell period (s) for up to 16 days. Swell consists of wind-generated waves that have propagated far from their origin, typically with longer periods (>10s) and more regular patterns than wind-sea. High-period swell (>12s) is ideal for surfing; low-period swell (<6s) indicates local chop. Swell direction indicates where the swell is coming from (degrees clockwise from north). Useful for surf forecasting, sailing passage planning, and aquaculture site assessment. Source: Open-Meteo Marine API, CC BY 4.0, no authentication required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "latitude": {
+            "type": "number",
+            "description": "Latitude of the ocean location in decimal degrees (e.g. 51.5 for English Channel, 48.5 for Bay of Biscay). Must be over open water \u2014 land coordinates return null values.",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "longitude": {
+            "type": "number",
+            "description": "Longitude of the ocean location in decimal degrees (e.g. -14.0 for Atlantic, 2.3 for North Sea).",
+            "minimum": -180,
+            "maximum": 180
+          },
+          "forecast_days": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 16,
+            "description": "Number of days to forecast (1\u201316). Defaults to 7. Hourly data is returned for each day."
+          },
+          "timezone": {
+            "type": "string",
+            "description": "Timezone for the returned time values (e.g. \"UTC\", \"Europe/London\", \"America/New_York\"). Defaults to UTC."
+          }
+        },
+        "required": [
+          "latitude",
+          "longitude"
+        ],
+        "description": "Hourly swell forecast at an ocean coordinate. Returns swell wave height (m), swell direction (\u00b0), and swell period (s). Useful for surfing, sailing, and coastal planning."
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "marine.ocean.waves",
+      "title": "Marine Wave Conditions Forecast",
+      "description": "Hourly wave conditions forecast at an ocean coordinate \u2014 wave height (m), wave direction (\u00b0), and wave period (s) for up to 16 days. Wave height is significant wave height (average of the highest third of waves). Wave direction is the mean direction from which waves are coming (degrees clockwise from north). Wave period is the mean time between successive wave crests in seconds. Useful for surfing spot reports, ferry/vessel routing, coastal engineering assessments, and storm monitoring. Source: Open-Meteo Marine API, CC BY 4.0, no authentication required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "latitude": {
+            "type": "number",
+            "description": "Latitude of the ocean location in decimal degrees (e.g. 51.5 for English Channel, 48.5 for Bay of Biscay). Must be over open water \u2014 land coordinates return null values.",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "longitude": {
+            "type": "number",
+            "description": "Longitude of the ocean location in decimal degrees (e.g. -14.0 for Atlantic, 2.3 for North Sea).",
+            "minimum": -180,
+            "maximum": 180
+          },
+          "forecast_days": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 16,
+            "description": "Number of days to forecast (1\u201316). Defaults to 7. Hourly data is returned for each day."
+          },
+          "timezone": {
+            "type": "string",
+            "description": "Timezone for the returned time values (e.g. \"UTC\", \"Europe/London\", \"America/New_York\"). Defaults to UTC."
+          }
+        },
+        "required": [
+          "latitude",
+          "longitude"
+        ],
+        "description": "Hourly wave conditions forecast at an ocean coordinate. Returns wave height (m), wave direction (\u00b0), and wave period (s)."
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
           }
         },
         "required": [

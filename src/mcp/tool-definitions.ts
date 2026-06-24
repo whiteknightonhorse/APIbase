@@ -8018,4 +8018,62 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'weather',
     annotations: READ_ONLY,
   },
+
+  // Open-Meteo Marine (UC-506) — 4 tools
+  {
+    toolId: 'marine.forecast',
+    mcpName: 'marine.ocean.forecast',
+    title: 'Marine Comprehensive Forecast',
+    description:
+      'Full hourly marine forecast at any ocean coordinate up to 16 days ahead. ' +
+      'Returns all marine variables: significant wave height (m), mean wave direction (°), mean wave period (s), ' +
+      'swell wave height (m), swell direction (°), swell period (s), and sea surface temperature (°C). ' +
+      'Data is sourced from CMEMS ERA5 reanalysis and global wave models (ERA5-Ocean, MEPS, GFS). ' +
+      'Ideal for offshore operations, ship routing, marine research, and multi-variable coastal planning. ' +
+      'Supply latitude/longitude of an open-ocean or coastal point; land coordinates return null values. ' +
+      'Source: Open-Meteo Marine API, CC BY 4.0, no authentication required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'marine.wave_conditions',
+    mcpName: 'marine.ocean.waves',
+    title: 'Marine Wave Conditions Forecast',
+    description:
+      'Hourly wave conditions forecast at an ocean coordinate — wave height (m), wave direction (°), and wave period (s) for up to 16 days. ' +
+      'Wave height is significant wave height (average of the highest third of waves). ' +
+      'Wave direction is the mean direction from which waves are coming (degrees clockwise from north). ' +
+      'Wave period is the mean time between successive wave crests in seconds. ' +
+      'Useful for surfing spot reports, ferry/vessel routing, coastal engineering assessments, and storm monitoring. ' +
+      'Source: Open-Meteo Marine API, CC BY 4.0, no authentication required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'marine.swell_forecast',
+    mcpName: 'marine.ocean.swell',
+    title: 'Marine Swell Forecast',
+    description:
+      'Hourly swell forecast at an ocean coordinate — swell wave height (m), swell direction (°), and swell period (s) for up to 16 days. ' +
+      'Swell consists of wind-generated waves that have propagated far from their origin, typically with longer periods (>10s) and more regular patterns than wind-sea. ' +
+      'High-period swell (>12s) is ideal for surfing; low-period swell (<6s) indicates local chop. ' +
+      'Swell direction indicates where the swell is coming from (degrees clockwise from north). ' +
+      'Useful for surf forecasting, sailing passage planning, and aquaculture site assessment. ' +
+      'Source: Open-Meteo Marine API, CC BY 4.0, no authentication required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'marine.sea_temperature',
+    mcpName: 'marine.ocean.temperature',
+    title: 'Sea Surface Temperature Forecast',
+    description:
+      'Hourly sea surface temperature (SST) forecast in degrees Celsius at an ocean coordinate for up to 16 days. ' +
+      'SST is the temperature of the top layer of the ocean (~1m depth) and affects weather patterns, marine ecosystems, and fishing conditions. ' +
+      'Useful for coral bleaching risk assessment, fishery management, coastal tourism planning, and climate monitoring. ' +
+      'Returns time-indexed hourly values; null indicates no data (land areas or model gaps). ' +
+      'Source: Open-Meteo Marine API, CC BY 4.0, no authentication required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
 ];

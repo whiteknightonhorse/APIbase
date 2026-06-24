@@ -4511,6 +4511,31 @@ tools:
     price_usd: "0.002"
     cache_ttl: 300
 
+  # --- UC-506: Open-Meteo Marine ---
+  - tool_id: marine.forecast
+    name: Marine Comprehensive Forecast
+    provider: marine
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: marine.wave_conditions
+    name: Marine Wave Conditions Forecast
+    provider: marine
+    price_usd: "0.001"
+    cache_ttl: 1800
+
+  - tool_id: marine.swell_forecast
+    name: Marine Swell Forecast
+    provider: marine
+    price_usd: "0.001"
+    cache_ttl: 1800
+
+  - tool_id: marine.sea_temperature
+    name: Sea Surface Temperature Forecast
+    provider: marine
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform
