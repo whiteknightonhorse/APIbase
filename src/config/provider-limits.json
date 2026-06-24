@@ -2068,7 +2068,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://api.unhcr.org/docs/",
-    "limit_proof": "UNHCR Data License — open humanitarian data, no auth required, no documented rate limits."
+    "limit_proof": "UNHCR Data License \u2014 open humanitarian data, no auth required, no documented rate limits."
   },
   "geonames": {
     "display_name": "GeoNames Geographical Database",
@@ -2125,12 +2125,21 @@
     "limit_proof": "No auth required, no documented rate limits. Attribution required. Free for commercial use. Source: sunrisesunset.io/api/"
   },
   "pokeapi": {
-    "display_name": "PokéAPI",
+    "display_name": "Pok\u00e9API",
     "health_url": "https://pokeapi.co/api/v2/pokemon/1",
     "limit_type": "unlimited",
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://pokeapi.co/docs/v2",
-    "limit_proof": "No auth required. Fair-use policy only (no hard rate limit documented). Responses are heavily cached by provider. Source: pokeapi.co/docs/v2 — 'Locally cache resources whenever you request them.'"
+    "limit_proof": "No auth required. Fair-use policy only (no hard rate limit documented). Responses are heavily cached by provider. Source: pokeapi.co/docs/v2 \u2014 'Locally cache resources whenever you request them.'"
+  },
+  "samuni": {
+    "display_name": "SA National Treasury Municipal Finance",
+    "health_url": "https://municipaldata.treasury.gov.za/api/cubes/",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://municipaldata.treasury.gov.za/docs",
+    "limit_proof": "South African National Treasury open data portal \u2014 no auth, no documented rate limits, free commercial use"
   }
 }

@@ -8774,6 +8774,67 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'entertainment',
     annotations: READ_ONLY,
   },
+  // SA National Treasury Municipal Finance (UC-519, 4 tools)
+  {
+    toolId: 'samuni.municipalities',
+    mcpName: 'samuni.reference.municipalities',
+    title: 'SA Municipal — List Municipalities',
+    description:
+      'List all South African municipalities registered with the National Treasury. ' +
+      'Returns up to 300 municipalities with demarcation code, name, province, category, ' +
+      'phone number, and website URL. ' +
+      'Filter by province code (EC, GP, KZN, WC, etc.) or category (A=Metro, B=Local, C=District). ' +
+      'South Africa has 8 metropolitan (A), ~205 local (B), and 44 district (C) municipalities. ' +
+      'Demarcation codes are needed for other samuni tools (e.g. CPT=Cape Town, JHB=Johannesburg, ' +
+      'ETH=eThekwini/Durban, TSH=Tshwane, EKU=Ekurhuleni). ' +
+      'No auth required. Source: SA National Treasury Municipal Finance Management Act (MFMA) data portal.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'samuni.audit_opinions',
+    mcpName: 'samuni.finance.audit_opinions',
+    title: 'SA Municipal — Audit Opinions',
+    description:
+      'Get Auditor-General of South Africa (AGSA) audit outcomes for municipalities. ' +
+      'Opinion codes: clean=Clean Audit, unqualified_emphasis_of_matter=Unqualified with Emphasis of Matter, ' +
+      'qualified=Qualified Opinion, adverse=Adverse Opinion, disclaimer=Disclaimer of Opinion. ' +
+      'Returns year, opinion label, and PDF report URL. Filter by demarcation code and/or year. ' +
+      'Data covers 2010-2024 for all 257 municipalities. ' +
+      'Useful for transparency reporting, credit risk assessment, and governance analysis. ' +
+      'No auth required. Source: SA National Treasury MFMA data portal.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'samuni.income_expenditure',
+    mcpName: 'samuni.finance.income_expenditure',
+    title: 'SA Municipal — Income & Expenditure',
+    description:
+      'Get income and expenditure (Statement of Financial Performance) data for a South African municipality. ' +
+      'Returns audited actual (AUDA) annual line items from the mSCOA chart of accounts. ' +
+      'Covers revenue sources (rates, grants, service charges) and expenditure categories ' +
+      '(employee costs, repairs, capital transfers). ' +
+      'Data is Section 71-level aggregation from 2019-20 onwards. ' +
+      'Requires demarcation code (e.g. CPT, JHB, ETH, TSH, EKU, BUF). ' +
+      'No auth required. Source: SA National Treasury MFMA incexp_v2 cube.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'samuni.officials',
+    mcpName: 'samuni.reference.officials',
+    title: 'SA Municipal — Officials Directory',
+    description:
+      'Get contact details for senior officials of a South African municipality. ' +
+      'Returns role, name, title, email address, and phone number. ' +
+      'Common roles: Mayor/Executive Mayor, Deputy Mayor/Executive Mayor, Municipal Manager, ' +
+      'Chief Financial Officer, Speaker, Chief Audit Executive. ' +
+      'Requires demarcation code (e.g. CPT=Cape Town, JHB=Johannesburg, ETH=eThekwini). ' +
+      'No auth required. Source: SA National Treasury MFMA officials cube.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
   {
     toolId: 'pokeapi.type',
     mcpName: 'pokeapi.type.matchup',

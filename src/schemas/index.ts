@@ -237,6 +237,7 @@ import { metNorwaySchemas } from './met-norway.schema';
 import { frankfurterSchemas } from './frankfurter.schema';
 import { sunrisesunsetSchemas } from './sunrisesunset.schema';
 import { pokeapiSchemas } from './pokeapi.schema';
+import { samuniSchemas } from './samuni.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -477,4 +478,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...frankfurterSchemas,
   ...sunrisesunsetSchemas,
   ...pokeapiSchemas,
+  ...samuniSchemas,
 };

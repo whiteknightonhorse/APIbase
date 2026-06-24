@@ -237,6 +237,7 @@ import { MetNorwayAdapter } from './met-norway';
 import { FrankfurterAdapter } from './frankfurter';
 import { SunriseSunsetAdapter } from './sunrisesunset';
 import { PokeApiAdapter } from './pokeapi';
+import { SaMuniAdapter } from './samuni';
 import { config } from '../config';
 
 /**
@@ -1388,6 +1389,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'pokeapi':
       // PokéAPI (UC-518) — 800+ Pokemon: details, species, moves, type matchups; no auth
       return getOrCreate('pokeapi', () => new PokeApiAdapter());
+    case 'samuni':
+      // SA National Treasury Municipal (UC-519) — financial data for 257 SA municipalities; no auth
+      return getOrCreate('samuni', () => new SaMuniAdapter());
     default:
       return undefined;
   }

@@ -2,8 +2,8 @@
   "platform": "APIbase",
   "version": "2.0",
   "updated_at": "2026-04-01T00:00:00Z",
-  "tools_count": 785,
-  "providers_count": 232,
+  "tools_count": 789,
+  "providers_count": 233,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
@@ -80,7 +80,7 @@
     {
       "name": "entertainment",
       "tools": 66,
-      "providers": "TMDB, Ticketmaster, RAWG, IGDB, Jikan, Lichess, Chess.com, MusicBrainz, PodcastIndex, API-Sports, Met Museum, Rijksmuseum, Cleveland Museum, OpenDota, PokéAPI",
+      "providers": "TMDB, Ticketmaster, RAWG, IGDB, Jikan, Lichess, Chess.com, MusicBrainz, PodcastIndex, API-Sports, Met Museum, Rijksmuseum, Cleveland Museum, OpenDota, Pok\u00e9API",
       "examples": "movies, events, games, anime, chess/esports, music, podcasts, sports, art collections, Dota 2 stats, Pokemon data"
     },
     {
@@ -151,9 +151,9 @@
     },
     {
       "name": "world",
-      "tools": 65,
-      "providers": "REST Countries, Nager.Date, GDACS, VATcomply, Open Food Facts, USGS Water, NOAA Tides, Statistics Sweden (SCB), Statistics Norway (SSB), NREL AFDC, NREL PVWatts, Global Fishing Watch, UK Carbon Intensity",
-      "examples": "countries, holidays, disasters, VAT, food products, streamflow, water quality, tides & currents, Sweden statistics, Norway statistics, US alt-fuel stations, solar PV output estimation, fishing vessel tracking, AIS events, fishing effort, UK carbon intensity gCO2/kWh"
+      "tools": 69,
+      "providers": "REST Countries, Nager.Date, GDACS, VATcomply, Open Food Facts, USGS Water, NOAA Tides, Statistics Sweden (SCB), Statistics Norway (SSB), NREL AFDC, NREL PVWatts, Global Fishing Watch, UK Carbon Intensity, SA National Treasury",
+      "examples": "countries, holidays, disasters, VAT, food products, streamflow, water quality, tides & currents, Sweden statistics, Norway statistics, US alt-fuel stations, solar PV output estimation, fishing vessel tracking, AIS events, fishing effort, UK carbon intensity gCO2/kWh, SA municipal finance"
     }
   ]
 }

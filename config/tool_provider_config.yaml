@@ -4836,6 +4836,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-519: SA National Treasury Municipal Finance ---
+  - tool_id: samuni.municipalities
+    name: SA Municipal — List Municipalities
+    provider: samuni
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: samuni.audit_opinions
+    name: SA Municipal — Audit Opinions
+    provider: samuni
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: samuni.income_expenditure
+    name: SA Municipal — Income & Expenditure
+    provider: samuni
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: samuni.officials
+    name: SA Municipal — Officials Directory
+    provider: samuni
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform
