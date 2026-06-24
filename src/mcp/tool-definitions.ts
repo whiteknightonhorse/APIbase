@@ -8132,4 +8132,65 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+
+  // EPA SDWIS — Safe Drinking Water Information System (UC-508, 4 tools)
+  {
+    toolId: 'sdwis.water_systems',
+    mcpName: 'sdwis.water.systems',
+    title: 'Search Public Water Systems',
+    description:
+      'Search EPA Safe Drinking Water Information System (SDWIS) for public water systems by state, ' +
+      'system type (Community/Transient/Non-Transient), and activity status. Returns PWSID, system name, ' +
+      'population served, service connections, water source type, and operator information. ' +
+      'Covers 150,000+ US public water systems regulated under the Safe Drinking Water Act. ' +
+      'Use sdwis.water.violations to check health violations for a specific system. ' +
+      'Data source: EPA SDWIS Federal Reporting Services (data.epa.gov/efservice), US Gov public domain.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'sdwis.violations',
+    mcpName: 'sdwis.water.violations',
+    title: 'Search Drinking Water Violations',
+    description:
+      'Search EPA SDWIS for drinking water violations by state and violation type. Returns violation code, ' +
+      'health-based flag (MCL/Treatment Technique), contaminant code, compliance status, measured value, ' +
+      'compliance period, return-to-compliance date, and public notification tier. ' +
+      'Filter by health_based=true to focus on Maximum Contaminant Level (MCL) and Treatment Technique (TT) ' +
+      'violations that directly endanger public health. Violation categories: MCL, TT, MRDL, MR, MON, RPT, PN. ' +
+      'Use sdwis.water.enforcement to get enforcement actions associated with a PWSID from violations. ' +
+      'Data source: EPA SDWIS Federal Reporting Services, US Gov public domain.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'sdwis.enforcement',
+    mcpName: 'sdwis.water.enforcement',
+    title: 'Lookup Water System Enforcement Actions',
+    description:
+      'Look up EPA enforcement actions taken against public water systems under the Safe Drinking Water Act. ' +
+      'Filter by PWSID (Public Water System Identifier) to get all enforcement history for a specific utility, ' +
+      'or filter by enforcement action type code. Returns enforcement date, action type, and originator. ' +
+      'Enforcement types include Formal Administrative Orders (EFG), Compliance Schedules, ' +
+      'Referral to State, and Civil Penalties. ' +
+      'Combine with sdwis.water.violations to understand the full compliance picture for a water system. ' +
+      'Data source: EPA SDWIS Federal Reporting Services, US Gov public domain.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'sdwis.service_areas',
+    mcpName: 'sdwis.water.service_areas',
+    title: 'Lookup Water System Service Areas',
+    description:
+      'Look up the geographic service areas of EPA-regulated public water systems. Returns counties, cities, ' +
+      'and zip codes served by each utility, along with area type and tribal codes. ' +
+      'Filter by state or county to discover which water systems serve a specific area. ' +
+      'Filter by PWSID to get all geographic areas served by a specific utility. ' +
+      'Useful for mapping water service boundaries, identifying utilities for an address, ' +
+      'or understanding the geographic scope of a water quality issue. ' +
+      'Data source: EPA SDWIS Federal Reporting Services Geographic Areas table, US Gov public domain.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
 ];

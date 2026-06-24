@@ -226,6 +226,7 @@ import { OpenSenseMapAdapter } from './opensensemap';
 import { OpenFdaDevicesAdapter } from './openfda-devices';
 import { MarineAdapter } from './marine';
 import { MfapiAdapter } from './mfapi';
+import { SdwisAdapter } from './sdwis';
 import { config } from '../config';
 
 /**
@@ -1094,6 +1095,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'epa':
       // EPA Envirofacts — environmental data, no auth (UC-337)
       return getOrCreate('epa', () => new EpaAdapter());
+    case 'sdwis':
+      // EPA SDWIS — Safe Drinking Water Information System, no auth (UC-508)
+      return getOrCreate('sdwis', () => new SdwisAdapter());
     case 'ncei': {
       const nceiToken = (config as Record<string, unknown>).PROVIDER_KEY_NOAA_NCEI as
         | string

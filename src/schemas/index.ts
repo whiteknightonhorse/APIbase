@@ -226,6 +226,7 @@ import { opensensemapSchemas } from './opensensemap.schema';
 import { openfdaDevicesSchemas } from './openfda-devices.schema';
 import { marineSchemas } from './marine.schema';
 import { mfapiSchemas } from './mfapi.schema';
+import { sdwisSchemas } from './sdwis.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -455,4 +456,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...openfdaDevicesSchemas,
   ...marineSchemas,
   ...mfapiSchemas,
+  ...sdwisSchemas,
 };

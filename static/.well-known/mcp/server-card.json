@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 741 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 745 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -42912,6 +42912,264 @@
         "required": [
           "query"
         ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "sdwis.water.enforcement",
+      "title": "Lookup Water System Enforcement Actions",
+      "description": "Look up EPA enforcement actions taken against public water systems under the Safe Drinking Water Act. Filter by PWSID (Public Water System Identifier) to get all enforcement history for a specific utility, or filter by enforcement action type code. Returns enforcement date, action type, and originator. Enforcement types include Formal Administrative Orders (EFG), Compliance Schedules, Referral to State, and Civil Penalties. Combine with sdwis.water.violations to understand the full compliance picture for a water system. Data source: EPA SDWIS Federal Reporting Services, US Gov public domain.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "pwsid": {
+            "type": "string",
+            "description": "Public Water System Identifier (PWSID) to look up enforcement actions for a specific system (e.g. CA3310067)"
+          },
+          "action_type": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "Enforcement action type code (e.g. EFG for Formal Enforcement Order, 3EF for Third Violation)"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Maximum number of enforcement actions to return (1\u2013100, default 20)"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "sdwis.water.service_areas",
+      "title": "Lookup Water System Service Areas",
+      "description": "Look up the geographic service areas of EPA-regulated public water systems. Returns counties, cities, and zip codes served by each utility, along with area type and tribal codes. Filter by state or county to discover which water systems serve a specific area. Filter by PWSID to get all geographic areas served by a specific utility. Useful for mapping water service boundaries, identifying utilities for an address, or understanding the geographic scope of a water quality issue. Data source: EPA SDWIS Federal Reporting Services Geographic Areas table, US Gov public domain.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "State or primacy agency code to filter service areas (e.g. CA, TX, FL)"
+          },
+          "pwsid": {
+            "type": "string",
+            "description": "Public Water System Identifier (PWSID) to get service areas for a specific system (e.g. CA3310067)"
+          },
+          "county": {
+            "type": "string",
+            "description": "County name served by the water system (e.g. LOS ANGELES)"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Maximum number of service area records to return (1\u2013100, default 20)"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "sdwis.water.violations",
+      "title": "Search Drinking Water Violations",
+      "description": "Search EPA SDWIS for drinking water violations by state and violation type. Returns violation code, health-based flag (MCL/Treatment Technique), contaminant code, compliance status, measured value, compliance period, return-to-compliance date, and public notification tier. Filter by health_based=true to focus on Maximum Contaminant Level (MCL) and Treatment Technique (TT) violations that directly endanger public health. Violation categories: MCL, TT, MRDL, MR, MON, RPT, PN. Use sdwis.water.enforcement to get enforcement actions associated with a PWSID from violations. Data source: EPA SDWIS Federal Reporting Services, US Gov public domain.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "State or primacy agency code (e.g. CA, TX). Two-letter abbreviation. Omit for all states."
+          },
+          "health_based": {
+            "type": "boolean",
+            "description": "If true, return only health-based violations (MCL, TT, MRDL). If false or omitted, return all."
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "MCL",
+              "TT",
+              "MRDL",
+              "MR",
+              "MON",
+              "RPT",
+              "PN",
+              "OTHER"
+            ],
+            "description": "Violation category: MCL (Maximum Contaminant Level), TT (Treatment Technique), MRDL (Disinfectant), MR (Monitoring/Reporting), MON (Monitoring), RPT (Reporting), PN (Public Notification), OTHER"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Maximum number of violations to return (1\u2013100, default 20)"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "sdwis.water.systems",
+      "title": "Search Public Water Systems",
+      "description": "Search EPA Safe Drinking Water Information System (SDWIS) for public water systems by state, system type (Community/Transient/Non-Transient), and activity status. Returns PWSID, system name, population served, service connections, water source type, and operator information. Covers 150,000+ US public water systems regulated under the Safe Drinking Water Act. Use sdwis.water.violations to check health violations for a specific system. Data source: EPA SDWIS Federal Reporting Services (data.epa.gov/efservice), US Gov public domain.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "US state code or primacy agency code (e.g. CA, TX, FL). Omit for all states."
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "CWS",
+              "TNCWS",
+              "NTNCWS"
+            ],
+            "description": "Public water system type: CWS (Community), TNCWS (Transient Non-Community), NTNCWS (Non-Transient Non-Community)"
+          },
+          "activity": {
+            "type": "string",
+            "enum": [
+              "A",
+              "I",
+              "N",
+              "M",
+              "P"
+            ],
+            "description": "Activity status code: A (Active), I (Inactive), N (New), M (Merger), P (Proposed). Default is all."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Maximum number of water systems to return (1\u2013100, default 20)"
+          }
+        }
       },
       "outputSchema": {
         "type": "object",

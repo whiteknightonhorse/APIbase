@@ -2033,5 +2033,14 @@
     "reset_period": "none",
     "docs_url": "https://www.mfapi.in/",
     "limit_proof": "MFAPI docs: 'There are no rate limits on the API. You can use it as much as you want.' MIT license, no authentication required."
+  },
+  "sdwis": {
+    "display_name": "EPA Safe Drinking Water (SDWIS)",
+    "health_url": "https://data.epa.gov/efservice/WATER_SYSTEM/rows/0:1/JSON",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.epa.gov/enviro/sdwis-model",
+    "limit_proof": "EPA EFSERVICE is US Gov public domain with no documented rate limits. No authentication required. SDWIS data under Safe Drinking Water Act mandatory public disclosure."
   }
 }
