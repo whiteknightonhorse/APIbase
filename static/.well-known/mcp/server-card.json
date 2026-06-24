@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 737 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 741 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -42706,6 +42706,212 @@
           "longitude"
         ],
         "description": "Hourly wave conditions forecast at an ocean coordinate. Returns wave height (m), wave direction (\u00b0), and wave period (s)."
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "mfapi.nav.history",
+      "title": "India Mutual Fund NAV History",
+      "description": "Get historical Net Asset Value (NAV) records for an India mutual fund scheme, most recent first. Returns daily NAV values in Indian Rupees (INR) with dates. Some schemes have 20+ years of history. Useful for performance analysis, CAGR calculations, SIP return modelling, and trend visualization. Limit parameter controls how many records are returned (default 100, max 1000). Use mfapi.schemes.search to find the scheme_code for a fund by name. Data source: MFAPI (api.mfapi.in), MIT license, no authentication required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "scheme_code": {
+            "type": "integer",
+            "description": "AMFI scheme code (integer). Use mfapi.scheme_search to find the code for a fund.",
+            "minimum": 0
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000,
+            "description": "Maximum number of historical NAV records to return, most recent first (1\u20131000, default 100)"
+          }
+        },
+        "required": [
+          "scheme_code"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "mfapi.nav.latest",
+      "title": "India Mutual Fund Latest NAV",
+      "description": "Get the most recent Net Asset Value (NAV) for an India mutual fund scheme by its AMFI scheme code. Returns the NAV in Indian Rupees (INR), the date of the NAV, and full scheme metadata including fund house, scheme type (Open/Close Ended), scheme category (Equity/Debt/Hybrid), and ISIN. NAVs are published by AMFI daily on business days; the returned date reflects the last published value. Use mfapi.schemes.search to find the scheme_code for a fund by name. Data source: MFAPI (api.mfapi.in), MIT license, no authentication required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "scheme_code": {
+            "type": "integer",
+            "description": "AMFI scheme code (integer). Use mfapi.scheme_search to find the code for a fund.",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "scheme_code"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "mfapi.schemes.list",
+      "title": "India Mutual Fund Scheme List",
+      "description": "Paginated list of all 37,000+ AMFI-registered India mutual fund schemes. Returns scheme codes, names, and ISIN identifiers for each page. Useful for bulk enumeration or building fund directories. Use mfapi.schemes.search for keyword-based lookup instead of iterating all pages. Data source: MFAPI (api.mfapi.in), MIT license, no authentication required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number for pagination (default 1)"
+          },
+          "per_page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "description": "Number of schemes per page (1\u2013200, default 50)"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "mfapi.schemes.search",
+      "title": "India Mutual Fund Scheme Search",
+      "description": "Search across 37,000+ AMFI-registered India mutual fund schemes by name keyword. Returns matching scheme codes, names, and ISIN identifiers. Use the returned scheme_code to fetch current or historical NAV data. Supports partial matches \u2014 searching \"HDFC\" returns all HDFC schemes; \"mid cap\" returns all mid-cap funds. Data source: MFAPI (api.mfapi.in), MIT license, no authentication required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Keyword to filter scheme names (e.g. \"HDFC\", \"SBI Bluechip\", \"mid cap\")"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Maximum number of results to return (1\u2013100, default 20)"
+          }
+        },
+        "required": [
+          "query"
+        ]
       },
       "outputSchema": {
         "type": "object",

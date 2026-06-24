@@ -68298,6 +68298,336 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/mfapi.scheme_search/call": {
+      "post": {
+        "operationId": "mfapi_scheme_search",
+        "summary": "India Mutual Fund Scheme Search",
+        "description": "Search across 37,000+ AMFI-registered India mutual fund schemes by name keyword. Returns matching scheme codes, names, and ISIN identifiers. Use the returned scheme_code to fetch current or historical NAV data. Supports partial matches — searching \"HDFC\" returns all HDFC schemes; \"mid cap\" returns all mid-cap funds. Data source: MFAPI (api.mfapi.in), MIT license, no authentication required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "mfapi.scheme_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Keyword to filter scheme names (e.g. \"HDFC\", \"SBI Bluechip\", \"mid cap\")"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of results to return (1–100, default 20)"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/mfapi.scheme_list/call": {
+      "post": {
+        "operationId": "mfapi_scheme_list",
+        "summary": "India Mutual Fund Scheme List",
+        "description": "Paginated list of all 37,000+ AMFI-registered India mutual fund schemes. Returns scheme codes, names, and ISIN identifiers for each page. Useful for bulk enumeration or building fund directories. Use mfapi.schemes.search for keyword-based lookup instead of iterating all pages. Data source: MFAPI (api.mfapi.in), MIT license, no authentication required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "mfapi.scheme_list"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Page number for pagination (default 1)"
+                  },
+                  "per_page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 200,
+                    "description": "Number of schemes per page (1–200, default 50)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/mfapi.nav_latest/call": {
+      "post": {
+        "operationId": "mfapi_nav_latest",
+        "summary": "India Mutual Fund Latest NAV",
+        "description": "Get the most recent Net Asset Value (NAV) for an India mutual fund scheme by its AMFI scheme code. Returns the NAV in Indian Rupees (INR), the date of the NAV, and full scheme metadata including fund house, scheme type (Open/Close Ended), scheme category (Equity/Debt/Hybrid), and ISIN. NAVs are published by AMFI daily on business days; the returned date reflects the last published value. Use mfapi.schemes.search to find the scheme_code for a fund by name. Data source: MFAPI (api.mfapi.in), MIT license, no authentication required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "mfapi.nav_latest"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "scheme_code": {
+                    "type": "integer",
+                    "description": "AMFI scheme code (integer). Use mfapi.scheme_search to find the code for a fund.",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "scheme_code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/mfapi.nav_history/call": {
+      "post": {
+        "operationId": "mfapi_nav_history",
+        "summary": "India Mutual Fund NAV History",
+        "description": "Get historical Net Asset Value (NAV) records for an India mutual fund scheme, most recent first. Returns daily NAV values in Indian Rupees (INR) with dates. Some schemes have 20+ years of history. Useful for performance analysis, CAGR calculations, SIP return modelling, and trend visualization. Limit parameter controls how many records are returned (default 100, max 1000). Use mfapi.schemes.search to find the scheme_code for a fund by name. Data source: MFAPI (api.mfapi.in), MIT license, no authentication required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "mfapi.nav_history"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "scheme_code": {
+                    "type": "integer",
+                    "description": "AMFI scheme code (integer). Use mfapi.scheme_search to find the code for a fund.",
+                    "minimum": 0
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 1000,
+                    "description": "Maximum number of historical NAV records to return, most recent first (1–1000, default 100)"
+                  }
+                },
+                "required": [
+                  "scheme_code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

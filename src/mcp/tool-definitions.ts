@@ -8076,4 +8076,60 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'weather',
     annotations: READ_ONLY,
   },
+
+  // MFAPI — India Mutual Funds (UC-507, 4 tools)
+  {
+    toolId: 'mfapi.scheme_search',
+    mcpName: 'mfapi.schemes.search',
+    title: 'India Mutual Fund Scheme Search',
+    description:
+      'Search across 37,000+ AMFI-registered India mutual fund schemes by name keyword. ' +
+      'Returns matching scheme codes, names, and ISIN identifiers. ' +
+      'Use the returned scheme_code to fetch current or historical NAV data. ' +
+      'Supports partial matches — searching "HDFC" returns all HDFC schemes; "mid cap" returns all mid-cap funds. ' +
+      'Data source: MFAPI (api.mfapi.in), MIT license, no authentication required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'mfapi.scheme_list',
+    mcpName: 'mfapi.schemes.list',
+    title: 'India Mutual Fund Scheme List',
+    description:
+      'Paginated list of all 37,000+ AMFI-registered India mutual fund schemes. ' +
+      'Returns scheme codes, names, and ISIN identifiers for each page. ' +
+      'Useful for bulk enumeration or building fund directories. ' +
+      'Use mfapi.schemes.search for keyword-based lookup instead of iterating all pages. ' +
+      'Data source: MFAPI (api.mfapi.in), MIT license, no authentication required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'mfapi.nav_latest',
+    mcpName: 'mfapi.nav.latest',
+    title: 'India Mutual Fund Latest NAV',
+    description:
+      'Get the most recent Net Asset Value (NAV) for an India mutual fund scheme by its AMFI scheme code. ' +
+      'Returns the NAV in Indian Rupees (INR), the date of the NAV, and full scheme metadata including fund house, ' +
+      'scheme type (Open/Close Ended), scheme category (Equity/Debt/Hybrid), and ISIN. ' +
+      'NAVs are published by AMFI daily on business days; the returned date reflects the last published value. ' +
+      'Use mfapi.schemes.search to find the scheme_code for a fund by name. ' +
+      'Data source: MFAPI (api.mfapi.in), MIT license, no authentication required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'mfapi.nav_history',
+    mcpName: 'mfapi.nav.history',
+    title: 'India Mutual Fund NAV History',
+    description:
+      'Get historical Net Asset Value (NAV) records for an India mutual fund scheme, most recent first. ' +
+      'Returns daily NAV values in Indian Rupees (INR) with dates. Some schemes have 20+ years of history. ' +
+      'Useful for performance analysis, CAGR calculations, SIP return modelling, and trend visualization. ' +
+      'Limit parameter controls how many records are returned (default 100, max 1000). ' +
+      'Use mfapi.schemes.search to find the scheme_code for a fund by name. ' +
+      'Data source: MFAPI (api.mfapi.in), MIT license, no authentication required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
 ];

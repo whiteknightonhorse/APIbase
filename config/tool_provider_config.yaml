@@ -4536,6 +4536,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-507: MFAPI — India Mutual Funds ---
+  - tool_id: mfapi.scheme_search
+    name: India Mutual Fund Scheme Search
+    provider: mfapi
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: mfapi.scheme_list
+    name: India Mutual Fund Scheme List
+    provider: mfapi
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: mfapi.nav_latest
+    name: India Mutual Fund Latest NAV
+    provider: mfapi
+    price_usd: "0.001"
+    cache_ttl: 300
+
+  - tool_id: mfapi.nav_history
+    name: India Mutual Fund NAV History
+    provider: mfapi
+    price_usd: "0.002"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

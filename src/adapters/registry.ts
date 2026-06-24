@@ -225,6 +225,7 @@ import { BankOfCanadaAdapter } from './bankofcanada';
 import { OpenSenseMapAdapter } from './opensensemap';
 import { OpenFdaDevicesAdapter } from './openfda-devices';
 import { MarineAdapter } from './marine';
+import { MfapiAdapter } from './mfapi';
 import { config } from '../config';
 
 /**
@@ -1335,6 +1336,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'marine':
       // Open-Meteo Marine (UC-506) — wave height/direction/period, swell, sea surface temperature; no auth
       return getOrCreate('marine', () => new MarineAdapter());
+    case 'mfapi':
+      // MFAPI (UC-507) — 37K+ India mutual fund schemes, daily NAV history, no auth
+      return getOrCreate('mfapi', () => new MfapiAdapter());
     default:
       return undefined;
   }

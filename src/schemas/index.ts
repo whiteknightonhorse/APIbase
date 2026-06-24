@@ -225,6 +225,7 @@ import { bankofcanadaSchemas } from './bankofcanada.schema';
 import { opensensemapSchemas } from './opensensemap.schema';
 import { openfdaDevicesSchemas } from './openfda-devices.schema';
 import { marineSchemas } from './marine.schema';
+import { mfapiSchemas } from './mfapi.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -453,4 +454,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...opensensemapSchemas,
   ...openfdaDevicesSchemas,
   ...marineSchemas,
+  ...mfapiSchemas,
 };
