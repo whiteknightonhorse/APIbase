@@ -4811,6 +4811,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-518: PokéAPI ---
+  - tool_id: pokeapi.pokemon
+    name: PokéAPI — Pokemon Details
+    provider: pokeapi
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: pokeapi.species
+    name: PokéAPI — Pokemon Species Info
+    provider: pokeapi
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: pokeapi.move
+    name: PokéAPI — Pokemon Move Details
+    provider: pokeapi
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: pokeapi.type
+    name: PokéAPI — Pokemon Type Matchup
+    provider: pokeapi
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

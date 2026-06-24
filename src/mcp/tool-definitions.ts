@@ -8725,4 +8725,69 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'space',
     annotations: READ_ONLY,
   },
+
+  // PokéAPI (UC-518, 4 tools)
+  {
+    toolId: 'pokeapi.pokemon',
+    mcpName: 'pokeapi.pokemon.detail',
+    title: 'PokéAPI — Pokemon Details',
+    description:
+      'Get detailed data for any of 1025+ Pokemon by name or Pokedex ID. ' +
+      'Returns: types (e.g. fire/flying), base stats (HP, Attack, Defense, Sp.Atk, Sp.Def, Speed), ' +
+      'abilities (including hidden ability), first 20 moves, height (dm), weight (hg), ' +
+      'base experience, and sprite image URLs. ' +
+      'Examples: "pikachu" (id 25), "charizard" (id 6), "mewtwo" (id 150), "eevee" (id 133). ' +
+      'Hyphenated names accepted: "mr-mime", "tapu-koko", "jangmo-o". ' +
+      'No auth required; fair-use free API. Source: PokéAPI (pokeapi.co).',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'pokeapi.species',
+    mcpName: 'pokeapi.pokemon.species',
+    title: 'PokéAPI — Pokemon Species Info',
+    description:
+      'Get species-level information for any Pokemon including Pokedex flavor text, ' +
+      'genus (e.g. "Mouse Pokemon"), generation introduced, growth rate, capture rate, ' +
+      'base happiness, gender ratio, egg groups, habitat, color, evolution chain URL, ' +
+      'and flags for baby/legendary/mythical status. ' +
+      'Flavor text is the description shown in the in-game Pokedex (English, from most recent main game). ' +
+      'Gender rate: -1 = genderless, 0 = always male, 8 = always female, others are eighths female. ' +
+      'Examples: "pikachu", "eevee", "mewtwo", "snorlax". ' +
+      'No auth required; fair-use free API. Source: PokéAPI (pokeapi.co).',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'pokeapi.move',
+    mcpName: 'pokeapi.move.detail',
+    title: 'PokéAPI — Pokemon Move Details',
+    description:
+      'Get detailed data for any of 900+ Pokemon moves by name or move ID. ' +
+      'Returns: type, damage class (physical/special/status), power, accuracy, PP (power points), ' +
+      'priority, effect chance, short effect description, full effect text, target scope, ' +
+      'generation introduced, and battle metadata (ailment, drain, healing, crit rate, flinch chance). ' +
+      'Examples: "tackle" (power 40), "thunderbolt" (power 90, 10% paralysis), ' +
+      '"surf" (power 90, hits all adjacent), "swords-dance" (status, raises Attack). ' +
+      'Multi-word move names use hyphens: "ice-beam", "fire-blast", "hyper-beam". ' +
+      'No auth required; fair-use free API. Source: PokéAPI (pokeapi.co).',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'pokeapi.type',
+    mcpName: 'pokeapi.type.matchup',
+    title: 'PokéAPI — Pokemon Type Matchup',
+    description:
+      'Get the full damage relation chart for any of the 18 Pokemon types. ' +
+      'Returns offensive relations (double/half/no damage TO other types) and ' +
+      'defensive relations (double/half/no damage FROM other types). ' +
+      'Also returns the total count of Pokemon and moves of that type. ' +
+      'Valid types: normal, fighting, flying, poison, ground, rock, bug, ghost, steel, ' +
+      'fire, water, grass, electric, psychic, ice, dragon, dark, fairy. ' +
+      'Useful for team building, battle strategy, and type-effectiveness calculators. ' +
+      'No auth required; fair-use free API. Source: PokéAPI (pokeapi.co).',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
 ];

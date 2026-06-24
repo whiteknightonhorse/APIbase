@@ -236,6 +236,7 @@ import { OpenTopoDataAdapter } from './opentopodata';
 import { MetNorwayAdapter } from './met-norway';
 import { FrankfurterAdapter } from './frankfurter';
 import { SunriseSunsetAdapter } from './sunrisesunset';
+import { PokeApiAdapter } from './pokeapi';
 import { config } from '../config';
 
 /**
@@ -1384,6 +1385,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'sunrisesunset':
       // SunriseSunset.io (UC-517) — sunrise/sunset/moon phase/golden hour/sun position; no auth
       return getOrCreate('sunrisesunset', () => new SunriseSunsetAdapter());
+    case 'pokeapi':
+      // PokéAPI (UC-518) — 800+ Pokemon: details, species, moves, type matchups; no auth
+      return getOrCreate('pokeapi', () => new PokeApiAdapter());
     default:
       return undefined;
   }

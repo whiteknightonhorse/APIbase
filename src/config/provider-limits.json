@@ -2123,5 +2123,14 @@
     "reset_period": "none",
     "docs_url": "https://sunrisesunset.io/api/",
     "limit_proof": "No auth required, no documented rate limits. Attribution required. Free for commercial use. Source: sunrisesunset.io/api/"
+  },
+  "pokeapi": {
+    "display_name": "PokéAPI",
+    "health_url": "https://pokeapi.co/api/v2/pokemon/1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://pokeapi.co/docs/v2",
+    "limit_proof": "No auth required. Fair-use policy only (no hard rate limit documented). Responses are heavily cached by provider. Source: pokeapi.co/docs/v2 — 'Locally cache resources whenever you request them.'"
   }
 }

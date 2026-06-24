@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 781 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 785 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -45520,6 +45520,194 @@
           "error": {
             "type": "object",
             "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "pokeapi.move.detail",
+      "title": "Pok\u00e9API \u2014 Pokemon Move Details",
+      "description": "Get detailed data for any of 900+ Pokemon moves by name or move ID. Returns: type, damage class (physical/special/status), power, accuracy, PP (power points), priority, effect chance, short effect description, full effect text, target scope, generation introduced, and battle metadata (ailment, drain, healing, crit rate, flinch chance). Examples: \"tackle\" (power 40), \"thunderbolt\" (power 90, 10% paralysis), \"surf\" (power 90, hits all adjacent), \"swords-dance\" (status, raises Attack). Multi-word move names use hyphens: \"ice-beam\", \"fire-blast\", \"hyper-beam\". No auth required; fair-use free API. Source: Pok\u00e9API (pokeapi.co).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name_or_id": {
+            "type": "string",
+            "description": "Move name (e.g. \"tackle\", \"thunderbolt\", \"surf\") or numeric move ID (e.g. 33). Names use hyphens for multi-word moves (e.g. \"ice-beam\", \"fire-blast\")."
+          }
+        },
+        "required": [
+          "name_or_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "pokeapi.pokemon.detail",
+      "title": "Pok\u00e9API \u2014 Pokemon Details",
+      "description": "Get detailed data for any of 1025+ Pokemon by name or Pokedex ID. Returns: types (e.g. fire/flying), base stats (HP, Attack, Defense, Sp.Atk, Sp.Def, Speed), abilities (including hidden ability), first 20 moves, height (dm), weight (hg), base experience, and sprite image URLs. Examples: \"pikachu\" (id 25), \"charizard\" (id 6), \"mewtwo\" (id 150), \"eevee\" (id 133). Hyphenated names accepted: \"mr-mime\", \"tapu-koko\", \"jangmo-o\". No auth required; fair-use free API. Source: Pok\u00e9API (pokeapi.co).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name_or_id": {
+            "type": "string",
+            "description": "Pokemon name (e.g. \"pikachu\", \"charizard\") or numeric Pokedex ID (e.g. 25, 6). Names are case-insensitive. Hyphenated forms accepted (e.g. \"mr-mime\", \"tapu-koko\")."
+          }
+        },
+        "required": [
+          "name_or_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "pokeapi.pokemon.species",
+      "title": "Pok\u00e9API \u2014 Pokemon Species Info",
+      "description": "Get species-level information for any Pokemon including Pokedex flavor text, genus (e.g. \"Mouse Pokemon\"), generation introduced, growth rate, capture rate, base happiness, gender ratio, egg groups, habitat, color, evolution chain URL, and flags for baby/legendary/mythical status. Flavor text is the description shown in the in-game Pokedex (English, from most recent main game). Gender rate: -1 = genderless, 0 = always male, 8 = always female, others are eighths female. Examples: \"pikachu\", \"eevee\", \"mewtwo\", \"snorlax\". No auth required; fair-use free API. Source: Pok\u00e9API (pokeapi.co).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name_or_id": {
+            "type": "string",
+            "description": "Pokemon species name (e.g. \"bulbasaur\") or species ID (e.g. 1). Use the base species name, not form names (use \"rotom\" not \"rotom-heat\")."
+          }
+        },
+        "required": [
+          "name_or_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "pokeapi.type.matchup",
+      "title": "Pok\u00e9API \u2014 Pokemon Type Matchup",
+      "description": "Get the full damage relation chart for any of the 18 Pokemon types. Returns offensive relations (double/half/no damage TO other types) and defensive relations (double/half/no damage FROM other types). Also returns the total count of Pokemon and moves of that type. Valid types: normal, fighting, flying, poison, ground, rock, bug, ghost, steel, fire, water, grass, electric, psychic, ice, dragon, dark, fairy. Useful for team building, battle strategy, and type-effectiveness calculators. No auth required; fair-use free API. Source: Pok\u00e9API (pokeapi.co).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name_or_id": {
+            "type": "string",
+            "description": "Pokemon type name (e.g. \"fire\", \"water\", \"grass\", \"electric\", \"dragon\", \"ghost\") or numeric type ID (e.g. 10 for fire, 11 for water). Valid types: normal, fighting, flying, poison, ground, rock, bug, ghost, steel, fire, water, grass, electric, psychic, ice, dragon, dark, fairy."
+          }
+        },
+        "required": [
+          "name_or_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
           }
         },
         "required": [

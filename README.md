@@ -1,6 +1,6 @@
 # APIbase.pro — The API Hub for AI Agents
 
-> One MCP endpoint. 781 tools. 231 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
+> One MCP endpoint. 785 tools. 232 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
 
 **[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Frameworks](https://apibase.pro/frameworks)** | **[Dashboard](https://apibase.pro/dashboard)**
 
@@ -27,7 +27,7 @@ https://github.com/user-attachments/assets/9e598d61-b2d0-486c-bd34-f0cb0354d09c
 
 ## What is APIbase?
 
-Production MCP server that gives AI agents access to 781 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, check weather and tides, forecast ocean waves and swell, query US Census and CDC health data, search ML models on HuggingFace, look up World Bank indicators, query UN SDG development goals data, track streamflow from USGS stations, search 7M+ CS papers on DBLP, generate images, send emails, decode VINs, look up chemical compounds, scan npm/PyPI vulnerabilities, search NIST NVD CVE records, find EV chargers, estimate solar PV output, search art at the Met Museum, look up Dota 2 match stats, get decoded aviation METAR/TAF, look up parsed NOTAMs and PIREPs, search FDA medical device recalls and 510(k) clearances, batch multiple calls, track usage analytics — and 300+ more tools across 30+ categories.
+Production MCP server that gives AI agents access to 785 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, check weather and tides, forecast ocean waves and swell, query US Census and CDC health data, search ML models on HuggingFace, look up World Bank indicators, query UN SDG development goals data, track streamflow from USGS stations, search 7M+ CS papers on DBLP, generate images, send emails, decode VINs, look up chemical compounds, scan npm/PyPI vulnerabilities, search NIST NVD CVE records, find EV chargers, estimate solar PV output, search art at the Met Museum, look up Dota 2 match stats, get decoded aviation METAR/TAF, look up parsed NOTAMs and PIREPs, search FDA medical device recalls and 510(k) clearances, batch multiple calls, track usage analytics — and 300+ more tools across 30+ categories.
 
 **Built for AI agents, not humans.** Auto-registration, zero setup, pay-per-call via x402 USDC micropayments on Base or MPP (Machine Payments Protocol) on Tempo.
 
@@ -74,7 +74,7 @@ Combine APIbase (real-world APIs) with Playwright (browser) and Context7 (docs):
 }
 ```
 
-Zero API-key management (Base Account handles auth + signing), zero per-provider signup (APIbase aggregates 231 providers). Full guide: [apibase.pro/frameworks#base-mcp](https://apibase.pro/frameworks#base-mcp).
+Zero API-key management (Base Account handles auth + signing), zero per-provider signup (APIbase aggregates 232 providers). Full guide: [apibase.pro/frameworks#base-mcp](https://apibase.pro/frameworks#base-mcp).
 
 ### Via npm (stdio bridge)
 
@@ -106,7 +106,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 
 ---
 
-## Tool Categories (781 tools, 231 providers)
+## Tool Categories (785 tools, 232 providers)
 
 | Category | Tools | Providers | Examples |
 |----------|-------|-----------|----------|
@@ -122,7 +122,7 @@ curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
 | **Maps & Geo** | 15 | Geoapify, Overpass API (OpenStreetMap), GeoNames | Geocode, routing, POI search, isochrone, OSM amenity search, transit stops, place DB, postal codes, country info, timezone lookup |
 | **Address (US/CA)** | 2 | Geocodio | Geocode, reverse geocode, USPS-standard |
 | **Real Estate** | 4 | Walk Score, US Real Estate | Walkability, property listings, details |
-| **Entertainment** | 40 | TMDB, Ticketmaster, RAWG, IGDB, Jikan, Lichess, Chess.com, Met Museum, Rijksmuseum, CMA, OpenDota | Movies, events, games, anime, chess/esports, art collections, Dota 2 |
+| **Entertainment** | 44 | TMDB, Ticketmaster, RAWG, IGDB, Jikan, Lichess, Chess.com, Met Museum, Rijksmuseum, CMA, OpenDota, PokéAPI | Movies, events, games, anime, chess/esports, art collections, Dota 2, Pokemon |
 | **Art & Culture** | 9 | Europeana, ARTIC, V&A Museum | 50M+ EU objects + 120K Chicago artworks + 1M+ V&A collection objects |
 | **Stock Media** | 3 | Pexels | Free stock photos & videos, commercial use |
 | **Music** | 9 | MusicBrainz, ListenBrainz, RadioBrowser, AudD | Artists, albums, radio, song recognition, lyrics |

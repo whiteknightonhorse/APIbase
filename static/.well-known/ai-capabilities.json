@@ -2,8 +2,8 @@
   "platform": "APIbase",
   "version": "2.0",
   "updated_at": "2026-04-01T00:00:00Z",
-  "tools_count": 781,
-  "providers_count": 231,
+  "tools_count": 785,
+  "providers_count": 232,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
@@ -79,9 +79,9 @@
     },
     {
       "name": "entertainment",
-      "tools": 62,
-      "providers": "TMDB, Ticketmaster, RAWG, IGDB, Jikan, Lichess, Chess.com, MusicBrainz, PodcastIndex, API-Sports, Met Museum, Rijksmuseum, Cleveland Museum, OpenDota",
-      "examples": "movies, events, games, anime, chess/esports, music, podcasts, sports, art collections, Dota 2 stats"
+      "tools": 66,
+      "providers": "TMDB, Ticketmaster, RAWG, IGDB, Jikan, Lichess, Chess.com, MusicBrainz, PodcastIndex, API-Sports, Met Museum, Rijksmuseum, Cleveland Museum, OpenDota, PokéAPI",
+      "examples": "movies, events, games, anime, chess/esports, music, podcasts, sports, art collections, Dota 2 stats, Pokemon data"
     },
     {
       "name": "education",
