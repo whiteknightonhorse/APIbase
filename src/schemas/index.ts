@@ -229,6 +229,7 @@ import { mfapiSchemas } from './mfapi.schema';
 import { sdwisSchemas } from './sdwis.schema';
 import { blsMacroSchemas } from './bls-macro.schema';
 import { mbtaTransitSchemas } from './mbta-transit.schema';
+import { unhcrSchemas } from './unhcr.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -461,4 +462,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...sdwisSchemas,
   ...blsMacroSchemas,
   ...mbtaTransitSchemas,
+  ...unhcrSchemas,
 };

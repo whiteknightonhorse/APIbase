@@ -2060,5 +2060,14 @@
     "reset_period": "daily",
     "docs_url": "https://www.mbta.com/developers/v3-api",
     "limit_proof": "No API key: 20 req/min, 500 req/day. Free API key increases limit."
+  },
+  "unhcr": {
+    "display_name": "UNHCR Population Data",
+    "health_url": "https://api.unhcr.org/population/v1/population/?year=2023&limit=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://api.unhcr.org/docs/",
+    "limit_proof": "UNHCR Data License — open humanitarian data, no auth required, no documented rate limits."
   }
 }

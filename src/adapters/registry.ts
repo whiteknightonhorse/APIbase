@@ -229,6 +229,7 @@ import { MfapiAdapter } from './mfapi';
 import { SdwisAdapter } from './sdwis';
 import { BlsMacroAdapter } from './bls-macro';
 import { MbtaTransitAdapter } from './mbta-transit';
+import { UnhcrAdapter } from './unhcr';
 import { config } from '../config';
 
 /**
@@ -1353,6 +1354,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'mbta-transit':
       // MBTA Transit (UC-510) — Boston MBTA real-time routes, stops, alerts, predictions; no auth
       return getOrCreate('mbta-transit', () => new MbtaTransitAdapter());
+    case 'unhcr':
+      // UNHCR Population (UC-511) — global refugee/displaced-person statistics 1951–present, no auth
+      return getOrCreate('unhcr', () => new UnhcrAdapter());
     default:
       return undefined;
   }

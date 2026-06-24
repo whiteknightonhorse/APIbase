@@ -4636,6 +4636,31 @@ tools:
     price_usd: "0.002"
     cache_ttl: 15
 
+  # --- UC-511: UNHCR Population ---
+  - tool_id: unhcr.population
+    name: UNHCR Refugee & Displacement Statistics
+    provider: unhcr
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: unhcr.solutions
+    name: UNHCR Durable Solutions Data
+    provider: unhcr
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: unhcr.asylum_applications
+    name: UNHCR Asylum Applications
+    provider: unhcr
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: unhcr.asylum_decisions
+    name: UNHCR Asylum Decisions
+    provider: unhcr
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

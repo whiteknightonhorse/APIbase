@@ -69727,6 +69727,390 @@
         ]
       }
     },
+    "/api/v1/tools/unhcr.population/call": {
+      "post": {
+        "operationId": "unhcr_population",
+        "summary": "UNHCR Refugee & Displacement Statistics",
+        "description": "Get UNHCR global or per-country refugee and displaced-person population statistics (1951–present). Returns refugee counts, asylum seekers, internally displaced persons (IDPs), stateless persons, other people of concern (OOC), other in need of protection (OIP), and host community (HST) figures. Filter by year (e.g. 2023), country of origin ISO3 code (e.g. SYR for Syria, AFG for Afghanistan, UKR for Ukraine), or country of asylum ISO3 (e.g. DEU, TUR, COL). Omit all filters for global aggregates across all years. Paginated; default 10 items. UNHCR Data License — open humanitarian data, no upstream cost.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "unhcr.population"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "year": {
+                    "type": "integer",
+                    "minimum": 1951,
+                    "maximum": 2030,
+                    "description": "Reference year for the statistics (1951–present). Omit to return all years (paginated)."
+                  },
+                  "coo": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 3,
+                    "description": "ISO 3-letter country code for country of origin, e.g. SYR (Syria), AFG (Afghanistan), UKR (Ukraine). Omit to include all origin countries."
+                  },
+                  "coa": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 3,
+                    "description": "ISO 3-letter country code for country of asylum, e.g. DEU (Germany), TUR (Turkey), COL (Colombia). Omit to include all asylum countries."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Number of records to return per page (1–100, default 10)."
+                  }
+                },
+                "description": "UNHCR global or per-country refugee and displaced-person population statistics. Returns refugee counts, asylum seekers, IDPs, stateless persons, and host community figures by year."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/unhcr.solutions/call": {
+      "post": {
+        "operationId": "unhcr_solutions",
+        "summary": "UNHCR Durable Solutions Data",
+        "description": "Get UNHCR durable solutions data — voluntary repatriation (returned refugees), resettlement, and naturalization/citizenship grants for refugees and IDPs (1951–present). Durable solutions represent the three pathways out of displacement recognized by international law. Filter by year, country of origin ISO3 (coo), or country of asylum ISO3 (coa). Includes aggregate totals when available. Paginated; default 10 items. UNHCR Data License — open humanitarian data, no upstream cost.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "unhcr.solutions"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "year": {
+                    "type": "integer",
+                    "minimum": 1951,
+                    "maximum": 2030,
+                    "description": "Reference year for the statistics (1951–present). Omit to return all years (paginated)."
+                  },
+                  "coo": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 3,
+                    "description": "ISO 3-letter country code for country of origin, e.g. SYR (Syria), AFG (Afghanistan), UKR (Ukraine). Omit to include all origin countries."
+                  },
+                  "coa": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 3,
+                    "description": "ISO 3-letter country code for country of asylum, e.g. DEU (Germany), TUR (Turkey), COL (Colombia). Omit to include all asylum countries."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Number of records to return per page (1–100, default 10)."
+                  }
+                },
+                "description": "UNHCR durable solutions data — voluntary returns, resettlement, and naturalization by year."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/unhcr.asylum_applications/call": {
+      "post": {
+        "operationId": "unhcr_asylum_applications",
+        "summary": "UNHCR Asylum Applications",
+        "description": "Get UNHCR asylum application counts — number of new asylum claims filed by year and country. Data includes procedure type (G=Government, U=UNHCR), application type (N=New, A=Appeal), decision level (FI=First Instance, AR=Appeal/Review), and applicant category (P=Person). Filter by year, country of origin ISO3 (coo), or country of asylum ISO3 (coa). Covers 1951–present with totals when available. Paginated; default 10 items. UNHCR Data License — open humanitarian data, no upstream cost.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "unhcr.asylum_applications"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "year": {
+                    "type": "integer",
+                    "minimum": 1951,
+                    "maximum": 2030,
+                    "description": "Reference year for the statistics (1951–present). Omit to return all years (paginated)."
+                  },
+                  "coo": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 3,
+                    "description": "ISO 3-letter country code for country of origin, e.g. SYR (Syria), AFG (Afghanistan), UKR (Ukraine). Omit to include all origin countries."
+                  },
+                  "coa": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 3,
+                    "description": "ISO 3-letter country code for country of asylum, e.g. DEU (Germany), TUR (Turkey), COL (Colombia). Omit to include all asylum countries."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Number of records to return per page (1–100, default 10)."
+                  }
+                },
+                "description": "UNHCR asylum application counts — number of new applications filed, broken down by procedure type, application type, and decision level."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/unhcr.asylum_decisions/call": {
+      "post": {
+        "operationId": "unhcr_asylum_decisions",
+        "summary": "UNHCR Asylum Decisions",
+        "description": "Get UNHCR asylum decision outcomes — recognized refugees, other positive decisions, rejections, and closed/withdrawn cases by year and country. Includes recognition rate context: recognized + other_positive = total granted protection. Filter by year, country of origin ISO3 (coo), or country of asylum ISO3 (coa). Covers 1951–present with aggregate totals. Paginated; default 10 items. UNHCR Data License — open humanitarian data, no upstream cost.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "unhcr.asylum_decisions"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "year": {
+                    "type": "integer",
+                    "minimum": 1951,
+                    "maximum": 2030,
+                    "description": "Reference year for the statistics (1951–present). Omit to return all years (paginated)."
+                  },
+                  "coo": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 3,
+                    "description": "ISO 3-letter country code for country of origin, e.g. SYR (Syria), AFG (Afghanistan), UKR (Ukraine). Omit to include all origin countries."
+                  },
+                  "coa": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 3,
+                    "description": "ISO 3-letter country code for country of asylum, e.g. DEU (Germany), TUR (Turkey), COL (Colombia). Omit to include all asylum countries."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Number of records to return per page (1–100, default 10)."
+                  }
+                },
+                "description": "UNHCR asylum decision outcomes — recognized refugees, other positive decisions, rejections, and closed cases by year and country."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/mbta-transit.predictions/call": {
       "post": {
         "operationId": "mbta-transit_predictions",

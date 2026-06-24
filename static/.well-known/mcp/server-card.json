@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 753 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 757 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -43747,6 +43747,266 @@
           "error": {
             "type": "object",
             "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "unhcr.asylum.applications",
+      "title": "UNHCR Asylum Applications",
+      "description": "Get UNHCR asylum application counts \u2014 number of new asylum claims filed by year and country. Data includes procedure type (G=Government, U=UNHCR), application type (N=New, A=Appeal), decision level (FI=First Instance, AR=Appeal/Review), and applicant category (P=Person). Filter by year, country of origin ISO3 (coo), or country of asylum ISO3 (coa). Covers 1951\u2013present with totals when available. Paginated; default 10 items. UNHCR Data License \u2014 open humanitarian data, no upstream cost.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "year": {
+            "type": "integer",
+            "minimum": 1951,
+            "maximum": 2030,
+            "description": "Reference year for the statistics (1951\u2013present). Omit to return all years (paginated)."
+          },
+          "coo": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "ISO 3-letter country code for country of origin, e.g. SYR (Syria), AFG (Afghanistan), UKR (Ukraine). Omit to include all origin countries."
+          },
+          "coa": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "ISO 3-letter country code for country of asylum, e.g. DEU (Germany), TUR (Turkey), COL (Colombia). Omit to include all asylum countries."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Number of records to return per page (1\u2013100, default 10)."
+          }
+        },
+        "description": "UNHCR asylum application counts \u2014 number of new applications filed, broken down by procedure type, application type, and decision level."
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "unhcr.asylum.decisions",
+      "title": "UNHCR Asylum Decisions",
+      "description": "Get UNHCR asylum decision outcomes \u2014 recognized refugees, other positive decisions, rejections, and closed/withdrawn cases by year and country. Includes recognition rate context: recognized + other_positive = total granted protection. Filter by year, country of origin ISO3 (coo), or country of asylum ISO3 (coa). Covers 1951\u2013present with aggregate totals. Paginated; default 10 items. UNHCR Data License \u2014 open humanitarian data, no upstream cost.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "year": {
+            "type": "integer",
+            "minimum": 1951,
+            "maximum": 2030,
+            "description": "Reference year for the statistics (1951\u2013present). Omit to return all years (paginated)."
+          },
+          "coo": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "ISO 3-letter country code for country of origin, e.g. SYR (Syria), AFG (Afghanistan), UKR (Ukraine). Omit to include all origin countries."
+          },
+          "coa": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "ISO 3-letter country code for country of asylum, e.g. DEU (Germany), TUR (Turkey), COL (Colombia). Omit to include all asylum countries."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Number of records to return per page (1\u2013100, default 10)."
+          }
+        },
+        "description": "UNHCR asylum decision outcomes \u2014 recognized refugees, other positive decisions, rejections, and closed cases by year and country."
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "unhcr.population.statistics",
+      "title": "UNHCR Refugee & Displacement Statistics",
+      "description": "Get UNHCR global or per-country refugee and displaced-person population statistics (1951\u2013present). Returns refugee counts, asylum seekers, internally displaced persons (IDPs), stateless persons, other people of concern (OOC), other in need of protection (OIP), and host community (HST) figures. Filter by year (e.g. 2023), country of origin ISO3 code (e.g. SYR for Syria, AFG for Afghanistan, UKR for Ukraine), or country of asylum ISO3 (e.g. DEU, TUR, COL). Omit all filters for global aggregates across all years. Paginated; default 10 items. UNHCR Data License \u2014 open humanitarian data, no upstream cost.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "year": {
+            "type": "integer",
+            "minimum": 1951,
+            "maximum": 2030,
+            "description": "Reference year for the statistics (1951\u2013present). Omit to return all years (paginated)."
+          },
+          "coo": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "ISO 3-letter country code for country of origin, e.g. SYR (Syria), AFG (Afghanistan), UKR (Ukraine). Omit to include all origin countries."
+          },
+          "coa": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "ISO 3-letter country code for country of asylum, e.g. DEU (Germany), TUR (Turkey), COL (Colombia). Omit to include all asylum countries."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Number of records to return per page (1\u2013100, default 10)."
+          }
+        },
+        "description": "UNHCR global or per-country refugee and displaced-person population statistics. Returns refugee counts, asylum seekers, IDPs, stateless persons, and host community figures by year."
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "unhcr.population.solutions",
+      "title": "UNHCR Durable Solutions Data",
+      "description": "Get UNHCR durable solutions data \u2014 voluntary repatriation (returned refugees), resettlement, and naturalization/citizenship grants for refugees and IDPs (1951\u2013present). Durable solutions represent the three pathways out of displacement recognized by international law. Filter by year, country of origin ISO3 (coo), or country of asylum ISO3 (coa). Includes aggregate totals when available. Paginated; default 10 items. UNHCR Data License \u2014 open humanitarian data, no upstream cost.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "year": {
+            "type": "integer",
+            "minimum": 1951,
+            "maximum": 2030,
+            "description": "Reference year for the statistics (1951\u2013present). Omit to return all years (paginated)."
+          },
+          "coo": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "ISO 3-letter country code for country of origin, e.g. SYR (Syria), AFG (Afghanistan), UKR (Ukraine). Omit to include all origin countries."
+          },
+          "coa": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "ISO 3-letter country code for country of asylum, e.g. DEU (Germany), TUR (Turkey), COL (Colombia). Omit to include all asylum countries."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Number of records to return per page (1\u2013100, default 10)."
+          }
+        },
+        "description": "UNHCR durable solutions data \u2014 voluntary returns, resettlement, and naturalization by year."
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
           }
         },
         "required": [

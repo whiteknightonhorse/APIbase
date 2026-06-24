@@ -8303,6 +8303,64 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+  // UNHCR Population (4)
+  {
+    toolId: 'unhcr.population',
+    mcpName: 'unhcr.population.statistics',
+    title: 'UNHCR Refugee & Displacement Statistics',
+    description:
+      'Get UNHCR global or per-country refugee and displaced-person population statistics (1951–present). ' +
+      'Returns refugee counts, asylum seekers, internally displaced persons (IDPs), stateless persons, ' +
+      'other people of concern (OOC), other in need of protection (OIP), and host community (HST) figures. ' +
+      'Filter by year (e.g. 2023), country of origin ISO3 code (e.g. SYR for Syria, AFG for Afghanistan, ' +
+      'UKR for Ukraine), or country of asylum ISO3 (e.g. DEU, TUR, COL). ' +
+      'Omit all filters for global aggregates across all years. Paginated; default 10 items. ' +
+      'UNHCR Data License — open humanitarian data, no upstream cost.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'unhcr.solutions',
+    mcpName: 'unhcr.population.solutions',
+    title: 'UNHCR Durable Solutions Data',
+    description:
+      'Get UNHCR durable solutions data — voluntary repatriation (returned refugees), resettlement, ' +
+      'and naturalization/citizenship grants for refugees and IDPs (1951–present). ' +
+      'Durable solutions represent the three pathways out of displacement recognized by international law. ' +
+      'Filter by year, country of origin ISO3 (coo), or country of asylum ISO3 (coa). ' +
+      'Includes aggregate totals when available. Paginated; default 10 items. ' +
+      'UNHCR Data License — open humanitarian data, no upstream cost.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'unhcr.asylum_applications',
+    mcpName: 'unhcr.asylum.applications',
+    title: 'UNHCR Asylum Applications',
+    description:
+      'Get UNHCR asylum application counts — number of new asylum claims filed by year and country. ' +
+      'Data includes procedure type (G=Government, U=UNHCR), application type (N=New, A=Appeal), ' +
+      'decision level (FI=First Instance, AR=Appeal/Review), and applicant category (P=Person). ' +
+      'Filter by year, country of origin ISO3 (coo), or country of asylum ISO3 (coa). ' +
+      'Covers 1951–present with totals when available. Paginated; default 10 items. ' +
+      'UNHCR Data License — open humanitarian data, no upstream cost.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'unhcr.asylum_decisions',
+    mcpName: 'unhcr.asylum.decisions',
+    title: 'UNHCR Asylum Decisions',
+    description:
+      'Get UNHCR asylum decision outcomes — recognized refugees, other positive decisions, ' +
+      'rejections, and closed/withdrawn cases by year and country. ' +
+      'Includes recognition rate context: recognized + other_positive = total granted protection. ' +
+      'Filter by year, country of origin ISO3 (coo), or country of asylum ISO3 (coa). ' +
+      'Covers 1951–present with aggregate totals. Paginated; default 10 items. ' +
+      'UNHCR Data License — open humanitarian data, no upstream cost.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
   {
     toolId: 'mbta-transit.predictions',
     mcpName: 'mbta.transit.predictions',
