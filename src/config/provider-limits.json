@@ -2159,5 +2159,23 @@
     "reset_period": "none",
     "docs_url": "https://github.com/HackerNews/API",
     "limit_proof": "Public Firebase REST API with no documented rate limits. Open access, no auth required. CC BY 3.0."
+  },
+  "hnalgolia": {
+    "display_name": "HackerNews Algolia",
+    "health_url": "https://hn.algolia.com/api/v1/search?query=test&hitsPerPage=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://hn.algolia.com/api",
+    "limit_proof": "No rate limits documented. Algolia-powered public API for the full HN dataset. Open access, no auth required. CC BY 3.0."
+  },
+  "wikipedia": {
+    "display_name": "Wikipedia REST API",
+    "health_url": "https://en.wikipedia.org/api/rest_v1/page/summary/Main_Page",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://en.wikipedia.org/api/rest_v1/",
+    "limit_proof": "Wikimedia public REST API \u2014 no auth, no rate limits documented; Wikimedia policy requests polite User-Agent"
   }
 }

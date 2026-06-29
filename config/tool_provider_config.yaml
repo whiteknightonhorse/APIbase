@@ -4923,6 +4923,68 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-522: HackerNews Algolia ---
+  - tool_id: hnalgolia.search
+    name: HN Algolia — Search (Relevance)
+    provider: hnalgolia
+    price_usd: "0.001"
+    cache_ttl: 300
+
+  - tool_id: hnalgolia.search_recent
+    name: HN Algolia — Search (Recent)
+    provider: hnalgolia
+    price_usd: "0.001"
+    cache_ttl: 300
+
+  - tool_id: hnalgolia.search_comments
+    name: HN Algolia — Search Comments
+    provider: hnalgolia
+    price_usd: "0.001"
+    cache_ttl: 300
+
+  - tool_id: hnalgolia.item_details
+    name: HN Algolia — Item Details
+    provider: hnalgolia
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: hnalgolia.user_profile
+    name: HN Algolia — User Profile
+    provider: hnalgolia
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  # --- UC-523: Wikipedia REST API ---
+  - tool_id: wikipedia.article.summary
+    name: Wikipedia Article Summary
+    provider: wikipedia
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: wikipedia.search.pages
+    name: Wikipedia Page Search
+    provider: wikipedia
+    price_usd: "0.001"
+    cache_ttl: 1800
+
+  - tool_id: wikipedia.article.media
+    name: Wikipedia Article Media
+    provider: wikipedia
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: wikipedia.feed.featured
+    name: Wikipedia Daily Featured Content
+    provider: wikipedia
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: wikipedia.feed.on_this_day
+    name: Wikipedia On This Day
+    provider: wikipedia
+    price_usd: "0.002"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

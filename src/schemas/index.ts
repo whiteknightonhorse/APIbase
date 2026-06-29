@@ -240,6 +240,8 @@ import { pokeapiSchemas } from './pokeapi.schema';
 import { samuniSchemas } from './samuni.schema';
 import { tvmazeSchemas } from './tvmaze.schema';
 import { hackernewsSchemas } from './hackernews.schema';
+import { hnalgoliaSchemas } from './hnalgolia.schema';
+import { wikipediaSchemas } from './wikipedia.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -483,4 +485,6 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...samuniSchemas,
   ...tvmazeSchemas,
   ...hackernewsSchemas,
+  ...hnalgoliaSchemas,
+  ...wikipediaSchemas,
 };

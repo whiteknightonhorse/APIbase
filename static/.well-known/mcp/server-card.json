@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 799 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 809 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -46420,6 +46420,554 @@
         },
         "required": [
           "username"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "hnalgolia.item.details",
+      "title": "HN Algolia \u2014 Item Details",
+      "description": "Fetch full details for any HackerNews item by integer ID using the Algolia API \u2014 returns type, title, URL, author, score, body text, creation time, and the top 5 child comments. Works for stories, Ask HN, Show HN, comments, jobs, and polls. No auth required. Data: Hacker News (CC BY 3.0).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "HackerNews item ID (positive integer). Works for stories, comments, Ask HN, Show HN, jobs, and polls. Example: 48713832.",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "hnalgolia.search.relevance",
+      "title": "HN Algolia \u2014 Search (Relevance)",
+      "description": "Full-text search over the entire HackerNews history ranked by relevance \u2014 covers 20+ years of tech stories, Ask HN threads, Show HN posts, and job listings. Returns title, URL, author, score, comment count, and submission time. Supports filtering by type (story/ask/show/job/poll). Powered by Algolia. No auth required. Data: Hacker News (CC BY 3.0).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Full-text search query. Searches across HN story titles, URLs, and authors. Supports multi-word queries (e.g. \"rust programming language\", \"openai gpt\")."
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "story",
+              "comment",
+              "job",
+              "poll",
+              "ask",
+              "show"
+            ],
+            "description": "Content type filter. \"story\" = submitted links; \"ask\" = Ask HN threads; \"show\" = Show HN posts; \"job\" = job listings; \"poll\" = polls. Default: story."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30,
+            "description": "Number of results to return (1\u201330, default 10)."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Zero-based page index for pagination (default 0)."
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "hnalgolia.search.comments",
+      "title": "HN Algolia \u2014 Search Comments",
+      "description": "Search HackerNews comments by keyword \u2014 retrieves community opinions, technical insights, and discussions across the full HN history. Each result includes comment text (HTML-stripped), parent story context (title + URL), author, and direct HN link. No auth required. Data: Hacker News (CC BY 3.0).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query to find comments across HackerNews history. Returns comment text, story context (title + URL), author, and direct HN link. Useful for finding community opinions or technical discussions."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30,
+            "description": "Number of comments to return (1\u201330, default 10)."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Zero-based page index for pagination (default 0)."
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "hnalgolia.search.recent",
+      "title": "HN Algolia \u2014 Search (Recent)",
+      "description": "Full-text search over HackerNews history ranked by submission date (newest first) \u2014 ideal for finding the latest community discussions on any topic. Returns title, URL, author, score, and comment count. Supports filtering by type (story/ask/show/job/poll). No auth required. Data: Hacker News (CC BY 3.0).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Full-text search query sorted by submission date (newest first). Ideal for finding the latest HN discussions on a topic."
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "story",
+              "comment",
+              "job",
+              "poll",
+              "ask",
+              "show"
+            ],
+            "description": "Content type filter. \"story\" = submitted links; \"ask\" = Ask HN; \"show\" = Show HN; \"job\" = job listings. Default: story."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30,
+            "description": "Number of results to return (1\u201330, default 10)."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Zero-based page index for pagination (default 0)."
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "hnalgolia.user.profile",
+      "title": "HN Algolia \u2014 User Profile",
+      "description": "Fetch a HackerNews user profile via the Algolia API \u2014 returns username, karma score, and about/bio text (HTML-stripped). Lightweight alternative to the Firebase user endpoint. No auth required. Data: Hacker News (CC BY 3.0).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "HackerNews username (case-sensitive). Returns karma score and about/bio text. Examples: \"pg\", \"dang\", \"tptacek\".",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "username"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "wikipedia.article.media",
+      "title": "Wikipedia Article Media",
+      "description": "List all images and media files embedded in a Wikipedia article \u2014 returns file titles, type (image/video/audio), srcset URLs at multiple resolutions, and caption text. Useful for enriching responses with article visuals. No auth required. Data: Wikipedia contributors, CC BY-SA 4.0.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Wikipedia article title (e.g. \"Eiffel_Tower\", \"Milky_Way\"). Use underscores for spaces. Returns images and media files embedded in the article."
+          },
+          "language": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "Two-letter Wikipedia language code (default \"en\"). Media availability varies across language editions."
+          }
+        },
+        "required": [
+          "title"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "wikipedia.article.summary",
+      "title": "Wikipedia Article Summary",
+      "description": "Fetch the introductory summary of any Wikipedia article \u2014 returns plain-text extract, short description, thumbnail image URL, Wikidata item ID, and the canonical article URL. Supports 55+ Wikipedia language editions via the optional language parameter. Ideal for quick entity lookups: people, places, concepts, events, organizations. No auth required. Data: Wikipedia contributors, CC BY-SA 4.0 (attribution included in response).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Wikipedia article title exactly as it appears in the URL (e.g. \"Python_(programming_language)\", \"Albert_Einstein\"). Use underscores for spaces. Case-sensitive."
+          },
+          "language": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "Two-letter Wikipedia language code (e.g. \"en\" for English, \"de\" for German, \"fr\" for French). Defaults to English (\"en\")."
+          }
+        },
+        "required": [
+          "title"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "wikipedia.feed.featured",
+      "title": "Wikipedia Daily Featured Content",
+      "description": "Fetch Wikipedia's daily curated highlights for any date \u2014 returns the Today's Featured Article (with extract and thumbnail), the Featured Image of the Day (with artist credit), and the top 10 most-read articles. English only. No auth required. Data: Wikipedia contributors, CC BY-SA 4.0.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "Date in YYYY-MM-DD format to fetch featured content for (e.g. \"2024-07-04\"). Defaults to today. Returns the daily featured article, featured image, and top 10 most-read articles."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "wikipedia.feed.on_this_day",
+      "title": "Wikipedia On This Day",
+      "description": "Retrieve historical events that occurred on a given month/day across all years \u2014 returns event text, year, and links to up to 3 related Wikipedia articles per event. Useful for history timelines, date-based trivia, and anniversary lookups. No auth required. Data: Wikipedia contributors, CC BY-SA 4.0.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "Date in YYYY-MM-DD format (e.g. \"2024-07-04\"). Only month and day are used \u2014 year is ignored. Returns historical events that happened on this month/day across all years. Defaults to today."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "wikipedia.search.pages",
+      "title": "Wikipedia Page Search",
+      "description": "Search Wikipedia for articles matching a keyword or phrase \u2014 returns ranked results with article titles, Wikidata descriptions, content excerpts, and thumbnail images. Supports 55+ language editions. Up to 50 results per query. No auth required. Data: Wikipedia contributors, CC BY-SA 4.0.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query string (e.g. \"machine learning\", \"World War II\", \"quantum physics\"). Searches article titles and content snippets.",
+            "minLength": 1
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Maximum number of results to return (1\u201350, default 10)."
+          },
+          "language": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "Two-letter Wikipedia language code (default \"en\" for English). Use \"es\" for Spanish, \"zh\" for Chinese, \"ar\" for Arabic, etc."
+          }
+        },
+        "required": [
+          "query"
         ]
       },
       "outputSchema": {

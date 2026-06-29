@@ -8980,4 +8980,128 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'news',
     annotations: READ_ONLY,
   },
+
+  // HackerNews Algolia (UC-522) — full-text search over entire HN history; CC BY 3.0, no auth
+  {
+    toolId: 'hnalgolia.search',
+    mcpName: 'hnalgolia.search.relevance',
+    title: 'HN Algolia Search (Relevance)',
+    description:
+      'Full-text search over the entire HackerNews history ranked by relevance — covers 20+ years ' +
+      'of tech stories, Ask HN threads, Show HN posts, and job listings. Returns title, URL, author, ' +
+      'score, comment count, and submission time. Supports filtering by type (story/ask/show/job/poll). ' +
+      'Powered by Algolia. No auth required. Data: Hacker News (CC BY 3.0).',
+    category: 'news',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'hnalgolia.search_recent',
+    mcpName: 'hnalgolia.search.recent',
+    title: 'HN Algolia Search (Recent)',
+    description:
+      'Full-text search over HackerNews history ranked by submission date (newest first) — ideal for ' +
+      'finding the latest community discussions on any topic. Returns title, URL, author, score, and ' +
+      'comment count. Supports filtering by type (story/ask/show/job/poll). ' +
+      'No auth required. Data: Hacker News (CC BY 3.0).',
+    category: 'news',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'hnalgolia.search_comments',
+    mcpName: 'hnalgolia.search.comments',
+    title: 'HN Algolia Search Comments',
+    description:
+      'Search HackerNews comments by keyword — retrieves community opinions, technical insights, and ' +
+      'discussions across the full HN history. Each result includes comment text (HTML-stripped), ' +
+      'parent story context (title + URL), author, and direct HN link. ' +
+      'No auth required. Data: Hacker News (CC BY 3.0).',
+    category: 'news',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'hnalgolia.item_details',
+    mcpName: 'hnalgolia.item.details',
+    title: 'HN Algolia Item Details',
+    description:
+      'Fetch full details for any HackerNews item by integer ID using the Algolia API — returns ' +
+      'type, title, URL, author, score, body text, creation time, and the top 5 child comments. ' +
+      'Works for stories, Ask HN, Show HN, comments, jobs, and polls. ' +
+      'No auth required. Data: Hacker News (CC BY 3.0).',
+    category: 'news',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'hnalgolia.user_profile',
+    mcpName: 'hnalgolia.user.profile',
+    title: 'HN Algolia User Profile',
+    description:
+      'Fetch a HackerNews user profile via the Algolia API — returns username, karma score, and ' +
+      'about/bio text (HTML-stripped). Lightweight alternative to the Firebase user endpoint. ' +
+      'No auth required. Data: Hacker News (CC BY 3.0).',
+    category: 'news',
+    annotations: READ_ONLY,
+  },
+
+  // Wikipedia REST API (UC-523) — 5 tools
+  {
+    toolId: 'wikipedia.article.summary',
+    mcpName: 'wikipedia.article.summary',
+    title: 'Wikipedia Article Summary',
+    description:
+      'Fetch the introductory summary of any Wikipedia article — returns plain-text extract, ' +
+      'short description, thumbnail image URL, Wikidata item ID, and the canonical article URL. ' +
+      'Supports 55+ Wikipedia language editions via the optional language parameter. ' +
+      'Ideal for quick entity lookups: people, places, concepts, events, organizations. ' +
+      'No auth required. Data: Wikipedia contributors, CC BY-SA 4.0 (attribution included in response).',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'wikipedia.search.pages',
+    mcpName: 'wikipedia.search.pages',
+    title: 'Wikipedia Page Search',
+    description:
+      'Search Wikipedia for articles matching a keyword or phrase — returns ranked results with ' +
+      'article titles, Wikidata descriptions, content excerpts, and thumbnail images. ' +
+      'Supports 55+ language editions. Up to 50 results per query. ' +
+      'No auth required. Data: Wikipedia contributors, CC BY-SA 4.0.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'wikipedia.article.media',
+    mcpName: 'wikipedia.article.media',
+    title: 'Wikipedia Article Media',
+    description:
+      'List all images and media files embedded in a Wikipedia article — returns file titles, ' +
+      'type (image/video/audio), srcset URLs at multiple resolutions, and caption text. ' +
+      'Useful for enriching responses with article visuals. ' +
+      'No auth required. Data: Wikipedia contributors, CC BY-SA 4.0.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'wikipedia.feed.featured',
+    mcpName: 'wikipedia.feed.featured',
+    title: 'Wikipedia Daily Featured Content',
+    description:
+      "Fetch Wikipedia's daily curated highlights for any date — returns the Today's Featured " +
+      'Article (with extract and thumbnail), the Featured Image of the Day (with artist credit), ' +
+      'and the top 10 most-read articles. English only. ' +
+      'No auth required. Data: Wikipedia contributors, CC BY-SA 4.0.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'wikipedia.feed.on_this_day',
+    mcpName: 'wikipedia.feed.on_this_day',
+    title: 'Wikipedia On This Day',
+    description:
+      'Retrieve historical events that occurred on a given month/day across all years — returns ' +
+      'event text, year, and links to up to 3 related Wikipedia articles per event. ' +
+      'Useful for history timelines, date-based trivia, and anniversary lookups. ' +
+      'No auth required. Data: Wikipedia contributors, CC BY-SA 4.0.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
 ];

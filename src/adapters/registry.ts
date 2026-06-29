@@ -240,6 +240,8 @@ import { PokeApiAdapter } from './pokeapi';
 import { SaMuniAdapter } from './samuni';
 import { TvMazeAdapter } from './tvmaze';
 import { HackernewsAdapter } from './hackernews';
+import { HnAlgoliaAdapter } from './hnalgolia';
+import { WikipediaAdapter } from './wikipedia';
 import { config } from '../config';
 
 /**
@@ -1400,6 +1402,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'hackernews':
       // HackerNews Firebase (UC-521) — top/new/best stories, item details, user profiles; CC BY 3.0, no auth
       return getOrCreate('hackernews', () => new HackernewsAdapter());
+    case 'hnalgolia':
+      // HackerNews Algolia (UC-522) — full-text search over entire HN history; CC BY 3.0, no auth
+      return getOrCreate('hnalgolia', () => new HnAlgoliaAdapter());
+    case 'wikipedia':
+      // Wikipedia REST API (UC-523) — 65M+ articles, summaries, search, media, daily feed; CC BY-SA 4.0, no auth
+      return getOrCreate('wikipedia', () => new WikipediaAdapter());
     default:
       return undefined;
   }
