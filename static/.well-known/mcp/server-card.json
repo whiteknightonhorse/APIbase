@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 867 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 872 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -49857,6 +49857,409 @@
           "error": {
             "type": "object",
             "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "abs.economy.cpi",
+      "title": "Australian CPI",
+      "description": "Retrieve Australia Consumer Price Index (CPI) data from the ABS CPI dataset. Returns the All Groups CPI as annual percentage change (year-on-year inflation), index numbers (base 2011\u201312 = 100), or period-on-period percentage change. Available nationally (weighted 8-city average) and for individual capital cities: Sydney, Melbourne, Brisbane, Adelaide, Perth, Hobart, Darwin, and Canberra. Monthly and quarterly frequency. Source: ABS Cat. 6401.0, CC BY 4.0.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "measure": {
+            "type": "string",
+            "enum": [
+              "annual_change",
+              "index",
+              "period_change"
+            ],
+            "description": "CPI measure type. annual_change = percentage change from same period previous year (monthly data only, most commonly used), index = CPI index number (base 2011\u201312 = 100, monthly or quarterly), period_change = percentage change from previous period. Defaults to annual_change."
+          },
+          "region": {
+            "type": "string",
+            "enum": [
+              "australia",
+              "sydney",
+              "melbourne",
+              "brisbane",
+              "adelaide",
+              "perth",
+              "hobart",
+              "darwin",
+              "canberra"
+            ],
+            "description": "Geographic region. australia = weighted national average across all 8 capital cities, or specify an individual capital city. Defaults to australia."
+          },
+          "frequency": {
+            "type": "string",
+            "enum": [
+              "monthly",
+              "quarterly"
+            ],
+            "description": "Data frequency. monthly = released monthly (note: annual_change measure is monthly only), quarterly = released quarterly. Ignored when measure is annual_change (always monthly). Defaults to monthly."
+          },
+          "last_n": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 60,
+            "description": "Number of most-recent observations to return (1\u201360). Monthly = up to 5 years; quarterly = up to 15 years. Defaults to 12 (1 year of monthly data)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "abs.economy.gdp",
+      "title": "Australian GDP",
+      "description": "Retrieve Australian Gross Domestic Product (GDP) data from the ABS National Accounts Key Aggregates (ANA_AGG). Returns quarterly chain volume measures (seasonally adjusted AUD millions), current price estimates, GDP per capita, GDP per hour worked, or hours worked in the market sector. Data spans from 1959 onwards. Source: Australian Bureau of Statistics, CC BY 4.0, commercial use permitted.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "measure": {
+            "type": "string",
+            "enum": [
+              "chain_volume",
+              "current_prices",
+              "chain_volume_change",
+              "index"
+            ],
+            "description": "GDP measure type. chain_volume = seasonally-adjusted volume (AUD millions), current_prices = nominal AUD millions, chain_volume_change = quarter-on-quarter % change, index = volume index. Omit to return both chain_volume and current_prices."
+          },
+          "item": {
+            "type": "string",
+            "enum": [
+              "gdp",
+              "gdp_per_capita",
+              "gdp_per_hour_worked",
+              "gva_per_hour_worked",
+              "hours_worked"
+            ],
+            "description": "Economic aggregate to retrieve. gdp = Gross Domestic Product (AUD millions), gdp_per_capita = GDP per person (AUD), gdp_per_hour_worked = GDP per hour worked (AUD), gva_per_hour_worked = Gross value added per hour (market sector), hours_worked = total hours worked (market sector, millions). Defaults to gdp."
+          },
+          "adjustment": {
+            "type": "string",
+            "enum": [
+              "seasonally_adjusted",
+              "trend",
+              "original"
+            ],
+            "description": "Statistical adjustment type. seasonally_adjusted removes seasonal effects for trend analysis, trend is a smoothed version, original is the raw figure. Defaults to seasonally_adjusted."
+          },
+          "last_n": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 40,
+            "description": "Number of most-recent quarterly observations to return (1\u201340). Each observation is one quarter (Q1=Jan\u2013Mar, Q2=Apr\u2013Jun, Q3=Jul\u2013Sep, Q4=Oct\u2013Dec). Defaults to 8 (2 years)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "abs.economy.labour_force",
+      "title": "Australian Labour Force",
+      "description": "Retrieve Australian labour market statistics from the ABS Labour Force Survey (LF). Returns monthly seasonally adjusted data on unemployment rate (%), number of employed persons (thousands), participation rate (%), total labour force size, or civilian population aged 15+. Breakdowns available by sex (persons/males/females) and geography (Australia national or individual states and territories). Source: ABS Cat. 6202.0, CC BY 4.0.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "measure": {
+            "type": "string",
+            "enum": [
+              "unemployment_rate",
+              "employed",
+              "participation_rate",
+              "labour_force",
+              "civilian_population"
+            ],
+            "description": "Labour market indicator. unemployment_rate = % of labour force unemployed, employed = number of employed persons (thousands), participation_rate = % of civilian population in labour force, labour_force = total labour force (thousands), civilian_population = total civilian population aged 15+ (thousands). Defaults to unemployment_rate, employed, and participation_rate combined."
+          },
+          "sex": {
+            "type": "string",
+            "enum": [
+              "persons",
+              "males",
+              "females"
+            ],
+            "description": "Sex breakdown. persons = total (male + female), males or females for gender-disaggregated data. Defaults to persons."
+          },
+          "region": {
+            "type": "string",
+            "enum": [
+              "australia",
+              "nsw",
+              "vic",
+              "qld",
+              "sa",
+              "wa",
+              "tas",
+              "nt",
+              "act"
+            ],
+            "description": "Geographic region. australia = national aggregate, or specify an Australian state/territory abbreviation: nsw (New South Wales), vic (Victoria), qld (Queensland), sa (South Australia), wa (Western Australia), tas (Tasmania), nt (Northern Territory), act (Australian Capital Territory). Defaults to australia."
+          },
+          "adjustment": {
+            "type": "string",
+            "enum": [
+              "seasonally_adjusted",
+              "trend",
+              "original"
+            ],
+            "description": "Statistical adjustment. seasonally_adjusted is recommended for comparing months, trend is a smoothed version for long-term analysis, original is the raw survey estimate. Defaults to seasonally_adjusted."
+          },
+          "last_n": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 60,
+            "description": "Number of most-recent monthly observations to return (1\u201360, up to 5 years). Defaults to 12 (1 year)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "abs.demographics.population",
+      "title": "Australian Population Estimates",
+      "description": "Retrieve quarterly Estimated Resident Population (ERP) for Australia from the ABS ERP_Q dataset. Returns total population counts, annual numeric change, or annual percentage change. Data covers all ages combined, broken down by sex (persons/males/females) and geography (Australia or individual states/territories: NSW, VIC, QLD, SA, WA, TAS, NT, ACT). Updated quarterly by the ABS. Source: ABS Demographic Statistics, CC BY 4.0.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "measure": {
+            "type": "string",
+            "enum": [
+              "estimated_resident_population",
+              "annual_change",
+              "annual_pct_change"
+            ],
+            "description": "Population measure. estimated_resident_population = total ERP count (persons), annual_change = numeric change from same quarter previous year (persons), annual_pct_change = percentage change from same quarter previous year. Defaults to estimated_resident_population."
+          },
+          "sex": {
+            "type": "string",
+            "enum": [
+              "persons",
+              "males",
+              "females"
+            ],
+            "description": "Sex breakdown. persons = total population (default), males or females for gender-disaggregated estimates."
+          },
+          "region": {
+            "type": "string",
+            "enum": [
+              "australia",
+              "nsw",
+              "vic",
+              "qld",
+              "sa",
+              "wa",
+              "tas",
+              "nt",
+              "act"
+            ],
+            "description": "Geographic region. australia = national total, or specify a state/territory: nsw (New South Wales), vic (Victoria), qld (Queensland), sa (South Australia), wa (Western Australia), tas (Tasmania), nt (Northern Territory), act (Australian Capital Territory). Defaults to australia."
+          },
+          "last_n": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 40,
+            "description": "Number of most-recent quarterly observations to return (1\u201340). Defaults to 8 (2 years of quarterly data)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "abs.economy.trade",
+      "title": "Australian Trade & Balance of Payments",
+      "description": "Retrieve Australia Balance of Payments (BOP) statistics from the ABS BOP dataset. Returns quarterly current prices or chain volume measures for key trade aggregates: current account balance, goods and services credits (exports), goods and services debits (imports), goods credits, goods debits, and primary income credits. Seasonally adjusted, trend, or original data. AUD millions. Source: ABS Cat. 5302.0, CC BY 4.0.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "current_account",
+                "goods_services_credits",
+                "goods_services_debits",
+                "goods_credits",
+                "goods_debits",
+                "primary_income_credits"
+              ]
+            },
+            "description": "Balance of payments items to retrieve. current_account = overall current account balance (AUD millions), goods_services_credits = total exports of goods and services, goods_services_debits = total imports of goods and services, goods_credits = goods exports only, goods_debits = goods imports only, primary_income_credits = income credits (investment income received). Defaults to current_account, goods_services_credits, and goods_services_debits."
+          },
+          "measure": {
+            "type": "string",
+            "enum": [
+              "current_prices",
+              "chain_volume",
+              "implicit_price_index",
+              "terms_of_trade"
+            ],
+            "description": "Measurement basis. current_prices = nominal AUD millions (recommended), chain_volume = inflation-adjusted volume, implicit_price_index = price deflator index, terms_of_trade = ratio of export to import prices (available for selected items only). Defaults to current_prices."
+          },
+          "adjustment": {
+            "type": "string",
+            "enum": [
+              "seasonally_adjusted",
+              "trend",
+              "original"
+            ],
+            "description": "Statistical adjustment. seasonally_adjusted removes predictable seasonal patterns, trend is a smoothed version, original is the raw quarterly estimate. Defaults to seasonally_adjusted."
+          },
+          "last_n": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 40,
+            "description": "Number of most-recent quarterly observations to return (1\u201340). Defaults to 8 (2 years)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
           }
         },
         "required": [

@@ -5191,6 +5191,37 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-532: Australian Bureau of Statistics (ABS) ---
+  - tool_id: abs.gdp
+    name: Australian GDP
+    provider: abs
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: abs.cpi
+    name: Australian CPI
+    provider: abs
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: abs.labour_force
+    name: Australian Labour Force
+    provider: abs
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: abs.population
+    name: Australian Population Estimates
+    provider: abs
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: abs.trade
+    name: Australian Trade & Balance of Payments
+    provider: abs
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

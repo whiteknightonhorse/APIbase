@@ -9538,4 +9538,70 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'health',
     annotations: READ_ONLY,
   },
+
+  // Australian Bureau of Statistics — ABS (5)
+  {
+    toolId: 'abs.gdp',
+    mcpName: 'abs.economy.gdp',
+    title: 'Australian GDP',
+    description:
+      'Retrieve Australian Gross Domestic Product (GDP) data from the ABS National Accounts Key Aggregates ' +
+      '(ANA_AGG). Returns quarterly chain volume measures (seasonally adjusted AUD millions), current price ' +
+      'estimates, GDP per capita, GDP per hour worked, or hours worked in the market sector. Data spans from ' +
+      '1959 onwards. Source: Australian Bureau of Statistics, CC BY 4.0, commercial use permitted.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'abs.cpi',
+    mcpName: 'abs.economy.cpi',
+    title: 'Australian CPI',
+    description:
+      'Retrieve Australia Consumer Price Index (CPI) data from the ABS CPI dataset. Returns the All Groups ' +
+      'CPI as annual percentage change (year-on-year inflation), index numbers (base 2011–12 = 100), or ' +
+      'period-on-period percentage change. Available nationally (weighted 8-city average) and for individual ' +
+      'capital cities: Sydney, Melbourne, Brisbane, Adelaide, Perth, Hobart, Darwin, and Canberra. Monthly ' +
+      'and quarterly frequency. Source: ABS Cat. 6401.0, CC BY 4.0.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'abs.labour_force',
+    mcpName: 'abs.economy.labour_force',
+    title: 'Australian Labour Force',
+    description:
+      'Retrieve Australian labour market statistics from the ABS Labour Force Survey (LF). Returns monthly ' +
+      'seasonally adjusted data on unemployment rate (%), number of employed persons (thousands), ' +
+      'participation rate (%), total labour force size, or civilian population aged 15+. Breakdowns available ' +
+      'by sex (persons/males/females) and geography (Australia national or individual states and territories). ' +
+      'Source: ABS Cat. 6202.0, CC BY 4.0.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'abs.population',
+    mcpName: 'abs.demographics.population',
+    title: 'Australian Population Estimates',
+    description:
+      'Retrieve quarterly Estimated Resident Population (ERP) for Australia from the ABS ERP_Q dataset. ' +
+      'Returns total population counts, annual numeric change, or annual percentage change. Data covers all ' +
+      'ages combined, broken down by sex (persons/males/females) and geography (Australia or individual ' +
+      'states/territories: NSW, VIC, QLD, SA, WA, TAS, NT, ACT). Updated quarterly by the ABS. ' +
+      'Source: ABS Demographic Statistics, CC BY 4.0.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'abs.trade',
+    mcpName: 'abs.economy.trade',
+    title: 'Australian Trade & Balance of Payments',
+    description:
+      'Retrieve Australia Balance of Payments (BOP) statistics from the ABS BOP dataset. Returns quarterly ' +
+      'current prices or chain volume measures for key trade aggregates: current account balance, goods and ' +
+      'services credits (exports), goods and services debits (imports), goods credits, goods debits, and ' +
+      'primary income credits. Seasonally adjusted, trend, or original data. AUD millions. ' +
+      'Source: ABS Cat. 5302.0, CC BY 4.0.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
 ];
