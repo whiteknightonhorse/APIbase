@@ -13,6 +13,16 @@ import type {
 
 const PHARMGKB_BASE = 'https://api.pharmgkb.org/v1';
 
+const _stripTags = (s: unknown): string => {
+  let r = String(s ?? '');
+  let prev = '';
+  while (r !== prev) {
+    prev = r;
+    r = r.replace(/<[^>]*>/g, '');
+  }
+  return r;
+};
+
 export class PharmGkbAdapter extends BaseAdapter {
   constructor() {
     super({ provider: 'pharmgkb', baseUrl: PHARMGKB_BASE });
@@ -117,7 +127,7 @@ export class PharmGkbAdapter extends BaseAdapter {
     const vipSummary = g.vipSummary as Record<string, unknown> | undefined;
     // Strip HTML tags from VIP summary
     const summaryHtml = vipSummary?.html as string | undefined;
-    const summaryText = summaryHtml ? summaryHtml.replace(/<[^>]*>/g, '').trim() : null;
+    const summaryText = summaryHtml ? _stripTags(summaryHtml).trim() : null;
     return {
       id: String(g.id ?? ''),
       symbol: String(g.symbol ?? ''),
