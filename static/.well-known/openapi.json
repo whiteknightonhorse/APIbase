@@ -76289,6 +76289,317 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/usdamars.list_reports/call": {
+      "post": {
+        "operationId": "usdamars_list_reports",
+        "summary": "List USDA Agricultural Market Reports",
+        "description": "List recently published USDA Agricultural Marketing Service (AMS) market news reports covering livestock, dairy, poultry, fruits, vegetables, grain, cotton, and specialty crops. Returns report metadata: ID, title, publication date, commodity period covered, and file type. Reports are published by USDA-accredited reporters at markets across the US. Use usdamars.reports.search to filter by commodity. Source: USDA AMS MyMarketNews — marsapi.ams.usda.gov, public domain, no auth.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "usdamars.list_reports"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "days": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 30,
+                    "description": "Number of past days to include (1–30). Default 7. Today's reports use 1; a full work week uses 5."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/usdamars.get_report/call": {
+      "post": {
+        "operationId": "usdamars_get_report",
+        "summary": "Get USDA Market Report Details",
+        "description": "Get metadata for a specific USDA AMS market news report by its numeric ID or slug (e.g. \"nw_ls910\"). Returns publication date, commodity period, report title, file type, and whether it is a correction or final report. Obtain report IDs from usdamars.reports.list or usdamars.reports.search. Source: USDA AMS MyMarketNews — marsapi.ams.usda.gov, public domain, no auth.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "usdamars.get_report"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "report_id": {
+                    "type": "string",
+                    "description": "USDA AMS MARS report ID or slug (e.g. 2826 or \"nw_ls910\"). Obtain IDs from usdamars.list_reports or usdamars.search_reports."
+                  }
+                },
+                "required": [
+                  "report_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/usdamars.list_corrected/call": {
+      "post": {
+        "operationId": "usdamars_list_corrected",
+        "summary": "List Corrected USDA Market Reports",
+        "description": "List USDA AMS market news reports that have been corrected or amended within the specified period. Corrections supersede previously published data and are important for accurate commodity price analysis. Covers livestock, dairy, poultry, produce, grain, and cotton markets. Use days=all to see the full correction history. Source: USDA AMS MyMarketNews — marsapi.ams.usda.gov, public domain, no auth.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "usdamars.list_corrected"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "days": {
+                    "type": "string",
+                    "description": "Number of past days to search for corrections (1–90), or \"all\" for complete history. Default \"all\"."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/usdamars.search_reports/call": {
+      "post": {
+        "operationId": "usdamars_search_reports",
+        "summary": "Search USDA Agricultural Market Reports by Commodity",
+        "description": "Search USDA AMS market news reports by commodity or topic keyword within the title. Filter by terms like \"cattle\", \"dairy\", \"pork\", \"lamb\", \"poultry\", \"egg\", \"fruit\", \"vegetable\", \"grain\", \"cotton\", \"boxed beef\", or region names. Returns up to 50 matching reports from the last N days sorted by publication date. Source: USDA AMS MyMarketNews — marsapi.ams.usda.gov, public domain, no auth.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "usdamars.search_reports"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "keyword": {
+                    "type": "string",
+                    "description": "Commodity or topic keyword to filter report titles (case-insensitive). Examples: \"cattle\", \"dairy\", \"fruit\", \"grain\", \"lamb\", \"poultry\", \"cotton\", \"boxed beef\", \"egg\"."
+                  },
+                  "days": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 30,
+                    "description": "Number of past days to search within (1–30). Default 7."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

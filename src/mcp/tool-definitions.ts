@@ -9329,4 +9329,59 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+
+  // USDA AMS MARS MyMarketNews (4)
+  {
+    toolId: 'usdamars.list_reports',
+    mcpName: 'usdamars.reports.list',
+    title: 'List USDA Agricultural Market Reports',
+    description:
+      'List recently published USDA Agricultural Marketing Service (AMS) market news reports ' +
+      'covering livestock, dairy, poultry, fruits, vegetables, grain, cotton, and specialty crops. ' +
+      'Returns report metadata: ID, title, publication date, commodity period covered, and file ' +
+      'type. Reports are published by USDA-accredited reporters at markets across the US. Use ' +
+      'usdamars.reports.search to filter by commodity. Source: USDA AMS MyMarketNews — ' +
+      'marsapi.ams.usda.gov, public domain, no auth.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'usdamars.get_report',
+    mcpName: 'usdamars.reports.get',
+    title: 'Get USDA Market Report Details',
+    description:
+      'Get metadata for a specific USDA AMS market news report by its numeric ID or slug ' +
+      '(e.g. "nw_ls910"). Returns publication date, commodity period, report title, file type, ' +
+      'and whether it is a correction or final report. Obtain report IDs from ' +
+      'usdamars.reports.list or usdamars.reports.search. Source: USDA AMS MyMarketNews — ' +
+      'marsapi.ams.usda.gov, public domain, no auth.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'usdamars.list_corrected',
+    mcpName: 'usdamars.reports.corrected',
+    title: 'List Corrected USDA Market Reports',
+    description:
+      'List USDA AMS market news reports that have been corrected or amended within the ' +
+      'specified period. Corrections supersede previously published data and are important for ' +
+      'accurate commodity price analysis. Covers livestock, dairy, poultry, produce, grain, and ' +
+      'cotton markets. Use days=all to see the full correction history. Source: USDA AMS ' +
+      'MyMarketNews — marsapi.ams.usda.gov, public domain, no auth.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'usdamars.search_reports',
+    mcpName: 'usdamars.reports.search',
+    title: 'Search USDA Agricultural Market Reports by Commodity',
+    description:
+      'Search USDA AMS market news reports by commodity or topic keyword within the title. ' +
+      'Filter by terms like "cattle", "dairy", "pork", "lamb", "poultry", "egg", "fruit", ' +
+      '"vegetable", "grain", "cotton", "boxed beef", or region names. Returns up to 50 matching ' +
+      'reports from the last N days sorted by publication date. Source: USDA AMS MyMarketNews — ' +
+      'marsapi.ams.usda.gov, public domain, no auth.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

@@ -5091,6 +5091,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-528: USDA AMS MARS MyMarketNews ---
+  - tool_id: usdamars.list_reports
+    name: List USDA Agricultural Market Reports
+    provider: usdamars
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: usdamars.get_report
+    name: Get USDA Market Report Details
+    provider: usdamars
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: usdamars.list_corrected
+    name: List Corrected USDA Market Reports
+    provider: usdamars
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: usdamars.search_reports
+    name: Search USDA Agricultural Market Reports by Commodity
+    provider: usdamars
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

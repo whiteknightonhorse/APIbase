@@ -2203,7 +2203,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://www.bfs.admin.ch/bfs/en/home/statistics/catalogues-databases/tables.html",
-    "limit_proof": "Swiss Federal Statistical Office PxWeb API — Swiss OGD, no authentication required, no documented rate limits, commercial use permitted."
+    "limit_proof": "Swiss Federal Statistical Office PxWeb API \u2014 Swiss OGD, no authentication required, no documented rate limits, commercial use permitted."
   },
   "treasuryfiscal": {
     "display_name": "US Treasury Fiscal Data",
@@ -2212,6 +2212,15 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://fiscaldata.treasury.gov/api-documentation/",
-    "limit_proof": "US Treasury Fiscal Data API — US Government open data (fiscaldata.treasury.gov), no authentication required, no documented rate limits, commercial use explicitly permitted."
+    "limit_proof": "US Treasury Fiscal Data API \u2014 US Government open data (fiscaldata.treasury.gov), no authentication required, no documented rate limits, commercial use explicitly permitted."
+  },
+  "usdamars": {
+    "display_name": "USDA AMS MyMarketNews",
+    "health_url": "https://marsapi.ams.usda.gov/services/help",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://marsapi.ams.usda.gov/services/help",
+    "limit_proof": "US Government public domain API, no auth required for v3.1 public endpoints, no documented rate limits"
   }
 }

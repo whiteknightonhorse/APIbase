@@ -246,6 +246,7 @@ import { IrailAdapter } from './irail';
 import { NorgesBankAdapter } from './norgesbank';
 import { SwissFsoAdapter } from './swissfso';
 import { TreasuryFiscalAdapter } from './treasuryfiscal';
+import { UsdaMarsAdapter } from './usdamars';
 import { config } from '../config';
 
 /**
@@ -1424,6 +1425,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'treasuryfiscal':
       // US Treasury Fiscal Data (UC-527) — national debt, interest rates, quarterly yield, interest expense; no auth
       return getOrCreate('treasuryfiscal', () => new TreasuryFiscalAdapter());
+    case 'usdamars':
+      // USDA AMS MARS MyMarketNews (UC-528) — agricultural market reports: livestock, dairy, produce, grain; no auth
+      return getOrCreate('usdamars', () => new UsdaMarsAdapter());
     default:
       return undefined;
   }

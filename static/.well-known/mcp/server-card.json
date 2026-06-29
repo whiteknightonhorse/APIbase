@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 851 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 855 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -48971,6 +48971,193 @@
           "error": {
             "type": "object",
             "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "usdamars.reports.get",
+      "title": "Get USDA Market Report Details",
+      "description": "Get metadata for a specific USDA AMS market news report by its numeric ID or slug (e.g. \"nw_ls910\"). Returns publication date, commodity period, report title, file type, and whether it is a correction or final report. Obtain report IDs from usdamars.reports.list or usdamars.reports.search. Source: USDA AMS MyMarketNews \u2014 marsapi.ams.usda.gov, public domain, no auth.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "report_id": {
+            "type": "string",
+            "description": "USDA AMS MARS report ID or slug (e.g. 2826 or \"nw_ls910\"). Obtain IDs from usdamars.list_reports or usdamars.search_reports."
+          }
+        },
+        "required": [
+          "report_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "usdamars.reports.corrected",
+      "title": "List Corrected USDA Market Reports",
+      "description": "List USDA AMS market news reports that have been corrected or amended within the specified period. Corrections supersede previously published data and are important for accurate commodity price analysis. Covers livestock, dairy, poultry, produce, grain, and cotton markets. Use days=all to see the full correction history. Source: USDA AMS MyMarketNews \u2014 marsapi.ams.usda.gov, public domain, no auth.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "days": {
+            "type": "string",
+            "description": "Number of past days to search for corrections (1\u201390), or \"all\" for complete history. Default \"all\"."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "usdamars.reports.list",
+      "title": "List USDA Agricultural Market Reports",
+      "description": "List recently published USDA Agricultural Marketing Service (AMS) market news reports covering livestock, dairy, poultry, fruits, vegetables, grain, cotton, and specialty crops. Returns report metadata: ID, title, publication date, commodity period covered, and file type. Reports are published by USDA-accredited reporters at markets across the US. Use usdamars.reports.search to filter by commodity. Source: USDA AMS MyMarketNews \u2014 marsapi.ams.usda.gov, public domain, no auth.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "days": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30,
+            "description": "Number of past days to include (1\u201330). Default 7. Today's reports use 1; a full work week uses 5."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "usdamars.reports.search",
+      "title": "Search USDA Agricultural Market Reports by Commodity",
+      "description": "Search USDA AMS market news reports by commodity or topic keyword within the title. Filter by terms like \"cattle\", \"dairy\", \"pork\", \"lamb\", \"poultry\", \"egg\", \"fruit\", \"vegetable\", \"grain\", \"cotton\", \"boxed beef\", or region names. Returns up to 50 matching reports from the last N days sorted by publication date. Source: USDA AMS MyMarketNews \u2014 marsapi.ams.usda.gov, public domain, no auth.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "keyword": {
+            "type": "string",
+            "description": "Commodity or topic keyword to filter report titles (case-insensitive). Examples: \"cattle\", \"dairy\", \"fruit\", \"grain\", \"lamb\", \"poultry\", \"cotton\", \"boxed beef\", \"egg\"."
+          },
+          "days": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30,
+            "description": "Number of past days to search within (1\u201330). Default 7."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
           }
         },
         "required": [

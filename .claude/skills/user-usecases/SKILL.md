@@ -222,6 +222,7 @@ Use these examples as reference patterns when:
 | UC-525 | Norges Bank | Finance / Central Bank | LIVE | NLOD open government data, no auth, unlimited | `usecases/UC-525-norgesbank.md` |
 | UC-526 | Swiss Federal Statistics Office (FSO/BFS) | Government / Statistics | LIVE | Swiss OGD CCZero, no auth, unlimited | `usecases/UC-526-swiss-fso.md` |
 | UC-527 | US Treasury Fiscal Data | Government / Finance | LIVE | US Gov public domain, no auth, unlimited | `usecases/UC-527-treasury-fiscal.md` |
+| UC-528 | USDA AMS MARS MyMarketNews | Agriculture / World | LIVE | US Gov public domain, no auth, unlimited | `usecases/UC-528-usdamars.md` |
 
 ## How to Use
 
