@@ -238,6 +238,7 @@ import { frankfurterSchemas } from './frankfurter.schema';
 import { sunrisesunsetSchemas } from './sunrisesunset.schema';
 import { pokeapiSchemas } from './pokeapi.schema';
 import { samuniSchemas } from './samuni.schema';
+import { tvmazeSchemas } from './tvmaze.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -479,4 +480,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...sunrisesunsetSchemas,
   ...pokeapiSchemas,
   ...samuniSchemas,
+  ...tvmazeSchemas,
 };

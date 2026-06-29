@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 789 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 794 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -45950,6 +45950,261 @@
           "error": {
             "type": "object",
             "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "tvmaze.schedule.broadcast",
+      "title": "TVMaze \u2014 TV Schedule",
+      "description": "Get the TV broadcast schedule for a specific country and date \u2014 lists all episodes airing that day with show name, network/channel, air time, season/episode numbers, and ratings. Supports broadcast TV (default) or streaming/web channels (Netflix, Hulu, etc.). Country: ISO 3166-1 alpha-2 code (US, GB, AU, CA, DE, etc.). Date: YYYY-MM-DD (defaults to today). No auth required. Source: TVmaze.com (CC BY-SA).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "country": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "ISO 3166-1 alpha-2 country code for broadcast TV schedule (e.g. \"US\", \"GB\", \"AU\"). Omit for global."
+          },
+          "date": {
+            "type": "string",
+            "description": "Schedule date in YYYY-MM-DD format (e.g. \"2026-06-29\"). Defaults to today."
+          },
+          "streaming": {
+            "type": "boolean",
+            "description": "If true, returns streaming/web channel schedule (Netflix, Hulu, etc.) instead of broadcast TV. Default: false"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "tvmaze.shows.cast",
+      "title": "TVMaze \u2014 Show Cast",
+      "description": "Get the cast list for a TV show \u2014 actor names, birthdays, genders, countries, and the character they play (name + image). Flags whether the actor plays themselves or a voice role. No auth required. Source: TVmaze.com (CC BY-SA).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "TVMaze show ID to retrieve cast and character information for",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "tvmaze.shows.details",
+      "title": "TVMaze \u2014 Show Details",
+      "description": "Get full details for a TV show by TVMaze ID \u2014 genres, status, network/streaming channel, schedule (days/time), rating, premiere/end dates, runtime, IMDB/TheTVDB IDs, official site URL, and plain-text summary. Use show_search to find the TVMaze ID first. No auth required. Source: TVmaze.com (CC BY-SA).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "TVMaze show ID (e.g. 169 for Breaking Bad, 82 for Game of Thrones)",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "tvmaze.shows.episodes",
+      "title": "TVMaze \u2014 Show Episodes",
+      "description": "Get the complete episode list for a TV show \u2014 season/episode numbers, air dates, runtimes, episode ratings, and plain-text summaries. Filter by season number to get only episodes from a specific season. Optionally include special episodes. No auth required. Source: TVmaze.com (CC BY-SA).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "TVMaze show ID (e.g. 169 for Breaking Bad)",
+            "minimum": 0
+          },
+          "season": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Filter episodes to a specific season number (e.g. 1 for Season 1). Omit for all seasons."
+          },
+          "specials": {
+            "type": "boolean",
+            "description": "Include special episodes (e.g. holiday specials, bonus episodes). Default: false"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "tvmaze.shows.search",
+      "title": "TVMaze \u2014 Search TV Shows",
+      "description": "Search 25,000+ TV shows by title \u2014 returns name, genres, status, network, rating, premiere/end dates, runtime, summary, and relevance score. Results ordered by relevance. Covers broadcast, cable, and streaming shows worldwide. No auth required. Source: TVmaze.com (CC BY-SA).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "TV show title to search for (e.g. \"Breaking Bad\", \"Game of Thrones\")",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
           }
         },
         "required": [

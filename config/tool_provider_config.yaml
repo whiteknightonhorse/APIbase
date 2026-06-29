@@ -4861,6 +4861,37 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-520: TVMaze TV Show Database ---
+  - tool_id: tvmaze.show_search
+    name: TVMaze — Search TV Shows
+    provider: tvmaze
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: tvmaze.show_details
+    name: TVMaze — Show Details
+    provider: tvmaze
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: tvmaze.show_episodes
+    name: TVMaze — Show Episodes
+    provider: tvmaze
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: tvmaze.show_cast
+    name: TVMaze — Show Cast
+    provider: tvmaze
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: tvmaze.schedule
+    name: TVMaze — TV Schedule
+    provider: tvmaze
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

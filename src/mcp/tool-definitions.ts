@@ -8851,4 +8851,71 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'entertainment',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // TVMaze — TV Show Database (UC-520, 5 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'tvmaze.show_search',
+    mcpName: 'tvmaze.shows.search',
+    title: 'Search TV Shows',
+    description:
+      'Search 25,000+ TV shows by title — returns name, genres, status, network, rating, ' +
+      'premiere/end dates, runtime, summary, and relevance score. ' +
+      'Results ordered by relevance. Covers broadcast, cable, and streaming shows worldwide. ' +
+      'No auth required. Source: TVmaze.com (CC BY-SA).',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'tvmaze.show_details',
+    mcpName: 'tvmaze.shows.details',
+    title: 'Get TV Show Details',
+    description:
+      'Get full details for a TV show by TVMaze ID — genres, status, network/streaming channel, ' +
+      'schedule (days/time), rating, premiere/end dates, runtime, IMDB/TheTVDB IDs, ' +
+      'official site URL, and plain-text summary. ' +
+      'Use show_search to find the TVMaze ID first. ' +
+      'No auth required. Source: TVmaze.com (CC BY-SA).',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'tvmaze.show_episodes',
+    mcpName: 'tvmaze.shows.episodes',
+    title: 'Get TV Show Episodes',
+    description:
+      'Get the complete episode list for a TV show — season/episode numbers, air dates, ' +
+      'runtimes, episode ratings, and plain-text summaries. ' +
+      'Filter by season number to get only episodes from a specific season. ' +
+      'Optionally include special episodes. ' +
+      'No auth required. Source: TVmaze.com (CC BY-SA).',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'tvmaze.show_cast',
+    mcpName: 'tvmaze.shows.cast',
+    title: 'Get TV Show Cast',
+    description:
+      'Get the cast list for a TV show — actor names, birthdays, genders, countries, ' +
+      'and the character they play (name + image). ' +
+      'Flags whether the actor plays themselves or a voice role. ' +
+      'No auth required. Source: TVmaze.com (CC BY-SA).',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'tvmaze.schedule',
+    mcpName: 'tvmaze.schedule.broadcast',
+    title: 'TV Broadcast Schedule',
+    description:
+      'Get the TV broadcast schedule for a specific country and date — lists all episodes airing ' +
+      'that day with show name, network/channel, air time, season/episode numbers, and ratings. ' +
+      'Supports broadcast TV (default) or streaming/web channels (Netflix, Hulu, etc.). ' +
+      'Country: ISO 3166-1 alpha-2 code (US, GB, AU, CA, DE, etc.). Date: YYYY-MM-DD (defaults to today). ' +
+      'No auth required. Source: TVmaze.com (CC BY-SA).',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
 ];

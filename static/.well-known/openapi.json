@@ -73136,6 +73136,416 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/tvmaze.show_search/call": {
+      "post": {
+        "operationId": "tvmaze_show_search",
+        "summary": "Search TV Shows",
+        "description": "Search 25,000+ TV shows by title — returns name, genres, status, network, rating, premiere/end dates, runtime, summary, and relevance score. Results ordered by relevance. Covers broadcast, cable, and streaming shows worldwide. No auth required. Source: TVmaze.com (CC BY-SA).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "tvmaze.show_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "TV show title to search for (e.g. \"Breaking Bad\", \"Game of Thrones\")",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/tvmaze.show_details/call": {
+      "post": {
+        "operationId": "tvmaze_show_details",
+        "summary": "Get TV Show Details",
+        "description": "Get full details for a TV show by TVMaze ID — genres, status, network/streaming channel, schedule (days/time), rating, premiere/end dates, runtime, IMDB/TheTVDB IDs, official site URL, and plain-text summary. Use show_search to find the TVMaze ID first. No auth required. Source: TVmaze.com (CC BY-SA).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "tvmaze.show_details"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "TVMaze show ID (e.g. 169 for Breaking Bad, 82 for Game of Thrones)",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/tvmaze.show_episodes/call": {
+      "post": {
+        "operationId": "tvmaze_show_episodes",
+        "summary": "Get TV Show Episodes",
+        "description": "Get the complete episode list for a TV show — season/episode numbers, air dates, runtimes, episode ratings, and plain-text summaries. Filter by season number to get only episodes from a specific season. Optionally include special episodes. No auth required. Source: TVmaze.com (CC BY-SA).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "tvmaze.show_episodes"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "TVMaze show ID (e.g. 169 for Breaking Bad)",
+                    "minimum": 0
+                  },
+                  "season": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Filter episodes to a specific season number (e.g. 1 for Season 1). Omit for all seasons."
+                  },
+                  "specials": {
+                    "type": "boolean",
+                    "description": "Include special episodes (e.g. holiday specials, bonus episodes). Default: false"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/tvmaze.show_cast/call": {
+      "post": {
+        "operationId": "tvmaze_show_cast",
+        "summary": "Get TV Show Cast",
+        "description": "Get the cast list for a TV show — actor names, birthdays, genders, countries, and the character they play (name + image). Flags whether the actor plays themselves or a voice role. No auth required. Source: TVmaze.com (CC BY-SA).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "tvmaze.show_cast"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "TVMaze show ID to retrieve cast and character information for",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/tvmaze.schedule/call": {
+      "post": {
+        "operationId": "tvmaze_schedule",
+        "summary": "TV Broadcast Schedule",
+        "description": "Get the TV broadcast schedule for a specific country and date — lists all episodes airing that day with show name, network/channel, air time, season/episode numbers, and ratings. Supports broadcast TV (default) or streaming/web channels (Netflix, Hulu, etc.). Country: ISO 3166-1 alpha-2 code (US, GB, AU, CA, DE, etc.). Date: YYYY-MM-DD (defaults to today). No auth required. Source: TVmaze.com (CC BY-SA).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "tvmaze.schedule"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "country": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2,
+                    "description": "ISO 3166-1 alpha-2 country code for broadcast TV schedule (e.g. \"US\", \"GB\", \"AU\"). Omit for global."
+                  },
+                  "date": {
+                    "type": "string",
+                    "description": "Schedule date in YYYY-MM-DD format (e.g. \"2026-06-29\"). Defaults to today."
+                  },
+                  "streaming": {
+                    "type": "boolean",
+                    "description": "If true, returns streaming/web channel schedule (Netflix, Hulu, etc.) instead of broadcast TV. Default: false"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

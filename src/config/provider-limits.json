@@ -2141,5 +2141,14 @@
     "reset_period": "none",
     "docs_url": "https://municipaldata.treasury.gov.za/docs",
     "limit_proof": "South African National Treasury open data portal \u2014 no auth, no documented rate limits, free commercial use"
+  },
+  "tvmaze": {
+    "display_name": "TVMaze",
+    "health_url": "https://api.tvmaze.com/shows/1",
+    "limit_type": "daily",
+    "free_limit": 20,
+    "reset_period": "daily",
+    "docs_url": "https://www.tvmaze.com/api#rate-limiting",
+    "limit_proof": "20 API calls every 10 seconds per IP for non-premium users (rolling window). No daily hard cap documented \u2014 effectively unlimited for moderate use. CC BY-SA license."
   }
 }
