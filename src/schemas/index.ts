@@ -243,6 +243,7 @@ import { hackernewsSchemas } from './hackernews.schema';
 import { hnalgoliaSchemas } from './hnalgolia.schema';
 import { wikipediaSchemas } from './wikipedia.schema';
 import { irailSchemas } from './irail.schema';
+import { norgesbankSchemas } from './norgesbank.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -489,4 +490,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...hnalgoliaSchemas,
   ...wikipediaSchemas,
   ...irailSchemas,
+  ...norgesbankSchemas,
 };

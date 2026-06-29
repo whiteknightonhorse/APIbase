@@ -75280,6 +75280,341 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/norgesbank.fx.latest/call": {
+      "post": {
+        "operationId": "norgesbank_fx_latest",
+        "summary": "Norges Bank FX Rates (Latest)",
+        "description": "Get the latest official foreign-exchange rates published by Norges Bank (the Norwegian central bank) — up to 41 currencies quoted against NOK (Norwegian krone). Rates are business-day spot rates from the SDMX REST API. Filter to specific currencies via the optional currencies param (e.g. \"USD,EUR,GBP\"). No authentication required. Data: Norges Bank SDMX EXR dataflow, open government licence, unlimited.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "norgesbank.fx.latest"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "currencies": {
+                    "type": "string",
+                    "description": "Comma-separated list of ISO 4217 currency codes to include (e.g. \"USD,EUR,GBP\"). Leave empty to get all 41 currencies."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/norgesbank.fx.history/call": {
+      "post": {
+        "operationId": "norgesbank_fx_history",
+        "summary": "Norges Bank FX Rate History",
+        "description": "Retrieve a historical time series of official Norges Bank exchange rates for any of the 41 available currencies versus NOK. Specify a start/end date (ISO 8601, e.g. 2024-01-01) to get a custom range of business-day spot rates. Returns an array of {date, rate} pairs sorted ascending by date. Useful for charting NOK strength, backtesting currency strategies, or computing historical hedging costs. Data: Norges Bank SDMX EXR dataflow, no auth.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "norgesbank.fx.history"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "currency": {
+                    "type": "string",
+                    "description": "ISO 4217 currency code for which to fetch historical rates against NOK (e.g. \"USD\", \"EUR\", \"GBP\").",
+                    "minLength": 3,
+                    "maxLength": 3
+                  },
+                  "start_date": {
+                    "type": "string",
+                    "description": "Start date of the historical range in ISO 8601 format (YYYY-MM-DD). Defaults to 30 days ago if omitted."
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "End date of the historical range in ISO 8601 format (YYYY-MM-DD). Defaults to today if omitted."
+                  }
+                },
+                "required": [
+                  "currency"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/norgesbank.rates.current/call": {
+      "post": {
+        "operationId": "norgesbank_rates_current",
+        "summary": "Norges Bank Key Policy Rates (Current)",
+        "description": "Get the current key policy interest rates set by Norges Bank: the key policy rate (deposit rate / styringsrente), overnight lending rate, and reserve rate. Returns the latest observed value for each rate type across daily and monthly frequencies. The key policy rate is the primary monetary policy instrument of Norway. No authentication required. Data: Norges Bank SDMX IR dataflow, open government licence, unlimited.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "norgesbank.rates.current"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "include_annual": {
+                    "type": "boolean",
+                    "description": "Set to true to include annual average rates in addition to the latest daily and monthly rates. Default false returns only the most recent observation per rate type."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/norgesbank.rates.history/call": {
+      "post": {
+        "operationId": "norgesbank_rates_history",
+        "summary": "Norges Bank Interest Rate History",
+        "description": "Retrieve a historical time series of Norges Bank key policy interest rates. Choose rate type (SD = key policy rate, OL = overnight lending rate, RR = reserve rate), frequency (B = business daily, M = monthly, A = annual), and date range. Returns {date, rate} pairs sorted ascending. Useful for monetary-policy research, macro models, or comparing Norway's rate cycle against other central banks. Data: Norges Bank SDMX IR dataflow, no auth.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "norgesbank.rates.history"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "rate_type": {
+                    "type": "string",
+                    "enum": [
+                      "SD",
+                      "OL",
+                      "RR"
+                    ],
+                    "description": "Type of key policy rate to retrieve: \"SD\" = key policy rate (deposit rate), \"OL\" = overnight lending rate, \"RR\" = reserve rate. Omit to get all three types."
+                  },
+                  "frequency": {
+                    "type": "string",
+                    "enum": [
+                      "B",
+                      "M",
+                      "A"
+                    ],
+                    "description": "Observation frequency: \"B\" = business daily (default), \"M\" = monthly average, \"A\" = annual average."
+                  },
+                  "start_date": {
+                    "type": "string",
+                    "description": "Start date of the historical range in ISO 8601 format (YYYY-MM-DD or YYYY-MM). Defaults to 1 year ago if omitted."
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "End date of the historical range in ISO 8601 format (YYYY-MM-DD or YYYY-MM). Defaults to today if omitted."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

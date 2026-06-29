@@ -2186,5 +2186,14 @@
     "reset_period": "none",
     "docs_url": "https://docs.irail.be/",
     "limit_proof": "Open data API with no documented rate limits. No authentication required. Open data license allows commercial use."
+  },
+  "norgesbank": {
+    "display_name": "Norges Bank",
+    "health_url": "https://data.norges-bank.no/api/data/EXR/B.USD.NOK.SP?format=sdmx-json&lastNObservations=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://app.norges-bank.no/query/index.html#/en/",
+    "limit_proof": "Norwegian central bank open government data. SDMX REST API with no documented rate limits or authentication requirements."
   }
 }

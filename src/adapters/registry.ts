@@ -243,6 +243,7 @@ import { HackernewsAdapter } from './hackernews';
 import { HnAlgoliaAdapter } from './hnalgolia';
 import { WikipediaAdapter } from './wikipedia';
 import { IrailAdapter } from './irail';
+import { NorgesBankAdapter } from './norgesbank';
 import { config } from '../config';
 
 /**
@@ -1412,6 +1413,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'irail':
       // iRail Belgium Rail (UC-524) — SNCB/NMBS stations, liveboards, connections, vehicle schedules, disturbances; no auth
       return getOrCreate('irail', () => new IrailAdapter());
+    case 'norgesbank':
+      // Norges Bank (UC-525) — FX rates (41 currencies vs NOK), key policy rates; SDMX REST, no auth
+      return getOrCreate('norgesbank', () => new NorgesBankAdapter());
     default:
       return undefined;
   }

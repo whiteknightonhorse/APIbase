@@ -9166,4 +9166,58 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'travel',
     annotations: READ_ONLY,
   },
+
+  // Norges Bank (4) — UC-525
+  {
+    toolId: 'norgesbank.fx.latest',
+    mcpName: 'norgesbank.fx.latest',
+    title: 'Norges Bank FX Rates (Latest)',
+    description:
+      'Get the latest official foreign-exchange rates published by Norges Bank (the Norwegian ' +
+      'central bank) — up to 41 currencies quoted against NOK (Norwegian krone). Rates are ' +
+      'business-day spot rates from the SDMX REST API. Filter to specific currencies via the ' +
+      'optional currencies param (e.g. "USD,EUR,GBP"). No authentication required. Data: ' +
+      'Norges Bank SDMX EXR dataflow, open government licence, unlimited.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'norgesbank.fx.history',
+    mcpName: 'norgesbank.fx.history',
+    title: 'Norges Bank FX Rate History',
+    description:
+      'Retrieve a historical time series of official Norges Bank exchange rates for any of the ' +
+      '41 available currencies versus NOK. Specify a start/end date (ISO 8601, e.g. 2024-01-01) ' +
+      'to get a custom range of business-day spot rates. Returns an array of {date, rate} pairs ' +
+      'sorted ascending by date. Useful for charting NOK strength, backtesting currency strategies, ' +
+      'or computing historical hedging costs. Data: Norges Bank SDMX EXR dataflow, no auth.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'norgesbank.rates.current',
+    mcpName: 'norgesbank.rates.current',
+    title: 'Norges Bank Key Policy Rates (Current)',
+    description:
+      'Get the current key policy interest rates set by Norges Bank: the key policy rate ' +
+      '(deposit rate / styringsrente), overnight lending rate, and reserve rate. Returns the ' +
+      'latest observed value for each rate type across daily and monthly frequencies. The ' +
+      'key policy rate is the primary monetary policy instrument of Norway. No authentication ' +
+      'required. Data: Norges Bank SDMX IR dataflow, open government licence, unlimited.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'norgesbank.rates.history',
+    mcpName: 'norgesbank.rates.history',
+    title: 'Norges Bank Interest Rate History',
+    description:
+      'Retrieve a historical time series of Norges Bank key policy interest rates. Choose rate ' +
+      'type (SD = key policy rate, OL = overnight lending rate, RR = reserve rate), frequency ' +
+      '(B = business daily, M = monthly, A = annual), and date range. Returns {date, rate} pairs ' +
+      "sorted ascending. Useful for monetary-policy research, macro models, or comparing Norway's " +
+      'rate cycle against other central banks. Data: Norges Bank SDMX IR dataflow, no auth.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
 ];
