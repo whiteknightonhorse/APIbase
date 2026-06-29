@@ -893,13 +893,13 @@
     "limit_proof": "Unlimited free, 30 msg/sec per chat, 900M+ Telegram users"
   },
   "clinicaltrials": {
-    "display_name": "ClinicalTrials.gov",
+    "display_name": "ClinicalTrials.gov v2",
     "health_url": "https://clinicaltrials.gov/api/v2/stats/size",
     "limit_type": "unlimited",
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://clinicaltrials.gov/data-api/api",
-    "limit_proof": "US Government NLM, fully open, no auth, 577K+ clinical studies"
+    "limit_proof": "NIH US Government public domain API. No authentication required, no documented rate limits. Commercial use permitted."
   },
   "namesilo": {
     "display_name": "NameSilo Domains",
@@ -2241,15 +2241,6 @@
     "docs_url": "https://nsi-release-ro-statsuite.fao.org/rest/",
     "limit_proof": "UN FAO public SDMX REST API, no auth required, no documented rate limits. Open access."
   },
-  "clinicaltrials": {
-    "display_name": "ClinicalTrials.gov v2",
-    "health_url": "https://clinicaltrials.gov/api/v2/stats/size",
-    "limit_type": "unlimited",
-    "free_limit": 0,
-    "reset_period": "none",
-    "docs_url": "https://clinicaltrials.gov/data-api/api",
-    "limit_proof": "NIH US Government public domain API. No authentication required, no documented rate limits. Commercial use permitted."
-  },
   "abs": {
     "display_name": "Australian Bureau of Statistics",
     "health_url": "https://data.api.abs.gov.au/rest/data/ABS,ERP_Q,1.0.0/1.3.TOT.AUS.Q?format=jsondata&dimensionAtObservation=AllDimensions&detail=dataonly&lastNObservations=1",
@@ -2258,5 +2249,14 @@
     "reset_period": "none",
     "docs_url": "https://api.gov.au/service/abs",
     "limit_proof": "Australian Government open data (CC BY 4.0). SDMX REST API, no authentication required, no documented rate limits. Commercial use permitted."
+  },
+  "ons-uk-stats": {
+    "display_name": "ONS UK Statistics",
+    "health_url": "https://api.beta.ons.gov.uk/v1/datasets?limit=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://developer.ons.gov.uk/",
+    "limit_proof": "UK Open Government Licence v3.0 \u2014 no auth, no rate limits documented; public beta API with unlimited access"
   }
 }

@@ -250,6 +250,7 @@ import { AdsbdbAdapter } from './adsbdb';
 import { FaoAdapter } from './fao';
 import { ClinicalTrialsAdapter } from './clinicaltrials';
 import { AbsAdapter } from './abs';
+import { OnsUkStatsAdapter } from './ons-uk-stats';
 import { config } from '../config';
 
 /**
@@ -1444,6 +1445,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'abs':
       // Australian Bureau of Statistics (UC-532) — GDP, CPI, labour force, population, trade; SDMX REST, CC BY 4.0, no auth
       return getOrCreate('abs', () => new AbsAdapter());
+    case 'ons':
+      // ONS UK Statistics (UC-533) — GDP, CPIH, unemployment, population; OGL v3, no auth
+      return getOrCreate('ons', () => new OnsUkStatsAdapter());
     default:
       return undefined;
   }

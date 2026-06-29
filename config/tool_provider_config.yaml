@@ -5222,6 +5222,37 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-533: ONS UK Statistics ---
+  - tool_id: ons.datasets.list
+    name: ONS Datasets List
+    provider: ons-uk-stats
+    price_usd: "0.001"
+    cache_ttl: 1800
+
+  - tool_id: ons.stats.cpih
+    name: ONS Consumer Prices Index (CPIH)
+    provider: ons-uk-stats
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: ons.stats.gdp
+    name: ONS UK GDP Monthly Estimate
+    provider: ons-uk-stats
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: ons.stats.unemployment
+    name: ONS UK Labour Market Statistics
+    provider: ons-uk-stats
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: ons.stats.population
+    name: ONS UK Population Estimates
+    provider: ons-uk-stats
+    price_usd: "0.002"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

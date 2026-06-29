@@ -9604,4 +9604,74 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // ONS UK Statistics (UC-533, 5 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'ons.datasets.list',
+    mcpName: 'ons.datasets.list',
+    title: 'ONS Datasets List',
+    description:
+      'List and search all 337+ datasets published by the UK Office for National Statistics (ONS) via the ' +
+      'beta CMD API. Returns dataset IDs, titles, descriptions, last-updated timestamps, release frequencies, ' +
+      'and national statistic flags. Use the keyword parameter to filter by topic (e.g. "gdp", "inflation", ' +
+      '"population", "unemployment", "earnings"). Use dataset IDs with the other ons.* tools or the ONS ' +
+      'Cantabular API. Source: ONS CMD API v1, Open Government Licence v3.0.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ons.stats.cpih',
+    mcpName: 'ons.stats.cpih',
+    title: 'ONS Consumer Prices Index (CPIH)',
+    description:
+      'Retrieve UK Consumer Prices Index Including Housing costs (CPIH) from the ONS. Monthly index values ' +
+      '(2015=100) for the overall index or individual categories (food, energy, transport, etc.). Data goes ' +
+      'back to 1988. Default returns the headline CPIH overall index (CP00) for the UK. Use the category ' +
+      'parameter to drill into sub-categories such as "CP01" (food & beverages), "CP04" (housing & energy), ' +
+      '"CP07" (transport). Returns up to 60 most recent months by default. ' +
+      'Source: ONS dataset cpih01, OGL v3.0.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ons.stats.gdp',
+    mcpName: 'ons.stats.gdp',
+    title: 'ONS UK GDP Monthly Estimate',
+    description:
+      'Retrieve UK Gross Domestic Product (GDP) monthly estimates from the ONS. Seasonally adjusted index ' +
+      '(2016=100) covering total economy (A--T) or specific sectors: Agriculture (A), Manufacturing (C), ' +
+      'Construction (F), Index of Services (G-T), Production Industries (B--E). Monthly data from 1997. ' +
+      'Default returns total monthly GDP. Use the sector parameter for industry-level breakdowns. ' +
+      'Source: ONS dataset gdp-to-four-decimal-places, OGL v3.0.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ons.stats.unemployment',
+    mcpName: 'ons.stats.unemployment',
+    title: 'ONS UK Labour Market Statistics',
+    description:
+      'Retrieve UK labour market statistics from the ONS Labour Force Survey (LFS). Returns unemployment ' +
+      'rate (%), employment rate, or economic inactivity rate for the UK, broken down by age group and sex. ' +
+      'Data is three-month rolling averages (e.g. "Jan-Mar 2024"), seasonally adjusted. Default returns the ' +
+      'overall unemployment rate (16+, all adults, seasonally adjusted rates). Use activity, age_group, sex ' +
+      'parameters to filter. Source: ONS dataset labour-market, OGL v3.0.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ons.stats.population',
+    mcpName: 'ons.stats.population',
+    title: 'ONS UK Population Estimates',
+    description:
+      'Retrieve mid-year population estimates for the UK, England, Wales, or local authorities from the ONS. ' +
+      'Annual estimates of usual resident population as at 30 June, by area, age group, and sex. Default ' +
+      'returns total population for England and Wales (all ages, all sexes). Use geography parameter with ONS ' +
+      'geography codes (K02000001=UK, K04000001=England & Wales, E92000001=England, W92000004=Wales) and age ' +
+      'parameter for single-year-of-age breakdowns. Source: ONS mid-year population estimates, OGL v3.0.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];
