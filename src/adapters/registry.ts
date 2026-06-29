@@ -253,6 +253,7 @@ import { AbsAdapter } from './abs';
 import { OnsUkStatsAdapter } from './ons-uk-stats';
 import { ComtradeAdapter } from './comtrade';
 import { LmprAdapter } from './lmpr';
+import { TreasuryDirectAdapter } from './treasurydirect';
 import { config } from '../config';
 
 /**
@@ -1456,6 +1457,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'lmpr':
       // USDA LMPR Datamart (UC-535) — livestock mandatory price reports, no auth
       return getOrCreate('lmpr', () => new LmprAdapter());
+    case 'treasurydirect':
+      // TreasuryDirect TA_WS (UC-536) — Treasury auction data: Bills, Notes, Bonds, TIPS, FRN; no auth
+      return getOrCreate('treasurydirect', () => new TreasuryDirectAdapter());
     default:
       return undefined;
   }

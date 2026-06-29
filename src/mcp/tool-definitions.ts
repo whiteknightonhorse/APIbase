@@ -9796,4 +9796,55 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+
+  // TreasuryDirect TA_WS (4)
+  {
+    toolId: 'treasurydirect.auction_results',
+    mcpName: 'treasurydirect.auction.results',
+    title: 'Treasury Auction Results',
+    description:
+      'Completed US Treasury security auction results by type and look-back period. Returns CUSIP, issue/maturity ' +
+      'dates, high yield, high discount rate, bid-to-cover ratio, total accepted/tendered amounts, and auction ' +
+      'format for Bills (4-52 week), Notes (2-10 year), Bonds (20-30 year), TIPS, FRN, and CMB. ' +
+      'Source: TreasuryDirect TA_WS, US Government open data, no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'treasurydirect.upcoming_auctions',
+    mcpName: 'treasurydirect.auction.upcoming',
+    title: 'Upcoming Treasury Auctions',
+    description:
+      'Announced upcoming US Treasury security auctions not yet held. Returns the auction schedule including ' +
+      'security type (Bill/Note/Bond), term, announcement date, auction date, and issue date for each ' +
+      'forthcoming offering. Typically lists 1-2 weeks of upcoming auctions across all security types. ' +
+      'Source: TreasuryDirect TA_WS, US Government open data, no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'treasurydirect.search_cusip',
+    mcpName: 'treasurydirect.securities.search',
+    title: 'Treasury Security CUSIP Lookup',
+    description:
+      'Look up a specific US Treasury security by its CUSIP identifier. Returns full auction and issuance ' +
+      'details including security type, term, interest rate, maturity date, high yield, bid-to-cover ratio, ' +
+      'and settlement information. CUSIPs for recent T-Bills typically start with "9127" or "9128". ' +
+      'Source: TreasuryDirect TA_WS, US Government open data, no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'treasurydirect.tips_rates',
+    mcpName: 'treasurydirect.rates.tips',
+    title: 'TIPS Auction Rates and CPI Reference',
+    description:
+      'US Treasury Inflation-Protected Securities (TIPS) auction results with reference CPI data. Returns ' +
+      'real yield (highYield), coupon rate (interestRate), reference CPI on issue date, index ratio, ' +
+      'bid-to-cover ratio, and total accepted for each TIPS auction in the specified look-back window. ' +
+      'Useful for tracking real interest rate trends and inflation breakeven calculations. ' +
+      'Source: TreasuryDirect TA_WS, US Government open data, no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
 ];

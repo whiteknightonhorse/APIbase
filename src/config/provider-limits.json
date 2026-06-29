@@ -2276,5 +2276,14 @@
     "reset_period": "none",
     "docs_url": "https://mpr.datamart.ams.usda.gov/",
     "limit_proof": "US Government public domain (7 U.S.C. § 198-198b); USDA Livestock Mandatory Price Reporting Datamart — no auth, no documented rate limits"
+  },
+  "treasurydirect": {
+    "display_name": "TreasuryDirect TA_WS",
+    "health_url": "https://www.treasurydirect.gov/TA_WS/securities/upcoming?format=json",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.treasurydirect.gov/TA_WS/",
+    "limit_proof": "US Government open data (31 U.S.C.); TreasuryDirect TA_WS REST API — no auth required, no documented rate limits, commercial use allowed"
   }
 }

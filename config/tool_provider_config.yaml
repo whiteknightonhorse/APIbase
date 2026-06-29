@@ -5309,6 +5309,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-536: TreasuryDirect ---
+  - tool_id: treasurydirect.auction_results
+    name: Treasury Auction Results
+    provider: treasurydirect
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: treasurydirect.upcoming_auctions
+    name: Upcoming Treasury Auctions
+    provider: treasurydirect
+    price_usd: "0.001"
+    cache_ttl: 1800
+
+  - tool_id: treasurydirect.search_cusip
+    name: Treasury Security CUSIP Lookup
+    provider: treasurydirect
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: treasurydirect.tips_rates
+    name: TIPS Auction Rates and CPI Reference
+    provider: treasurydirect
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

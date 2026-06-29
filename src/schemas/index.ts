@@ -253,6 +253,7 @@ import { faoSchemas } from './fao.schema';
 import { onsUkStatsSchemas } from './ons-uk-stats.schema';
 import { comtradeSchemas } from './comtrade.schema';
 import { lmprSchemas } from './lmpr.schema';
+import { treasuryDirectSchemas } from './treasurydirect.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -509,4 +510,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...onsUkStatsSchemas,
   ...comtradeSchemas,
   ...lmprSchemas,
+  ...treasuryDirectSchemas,
 };

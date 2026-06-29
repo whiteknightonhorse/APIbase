@@ -79514,6 +79514,333 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/treasurydirect.auction_results/call": {
+      "post": {
+        "operationId": "treasurydirect_auction_results",
+        "summary": "Treasury Auction Results",
+        "description": "Completed US Treasury security auction results by type and look-back period. Returns CUSIP, issue/maturity dates, high yield, high discount rate, bid-to-cover ratio, total accepted/tendered amounts, and auction format for Bills (4-52 week), Notes (2-10 year), Bonds (20-30 year), TIPS, FRN, and CMB. Source: TreasuryDirect TA_WS, US Government open data, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "treasurydirect.auction_results"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "Bill",
+                      "Note",
+                      "Bond",
+                      "TIPS",
+                      "FRN",
+                      "CMB"
+                    ],
+                    "description": "Treasury security type to retrieve auction results for. Bill = short-term (4–52 week), Note = 2–10 year, Bond = 20–30 year, TIPS = inflation-protected, FRN = floating rate note, CMB = cash management bill.",
+                    "default": "Bill"
+                  },
+                  "days": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 365,
+                    "description": "Look-back window in calendar days (1–365). Returns auctions completed in this period.",
+                    "default": 30
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/treasurydirect.upcoming_auctions/call": {
+      "post": {
+        "operationId": "treasurydirect_upcoming_auctions",
+        "summary": "Upcoming Treasury Auctions",
+        "description": "Announced upcoming US Treasury security auctions not yet held. Returns the auction schedule including security type (Bill/Note/Bond), term, announcement date, auction date, and issue date for each forthcoming offering. Typically lists 1-2 weeks of upcoming auctions across all security types. Source: TreasuryDirect TA_WS, US Government open data, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "treasurydirect.upcoming_auctions"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of upcoming auction announcements to return (1–50). Announcements cover Bills, Notes, and Bonds typically scheduled 1–2 weeks ahead.",
+                    "default": 20
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/treasurydirect.search_cusip/call": {
+      "post": {
+        "operationId": "treasurydirect_search_cusip",
+        "summary": "Treasury Security CUSIP Lookup",
+        "description": "Look up a specific US Treasury security by its CUSIP identifier. Returns full auction and issuance details including security type, term, interest rate, maturity date, high yield, bid-to-cover ratio, and settlement information. CUSIPs for recent T-Bills typically start with \"9127\" or \"9128\". Source: TreasuryDirect TA_WS, US Government open data, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "treasurydirect.search_cusip"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cusip": {
+                    "type": "string",
+                    "description": "CUSIP identifier of the Treasury security to look up (6–9 alphanumeric characters, e.g. \"912797TW7\"). CUSIPs for recent T-Bills start with \"9128\" or \"9127\".",
+                    "minLength": 6,
+                    "maxLength": 9
+                  }
+                },
+                "required": [
+                  "cusip"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/treasurydirect.tips_rates/call": {
+      "post": {
+        "operationId": "treasurydirect_tips_rates",
+        "summary": "TIPS Auction Rates and CPI Reference",
+        "description": "US Treasury Inflation-Protected Securities (TIPS) auction results with reference CPI data. Returns real yield (highYield), coupon rate (interestRate), reference CPI on issue date, index ratio, bid-to-cover ratio, and total accepted for each TIPS auction in the specified look-back window. Useful for tracking real interest rate trends and inflation breakeven calculations. Source: TreasuryDirect TA_WS, US Government open data, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "treasurydirect.tips_rates"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "days": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 1825,
+                    "description": "Look-back window in calendar days (1–1825, i.e. up to 5 years). Returns TIPS auction results with reference CPI values and real yield (highYield) for each auction.",
+                    "default": 365
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {
