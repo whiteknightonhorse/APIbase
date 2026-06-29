@@ -75972,6 +75972,323 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/treasuryfiscal.debt.current/call": {
+      "post": {
+        "operationId": "treasuryfiscal_debt_current",
+        "summary": "US National Debt — Current",
+        "description": "Get the official US national debt figures from the US Treasury (Debt to the Penny). Returns the total public debt outstanding broken into debt held by the public and intragovernmental holdings. Data is updated each business day. Specify `days` to retrieve a series (default 1 = latest day only). Latest figure: ~$39.3 trillion as of June 2026. Source: fiscaldata.treasury.gov — US Government open data, no auth, commercial use permitted.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "treasuryfiscal.debt.current"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "days": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Number of most-recent daily records to return (1–100). Default 1 returns only the latest date. The national debt is updated each business day by the US Treasury."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/treasuryfiscal.rates.interest/call": {
+      "post": {
+        "operationId": "treasuryfiscal_rates_interest",
+        "summary": "US Treasury Average Interest Rates",
+        "description": "Get the average interest rates on outstanding US Treasury securities, published monthly. Returns rates for all security types: Treasury Bills, Notes, Bonds, TIPS, Floating Rate Notes (marketable) and Savings Bonds, Government Account Series (non-marketable). Filter by security_type (marketable/non-marketable/all). Use limit=15 for the latest monthly snapshot across all security types. Source: US Treasury Fiscal Data — avg_interest_rates, no auth.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "treasuryfiscal.rates.interest"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "security_type": {
+                    "type": "string",
+                    "enum": [
+                      "marketable",
+                      "non-marketable",
+                      "all"
+                    ],
+                    "description": "Filter by security type. \"marketable\" = T-Bills, T-Notes, T-Bonds, TIPS, FRN; \"non-marketable\" = Savings Bonds, Government Account Series, State/Local securities; \"all\" (default) returns both types. US Treasury reports rates monthly."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 200,
+                    "description": "Maximum number of records to return (1–200). Default 30. Each monthly report contains about 15 rows (one per security type), so limit=30 typically covers the 2 most recent months."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/treasuryfiscal.yield.quarterly/call": {
+      "post": {
+        "operationId": "treasuryfiscal_yield_quarterly",
+        "summary": "US Treasury Quarterly Portfolio Yield",
+        "description": "Get the quarterly average yield of the US Treasury securities portfolio (Uniform Treasury Tax and Loan Program). Reports the annualized yield percentage for each fiscal quarter. Default returns the 8 most recent quarters (2 years). Example: Q1 2026 yield = 3.27%. Useful for tracking long-term trends in the cost of US government borrowing. Source: US Treasury Fiscal Data — utf_qtr_yields, no auth, commercial use permitted.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "treasuryfiscal.yield.quarterly"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 40,
+                    "description": "Number of quarterly yield records to return (1–40). Default 8 returns 2 years of data. Each record covers one fiscal quarter. Yield is expressed as an annual percentage."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/treasuryfiscal.debt.expense/call": {
+      "post": {
+        "operationId": "treasuryfiscal_debt_expense",
+        "summary": "US Federal Interest Expense on Debt",
+        "description": "Get the monthly and fiscal-year-to-date interest expense on US federal debt, broken down by security type (Treasury Notes, Bonds, TIPS, Inflation Compensation on TIPS, FRN, Bills, Savings Bonds, etc.). Shows how much the US government pays each month to service its debt. Includes both accrued interest on public issues and intragovernmental holdings. Source: US Treasury Fiscal Data — interest_expense, no auth, commercial use permitted.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "treasuryfiscal.debt.expense"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 200,
+                    "description": "Maximum number of records to return (1–200). Default 20. Each monthly report contains multiple rows — one per security type (T-Notes, T-Bonds, TIPS, FRN, Bills, Savings Bonds, etc.). Set limit=50 to get roughly one month of all line items."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

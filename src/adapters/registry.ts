@@ -245,6 +245,7 @@ import { WikipediaAdapter } from './wikipedia';
 import { IrailAdapter } from './irail';
 import { NorgesBankAdapter } from './norgesbank';
 import { SwissFsoAdapter } from './swissfso';
+import { TreasuryFiscalAdapter } from './treasuryfiscal';
 import { config } from '../config';
 
 /**
@@ -1420,6 +1421,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'swissfso':
       // Swiss FSO (UC-526) — 648 datasets: population, employment, health, education; PxWeb, no auth
       return getOrCreate('swissfso', () => new SwissFsoAdapter());
+    case 'treasuryfiscal':
+      // US Treasury Fiscal Data (UC-527) — national debt, interest rates, quarterly yield, interest expense; no auth
+      return getOrCreate('treasuryfiscal', () => new TreasuryFiscalAdapter());
     default:
       return undefined;
   }

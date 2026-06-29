@@ -9275,4 +9275,58 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+
+  // US Treasury Fiscal Data (4)
+  {
+    toolId: 'treasuryfiscal.debt.current',
+    mcpName: 'treasuryfiscal.debt.current',
+    title: 'US National Debt — Current',
+    description:
+      'Get the official US national debt figures from the US Treasury (Debt to the Penny). ' +
+      'Returns the total public debt outstanding broken into debt held by the public and ' +
+      'intragovernmental holdings. Data is updated each business day. Specify `days` to retrieve ' +
+      'a series (default 1 = latest day only). Latest figure: ~$39.3 trillion as of June 2026. ' +
+      'Source: fiscaldata.treasury.gov — US Government open data, no auth, commercial use permitted.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'treasuryfiscal.rates.interest',
+    mcpName: 'treasuryfiscal.rates.interest',
+    title: 'US Treasury Average Interest Rates',
+    description:
+      'Get the average interest rates on outstanding US Treasury securities, published monthly. ' +
+      'Returns rates for all security types: Treasury Bills, Notes, Bonds, TIPS, Floating Rate Notes ' +
+      '(marketable) and Savings Bonds, Government Account Series (non-marketable). Filter by ' +
+      'security_type (marketable/non-marketable/all). Use limit=15 for the latest monthly snapshot ' +
+      'across all security types. Source: US Treasury Fiscal Data — avg_interest_rates, no auth.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'treasuryfiscal.yield.quarterly',
+    mcpName: 'treasuryfiscal.yield.quarterly',
+    title: 'US Treasury Quarterly Portfolio Yield',
+    description:
+      'Get the quarterly average yield of the US Treasury securities portfolio (Uniform Treasury ' +
+      'Tax and Loan Program). Reports the annualized yield percentage for each fiscal quarter. ' +
+      'Default returns the 8 most recent quarters (2 years). Example: Q1 2026 yield = 3.27%. ' +
+      'Useful for tracking long-term trends in the cost of US government borrowing. ' +
+      'Source: US Treasury Fiscal Data — utf_qtr_yields, no auth, commercial use permitted.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'treasuryfiscal.debt.expense',
+    mcpName: 'treasuryfiscal.debt.expense',
+    title: 'US Federal Interest Expense on Debt',
+    description:
+      'Get the monthly and fiscal-year-to-date interest expense on US federal debt, broken down ' +
+      'by security type (Treasury Notes, Bonds, TIPS, Inflation Compensation on TIPS, FRN, ' +
+      'Bills, Savings Bonds, etc.). Shows how much the US government pays each month to service ' +
+      'its debt. Includes both accrued interest on public issues and intragovernmental holdings. ' +
+      'Source: US Treasury Fiscal Data — interest_expense, no auth, commercial use permitted.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
 ];

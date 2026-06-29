@@ -2204,5 +2204,14 @@
     "reset_period": "none",
     "docs_url": "https://www.bfs.admin.ch/bfs/en/home/statistics/catalogues-databases/tables.html",
     "limit_proof": "Swiss Federal Statistical Office PxWeb API — Swiss OGD, no authentication required, no documented rate limits, commercial use permitted."
+  },
+  "treasuryfiscal": {
+    "display_name": "US Treasury Fiscal Data",
+    "health_url": "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v2/accounting/od/debt_to_penny?sort=-record_date&page%5Bsize%5D=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://fiscaldata.treasury.gov/api-documentation/",
+    "limit_proof": "US Treasury Fiscal Data API — US Government open data (fiscaldata.treasury.gov), no authentication required, no documented rate limits, commercial use explicitly permitted."
   }
 }
