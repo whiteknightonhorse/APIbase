@@ -78635,6 +78635,480 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/comtrade.trade_data/call": {
+      "post": {
+        "operationId": "comtrade_trade_data",
+        "summary": "UN Comtrade Trade Data Query",
+        "description": "Query international merchandise trade statistics from the UN Comtrade database. Returns up to 500 records of imports and/or exports for a specific reporting country, reference period, commodity code, and partner country. Data covers 200+ reporter countries from 1962 (annual) and 2010 (monthly). Values in USD (primary value), CIF for imports, FOB for exports. Commodities classified by Harmonized System (HS) or SITC. Use reporter_code from comtrade.reporters, HS chapter codes (e.g. \"84\" for machinery, \"27\" for petroleum, \"85\" for electronics), and flow_code M=imports, X=exports. Source: UN Comtrade public preview API, no auth, 500 calls/day free.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "comtrade.trade_data"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reporter_code": {
+                    "type": "integer",
+                    "description": "UN numeric code for the reporting country (e.g. 276=Germany, 840=USA, 156=China, 826=UK). Use comtrade.reporters to look up codes."
+                  },
+                  "period": {
+                    "type": "string",
+                    "description": "Reference period to query. Annual: 4-digit year (e.g. \"2022\"). Monthly: YYYYMM (e.g. \"202209\" for Sep 2022). Comma-separated for multiple periods (e.g. \"2020,2021,2022\")."
+                  },
+                  "flow_code": {
+                    "type": "string",
+                    "enum": [
+                      "M",
+                      "X",
+                      "MX",
+                      "RM",
+                      "RX"
+                    ],
+                    "description": "Trade flow direction. M=Imports, X=Exports, MX=Both imports and exports, RM=Re-imports, RX=Re-exports."
+                  },
+                  "cmd_code": {
+                    "type": "string",
+                    "description": "Commodity code filter. Use HS codes (e.g. \"84\" for machinery, \"27\" for petroleum, \"TOTAL\" for aggregate totals, \"AG2\" for all 2-digit chapters). Omit to return all commodities (may be large). Default: TOTAL."
+                  },
+                  "partner_code": {
+                    "type": "integer",
+                    "description": "UN numeric code for the partner country. 0=World aggregate (all partners combined). Omit to return all individual partners."
+                  },
+                  "type_code": {
+                    "type": "string",
+                    "enum": [
+                      "C",
+                      "S"
+                    ],
+                    "description": "Trade data type. C=Commodities (default), S=Services."
+                  },
+                  "freq_code": {
+                    "type": "string",
+                    "enum": [
+                      "A",
+                      "M"
+                    ],
+                    "description": "Frequency. A=Annual (default), M=Monthly."
+                  },
+                  "classification": {
+                    "type": "string",
+                    "enum": [
+                      "HS",
+                      "B4",
+                      "B5",
+                      "EB",
+                      "S1",
+                      "S2",
+                      "S3",
+                      "S4",
+                      "SS"
+                    ],
+                    "description": "Commodity classification system. HS=Harmonized System (default, most common). B4/B5=BEC, EB=EBOPS services, S1-S4/SS=SITC revisions."
+                  },
+                  "max_records": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 500,
+                    "description": "Maximum number of records to return (1–500). Default 100. The public preview API is capped at 500 records per request."
+                  },
+                  "partner2_code": {
+                    "type": "integer",
+                    "description": "Secondary partner code for extended trade flow tracking (consignment country). 0=World aggregate. Omit to use the default world aggregate."
+                  },
+                  "customs_code": {
+                    "type": "string",
+                    "description": "Customs procedure code filter (e.g. \"C00\"=all procedures, \"C03\"=outright export, \"C04\"=warehousing). Omit for all procedures."
+                  },
+                  "aggregate_by": {
+                    "type": "string",
+                    "description": "Aggregate results by a dimension. Valid values: \"cmdCode\", \"flowCode\", \"partnerCode\", \"reporterCode\", \"period\". Omit to return unaggregated records."
+                  }
+                },
+                "required": [
+                  "reporter_code",
+                  "period",
+                  "flow_code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/comtrade.availability/call": {
+      "post": {
+        "operationId": "comtrade_availability",
+        "summary": "UN Comtrade Data Availability",
+        "description": "Check which trade datasets are available in UN Comtrade for a given reporter country and period. Returns dataset metadata including total record count, first/last release dates, and classification codes. Useful for discovering what data exists before querying comtrade.trade_data. Coverage varies by country — developed economies report more frequently and with fewer delays than others. Source: UN Comtrade public preview API, no auth.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "comtrade.availability"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reporter_code": {
+                    "type": "integer",
+                    "description": "UN numeric code for the reporting country to check. Omit to list all available reporters. Example: 276=Germany, 840=USA, 156=China."
+                  },
+                  "period": {
+                    "type": "string",
+                    "description": "Filter by reference period. Annual: 4-digit year (e.g. \"2022\"). Monthly: YYYYMM (e.g. \"202209\"). Omit to list all available periods."
+                  },
+                  "flow_code": {
+                    "type": "string",
+                    "enum": [
+                      "M",
+                      "X",
+                      "MX",
+                      "RM",
+                      "RX"
+                    ],
+                    "description": "Filter by trade flow: M=Imports, X=Exports, MX=Both. Omit for all flows."
+                  },
+                  "cmd_code": {
+                    "type": "string",
+                    "description": "Filter by commodity code (e.g. \"84\", \"TOTAL\"). Omit for all commodities."
+                  },
+                  "type_code": {
+                    "type": "string",
+                    "enum": [
+                      "C",
+                      "S"
+                    ],
+                    "description": "Data type. C=Commodities (default), S=Services."
+                  },
+                  "freq_code": {
+                    "type": "string",
+                    "enum": [
+                      "A",
+                      "M"
+                    ],
+                    "description": "Frequency. A=Annual (default), M=Monthly."
+                  },
+                  "classification": {
+                    "type": "string",
+                    "enum": [
+                      "HS",
+                      "B4",
+                      "B5",
+                      "EB",
+                      "S1",
+                      "S2",
+                      "S3",
+                      "S4",
+                      "SS"
+                    ],
+                    "description": "Classification system. HS=Harmonized System (default)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/comtrade.metadata/call": {
+      "post": {
+        "operationId": "comtrade_metadata",
+        "summary": "UN Comtrade Dataset Metadata",
+        "description": "Retrieve methodological metadata for a UN Comtrade dataset: the reporting currency, USD conversion factors applied (import/export), trade system used (General vs Special trade), import/export valuation method (CIF vs FOB), partner country attribution rules, and publication notes. Essential for understanding how to interpret the trade values in comtrade.trade_data results. Each country reports using its own methodology and currency — this endpoint reveals those details. Source: UN Comtrade public preview API, no auth.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "comtrade.metadata"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reporter_code": {
+                    "type": "integer",
+                    "description": "UN numeric code for the reporting country. Example: 276=Germany, 840=USA, 156=China. Use comtrade.reporters to look up codes."
+                  },
+                  "period": {
+                    "type": "string",
+                    "description": "Reference period. Annual: 4-digit year (e.g. \"2022\"). Monthly: YYYYMM (e.g. \"202209\"). Returns currency conversion factors, trade system, valuation notes for this dataset."
+                  },
+                  "type_code": {
+                    "type": "string",
+                    "enum": [
+                      "C",
+                      "S"
+                    ],
+                    "description": "Data type. C=Commodities (default), S=Services."
+                  },
+                  "freq_code": {
+                    "type": "string",
+                    "enum": [
+                      "A",
+                      "M"
+                    ],
+                    "description": "Frequency. A=Annual (default), M=Monthly."
+                  },
+                  "classification": {
+                    "type": "string",
+                    "enum": [
+                      "HS",
+                      "B4",
+                      "B5",
+                      "EB",
+                      "S1",
+                      "S2",
+                      "S3",
+                      "S4",
+                      "SS"
+                    ],
+                    "description": "Classification system. HS=Harmonized System (default)."
+                  },
+                  "show_history": {
+                    "type": "boolean",
+                    "description": "Include historical revisions in the metadata response. Default false (returns only the latest version)."
+                  }
+                },
+                "required": [
+                  "reporter_code",
+                  "period"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/comtrade.reporters/call": {
+      "post": {
+        "operationId": "comtrade_reporters",
+        "summary": "UN Comtrade Reporter Countries",
+        "description": "List all countries and country groups that report trade statistics to UN Comtrade. Returns the UN numeric reporter code, country name, ISO-2 and ISO-3 alpha codes needed for other comtrade tools. Use the search parameter to filter by country name or ISO code. Use include_groups=false to exclude aggregate regions (EU, ASEAN, World). Over 280 reporters including individual countries and economic blocs. Source: UN Comtrade reference data, no auth, static file.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "comtrade.reporters"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "search": {
+                    "type": "string",
+                    "description": "Filter reporters by name or ISO code (case-insensitive substring match). Examples: \"germany\", \"DEU\", \"united states\". Omit to return all reporters."
+                  },
+                  "include_groups": {
+                    "type": "boolean",
+                    "description": "Include aggregate groups (e.g. \"EU\", \"World\") in results. Default true. Set to false to return only individual countries."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

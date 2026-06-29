@@ -251,6 +251,7 @@ import { FaoAdapter } from './fao';
 import { ClinicalTrialsAdapter } from './clinicaltrials';
 import { AbsAdapter } from './abs';
 import { OnsUkStatsAdapter } from './ons-uk-stats';
+import { ComtradeAdapter } from './comtrade';
 import { config } from '../config';
 
 /**
@@ -1448,6 +1449,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'ons':
       // ONS UK Statistics (UC-533) — GDP, CPIH, unemployment, population; OGL v3, no auth
       return getOrCreate('ons', () => new OnsUkStatsAdapter());
+    case 'comtrade':
+      // UN Comtrade Public Preview (UC-534) — international trade stats, no auth
+      return getOrCreate('comtrade', () => new ComtradeAdapter());
     default:
       return undefined;
   }

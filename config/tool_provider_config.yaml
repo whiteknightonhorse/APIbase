@@ -5253,6 +5253,31 @@ tools:
     price_usd: "0.002"
     cache_ttl: 86400
 
+  # --- UC-534: UN Comtrade Public Preview ---
+  - tool_id: comtrade.trade_data
+    name: UN Comtrade Trade Data Query
+    provider: comtrade
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: comtrade.availability
+    name: UN Comtrade Data Availability
+    provider: comtrade
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: comtrade.metadata
+    name: UN Comtrade Dataset Metadata
+    provider: comtrade
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: comtrade.reporters
+    name: UN Comtrade Reporter Countries
+    provider: comtrade
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

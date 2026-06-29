@@ -228,6 +228,7 @@ Use these examples as reference patterns when:
 | UC-531 | ClinicalTrials.gov v2 | Health / Clinical Research | LIVE | NIH US Gov public domain, no auth, unlimited | `usecases/UC-531-clinicaltrials-v2.md` |
 | UC-532 | Australian Bureau of Statistics | Government Statistics | LIVE | CC BY 4.0, no auth, unlimited | `usecases/UC-532-abs-australia.md` |
 | UC-533 | ONS UK Statistics | Government Statistics / Finance | LIVE | OGL v3.0, no auth, unlimited | `usecases/UC-533-ons-uk-stats.md` |
+| UC-534 | UN Comtrade | Trade Statistics / World | LIVE | UN public domain, no auth, 500 calls/day | `usecases/UC-534-un-comtrade.md` |
 
 ## How to Use
 

@@ -2258,5 +2258,14 @@
     "reset_period": "none",
     "docs_url": "https://developer.ons.gov.uk/",
     "limit_proof": "UK Open Government Licence v3.0 \u2014 no auth, no rate limits documented; public beta API with unlimited access"
+  },
+  "comtrade": {
+    "display_name": "UN Comtrade",
+    "health_url": "https://comtradeapi.un.org/files/v1/app/reference/Reporters.json",
+    "limit_type": "daily",
+    "free_limit": 500,
+    "reset_period": "daily",
+    "docs_url": "https://uncomtrade.org/docs/un-comtrade-api/",
+    "limit_proof": "Public preview API: 500 calls/day, no registration required; premium subscription needed for >500 records/request or >500 daily calls"
   }
 }

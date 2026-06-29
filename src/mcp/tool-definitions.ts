@@ -9674,4 +9674,61 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+
+  // UN Comtrade Public Preview (UC-534) — 4 tools
+  {
+    toolId: 'comtrade.trade_data',
+    mcpName: 'comtrade.trade.query',
+    title: 'UN Comtrade Trade Data Query',
+    description:
+      'Query international merchandise trade statistics from the UN Comtrade database. Returns up to 500 ' +
+      'records of imports and/or exports for a specific reporting country, reference period, commodity code, ' +
+      'and partner country. Data covers 200+ reporter countries from 1962 (annual) and 2010 (monthly). ' +
+      'Values in USD (primary value), CIF for imports, FOB for exports. Commodities classified by Harmonized ' +
+      'System (HS) or SITC. Use reporter_code from comtrade.reporters, HS chapter codes (e.g. "84" for ' +
+      'machinery, "27" for petroleum, "85" for electronics), and flow_code M=imports, X=exports. ' +
+      'Source: UN Comtrade public preview API, no auth, 500 calls/day free.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'comtrade.availability',
+    mcpName: 'comtrade.trade.availability',
+    title: 'UN Comtrade Data Availability',
+    description:
+      'Check which trade datasets are available in UN Comtrade for a given reporter country and period. ' +
+      'Returns dataset metadata including total record count, first/last release dates, and classification ' +
+      'codes. Useful for discovering what data exists before querying comtrade.trade_data. Coverage varies ' +
+      'by country — developed economies report more frequently and with fewer delays than others. ' +
+      'Source: UN Comtrade public preview API, no auth.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'comtrade.metadata',
+    mcpName: 'comtrade.trade.metadata',
+    title: 'UN Comtrade Dataset Metadata',
+    description:
+      'Retrieve methodological metadata for a UN Comtrade dataset: the reporting currency, USD conversion ' +
+      'factors applied (import/export), trade system used (General vs Special trade), import/export ' +
+      'valuation method (CIF vs FOB), partner country attribution rules, and publication notes. Essential ' +
+      'for understanding how to interpret the trade values in comtrade.trade_data results. Each country ' +
+      'reports using its own methodology and currency — this endpoint reveals those details. ' +
+      'Source: UN Comtrade public preview API, no auth.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'comtrade.reporters',
+    mcpName: 'comtrade.reference.reporters',
+    title: 'UN Comtrade Reporter Countries',
+    description:
+      'List all countries and country groups that report trade statistics to UN Comtrade. Returns the ' +
+      'UN numeric reporter code, country name, ISO-2 and ISO-3 alpha codes needed for other comtrade tools. ' +
+      'Use the search parameter to filter by country name or ISO code. Use include_groups=false to exclude ' +
+      'aggregate regions (EU, ASEAN, World). Over 280 reporters including individual countries and economic ' +
+      'blocs. Source: UN Comtrade reference data, no auth, static file.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

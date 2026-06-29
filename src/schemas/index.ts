@@ -251,6 +251,7 @@ import { usdamarsSchemas } from './usdamars.schema';
 import { adsbdbSchemas } from './adsbdb.schema';
 import { faoSchemas } from './fao.schema';
 import { onsUkStatsSchemas } from './ons-uk-stats.schema';
+import { comtradeSchemas } from './comtrade.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -505,4 +506,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...adsbdbSchemas,
   ...faoSchemas,
   ...onsUkStatsSchemas,
+  ...comtradeSchemas,
 };
