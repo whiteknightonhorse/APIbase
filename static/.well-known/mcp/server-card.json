@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 881 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 886 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -50910,6 +50910,256 @@
           "error": {
             "type": "object",
             "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "lmpr.beef.boxed_cutout",
+      "title": "USDA Boxed Beef Cutout",
+      "description": "National weekly boxed beef cutout and individual cut prices (LM_XB459). Returns composite primal values (rib, chuck, round, loin, brisket, plate, flank), Choice and Select cutout values, individual box/cut prices by grade, ground beef, and trimming prices. Published Thursdays. Source: USDA LMPR Datamart, US Government public domain.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "report_date": {
+            "type": "string",
+            "description": "Report date in YYYY-MM-DD or M/D/YYYY format (e.g. \"2026-06-27\"). Omit for the most recent published report."
+          },
+          "all_sections": {
+            "type": "boolean",
+            "description": "Return all report sections (price detail, primal values, etc.). Default true. Set false for summary only.",
+            "default": true
+          }
+        },
+        "description": "National weekly boxed beef cutout and individual cut prices (LM_XB459). Published Thursdays. Returns composite primal values, Choice/Select cutout, and detailed cut prices."
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "lmpr.cattle.slaughter_prices",
+      "title": "USDA Cattle Slaughter Prices",
+      "description": "5-Area daily weighted-average direct slaughter cattle prices (LM_CT100). Returns head counts, price ranges ($/cwt), and weighted averages by class (steer/heifer) and selling basis (live FOB, dressed delivered, dressed FOB). Covers TX/OK/NM, Kansas, Nebraska, Colorado, and Iowa/Minnesota feedlot regions combined. Published daily on USDA business days. Source: USDA Livestock Mandatory Price Reporting Datamart, US Government public domain.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "report_date": {
+            "type": "string",
+            "description": "Report date in YYYY-MM-DD or M/D/YYYY format (e.g. \"2026-06-27\"). Omit for the most recent published report."
+          },
+          "all_sections": {
+            "type": "boolean",
+            "description": "Return all report sections (price detail, primal values, etc.). Default true. Set false for summary only.",
+            "default": true
+          }
+        },
+        "description": "5-Area daily weighted-average direct slaughter cattle prices (LM_CT100). Returns head counts and price ranges by class (steer/heifer) and selling basis (live FOB, dressed delivered)."
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "lmpr.dairy.product_prices",
+      "title": "USDA Dairy Product Prices",
+      "description": "National weekly dairy products sales prices (DYWDAIRYPRODUCTSSALES). Returns mandatory-reporting prices and volumes for butter, 40-lb block cheddar cheese, 500-lb barrel cheddar, dry whey, and nonfat dry milk. Includes preliminary and final weekly prices used in FMMO pricing formulas. Published weekly by USDA Agricultural Marketing Service. Source: USDA LMPR Datamart, US Government public domain.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "report_date": {
+            "type": "string",
+            "description": "Report date in YYYY-MM-DD or M/D/YYYY format (e.g. \"2026-06-27\"). Omit for the most recent published report."
+          },
+          "all_sections": {
+            "type": "boolean",
+            "description": "Return all report sections (price detail, primal values, etc.). Default true. Set false for summary only.",
+            "default": true
+          }
+        },
+        "description": "National weekly dairy products sales prices (DYWDAIRYPRODUCTSSALES). Returns butter, cheddar block/barrel, dry whey, and nonfat dry milk prices and volumes."
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "lmpr.hog.slaughter_prices",
+      "title": "USDA Hog Slaughter Prices",
+      "description": "National daily prior-day slaughtered swine prices (LM_HG201). Returns barrows/gilts head counts, negotiated base prices ($/cwt), carcass weight ranges, net price distribution (lean value, fat, bone, yield adjustments), and 14-day scheduled swine commitments. Covers Corn Belt and national markets. Published daily on USDA business days. Source: USDA LMPR Datamart, US Government public domain.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "report_date": {
+            "type": "string",
+            "description": "Report date in YYYY-MM-DD or M/D/YYYY format (e.g. \"2026-06-27\"). Omit for the most recent published report."
+          },
+          "all_sections": {
+            "type": "boolean",
+            "description": "Return all report sections (price detail, primal values, etc.). Default true. Set false for summary only.",
+            "default": true
+          }
+        },
+        "description": "National daily prior-day slaughtered swine prices (LM_HG201). Returns barrows/gilts head counts, negotiated prices, carcass measurements, and net price distribution."
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "lmpr.lamb.carcass_cutout",
+      "title": "USDA Lamb Carcass Cutout",
+      "description": "National estimated lamb carcass cutout value (LM_XL502). Returns gross carcass value, foresaddle value (rib, shoulder, breast/neck), hindsaddle value (leg, loin), net carcass value, and other byproduct values (pelt, offal). Published daily on USDA business days. Source: USDA LMPR Datamart, US Government public domain.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "report_date": {
+            "type": "string",
+            "description": "Report date in YYYY-MM-DD or M/D/YYYY format (e.g. \"2026-06-27\"). Omit for the most recent published report."
+          },
+          "all_sections": {
+            "type": "boolean",
+            "description": "Return all report sections (price detail, primal values, etc.). Default true. Set false for summary only.",
+            "default": true
+          }
+        },
+        "description": "National estimated lamb carcass cutout value (LM_XL502). Returns gross/net carcass values, foresaddle and hindsaddle values, and primal cut prices."
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
           }
         },
         "required": [

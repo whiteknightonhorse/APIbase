@@ -2267,5 +2267,14 @@
     "reset_period": "daily",
     "docs_url": "https://uncomtrade.org/docs/un-comtrade-api/",
     "limit_proof": "Public preview API: 500 calls/day, no registration required; premium subscription needed for >500 records/request or >500 daily calls"
+  },
+  "lmpr": {
+    "display_name": "USDA LMPR Datamart",
+    "health_url": "https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2466?lastReports=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://mpr.datamart.ams.usda.gov/",
+    "limit_proof": "US Government public domain (7 U.S.C. § 198-198b); USDA Livestock Mandatory Price Reporting Datamart — no auth, no documented rate limits"
   }
 }

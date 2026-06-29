@@ -9731,4 +9731,69 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+
+  // USDA LMPR Datamart (5)
+  {
+    toolId: 'lmpr.cattle_slaughter_prices',
+    mcpName: 'lmpr.cattle.slaughter_prices',
+    title: 'USDA Cattle Slaughter Prices',
+    description:
+      '5-Area daily weighted-average direct slaughter cattle prices (LM_CT100). Returns head counts, ' +
+      'price ranges ($/cwt), and weighted averages by class (steer/heifer) and selling basis (live FOB, ' +
+      'dressed delivered, dressed FOB). Covers TX/OK/NM, Kansas, Nebraska, Colorado, and Iowa/Minnesota ' +
+      'feedlot regions combined. Published daily on USDA business days. Source: USDA Livestock Mandatory ' +
+      'Price Reporting Datamart, US Government public domain.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'lmpr.hog_slaughter_prices',
+    mcpName: 'lmpr.hog.slaughter_prices',
+    title: 'USDA Hog Slaughter Prices',
+    description:
+      'National daily prior-day slaughtered swine prices (LM_HG201). Returns barrows/gilts head counts, ' +
+      'negotiated base prices ($/cwt), carcass weight ranges, net price distribution (lean value, ' +
+      'fat, bone, yield adjustments), and 14-day scheduled swine commitments. Covers Corn Belt and ' +
+      'national markets. Published daily on USDA business days. Source: USDA LMPR Datamart, US Government ' +
+      'public domain.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'lmpr.boxed_beef_cutout',
+    mcpName: 'lmpr.beef.boxed_cutout',
+    title: 'USDA Boxed Beef Cutout',
+    description:
+      'National weekly boxed beef cutout and individual cut prices (LM_XB459). Returns composite primal ' +
+      'values (rib, chuck, round, loin, brisket, plate, flank), Choice and Select cutout values, ' +
+      'individual box/cut prices by grade, ground beef, and trimming prices. Published Thursdays. ' +
+      'Source: USDA LMPR Datamart, US Government public domain.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'lmpr.dairy_product_prices',
+    mcpName: 'lmpr.dairy.product_prices',
+    title: 'USDA Dairy Product Prices',
+    description:
+      'National weekly dairy products sales prices (DYWDAIRYPRODUCTSSALES). Returns mandatory-reporting ' +
+      'prices and volumes for butter, 40-lb block cheddar cheese, 500-lb barrel cheddar, dry whey, and ' +
+      'nonfat dry milk. Includes preliminary and final weekly prices used in FMMO pricing formulas. ' +
+      'Published weekly by USDA Agricultural Marketing Service. Source: USDA LMPR Datamart, US Government ' +
+      'public domain.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'lmpr.lamb_carcass_cutout',
+    mcpName: 'lmpr.lamb.carcass_cutout',
+    title: 'USDA Lamb Carcass Cutout',
+    description:
+      'National estimated lamb carcass cutout value (LM_XL502). Returns gross carcass value, foresaddle ' +
+      'value (rib, shoulder, breast/neck), hindsaddle value (leg, loin), net carcass value, and other ' +
+      'byproduct values (pelt, offal). Published daily on USDA business days. Source: USDA LMPR Datamart, ' +
+      'US Government public domain.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

@@ -5278,6 +5278,37 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-535: USDA LMPR Datamart ---
+  - tool_id: lmpr.cattle_slaughter_prices
+    name: USDA Cattle Slaughter Prices
+    provider: lmpr
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: lmpr.hog_slaughter_prices
+    name: USDA Hog Slaughter Prices
+    provider: lmpr
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: lmpr.boxed_beef_cutout
+    name: USDA Boxed Beef Cutout
+    provider: lmpr
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: lmpr.dairy_product_prices
+    name: USDA Dairy Product Prices
+    provider: lmpr
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: lmpr.lamb_carcass_cutout
+    name: USDA Lamb Carcass Cutout
+    provider: lmpr
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform
