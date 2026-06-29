@@ -231,6 +231,7 @@ export async function writeX402Entry(entry: X402Entry): Promise<void> {
       status: 'success',
       billing_status: 'PAID',
       cost_usd: entry.cost,
+      payer: entry.payer,
       // Cache-hit path: provider was NOT called, served from cache.
       // Cache-miss path: provider was called, filled cache for future hits.
       provider_called: !isCacheHit,

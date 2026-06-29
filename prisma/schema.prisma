@@ -56,6 +56,7 @@ model ExecutionLedger {
   status             String    // pending|running|provider_success|success|failed|timeout|shared_success|error
   billing_status     String    // RESERVED|PAID|REFUNDED|FREE
   cost_usd           Decimal   @default(0) @db.Decimal(18, 8)
+  payer              String?   @db.VarChar(64) // on-chain payer wallet (x402/MPP); null for free/cache/escrow (T6 2026-06-29)
   latency_ms         Int?
   provider_called    Boolean   @default(false)
   cache_status       String?   // HIT|MISS|SHARED
