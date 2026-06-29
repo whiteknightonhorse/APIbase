@@ -9428,4 +9428,65 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'travel',
     annotations: READ_ONLY,
   },
+
+  // FAO FAOSTAT SDG API (5)
+  {
+    toolId: 'faostat.food_security',
+    mcpName: 'faostat.agriculture.food_security',
+    title: 'FAO Undernourishment (SDG 2.1.1)',
+    description:
+      'Retrieve prevalence of undernourishment (% of population) and count of undernourished ' +
+      'people (millions) for any country over time. Data from FAO FAOSTAT — UN SDG Indicator 2.1.1. ' +
+      'Covers 190+ countries, annual data since 2001. Accepts ISO alpha-2 (e.g. "IN"), alpha-3 ' +
+      '(e.g. "IND"), or ISO numeric (e.g. "356") country codes.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'faostat.food_insecurity',
+    mcpName: 'faostat.agriculture.food_insecurity',
+    title: 'FAO Food Insecurity (SDG 2.1.2)',
+    description:
+      'Retrieve prevalence of moderate or severe food insecurity (%) for a country based on the ' +
+      'Food Insecurity Experience Scale (FIES). Data from FAO FAOSTAT — UN SDG Indicator 2.1.2. ' +
+      'Covers ~140 countries with FIES survey data. Accepts ISO alpha-2 (e.g. "ET"), alpha-3, or ' +
+      'ISO numeric country codes.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'faostat.water_stress',
+    mcpName: 'faostat.environment.water_stress',
+    title: 'FAO Water Stress (SDG 6.4.2)',
+    description:
+      'Retrieve freshwater withdrawal as a percentage of available freshwater resources for a ' +
+      'country. High values (>40%) indicate severe water stress. Data from FAO FAOSTAT — UN SDG ' +
+      'Indicator 6.4.2. Covers 211 countries. Accepts ISO alpha-2 (e.g. "IN"), alpha-3, or ' +
+      'ISO numeric country codes.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'faostat.forest_area',
+    mcpName: 'faostat.environment.forest_area',
+    title: 'FAO Forest Coverage (SDG 15.1.1)',
+    description:
+      'Retrieve forest area as a percentage of total land area and in hectares for any country. ' +
+      'Data from FAO FAOSTAT — UN SDG Indicator 15.1.1. Covers 200+ countries, annual data. ' +
+      'Accepts ISO alpha-2 (e.g. "BR"), alpha-3 (e.g. "BRA"), or ISO numeric country codes.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'faostat.food_loss',
+    mcpName: 'faostat.agriculture.food_loss',
+    title: 'FAO Food Loss Index (SDG 12.3.1)',
+    description:
+      'Retrieve the global food loss index and food loss percentage by food group (cereals, ' +
+      'fruits & vegetables, meat, roots & tubers, pulses) for world regions. Data from FAO ' +
+      'FAOSTAT — UN SDG Indicator 12.3.1. An index above 100 means more loss than the 2014-2016 ' +
+      'baseline. Optionally filter by a specific year.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

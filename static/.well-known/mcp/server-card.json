@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 858 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 863 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -49281,6 +49281,313 @@
         "required": [
           "callsign"
         ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "faostat.agriculture.food_insecurity",
+      "title": "FAO Food Insecurity (SDG 2.1.2)",
+      "description": "Retrieve prevalence of moderate or severe food insecurity (%) for a country based on the Food Insecurity Experience Scale (FIES). Data from FAO FAOSTAT \u2014 UN SDG Indicator 2.1.2. Covers ~140 countries with FIES survey data. Accepts ISO alpha-2 (e.g. \"ET\"), alpha-3, or ISO numeric country codes.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "country_code": {
+            "type": "string",
+            "description": "Country code: ISO 3166-1 alpha-2 (e.g. \"IN\", \"US\", \"ET\"), alpha-3 (e.g. \"IND\"), or ISO numeric (e.g. \"356\")",
+            "minLength": 2,
+            "maxLength": 3
+          },
+          "start_year": {
+            "type": "integer",
+            "minimum": 1961,
+            "maximum": 2030,
+            "description": "Start year for the time series (default: 2015, earliest available: 1961)"
+          },
+          "end_year": {
+            "type": "integer",
+            "minimum": 1961,
+            "maximum": 2030,
+            "description": "End year for the time series (default: latest available)"
+          }
+        },
+        "required": [
+          "country_code"
+        ],
+        "description": "Query food insecurity prevalence based on FIES scale for a country (SDG 2.1.2)"
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "faostat.agriculture.food_loss",
+      "title": "FAO Food Loss Index (SDG 12.3.1)",
+      "description": "Retrieve the global food loss index and food loss percentage by food group (cereals, fruits & vegetables, meat, roots & tubers, pulses) for world regions. Data from FAO FAOSTAT \u2014 UN SDG Indicator 12.3.1. An index above 100 means more loss than the 2014-2016 baseline. Optionally filter by a specific year.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "year": {
+            "type": "integer",
+            "minimum": 2000,
+            "maximum": 2030,
+            "description": "Specific year to filter food loss data (e.g. 2022). Omit for full available range."
+          },
+          "start_year": {
+            "type": "integer",
+            "minimum": 1961,
+            "maximum": 2030,
+            "description": "Start year for the time series (default: 2015, earliest available: 1961)"
+          },
+          "end_year": {
+            "type": "integer",
+            "minimum": 1961,
+            "maximum": 2030,
+            "description": "End year for the time series (default: latest available)"
+          }
+        },
+        "description": "Query global/regional food loss index and percentage by food group (SDG 12.3.1). Returns data for 36 world regions."
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "faostat.agriculture.food_security",
+      "title": "FAO Undernourishment (SDG 2.1.1)",
+      "description": "Retrieve prevalence of undernourishment (% of population) and count of undernourished people (millions) for any country over time. Data from FAO FAOSTAT \u2014 UN SDG Indicator 2.1.1. Covers 190+ countries, annual data since 2001. Accepts ISO alpha-2 (e.g. \"IN\"), alpha-3 (e.g. \"IND\"), or ISO numeric (e.g. \"356\") country codes.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "country_code": {
+            "type": "string",
+            "description": "Country code: ISO 3166-1 alpha-2 (e.g. \"IN\", \"US\", \"ET\"), alpha-3 (e.g. \"IND\"), or ISO numeric (e.g. \"356\")",
+            "minLength": 2,
+            "maxLength": 3
+          },
+          "start_year": {
+            "type": "integer",
+            "minimum": 1961,
+            "maximum": 2030,
+            "description": "Start year for the time series (default: 2015, earliest available: 1961)"
+          },
+          "end_year": {
+            "type": "integer",
+            "minimum": 1961,
+            "maximum": 2030,
+            "description": "End year for the time series (default: latest available)"
+          }
+        },
+        "required": [
+          "country_code"
+        ],
+        "description": "Query undernourishment prevalence and count for a country (SDG 2.1.1)"
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "faostat.environment.forest_area",
+      "title": "FAO Forest Coverage (SDG 15.1.1)",
+      "description": "Retrieve forest area as a percentage of total land area and in hectares for any country. Data from FAO FAOSTAT \u2014 UN SDG Indicator 15.1.1. Covers 200+ countries, annual data. Accepts ISO alpha-2 (e.g. \"BR\"), alpha-3 (e.g. \"BRA\"), or ISO numeric country codes.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "country_code": {
+            "type": "string",
+            "description": "Country code: ISO 3166-1 alpha-2 (e.g. \"IN\", \"US\", \"ET\"), alpha-3 (e.g. \"IND\"), or ISO numeric (e.g. \"356\")",
+            "minLength": 2,
+            "maxLength": 3
+          },
+          "start_year": {
+            "type": "integer",
+            "minimum": 1961,
+            "maximum": 2030,
+            "description": "Start year for the time series (default: 2015, earliest available: 1961)"
+          },
+          "end_year": {
+            "type": "integer",
+            "minimum": 1961,
+            "maximum": 2030,
+            "description": "End year for the time series (default: latest available)"
+          }
+        },
+        "required": [
+          "country_code"
+        ],
+        "description": "Query forest area as % of total land and in hectares for a country (SDG 15.1.1)"
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "faostat.environment.water_stress",
+      "title": "FAO Water Stress (SDG 6.4.2)",
+      "description": "Retrieve freshwater withdrawal as a percentage of available freshwater resources for a country. High values (>40%) indicate severe water stress. Data from FAO FAOSTAT \u2014 UN SDG Indicator 6.4.2. Covers 211 countries. Accepts ISO alpha-2 (e.g. \"IN\"), alpha-3, or ISO numeric country codes.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "country_code": {
+            "type": "string",
+            "description": "Country code: ISO 3166-1 alpha-2 (e.g. \"IN\", \"US\", \"ET\"), alpha-3 (e.g. \"IND\"), or ISO numeric (e.g. \"356\")",
+            "minLength": 2,
+            "maxLength": 3
+          },
+          "start_year": {
+            "type": "integer",
+            "minimum": 1961,
+            "maximum": 2030,
+            "description": "Start year for the time series (default: 2015, earliest available: 1961)"
+          },
+          "end_year": {
+            "type": "integer",
+            "minimum": 1961,
+            "maximum": 2030,
+            "description": "End year for the time series (default: latest available)"
+          }
+        },
+        "required": [
+          "country_code"
+        ],
+        "description": "Query freshwater withdrawal as % of available resources for a country (SDG 6.4.2)"
       },
       "outputSchema": {
         "type": "object",

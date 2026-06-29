@@ -248,6 +248,7 @@ import { SwissFsoAdapter } from './swissfso';
 import { TreasuryFiscalAdapter } from './treasuryfiscal';
 import { UsdaMarsAdapter } from './usdamars';
 import { AdsbdbAdapter } from './adsbdb';
+import { FaoAdapter } from './fao';
 import { config } from '../config';
 
 /**
@@ -1432,6 +1433,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'adsbdb':
       // ADS-B DB (UC-529) — aircraft/airline lookup by Mode-S/registration/callsign; MIT, no auth
       return getOrCreate('adsbdb', () => new AdsbdbAdapter());
+    case 'faostat':
+      // FAO FAOSTAT SDG API (UC-530) — food security, water stress, forest area, food loss; no auth
+      return getOrCreate('faostat', () => new FaoAdapter());
     default:
       return undefined;
   }

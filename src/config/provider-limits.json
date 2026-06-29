@@ -2231,5 +2231,14 @@
     "reset_period": "none",
     "docs_url": "https://github.com/mrjackwills/adsbdb",
     "limit_proof": "MIT license open-source project, no auth required, no documented rate limits"
+  },
+  "faostat": {
+    "display_name": "FAO FAOSTAT SDG",
+    "health_url": "https://nsi-release-ro-statsuite.fao.org/rest/dataflow/FAO/DF_SDG_2_1_1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://nsi-release-ro-statsuite.fao.org/rest/",
+    "limit_proof": "UN FAO public SDMX REST API, no auth required, no documented rate limits. Open access."
   }
 }

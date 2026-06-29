@@ -224,6 +224,7 @@ Use these examples as reference patterns when:
 | UC-527 | US Treasury Fiscal Data | Government / Finance | LIVE | US Gov public domain, no auth, unlimited | `usecases/UC-527-treasury-fiscal.md` |
 | UC-528 | USDA AMS MARS MyMarketNews | Agriculture / World | LIVE | US Gov public domain, no auth, unlimited | `usecases/UC-528-usdamars.md` |
 | UC-529 | ADS-B DB | Aviation / Travel | LIVE | MIT license, no auth, unlimited | `usecases/UC-529-adsbdb.md` |
+| UC-530 | FAO FAOSTAT SDG API | Agriculture / World | LIVE | UN/FAO public open data, no auth, unlimited | `usecases/UC-530-fao-faostat.md` |
 
 ## How to Use
 

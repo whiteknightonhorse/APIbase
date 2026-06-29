@@ -5135,6 +5135,37 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-530: FAO FAOSTAT SDG API ---
+  - tool_id: faostat.food_security
+    name: FAO Undernourishment (SDG 2.1.1)
+    provider: faostat
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: faostat.food_insecurity
+    name: FAO Food Insecurity (SDG 2.1.2)
+    provider: faostat
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: faostat.water_stress
+    name: FAO Water Stress (SDG 6.4.2)
+    provider: faostat
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: faostat.forest_area
+    name: FAO Forest Coverage (SDG 15.1.1)
+    provider: faostat
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: faostat.food_loss
+    name: FAO Food Loss Index (SDG 12.3.1)
+    provider: faostat
+    price_usd: "0.002"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform
