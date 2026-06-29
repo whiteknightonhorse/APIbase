@@ -13,7 +13,7 @@
   "authentication": {
     "type": "bearer",
     "required": false,
-    "description": "API key (ak_live_...) via Authorization: Bearer header. Optional \u2014 auto-registration supported.",
+    "description": "API key (ak_live_...) via Authorization: Bearer header. Optional — auto-registration supported.",
     "payment": [
       "x402",
       "mpp"

@@ -27,7 +27,7 @@ https://github.com/user-attachments/assets/9e598d61-b2d0-486c-bd34-f0cb0354d09c
 
 ## What is APIbase?
 
-Production MCP server that gives AI agents access to 789 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, check weather and tides, forecast ocean waves and swell, query US Census and CDC health data, search ML models on HuggingFace, look up World Bank indicators, query UN SDG development goals data, track streamflow from USGS stations, search 7M+ CS papers on DBLP, generate images, send emails, decode VINs, look up chemical compounds, scan npm/PyPI vulnerabilities, search NIST NVD CVE records, find EV chargers, estimate solar PV output, search art at the Met Museum, look up Dota 2 match stats, get decoded aviation METAR/TAF, look up parsed NOTAMs and PIREPs, search FDA medical device recalls and 510(k) clearances, batch multiple calls, track usage analytics — and 300+ more tools across 30+ categories.
+Production MCP server that gives AI agents access to 789 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, check weather and tides, forecast ocean waves and swell, query US Census and CDC health data, search ML models on HuggingFace, look up World Bank indicators, query UN SDG development goals data, track streamflow from USGS stations, search 7M+ CS papers on DBLP, generate images, send emails, decode VINs, look up chemical compounds, scan npm/PyPI vulnerabilities, search NIST NVD CVE records, find EV chargers, estimate solar PV output, search art at the Met Museum, look up Dota 2 match stats, get decoded aviation METAR/TAF, look up parsed NOTAMs and PIREPs, search FDA medical device recalls and 510(k) clearances, batch multiple calls, track usage analytics — and 789 tools across 30+ categories.
 
 **Built for AI agents, not humans.** Auto-registration, zero setup, pay-per-call via x402 USDC micropayments on Base or MPP (Machine Payments Protocol) on Tempo.
 
@@ -451,7 +451,7 @@ GET  /.well-known/x402-payment.json     → Payment config (network, facilitator
 GET  /.well-known/openapi.json          → OpenAPI 3.1 spec (with x-payment-info)
 GET  /ai.txt                            → Plain text AI agent discovery
 GET  /llms.txt                          → Concise LLM context
-GET  /api/v1/tools                      → Live tool catalog (all 490 tools, JSON schemas)
+GET  /api/v1/tools                      → Live tool catalog (all 789 tools, JSON schemas)
 GET  /health/ready                      → System health check
 POST /mcp  prompts/get discover_tools   → Browse tools by category or task (progressive disclosure)
 GET  /frameworks                        → Integration guides for 9 frameworks

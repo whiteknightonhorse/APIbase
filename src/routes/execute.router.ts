@@ -53,6 +53,9 @@ executeRouter.post(
       const result = await runPipeline(ctx);
 
       if (result.ok) {
+        // X-Cache diagnostic (2026-06-29): lets the protocol-tester tell a legit cache-hit
+        // replay (HIT, billed against the signed payment) from a real bypass (MISS).
+        res.setHeader('X-Cache', result.value.cacheHit ? 'HIT' : 'MISS');
         res.status(result.value.responseStatus || 200).json(result.value.responseBody);
         return;
       }

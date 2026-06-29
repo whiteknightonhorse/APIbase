@@ -11,7 +11,7 @@ Payment: x402 (USDC on Base) + MPP (Machine Payments Protocol)
 Tools: 789 across 21 categories
 
 ## What We Do
-APIbase aggregates 789 API tools from 233 providers into a single MCP endpoint.
+APIbase aggregates 789 tools from 233 providers into a single MCP endpoint.
 Any AI agent can discover, call, and pay for tools through one entry point.
 
 ## For AI Agents — Quick Start
@@ -20,7 +20,7 @@ Any AI agent can discover, call, and pay for tools through one entry point.
 3. Call tools: tools/call with any tool name → pipeline handles auth, payment, caching
 4. Full catalog: GET https://apibase.pro/api/v1/tools → all 789 tools with JSON schemas
 
-## Progressive Disclosure (recommended for 500+ tools)
+## Progressive Disclosure (recommended for 789 tools)
 Instead of loading all tool schemas into context, use the discover_tools prompt:
 - discover_tools (no args) → 21 categories with tool counts
 - discover_tools category="travel" → 17 travel tools (amadeus, aviasales, sabre)
