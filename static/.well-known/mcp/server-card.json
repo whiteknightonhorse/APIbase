@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 794 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 799 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -46205,6 +46205,240 @@
           "error": {
             "type": "object",
             "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "hackernews.stories.best",
+      "title": "HackerNews \u2014 Best Stories",
+      "description": "Fetch the best-rated stories from Hacker News \u2014 high-quality posts selected by the HN \"best\" feed algorithm which balances score, engagement, and editorial quality. Up to 20 stories with title, URL, author, score, and comment count. No auth required. Data: Hacker News (CC BY 3.0).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "Number of best stories to return (1\u201320, default 10). HackerNews \"best\" feed: high-quality posts with strong upvotes and engagement."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "hackernews.item.details",
+      "title": "HackerNews \u2014 Item Details",
+      "description": "Fetch full details for any HackerNews item by its integer ID \u2014 works for stories, comments, Ask HN posts, Show HN posts, jobs, and polls. Returns type, title, URL, author, score, body text (HTML-stripped), comment count, child comment IDs (up to 10), and direct HN link. No auth required. Data: Hacker News (CC BY 3.0).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "HackerNews item ID (integer). Works for stories, comments, jobs, polls, and poll options. Example: 48713832",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "hackernews.stories.new",
+      "title": "HackerNews \u2014 New Stories",
+      "description": "Fetch the most recently submitted stories from Hacker News \u2014 up to 20 posts sorted by submission time (newest first). Useful for monitoring breaking tech news and community discussion before posts gain front-page visibility. Returns title, URL, author, score, and comment count. No auth required. Data: Hacker News (CC BY 3.0).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "Number of newest stories to return (1\u201320, default 10). Sorted by submission time, most recent first."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "hackernews.stories.top",
+      "title": "HackerNews \u2014 Top Stories",
+      "description": "Fetch the current top stories from Hacker News \u2014 returns up to 20 posts with title, URL, score, author, comment count, and submission time. The HN front page algorithm ranks by score and recency. Results reflect the live HackerNews ranking updated every few minutes. No auth required. Data: Hacker News (CC BY 3.0).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "Number of top stories to return (1\u201320, default 10). Each story includes title, URL, score, and comment count."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "hackernews.user.profile",
+      "title": "HackerNews \u2014 User Profile",
+      "description": "Fetch a HackerNews user profile by username \u2014 returns karma score, account creation date, about/bio text, and total submission count (stories + comments). Useful for checking contributor credibility or researching HN community members. No auth required. Data: Hacker News (CC BY 3.0).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "HackerNews username (case-sensitive). Examples: \"pg\", \"dang\", \"tptacek\". Returns karma, account age, about text, and submission count.",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "username"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
           }
         },
         "required": [

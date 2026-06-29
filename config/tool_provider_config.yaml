@@ -4892,6 +4892,37 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-521: HackerNews Firebase ---
+  - tool_id: hackernews.top_stories
+    name: HackerNews — Top Stories
+    provider: hackernews
+    price_usd: "0.001"
+    cache_ttl: 300
+
+  - tool_id: hackernews.new_stories
+    name: HackerNews — New Stories
+    provider: hackernews
+    price_usd: "0.001"
+    cache_ttl: 60
+
+  - tool_id: hackernews.best_stories
+    name: HackerNews — Best Stories
+    provider: hackernews
+    price_usd: "0.001"
+    cache_ttl: 600
+
+  - tool_id: hackernews.item_details
+    name: HackerNews — Item Details
+    provider: hackernews
+    price_usd: "0.001"
+    cache_ttl: 300
+
+  - tool_id: hackernews.user_profile
+    name: HackerNews — User Profile
+    provider: hackernews
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

@@ -239,6 +239,7 @@ import { sunrisesunsetSchemas } from './sunrisesunset.schema';
 import { pokeapiSchemas } from './pokeapi.schema';
 import { samuniSchemas } from './samuni.schema';
 import { tvmazeSchemas } from './tvmaze.schema';
+import { hackernewsSchemas } from './hackernews.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -481,4 +482,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...pokeapiSchemas,
   ...samuniSchemas,
   ...tvmazeSchemas,
+  ...hackernewsSchemas,
 };

@@ -8918,4 +8918,66 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'entertainment',
     annotations: READ_ONLY,
   },
+
+  // HackerNews Firebase (UC-521) — real-time HN stories, items, user profiles; CC BY 3.0, no auth
+  {
+    toolId: 'hackernews.top_stories',
+    mcpName: 'hackernews.stories.top',
+    title: 'HackerNews Top Stories',
+    description:
+      'Fetch the current top stories from Hacker News — returns up to 20 posts with title, URL, ' +
+      'score, author, comment count, and submission time. The HN front page algorithm ranks by score ' +
+      'and recency. Results reflect the live HackerNews ranking updated every few minutes. ' +
+      'No auth required. Data: Hacker News (CC BY 3.0).',
+    category: 'news',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'hackernews.new_stories',
+    mcpName: 'hackernews.stories.new',
+    title: 'HackerNews New Stories',
+    description:
+      'Fetch the most recently submitted stories from Hacker News — up to 20 posts sorted by ' +
+      'submission time (newest first). Useful for monitoring breaking tech news and community discussion ' +
+      'before posts gain front-page visibility. Returns title, URL, author, score, and comment count. ' +
+      'No auth required. Data: Hacker News (CC BY 3.0).',
+    category: 'news',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'hackernews.best_stories',
+    mcpName: 'hackernews.stories.best',
+    title: 'HackerNews Best Stories',
+    description:
+      'Fetch the best-rated stories from Hacker News — high-quality posts selected by the HN ' +
+      '"best" feed algorithm which balances score, engagement, and editorial quality. ' +
+      'Up to 20 stories with title, URL, author, score, and comment count. ' +
+      'No auth required. Data: Hacker News (CC BY 3.0).',
+    category: 'news',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'hackernews.item_details',
+    mcpName: 'hackernews.item.details',
+    title: 'HackerNews Item Details',
+    description:
+      'Fetch full details for any HackerNews item by its integer ID — works for stories, comments, ' +
+      'Ask HN posts, Show HN posts, jobs, and polls. Returns type, title, URL, author, score, ' +
+      'body text (HTML-stripped), comment count, child comment IDs (up to 10), and direct HN link. ' +
+      'No auth required. Data: Hacker News (CC BY 3.0).',
+    category: 'news',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'hackernews.user_profile',
+    mcpName: 'hackernews.user.profile',
+    title: 'HackerNews User Profile',
+    description:
+      'Fetch a HackerNews user profile by username — returns karma score, account creation date, ' +
+      'about/bio text, and total submission count (stories + comments). Useful for checking contributor ' +
+      'credibility or researching HN community members. ' +
+      'No auth required. Data: Hacker News (CC BY 3.0).',
+    category: 'news',
+    annotations: READ_ONLY,
+  },
 ];

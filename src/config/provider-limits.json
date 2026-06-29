@@ -2150,5 +2150,14 @@
     "reset_period": "daily",
     "docs_url": "https://www.tvmaze.com/api#rate-limiting",
     "limit_proof": "20 API calls every 10 seconds per IP for non-premium users (rolling window). No daily hard cap documented \u2014 effectively unlimited for moderate use. CC BY-SA license."
+  },
+  "hackernews": {
+    "display_name": "HackerNews Firebase",
+    "health_url": "https://hacker-news.firebaseio.com/v0/maxitem.json",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://github.com/HackerNews/API",
+    "limit_proof": "Public Firebase REST API with no documented rate limits. Open access, no auth required. CC BY 3.0."
   }
 }

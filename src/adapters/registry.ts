@@ -239,6 +239,7 @@ import { SunriseSunsetAdapter } from './sunrisesunset';
 import { PokeApiAdapter } from './pokeapi';
 import { SaMuniAdapter } from './samuni';
 import { TvMazeAdapter } from './tvmaze';
+import { HackernewsAdapter } from './hackernews';
 import { config } from '../config';
 
 /**
@@ -1396,6 +1397,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'tvmaze':
       // TVMaze (UC-520) — 25K+ TV shows: search, details, episodes, cast, schedules; CC BY-SA, no auth
       return getOrCreate('tvmaze', () => new TvMazeAdapter());
+    case 'hackernews':
+      // HackerNews Firebase (UC-521) — top/new/best stories, item details, user profiles; CC BY 3.0, no auth
+      return getOrCreate('hackernews', () => new HackernewsAdapter());
     default:
       return undefined;
   }
