@@ -5041,6 +5041,31 @@ tools:
     price_usd: "0.002"
     cache_ttl: 86400
 
+  # --- UC-526: Swiss FSO STAT-TAB ---
+  - tool_id: swissfso.catalog.list
+    name: Swiss FSO Dataset Catalog
+    provider: swissfso
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: swissfso.table.metadata
+    name: Swiss FSO Table Dimensions
+    provider: swissfso
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: swissfso.table.query
+    name: Swiss FSO Table Data Query
+    provider: swissfso
+    price_usd: "0.003"
+    cache_ttl: 3600
+
+  - tool_id: swissfso.wages.monthly
+    name: Swiss Monthly Gross Wages
+    provider: swissfso
+    price_usd: "0.002"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

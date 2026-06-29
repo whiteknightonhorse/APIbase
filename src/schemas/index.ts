@@ -244,6 +244,7 @@ import { hnalgoliaSchemas } from './hnalgolia.schema';
 import { wikipediaSchemas } from './wikipedia.schema';
 import { irailSchemas } from './irail.schema';
 import { norgesbankSchemas } from './norgesbank.schema';
+import { swissfsoSchemas } from './swissfso.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -491,4 +492,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...wikipediaSchemas,
   ...irailSchemas,
   ...norgesbankSchemas,
+  ...swissfsoSchemas,
 };

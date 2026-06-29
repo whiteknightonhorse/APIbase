@@ -9220,4 +9220,59 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+  // Swiss FSO STAT-TAB (4)
+  {
+    toolId: 'swissfso.catalog.list',
+    mcpName: 'swissfso.catalog.list',
+    title: 'Swiss FSO Dataset Catalog',
+    description:
+      'Browse the Swiss Federal Statistical Office (BFS/FSO) STAT-TAB catalog of 648 statistical ' +
+      'datasets. Filter by subject area using BFS subject codes: "01"=population, "03"=employment, ' +
+      '"06"=industry, "07"=agriculture, "09"=construction, "10"=tourism, "13"=social-security, ' +
+      '"14"=health, "15"=education, "21"=sustainability. Returns dataset IDs (database_id) needed ' +
+      'for table.metadata and table.query. Data: Swiss OGD, no auth, commercial use permitted.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'swissfso.table.metadata',
+    mcpName: 'swissfso.table.metadata',
+    title: 'Swiss FSO Table Dimensions',
+    description:
+      'Get the variable dimensions and available filter values for any Swiss Federal Statistical ' +
+      'Office (FSO/BFS) STAT-TAB dataset. Provide a database_id from catalog.list. Returns the ' +
+      'table title, dimension codes, and all available value codes with German labels — needed to ' +
+      'construct filters for table.query. Example: database_id "px-x-0304010000_201" returns ' +
+      'year, region, industry, professional status, gender, and percentile dimensions for monthly ' +
+      'gross wages. Data: Swiss OGD, no auth, commercial use permitted.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'swissfso.table.query',
+    mcpName: 'swissfso.table.query',
+    title: 'Swiss FSO Table Data Query',
+    description:
+      'Query data from any Swiss Federal Statistical Office (FSO/BFS) STAT-TAB dataset using ' +
+      'dimension filters. Provide a database_id from catalog.list and optional filters (from ' +
+      'table.metadata). Each filter specifies a dimension code and an array of value codes. ' +
+      'Returns JSON-stat2 formatted data with dimension labels and numeric values. Note: variable ' +
+      'codes and labels are in German (official FSO data language). Unfiltered dimensions return ' +
+      'all values, so always filter time and region to keep responses manageable. Swiss OGD, no auth.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'swissfso.wages.monthly',
+    mcpName: 'swissfso.wages.monthly',
+    title: 'Swiss Monthly Gross Wages',
+    description:
+      'Get Swiss monthly gross wage statistics from the Federal Statistical Office (FSO/BFS) ' +
+      'Salary Structure Survey. Returns nationwide median (or other percentile) monthly wages in ' +
+      'CHF for all industries and professional levels combined. Available for biennial survey years ' +
+      '2012–2024. Filter by gender (total/female/male) and percentile (median/P10/P25/P75/P90). ' +
+      'Example: 2024 median wage overall ≈ CHF 6,502/month. Data: FSO Lohnstrukturerhebung, no auth.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
 ];

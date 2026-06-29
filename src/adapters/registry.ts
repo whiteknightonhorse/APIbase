@@ -244,6 +244,7 @@ import { HnAlgoliaAdapter } from './hnalgolia';
 import { WikipediaAdapter } from './wikipedia';
 import { IrailAdapter } from './irail';
 import { NorgesBankAdapter } from './norgesbank';
+import { SwissFsoAdapter } from './swissfso';
 import { config } from '../config';
 
 /**
@@ -1416,6 +1417,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'norgesbank':
       // Norges Bank (UC-525) — FX rates (41 currencies vs NOK), key policy rates; SDMX REST, no auth
       return getOrCreate('norgesbank', () => new NorgesBankAdapter());
+    case 'swissfso':
+      // Swiss FSO (UC-526) — 648 datasets: population, employment, health, education; PxWeb, no auth
+      return getOrCreate('swissfso', () => new SwissFsoAdapter());
     default:
       return undefined;
   }

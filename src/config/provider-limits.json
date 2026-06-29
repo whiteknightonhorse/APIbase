@@ -2195,5 +2195,14 @@
     "reset_period": "none",
     "docs_url": "https://app.norges-bank.no/query/index.html#/en/",
     "limit_proof": "Norwegian central bank open government data. SDMX REST API with no documented rate limits or authentication requirements."
+  },
+  "swissfso": {
+    "display_name": "Swiss Federal Statistics (FSO)",
+    "health_url": "https://www.pxweb.bfs.admin.ch/api/v1/de",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.bfs.admin.ch/bfs/en/home/statistics/catalogues-databases/tables.html",
+    "limit_proof": "Swiss Federal Statistical Office PxWeb API — Swiss OGD, no authentication required, no documented rate limits, commercial use permitted."
   }
 }

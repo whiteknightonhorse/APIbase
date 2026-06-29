@@ -75615,6 +75615,363 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/swissfso.catalog.list/call": {
+      "post": {
+        "operationId": "swissfso_catalog_list",
+        "summary": "Swiss FSO Dataset Catalog",
+        "description": "Browse the Swiss Federal Statistical Office (BFS/FSO) STAT-TAB catalog of 648 statistical datasets. Filter by subject area using BFS subject codes: \"01\"=population, \"03\"=employment, \"06\"=industry, \"07\"=agriculture, \"09\"=construction, \"10\"=tourism, \"13\"=social-security, \"14\"=health, \"15\"=education, \"21\"=sustainability. Returns dataset IDs (database_id) needed for table.metadata and table.query. Data: Swiss OGD, no auth, commercial use permitted.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "swissfso.catalog.list"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "subject": {
+                    "type": "string",
+                    "description": "Filter by BFS subject code or name. Code examples: \"01\"=population, \"03\"=employment, \"06\"=industry, \"07\"=agriculture, \"09\"=construction, \"10\"=tourism, \"13\"=social-security, \"14\"=health, \"15\"=education, \"21\"=sustainability. Omit to list all 648 datasets."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 200,
+                    "description": "Maximum number of dataset entries to return (1–200, default 50)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/swissfso.table.metadata/call": {
+      "post": {
+        "operationId": "swissfso_table_metadata",
+        "summary": "Swiss FSO Table Dimensions",
+        "description": "Get the variable dimensions and available filter values for any Swiss Federal Statistical Office (FSO/BFS) STAT-TAB dataset. Provide a database_id from catalog.list. Returns the table title, dimension codes, and all available value codes with German labels — needed to construct filters for table.query. Example: database_id \"px-x-0304010000_201\" returns year, region, industry, professional status, gender, and percentile dimensions for monthly gross wages. Data: Swiss OGD, no auth, commercial use permitted.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "swissfso.table.metadata"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "database_id": {
+                    "type": "string",
+                    "description": "BFS database identifier (e.g. \"px-x-0304010000_201\" for monthly wages, \"px-x-0103010000_123\" for 2023 population by canton). Obtain from catalog.list."
+                  }
+                },
+                "required": [
+                  "database_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/swissfso.table.query/call": {
+      "post": {
+        "operationId": "swissfso_table_query",
+        "summary": "Swiss FSO Table Data Query",
+        "description": "Query data from any Swiss Federal Statistical Office (FSO/BFS) STAT-TAB dataset using dimension filters. Provide a database_id from catalog.list and optional filters (from table.metadata). Each filter specifies a dimension code and an array of value codes. Returns JSON-stat2 formatted data with dimension labels and numeric values. Note: variable codes and labels are in German (official FSO data language). Unfiltered dimensions return all values, so always filter time and region to keep responses manageable. Swiss OGD, no auth.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "swissfso.table.query"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "database_id": {
+                    "type": "string",
+                    "description": "BFS database identifier (e.g. \"px-x-0304010000_201\"). Use catalog.list to discover IDs; table.metadata to see variable codes and values."
+                  },
+                  "filters": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "description": "Dimension code as returned by table.metadata (e.g. \"Jahr\", \"Geschlecht\")."
+                        },
+                        "values": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "Array of value codes to select (e.g. [\"2024\"] for year 2024, [\"-1\"] for totals). Use value codes from table.metadata, not the human-readable labels."
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "values"
+                      ],
+                      "description": "A dimension filter: selects specific values for one variable."
+                    },
+                    "description": "Array of dimension filters. Unfiltered dimensions return all values. Tip: always filter time and region dimensions to keep response size manageable."
+                  }
+                },
+                "required": [
+                  "database_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/swissfso.wages.monthly/call": {
+      "post": {
+        "operationId": "swissfso_wages_monthly",
+        "summary": "Swiss Monthly Gross Wages",
+        "description": "Get Swiss monthly gross wage statistics from the Federal Statistical Office (FSO/BFS) Salary Structure Survey. Returns nationwide median (or other percentile) monthly wages in CHF for all industries and professional levels combined. Available for biennial survey years 2012–2024. Filter by gender (total/female/male) and percentile (median/P10/P25/P75/P90). Example: 2024 median wage overall ≈ CHF 6,502/month. Data: FSO Lohnstrukturerhebung, no auth.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "swissfso.wages.monthly"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "year": {
+                    "type": "string",
+                    "description": "Survey year. Available: 2024, 2022, 2020, 2018, 2016, 2014, 2012. Default: 2024."
+                  },
+                  "gender": {
+                    "type": "string",
+                    "enum": [
+                      "total",
+                      "female",
+                      "male"
+                    ],
+                    "description": "Gender filter: \"total\" (default), \"female\" (Frauen), or \"male\" (Männer)."
+                  },
+                  "percentile": {
+                    "type": "string",
+                    "enum": [
+                      "1",
+                      "2",
+                      "3",
+                      "4",
+                      "5"
+                    ],
+                    "description": "Wage percentile: \"1\"=median (default), \"2\"=P10, \"3\"=P25, \"4\"=P75, \"5\"=P90."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

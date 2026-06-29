@@ -220,6 +220,7 @@ Use these examples as reference patterns when:
 | UC-523 | Wikipedia REST API | Reference / Education | LIVE | CC BY-SA 4.0, no auth, unlimited | `usecases/UC-523-wikipedia-rest.md` |
 | UC-524 | iRail Belgium Rail | Travel | LIVE | Open data, no auth, commercial use OK | `usecases/UC-524-irail.md` |
 | UC-525 | Norges Bank | Finance / Central Bank | LIVE | NLOD open government data, no auth, unlimited | `usecases/UC-525-norgesbank.md` |
+| UC-526 | Swiss Federal Statistics Office (FSO/BFS) | Government / Statistics | LIVE | Swiss OGD CCZero, no auth, unlimited | `usecases/UC-526-swiss-fso.md` |
 
 ## How to Use
 
