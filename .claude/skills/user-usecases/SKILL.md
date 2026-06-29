@@ -225,6 +225,7 @@ Use these examples as reference patterns when:
 | UC-528 | USDA AMS MARS MyMarketNews | Agriculture / World | LIVE | US Gov public domain, no auth, unlimited | `usecases/UC-528-usdamars.md` |
 | UC-529 | ADS-B DB | Aviation / Travel | LIVE | MIT license, no auth, unlimited | `usecases/UC-529-adsbdb.md` |
 | UC-530 | FAO FAOSTAT SDG API | Agriculture / World | LIVE | UN/FAO public open data, no auth, unlimited | `usecases/UC-530-fao-faostat.md` |
+| UC-531 | ClinicalTrials.gov v2 | Health / Clinical Research | LIVE | NIH US Gov public domain, no auth, unlimited | `usecases/UC-531-clinicaltrials-v2.md` |
 
 ## How to Use
 

@@ -2240,5 +2240,14 @@
     "reset_period": "none",
     "docs_url": "https://nsi-release-ro-statsuite.fao.org/rest/",
     "limit_proof": "UN FAO public SDMX REST API, no auth required, no documented rate limits. Open access."
+  },
+  "clinicaltrials": {
+    "display_name": "ClinicalTrials.gov v2",
+    "health_url": "https://clinicaltrials.gov/api/v2/stats/size",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://clinicaltrials.gov/data-api/api",
+    "limit_proof": "NIH US Government public domain API. No authentication required, no documented rate limits. Commercial use permitted."
   }
 }

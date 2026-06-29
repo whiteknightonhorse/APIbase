@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 863 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 867 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -49602,6 +49602,257 @@
               "null"
             ],
             "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "clinicaltrials.trials.recruiting",
+      "title": "ClinicalTrials Active Recruiting",
+      "description": "Find clinical trials currently open for enrollment (status=RECRUITING) for a given condition or drug. Optionally filter by phase (e.g. PHASE3 for large confirmatory trials). Returns NCT ID, title, phases, conditions, sponsor, enrollment target, and start/completion dates. Useful for patients or researchers seeking open studies. Source: ClinicalTrials.gov v2 (NIH, public domain).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "condition": {
+            "type": "string",
+            "description": "Disease or condition to search for among currently recruiting trials (e.g. \"lung cancer\", \"Alzheimer\", \"type 2 diabetes\")."
+          },
+          "intervention": {
+            "type": "string",
+            "description": "Drug or intervention to search for among recruiting trials (e.g. \"pembrolizumab\", \"mRNA vaccine\", \"gene therapy\")."
+          },
+          "phase": {
+            "type": "string",
+            "enum": [
+              "PHASE1",
+              "PHASE2",
+              "PHASE3",
+              "PHASE4",
+              "EARLY_PHASE1",
+              "NA"
+            ],
+            "description": "Restrict to a specific trial phase among recruiting studies. PHASE3 = large confirmatory trials; PHASE1 = early safety studies."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Maximum number of recruiting trials to return (1\u201350). Default: 10.",
+            "default": 10
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "clinicaltrials.trials.search",
+      "title": "ClinicalTrials Search",
+      "description": "Search 400K+ clinical trials registered on ClinicalTrials.gov by condition, drug/intervention, sponsor, or keyword. Optionally filter by status (RECRUITING, COMPLETED, etc.) and phase (PHASE1\u2013PHASE4). Returns NCT ID, title, status, phases, conditions, sponsor, enrollment, and start/completion dates. Supports pagination via page_token. Data from NIH US Gov (public domain).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "condition": {
+            "type": "string",
+            "description": "Disease or condition to search for (e.g. \"diabetes\", \"breast cancer\", \"COVID-19\"). Searches the conditions field of registered trials."
+          },
+          "intervention": {
+            "type": "string",
+            "description": "Drug or intervention to search for (e.g. \"aspirin\", \"metformin\", \"CAR T-cell therapy\"). Searches the interventions field of registered trials."
+          },
+          "sponsor": {
+            "type": "string",
+            "description": "Sponsor or organization name to search for (e.g. \"Pfizer\", \"NIH\", \"Mayo Clinic\"). Searches the lead sponsor field."
+          },
+          "keyword": {
+            "type": "string",
+            "description": "Free-text keyword search across all text fields of the trial record (e.g. \"immunotherapy\", \"biomarker\", \"phase 3 randomized\")."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "RECRUITING",
+              "NOT_YET_RECRUITING",
+              "ACTIVE_NOT_RECRUITING",
+              "COMPLETED",
+              "TERMINATED",
+              "WITHDRAWN",
+              "SUSPENDED",
+              "UNKNOWN"
+            ],
+            "description": "Filter by overall trial status. Most useful values: \"RECRUITING\" (open enrollment), \"COMPLETED\" (finished), \"ACTIVE_NOT_RECRUITING\" (ongoing but closed to new participants)."
+          },
+          "phase": {
+            "type": "string",
+            "enum": [
+              "PHASE1",
+              "PHASE2",
+              "PHASE3",
+              "PHASE4",
+              "EARLY_PHASE1",
+              "NA"
+            ],
+            "description": "Filter by clinical trial phase. PHASE1=safety, PHASE2=efficacy, PHASE3=confirmatory, PHASE4=post-market, NA=not applicable (e.g. observational studies)."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Maximum number of results to return (1\u201350). Default: 10.",
+            "default": 10
+          },
+          "page_token": {
+            "type": "string",
+            "description": "Pagination token from a previous search response (next_page_token field). Omit for the first page."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "clinicaltrials.trials.stats",
+      "title": "ClinicalTrials Database Stats",
+      "description": "Get current statistics for the ClinicalTrials.gov database: total registered studies count and average record size in bytes. Useful for understanding data scale before bulk queries. Source: ClinicalTrials.gov v2 /stats/size endpoint (NIH US Gov, public domain, unlimited access).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "dummy": {
+            "type": "string",
+            "description": "Unused parameter \u2014 included for schema compatibility. Leave empty. Returns total study count and average record size from ClinicalTrials.gov."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "clinicaltrials.trials.detail",
+      "title": "ClinicalTrials Study Detail",
+      "description": "Retrieve full details of a specific clinical trial by its NCT identifier (e.g. \"NCT04368728\"). Returns title, official title, status, sponsor, conditions, interventions, design info, enrollment, eligibility criteria (age/sex/health volunteer), primary and secondary outcomes, brief summary, and up to 10 study locations. Source: ClinicalTrials.gov v2 API (NIH, public domain).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "nct_id": {
+            "type": "string",
+            "description": "ClinicalTrials.gov registry identifier in NCT format (e.g. \"NCT04368728\", \"NCT01454700\"). Must start with \"NCT\" followed by 8 digits."
+          }
+        },
+        "required": [
+          "nct_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
           },
           "error": {
             "type": "object",

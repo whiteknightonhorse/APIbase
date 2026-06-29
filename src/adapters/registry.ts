@@ -98,7 +98,6 @@ import { AssemblyAIAdapter } from './assemblyai';
 import { VatcomplyAdapter } from './vatcomply';
 import { CloudflareAdapter } from './cloudflare';
 import { NameSiloAdapter } from './namesilo';
-import { ClinicalTrialsAdapter } from './clinicaltrials';
 import { TelegramAdapter } from './telegram';
 import { BrowserbaseAdapter } from './browserbase';
 import { PexelsAdapter } from './pexels';
@@ -249,6 +248,7 @@ import { TreasuryFiscalAdapter } from './treasuryfiscal';
 import { UsdaMarsAdapter } from './usdamars';
 import { AdsbdbAdapter } from './adsbdb';
 import { FaoAdapter } from './fao';
+import { ClinicalTrialsAdapter } from './clinicaltrials';
 import { config } from '../config';
 
 /**
@@ -740,6 +740,7 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       return getOrCreate('telegram', () => new TelegramAdapter(tgToken));
     }
     case 'clinical':
+      // Legacy alias — reroutes old 'clinical.*' tool prefix to the same adapter
       return getOrCreate('clinicaltrials', () => new ClinicalTrialsAdapter());
     case 'namesilo': {
       const nsKey = (config as Record<string, unknown>).PROVIDER_KEY_NAMESILO as string | undefined;
@@ -1436,6 +1437,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'faostat':
       // FAO FAOSTAT SDG API (UC-530) — food security, water stress, forest area, food loss; no auth
       return getOrCreate('faostat', () => new FaoAdapter());
+    case 'clinicaltrials':
+      // ClinicalTrials.gov v2 (UC-531) — 400K+ clinical trials search/detail; NIH US Gov, no auth
+      return getOrCreate('clinicaltrials', () => new ClinicalTrialsAdapter());
     default:
       return undefined;
   }

@@ -5166,6 +5166,31 @@ tools:
     price_usd: "0.002"
     cache_ttl: 86400
 
+  # --- UC-531: ClinicalTrials.gov v2 ---
+  - tool_id: clinicaltrials.search
+    name: ClinicalTrials Search
+    provider: clinicaltrials
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: clinicaltrials.study
+    name: ClinicalTrials Study Detail
+    provider: clinicaltrials
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: clinicaltrials.recruiting
+    name: ClinicalTrials Active Recruiting
+    provider: clinicaltrials
+    price_usd: "0.001"
+    cache_ttl: 1800
+
+  - tool_id: clinicaltrials.stats
+    name: ClinicalTrials Database Stats
+    provider: clinicaltrials
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

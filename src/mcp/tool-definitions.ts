@@ -9489,4 +9489,53 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+
+  // ClinicalTrials.gov v2 (UC-531) — 4 tools
+  {
+    toolId: 'clinicaltrials.search',
+    mcpName: 'clinicaltrials.trials.search',
+    title: 'ClinicalTrials Search',
+    description:
+      'Search 400K+ clinical trials registered on ClinicalTrials.gov by condition, drug/intervention, ' +
+      'sponsor, or keyword. Optionally filter by status (RECRUITING, COMPLETED, etc.) and phase ' +
+      '(PHASE1–PHASE4). Returns NCT ID, title, status, phases, conditions, sponsor, enrollment, ' +
+      'and start/completion dates. Supports pagination via page_token. Data from NIH US Gov (public domain).',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'clinicaltrials.study',
+    mcpName: 'clinicaltrials.trials.detail',
+    title: 'ClinicalTrials Study Detail',
+    description:
+      'Retrieve full details of a specific clinical trial by its NCT identifier (e.g. "NCT04368728"). ' +
+      'Returns title, official title, status, sponsor, conditions, interventions, design info, ' +
+      'enrollment, eligibility criteria (age/sex/health volunteer), primary and secondary outcomes, ' +
+      'brief summary, and up to 10 study locations. Source: ClinicalTrials.gov v2 API (NIH, public domain).',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'clinicaltrials.recruiting',
+    mcpName: 'clinicaltrials.trials.recruiting',
+    title: 'ClinicalTrials Active Recruiting',
+    description:
+      'Find clinical trials currently open for enrollment (status=RECRUITING) for a given condition ' +
+      'or drug. Optionally filter by phase (e.g. PHASE3 for large confirmatory trials). Returns NCT ID, ' +
+      'title, phases, conditions, sponsor, enrollment target, and start/completion dates. ' +
+      'Useful for patients or researchers seeking open studies. Source: ClinicalTrials.gov v2 (NIH, public domain).',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'clinicaltrials.stats',
+    mcpName: 'clinicaltrials.trials.stats',
+    title: 'ClinicalTrials Database Stats',
+    description:
+      'Get current statistics for the ClinicalTrials.gov database: total registered studies count ' +
+      'and average record size in bytes. Useful for understanding data scale before bulk queries. ' +
+      'Source: ClinicalTrials.gov v2 /stats/size endpoint (NIH US Gov, public domain, unlimited access).',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
 ];
