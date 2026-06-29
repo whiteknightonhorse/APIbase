@@ -62,6 +62,7 @@ export interface ToolCatalogEntry {
   endpoint: string;
   method: string;
   category: string;
+  provider: string;
   pricing: { price_usd: number; cache_hit_price_usd: number };
   /**
    * Price tier — agents can filter by tier without knowing exact thresholds.
@@ -120,6 +121,7 @@ function toEntry(tool: {
     endpoint: `/api/v1/tools/${tool.tool_id}`,
     method: 'POST',
     category: tool.tool_id.includes('.') ? tool.tool_id.split('.')[0] : tool.provider,
+    provider: tool.provider,
     pricing: {
       price_usd: priceUsd,
       cache_hit_price_usd: cacheHitPrice,
