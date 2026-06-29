@@ -9847,4 +9847,60 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+
+  // OpenTopography (4)
+  {
+    toolId: 'opentopo.elevation_point',
+    mcpName: 'opentopo.elevation.point',
+    title: 'OpenTopography Point Elevation',
+    description:
+      'Query terrain elevation (in metres) at a specific latitude/longitude coordinate using ' +
+      'global Digital Elevation Model (DEM) datasets. Supports SRTMGL1 (NASA SRTM 30m, default), ' +
+      'COP30 (Copernicus 30m), AW3D30 (ALOS 30m), NASADEM (30m reprocessed), SRTM15Plus ' +
+      '(500m global bathymetry), and more. Returns elevation_m plus dataset resolution info. ' +
+      'Source: OpenTopography / USGS 3DEP, CC BY 4.0, free registration (5K req/day).',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'opentopo.elevation_area',
+    mcpName: 'opentopo.elevation.area',
+    title: 'OpenTopography Area Elevation Stats',
+    description:
+      'Get terrain elevation statistics (min, max, mean, range in metres) for a bounding box area ' +
+      'using global DEM datasets. Maximum bounding box: 0.5° × 0.5° (~55km × 55km at equator). ' +
+      'Returns min_m, max_m, mean_m, range_m, cell_count, valid_cells, nodata_cells, and resolution. ' +
+      'Useful for hydrological analysis, terrain characterisation, and infrastructure siting. ' +
+      'Source: OpenTopography / USGS 3DEP, CC BY 4.0, free registration (5K req/day).',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'opentopo.lidar_catalog',
+    mcpName: 'opentopo.catalog.lidar',
+    title: 'OpenTopography LiDAR Dataset Catalog',
+    description:
+      'Search the OpenTopography catalog for high-resolution LiDAR point cloud datasets covering a ' +
+      'specified bounding box. LiDAR datasets provide centimetre-to-metre resolution 3D terrain data, ' +
+      'primarily from USGS 3DEP surveys across the US. Returns dataset name, OpenTopography ID, ' +
+      'DOI URL, acquisition date, spatial coverage bounds, and description. Essential for discovering ' +
+      'available high-resolution terrain data before requesting downloads. ' +
+      'Source: OpenTopography catalog, CC BY 4.0, free registration (5K req/day).',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'opentopo.dem_catalog',
+    mcpName: 'opentopo.catalog.dem',
+    title: 'OpenTopography DEM Raster Catalog',
+    description:
+      'Search the OpenTopography catalog for raster Digital Elevation Model (DEM) datasets covering ' +
+      'a specified bounding box. Returns community-contributed and curated DEM datasets beyond the ' +
+      'standard global datasets — including specialised regional surveys, UAV-derived models, and ' +
+      'research DEMs. Returns dataset name, ID, DOI, format, creation date, and coverage bounds. ' +
+      'Complements the standard elevation query tools by exposing niche high-resolution datasets. ' +
+      'Source: OpenTopography catalog, CC BY 4.0, free registration (5K req/day).',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

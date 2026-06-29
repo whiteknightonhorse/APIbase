@@ -398,6 +398,9 @@ export const appEnvSchema = z.object({
   // OpenStates (UC-498) — US state legislative data; bills, legislators, committees; X-API-Key header
   PROVIDER_KEY_OPENSTATES: z.string().optional().default(''),
 
+  // OpenTopography (UC-537) — global DEM elevation + LiDAR catalog; free registration, 5K req/day
+  PROVIDER_KEY_OPENTOPO: z.string().optional().default('demoapikeyot2022'),
+
   // GeoNames geographical database (UC-512) — place search, postal codes, country info, timezones
   GEONAMES_USERNAME: z.string().optional().default('APIbase'),
 

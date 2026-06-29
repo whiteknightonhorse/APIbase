@@ -2285,5 +2285,14 @@
     "reset_period": "none",
     "docs_url": "https://www.treasurydirect.gov/TA_WS/",
     "limit_proof": "US Government open data (31 U.S.C.); TreasuryDirect TA_WS REST API — no auth required, no documented rate limits, commercial use allowed"
+  },
+  "opentopography": {
+    "display_name": "OpenTopography",
+    "health_url": "https://portal.opentopography.org/API/otCatalog?productFormat=Raster&minx=-122&miny=37&maxx=-121&maxy=38&outputFormat=json&API_Key=TOKEN_FROM_ENV",
+    "limit_type": "daily",
+    "free_limit": 5000,
+    "reset_period": "daily",
+    "docs_url": "https://portal.opentopography.org/apidocs/",
+    "limit_proof": "Free registered API key: 5,000 requests per 24-hour period (portal.opentopography.org/requestApiKey). Demo key: 50 req/day."
   }
 }

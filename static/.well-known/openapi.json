@@ -79841,6 +79841,434 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/opentopo.elevation_point/call": {
+      "post": {
+        "operationId": "opentopo_elevation_point",
+        "summary": "OpenTopography Point Elevation",
+        "description": "Query terrain elevation (in metres) at a specific latitude/longitude coordinate using global Digital Elevation Model (DEM) datasets. Supports SRTMGL1 (NASA SRTM 30m, default), COP30 (Copernicus 30m), AW3D30 (ALOS 30m), NASADEM (30m reprocessed), SRTM15Plus (500m global bathymetry), and more. Returns elevation_m plus dataset resolution info. Source: OpenTopography / USGS 3DEP, CC BY 4.0, free registration (5K req/day).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "opentopo.elevation_point"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "lat": {
+                    "type": "number",
+                    "description": "Latitude of the point to query (-90 to 90 decimal degrees)",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "lon": {
+                    "type": "number",
+                    "description": "Longitude of the point to query (-180 to 180 decimal degrees)",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  "dataset": {
+                    "type": "string",
+                    "enum": [
+                      "SRTMGL1",
+                      "SRTMGL3",
+                      "SRTMGL1_E",
+                      "AW3D30",
+                      "AW3D30_E",
+                      "NASADEM",
+                      "COP30",
+                      "COP90",
+                      "EU_DTM",
+                      "SRTM15Plus",
+                      "GEDI_L3",
+                      "GEBCOIceTopo",
+                      "GEBCOSubIceTopo"
+                    ],
+                    "description": "Global DEM dataset to query. SRTMGL1 = NASA SRTM 30m (default, global). COP30 = Copernicus 30m (high accuracy). AW3D30 = ALOS World 3D 30m. NASADEM = NASA 30m reprocessed SRTM. SRTMGL3 = SRTM 90m. COP90 = Copernicus 90m. SRTM15Plus = 500m global+bathymetry. EU_DTM = European 30m. GEBCOIceTopo/GEBCOSubIceTopo = GEBCO 500m ice/sub-ice."
+                  }
+                },
+                "required": [
+                  "lat",
+                  "lon"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/opentopo.elevation_area/call": {
+      "post": {
+        "operationId": "opentopo_elevation_area",
+        "summary": "OpenTopography Area Elevation Stats",
+        "description": "Get terrain elevation statistics (min, max, mean, range in metres) for a bounding box area using global DEM datasets. Maximum bounding box: 0.5° × 0.5° (~55km × 55km at equator). Returns min_m, max_m, mean_m, range_m, cell_count, valid_cells, nodata_cells, and resolution. Useful for hydrological analysis, terrain characterisation, and infrastructure siting. Source: OpenTopography / USGS 3DEP, CC BY 4.0, free registration (5K req/day).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "opentopo.elevation_area"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "south": {
+                    "type": "number",
+                    "description": "Southern boundary of bounding box in decimal degrees (-90 to 90)",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "north": {
+                    "type": "number",
+                    "description": "Northern boundary of bounding box in decimal degrees (must be > south)",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "west": {
+                    "type": "number",
+                    "description": "Western boundary of bounding box in decimal degrees (-180 to 180)",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  "east": {
+                    "type": "number",
+                    "description": "Eastern boundary of bounding box in decimal degrees (must be > west)",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  "dataset": {
+                    "type": "string",
+                    "enum": [
+                      "SRTMGL1",
+                      "SRTMGL3",
+                      "SRTMGL1_E",
+                      "AW3D30",
+                      "AW3D30_E",
+                      "NASADEM",
+                      "COP30",
+                      "COP90",
+                      "EU_DTM",
+                      "SRTM15Plus",
+                      "GEDI_L3",
+                      "GEBCOIceTopo",
+                      "GEBCOSubIceTopo"
+                    ],
+                    "description": "Global DEM dataset to query. SRTMGL1 = NASA SRTM 30m (default, global). COP30 = Copernicus 30m (high accuracy). AW3D30 = ALOS World 3D 30m. NASADEM = NASA 30m reprocessed SRTM. SRTMGL3 = SRTM 90m. COP90 = Copernicus 90m. SRTM15Plus = 500m global+bathymetry. EU_DTM = European 30m. GEBCOIceTopo/GEBCOSubIceTopo = GEBCO 500m ice/sub-ice."
+                  }
+                },
+                "required": [
+                  "south",
+                  "north",
+                  "west",
+                  "east"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/opentopo.lidar_catalog/call": {
+      "post": {
+        "operationId": "opentopo_lidar_catalog",
+        "summary": "OpenTopography LiDAR Dataset Catalog",
+        "description": "Search the OpenTopography catalog for high-resolution LiDAR point cloud datasets covering a specified bounding box. LiDAR datasets provide centimetre-to-metre resolution 3D terrain data, primarily from USGS 3DEP surveys across the US. Returns dataset name, OpenTopography ID, DOI URL, acquisition date, spatial coverage bounds, and description. Essential for discovering available high-resolution terrain data before requesting downloads. Source: OpenTopography catalog, CC BY 4.0, free registration (5K req/day).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "opentopo.lidar_catalog"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "min_lon": {
+                    "type": "number",
+                    "description": "Western boundary of search area in decimal degrees (-180 to 180)",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  "min_lat": {
+                    "type": "number",
+                    "description": "Southern boundary of search area in decimal degrees (-90 to 90)",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "max_lon": {
+                    "type": "number",
+                    "description": "Eastern boundary of search area in decimal degrees (-180 to 180)",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  "max_lat": {
+                    "type": "number",
+                    "description": "Northern boundary of search area in decimal degrees (-90 to 90)",
+                    "minimum": -90,
+                    "maximum": 90
+                  }
+                },
+                "required": [
+                  "min_lon",
+                  "min_lat",
+                  "max_lon",
+                  "max_lat"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/opentopo.dem_catalog/call": {
+      "post": {
+        "operationId": "opentopo_dem_catalog",
+        "summary": "OpenTopography DEM Raster Catalog",
+        "description": "Search the OpenTopography catalog for raster Digital Elevation Model (DEM) datasets covering a specified bounding box. Returns community-contributed and curated DEM datasets beyond the standard global datasets — including specialised regional surveys, UAV-derived models, and research DEMs. Returns dataset name, ID, DOI, format, creation date, and coverage bounds. Complements the standard elevation query tools by exposing niche high-resolution datasets. Source: OpenTopography catalog, CC BY 4.0, free registration (5K req/day).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "opentopo.dem_catalog"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "min_lon": {
+                    "type": "number",
+                    "description": "Western boundary of search area in decimal degrees (-180 to 180)",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  "min_lat": {
+                    "type": "number",
+                    "description": "Southern boundary of search area in decimal degrees (-90 to 90)",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "max_lon": {
+                    "type": "number",
+                    "description": "Eastern boundary of search area in decimal degrees (-180 to 180)",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  "max_lat": {
+                    "type": "number",
+                    "description": "Northern boundary of search area in decimal degrees (-90 to 90)",
+                    "minimum": -90,
+                    "maximum": 90
+                  }
+                },
+                "required": [
+                  "min_lon",
+                  "min_lat",
+                  "max_lon",
+                  "max_lat"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

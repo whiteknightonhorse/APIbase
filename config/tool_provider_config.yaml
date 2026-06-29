@@ -5334,6 +5334,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-537: OpenTopography ---
+  - tool_id: opentopo.elevation_point
+    name: OpenTopography Point Elevation
+    provider: opentopography
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: opentopo.elevation_area
+    name: OpenTopography Area Elevation Stats
+    provider: opentopography
+    price_usd: "0.003"
+    cache_ttl: 86400
+
+  - tool_id: opentopo.lidar_catalog
+    name: OpenTopography LiDAR Dataset Catalog
+    provider: opentopography
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: opentopo.dem_catalog
+    name: OpenTopography DEM Raster Catalog
+    provider: opentopography
+    price_usd: "0.002"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform
