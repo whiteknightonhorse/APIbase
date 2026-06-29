@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 809 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 814 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -46968,6 +46968,338 @@
         },
         "required": [
           "query"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "irail.transit.connections",
+      "title": "iRail Train Connections",
+      "description": "Find train connections between two Belgian railway stations \u2014 returns up to 10 journeys with departure/arrival times, total duration, delays, transfer stations (vias), train numbers, platform numbers, and cancellation flags. Supports departure or arrival time selection. No auth required. Data: iRail real-time SNCB/NMBS Belgium train data.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "description": "Departure station name (e.g. \"Brussel-Zuid\", \"Gent-Sint-Pieters\"). Must match Belgian spelling.",
+            "minLength": 2
+          },
+          "to": {
+            "type": "string",
+            "description": "Arrival station name (e.g. \"Antwerpen-Centraal\", \"Brugge\"). Must match Belgian spelling.",
+            "minLength": 2
+          },
+          "timesel": {
+            "type": "string",
+            "enum": [
+              "depart",
+              "arrive"
+            ],
+            "description": "Whether the provided time is the desired departure time or arrival time. Default: depart."
+          },
+          "results": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10,
+            "description": "Number of connections to return (1\u201310). Default: 6."
+          },
+          "date": {
+            "type": "string",
+            "description": "Date in DDMMYY format (e.g. \"290626\" for 29 June 2026). Defaults to today."
+          },
+          "time": {
+            "type": "string",
+            "description": "Time in HHMM format (e.g. \"1430\" for 14:30). Defaults to current time."
+          },
+          "lang": {
+            "type": "string",
+            "enum": [
+              "en",
+              "nl",
+              "fr",
+              "de"
+            ],
+            "description": "Language for station and direction names. Default: en."
+          }
+        },
+        "required": [
+          "from",
+          "to"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "irail.transit.disturbances",
+      "title": "iRail Service Disturbances",
+      "description": "Retrieve current service disruptions and alerts on the Belgian rail network \u2014 returns disturbance title, description (cause, affected lines, recovery status), type (disturbance or planned maintenance), timestamp, and a link for more information. Typically 0\u201350 active disturbances. No auth required. Data: iRail real-time SNCB/NMBS Belgium alerts.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "lang": {
+            "type": "string",
+            "enum": [
+              "en",
+              "nl",
+              "fr",
+              "de"
+            ],
+            "description": "Language for disturbance titles and descriptions. Default: en."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "irail.transit.liveboard",
+      "title": "iRail Station Liveboard",
+      "description": "Get real-time departures or arrivals for a Belgian railway station \u2014 returns train number, destination/origin, scheduled time, delay in minutes, platform, cancellation status, and passenger occupancy level. Defaults to departures from current time. No auth required. Data: iRail real-time SNCB/NMBS Belgium train data.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "station": {
+            "type": "string",
+            "description": "Station name (e.g. \"Gent-Sint-Pieters\", \"Brussel-Zuid\", \"Antwerpen-Centraal\"). Must match the Belgian spelling.",
+            "minLength": 2
+          },
+          "arrdep": {
+            "type": "string",
+            "enum": [
+              "arrival",
+              "departure"
+            ],
+            "description": "Show arrivals or departures at the station. Default: departure."
+          },
+          "results": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Maximum number of trains to return. Default: 20, max: 50."
+          },
+          "date": {
+            "type": "string",
+            "description": "Date in DDMMYY format (e.g. \"290626\" for 29 June 2026). Defaults to today."
+          },
+          "time": {
+            "type": "string",
+            "description": "Time in HHMM format (e.g. \"0930\" for 09:30). Defaults to current time."
+          },
+          "lang": {
+            "type": "string",
+            "enum": [
+              "en",
+              "nl",
+              "fr",
+              "de"
+            ],
+            "description": "Language for station and direction names. Default: en."
+          }
+        },
+        "required": [
+          "station"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "irail.reference.stations",
+      "title": "iRail Belgium Stations",
+      "description": "List all 700+ SNCB/NMBS Belgian railway stations with coordinates, or filter by name. Returns station ID, display name, standard name (Dutch/French), latitude, and longitude. Use station names from this list as input for liveboard and connections tools. No auth required. Data: iRail open data, Belgium national rail (SNCB/NMBS).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Optional search string to filter stations by name (e.g. \"Gent\", \"Brussel\"). Omit to return all 700+ Belgian stations."
+          },
+          "lang": {
+            "type": "string",
+            "enum": [
+              "en",
+              "nl",
+              "fr",
+              "de"
+            ],
+            "description": "Language for station names. One of: en, nl, fr, de. Default: en."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "irail.transit.vehicle",
+      "title": "iRail Train Vehicle Schedule",
+      "description": "Get the complete stop schedule for a specific Belgian train \u2014 returns all stations the train calls at with scheduled times, actual delays, platform numbers, occupancy levels, and whether the train has already departed each stop. Train IDs are returned by the liveboard and connections tools. No auth required. Data: iRail SNCB/NMBS Belgium.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Vehicle/train ID in iRail format (e.g. \"BE.NMBS.IC1810\", \"BE.NMBS.S22308\"). Obtain from liveboard or connections response.",
+            "minLength": 3
+          },
+          "date": {
+            "type": "string",
+            "description": "Date in DDMMYY format (e.g. \"290626\" for 29 June 2026). Defaults to today."
+          },
+          "lang": {
+            "type": "string",
+            "enum": [
+              "en",
+              "nl",
+              "fr",
+              "de"
+            ],
+            "description": "Language for station names. Default: en."
+          }
+        },
+        "required": [
+          "id"
         ]
       },
       "outputSchema": {

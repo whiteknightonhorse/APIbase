@@ -74793,6 +74793,493 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/irail.stations/call": {
+      "post": {
+        "operationId": "irail_stations",
+        "summary": "iRail Belgium Stations",
+        "description": "List all 700+ SNCB/NMBS Belgian railway stations with coordinates, or filter by name. Returns station ID, display name, standard name (Dutch/French), latitude, and longitude. Use station names from this list as input for liveboard and connections tools. No auth required. Data: iRail open data, Belgium national rail (SNCB/NMBS).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "irail.stations"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Optional search string to filter stations by name (e.g. \"Gent\", \"Brussel\"). Omit to return all 700+ Belgian stations."
+                  },
+                  "lang": {
+                    "type": "string",
+                    "enum": [
+                      "en",
+                      "nl",
+                      "fr",
+                      "de"
+                    ],
+                    "description": "Language for station names. One of: en, nl, fr, de. Default: en."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/irail.liveboard/call": {
+      "post": {
+        "operationId": "irail_liveboard",
+        "summary": "iRail Station Liveboard",
+        "description": "Get real-time departures or arrivals for a Belgian railway station — returns train number, destination/origin, scheduled time, delay in minutes, platform, cancellation status, and passenger occupancy level. Defaults to departures from current time. No auth required. Data: iRail real-time SNCB/NMBS Belgium train data.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "irail.liveboard"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "station": {
+                    "type": "string",
+                    "description": "Station name (e.g. \"Gent-Sint-Pieters\", \"Brussel-Zuid\", \"Antwerpen-Centraal\"). Must match the Belgian spelling.",
+                    "minLength": 2
+                  },
+                  "arrdep": {
+                    "type": "string",
+                    "enum": [
+                      "arrival",
+                      "departure"
+                    ],
+                    "description": "Show arrivals or departures at the station. Default: departure."
+                  },
+                  "results": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of trains to return. Default: 20, max: 50."
+                  },
+                  "date": {
+                    "type": "string",
+                    "description": "Date in DDMMYY format (e.g. \"290626\" for 29 June 2026). Defaults to today."
+                  },
+                  "time": {
+                    "type": "string",
+                    "description": "Time in HHMM format (e.g. \"0930\" for 09:30). Defaults to current time."
+                  },
+                  "lang": {
+                    "type": "string",
+                    "enum": [
+                      "en",
+                      "nl",
+                      "fr",
+                      "de"
+                    ],
+                    "description": "Language for station and direction names. Default: en."
+                  }
+                },
+                "required": [
+                  "station"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/irail.connections/call": {
+      "post": {
+        "operationId": "irail_connections",
+        "summary": "iRail Train Connections",
+        "description": "Find train connections between two Belgian railway stations — returns up to 10 journeys with departure/arrival times, total duration, delays, transfer stations (vias), train numbers, platform numbers, and cancellation flags. Supports departure or arrival time selection. No auth required. Data: iRail real-time SNCB/NMBS Belgium train data.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "irail.connections"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "from": {
+                    "type": "string",
+                    "description": "Departure station name (e.g. \"Brussel-Zuid\", \"Gent-Sint-Pieters\"). Must match Belgian spelling.",
+                    "minLength": 2
+                  },
+                  "to": {
+                    "type": "string",
+                    "description": "Arrival station name (e.g. \"Antwerpen-Centraal\", \"Brugge\"). Must match Belgian spelling.",
+                    "minLength": 2
+                  },
+                  "timesel": {
+                    "type": "string",
+                    "enum": [
+                      "depart",
+                      "arrive"
+                    ],
+                    "description": "Whether the provided time is the desired departure time or arrival time. Default: depart."
+                  },
+                  "results": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10,
+                    "description": "Number of connections to return (1–10). Default: 6."
+                  },
+                  "date": {
+                    "type": "string",
+                    "description": "Date in DDMMYY format (e.g. \"290626\" for 29 June 2026). Defaults to today."
+                  },
+                  "time": {
+                    "type": "string",
+                    "description": "Time in HHMM format (e.g. \"1430\" for 14:30). Defaults to current time."
+                  },
+                  "lang": {
+                    "type": "string",
+                    "enum": [
+                      "en",
+                      "nl",
+                      "fr",
+                      "de"
+                    ],
+                    "description": "Language for station and direction names. Default: en."
+                  }
+                },
+                "required": [
+                  "from",
+                  "to"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/irail.vehicle/call": {
+      "post": {
+        "operationId": "irail_vehicle",
+        "summary": "iRail Train Vehicle Schedule",
+        "description": "Get the complete stop schedule for a specific Belgian train — returns all stations the train calls at with scheduled times, actual delays, platform numbers, occupancy levels, and whether the train has already departed each stop. Train IDs are returned by the liveboard and connections tools. No auth required. Data: iRail SNCB/NMBS Belgium.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "irail.vehicle"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Vehicle/train ID in iRail format (e.g. \"BE.NMBS.IC1810\", \"BE.NMBS.S22308\"). Obtain from liveboard or connections response.",
+                    "minLength": 3
+                  },
+                  "date": {
+                    "type": "string",
+                    "description": "Date in DDMMYY format (e.g. \"290626\" for 29 June 2026). Defaults to today."
+                  },
+                  "lang": {
+                    "type": "string",
+                    "enum": [
+                      "en",
+                      "nl",
+                      "fr",
+                      "de"
+                    ],
+                    "description": "Language for station names. Default: en."
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/irail.disturbances/call": {
+      "post": {
+        "operationId": "irail_disturbances",
+        "summary": "iRail Service Disturbances",
+        "description": "Retrieve current service disruptions and alerts on the Belgian rail network — returns disturbance title, description (cause, affected lines, recovery status), type (disturbance or planned maintenance), timestamp, and a link for more information. Typically 0–50 active disturbances. No auth required. Data: iRail real-time SNCB/NMBS Belgium alerts.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "irail.disturbances"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "lang": {
+                    "type": "string",
+                    "enum": [
+                      "en",
+                      "nl",
+                      "fr",
+                      "de"
+                    ],
+                    "description": "Language for disturbance titles and descriptions. Default: en."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

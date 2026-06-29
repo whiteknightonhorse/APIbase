@@ -242,6 +242,7 @@ import { tvmazeSchemas } from './tvmaze.schema';
 import { hackernewsSchemas } from './hackernews.schema';
 import { hnalgoliaSchemas } from './hnalgolia.schema';
 import { wikipediaSchemas } from './wikipedia.schema';
+import { irailSchemas } from './irail.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -487,4 +488,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...hackernewsSchemas,
   ...hnalgoliaSchemas,
   ...wikipediaSchemas,
+  ...irailSchemas,
 };

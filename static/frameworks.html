@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>APIbase — Connect from Any AI Framework</title>
-<meta name="description" content="Connect APIbase MCP server from Claude Desktop, Cursor, OpenAI Agents SDK, LangChain, Google ADK, CrewAI, Windsurf. One endpoint, 809 tools.">
+<meta name="description" content="Connect APIbase MCP server from Claude Desktop, Cursor, OpenAI Agents SDK, LangChain, Google ADK, CrewAI, Windsurf. One endpoint, 814 tools.">
 <link rel="canonical" href="https://apibase.pro/frameworks">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <style>
@@ -40,7 +40,7 @@ pre{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:16px;o
 
 <a href="/" class="back">&larr; apibase.pro</a>
 <h1>> Connect APIbase from Any Framework</h1>
-<p>One MCP endpoint. 809 tools. Works with every major AI framework.</p>
+<p>One MCP endpoint. 814 tools. Works with every major AI framework.</p>
 <p class="endpoint" style="margin:12px 0">https://apibase.pro/mcp</p>
 
 <div class="nav">
@@ -165,7 +165,7 @@ tools, exit_stack = await toolset.create_tools()
 
 agent = Agent(
     role="Research Assistant",
-    goal="Find real-time data using 809 tools",
+    goal="Find real-time data using 814 tools",
     backstory="You have access to APIbase MCP server with tools for flights, weather, stocks, jobs, and more.",
     mcp_servers=["https://apibase.pro/mcp"],
     verbose=True
@@ -197,7 +197,7 @@ const app = createApp({
   ]
 });
 
-// Your app now has access to 809 tools via MCP
+// Your app now has access to 814 tools via MCP
 // Use discover_tools prompt to find relevant tools by task
 await app.run();</pre>
 <p class="note">Install: <code>pnpm add -g sunpeak</code> &nbsp;&middot;&nbsp; Docs: <a href="https://sunpeak.ai">sunpeak.ai</a> &nbsp;&middot;&nbsp; No API key required (auto-registration)</p>
@@ -220,7 +220,7 @@ curl -X POST https://apibase.pro/api/v1/tools/crypto.trending/call \
   -d '{}'</pre>
 
 <h2>Progressive Disclosure</h2>
-<p>809 tools is too many for any context window. Use <code>discover_tools</code> prompt to find relevant tools first:</p>
+<p>814 tools is too many for any context window. Use <code>discover_tools</code> prompt to find relevant tools first:</p>
 <pre># MCP: call the discover_tools prompt
 {"method": "prompts/get", "params": {"name": "discover_tools", "arguments": {"task": "search flights from NYC to London"}}}
 
@@ -276,7 +276,7 @@ async with MCPServerManager(
     result = await Runner.run(agent, "Get AAPL stock price")</pre>
 
 <h2 id="base-mcp">Base MCP Companion <span class="badge">Pay From Your Base Account</span></h2>
-<p>Base launched their official <a href="https://mcp.base.org" target="_blank" rel="noopener">Base MCP</a> server in May 2026 with native <strong>x402 payment support</strong>. APIbase is x402-native on Base mainnet via a self-hosted facilitator &mdash; the two pair cleanly. Base MCP signs payments from your Base Account; APIbase serves the 809 tools your agent actually uses.</p>
+<p>Base launched their official <a href="https://mcp.base.org" target="_blank" rel="noopener">Base MCP</a> server in May 2026 with native <strong>x402 payment support</strong>. APIbase is x402-native on Base mainnet via a self-hosted facilitator &mdash; the two pair cleanly. Base MCP signs payments from your Base Account; APIbase serves the 814 tools your agent actually uses.</p>
 
 <h3>Combined config (Claude Desktop / Cursor / Windsurf)</h3>
 <pre>{
@@ -296,7 +296,7 @@ async with MCPServerManager(
 <p><strong>Base MCP</strong> &mdash; wallet ops, on-chain swaps (Uniswap, Aerodrome), lending (Morpho, Moonwell), perps (Avantis), and <strong>x402 payment signing</strong>. Your Base Account handles user approval per transaction.</p>
 <p><strong>APIbase</strong> &mdash; 800+ external API tools (flights, stocks, weather, jobs, music, chess, EV charging, food safety, government docs, &hellip;). Pay per call via x402 USDC on Base &mdash; signed by your Base Account, settled on-chain by our facilitator.</p>
 </div>
-<p class="note">For Base App users this is the cleanest path: zero API key management (Base Account handles auth), zero per-provider signup (APIbase aggregates 237 providers), one approval flow (Base App pops up for each paid call). Compatible because both sides speak EIP-3009 <code>transferWithAuthorization</code> on Base mainnet.</p>
+<p class="note">For Base App users this is the cleanest path: zero API key management (Base Account handles auth), zero per-provider signup (APIbase aggregates 238 providers), one approval flow (Base App pops up for each paid call). Compatible because both sides speak EIP-3009 <code>transferWithAuthorization</code> on Base mainnet.</p>
 
 <h3>Quick test from Claude Desktop</h3>
 <p>After adding both MCP servers to your config and authenticating Base MCP:</p>

@@ -9104,4 +9104,66 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'education',
     annotations: READ_ONLY,
   },
+
+  // iRail Belgium Rail (UC-524) — 5 tools
+  {
+    toolId: 'irail.stations',
+    mcpName: 'irail.reference.stations',
+    title: 'iRail Belgium Stations',
+    description:
+      'List all 700+ SNCB/NMBS Belgian railway stations with coordinates, or filter by name. ' +
+      'Returns station ID, display name, standard name (Dutch/French), latitude, and longitude. ' +
+      'Use station names from this list as input for liveboard and connections tools. ' +
+      'No auth required. Data: iRail open data, Belgium national rail (SNCB/NMBS).',
+    category: 'travel',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'irail.liveboard',
+    mcpName: 'irail.transit.liveboard',
+    title: 'iRail Station Liveboard',
+    description:
+      'Get real-time departures or arrivals for a Belgian railway station — returns train ' +
+      'number, destination/origin, scheduled time, delay in minutes, platform, cancellation ' +
+      'status, and passenger occupancy level. Defaults to departures from current time. ' +
+      'No auth required. Data: iRail real-time SNCB/NMBS Belgium train data.',
+    category: 'travel',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'irail.connections',
+    mcpName: 'irail.transit.connections',
+    title: 'iRail Train Connections',
+    description:
+      'Find train connections between two Belgian railway stations — returns up to 10 journeys ' +
+      'with departure/arrival times, total duration, delays, transfer stations (vias), train ' +
+      'numbers, platform numbers, and cancellation flags. Supports departure or arrival time ' +
+      'selection. No auth required. Data: iRail real-time SNCB/NMBS Belgium train data.',
+    category: 'travel',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'irail.vehicle',
+    mcpName: 'irail.transit.vehicle',
+    title: 'iRail Train Vehicle Schedule',
+    description:
+      'Get the complete stop schedule for a specific Belgian train — returns all stations the ' +
+      'train calls at with scheduled times, actual delays, platform numbers, occupancy levels, ' +
+      'and whether the train has already departed each stop. Train IDs are returned by the ' +
+      'liveboard and connections tools. No auth required. Data: iRail SNCB/NMBS Belgium.',
+    category: 'travel',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'irail.disturbances',
+    mcpName: 'irail.transit.disturbances',
+    title: 'iRail Service Disturbances',
+    description:
+      'Retrieve current service disruptions and alerts on the Belgian rail network — returns ' +
+      'disturbance title, description (cause, affected lines, recovery status), type (disturbance ' +
+      'or planned maintenance), timestamp, and a link for more information. Typically 0–50 active ' +
+      'disturbances. No auth required. Data: iRail real-time SNCB/NMBS Belgium alerts.',
+    category: 'travel',
+    annotations: READ_ONLY,
+  },
 ];

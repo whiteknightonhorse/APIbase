@@ -4985,6 +4985,37 @@ tools:
     price_usd: "0.002"
     cache_ttl: 86400
 
+  # --- UC-524: iRail Belgium Rail ---
+  - tool_id: irail.stations
+    name: iRail Belgium Stations
+    provider: irail
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: irail.liveboard
+    name: iRail Station Liveboard
+    provider: irail
+    price_usd: "0.001"
+    cache_ttl: 30
+
+  - tool_id: irail.connections
+    name: iRail Train Connections
+    provider: irail
+    price_usd: "0.002"
+    cache_ttl: 60
+
+  - tool_id: irail.vehicle
+    name: iRail Train Vehicle Schedule
+    provider: irail
+    price_usd: "0.001"
+    cache_ttl: 30
+
+  - tool_id: irail.disturbances
+    name: iRail Service Disturbances
+    provider: irail
+    price_usd: "0.001"
+    cache_ttl: 120
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

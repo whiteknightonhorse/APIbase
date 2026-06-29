@@ -218,6 +218,7 @@ Use these examples as reference patterns when:
 | UC-521 | HackerNews Firebase | Tech News | LIVE | CC BY 3.0, no auth, no rate limits | `usecases/UC-521-hackernews-firebase.md` |
 | UC-522 | HackerNews Algolia | Tech News Search | LIVE | CC BY 3.0, no auth, no rate limits | `usecases/UC-522-hackernews-algolia.md` |
 | UC-523 | Wikipedia REST API | Reference / Education | LIVE | CC BY-SA 4.0, no auth, unlimited | `usecases/UC-523-wikipedia-rest.md` |
+| UC-524 | iRail Belgium Rail | Travel | LIVE | Open data, no auth, commercial use OK | `usecases/UC-524-irail.md` |
 
 ## How to Use
 

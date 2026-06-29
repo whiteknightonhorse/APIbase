@@ -2177,5 +2177,14 @@
     "reset_period": "none",
     "docs_url": "https://en.wikipedia.org/api/rest_v1/",
     "limit_proof": "Wikimedia public REST API \u2014 no auth, no rate limits documented; Wikimedia policy requests polite User-Agent"
+  },
+  "irail": {
+    "display_name": "iRail Belgium Rail",
+    "health_url": "https://api.irail.be/v1/disturbances?format=json&lang=en",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://docs.irail.be/",
+    "limit_proof": "Open data API with no documented rate limits. No authentication required. Open data license allows commercial use."
   }
 }

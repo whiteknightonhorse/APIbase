@@ -242,6 +242,7 @@ import { TvMazeAdapter } from './tvmaze';
 import { HackernewsAdapter } from './hackernews';
 import { HnAlgoliaAdapter } from './hnalgolia';
 import { WikipediaAdapter } from './wikipedia';
+import { IrailAdapter } from './irail';
 import { config } from '../config';
 
 /**
@@ -1408,6 +1409,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'wikipedia':
       // Wikipedia REST API (UC-523) — 65M+ articles, summaries, search, media, daily feed; CC BY-SA 4.0, no auth
       return getOrCreate('wikipedia', () => new WikipediaAdapter());
+    case 'irail':
+      // iRail Belgium Rail (UC-524) — SNCB/NMBS stations, liveboards, connections, vehicle schedules, disturbances; no auth
+      return getOrCreate('irail', () => new IrailAdapter());
     default:
       return undefined;
   }
