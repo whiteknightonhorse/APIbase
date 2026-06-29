@@ -2222,5 +2222,14 @@
     "reset_period": "none",
     "docs_url": "https://marsapi.ams.usda.gov/services/help",
     "limit_proof": "US Government public domain API, no auth required for v3.1 public endpoints, no documented rate limits"
+  },
+  "adsbdb": {
+    "display_name": "ADS-B DB",
+    "health_url": "https://api.adsbdb.com/v0/aircraft/400F6B",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://github.com/mrjackwills/adsbdb",
+    "limit_proof": "MIT license open-source project, no auth required, no documented rate limits"
   }
 }

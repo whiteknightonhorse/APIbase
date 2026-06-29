@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 855 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 858 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -49158,6 +49158,147 @@
           "error": {
             "type": "object",
             "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "adsbdb.aircraft.lookup",
+      "title": "Lookup Aircraft by Mode-S or Registration",
+      "description": "Look up aircraft details by Mode-S transponder hex code (e.g. \"400F6B\") or ICAO registration mark (tail number, e.g. \"G-RVCL\", \"N123AB\"). Returns aircraft type, ICAO type designator, manufacturer, registered owner, country of registration, and photo URLs when available. Mode-S codes are 6-character hexadecimal unique to each aircraft; registrations follow national formats (N-prefix for US, G- for UK, etc.). Source: ADS-B DB \u2014 api.adsbdb.com, MIT license, no auth.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "description": "Aircraft identifier: Mode-S hex code (e.g. \"400F6B\", \"A05ED9\") or ICAO registration mark (e.g. \"G-RVCL\", \"N123AB\"). Mode-S is a 6-character hexadecimal transponder code; registration is the tail number. Both formats are accepted."
+          }
+        },
+        "required": [
+          "identifier"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "adsbdb.airline.lookup",
+      "title": "Lookup Airline by ICAO or IATA Code",
+      "description": "Look up airline details by ICAO 3-letter code (e.g. \"BAW\" for British Airways, \"UAL\" for United Airlines) or IATA 2-letter code (e.g. \"BA\", \"UA\"). Returns airline name, both ICAO and IATA codes, country of registration, and radio telephony callsign used in ATC communications (e.g. \"SPEEDBIRD\" for British Airways). Useful for decoding transponder callsigns and identifying aircraft operators. Source: ADS-B DB \u2014 api.adsbdb.com, MIT license, no auth.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Airline code to look up. Accepts ICAO 3-letter codes (e.g. \"BAW\" for British Airways, \"UAL\" for United) or IATA 2-letter codes (e.g. \"BA\", \"UA\"). ICAO codes are preferred for unambiguous lookup."
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "adsbdb.callsign.lookup",
+      "title": "Lookup Flight Route by Callsign",
+      "description": "Resolve a flight callsign (e.g. \"BAW123\", \"UAL456\") to its origin and destination airports plus operating airline. Returns full airport details: ICAO and IATA codes, name, municipality, country, coordinates, and elevation. Also returns airline name, codes, and ATC callsign. Callsigns combine the airline ICAO code with a flight number and are broadcast by ATC transponders. Useful for enriching ADS-B flight tracking data with route context. Source: ADS-B DB \u2014 api.adsbdb.com, MIT license, no auth.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "callsign": {
+            "type": "string",
+            "description": "Flight callsign to resolve, typically the airline ICAO code followed by flight number (e.g. \"BAW123\" for British Airways flight 123, \"UAL456\" for United flight 456). Returns origin, destination airports and airline details."
+          }
+        },
+        "required": [
+          "callsign"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
           }
         },
         "required": [

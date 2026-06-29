@@ -76600,6 +76600,240 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/adsbdb.aircraft_lookup/call": {
+      "post": {
+        "operationId": "adsbdb_aircraft_lookup",
+        "summary": "Lookup Aircraft by Mode-S or Registration",
+        "description": "Look up aircraft details by Mode-S transponder hex code (e.g. \"400F6B\") or ICAO registration mark (tail number, e.g. \"G-RVCL\", \"N123AB\"). Returns aircraft type, ICAO type designator, manufacturer, registered owner, country of registration, and photo URLs when available. Mode-S codes are 6-character hexadecimal unique to each aircraft; registrations follow national formats (N-prefix for US, G- for UK, etc.). Source: ADS-B DB — api.adsbdb.com, MIT license, no auth.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "adsbdb.aircraft_lookup"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "identifier": {
+                    "type": "string",
+                    "description": "Aircraft identifier: Mode-S hex code (e.g. \"400F6B\", \"A05ED9\") or ICAO registration mark (e.g. \"G-RVCL\", \"N123AB\"). Mode-S is a 6-character hexadecimal transponder code; registration is the tail number. Both formats are accepted."
+                  }
+                },
+                "required": [
+                  "identifier"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/adsbdb.airline_lookup/call": {
+      "post": {
+        "operationId": "adsbdb_airline_lookup",
+        "summary": "Lookup Airline by ICAO or IATA Code",
+        "description": "Look up airline details by ICAO 3-letter code (e.g. \"BAW\" for British Airways, \"UAL\" for United Airlines) or IATA 2-letter code (e.g. \"BA\", \"UA\"). Returns airline name, both ICAO and IATA codes, country of registration, and radio telephony callsign used in ATC communications (e.g. \"SPEEDBIRD\" for British Airways). Useful for decoding transponder callsigns and identifying aircraft operators. Source: ADS-B DB — api.adsbdb.com, MIT license, no auth.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "adsbdb.airline_lookup"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "description": "Airline code to look up. Accepts ICAO 3-letter codes (e.g. \"BAW\" for British Airways, \"UAL\" for United) or IATA 2-letter codes (e.g. \"BA\", \"UA\"). ICAO codes are preferred for unambiguous lookup."
+                  }
+                },
+                "required": [
+                  "code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/adsbdb.callsign_lookup/call": {
+      "post": {
+        "operationId": "adsbdb_callsign_lookup",
+        "summary": "Lookup Flight Route by Callsign",
+        "description": "Resolve a flight callsign (e.g. \"BAW123\", \"UAL456\") to its origin and destination airports plus operating airline. Returns full airport details: ICAO and IATA codes, name, municipality, country, coordinates, and elevation. Also returns airline name, codes, and ATC callsign. Callsigns combine the airline ICAO code with a flight number and are broadcast by ATC transponders. Useful for enriching ADS-B flight tracking data with route context. Source: ADS-B DB — api.adsbdb.com, MIT license, no auth.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "adsbdb.callsign_lookup"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "callsign": {
+                    "type": "string",
+                    "description": "Flight callsign to resolve, typically the airline ICAO code followed by flight number (e.g. \"BAW123\" for British Airways flight 123, \"UAL456\" for United flight 456). Returns origin, destination airports and airline details."
+                  }
+                },
+                "required": [
+                  "callsign"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

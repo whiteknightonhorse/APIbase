@@ -2,8 +2,8 @@
   "platform": "APIbase",
   "version": "2.0",
   "updated_at": "2026-04-01T00:00:00Z",
-  "tools_count": 789,
-  "providers_count": 233,
+  "tools_count": 833,
+  "providers_count": 243,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
@@ -31,7 +31,7 @@
   "categories": [
     {
       "name": "travel",
-      "tools": 24,
+      "tools": 27,
       "providers": "Amadeus, Aviasales, Sabre, IRCTC Indian Railways",
       "examples": "flight search, pricing, airport lookup, Indian train schedules, live train status"
     },

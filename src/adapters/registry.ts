@@ -247,6 +247,7 @@ import { NorgesBankAdapter } from './norgesbank';
 import { SwissFsoAdapter } from './swissfso';
 import { TreasuryFiscalAdapter } from './treasuryfiscal';
 import { UsdaMarsAdapter } from './usdamars';
+import { AdsbdbAdapter } from './adsbdb';
 import { config } from '../config';
 
 /**
@@ -1428,6 +1429,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'usdamars':
       // USDA AMS MARS MyMarketNews (UC-528) — agricultural market reports: livestock, dairy, produce, grain; no auth
       return getOrCreate('usdamars', () => new UsdaMarsAdapter());
+    case 'adsbdb':
+      // ADS-B DB (UC-529) — aircraft/airline lookup by Mode-S/registration/callsign; MIT, no auth
+      return getOrCreate('adsbdb', () => new AdsbdbAdapter());
     default:
       return undefined;
   }

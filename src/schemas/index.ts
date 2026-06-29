@@ -247,6 +247,7 @@ import { norgesbankSchemas } from './norgesbank.schema';
 import { swissfsoSchemas } from './swissfso.schema';
 import { treasuryfiscalSchemas } from './treasuryfiscal.schema';
 import { usdamarsSchemas } from './usdamars.schema';
+import { adsbdbSchemas } from './adsbdb.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -497,4 +498,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...swissfsoSchemas,
   ...treasuryfiscalSchemas,
   ...usdamarsSchemas,
+  ...adsbdbSchemas,
 };

@@ -9384,4 +9384,48 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+
+  // ADS-B DB (UC-529) — 3 tools
+  {
+    toolId: 'adsbdb.aircraft_lookup',
+    mcpName: 'adsbdb.aircraft.lookup',
+    title: 'Lookup Aircraft by Mode-S or Registration',
+    description:
+      'Look up aircraft details by Mode-S transponder hex code (e.g. "400F6B") or ICAO ' +
+      'registration mark (tail number, e.g. "G-RVCL", "N123AB"). Returns aircraft type, ICAO ' +
+      'type designator, manufacturer, registered owner, country of registration, and photo URLs ' +
+      'when available. Mode-S codes are 6-character hexadecimal unique to each aircraft; ' +
+      'registrations follow national formats (N-prefix for US, G- for UK, etc.). Source: ' +
+      'ADS-B DB — api.adsbdb.com, MIT license, no auth.',
+    category: 'travel',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'adsbdb.airline_lookup',
+    mcpName: 'adsbdb.airline.lookup',
+    title: 'Lookup Airline by ICAO or IATA Code',
+    description:
+      'Look up airline details by ICAO 3-letter code (e.g. "BAW" for British Airways, "UAL" ' +
+      'for United Airlines) or IATA 2-letter code (e.g. "BA", "UA"). Returns airline name, both ' +
+      'ICAO and IATA codes, country of registration, and radio telephony callsign used in ATC ' +
+      'communications (e.g. "SPEEDBIRD" for British Airways). Useful for decoding transponder ' +
+      'callsigns and identifying aircraft operators. Source: ADS-B DB — api.adsbdb.com, MIT ' +
+      'license, no auth.',
+    category: 'travel',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'adsbdb.callsign_lookup',
+    mcpName: 'adsbdb.callsign.lookup',
+    title: 'Lookup Flight Route by Callsign',
+    description:
+      'Resolve a flight callsign (e.g. "BAW123", "UAL456") to its origin and destination ' +
+      'airports plus operating airline. Returns full airport details: ICAO and IATA codes, ' +
+      'name, municipality, country, coordinates, and elevation. Also returns airline name, ' +
+      'codes, and ATC callsign. Callsigns combine the airline ICAO code with a flight number ' +
+      'and are broadcast by ATC transponders. Useful for enriching ADS-B flight tracking data ' +
+      'with route context. Source: ADS-B DB — api.adsbdb.com, MIT license, no auth.',
+    category: 'travel',
+    annotations: READ_ONLY,
+  },
 ];

@@ -5116,6 +5116,25 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-529: ADS-B DB ---
+  - tool_id: adsbdb.aircraft_lookup
+    name: Lookup Aircraft by Mode-S or Registration
+    provider: adsbdb
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: adsbdb.airline_lookup
+    name: Lookup Airline by ICAO or IATA Code
+    provider: adsbdb
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: adsbdb.callsign_lookup
+    name: Lookup Flight Route by Callsign
+    provider: adsbdb
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform
