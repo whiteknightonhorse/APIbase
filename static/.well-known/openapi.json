@@ -84260,6 +84260,370 @@
         ]
       }
     },
+    "/api/v1/tools/unhabitat.transport_access/call": {
+      "post": {
+        "operationId": "unhabitat_transport_access",
+        "summary": "UN-Habitat — SDG 11.2.1 Public Transport Access",
+        "description": "Retrieve city-level data on the proportion of urban population with convenient access to public transport (SDG indicator 11.2.1). Covers 1,555 cities across all world regions from the UN-Habitat Urban Indicators Database. Filter by country, city name, or UN region. Returns access percentage and estimate source per city. Useful for urban mobility analysis, SDG 11 reporting, and comparing public transit equity across cities.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "unhabitat.transport_access"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "country": {
+                    "type": "string",
+                    "description": "Filter by country name (partial match, e.g. \"Kenya\", \"United States\", \"Brazil\"). Case-insensitive."
+                  },
+                  "city": {
+                    "type": "string",
+                    "description": "Filter by city name (partial match, e.g. \"Nairobi\", \"Lagos\", \"Mumbai\"). Case-insensitive."
+                  },
+                  "region": {
+                    "type": "string",
+                    "description": "Filter by UN-Habitat region (partial match). Regions include \"Sub-Saharan Africa\", \"Northern America and Europe\", \"Eastern and South-Eastern Asia\", \"Central and Southern Asia\", \"Latin America and the Caribbean\", \"Northern Africa and Western Asia\", \"Oceania\"."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of cities to return (1–100, default 50).",
+                    "default": 50
+                  }
+                },
+                "description": "Query SDG 11.2.1 data: proportion of urban population with convenient access to public transport. Data covers 1,555 city records across all world regions. Use country/city/region filters to narrow results."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/unhabitat.land_consumption/call": {
+      "post": {
+        "operationId": "unhabitat_land_consumption",
+        "summary": "UN-Habitat — SDG 11.3.1 Land Consumption Rates",
+        "description": "Retrieve city-level land consumption rate (LCR) versus population growth rate (PGR) data for SDG 11.3.1. Covers 581 cities with measurements for the 1990–2000 and 2000–2015 periods. A LCR/PGR ratio > 1 indicates urban sprawl (land expanding faster than population). Includes built-up area per capita (m²/person) at three time points. Filter by country, city, or UN region. Useful for sustainable urbanization and land-use planning analysis.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "unhabitat.land_consumption"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "country": {
+                    "type": "string",
+                    "description": "Filter by country name (partial match, e.g. \"Kenya\", \"United States\", \"Brazil\"). Case-insensitive."
+                  },
+                  "city": {
+                    "type": "string",
+                    "description": "Filter by city name (partial match, e.g. \"Nairobi\", \"Lagos\", \"Mumbai\"). Case-insensitive."
+                  },
+                  "region": {
+                    "type": "string",
+                    "description": "Filter by UN-Habitat region (partial match). Regions include \"Sub-Saharan Africa\", \"Northern America and Europe\", \"Eastern and South-Eastern Asia\", \"Central and Southern Asia\", \"Latin America and the Caribbean\", \"Northern Africa and Western Asia\", \"Oceania\"."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of cities to return (1–100, default 50).",
+                    "default": 50
+                  }
+                },
+                "description": "Query SDG 11.3.1 data: land consumption rate (LCR) vs population growth rate (PGR) ratio per city. A ratio > 1 means land is being consumed faster than population growth (urban sprawl). 581 city records with data for 1990–2000 and 2000–2015 periods."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/unhabitat.open_spaces/call": {
+      "post": {
+        "operationId": "unhabitat_open_spaces",
+        "summary": "UN-Habitat — SDG 11.7.1 Urban Open Spaces",
+        "description": "Retrieve the share of urban built-up area allocated to open public spaces (parks, plazas) and streets (SDG indicator 11.7.1). Covers 621 cities as of the 2020 measurement year. Returns percentage of open public space, street space, and combined open-and-street share, plus the population count with access to open public space. Filter by country, city, or UN region. Useful for green space equity, climate resilience, and liveability analysis.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "unhabitat.open_spaces"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "country": {
+                    "type": "string",
+                    "description": "Filter by country name (partial match, e.g. \"Kenya\", \"United States\", \"Brazil\"). Case-insensitive."
+                  },
+                  "city": {
+                    "type": "string",
+                    "description": "Filter by city name (partial match, e.g. \"Nairobi\", \"Lagos\", \"Mumbai\"). Case-insensitive."
+                  },
+                  "region": {
+                    "type": "string",
+                    "description": "Filter by UN-Habitat region (partial match). Regions include \"Sub-Saharan Africa\", \"Northern America and Europe\", \"Eastern and South-Eastern Asia\", \"Central and Southern Asia\", \"Latin America and the Caribbean\", \"Northern Africa and Western Asia\", \"Oceania\"."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of cities to return (1–100, default 50).",
+                    "default": 50
+                  }
+                },
+                "description": "Query SDG 11.7.1 data: share of built-up urban area allocated to open public spaces (parks, plazas) and streets. 621 city records as of 2020 measurement year."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/unhabitat.city_budget/call": {
+      "post": {
+        "operationId": "unhabitat_city_budget",
+        "summary": "UN-Habitat — Global Municipal Budget Database",
+        "description": "Retrieve municipal budget and expenditure data from the UN-Habitat Global Municipal Database. Covers 1,207 cities worldwide with total budget (USD), budget per capita, capital expenditure, own-source revenue, and sector-wise expenditure percentages (education, health, transport, water, energy, sanitation, solid waste, public housing, streets, buildings). Filter by country, city, or UN region. Income group (low/lower-middle/upper-middle/high) included. Useful for comparative municipal finance analysis and urban governance research.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "unhabitat.city_budget"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "country": {
+                    "type": "string",
+                    "description": "Filter by country name (partial match, e.g. \"Kenya\", \"United States\", \"Brazil\"). Case-insensitive."
+                  },
+                  "city": {
+                    "type": "string",
+                    "description": "Filter by city name (partial match, e.g. \"Nairobi\", \"Lagos\", \"Mumbai\"). Case-insensitive."
+                  },
+                  "region": {
+                    "type": "string",
+                    "description": "Filter by UN-Habitat region (partial match). Regions include \"Sub-Saharan Africa\", \"Northern America and Europe\", \"Eastern and South-Eastern Asia\", \"Central and Southern Asia\", \"Latin America and the Caribbean\", \"Northern Africa and Western Asia\", \"Oceania\"."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of cities to return (1–100, default 50).",
+                    "default": 50
+                  }
+                },
+                "description": "Query the UN-Habitat Global Municipal Database: city-level budget and expenditure breakdown across education, health, transport, water, energy, sanitation, and more. 1,207 cities from all income groups with per-capita budget and capital expenditure data."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/hf_inference.summarize/call": {
       "post": {
         "operationId": "hf_inference_summarize",

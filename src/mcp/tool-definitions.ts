@@ -10546,6 +10546,59 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'developer',
     annotations: READ_ONLY,
   },
+  // UN-Habitat Urban Indicators Database (4)
+  {
+    toolId: 'unhabitat.transport_access',
+    mcpName: 'unhabitat.urban.transport_access',
+    title: 'UN-Habitat — SDG 11.2.1 Public Transport Access',
+    description:
+      'Retrieve city-level data on the proportion of urban population with convenient access to public transport ' +
+      '(SDG indicator 11.2.1). Covers 1,555 cities across all world regions from the UN-Habitat Urban Indicators Database. ' +
+      'Filter by country, city name, or UN region. Returns access percentage and estimate source per city. ' +
+      'Useful for urban mobility analysis, SDG 11 reporting, and comparing public transit equity across cities.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'unhabitat.land_consumption',
+    mcpName: 'unhabitat.urban.land_consumption',
+    title: 'UN-Habitat — SDG 11.3.1 Land Consumption Rates',
+    description:
+      'Retrieve city-level land consumption rate (LCR) versus population growth rate (PGR) data for SDG 11.3.1. ' +
+      'Covers 581 cities with measurements for the 1990–2000 and 2000–2015 periods. ' +
+      'A LCR/PGR ratio > 1 indicates urban sprawl (land expanding faster than population). ' +
+      'Includes built-up area per capita (m²/person) at three time points. ' +
+      'Filter by country, city, or UN region. Useful for sustainable urbanization and land-use planning analysis.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'unhabitat.open_spaces',
+    mcpName: 'unhabitat.urban.open_spaces',
+    title: 'UN-Habitat — SDG 11.7.1 Urban Open Spaces',
+    description:
+      'Retrieve the share of urban built-up area allocated to open public spaces (parks, plazas) and streets ' +
+      '(SDG indicator 11.7.1). Covers 621 cities as of the 2020 measurement year. ' +
+      'Returns percentage of open public space, street space, and combined open-and-street share, ' +
+      'plus the population count with access to open public space. ' +
+      'Filter by country, city, or UN region. Useful for green space equity, climate resilience, and liveability analysis.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'unhabitat.city_budget',
+    mcpName: 'unhabitat.urban.city_budget',
+    title: 'UN-Habitat — Global Municipal Budget Database',
+    description:
+      'Retrieve municipal budget and expenditure data from the UN-Habitat Global Municipal Database. ' +
+      'Covers 1,207 cities worldwide with total budget (USD), budget per capita, capital expenditure, ' +
+      'own-source revenue, and sector-wise expenditure percentages (education, health, transport, water, ' +
+      'energy, sanitation, solid waste, public housing, streets, buildings). ' +
+      'Filter by country, city, or UN region. Income group (low/lower-middle/upper-middle/high) included. ' +
+      'Useful for comparative municipal finance analysis and urban governance research.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
   {
     toolId: 'hf_inference.summarize',
     mcpName: 'hf_inference.nlp.summarize',

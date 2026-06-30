@@ -5633,6 +5633,31 @@ tools:
     price_usd: "0.003"
     cache_ttl: 300
 
+  # --- UC-548: UN-Habitat Urban Indicators Database ---
+  - tool_id: unhabitat.transport_access
+    name: UN-Habitat — SDG 11.2.1 Public Transport Access
+    provider: unhabitat
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: unhabitat.land_consumption
+    name: UN-Habitat — SDG 11.3.1 Land Consumption Rates
+    provider: unhabitat
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: unhabitat.open_spaces
+    name: UN-Habitat — SDG 11.7.1 Urban Open Spaces
+    provider: unhabitat
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: unhabitat.city_budget
+    name: UN-Habitat — Global Municipal Budget Database
+    provider: unhabitat
+    price_usd: "0.002"
+    cache_ttl: 86400
+
   - tool_id: hf_inference.translate
     name: HuggingFace — Machine Translation
     provider: hf_inference

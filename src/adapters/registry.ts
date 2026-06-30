@@ -265,6 +265,7 @@ import { BanxicoAdapter } from './banxico';
 import { BeaAdapter } from './bea';
 import { AfricaApiAdapter } from './africa';
 import { HfInferenceAdapter } from './hf_inference';
+import { UnhabitatAdapter } from './unhabitat';
 import { config } from '../config';
 
 /**
@@ -1511,6 +1512,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
         'hf_inference',
         () => new HfInferenceAdapter(config.PROVIDER_KEY_HF_INFERENCE),
       );
+    case 'unhabitat':
+      // UN-Habitat Urban Indicators DB (UC-548) — SDG 11.2.1/11.3.1/11.7.1 + city budgets; no auth
+      return getOrCreate('unhabitat', () => new UnhabitatAdapter());
     default:
       return undefined;
   }

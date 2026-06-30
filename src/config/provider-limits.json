@@ -2384,5 +2384,14 @@
     "reset_period": "monthly",
     "docs_url": "https://huggingface.co/docs/api-inference/rate-limits",
     "limit_proof": "Free tier: rate-limited serverless inference, ~30,000 requests/month per model; Pro plan for higher throughput. User Access Token required."
+  },
+  "unhabitat": {
+    "display_name": "UN-Habitat Urban Data",
+    "health_url": "https://services6.arcgis.com/uWtJiVzcBsV6C7NV/arcgis/rest/services/11_2_1_Percentage_Access_to_Public_Transport/FeatureServer/0/query?where=1%3D1&returnCountOnly=true&f=json",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://data.unhabitat.org/",
+    "limit_proof": "UN-Habitat ArcGIS Feature Services are publicly accessible with no documented rate limits or auth requirements."
   }
 }
