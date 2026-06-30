@@ -236,6 +236,7 @@ Use these examples as reference patterns when:
 | UC-539 | Statistics Canada WDS | Government Statistics / Macroeconomics | LIVE | Canada Open Licence, no auth, unlimited | `usecases/UC-539-statcan-wds.md` |
 | UC-540 | FBI Crime Data Explorer (UCR) | Legal / Government Statistics | LIVE | US Gov public domain, api.data.gov shared key | `usecases/UC-540-fbi-crime.md` |
 | UC-541 | Swiss National Bank (SNB) | Finance / Central Bank Data | LIVE | Swiss OGD open license, no auth, unlimited | `usecases/UC-541-swissnbm.md` |
+| UC-542 | Eurostat SDMX 2.1 | Economics / EU Statistics | LIVE | CC BY 4.0, no auth, unlimited, 5 tools | `usecases/UC-542-eurostat2.md` |
 
 ## How to Use
 

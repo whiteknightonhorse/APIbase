@@ -259,6 +259,7 @@ import { oecdStatsSchemas } from './oecd-stats.schema';
 import { statcanSchemas } from './statcan.schema';
 import { fbiSchemas } from './fbi.schema';
 import { swissnbmSchemas } from './swissnbm.schema';
+import { eurostat2Schemas } from './eurostat2.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -521,4 +522,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...statcanSchemas,
   ...fbiSchemas,
   ...swissnbmSchemas,
+  ...eurostat2Schemas,
 };

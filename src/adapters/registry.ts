@@ -259,6 +259,7 @@ import { OecdStatsAdapter } from './oecd-stats';
 import { StatCanAdapter } from './statcan';
 import { FbiCdeAdapter } from './fbi';
 import { SwissNbmAdapter } from './swissnbm';
+import { Eurostat2Adapter } from './eurostat2';
 import { config } from '../config';
 
 /**
@@ -1484,6 +1485,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'swissnbm':
       // Swiss National Bank (UC-541) — FX rates, policy rate, SARON, monetary aggregates; no auth
       return getOrCreate('swissnbm', () => new SwissNbmAdapter());
+    case 'eurostat2':
+      // Eurostat SDMX 2.1 (UC-542) — fertility, GHG emissions, R&D, renewables, youth employment; CC BY 4.0, no auth
+      return getOrCreate('eurostat2', () => new Eurostat2Adapter());
     default:
       return undefined;
   }

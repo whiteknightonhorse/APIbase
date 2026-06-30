@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 912 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 917 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -52743,6 +52743,345 @@
           "error": {
             "type": "object",
             "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "eurostat2.demographics.fertility",
+      "title": "Eurostat EU Fertility Indicators",
+      "description": "Retrieve annual fertility and demographic indicators for EU/EEA countries from Eurostat's SDMX 2.1 API (dataset: demo_find). Includes total fertility rate, mean age of women at childbirth, mean age at first/second/third birth, median age at childbirth, and share of non-marital births. Country parameter accepts ISO 3166-1 alpha-2 codes (DE, FR, IT, ES, PL) or EU aggregates (EU27_2020, EA20). Data covers 2018\u2013present; updated annually. Source: Eurostat, CC BY 4.0, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "country": {
+            "type": "string",
+            "description": "Eurostat geo code: ISO 3166-1 alpha-2 country (e.g. DE, FR, IT, ES, PL) or EU aggregate (EU27_2020, EA20)",
+            "minLength": 2,
+            "maxLength": 12
+          },
+          "indicator": {
+            "type": "string",
+            "enum": [
+              "TOTFERRT",
+              "AGEMOTH",
+              "AGEMOTH1",
+              "MEDAGEMOTH",
+              "NMARPCT"
+            ],
+            "description": "Fertility indicator: TOTFERRT=total fertility rate (default), AGEMOTH=mean age at childbirth, AGEMOTH1=mean age at first birth, MEDAGEMOTH=median age at childbirth, NMARPCT=share of non-marital births (%)"
+          },
+          "since_year": {
+            "type": "integer",
+            "minimum": 1960,
+            "maximum": 2030,
+            "description": "First year to include (integer, e.g. 2010). Defaults to 2010."
+          }
+        },
+        "required": [
+          "country"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "eurostat2.environment.ghg",
+      "title": "Eurostat EU GHG Emissions",
+      "description": "Retrieve annual greenhouse gas emission inventories for EU/EEA countries from Eurostat (dataset: env_air_gge, SDMX 2.1). Reports total national emissions (excl. LULUCF memo items) in million tonnes CO2-equivalent. Covers GHG (all greenhouse gases combined), CO2, CH4, N2O, HFC, PFC, and SF6. Country accepts ISO 3166-1 alpha-2 codes (DE, FR, PL) or EU27_2020 aggregate. Data covers 1985\u2013present (with 1\u20132 year lag); updated annually. Source: Eurostat/EEA air emission accounts, CC BY 4.0, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "country": {
+            "type": "string",
+            "description": "Eurostat geo code: ISO 3166-1 alpha-2 country (e.g. DE, FR, PL) or EU aggregate (EU27_2020, EA20)",
+            "minLength": 2,
+            "maxLength": 12
+          },
+          "pollutant": {
+            "type": "string",
+            "enum": [
+              "GHG",
+              "CO2",
+              "CH4",
+              "N2O",
+              "HFC",
+              "PFC",
+              "SF6"
+            ],
+            "description": "Greenhouse gas or pollutant: GHG=all greenhouse gases in CO2-equivalent (default), CO2=carbon dioxide, CH4=methane, N2O=nitrous oxide, HFC=hydrofluorocarbons, PFC=perfluorocarbons, SF6=sulphur hexafluoride"
+          },
+          "since_year": {
+            "type": "integer",
+            "minimum": 1985,
+            "maximum": 2030,
+            "description": "First year to include (integer, e.g. 2005). Defaults to 2000."
+          }
+        },
+        "required": [
+          "country"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "eurostat2.innovation.rd",
+      "title": "Eurostat EU R&D Expenditure",
+      "description": "Retrieve annual Gross Domestic Expenditure on R&D (GERD) for EU/EEA countries from Eurostat (dataset: rd_e_gerdtot, SDMX 2.1). Covers total and sectoral breakdowns: business enterprise (BES), government (GOV), higher education (HES), and private non-profit (PNP). Unit can be % of GDP (PC_GDP), million EUR (MIO_EUR), or million national currency (MIO_NAC). Country accepts ISO 3166-1 alpha-2 codes (DE, SE, FI) or EU27_2020. Useful for innovation policy research and EU 3%-of-GDP R&D target monitoring. Source: Eurostat, CC BY 4.0, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "country": {
+            "type": "string",
+            "description": "Eurostat geo code: ISO 3166-1 alpha-2 country (e.g. DE, FR, SE) or EU aggregate (EU27_2020)",
+            "minLength": 2,
+            "maxLength": 12
+          },
+          "unit": {
+            "type": "string",
+            "enum": [
+              "PC_GDP",
+              "MIO_EUR",
+              "MIO_NAC"
+            ],
+            "description": "Measurement unit: PC_GDP=percentage of GDP (default), MIO_EUR=million euros, MIO_NAC=million national currency"
+          },
+          "sector": {
+            "type": "string",
+            "enum": [
+              "TOTAL",
+              "BES",
+              "GOV",
+              "HES",
+              "PNP"
+            ],
+            "description": "Performing sector: TOTAL=all sectors combined (default), BES=business enterprise sector, GOV=government sector, HES=higher education sector, PNP=private non-profit sector"
+          },
+          "since_year": {
+            "type": "integer",
+            "minimum": 1980,
+            "maximum": 2030,
+            "description": "First year to include (integer, e.g. 2005). Defaults to 2005."
+          }
+        },
+        "required": [
+          "country"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "eurostat2.energy.renewable",
+      "title": "Eurostat EU Renewable Energy",
+      "description": "Retrieve annual renewable energy consumption data for EU/EEA countries from Eurostat (dataset: sdg_07_10, SDMX 2.1, SDG indicator 7.2.1). Reports primary energy consumption from renewable sources in Mtoe (million tonnes of oil equivalent), index (2005=100), or tonnes per capita. Covers solar, wind, hydro, geothermal, and biomass combined. Country accepts ISO 3166-1 alpha-2 codes (DE, SE, DK, AT) or EU27_2020. Data covers 2005\u2013present. Useful for EU Green Deal and energy transition research. Source: Eurostat, CC BY 4.0, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "country": {
+            "type": "string",
+            "description": "Eurostat geo code: ISO 3166-1 alpha-2 country (e.g. DE, SE, DK) or EU aggregate (EU27_2020)",
+            "minLength": 2,
+            "maxLength": 12
+          },
+          "unit": {
+            "type": "string",
+            "enum": [
+              "MTOE",
+              "I05",
+              "TOE_HAB"
+            ],
+            "description": "Measurement unit: MTOE=million tonnes of oil equivalent (default), I05=index with 2005=100, TOE_HAB=tonnes of oil equivalent per inhabitant"
+          },
+          "since_year": {
+            "type": "integer",
+            "minimum": 2000,
+            "maximum": 2030,
+            "description": "First year to include (integer, e.g. 2010). Defaults to 2005."
+          }
+        },
+        "required": [
+          "country"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "eurostat2.employment.youth",
+      "title": "Eurostat EU Youth Employment",
+      "description": "Retrieve annual youth employment rate by educational attainment for EU/EEA countries from Eurostat (dataset: yth_empl_010, SDMX 2.1). Returns employment rate (% of age group) for youth aged 15\u201324 (default), 15\u201319, 15\u201329, 20\u201324, or 20\u201329, across all ISCED education levels combined. Country accepts ISO 3166-1 alpha-2 codes (DE, FR, ES, IT) or EU27_2020. Data covers 2005\u2013present (with ~1 year lag). Useful for EU youth policy research, labour market analysis, and education-employment gap studies. Source: Eurostat LFS, CC BY 4.0, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "country": {
+            "type": "string",
+            "description": "Eurostat geo code: ISO 3166-1 alpha-2 country (e.g. DE, FR, ES) or EU aggregate (EU27_2020)",
+            "minLength": 2,
+            "maxLength": 12
+          },
+          "age_group": {
+            "type": "string",
+            "enum": [
+              "Y15-24",
+              "Y15-19",
+              "Y15-29",
+              "Y20-24",
+              "Y20-29"
+            ],
+            "description": "Youth age group: Y15-24=15 to 24 years (default), Y15-19=15 to 19 years, Y15-29=15 to 29 years, Y20-24=20 to 24 years, Y20-29=20 to 29 years"
+          },
+          "since_year": {
+            "type": "integer",
+            "minimum": 2000,
+            "maximum": 2030,
+            "description": "First year to include (integer, e.g. 2010). Defaults to 2005."
+          }
+        },
+        "required": [
+          "country"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
           }
         },
         "required": [

@@ -10176,4 +10176,79 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+
+  // Eurostat SDMX 2.1 (UC-542) — 5 tools
+  {
+    toolId: 'eurostat2.fertility',
+    mcpName: 'eurostat2.demographics.fertility',
+    title: 'Eurostat — EU Fertility & Demographic Indicators',
+    description:
+      "Retrieve annual fertility and demographic indicators for EU/EEA countries from Eurostat's " +
+      'SDMX 2.1 API (dataset: demo_find). Includes total fertility rate, mean age of women at ' +
+      'childbirth, mean age at first/second/third birth, median age at childbirth, and share of ' +
+      'non-marital births. Country parameter accepts ISO 3166-1 alpha-2 codes (DE, FR, IT, ES, PL) ' +
+      'or EU aggregates (EU27_2020, EA20). Data covers 2018–present; updated annually. ' +
+      'Source: Eurostat, CC BY 4.0, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'eurostat2.ghg_emissions',
+    mcpName: 'eurostat2.environment.ghg',
+    title: 'Eurostat — EU Greenhouse Gas Emissions',
+    description:
+      'Retrieve annual greenhouse gas emission inventories for EU/EEA countries from Eurostat ' +
+      '(dataset: env_air_gge, SDMX 2.1). Reports total national emissions (excl. LULUCF memo items) ' +
+      'in million tonnes CO2-equivalent. Covers GHG (all greenhouse gases combined), CO2, CH4, N2O, ' +
+      'HFC, PFC, and SF6. Country accepts ISO 3166-1 alpha-2 codes (DE, FR, PL) or EU27_2020 ' +
+      'aggregate. Data covers 1985–present (with 1–2 year lag); updated annually. ' +
+      'Source: Eurostat/EEA air emission accounts, CC BY 4.0, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'eurostat2.rd_spending',
+    mcpName: 'eurostat2.innovation.rd',
+    title: 'Eurostat — EU R&D Expenditure (GERD)',
+    description:
+      'Retrieve annual Gross Domestic Expenditure on R&D (GERD) for EU/EEA countries from Eurostat ' +
+      '(dataset: rd_e_gerdtot, SDMX 2.1). Covers total and sectoral breakdowns: business enterprise ' +
+      '(BES), government (GOV), higher education (HES), and private non-profit (PNP). Unit can be ' +
+      '% of GDP (PC_GDP), million EUR (MIO_EUR), or million national currency (MIO_NAC). Country ' +
+      'accepts ISO 3166-1 alpha-2 codes (DE, SE, FI) or EU27_2020. ' +
+      'Useful for innovation policy research and EU 3%-of-GDP R&D target monitoring. ' +
+      'Source: Eurostat, CC BY 4.0, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'eurostat2.renewable_energy',
+    mcpName: 'eurostat2.energy.renewable',
+    title: 'Eurostat — EU Renewable Energy Consumption',
+    description:
+      'Retrieve annual renewable energy consumption data for EU/EEA countries from Eurostat ' +
+      '(dataset: sdg_07_10, SDMX 2.1, SDG indicator 7.2.1). Reports primary energy consumption ' +
+      'from renewable sources in Mtoe (million tonnes of oil equivalent), index (2005=100), or ' +
+      'tonnes per capita. Covers solar, wind, hydro, geothermal, and biomass combined. Country ' +
+      'accepts ISO 3166-1 alpha-2 codes (DE, SE, DK, AT) or EU27_2020. Data covers 2005–present. ' +
+      'Useful for EU Green Deal and energy transition research. ' +
+      'Source: Eurostat, CC BY 4.0, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'eurostat2.youth_employment',
+    mcpName: 'eurostat2.employment.youth',
+    title: 'Eurostat — EU Youth Employment Rate by Education',
+    description:
+      'Retrieve annual youth employment rate by educational attainment for EU/EEA countries from ' +
+      'Eurostat (dataset: yth_empl_010, SDMX 2.1). Returns employment rate (% of age group) for ' +
+      'youth aged 15–24 (default), 15–19, 15–29, 20–24, or 20–29, across all ISCED education ' +
+      'levels combined. Country accepts ISO 3166-1 alpha-2 codes (DE, FR, ES, IT) or EU27_2020. ' +
+      'Data covers 2005–present (with ~1 year lag). ' +
+      'Useful for EU youth policy research, labour market analysis, and education-employment gap studies. ' +
+      'Source: Eurostat LFS, CC BY 4.0, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

@@ -5471,6 +5471,37 @@ tools:
     price_usd: "0.002"
     cache_ttl: 86400
 
+  # --- UC-542: Eurostat SDMX 2.1 ---
+  - tool_id: eurostat2.fertility
+    name: Eurostat EU Fertility Indicators
+    provider: eurostat2
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: eurostat2.ghg_emissions
+    name: Eurostat EU GHG Emissions
+    provider: eurostat2
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: eurostat2.rd_spending
+    name: Eurostat EU R&D Expenditure
+    provider: eurostat2
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: eurostat2.renewable_energy
+    name: Eurostat EU Renewable Energy
+    provider: eurostat2
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: eurostat2.youth_employment
+    name: Eurostat EU Youth Employment
+    provider: eurostat2
+    price_usd: "0.002"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

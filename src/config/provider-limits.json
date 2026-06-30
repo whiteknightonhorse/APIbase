@@ -2330,5 +2330,14 @@
     "reset_period": "none",
     "docs_url": "https://data.snb.ch/en/help_api",
     "limit_proof": "Swiss OGD (open government data) — no auth required, no documented rate limits. Data portal at data.snb.ch is public and free."
+  },
+  "eurostat2": {
+    "display_name": "Eurostat SDMX 2.1",
+    "health_url": "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/demo_find/A.TOTFERRT.DE?format=JSON&startPeriod=2022",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://wikis.ec.europa.eu/display/EUROSTATHELP/API+Statistics+-+data+query",
+    "limit_proof": "Eurostat dissemination API — no auth, no rate limits documented. CC BY 4.0 open data. Public EU statistical office data service."
   }
 }
