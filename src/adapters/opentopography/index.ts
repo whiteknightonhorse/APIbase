@@ -7,6 +7,15 @@ import {
 } from '../../types/provider';
 import type { CatalogResponse, CatalogDatasetRaw } from './types';
 
+function _stripTags(s: string): string {
+  let prev: string;
+  do {
+    prev = s;
+    s = s.replace(/<[^>]*>/g, '');
+  } while (s !== prev);
+  return s;
+}
+
 const OTP_BASE = 'https://portal.opentopography.org/API';
 
 /** Available global DEM dataset identifiers for the /API/globaldem endpoint. */
@@ -105,11 +114,7 @@ export class OpenTopographyAdapter extends BaseAdapter {
           temporal_coverage: d.Dataset.temporalCoverage ?? null,
           bounding_box: d.Dataset.spatialCoverage?.geo?.box ?? null,
           description: d.Dataset.description
-            ? d.Dataset.description
-                .replace(/<[^>]*>/g, '')
-                .replace(/\s+/g, ' ')
-                .trim()
-                .slice(0, 500)
+            ? _stripTags(d.Dataset.description).replace(/\s+/g, ' ').trim().slice(0, 500)
             : null,
         }));
         return {
@@ -231,9 +236,7 @@ export class OpenTopographyAdapter extends BaseAdapter {
     }
 
     if (response.status >= 400 || text.includes('<error>')) {
-      const detail = text.includes('<error>')
-        ? text.replace(/<[^>]*>/g, '').trim()
-        : text.slice(0, 300);
+      const detail = text.includes('<error>') ? _stripTags(text).trim() : text.slice(0, 300);
       throw {
         code:
           response.status >= 500 ? ProviderErrorCode.UNAVAILABLE : ProviderErrorCode.INPUT_REJECTED,
