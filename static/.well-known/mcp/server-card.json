@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 952 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 956 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -54982,6 +54982,224 @@
         },
         "required": [
           "country_or_region"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "doaj.articles.detail",
+      "title": "DOAJ \u2014 Open Access Article Detail",
+      "description": "Retrieve full metadata for a single open access article from the Directory of Open Access Journals by its DOAJ article ID. Returns complete bibliographic record including all authors, journal title, ISSN, publication year and month, subject classifications, full keyword list, full abstract, DOI, and direct full-text URL. Use after doaj.articles.search to get complete details for a specific article.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "article_id": {
+            "type": "string",
+            "description": "DOAJ article identifier (32-character hex string, e.g. \"000004687a3a411cb466625281f2ceb0\"). Obtain from article_search results."
+          }
+        },
+        "required": [
+          "article_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "doaj.articles.search",
+      "title": "DOAJ \u2014 Search Open Access Articles",
+      "description": "Search 10 million+ open access articles indexed by the Directory of Open Access Journals (DOAJ). All articles are from peer-reviewed journals with immediate free access (no embargo, no paywall). Query by topic, author, title, DOI, or DOAJ query syntax. Returns title, authors, journal, year, subjects, keywords, abstract (up to 500 chars), DOI, and full-text URL for direct access to the paper. Ideal for finding freely readable academic literature across any discipline.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Full-text search query for articles (e.g. \"climate change mitigation\", \"title:CRISPR\", \"doi:10.1002/xyz\"). Supports DOAJ query syntax."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Result page number (1-based). Default: 1."
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of articles per page (1\u201350). Default: 10."
+          },
+          "sort": {
+            "type": "string",
+            "description": "Sort order. Examples: \"title:asc\", \"created_date:desc\". Default: relevance."
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "doaj.journals.detail",
+      "title": "DOAJ \u2014 Open Access Journal Detail",
+      "description": "Retrieve full metadata for a single open access journal from the Directory of Open Access Journals by its DOAJ journal ID. Returns comprehensive bibliographic and quality metadata including aims & scope URL, author instructions, peer-review process type, BOAI compliance status, APC pricing in EUR, preservation archiving services, and all ISSN variants. Use after doaj.journals.search to get complete details for a specific journal.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "journal_id": {
+            "type": "string",
+            "description": "DOAJ journal identifier (32-character hex string, e.g. \"4b3d6d1e61534f8d84b64b5c5a9a4cd0\"). Obtain from journal_search results."
+          }
+        },
+        "required": [
+          "journal_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "doaj.journals.search",
+      "title": "DOAJ \u2014 Search Open Access Journals",
+      "description": "Search the Directory of Open Access Journals (DOAJ) for peer-reviewed, fully open access journals. DOAJ indexes 20,000+ journals in 80+ languages from 129 countries \u2014 all free to read, CC-licensed, and vetted for quality. Query by topic, ISSN, publisher, or DOAJ query syntax. Returns title, ISSN, publisher, country, subject classification, license type, APC cost, preservation services (CLOCKSS, Portico, LOCKSS), and OA start year. Useful for finding publishing venues, checking journal legitimacy, and academic research.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query for journals (e.g. \"ecology\", \"ISSN:1234-5678\", \"publisher:Elsevier\"). Supports DOAJ query syntax."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Result page number (1-based). Default: 1."
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of journals per page (1\u201350). Default: 10."
+          },
+          "sort": {
+            "type": "string",
+            "description": "Sort order for results. Examples: \"title:asc\", \"issn:desc\". Default: relevance."
+          }
+        },
+        "required": [
+          "query"
         ]
       },
       "outputSchema": {

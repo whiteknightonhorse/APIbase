@@ -5720,6 +5720,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-551: DOAJ — Directory of Open Access Journals ---
+  - tool_id: doaj.journal_search
+    name: DOAJ — Search Open Access Journals
+    provider: doaj
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: doaj.journal_detail
+    name: DOAJ — Open Access Journal Detail
+    provider: doaj
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: doaj.article_search
+    name: DOAJ — Search Open Access Articles
+    provider: doaj
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: doaj.article_detail
+    name: DOAJ — Open Access Article Detail
+    provider: doaj
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

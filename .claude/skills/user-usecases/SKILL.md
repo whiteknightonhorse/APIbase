@@ -245,6 +245,7 @@ Use these examples as reference patterns when:
 | UC-548 | UN-Habitat Urban Data | World / Science | LIVE | No auth, ArcGIS public, 4 tools | `usecases/UC-548-unhabitat.md` |
 | UC-549 | CORDIS EU Research | Education / Science | LIVE | No auth, SPARQL public, 4 tools | `usecases/UC-549-cordis.md` |
 | UC-550 | IRENA IRENASTAT | World / Energy / Climate | LIVE | No auth, PX-Web public, 4 tools | `usecases/UC-550-irena.md` |
+| UC-551 | DOAJ Open Access Journals | Education / Academic Research | LIVE | No auth, CC0 metadata, 4 tools | `usecases/UC-551-doaj.md` |
 
 ## How to Use
 

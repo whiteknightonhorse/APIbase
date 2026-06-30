@@ -50130,7 +50130,9 @@
                 "type": "object",
                 "properties": {
                   "model_id": {
-                    "type": "object"
+                    "type": "string",
+                    "description": "Full model ID (e.g. \"meta-llama/Llama-3.3-70B-Instruct\", \"stabilityai/stable-diffusion-xl-base-1.0\")",
+                    "minLength": 1
                   }
                 },
                 "required": [
@@ -85529,6 +85531,348 @@
                 },
                 "required": [
                   "country_or_region"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/doaj.journal_search/call": {
+      "post": {
+        "operationId": "doaj_journal_search",
+        "summary": "DOAJ — Search Open Access Journals",
+        "description": "Search the Directory of Open Access Journals (DOAJ) for peer-reviewed, fully open access journals. DOAJ indexes 20,000+ journals in 80+ languages from 129 countries — all free to read, CC-licensed, and vetted for quality. Query by topic, ISSN, publisher, or DOAJ query syntax. Returns title, ISSN, publisher, country, subject classification, license type, APC cost, preservation services (CLOCKSS, Portico, LOCKSS), and OA start year. Useful for finding publishing venues, checking journal legitimacy, and academic research.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "doaj.journal_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search query for journals (e.g. \"ecology\", \"ISSN:1234-5678\", \"publisher:Elsevier\"). Supports DOAJ query syntax."
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Result page number (1-based). Default: 1."
+                  },
+                  "page_size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Number of journals per page (1–50). Default: 10."
+                  },
+                  "sort": {
+                    "type": "string",
+                    "description": "Sort order for results. Examples: \"title:asc\", \"issn:desc\". Default: relevance."
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/doaj.journal_detail/call": {
+      "post": {
+        "operationId": "doaj_journal_detail",
+        "summary": "DOAJ — Open Access Journal Detail",
+        "description": "Retrieve full metadata for a single open access journal from the Directory of Open Access Journals by its DOAJ journal ID. Returns comprehensive bibliographic and quality metadata including aims & scope URL, author instructions, peer-review process type, BOAI compliance status, APC pricing in EUR, preservation archiving services, and all ISSN variants. Use after doaj.journals.search to get complete details for a specific journal.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "doaj.journal_detail"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "journal_id": {
+                    "type": "string",
+                    "description": "DOAJ journal identifier (32-character hex string, e.g. \"4b3d6d1e61534f8d84b64b5c5a9a4cd0\"). Obtain from journal_search results."
+                  }
+                },
+                "required": [
+                  "journal_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/doaj.article_search/call": {
+      "post": {
+        "operationId": "doaj_article_search",
+        "summary": "DOAJ — Search Open Access Articles",
+        "description": "Search 10 million+ open access articles indexed by the Directory of Open Access Journals (DOAJ). All articles are from peer-reviewed journals with immediate free access (no embargo, no paywall). Query by topic, author, title, DOI, or DOAJ query syntax. Returns title, authors, journal, year, subjects, keywords, abstract (up to 500 chars), DOI, and full-text URL for direct access to the paper. Ideal for finding freely readable academic literature across any discipline.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "doaj.article_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Full-text search query for articles (e.g. \"climate change mitigation\", \"title:CRISPR\", \"doi:10.1002/xyz\"). Supports DOAJ query syntax."
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Result page number (1-based). Default: 1."
+                  },
+                  "page_size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Number of articles per page (1–50). Default: 10."
+                  },
+                  "sort": {
+                    "type": "string",
+                    "description": "Sort order. Examples: \"title:asc\", \"created_date:desc\". Default: relevance."
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/doaj.article_detail/call": {
+      "post": {
+        "operationId": "doaj_article_detail",
+        "summary": "DOAJ — Open Access Article Detail",
+        "description": "Retrieve full metadata for a single open access article from the Directory of Open Access Journals by its DOAJ article ID. Returns complete bibliographic record including all authors, journal title, ISSN, publication year and month, subject classifications, full keyword list, full abstract, DOI, and direct full-text URL. Use after doaj.articles.search to get complete details for a specific article.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "doaj.article_detail"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "article_id": {
+                    "type": "string",
+                    "description": "DOAJ article identifier (32-character hex string, e.g. \"000004687a3a411cb466625281f2ceb0\"). Obtain from article_search results."
+                  }
+                },
+                "required": [
+                  "article_id"
                 ]
               }
             }

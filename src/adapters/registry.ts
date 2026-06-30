@@ -268,6 +268,7 @@ import { HfInferenceAdapter } from './hf_inference';
 import { UnhabitatAdapter } from './unhabitat';
 import { CordisAdapter } from './cordis';
 import { IrenaAdapter } from './irena';
+import { DoajAdapter } from './doaj';
 import { config } from '../config';
 
 /**
@@ -1523,6 +1524,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'irena':
       // IRENA PX-Web IRENASTAT (UC-550) — renewable energy capacity/generation/share; no auth
       return getOrCreate('irena', () => new IrenaAdapter());
+    case 'doaj':
+      // DOAJ Directory of Open Access Journals (UC-551) — 20K+ OA journals + 10M+ articles; no auth
+      return getOrCreate('doaj', () => new DoajAdapter());
     default:
       return undefined;
   }

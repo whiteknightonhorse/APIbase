@@ -10724,4 +10724,59 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+  // DOAJ — Directory of Open Access Journals (4)
+  {
+    toolId: 'doaj.journal_search',
+    mcpName: 'doaj.journals.search',
+    title: 'DOAJ — Search Open Access Journals',
+    description:
+      'Search the Directory of Open Access Journals (DOAJ) for peer-reviewed, fully open access journals. ' +
+      'DOAJ indexes 20,000+ journals in 80+ languages from 129 countries — all free to read, CC-licensed, ' +
+      'and vetted for quality. Query by topic, ISSN, publisher, or DOAJ query syntax. ' +
+      'Returns title, ISSN, publisher, country, subject classification, license type, APC cost, ' +
+      'preservation services (CLOCKSS, Portico, LOCKSS), and OA start year. ' +
+      'Useful for finding publishing venues, checking journal legitimacy, and academic research.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'doaj.journal_detail',
+    mcpName: 'doaj.journals.detail',
+    title: 'DOAJ — Open Access Journal Detail',
+    description:
+      'Retrieve full metadata for a single open access journal from the Directory of Open Access Journals ' +
+      'by its DOAJ journal ID. Returns comprehensive bibliographic and quality metadata including aims & scope URL, ' +
+      'author instructions, peer-review process type, BOAI compliance status, APC pricing in EUR, ' +
+      'preservation archiving services, and all ISSN variants. ' +
+      'Use after doaj.journals.search to get complete details for a specific journal.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'doaj.article_search',
+    mcpName: 'doaj.articles.search',
+    title: 'DOAJ — Search Open Access Articles',
+    description:
+      'Search 10 million+ open access articles indexed by the Directory of Open Access Journals (DOAJ). ' +
+      'All articles are from peer-reviewed journals with immediate free access (no embargo, no paywall). ' +
+      'Query by topic, author, title, DOI, or DOAJ query syntax. ' +
+      'Returns title, authors, journal, year, subjects, keywords, abstract (up to 500 chars), ' +
+      'DOI, and full-text URL for direct access to the paper. ' +
+      'Ideal for finding freely readable academic literature across any discipline.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'doaj.article_detail',
+    mcpName: 'doaj.articles.detail',
+    title: 'DOAJ — Open Access Article Detail',
+    description:
+      'Retrieve full metadata for a single open access article from the Directory of Open Access Journals ' +
+      'by its DOAJ article ID. Returns complete bibliographic record including all authors, journal title, ' +
+      'ISSN, publication year and month, subject classifications, full keyword list, full abstract, ' +
+      'DOI, and direct full-text URL. ' +
+      'Use after doaj.articles.search to get complete details for a specific article.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
 ];

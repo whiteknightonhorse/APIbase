@@ -2411,5 +2411,14 @@
     "reset_period": "none",
     "docs_url": "https://www.irena.org/Data/Downloads/IRENASTAT",
     "limit_proof": "IRENA PX-Web API (pxweb.irena.org) is publicly accessible with no documented rate limits or auth requirements. CORS open (Access-Control-Allow-Origin: *)."
+  },
+  "doaj": {
+    "display_name": "DOAJ Open Access Journals",
+    "health_url": "https://doaj.org/api/search/journals/test?pageSize=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://doaj.org/api/docs",
+    "limit_proof": "DOAJ API is publicly accessible with no auth, no rate limits documented. Open data, CC0 metadata. Swagger: https://doaj.org/api/swagger.json"
   }
 }

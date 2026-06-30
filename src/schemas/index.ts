@@ -268,6 +268,7 @@ import { hfInferenceSchemas } from './hf_inference.schema';
 import { unhabitatSchemas } from './unhabitat.schema';
 import { cordisSchemas } from './cordis.schema';
 import { irenaSchemas } from './irena.schema';
+import { doajSchemas } from './doaj.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -539,4 +540,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...unhabitatSchemas,
   ...cordisSchemas,
   ...irenaSchemas,
+  ...doajSchemas,
 };
