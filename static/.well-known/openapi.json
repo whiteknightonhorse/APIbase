@@ -82655,6 +82655,402 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/banxico.fix_rate/call": {
+      "post": {
+        "operationId": "banxico_fix_rate",
+        "summary": "Banxico — USD/MXN FIX Exchange Rate",
+        "description": "Get the official Banco de México FIX USD/MXN exchange rate (serie SF43718). The FIX rate is published by Banxico daily and is used for settling obligations denominated in foreign currency in Mexico. Returns the latest observation or a historical date range (YYYY-MM-DD). Source: Banco de México SIE, official government data, free API.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "banxico.fix_rate"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "start_date": {
+                    "type": "string",
+                    "description": "Start date for historical range in YYYY-MM-DD format (e.g. 2026-01-01). Omit for latest observation only."
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "End date for historical range in YYYY-MM-DD format (e.g. 2026-06-30). Required when start_date is provided."
+                  }
+                },
+                "description": "Query the official Banxico FIX USD/MXN exchange rate. Omit dates for the latest observation; supply both for a historical range."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/banxico.fx_rates/call": {
+      "post": {
+        "operationId": "banxico_fx_rates",
+        "summary": "Banxico — Multi-Currency MXN Rates",
+        "description": "Get current Banco de México reference exchange rates for USD, EUR, CAD, and GBP against the Mexican Peso (MXN) in a single call. Returns the latest published value for each currency with its date and series label. Useful for multi-currency MXN conversion and FX monitoring. Source: Banco de México SIE series SF43718 (USD), SF46410 (EUR), SF60632 (CAD), SF60633 (GBP).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "banxico.fx_rates"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "locale": {
+                    "type": "string",
+                    "description": "Reserved for future locale support. Leave empty — response is always in English."
+                  }
+                },
+                "description": "Get current MXN exchange rates for USD, EUR, CAD, and GBP simultaneously."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/banxico.target_rate/call": {
+      "post": {
+        "operationId": "banxico_target_rate",
+        "summary": "Banxico — Overnight Target Rate",
+        "description": "Get the Banco de México monetary policy overnight target interest rate (Tasa objetivo, serie SF61745). This is the key policy rate set by the Junta de Gobierno (JOGI) that anchors short-term peso borrowing costs. Returns the latest rate or a historical date range. Rate expressed in percent per annum. Source: Banco de México SIE, official government data.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "banxico.target_rate"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "start_date": {
+                    "type": "string",
+                    "description": "Start date for historical range in YYYY-MM-DD format (e.g. 2026-01-01). Omit for latest observation only."
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "End date for historical range in YYYY-MM-DD format (e.g. 2026-06-30). Required when start_date is provided."
+                  }
+                },
+                "description": "Query the Banxico overnight target interest rate (Tasa objetivo). Omit dates for the latest observation; supply both for a historical range."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/banxico.tiie_rate/call": {
+      "post": {
+        "operationId": "banxico_tiie_rate",
+        "summary": "Banxico — TIIE 28-Day Interbank Rate",
+        "description": "Get the TIIE (Tasa de Interés Interbancaria de Equilibrio) 28-day interbank offered rate (serie SF43783). TIIE is the primary benchmark for Mexican peso-denominated credit products including mortgages, business loans, and consumer lending. Returns the latest rate or a historical date range. Rate expressed in percent per annum. Source: Banco de México SIE.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "banxico.tiie_rate"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "start_date": {
+                    "type": "string",
+                    "description": "Start date for historical range in YYYY-MM-DD format (e.g. 2026-01-01). Omit for latest observation only."
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "End date for historical range in YYYY-MM-DD format (e.g. 2026-06-30). Required when start_date is provided."
+                  }
+                },
+                "description": "Query the TIIE 28-day interbank offered rate. Omit dates for the latest value; supply both for a historical range."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/banxico.cpi/call": {
+      "post": {
+        "operationId": "banxico_cpi",
+        "summary": "Banxico — Mexico CPI / INPC Inflation",
+        "description": "Get the Mexico INPC (Índice Nacional de Precios al Consumidor) consumer price index (serie SP1, base Jul 2018 = 100). The INPC is the official inflation indicator produced by INEGI and published by Banxico. Returns the latest monthly index value or a historical range. Use this to track Mexican inflation trends or deflate peso-denominated series. Source: Banco de México SIE, official government data.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "banxico.cpi"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "start_date": {
+                    "type": "string",
+                    "description": "Start date for historical range in YYYY-MM-DD format (e.g. 2026-01-01). Omit for latest observation only."
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "End date for historical range in YYYY-MM-DD format (e.g. 2026-06-30). Required when start_date is provided."
+                  }
+                },
+                "description": "Query the Mexico INPC (Índice Nacional de Precios al Consumidor) consumer price index. Omit dates for the latest monthly reading; supply both for a historical range."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

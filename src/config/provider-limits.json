@@ -2348,5 +2348,14 @@
     "reset_period": "none",
     "docs_url": "https://abr.business.gov.au/Tools/WebServices",
     "limit_proof": "ABR Web Services Agreement — free GUID registration, no documented rate limits. Australian Government open data service covering 15M+ ABN entities."
+  },
+  "banxico": {
+    "display_name": "Banco de México SIE",
+    "health_url": "https://www.banxico.org.mx/SieAPIRest/service/v1/series/SF43718/datos/oportuno",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.banxico.org.mx/SieAPIRest/service/v1/doc/catalogoSeries",
+    "limit_proof": "Banco de México SIE API docs state no rate limit is documented; token-based free registration; official Mexican government open data."
   }
 }

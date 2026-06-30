@@ -261,6 +261,7 @@ import { FbiCdeAdapter } from './fbi';
 import { SwissNbmAdapter } from './swissnbm';
 import { Eurostat2Adapter } from './eurostat2';
 import { AbrAdapter } from './abr';
+import { BanxicoAdapter } from './banxico';
 import { config } from '../config';
 
 /**
@@ -1492,6 +1493,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'abr':
       // Australian Business Register (UC-543) — ABN/ACN lookup, name search; free GUID registration
       return getOrCreate('abr', () => new AbrAdapter(config.PROVIDER_KEY_ABR));
+    case 'banxico':
+      // Banco de México SIE (UC-544) — FX rates, target rate, TIIE, INPC; token-based auth
+      return getOrCreate('banxico', () => new BanxicoAdapter(config.PROVIDER_KEY_BANXICO));
     default:
       return undefined;
   }

@@ -238,6 +238,7 @@ Use these examples as reference patterns when:
 | UC-541 | Swiss National Bank (SNB) | Finance / Central Bank Data | LIVE | Swiss OGD open license, no auth, unlimited | `usecases/UC-541-swissnbm.md` |
 | UC-542 | Eurostat SDMX 2.1 | Economics / EU Statistics | LIVE | CC BY 4.0, no auth, unlimited, 5 tools | `usecases/UC-542-eurostat2.md` |
 | UC-543 | Australian Business Register (ABR) | Business / Company Data | LIVE | Free GUID, no auth, 3 tools | `usecases/UC-543-abr.md` |
+| UC-544 | Banco de México SIE | Finance / Mexico Economics | LIVE | Token auth, free, 5 tools | `usecases/UC-544-banxico.md` |
 
 ## How to Use
 

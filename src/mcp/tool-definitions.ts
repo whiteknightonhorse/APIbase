@@ -10295,4 +10295,67 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'business',
     annotations: READ_ONLY,
   },
+
+  // Banco de México SIE (5)
+  {
+    toolId: 'banxico.fix_rate',
+    mcpName: 'banxico.fx.fix_rate',
+    title: 'Banxico — USD/MXN FIX Exchange Rate',
+    description:
+      'Get the official Banco de México FIX USD/MXN exchange rate (serie SF43718). ' +
+      'The FIX rate is published by Banxico daily and is used for settling obligations denominated ' +
+      'in foreign currency in Mexico. Returns the latest observation or a historical date range ' +
+      '(YYYY-MM-DD). Source: Banco de México SIE, official government data, free API.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'banxico.fx_rates',
+    mcpName: 'banxico.fx.rates',
+    title: 'Banxico — Multi-Currency MXN Rates',
+    description:
+      'Get current Banco de México reference exchange rates for USD, EUR, CAD, and GBP against ' +
+      'the Mexican Peso (MXN) in a single call. Returns the latest published value for each currency ' +
+      'with its date and series label. Useful for multi-currency MXN conversion and FX monitoring. ' +
+      'Source: Banco de México SIE series SF43718 (USD), SF46410 (EUR), SF60632 (CAD), SF60633 (GBP).',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'banxico.target_rate',
+    mcpName: 'banxico.rates.target',
+    title: 'Banxico — Overnight Target Rate',
+    description:
+      'Get the Banco de México monetary policy overnight target interest rate (Tasa objetivo, ' +
+      'serie SF61745). This is the key policy rate set by the Junta de Gobierno (JOGI) that anchors ' +
+      'short-term peso borrowing costs. Returns the latest rate or a historical date range. ' +
+      'Rate expressed in percent per annum. Source: Banco de México SIE, official government data.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'banxico.tiie_rate',
+    mcpName: 'banxico.rates.tiie',
+    title: 'Banxico — TIIE 28-Day Interbank Rate',
+    description:
+      'Get the TIIE (Tasa de Interés Interbancaria de Equilibrio) 28-day interbank offered rate ' +
+      '(serie SF43783). TIIE is the primary benchmark for Mexican peso-denominated credit products ' +
+      'including mortgages, business loans, and consumer lending. Returns the latest rate or a ' +
+      'historical date range. Rate expressed in percent per annum. Source: Banco de México SIE.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'banxico.cpi',
+    mcpName: 'banxico.inflation.cpi',
+    title: 'Banxico — Mexico CPI / INPC Inflation',
+    description:
+      'Get the Mexico INPC (Índice Nacional de Precios al Consumidor) consumer price index ' +
+      '(serie SP1, base Jul 2018 = 100). The INPC is the official inflation indicator produced by ' +
+      'INEGI and published by Banxico. Returns the latest monthly index value or a historical range. ' +
+      'Use this to track Mexican inflation trends or deflate peso-denominated series. ' +
+      'Source: Banco de México SIE, official government data.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
 ];

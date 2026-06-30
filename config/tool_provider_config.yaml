@@ -5521,6 +5521,37 @@ tools:
     price_usd: "0.002"
     cache_ttl: 3600
 
+  # --- UC-544: Banco de México SIE ---
+  - tool_id: banxico.fix_rate
+    name: Banxico USD/MXN FIX Rate
+    provider: banxico
+    price_usd: "0.001"
+    cache_ttl: 300
+
+  - tool_id: banxico.fx_rates
+    name: Banxico Multi-Currency MXN Rates
+    provider: banxico
+    price_usd: "0.001"
+    cache_ttl: 300
+
+  - tool_id: banxico.target_rate
+    name: Banxico Overnight Target Rate
+    provider: banxico
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: banxico.tiie_rate
+    name: Banxico TIIE 28-Day Rate
+    provider: banxico
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: banxico.cpi
+    name: Banxico Mexico CPI / INPC
+    provider: banxico
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

@@ -404,6 +404,9 @@ export const appEnvSchema = z.object({
   // Australian Business Register (UC-543) — ABN/ACN/name lookup; free GUID registration
   PROVIDER_KEY_ABR: z.string().optional().default(''),
 
+  // Banco de México SIE (UC-544) — FX rates, target rate, TIIE, INPC; token-based auth
+  PROVIDER_KEY_BANXICO: z.string().optional().default(''),
+
   // GeoNames geographical database (UC-512) — place search, postal codes, country info, timezones
   GEONAMES_USERNAME: z.string().optional().default('APIbase'),
 

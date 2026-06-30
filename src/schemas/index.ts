@@ -261,6 +261,7 @@ import { fbiSchemas } from './fbi.schema';
 import { swissnbmSchemas } from './swissnbm.schema';
 import { eurostat2Schemas } from './eurostat2.schema';
 import { abrSchemas } from './abr.schema';
+import { banxicoSchemas } from './banxico.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -525,4 +526,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...swissnbmSchemas,
   ...eurostat2Schemas,
   ...abrSchemas,
+  ...banxicoSchemas,
 };
