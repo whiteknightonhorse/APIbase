@@ -44,7 +44,7 @@ done
 echo -n "5/5 Live call (402 payment required)... "
 CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$BASE/api/v1/tools/openmeteoaq.current/call" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer ${SMOKE_TEST_KEY:-ak_live_9b9978edba8a8c59f478837d0a660c9d}" \
+  -H "Authorization: Bearer ${SMOKE_TEST_KEY}" \
   -d '{"latitude":48.8566,"longitude":2.3522}')
 [ "$CODE" = "402" ] && echo "PASS (402 — payment pipeline active)" || { echo "FAIL (expected 402, got $CODE)"; exit 1; }
 
