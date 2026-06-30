@@ -10832,4 +10832,63 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'media',
     annotations: READ_ONLY,
   },
+
+  // UniProt (4)
+  {
+    toolId: 'uniprot.protein_search',
+    mcpName: 'science.uniprot.search',
+    title: 'UniProt — Search Proteins',
+    description:
+      'Search the UniProt protein sequence database for proteins by name, gene, or organism. ' +
+      "UniProt is the world's leading repository for protein sequences and functional annotations, " +
+      'covering 250M+ sequences from Swiss-Prot (reviewed) and TrEMBL (unreviewed). ' +
+      'Returns accession, protein name, organism, gene names, sequence length, review status, and annotation score. ' +
+      'Supports field-specific queries (gene:TP53, organism:9606) and free-text search. ' +
+      "Use reviewed:true to restrict to Swiss-Prot's manually curated, high-quality entries. " +
+      'CC BY 4.0 — Universal Protein Resource (UniProt Consortium)',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'uniprot.protein_entry',
+    mcpName: 'science.uniprot.entry',
+    title: 'UniProt — Protein Entry Details',
+    description:
+      'Get full annotation details for a protein by UniProt accession number (e.g. P69905, P01308). ' +
+      'Returns protein name, EC numbers, alternative names, organism and lineage, gene names, ' +
+      'sequence (first 200 aa), molecular weight, biological function, subcellular location, ' +
+      'associated diseases, keywords, cross-references to PDB/Ensembl/RefSeq/OMIM/PubMed, and feature count. ' +
+      'P69905 = hemoglobin alpha chain; P01308 = human insulin; P04637 = tumor suppressor p53 (TP53). ' +
+      'CC BY 4.0 — Universal Protein Resource (UniProt Consortium)',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'uniprot.protein_features',
+    mcpName: 'science.uniprot.features',
+    title: 'UniProt — Protein Sequence Features',
+    description:
+      'Get sequence-level annotations and functional features for a protein by UniProt accession. ' +
+      'Returns active sites, binding sites, signal peptides, transmembrane regions, ' +
+      'disulfide bonds, post-translational modifications, domain boundaries, secondary structure elements ' +
+      '(helix, strand, turn), natural variants, and chain cleavage sites — all with exact sequence positions. ' +
+      'Essential for structural biology, drug target analysis, and protein engineering workflows. ' +
+      'CC BY 4.0 — Universal Protein Resource (UniProt Consortium)',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'uniprot.taxonomy',
+    mcpName: 'science.uniprot.taxonomy',
+    title: 'UniProt — Taxonomy Search',
+    description:
+      'Search UniProt taxonomy to find organism names, NCBI taxonomy IDs, lineages, and protein counts. ' +
+      'Returns taxon ID, scientific name, common name, taxonomic rank, full lineage path, ' +
+      'and the number of reviewed (Swiss-Prot) and unreviewed (TrEMBL) proteins for that organism. ' +
+      'Use to resolve organism names to taxonomy IDs for protein_search filtering ' +
+      '(e.g. "human" → taxon_id 9606, "mouse" → 10090, "E. coli K12" → 83333). ' +
+      'CC BY 4.0 — Universal Protein Resource (UniProt Consortium)',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
 ];

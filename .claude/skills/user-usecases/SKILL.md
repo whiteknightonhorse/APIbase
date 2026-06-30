@@ -247,6 +247,7 @@ Use these examples as reference patterns when:
 | UC-550 | IRENA IRENASTAT | World / Energy / Climate | LIVE | No auth, PX-Web public, 4 tools | `usecases/UC-550-irena.md` |
 | UC-551 | DOAJ Open Access Journals | Education / Academic Research | LIVE | No auth, CC0 metadata, 4 tools | `usecases/UC-551-doaj.md` |
 | UC-552 | Cleveland Museum of Art Open Access | Media / Art & Culture | LIVE | No auth, CC0/CC BY, 4 tools | `usecases/UC-552-cleveland-art.md` |
+| UC-553 | UniProt Protein Database | Science / Health / Bioinformatics | LIVE | No auth, CC BY 4.0, 4 tools | `usecases/UC-553-uniprot.md` |
 
 ## How to Use
 

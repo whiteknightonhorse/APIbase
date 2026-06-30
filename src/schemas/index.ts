@@ -270,6 +270,7 @@ import { cordisSchemas } from './cordis.schema';
 import { irenaSchemas } from './irena.schema';
 import { doajSchemas } from './doaj.schema';
 import { clevelandArtSchemas } from './cleveland-art.schema';
+import { uniprotSchemas } from './uniprot.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -543,4 +544,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...irenaSchemas,
   ...doajSchemas,
   ...clevelandArtSchemas,
+  ...uniprotSchemas,
 };

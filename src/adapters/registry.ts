@@ -270,6 +270,7 @@ import { CordisAdapter } from './cordis';
 import { IrenaAdapter } from './irena';
 import { DoajAdapter } from './doaj';
 import { ClevelandArtAdapter } from './cleveland-art';
+import { UniprotAdapter } from './uniprot';
 import { config } from '../config';
 
 /**
@@ -1531,6 +1532,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'clevelandart':
       // Cleveland Museum of Art Open Access (UC-552) — 68K+ artworks, 9K+ creators; no auth, CC0/CC BY
       return getOrCreate('clevelandart', () => new ClevelandArtAdapter());
+    case 'uniprot':
+      // UniProt protein sequence and annotation database (UC-553) — 250M+ sequences; no auth, CC BY 4.0
+      return getOrCreate('uniprot', () => new UniprotAdapter());
     default:
       return undefined;
   }

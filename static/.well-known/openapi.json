@@ -85911,14 +85911,14 @@
         ]
       }
     },
-    "/api/v1/tools/cma.artwork_search/call": {
+    "/api/v1/tools/clevelandart.artwork_search/call": {
       "post": {
-        "operationId": "cma_artwork_search",
+        "operationId": "clevelandart_artwork_search",
         "summary": "Cleveland Museum of Art — Search Artworks",
         "description": "Search 68,000+ artworks in the Cleveland Museum of Art open access collection. Filter by keyword, artwork type (Painting, Drawing, Print, Sculpture, Photograph, Textile), museum department, and whether an image is available. Returns title, creator names, type, department, creation date, culture, technique, web-resolution image URL, and artwork page URL. All records are freely available under CC0 or CC BY — usable for research, education, and creative projects. Collections span ancient Egypt, medieval Europe, East Asian art, American modernism, and more.",
         "x-payment-info": {
           "pricingMode": "fixed",
-          "price": "0.001000",
+          "price": "0.000000",
           "protocols": [
             "x402",
             "mpp"
@@ -85932,7 +85932,7 @@
             "schema": {
               "type": "string",
               "enum": [
-                "cma.artwork_search"
+                "clevelandart.artwork_search"
               ]
             }
           }
@@ -86009,14 +86009,14 @@
         ]
       }
     },
-    "/api/v1/tools/cma.artwork_detail/call": {
+    "/api/v1/tools/clevelandart.artwork_detail/call": {
       "post": {
-        "operationId": "cma_artwork_detail",
+        "operationId": "clevelandart_artwork_detail",
         "summary": "Cleveland Museum of Art — Artwork Detail",
-        "description": "Retrieve complete metadata for a single artwork by its numeric ID from the Cleveland Museum of Art collection. Returns full tombstone, tombstone text, creator biographies, medium/technique, measurements, provenance creditline, copyright status, gallery location, loan status, image URLs in web/print/full resolutions, and the CMA collection page URL. Use after cma.artwork.search to get the complete record for a specific work.",
+        "description": "Retrieve complete metadata for a single artwork by its numeric ID from the Cleveland Museum of Art collection. Returns full tombstone, tombstone text, creator biographies, medium/technique, measurements, provenance creditline, copyright status, gallery location, loan status, image URLs in web/print/full resolutions, and the CMA collection page URL. Use after clevelandart.artwork_detail to get the complete record for a specific work.",
         "x-payment-info": {
           "pricingMode": "fixed",
-          "price": "0.001000",
+          "price": "0.000000",
           "protocols": [
             "x402",
             "mpp"
@@ -86030,7 +86030,7 @@
             "schema": {
               "type": "string",
               "enum": [
-                "cma.artwork_detail"
+                "clevelandart.artwork_detail"
               ]
             }
           }
@@ -86088,14 +86088,14 @@
         ]
       }
     },
-    "/api/v1/tools/cma.creator_search/call": {
+    "/api/v1/tools/clevelandart.creator_search/call": {
       "post": {
-        "operationId": "cma_creator_search",
+        "operationId": "clevelandart_creator_search",
         "summary": "Cleveland Museum of Art — Search Creators",
         "description": "Search 9,200+ artists and creators in the Cleveland Museum of Art open access database. Find artists by name or nationality. Returns creator name, nationality, biography, birth/death years, and a list of artworks held by the CMA attributed to that creator. Covers painters, sculptors, printmakers, photographers, and craftspeople across all periods and cultures.",
         "x-payment-info": {
           "pricingMode": "fixed",
-          "price": "0.001000",
+          "price": "0.000000",
           "protocols": [
             "x402",
             "mpp"
@@ -86109,7 +86109,7 @@
             "schema": {
               "type": "string",
               "enum": [
-                "cma.creator_search"
+                "clevelandart.creator_search"
               ]
             }
           }
@@ -86178,14 +86178,14 @@
         ]
       }
     },
-    "/api/v1/tools/cma.exhibition_search/call": {
+    "/api/v1/tools/clevelandart.exhibition_search/call": {
       "post": {
-        "operationId": "cma_exhibition_search",
+        "operationId": "clevelandart_exhibition_search",
         "summary": "Cleveland Museum of Art — Search Exhibitions",
         "description": "Search 5,600+ exhibitions in the Cleveland Museum of Art historical archive. Find past and current exhibitions by keyword, and optionally filter to those held at the CMA itself. Returns exhibition title, organizer, opening and closing dates, and venue list with dates. Useful for art history research, provenance tracking, and understanding the institutional history of CMA artworks.",
         "x-payment-info": {
           "pricingMode": "fixed",
-          "price": "0.001000",
+          "price": "0.000000",
           "protocols": [
             "x402",
             "mpp"
@@ -86199,7 +86199,7 @@
             "schema": {
               "type": "string",
               "enum": [
-                "cma.exhibition_search"
+                "clevelandart.exhibition_search"
               ]
             }
           }
@@ -86231,6 +86231,359 @@
                     "description": "Number of results to skip for pagination. Default: 0."
                   }
                 }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/uniprot.protein_search/call": {
+      "post": {
+        "operationId": "uniprot_protein_search",
+        "summary": "UniProt — Search Proteins",
+        "description": "Search the UniProt protein sequence database for proteins by name, gene, or organism. UniProt is the world's leading repository for protein sequences and functional annotations, covering 250M+ sequences from Swiss-Prot (reviewed) and TrEMBL (unreviewed). Returns accession, protein name, organism, gene names, sequence length, review status, and annotation score. Supports field-specific queries (gene:TP53, organism:9606) and free-text search. Use reviewed:true to restrict to Swiss-Prot's manually curated, high-quality entries. CC BY 4.0 — Universal Protein Resource (UniProt Consortium)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "uniprot.protein_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Protein or gene search term — e.g. \"insulin\", \"hemoglobin\", \"BRCA1\". Supports UniProt query syntax: field:value pairs (e.g. \"protein_name:kinase\")",
+                    "minLength": 1
+                  },
+                  "organism_id": {
+                    "type": "integer",
+                    "description": "NCBI taxonomy ID to filter by organism. Common IDs: 9606 (human), 10090 (mouse), 10116 (rat), 7227 (fruit fly), 6239 (C. elegans), 3702 (A. thaliana)"
+                  },
+                  "gene": {
+                    "type": "string",
+                    "description": "Gene name filter (exact or partial). E.g. \"TP53\", \"EGFR\", \"BRAC1\". Combined with query using AND logic"
+                  },
+                  "reviewed": {
+                    "type": "boolean",
+                    "description": "If true, restrict to Swiss-Prot (manually reviewed) entries only. Swiss-Prot has higher quality annotations than TrEMBL (unreviewed)"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 25,
+                    "description": "Number of results to return (1–25, default 5)"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/uniprot.protein_entry/call": {
+      "post": {
+        "operationId": "uniprot_protein_entry",
+        "summary": "UniProt — Protein Entry Details",
+        "description": "Get full annotation details for a protein by UniProt accession number (e.g. P69905, P01308). Returns protein name, EC numbers, alternative names, organism and lineage, gene names, sequence (first 200 aa), molecular weight, biological function, subcellular location, associated diseases, keywords, cross-references to PDB/Ensembl/RefSeq/OMIM/PubMed, and feature count. P69905 = hemoglobin alpha chain; P01308 = human insulin; P04637 = tumor suppressor p53 (TP53). CC BY 4.0 — Universal Protein Resource (UniProt Consortium)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "uniprot.protein_entry"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "accession": {
+                    "type": "string",
+                    "description": "UniProt accession number (e.g. \"P69905\" for hemoglobin alpha, \"P01308\" for insulin, \"P53_HUMAN\" entry name also accepted). Six or ten character alphanumeric code",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "accession"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/uniprot.protein_features/call": {
+      "post": {
+        "operationId": "uniprot_protein_features",
+        "summary": "UniProt — Protein Sequence Features",
+        "description": "Get sequence-level annotations and functional features for a protein by UniProt accession. Returns active sites, binding sites, signal peptides, transmembrane regions, disulfide bonds, post-translational modifications, domain boundaries, secondary structure elements (helix, strand, turn), natural variants, and chain cleavage sites — all with exact sequence positions. Essential for structural biology, drug target analysis, and protein engineering workflows. CC BY 4.0 — Universal Protein Resource (UniProt Consortium)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "uniprot.protein_features"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "accession": {
+                    "type": "string",
+                    "description": "UniProt accession number to retrieve sequence features for (e.g. \"P69905\", \"P01308\"). Returns active sites, domains, signal peptides, transmembrane regions, disulfide bonds, variants, and secondary structure",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "accession"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/uniprot.taxonomy/call": {
+      "post": {
+        "operationId": "uniprot_taxonomy",
+        "summary": "UniProt — Taxonomy Search",
+        "description": "Search UniProt taxonomy to find organism names, NCBI taxonomy IDs, lineages, and protein counts. Returns taxon ID, scientific name, common name, taxonomic rank, full lineage path, and the number of reviewed (Swiss-Prot) and unreviewed (TrEMBL) proteins for that organism. Use to resolve organism names to taxonomy IDs for protein_search filtering (e.g. \"human\" → taxon_id 9606, \"mouse\" → 10090, \"E. coli K12\" → 83333). CC BY 4.0 — Universal Protein Resource (UniProt Consortium)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "uniprot.taxonomy"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Organism or taxonomic name to search — e.g. \"human\", \"Homo sapiens\", \"Mus musculus\", \"bacteria\", \"fungi\". Returns taxonomy ID, lineage, and protein counts",
+                    "minLength": 1
+                  },
+                  "rank": {
+                    "type": "string",
+                    "enum": [
+                      "kingdom",
+                      "phylum",
+                      "class",
+                      "order",
+                      "family",
+                      "genus",
+                      "species"
+                    ],
+                    "description": "Filter by taxonomic rank (e.g. \"species\" to exclude higher-level taxa)"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20,
+                    "description": "Number of taxonomy results (1–20, default 5)"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
               }
             }
           }

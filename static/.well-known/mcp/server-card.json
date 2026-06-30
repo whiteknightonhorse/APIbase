@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 960 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 968 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -55452,6 +55452,379 @@
           "error": {
             "type": "object",
             "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "clevelandart.artwork.detail",
+      "title": "Cleveland Museum of Art \u2014 Artwork Detail",
+      "description": "Cleveland Museum of Art \u2014 Artwork Detail",
+      "inputSchema": {},
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "clevelandart.artwork.search",
+      "title": "Cleveland Museum of Art \u2014 Search Artworks",
+      "description": "Cleveland Museum of Art \u2014 Search Artworks",
+      "inputSchema": {},
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "clevelandart.creator.search",
+      "title": "Cleveland Museum of Art \u2014 Search Creators",
+      "description": "Cleveland Museum of Art \u2014 Search Creators",
+      "inputSchema": {},
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "clevelandart.exhibition.search",
+      "title": "Cleveland Museum of Art \u2014 Search Exhibitions",
+      "description": "Cleveland Museum of Art \u2014 Search Exhibitions",
+      "inputSchema": {},
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "science.uniprot.entry",
+      "title": "UniProt \u2014 Protein Entry Details",
+      "description": "Get full annotation details for a protein by UniProt accession number (e.g. P69905, P01308). Returns protein name, EC numbers, alternative names, organism and lineage, gene names, sequence (first 200 aa), molecular weight, biological function, subcellular location, associated diseases, keywords, cross-references to PDB/Ensembl/RefSeq/OMIM/PubMed, and feature count. P69905 = hemoglobin alpha chain; P01308 = human insulin; P04637 = tumor suppressor p53 (TP53). CC BY 4.0 \u2014 Universal Protein Resource (UniProt Consortium)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "accession": {
+            "type": "string",
+            "description": "UniProt accession number (e.g. \"P69905\" for hemoglobin alpha, \"P01308\" for insulin, \"P53_HUMAN\" entry name also accepted). Six or ten character alphanumeric code",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "accession"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "science.uniprot.features",
+      "title": "UniProt \u2014 Protein Sequence Features",
+      "description": "Get sequence-level annotations and functional features for a protein by UniProt accession. Returns active sites, binding sites, signal peptides, transmembrane regions, disulfide bonds, post-translational modifications, domain boundaries, secondary structure elements (helix, strand, turn), natural variants, and chain cleavage sites \u2014 all with exact sequence positions. Essential for structural biology, drug target analysis, and protein engineering workflows. CC BY 4.0 \u2014 Universal Protein Resource (UniProt Consortium)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "accession": {
+            "type": "string",
+            "description": "UniProt accession number to retrieve sequence features for (e.g. \"P69905\", \"P01308\"). Returns active sites, domains, signal peptides, transmembrane regions, disulfide bonds, variants, and secondary structure",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "accession"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "science.uniprot.search",
+      "title": "UniProt \u2014 Search Proteins",
+      "description": "Search the UniProt protein sequence database for proteins by name, gene, or organism. UniProt is the world's leading repository for protein sequences and functional annotations, covering 250M+ sequences from Swiss-Prot (reviewed) and TrEMBL (unreviewed). Returns accession, protein name, organism, gene names, sequence length, review status, and annotation score. Supports field-specific queries (gene:TP53, organism:9606) and free-text search. Use reviewed:true to restrict to Swiss-Prot's manually curated, high-quality entries. CC BY 4.0 \u2014 Universal Protein Resource (UniProt Consortium)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Protein or gene search term \u2014 e.g. \"insulin\", \"hemoglobin\", \"BRCA1\". Supports UniProt query syntax: field:value pairs (e.g. \"protein_name:kinase\")",
+            "minLength": 1
+          },
+          "organism_id": {
+            "type": "integer",
+            "description": "NCBI taxonomy ID to filter by organism. Common IDs: 9606 (human), 10090 (mouse), 10116 (rat), 7227 (fruit fly), 6239 (C. elegans), 3702 (A. thaliana)"
+          },
+          "gene": {
+            "type": "string",
+            "description": "Gene name filter (exact or partial). E.g. \"TP53\", \"EGFR\", \"BRAC1\". Combined with query using AND logic"
+          },
+          "reviewed": {
+            "type": "boolean",
+            "description": "If true, restrict to Swiss-Prot (manually reviewed) entries only. Swiss-Prot has higher quality annotations than TrEMBL (unreviewed)"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 25,
+            "description": "Number of results to return (1\u201325, default 5)"
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "science.uniprot.taxonomy",
+      "title": "UniProt \u2014 Taxonomy Search",
+      "description": "Search UniProt taxonomy to find organism names, NCBI taxonomy IDs, lineages, and protein counts. Returns taxon ID, scientific name, common name, taxonomic rank, full lineage path, and the number of reviewed (Swiss-Prot) and unreviewed (TrEMBL) proteins for that organism. Use to resolve organism names to taxonomy IDs for protein_search filtering (e.g. \"human\" \u2192 taxon_id 9606, \"mouse\" \u2192 10090, \"E. coli K12\" \u2192 83333). CC BY 4.0 \u2014 Universal Protein Resource (UniProt Consortium)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Organism or taxonomic name to search \u2014 e.g. \"human\", \"Homo sapiens\", \"Mus musculus\", \"bacteria\", \"fungi\". Returns taxonomy ID, lineage, and protein counts",
+            "minLength": 1
+          },
+          "rank": {
+            "type": "string",
+            "enum": [
+              "kingdom",
+              "phylum",
+              "class",
+              "order",
+              "family",
+              "genus",
+              "species"
+            ],
+            "description": "Filter by taxonomic rank (e.g. \"species\" to exclude higher-level taxa)"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "Number of taxonomy results (1\u201320, default 5)"
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
           }
         },
         "required": [
