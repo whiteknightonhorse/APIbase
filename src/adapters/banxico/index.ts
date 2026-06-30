@@ -13,11 +13,11 @@ import {
 
 // SIE series IDs for each tool
 const SERIES_CONFIG: Record<string, { ids: string[]; labels: Record<string, string> }> = {
-  'banxico.fix_rate': {
+  'banxico.fx.fix_rate': {
     ids: ['SF43718'],
     labels: { SF43718: 'USD/MXN FIX (Bank of Mexico official rate)' },
   },
-  'banxico.fx_rates': {
+  'banxico.fx.rates': {
     ids: ['SF43718', 'SF46410', 'SF60632', 'SF60633'],
     labels: {
       SF43718: 'USD/MXN',
@@ -26,15 +26,15 @@ const SERIES_CONFIG: Record<string, { ids: string[]; labels: Record<string, stri
       SF60633: 'GBP/MXN',
     },
   },
-  'banxico.target_rate': {
+  'banxico.rates.target': {
     ids: ['SF61745'],
     labels: { SF61745: 'Banxico overnight target rate (Tasa objetivo)' },
   },
-  'banxico.tiie_rate': {
+  'banxico.rates.tiie': {
     ids: ['SF43783'],
     labels: { SF43783: 'TIIE 28-day interbank offered rate' },
   },
-  'banxico.cpi': {
+  'banxico.inflation.cpi': {
     ids: ['SP1'],
     labels: { SP1: 'INPC — Mexico consumer price index (base Jul 2018 = 100)' },
   },
@@ -96,7 +96,7 @@ export class BanxicoAdapter extends BaseAdapter {
     const body = raw.body as SieResponse;
     const series = body?.bmx?.series ?? [];
 
-    if (req.toolId === 'banxico.fx_rates') {
+    if (req.toolId === 'banxico.fx.rates') {
       const rates: Record<string, { value: number; date: string; label: string }> = {};
       for (const s of series) {
         const lbl = cfg.labels[s.idSerie] ?? s.idSerie;

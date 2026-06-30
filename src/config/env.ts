@@ -407,6 +407,9 @@ export const appEnvSchema = z.object({
   // Banco de México SIE (UC-544) — FX rates, target rate, TIIE, INPC; token-based auth
   PROVIDER_KEY_BANXICO: z.string().optional().default(''),
 
+  // Bureau of Economic Analysis (UC-545) — GDP, personal income, trade balance, state GDP; api_key auth
+  PROVIDER_KEY_BEA: z.string().optional().default(''),
+
   // GeoNames geographical database (UC-512) — place search, postal codes, country info, timezones
   GEONAMES_USERNAME: z.string().optional().default('APIbase'),
 

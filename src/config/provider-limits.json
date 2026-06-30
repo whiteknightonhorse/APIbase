@@ -2357,5 +2357,14 @@
     "reset_period": "none",
     "docs_url": "https://www.banxico.org.mx/SieAPIRest/service/v1/doc/catalogoSeries",
     "limit_proof": "Banco de México SIE API docs state no rate limit is documented; token-based free registration; official Mexican government open data."
+  },
+  "bea": {
+    "display_name": "Bureau of Economic Analysis",
+    "health_url": "https://apps.bea.gov/api/data?UserID=TOKEN_FROM_ENV&method=GetDataSetList&ResultFormat=JSON",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://apps.bea.gov/api/signup/",
+    "limit_proof": "BEA API docs state no rate limits; US Government open data (Bureau of Economic Analysis); free API key registration."
   }
 }

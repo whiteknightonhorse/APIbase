@@ -262,6 +262,7 @@ import { SwissNbmAdapter } from './swissnbm';
 import { Eurostat2Adapter } from './eurostat2';
 import { AbrAdapter } from './abr';
 import { BanxicoAdapter } from './banxico';
+import { BeaAdapter } from './bea';
 import { config } from '../config';
 
 /**
@@ -1496,6 +1497,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'banxico':
       // Banco de México SIE (UC-544) — FX rates, target rate, TIIE, INPC; token-based auth
       return getOrCreate('banxico', () => new BanxicoAdapter(config.PROVIDER_KEY_BANXICO));
+    case 'bea':
+      // Bureau of Economic Analysis (UC-545) — GDP, personal income, trade, state GDP, industry; api_key
+      return getOrCreate('bea', () => new BeaAdapter(config.PROVIDER_KEY_BEA));
     default:
       return undefined;
   }

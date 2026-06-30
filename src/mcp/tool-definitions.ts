@@ -10298,7 +10298,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
 
   // Banco de México SIE (5)
   {
-    toolId: 'banxico.fix_rate',
+    toolId: 'banxico.fx.fix_rate',
     mcpName: 'banxico.fx.fix_rate',
     title: 'Banxico — USD/MXN FIX Exchange Rate',
     description:
@@ -10310,7 +10310,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     annotations: READ_ONLY,
   },
   {
-    toolId: 'banxico.fx_rates',
+    toolId: 'banxico.fx.rates',
     mcpName: 'banxico.fx.rates',
     title: 'Banxico — Multi-Currency MXN Rates',
     description:
@@ -10322,7 +10322,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     annotations: READ_ONLY,
   },
   {
-    toolId: 'banxico.target_rate',
+    toolId: 'banxico.rates.target',
     mcpName: 'banxico.rates.target',
     title: 'Banxico — Overnight Target Rate',
     description:
@@ -10334,7 +10334,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     annotations: READ_ONLY,
   },
   {
-    toolId: 'banxico.tiie_rate',
+    toolId: 'banxico.rates.tiie',
     mcpName: 'banxico.rates.tiie',
     title: 'Banxico — TIIE 28-Day Interbank Rate',
     description:
@@ -10346,7 +10346,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     annotations: READ_ONLY,
   },
   {
-    toolId: 'banxico.cpi',
+    toolId: 'banxico.inflation.cpi',
     mcpName: 'banxico.inflation.cpi',
     title: 'Banxico — Mexico CPI / INPC Inflation',
     description:
@@ -10355,6 +10355,73 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
       'INEGI and published by Banxico. Returns the latest monthly index value or a historical range. ' +
       'Use this to track Mexican inflation trends or deflate peso-denominated series. ' +
       'Source: Banco de México SIE, official government data.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+
+  // Bureau of Economic Analysis — BEA (5)
+  {
+    toolId: 'bea.gdp',
+    mcpName: 'bea.national.gdp',
+    title: 'BEA — US Real GDP Growth',
+    description:
+      'Retrieve US Real GDP growth rates from BEA NIPA Table T10101 (Fisher Quantity Index, ' +
+      'percent change at annual rate). Returns quarterly or annual percent-change series for ' +
+      'total GDP, personal consumption expenditures, gross private investment, exports, imports, ' +
+      'and government spending. Official US national accounts data from the Bureau of Economic Analysis. ' +
+      'Use for macro analysis, economic forecasting, and recession detection.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bea.personal_income',
+    mcpName: 'bea.national.personal_income',
+    title: 'BEA — US Personal Income & Outlays',
+    description:
+      'Retrieve US Personal Income and Outlays from BEA NIPA Table T20100 (millions of dollars). ' +
+      'Covers total personal income, compensation of employees, proprietors income, rental income, ' +
+      'personal interest income, dividends, personal taxes, disposable personal income, and ' +
+      'personal savings. Annual or quarterly frequency, covering all years since 1929. ' +
+      'Essential for consumer spending analysis and household financial health tracking.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bea.trade_balance',
+    mcpName: 'bea.international.trade_balance',
+    title: 'BEA — US International Trade Balance',
+    description:
+      'Retrieve US international trade balance data from the BEA International Transactions ' +
+      'Accounts (ITA) dataset. Covers balance on goods and services, current account balance, ' +
+      'goods imports/exports, services imports/exports, and 800+ additional ITA indicators. ' +
+      'Filter by country (China, Canada, Mexico, EU, etc.) or use AllCountries for world totals. ' +
+      'Values in millions of USD. Annual or quarterly frequency. Official BEA government data.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bea.state_gdp',
+    mcpName: 'bea.regional.state_gdp',
+    title: 'BEA — US State GDP by Industry',
+    description:
+      'Retrieve real GDP by US state from the BEA Regional Economic Accounts (CAGDP2 table). ' +
+      'Returns GDP in thousands of dollars for all 50 states + DC + US total by year and industry ' +
+      'component (agriculture, mining, manufacturing, finance, real estate, government, etc.). ' +
+      'Use for state-level economic analysis, regional comparisons, and industry cluster research. ' +
+      'GeoFips parameter supports individual state FIPS codes, all states, MSAs, or counties.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bea.industry_gdp',
+    mcpName: 'bea.industry.value_added',
+    title: 'BEA — GDP Value Added by Industry',
+    description:
+      'Retrieve value added by NAICS industry sector from the BEA GDP by Industry dataset ' +
+      '(Table 1, billions of dollars). Shows how much each industry contributes to total US GDP. ' +
+      'Covers all major NAICS sectors: agriculture, mining, utilities, construction, ' +
+      'manufacturing, wholesale/retail, information, finance, real estate, healthcare, and government. ' +
+      'Annual or quarterly frequency. Use for industry-level economic analysis and sector benchmarking.',
     category: 'finance',
     annotations: READ_ONLY,
   },

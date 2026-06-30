@@ -82656,9 +82656,9 @@
         ]
       }
     },
-    "/api/v1/tools/banxico.fix_rate/call": {
+    "/api/v1/tools/banxico.fx.fix_rate/call": {
       "post": {
-        "operationId": "banxico_fix_rate",
+        "operationId": "banxico_fx_fix_rate",
         "summary": "Banxico — USD/MXN FIX Exchange Rate",
         "description": "Get the official Banco de México FIX USD/MXN exchange rate (serie SF43718). The FIX rate is published by Banxico daily and is used for settling obligations denominated in foreign currency in Mexico. Returns the latest observation or a historical date range (YYYY-MM-DD). Source: Banco de México SIE, official government data, free API.",
         "x-payment-info": {
@@ -82677,7 +82677,7 @@
             "schema": {
               "type": "string",
               "enum": [
-                "banxico.fix_rate"
+                "banxico.fx.fix_rate"
               ]
             }
           }
@@ -82687,18 +82687,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "start_date": {
-                    "type": "string",
-                    "description": "Start date for historical range in YYYY-MM-DD format (e.g. 2026-01-01). Omit for latest observation only."
-                  },
-                  "end_date": {
-                    "type": "string",
-                    "description": "End date for historical range in YYYY-MM-DD format (e.g. 2026-06-30). Required when start_date is provided."
-                  }
-                },
-                "description": "Query the official Banxico FIX USD/MXN exchange rate. Omit dates for the latest observation; supply both for a historical range."
+                "type": "object"
               }
             }
           }
@@ -82736,7 +82725,7 @@
         ]
       }
     },
-    "/api/v1/tools/banxico.fx_rates/call": {
+    "/api/v1/tools/banxico.fx.rates/call": {
       "post": {
         "operationId": "banxico_fx_rates",
         "summary": "Banxico — Multi-Currency MXN Rates",
@@ -82757,7 +82746,7 @@
             "schema": {
               "type": "string",
               "enum": [
-                "banxico.fx_rates"
+                "banxico.fx.rates"
               ]
             }
           }
@@ -82767,14 +82756,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "locale": {
-                    "type": "string",
-                    "description": "Reserved for future locale support. Leave empty — response is always in English."
-                  }
-                },
-                "description": "Get current MXN exchange rates for USD, EUR, CAD, and GBP simultaneously."
+                "type": "object"
               }
             }
           }
@@ -82812,9 +82794,9 @@
         ]
       }
     },
-    "/api/v1/tools/banxico.target_rate/call": {
+    "/api/v1/tools/banxico.rates.target/call": {
       "post": {
-        "operationId": "banxico_target_rate",
+        "operationId": "banxico_rates_target",
         "summary": "Banxico — Overnight Target Rate",
         "description": "Get the Banco de México monetary policy overnight target interest rate (Tasa objetivo, serie SF61745). This is the key policy rate set by the Junta de Gobierno (JOGI) that anchors short-term peso borrowing costs. Returns the latest rate or a historical date range. Rate expressed in percent per annum. Source: Banco de México SIE, official government data.",
         "x-payment-info": {
@@ -82833,7 +82815,7 @@
             "schema": {
               "type": "string",
               "enum": [
-                "banxico.target_rate"
+                "banxico.rates.target"
               ]
             }
           }
@@ -82843,18 +82825,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "start_date": {
-                    "type": "string",
-                    "description": "Start date for historical range in YYYY-MM-DD format (e.g. 2026-01-01). Omit for latest observation only."
-                  },
-                  "end_date": {
-                    "type": "string",
-                    "description": "End date for historical range in YYYY-MM-DD format (e.g. 2026-06-30). Required when start_date is provided."
-                  }
-                },
-                "description": "Query the Banxico overnight target interest rate (Tasa objetivo). Omit dates for the latest observation; supply both for a historical range."
+                "type": "object"
               }
             }
           }
@@ -82892,9 +82863,9 @@
         ]
       }
     },
-    "/api/v1/tools/banxico.tiie_rate/call": {
+    "/api/v1/tools/banxico.rates.tiie/call": {
       "post": {
-        "operationId": "banxico_tiie_rate",
+        "operationId": "banxico_rates_tiie",
         "summary": "Banxico — TIIE 28-Day Interbank Rate",
         "description": "Get the TIIE (Tasa de Interés Interbancaria de Equilibrio) 28-day interbank offered rate (serie SF43783). TIIE is the primary benchmark for Mexican peso-denominated credit products including mortgages, business loans, and consumer lending. Returns the latest rate or a historical date range. Rate expressed in percent per annum. Source: Banco de México SIE.",
         "x-payment-info": {
@@ -82913,7 +82884,7 @@
             "schema": {
               "type": "string",
               "enum": [
-                "banxico.tiie_rate"
+                "banxico.rates.tiie"
               ]
             }
           }
@@ -82923,18 +82894,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "start_date": {
-                    "type": "string",
-                    "description": "Start date for historical range in YYYY-MM-DD format (e.g. 2026-01-01). Omit for latest observation only."
-                  },
-                  "end_date": {
-                    "type": "string",
-                    "description": "End date for historical range in YYYY-MM-DD format (e.g. 2026-06-30). Required when start_date is provided."
-                  }
-                },
-                "description": "Query the TIIE 28-day interbank offered rate. Omit dates for the latest value; supply both for a historical range."
+                "type": "object"
               }
             }
           }
@@ -82972,9 +82932,9 @@
         ]
       }
     },
-    "/api/v1/tools/banxico.cpi/call": {
+    "/api/v1/tools/banxico.inflation.cpi/call": {
       "post": {
-        "operationId": "banxico_cpi",
+        "operationId": "banxico_inflation_cpi",
         "summary": "Banxico — Mexico CPI / INPC Inflation",
         "description": "Get the Mexico INPC (Índice Nacional de Precios al Consumidor) consumer price index (serie SP1, base Jul 2018 = 100). The INPC is the official inflation indicator produced by INEGI and published by Banxico. Returns the latest monthly index value or a historical range. Use this to track Mexican inflation trends or deflate peso-denominated series. Source: Banco de México SIE, official government data.",
         "x-payment-info": {
@@ -82993,7 +82953,76 @@
             "schema": {
               "type": "string",
               "enum": [
-                "banxico.cpi"
+                "banxico.inflation.cpi"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/bea.gdp/call": {
+      "post": {
+        "operationId": "bea_gdp",
+        "summary": "BEA — US Real GDP Growth",
+        "description": "Retrieve US Real GDP growth rates from BEA NIPA Table T10101 (Fisher Quantity Index, percent change at annual rate). Returns quarterly or annual percent-change series for total GDP, personal consumption expenditures, gross private investment, exports, imports, and government spending. Official US national accounts data from the Bureau of Economic Analysis. Use for macro analysis, economic forecasting, and recession detection.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bea.gdp"
               ]
             }
           }
@@ -83005,16 +83034,374 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "start_date": {
+                  "frequency": {
                     "type": "string",
-                    "description": "Start date for historical range in YYYY-MM-DD format (e.g. 2026-01-01). Omit for latest observation only."
+                    "enum": [
+                      "A",
+                      "Q",
+                      "M",
+                      "A,Q",
+                      "A,Q,M"
+                    ],
+                    "description": "Data frequency: A=Annual, Q=Quarterly, M=Monthly. Multiple values comma-separated (e.g. \"A,Q\"). Defaults to A."
                   },
-                  "end_date": {
+                  "year": {
                     "type": "string",
-                    "description": "End date for historical range in YYYY-MM-DD format (e.g. 2026-06-30). Required when start_date is provided."
+                    "description": "Year(s) to retrieve. Single year (e.g. \"2023\"), comma-separated list (\"2021,2022,2023\"), \"LAST5\" for latest 5 years, \"LAST10\" for latest 10, or \"X\"/\"ALL\" for all years. Defaults to LAST5."
                   }
                 },
-                "description": "Query the Mexico INPC (Índice Nacional de Precios al Consumidor) consumer price index. Omit dates for the latest monthly reading; supply both for a historical range."
+                "description": "Retrieve US Real GDP growth rates from BEA NIPA Table T10101. Returns percent-change series for GDP, personal consumption, investment, exports, imports, and government spending."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/bea.personal_income/call": {
+      "post": {
+        "operationId": "bea_personal_income",
+        "summary": "BEA — US Personal Income & Outlays",
+        "description": "Retrieve US Personal Income and Outlays from BEA NIPA Table T20100 (millions of dollars). Covers total personal income, compensation of employees, proprietors income, rental income, personal interest income, dividends, personal taxes, disposable personal income, and personal savings. Annual or quarterly frequency, covering all years since 1929. Essential for consumer spending analysis and household financial health tracking.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bea.personal_income"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "frequency": {
+                    "type": "string",
+                    "enum": [
+                      "A",
+                      "Q",
+                      "M",
+                      "A,Q",
+                      "A,Q,M"
+                    ],
+                    "description": "Data frequency: A=Annual, Q=Quarterly, M=Monthly. Multiple values comma-separated (e.g. \"A,Q\"). Defaults to A."
+                  },
+                  "year": {
+                    "type": "string",
+                    "description": "Year(s) to retrieve. Single year (e.g. \"2023\"), comma-separated list (\"2021,2022,2023\"), \"LAST5\" for latest 5 years, \"LAST10\" for latest 10, or \"X\"/\"ALL\" for all years. Defaults to LAST5."
+                  }
+                },
+                "description": "Retrieve US Personal Income and Outlays from BEA NIPA Table T20100. Includes compensation, proprietors income, dividends, interest, personal taxes, and disposable personal income (millions of dollars)."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/bea.trade_balance/call": {
+      "post": {
+        "operationId": "bea_trade_balance",
+        "summary": "BEA — US International Trade Balance",
+        "description": "Retrieve US international trade balance data from the BEA International Transactions Accounts (ITA) dataset. Covers balance on goods and services, current account balance, goods imports/exports, services imports/exports, and 800+ additional ITA indicators. Filter by country (China, Canada, Mexico, EU, etc.) or use AllCountries for world totals. Values in millions of USD. Annual or quarterly frequency. Official BEA government data.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bea.trade_balance"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "indicator": {
+                    "type": "string",
+                    "description": "BEA ITA indicator code. Common values: \"BalGdsServ\" (balance on goods and services, default), \"BalGds\" (goods only), \"BalServ\" (services only), \"BalCurrAcct\" (current account balance), \"ExpGds\" (goods exports), \"ImpGds\" (goods imports). See BEA ITA documentation for all 889 available indicators."
+                  },
+                  "area_or_country": {
+                    "type": "string",
+                    "description": "Country or area filter. \"AllCountries\" (default) for world totals, or a specific country name such as \"China\", \"Canada\", \"Mexico\", \"Germany\", \"Japan\". Use \"AreaAll\" for regional groupings."
+                  },
+                  "frequency": {
+                    "type": "string",
+                    "enum": [
+                      "A",
+                      "Q"
+                    ],
+                    "description": "Data frequency: A=Annual (default), Q=Quarterly."
+                  },
+                  "year": {
+                    "type": "string",
+                    "description": "Year(s) to retrieve. Single year (e.g. \"2023\"), comma-separated list (\"2021,2022,2023\"), \"LAST5\" for latest 5 years, \"LAST10\" for latest 10, or \"X\"/\"ALL\" for all years. Defaults to LAST5."
+                  }
+                },
+                "description": "Retrieve US international trade balance data from the BEA International Transactions Accounts (ITA) dataset. Covers balance on goods, services, current account, and 800+ individual ITA indicators by country or region (millions of dollars, annual/quarterly)."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/bea.state_gdp/call": {
+      "post": {
+        "operationId": "bea_state_gdp",
+        "summary": "BEA — US State GDP by Industry",
+        "description": "Retrieve real GDP by US state from the BEA Regional Economic Accounts (CAGDP2 table). Returns GDP in thousands of dollars for all 50 states + DC + US total by year and industry component (agriculture, mining, manufacturing, finance, real estate, government, etc.). Use for state-level economic analysis, regional comparisons, and industry cluster research. GeoFips parameter supports individual state FIPS codes, all states, MSAs, or counties.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bea.state_gdp"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "geo_fips": {
+                    "type": "string",
+                    "description": "Geographic FIPS code(s) to retrieve. \"STATE\" (default) returns all 50 US states + DC, \"COUNTY\" for all counties, \"MSA\" for metro areas, or a specific 5-digit FIPS code (e.g. \"06000\" for California, \"36000\" for New York). Comma-separate multiple codes (e.g. \"06000,36000,48000\")."
+                  },
+                  "year": {
+                    "type": "string",
+                    "description": "Year(s) to retrieve. Single year (e.g. \"2023\"), comma-separated list (\"2021,2022,2023\"), \"LAST5\" for latest 5 years, \"LAST10\" for latest 10, or \"X\"/\"ALL\" for all years. Defaults to LAST5."
+                  },
+                  "line_code": {
+                    "type": "integer",
+                    "description": "CAGDP2 line code for the GDP component. 1=All industry total (default), 2=Private industries, 3=Agriculture/forestry/fishing, 6=Mining, 10=Utilities, 11=Construction, 34=Manufacturing, 50=Wholesale trade, 55=Retail trade, 60=Transportation, 75=Information, 82=Finance/insurance, 100=Real estate, 300=Government."
+                  }
+                },
+                "description": "Retrieve real GDP by US state from BEA Regional CAGDP2 table. Returns GDP in thousands of dollars by state, year, and industry component. Data covers all 50 states plus DC and US total, sourced from BEA Regional Economic Accounts."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/bea.industry_gdp/call": {
+      "post": {
+        "operationId": "bea_industry_gdp",
+        "summary": "BEA — GDP Value Added by Industry",
+        "description": "Retrieve value added by NAICS industry sector from the BEA GDP by Industry dataset (Table 1, billions of dollars). Shows how much each industry contributes to total US GDP. Covers all major NAICS sectors: agriculture, mining, utilities, construction, manufacturing, wholesale/retail, information, finance, real estate, healthcare, and government. Annual or quarterly frequency. Use for industry-level economic analysis and sector benchmarking.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bea.industry_gdp"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "industry": {
+                    "type": "string",
+                    "description": "Industry NAICS code(s) to retrieve. \"ALL\" (default) returns all industries. Common codes: \"11\"=Agriculture, \"21\"=Mining, \"22\"=Utilities, \"23\"=Construction, \"31-33\"=Manufacturing, \"42\"=Wholesale, \"44-45\"=Retail, \"51\"=Information, \"52\"=Finance, \"53\"=Real estate, \"54\"=Professional services, \"62\"=Health care, \"92\"=Government. Comma-separate multiple codes (e.g. \"11,21,22\")."
+                  },
+                  "frequency": {
+                    "type": "string",
+                    "enum": [
+                      "A",
+                      "Q"
+                    ],
+                    "description": "Data frequency: A=Annual (default), Q=Quarterly."
+                  },
+                  "year": {
+                    "type": "string",
+                    "description": "Year(s) to retrieve. Single year (e.g. \"2023\"), comma-separated list (\"2021,2022,2023\"), \"LAST5\" for latest 5 years, \"LAST10\" for latest 10, or \"X\"/\"ALL\" for all years. Defaults to LAST5."
+                  }
+                },
+                "description": "Retrieve value added by industry (GDP contribution) from BEA GDP by Industry table. Returns value added in billions of dollars for each NAICS industry sector, showing how much each industry contributes to total US GDP. Annual or quarterly frequency."
               }
             }
           }

@@ -5522,34 +5522,65 @@ tools:
     cache_ttl: 3600
 
   # --- UC-544: Banco de México SIE ---
-  - tool_id: banxico.fix_rate
+  - tool_id: banxico.fx.fix_rate
     name: Banxico USD/MXN FIX Rate
     provider: banxico
     price_usd: "0.001"
     cache_ttl: 300
 
-  - tool_id: banxico.fx_rates
+  - tool_id: banxico.fx.rates
     name: Banxico Multi-Currency MXN Rates
     provider: banxico
     price_usd: "0.001"
     cache_ttl: 300
 
-  - tool_id: banxico.target_rate
+  - tool_id: banxico.rates.target
     name: Banxico Overnight Target Rate
     provider: banxico
     price_usd: "0.001"
     cache_ttl: 3600
 
-  - tool_id: banxico.tiie_rate
+  - tool_id: banxico.rates.tiie
     name: Banxico TIIE 28-Day Rate
     provider: banxico
     price_usd: "0.001"
     cache_ttl: 3600
 
-  - tool_id: banxico.cpi
+  - tool_id: banxico.inflation.cpi
     name: Banxico Mexico CPI / INPC
     provider: banxico
     price_usd: "0.001"
+    cache_ttl: 86400
+
+  # --- UC-545: Bureau of Economic Analysis (BEA) ---
+  - tool_id: bea.gdp
+    name: BEA US Real GDP Growth
+    provider: bea
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: bea.personal_income
+    name: BEA US Personal Income and Outlays
+    provider: bea
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: bea.trade_balance
+    name: BEA US International Trade Balance
+    provider: bea
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: bea.state_gdp
+    name: BEA US State GDP by Industry
+    provider: bea
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: bea.industry_gdp
+    name: BEA GDP Value Added by Industry
+    provider: bea
+    price_usd: "0.002"
     cache_ttl: 86400
 
   - tool_id: platform.call_batch
