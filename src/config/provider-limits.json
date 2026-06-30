@@ -2402,5 +2402,14 @@
     "reset_period": "none",
     "docs_url": "https://cordis.europa.eu/about/services",
     "limit_proof": "CORDIS EURIO SPARQL endpoint is publicly accessible with no documented rate limits or auth requirements. EU Commission open data."
+  },
+  "irena": {
+    "display_name": "IRENA IRENASTAT",
+    "health_url": "https://pxweb.irena.org/api/v1/en/IRENASTAT/",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.irena.org/Data/Downloads/IRENASTAT",
+    "limit_proof": "IRENA PX-Web API (pxweb.irena.org) is publicly accessible with no documented rate limits or auth requirements. CORS open (Access-Control-Allow-Origin: *)."
   }
 }

@@ -10670,4 +10670,58 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'developer',
     annotations: READ_ONLY,
   },
+  // IRENA IRENASTAT (4) — UC-550
+  {
+    toolId: 'irena.capacity_country',
+    mcpName: 'irena.energy.capacity_country',
+    title: 'IRENA — Renewable Electricity Capacity by Country',
+    description:
+      'Query renewable and non-renewable electricity installed capacity (MW) for any country from the IRENA ' +
+      'IRENASTAT database. Covers 226 countries and territories, 26 energy technologies (Total renewable energy, ' +
+      'Solar photovoltaic, Wind, Hydropower, Bioenergy, Geothermal, etc.), on-grid and off-grid, from 2000 to 2025. ' +
+      'Returns a time-series of MW values per year. Official IRENA data — the authoritative global source for ' +
+      'renewable energy statistics used by the IPCC, IEA, and UN agencies.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'irena.generation_country',
+    mcpName: 'irena.energy.generation_country',
+    title: 'IRENA — Renewable Electricity Generation by Country',
+    description:
+      'Query electricity generation (GWh) by energy technology for any country from the IRENA IRENASTAT database. ' +
+      'Covers 226 countries and territories, 21 technologies including Total renewable, Solar PV, Onshore and ' +
+      'Offshore wind, Renewable hydropower, Bioenergy subcategories, Geothermal, Marine energy, and Total ' +
+      'non-renewable. On-grid, off-grid, or combined. Annual data from 2000 to 2024. ' +
+      'Essential for energy transition analysis, NDC tracking, and climate policy research.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'irena.capacity_region',
+    mcpName: 'irena.energy.capacity_region',
+    title: 'IRENA — Renewable Electricity Capacity by World Region',
+    description:
+      'Query renewable and non-renewable electricity installed capacity (MW) aggregated by IRENA world region ' +
+      'from the IRENASTAT database. Regions: World, Africa, Asia, Europe, North America, South America, ' +
+      'Middle East, Eurasia, Oceania, Central America and the Caribbean. ' +
+      'Covers 13 technology categories from 2000 to 2025. Useful for comparing regional energy transition progress, ' +
+      'identifying leading regions in solar/wind deployment, and tracking global renewable capacity milestones.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'irena.share_renewables',
+    mcpName: 'irena.energy.share_renewables',
+    title: 'IRENA — Renewable Energy Share of Electricity',
+    description:
+      'Query the share (%) of renewable energy in total electricity capacity or generation for any country ' +
+      'or IRENA world region from the IRENASTAT database. Covers 233 countries/regions from 2000 to 2025. ' +
+      'Choose indicator "generation" for the share of electricity actually produced from renewables, or ' +
+      '"capacity" for the share of installed power plant capacity that is renewable. ' +
+      'Key metric for energy transition tracking, SDG 7 (affordable clean energy) monitoring, and ' +
+      'comparison against national climate targets (NDCs, net-zero commitments).',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

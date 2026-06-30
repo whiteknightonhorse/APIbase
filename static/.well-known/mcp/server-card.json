@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Production MCP server providing 948 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Unified MCP gateway to 952 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -19135,10 +19135,7 @@
     {
       "name": "health.clinical.search",
       "description": "Search 577,000+ clinical trials worldwide \u2014 filter by condition (cancer, diabetes), intervention (drug name), sponsor, status (recruiting/completed), phase. Returns NCT ID, title, status, conditions, interventions, sponsor, enrollment. US National Library of Medicine (ClinicalTrials.gov)",
-      "inputSchema": {
-        "type": "object",
-        "properties": {}
-      },
+      "inputSchema": {},
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
@@ -19173,10 +19170,7 @@
     {
       "name": "health.clinical.study",
       "description": "Full details for a clinical trial by NCT ID \u2014 protocol, conditions, interventions with dosing, eligibility criteria (age, sex), primary/secondary outcomes, sponsor, enrollment, phase, study design, dates, results if available (ClinicalTrials.gov)",
-      "inputSchema": {
-        "type": "object",
-        "properties": {}
-      },
+      "inputSchema": {},
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
@@ -19211,10 +19205,7 @@
     {
       "name": "health.clinical.stats",
       "description": "Total number of registered clinical studies in the ClinicalTrials.gov database (577,000+ as of March 2026) (ClinicalTrials.gov)",
-      "inputSchema": {
-        "type": "object",
-        "properties": {}
-      },
+      "inputSchema": {},
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
@@ -32076,7 +32067,9 @@
         "type": "object",
         "properties": {
           "model_id": {
-            "type": "object"
+            "type": "string",
+            "description": "Full model ID (e.g. \"meta-llama/Llama-3.3-70B-Instruct\", \"stabilityai/stable-diffusion-xl-base-1.0\")",
+            "minLength": 1
           }
         },
         "required": [
@@ -53144,10 +53137,7 @@
     {
       "name": "banxico.fx.fix_rate",
       "description": "Get the official Banco de M\u00e9xico FIX USD/MXN exchange rate (serie SF43718). The FIX rate is published by Banxico daily and is used for settling obligations denominated in foreign currency in Mexico. Returns the latest observation or a historical date range (YYYY-MM-DD). Source: Banco de M\u00e9xico SIE, official government data, free API.",
-      "inputSchema": {
-        "type": "object",
-        "properties": {}
-      },
+      "inputSchema": {},
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
@@ -53182,10 +53172,7 @@
     {
       "name": "banxico.fx.rates",
       "description": "Get current Banco de M\u00e9xico reference exchange rates for USD, EUR, CAD, and GBP against the Mexican Peso (MXN) in a single call. Returns the latest published value for each currency with its date and series label. Useful for multi-currency MXN conversion and FX monitoring. Source: Banco de M\u00e9xico SIE series SF43718 (USD), SF46410 (EUR), SF60632 (CAD), SF60633 (GBP).",
-      "inputSchema": {
-        "type": "object",
-        "properties": {}
-      },
+      "inputSchema": {},
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
@@ -53220,10 +53207,7 @@
     {
       "name": "banxico.rates.target",
       "description": "Get the Banco de M\u00e9xico monetary policy overnight target interest rate (Tasa objetivo, serie SF61745). This is the key policy rate set by the Junta de Gobierno (JOGI) that anchors short-term peso borrowing costs. Returns the latest rate or a historical date range. Rate expressed in percent per annum. Source: Banco de M\u00e9xico SIE, official government data.",
-      "inputSchema": {
-        "type": "object",
-        "properties": {}
-      },
+      "inputSchema": {},
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
@@ -53258,10 +53242,7 @@
     {
       "name": "banxico.rates.tiie",
       "description": "Get the TIIE (Tasa de Inter\u00e9s Interbancaria de Equilibrio) 28-day interbank offered rate (serie SF43783). TIIE is the primary benchmark for Mexican peso-denominated credit products including mortgages, business loans, and consumer lending. Returns the latest rate or a historical date range. Rate expressed in percent per annum. Source: Banco de M\u00e9xico SIE.",
-      "inputSchema": {
-        "type": "object",
-        "properties": {}
-      },
+      "inputSchema": {},
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
@@ -53296,10 +53277,7 @@
     {
       "name": "banxico.inflation.cpi",
       "description": "Get the Mexico INPC (\u00cdndice Nacional de Precios al Consumidor) consumer price index (serie SP1, base Jul 2018 = 100). The INPC is the official inflation indicator produced by INEGI and published by Banxico. Returns the latest monthly index value or a historical range. Use this to track Mexican inflation trends or deflate peso-denominated series. Source: Banco de M\u00e9xico SIE, official government data.",
-      "inputSchema": {
-        "type": "object",
-        "properties": {}
-      },
+      "inputSchema": {},
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
@@ -54677,6 +54655,364 @@
           "result"
         ],
         "additionalProperties": false
+      }
+    },
+    {
+      "name": "irena.energy.capacity_country",
+      "title": "IRENA \u2014 Renewable Electricity Capacity by Country",
+      "description": "Query renewable and non-renewable electricity installed capacity (MW) for any country from the IRENA IRENASTAT database. Covers 226 countries and territories, 26 energy technologies (Total renewable energy, Solar photovoltaic, Wind, Hydropower, Bioenergy, Geothermal, etc.), on-grid and off-grid, from 2000 to 2025. Returns a time-series of MW values per year. Official IRENA data \u2014 the authoritative global source for renewable energy statistics used by the IPCC, IEA, and UN agencies.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "country": {
+            "type": "string",
+            "description": "ISO 3166-1 alpha-3 country code (e.g. USA, DEU, CHN, IND, BRA). Must be exactly 3 letters.",
+            "minLength": 3,
+            "maxLength": 3
+          },
+          "technology": {
+            "type": "string",
+            "enum": [
+              "Total renewable energy",
+              "Solar energy",
+              "Solar photovoltaic",
+              "Solar thermal energy",
+              "Wind energy",
+              "Onshore wind energy",
+              "Offshore wind energy",
+              "Renewable hydropower",
+              "Mixed hydropower",
+              "Marine energy",
+              "Bioenergy",
+              "Solid biofuels",
+              "Liquid biofuels",
+              "Gas biofuels",
+              "Renewable waste",
+              "Geothermal energy",
+              "Total non-renewable energy",
+              "Fossil fuels",
+              "Coal",
+              "Oil",
+              "Natural gas",
+              "Nuclear energy",
+              "Non-renewable waste",
+              "Pumped hydro"
+            ],
+            "description": "Energy technology to query. Default: \"Total renewable energy\". Renewable options: Total renewable energy, Solar energy, Solar photovoltaic, Wind energy, Onshore wind energy, Offshore wind energy, Renewable hydropower, Bioenergy, Geothermal energy."
+          },
+          "year_from": {
+            "type": "integer",
+            "minimum": 2000,
+            "maximum": 2025,
+            "description": "Start year (inclusive, 2000\u20132025). Default: 2020."
+          },
+          "year_to": {
+            "type": "integer",
+            "minimum": 2000,
+            "maximum": 2025,
+            "description": "End year (inclusive, 2000\u20132025, must be \u2265 year_from). Default: 2025."
+          },
+          "grid_connection": {
+            "type": "string",
+            "enum": [
+              "OnGrid",
+              "OffGrid"
+            ],
+            "description": "Grid connection type. Default: \"OnGrid\"."
+          }
+        },
+        "required": [
+          "country"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "irena.energy.capacity_region",
+      "title": "IRENA \u2014 Renewable Electricity Capacity by World Region",
+      "description": "Query renewable and non-renewable electricity installed capacity (MW) aggregated by IRENA world region from the IRENASTAT database. Regions: World, Africa, Asia, Europe, North America, South America, Middle East, Eurasia, Oceania, Central America and the Caribbean. Covers 13 technology categories from 2000 to 2025. Useful for comparing regional energy transition progress, identifying leading regions in solar/wind deployment, and tracking global renewable capacity milestones.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "region": {
+            "type": "string",
+            "enum": [
+              "World",
+              "Africa",
+              "Asia",
+              "Central America and the Caribbean",
+              "Eurasia",
+              "Europe",
+              "Middle East",
+              "North America",
+              "Oceania",
+              "South America"
+            ],
+            "description": "IRENA world region. One of: World, Africa, Asia, Central America and the Caribbean, Eurasia, Europe, Middle East, North America, Oceania, South America."
+          },
+          "technology": {
+            "type": "string",
+            "enum": [
+              "Total renewable energy",
+              "Solar energy",
+              "Wind energy",
+              "Renewable hydropower",
+              "Pumped hydro",
+              "Marine energy",
+              "Bioenergy",
+              "Geothermal energy",
+              "Total non-renewable energy",
+              "Fossil fuels",
+              "Nuclear energy",
+              "Other non-renewable energy"
+            ],
+            "description": "Energy technology to query. Default: \"Total renewable energy\". Options: Total renewable energy, Solar energy, Wind energy, Renewable hydropower, Pumped hydro, Marine energy, Bioenergy, Geothermal energy, Total non-renewable energy, Fossil fuels, Nuclear energy, Other non-renewable energy."
+          },
+          "year_from": {
+            "type": "integer",
+            "minimum": 2000,
+            "maximum": 2025,
+            "description": "Start year (inclusive, 2000\u20132025). Default: 2020."
+          },
+          "year_to": {
+            "type": "integer",
+            "minimum": 2000,
+            "maximum": 2025,
+            "description": "End year (inclusive, 2000\u20132025, must be \u2265 year_from). Default: 2025."
+          },
+          "grid_connection": {
+            "type": "string",
+            "enum": [
+              "OnGrid",
+              "OffGrid"
+            ],
+            "description": "Grid connection type. Default: \"OnGrid\"."
+          }
+        },
+        "required": [
+          "region"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "irena.energy.generation_country",
+      "title": "IRENA \u2014 Renewable Electricity Generation by Country",
+      "description": "Query electricity generation (GWh) by energy technology for any country from the IRENA IRENASTAT database. Covers 226 countries and territories, 21 technologies including Total renewable, Solar PV, Onshore and Offshore wind, Renewable hydropower, Bioenergy subcategories, Geothermal, Marine energy, and Total non-renewable. On-grid, off-grid, or combined. Annual data from 2000 to 2024. Essential for energy transition analysis, NDC tracking, and climate policy research.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "country": {
+            "type": "string",
+            "description": "ISO 3166-1 alpha-3 country code (e.g. USA, DEU, CHN, IND, BRA). Must be exactly 3 letters.",
+            "minLength": 3,
+            "maxLength": 3
+          },
+          "technology": {
+            "type": "string",
+            "enum": [
+              "Total renewable",
+              "Solar photovoltaic",
+              "Solar thermal energy",
+              "Onshore wind energy",
+              "Offshore wind energy",
+              "Renewable hydropower",
+              "Mixed Hydro Plants",
+              "Marine energy",
+              "Solid biofuels",
+              "Liquid biofuels",
+              "Biogas",
+              "Renewable municipal waste",
+              "Geothermal energy",
+              "Total non-renewable",
+              "Coal and peat",
+              "Oil",
+              "Natural gas",
+              "Nuclear",
+              "Pumped storage"
+            ],
+            "description": "Energy technology to query. Default: \"Total renewable\". Options: Total renewable, Solar photovoltaic, Onshore wind energy, Offshore wind energy, Renewable hydropower, Bioenergy subcategories, Geothermal energy, Total non-renewable, etc."
+          },
+          "year_from": {
+            "type": "integer",
+            "minimum": 2000,
+            "maximum": 2024,
+            "description": "Start year (inclusive, 2000\u20132024). Default: 2020."
+          },
+          "year_to": {
+            "type": "integer",
+            "minimum": 2000,
+            "maximum": 2024,
+            "description": "End year (inclusive, 2000\u20132024, must be \u2265 year_from). Default: 2024."
+          },
+          "grid_connection": {
+            "type": "string",
+            "enum": [
+              "OnGrid",
+              "OffGrid",
+              "All"
+            ],
+            "description": "Grid connection type. Default: \"OnGrid\"."
+          }
+        },
+        "required": [
+          "country"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "irena.energy.share_renewables",
+      "title": "IRENA \u2014 Renewable Energy Share of Electricity",
+      "description": "Query the share (%) of renewable energy in total electricity capacity or generation for any country or IRENA world region from the IRENASTAT database. Covers 233 countries/regions from 2000 to 2025. Choose indicator \"generation\" for the share of electricity actually produced from renewables, or \"capacity\" for the share of installed power plant capacity that is renewable. Key metric for energy transition tracking, SDG 7 (affordable clean energy) monitoring, and comparison against national climate targets (NDCs, net-zero commitments).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "country_or_region": {
+            "type": "string",
+            "description": "ISO 3166-1 alpha-3 country code (e.g. USA, DEU, CHN) OR IRENA region name (e.g. World, Europe, Asia, Africa, North America, South America, Middle East, Eurasia, Oceania, Central America and the Caribbean). Default: \"World\"."
+          },
+          "indicator": {
+            "type": "string",
+            "enum": [
+              "generation",
+              "capacity"
+            ],
+            "description": "Whether to return RE share of electricity generation or capacity. Default: \"generation\"."
+          },
+          "year_from": {
+            "type": "integer",
+            "minimum": 2000,
+            "maximum": 2025,
+            "description": "Start year (inclusive, 2000\u20132025). Default: 2020."
+          },
+          "year_to": {
+            "type": "integer",
+            "minimum": 2000,
+            "maximum": 2025,
+            "description": "End year (inclusive, 2000\u20132025, must be \u2265 year_from). Default: 2025."
+          }
+        },
+        "required": [
+          "country_or_region"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
       }
     }
   ],

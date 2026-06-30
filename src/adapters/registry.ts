@@ -267,6 +267,7 @@ import { AfricaApiAdapter } from './africa';
 import { HfInferenceAdapter } from './hf_inference';
 import { UnhabitatAdapter } from './unhabitat';
 import { CordisAdapter } from './cordis';
+import { IrenaAdapter } from './irena';
 import { config } from '../config';
 
 /**
@@ -1519,6 +1520,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'cordis':
       // CORDIS EURIO (UC-549) — 80K+ EU Horizon/H2020 research projects; no auth, SPARQL
       return getOrCreate('cordis', () => new CordisAdapter());
+    case 'irena':
+      // IRENA PX-Web IRENASTAT (UC-550) — renewable energy capacity/generation/share; no auth
+      return getOrCreate('irena', () => new IrenaAdapter());
     default:
       return undefined;
   }

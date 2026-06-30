@@ -5695,6 +5695,31 @@ tools:
     price_usd: "0.002"
     cache_ttl: 86400
 
+  # --- UC-550: IRENA IRENASTAT ---
+  - tool_id: irena.capacity_country
+    name: IRENA — Renewable Electricity Capacity by Country
+    provider: irena
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: irena.generation_country
+    name: IRENA — Renewable Electricity Generation by Country
+    provider: irena
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: irena.capacity_region
+    name: IRENA — Renewable Electricity Capacity by World Region
+    provider: irena
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: irena.share_renewables
+    name: IRENA — Renewable Energy Share of Electricity
+    provider: irena
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

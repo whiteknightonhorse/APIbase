@@ -85084,6 +85084,488 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/irena.capacity_country/call": {
+      "post": {
+        "operationId": "irena_capacity_country",
+        "summary": "IRENA — Renewable Electricity Capacity by Country",
+        "description": "Query renewable and non-renewable electricity installed capacity (MW) for any country from the IRENA IRENASTAT database. Covers 226 countries and territories, 26 energy technologies (Total renewable energy, Solar photovoltaic, Wind, Hydropower, Bioenergy, Geothermal, etc.), on-grid and off-grid, from 2000 to 2025. Returns a time-series of MW values per year. Official IRENA data — the authoritative global source for renewable energy statistics used by the IPCC, IEA, and UN agencies.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "irena.capacity_country"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "country": {
+                    "type": "string",
+                    "description": "ISO 3166-1 alpha-3 country code (e.g. USA, DEU, CHN, IND, BRA). Must be exactly 3 letters.",
+                    "minLength": 3,
+                    "maxLength": 3
+                  },
+                  "technology": {
+                    "type": "string",
+                    "enum": [
+                      "Total renewable energy",
+                      "Solar energy",
+                      "Solar photovoltaic",
+                      "Solar thermal energy",
+                      "Wind energy",
+                      "Onshore wind energy",
+                      "Offshore wind energy",
+                      "Renewable hydropower",
+                      "Mixed hydropower",
+                      "Marine energy",
+                      "Bioenergy",
+                      "Solid biofuels",
+                      "Liquid biofuels",
+                      "Gas biofuels",
+                      "Renewable waste",
+                      "Geothermal energy",
+                      "Total non-renewable energy",
+                      "Fossil fuels",
+                      "Coal",
+                      "Oil",
+                      "Natural gas",
+                      "Nuclear energy",
+                      "Non-renewable waste",
+                      "Pumped hydro"
+                    ],
+                    "description": "Energy technology to query. Default: \"Total renewable energy\". Renewable options: Total renewable energy, Solar energy, Solar photovoltaic, Wind energy, Onshore wind energy, Offshore wind energy, Renewable hydropower, Bioenergy, Geothermal energy."
+                  },
+                  "year_from": {
+                    "type": "integer",
+                    "minimum": 2000,
+                    "maximum": 2025,
+                    "description": "Start year (inclusive, 2000–2025). Default: 2020."
+                  },
+                  "year_to": {
+                    "type": "integer",
+                    "minimum": 2000,
+                    "maximum": 2025,
+                    "description": "End year (inclusive, 2000–2025, must be ≥ year_from). Default: 2025."
+                  },
+                  "grid_connection": {
+                    "type": "string",
+                    "enum": [
+                      "OnGrid",
+                      "OffGrid"
+                    ],
+                    "description": "Grid connection type. Default: \"OnGrid\"."
+                  }
+                },
+                "required": [
+                  "country"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/irena.generation_country/call": {
+      "post": {
+        "operationId": "irena_generation_country",
+        "summary": "IRENA — Renewable Electricity Generation by Country",
+        "description": "Query electricity generation (GWh) by energy technology for any country from the IRENA IRENASTAT database. Covers 226 countries and territories, 21 technologies including Total renewable, Solar PV, Onshore and Offshore wind, Renewable hydropower, Bioenergy subcategories, Geothermal, Marine energy, and Total non-renewable. On-grid, off-grid, or combined. Annual data from 2000 to 2024. Essential for energy transition analysis, NDC tracking, and climate policy research.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "irena.generation_country"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "country": {
+                    "type": "string",
+                    "description": "ISO 3166-1 alpha-3 country code (e.g. USA, DEU, CHN, IND, BRA). Must be exactly 3 letters.",
+                    "minLength": 3,
+                    "maxLength": 3
+                  },
+                  "technology": {
+                    "type": "string",
+                    "enum": [
+                      "Total renewable",
+                      "Solar photovoltaic",
+                      "Solar thermal energy",
+                      "Onshore wind energy",
+                      "Offshore wind energy",
+                      "Renewable hydropower",
+                      "Mixed Hydro Plants",
+                      "Marine energy",
+                      "Solid biofuels",
+                      "Liquid biofuels",
+                      "Biogas",
+                      "Renewable municipal waste",
+                      "Geothermal energy",
+                      "Total non-renewable",
+                      "Coal and peat",
+                      "Oil",
+                      "Natural gas",
+                      "Nuclear",
+                      "Pumped storage"
+                    ],
+                    "description": "Energy technology to query. Default: \"Total renewable\". Options: Total renewable, Solar photovoltaic, Onshore wind energy, Offshore wind energy, Renewable hydropower, Bioenergy subcategories, Geothermal energy, Total non-renewable, etc."
+                  },
+                  "year_from": {
+                    "type": "integer",
+                    "minimum": 2000,
+                    "maximum": 2024,
+                    "description": "Start year (inclusive, 2000–2024). Default: 2020."
+                  },
+                  "year_to": {
+                    "type": "integer",
+                    "minimum": 2000,
+                    "maximum": 2024,
+                    "description": "End year (inclusive, 2000–2024, must be ≥ year_from). Default: 2024."
+                  },
+                  "grid_connection": {
+                    "type": "string",
+                    "enum": [
+                      "OnGrid",
+                      "OffGrid",
+                      "All"
+                    ],
+                    "description": "Grid connection type. Default: \"OnGrid\"."
+                  }
+                },
+                "required": [
+                  "country"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/irena.capacity_region/call": {
+      "post": {
+        "operationId": "irena_capacity_region",
+        "summary": "IRENA — Renewable Electricity Capacity by World Region",
+        "description": "Query renewable and non-renewable electricity installed capacity (MW) aggregated by IRENA world region from the IRENASTAT database. Regions: World, Africa, Asia, Europe, North America, South America, Middle East, Eurasia, Oceania, Central America and the Caribbean. Covers 13 technology categories from 2000 to 2025. Useful for comparing regional energy transition progress, identifying leading regions in solar/wind deployment, and tracking global renewable capacity milestones.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "irena.capacity_region"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "region": {
+                    "type": "string",
+                    "enum": [
+                      "World",
+                      "Africa",
+                      "Asia",
+                      "Central America and the Caribbean",
+                      "Eurasia",
+                      "Europe",
+                      "Middle East",
+                      "North America",
+                      "Oceania",
+                      "South America"
+                    ],
+                    "description": "IRENA world region. One of: World, Africa, Asia, Central America and the Caribbean, Eurasia, Europe, Middle East, North America, Oceania, South America."
+                  },
+                  "technology": {
+                    "type": "string",
+                    "enum": [
+                      "Total renewable energy",
+                      "Solar energy",
+                      "Wind energy",
+                      "Renewable hydropower",
+                      "Pumped hydro",
+                      "Marine energy",
+                      "Bioenergy",
+                      "Geothermal energy",
+                      "Total non-renewable energy",
+                      "Fossil fuels",
+                      "Nuclear energy",
+                      "Other non-renewable energy"
+                    ],
+                    "description": "Energy technology to query. Default: \"Total renewable energy\". Options: Total renewable energy, Solar energy, Wind energy, Renewable hydropower, Pumped hydro, Marine energy, Bioenergy, Geothermal energy, Total non-renewable energy, Fossil fuels, Nuclear energy, Other non-renewable energy."
+                  },
+                  "year_from": {
+                    "type": "integer",
+                    "minimum": 2000,
+                    "maximum": 2025,
+                    "description": "Start year (inclusive, 2000–2025). Default: 2020."
+                  },
+                  "year_to": {
+                    "type": "integer",
+                    "minimum": 2000,
+                    "maximum": 2025,
+                    "description": "End year (inclusive, 2000–2025, must be ≥ year_from). Default: 2025."
+                  },
+                  "grid_connection": {
+                    "type": "string",
+                    "enum": [
+                      "OnGrid",
+                      "OffGrid"
+                    ],
+                    "description": "Grid connection type. Default: \"OnGrid\"."
+                  }
+                },
+                "required": [
+                  "region"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/irena.share_renewables/call": {
+      "post": {
+        "operationId": "irena_share_renewables",
+        "summary": "IRENA — Renewable Energy Share of Electricity",
+        "description": "Query the share (%) of renewable energy in total electricity capacity or generation for any country or IRENA world region from the IRENASTAT database. Covers 233 countries/regions from 2000 to 2025. Choose indicator \"generation\" for the share of electricity actually produced from renewables, or \"capacity\" for the share of installed power plant capacity that is renewable. Key metric for energy transition tracking, SDG 7 (affordable clean energy) monitoring, and comparison against national climate targets (NDCs, net-zero commitments).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "irena.share_renewables"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "country_or_region": {
+                    "type": "string",
+                    "description": "ISO 3166-1 alpha-3 country code (e.g. USA, DEU, CHN) OR IRENA region name (e.g. World, Europe, Asia, Africa, North America, South America, Middle East, Eurasia, Oceania, Central America and the Caribbean). Default: \"World\"."
+                  },
+                  "indicator": {
+                    "type": "string",
+                    "enum": [
+                      "generation",
+                      "capacity"
+                    ],
+                    "description": "Whether to return RE share of electricity generation or capacity. Default: \"generation\"."
+                  },
+                  "year_from": {
+                    "type": "integer",
+                    "minimum": 2000,
+                    "maximum": 2025,
+                    "description": "Start year (inclusive, 2000–2025). Default: 2020."
+                  },
+                  "year_to": {
+                    "type": "integer",
+                    "minimum": 2000,
+                    "maximum": 2025,
+                    "description": "End year (inclusive, 2000–2025, must be ≥ year_from). Default: 2025."
+                  }
+                },
+                "required": [
+                  "country_or_region"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

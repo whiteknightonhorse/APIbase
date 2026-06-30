@@ -33,8 +33,7 @@ const modelDetails = z
     model_id: z
       .string()
       .min(1)
-      .regex(/^[a-zA-Z0-9_.\-\/]+$/, 'Invalid model ID format')
-      .refine((id) => !id.includes('..'), 'Path traversal not allowed')
+      .regex(/^[a-zA-Z0-9_.\\-\\/]+$/, 'Invalid model ID format (no path traversal)')
       .describe(
         'Full model ID (e.g. "meta-llama/Llama-3.3-70B-Instruct", "stabilityai/stable-diffusion-xl-base-1.0")',
       ),
