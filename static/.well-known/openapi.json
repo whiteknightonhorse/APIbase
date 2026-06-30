@@ -82397,6 +82397,264 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/abr.abn_lookup/call": {
+      "post": {
+        "operationId": "abr_abn_lookup",
+        "summary": "ABR — Australian Business ABN Lookup",
+        "description": "Resolve an Australian Business Number (ABN) to full entity details using the official Australian Business Register (ABR). Returns entity name, entity type (company, sole trader, partnership, government entity, etc.), ABN status (Active/Cancelled), GST registration date, registered address state and postcode, ACN (if a company), and all registered trading/business names. Covers 15M+ ABNs across all Australian states and territories. Data is live from the ATO-managed national register. Source: ABR, free registration, commercial use permitted.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "abr.abn_lookup"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "abn": {
+                    "type": "string",
+                    "description": "Australian Business Number (ABN) — 11-digit numeric identifier, spaces optional (e.g. \"33 051 775 556\" or \"33051775556\")"
+                  }
+                },
+                "required": [
+                  "abn"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/abr.acn_lookup/call": {
+      "post": {
+        "operationId": "abr_acn_lookup",
+        "summary": "ABR — Australian Company ACN Lookup",
+        "description": "Resolve an Australian Company Number (ACN) or ASIC-registered number to full entity details via the Australian Business Register (ABR). Returns the linked ABN, entity name, company type, ABN status, GST registration, registered address, and all associated business names. ACN is a 9-digit number issued by ASIC to every registered Australian company. Use this when you have an ACN from an invoice, contract, or company extract and need to verify the entity against the national register. Source: ABR, free registration, commercial use permitted.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "abr.acn_lookup"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "acn": {
+                    "type": "string",
+                    "description": "Australian Company Number (ACN) — 9-digit numeric identifier issued by ASIC, spaces optional (e.g. \"051 775 556\" or \"051775556\")"
+                  }
+                },
+                "required": [
+                  "acn"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/abr.name_search/call": {
+      "post": {
+        "operationId": "abr_name_search",
+        "summary": "ABR — Australian Business Name Search",
+        "description": "Search the Australian Business Register (ABR) by business name to find matching entities. Returns ranked matches with ABN, entity name, name type (Entity Name, Trading Name, Business Name), current status, registered state, and postcode. Supports partial name matching and relevance scoring. Optionally filter by Australian state (NSW, VIC, QLD, SA, WA, TAS, NT, ACT) or postcode. Returns up to 50 matches per call. Covers all 15M+ ABN-holders including companies, sole traders, partnerships, trusts, and government entities. Source: ABR, free registration, commercial use permitted.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "abr.name_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Business name to search for (e.g. \"Telstra\", \"Qantas Airways\"). Partial names supported."
+                  },
+                  "max_results": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of matching businesses to return (1–50, default 10)."
+                  },
+                  "state": {
+                    "type": "string",
+                    "enum": [
+                      "NSW",
+                      "VIC",
+                      "QLD",
+                      "SA",
+                      "WA",
+                      "TAS",
+                      "NT",
+                      "ACT"
+                    ],
+                    "description": "Filter results to a specific Australian state or territory using the standard abbreviation (e.g. \"VIC\", \"NSW\")."
+                  },
+                  "postcode": {
+                    "type": "string",
+                    "description": "Filter results to businesses registered in a specific Australian postcode (e.g. \"3000\" for Melbourne CBD)."
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

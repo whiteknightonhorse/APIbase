@@ -10251,4 +10251,48 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+
+  // Australian Business Register (3)
+  {
+    toolId: 'abr.abn_lookup',
+    mcpName: 'abr.business.abn_lookup',
+    title: 'ABR — Australian Business ABN Lookup',
+    description:
+      'Resolve an Australian Business Number (ABN) to full entity details using the official ' +
+      'Australian Business Register (ABR). Returns entity name, entity type (company, sole trader, ' +
+      'partnership, government entity, etc.), ABN status (Active/Cancelled), GST registration date, ' +
+      'registered address state and postcode, ACN (if a company), and all registered trading/business names. ' +
+      'Covers 15M+ ABNs across all Australian states and territories. ' +
+      'Data is live from the ATO-managed national register. Source: ABR, free registration, commercial use permitted.',
+    category: 'business',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'abr.acn_lookup',
+    mcpName: 'abr.business.acn_lookup',
+    title: 'ABR — Australian Company ACN Lookup',
+    description:
+      'Resolve an Australian Company Number (ACN) or ASIC-registered number to full entity details ' +
+      'via the Australian Business Register (ABR). Returns the linked ABN, entity name, company type, ' +
+      'ABN status, GST registration, registered address, and all associated business names. ' +
+      'ACN is a 9-digit number issued by ASIC to every registered Australian company. ' +
+      'Use this when you have an ACN from an invoice, contract, or company extract and need to verify ' +
+      'the entity against the national register. Source: ABR, free registration, commercial use permitted.',
+    category: 'business',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'abr.name_search',
+    mcpName: 'abr.business.name_search',
+    title: 'ABR — Australian Business Name Search',
+    description:
+      'Search the Australian Business Register (ABR) by business name to find matching entities. ' +
+      'Returns ranked matches with ABN, entity name, name type (Entity Name, Trading Name, Business Name), ' +
+      'current status, registered state, and postcode. Supports partial name matching and relevance scoring. ' +
+      'Optionally filter by Australian state (NSW, VIC, QLD, SA, WA, TAS, NT, ACT) or postcode. ' +
+      'Returns up to 50 matches per call. Covers all 15M+ ABN-holders including companies, sole traders, ' +
+      'partnerships, trusts, and government entities. Source: ABR, free registration, commercial use permitted.',
+    category: 'business',
+    annotations: READ_ONLY,
+  },
 ];

@@ -260,6 +260,7 @@ import { StatCanAdapter } from './statcan';
 import { FbiCdeAdapter } from './fbi';
 import { SwissNbmAdapter } from './swissnbm';
 import { Eurostat2Adapter } from './eurostat2';
+import { AbrAdapter } from './abr';
 import { config } from '../config';
 
 /**
@@ -1488,6 +1489,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'eurostat2':
       // Eurostat SDMX 2.1 (UC-542) — fertility, GHG emissions, R&D, renewables, youth employment; CC BY 4.0, no auth
       return getOrCreate('eurostat2', () => new Eurostat2Adapter());
+    case 'abr':
+      // Australian Business Register (UC-543) — ABN/ACN lookup, name search; free GUID registration
+      return getOrCreate('abr', () => new AbrAdapter(config.PROVIDER_KEY_ABR));
     default:
       return undefined;
   }

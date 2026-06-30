@@ -2339,5 +2339,14 @@
     "reset_period": "none",
     "docs_url": "https://wikis.ec.europa.eu/display/EUROSTATHELP/API+Statistics+-+data+query",
     "limit_proof": "Eurostat dissemination API — no auth, no rate limits documented. CC BY 4.0 open data. Public EU statistical office data service."
+  },
+  "abr": {
+    "display_name": "Australian Business Register (ABR)",
+    "health_url": "https://abr.business.gov.au/json/AbnDetails.aspx?abn=33051775556&guid=TOKEN_FROM_ENV&callback=x",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://abr.business.gov.au/Tools/WebServices",
+    "limit_proof": "ABR Web Services Agreement — free GUID registration, no documented rate limits. Australian Government open data service covering 15M+ ABN entities."
   }
 }

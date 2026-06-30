@@ -5502,6 +5502,25 @@ tools:
     price_usd: "0.002"
     cache_ttl: 86400
 
+  # --- UC-543: Australian Business Register (ABR) ---
+  - tool_id: abr.abn_lookup
+    name: ABR ABN Lookup
+    provider: abr
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: abr.acn_lookup
+    name: ABR ACN Lookup
+    provider: abr
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: abr.name_search
+    name: ABR Business Name Search
+    provider: abr
+    price_usd: "0.002"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

@@ -401,6 +401,9 @@ export const appEnvSchema = z.object({
   // OpenTopography (UC-537) — global DEM elevation + LiDAR catalog; free registration, 5K req/day
   PROVIDER_KEY_OPENTOPO: z.string().optional().default('demoapikeyot2022'),
 
+  // Australian Business Register (UC-543) — ABN/ACN/name lookup; free GUID registration
+  PROVIDER_KEY_ABR: z.string().optional().default(''),
+
   // GeoNames geographical database (UC-512) — place search, postal codes, country info, timezones
   GEONAMES_USERNAME: z.string().optional().default('APIbase'),
 

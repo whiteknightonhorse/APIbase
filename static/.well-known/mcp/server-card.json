@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 917 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 920 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -53063,6 +53063,171 @@
         },
         "required": [
           "country"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "abr.business.abn_lookup",
+      "title": "ABR ABN Lookup",
+      "description": "Resolve an Australian Business Number (ABN) to full entity details using the official Australian Business Register (ABR). Returns entity name, entity type (company, sole trader, partnership, government entity, etc.), ABN status (Active/Cancelled), GST registration date, registered address state and postcode, ACN (if a company), and all registered trading/business names. Covers 15M+ ABNs across all Australian states and territories. Data is live from the ATO-managed national register. Source: ABR, free registration, commercial use permitted.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "abn": {
+            "type": "string",
+            "description": "Australian Business Number (ABN) \u2014 11-digit numeric identifier, spaces optional (e.g. \"33 051 775 556\" or \"33051775556\")"
+          }
+        },
+        "required": [
+          "abn"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "abr.business.acn_lookup",
+      "title": "ABR ACN Lookup",
+      "description": "Resolve an Australian Company Number (ACN) or ASIC-registered number to full entity details via the Australian Business Register (ABR). Returns the linked ABN, entity name, company type, ABN status, GST registration, registered address, and all associated business names. ACN is a 9-digit number issued by ASIC to every registered Australian company. Use this when you have an ACN from an invoice, contract, or company extract and need to verify the entity against the national register. Source: ABR, free registration, commercial use permitted.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "acn": {
+            "type": "string",
+            "description": "Australian Company Number (ACN) \u2014 9-digit numeric identifier issued by ASIC, spaces optional (e.g. \"051 775 556\" or \"051775556\")"
+          }
+        },
+        "required": [
+          "acn"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "abr.business.name_search",
+      "title": "ABR Business Name Search",
+      "description": "Search the Australian Business Register (ABR) by business name to find matching entities. Returns ranked matches with ABN, entity name, name type (Entity Name, Trading Name, Business Name), current status, registered state, and postcode. Supports partial name matching and relevance scoring. Optionally filter by Australian state (NSW, VIC, QLD, SA, WA, TAS, NT, ACT) or postcode. Returns up to 50 matches per call. Covers all 15M+ ABN-holders including companies, sole traders, partnerships, trusts, and government entities. Source: ABR, free registration, commercial use permitted.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Business name to search for (e.g. \"Telstra\", \"Qantas Airways\"). Partial names supported."
+          },
+          "max_results": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Maximum number of matching businesses to return (1\u201350, default 10)."
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "NSW",
+              "VIC",
+              "QLD",
+              "SA",
+              "WA",
+              "TAS",
+              "NT",
+              "ACT"
+            ],
+            "description": "Filter results to a specific Australian state or territory using the standard abbreviation (e.g. \"VIC\", \"NSW\")."
+          },
+          "postcode": {
+            "type": "string",
+            "description": "Filter results to businesses registered in a specific Australian postcode (e.g. \"3000\" for Melbourne CBD)."
+          }
+        },
+        "required": [
+          "name"
         ]
       },
       "outputSchema": {
