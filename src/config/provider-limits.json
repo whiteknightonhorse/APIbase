@@ -2474,5 +2474,14 @@
     "reset_period": "none",
     "docs_url": "https://waterservices.usgs.gov/rest/",
     "limit_proof": "US Government open data (USGS National Water Information System), no authentication required, no documented rate limits. Public domain under 17 USC §105."
+  },
+  "who-gho": {
+    "display_name": "WHO Global Health Observatory",
+    "health_url": "https://ghoapi.azureedge.net/api/Indicator?$top=1&$select=IndicatorCode",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.who.int/data/gho/info/gho-odata-api",
+    "limit_proof": "WHO GHO OData API — no authentication required, no documented rate limits. CC BY-NC-SA 3.0 IGO. Azure CDN endpoint, publicly accessible."
   }
 }

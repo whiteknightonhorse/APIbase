@@ -51786,6 +51786,282 @@
         ]
       }
     },
+    "/api/v1/tools/cma.artwork_search/call": {
+      "post": {
+        "operationId": "cma_artwork_search",
+        "summary": "Search Cleveland Museum Artworks",
+        "description": "Search 64,000+ artworks at the Cleveland Museum of Art by keyword, artist, type, or culture. Returns title, artist, date, medium, image URLs, and CC0 license status. Use cma.artwork_detail for full record (CMA Open Access)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cma.artwork_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/cma.artwork_detail/call": {
+      "post": {
+        "operationId": "cma_artwork_detail",
+        "summary": "Get Cleveland Museum Artwork Detail",
+        "description": "Get complete metadata for a Cleveland Museum artwork by accession number — artist, date, medium, dimensions, culture, provenance, exhibition history, image URLs (web + print). Use cma.artwork_search to find accession numbers (CMA Open Access)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cma.artwork_detail"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/cma.creator_search/call": {
+      "post": {
+        "operationId": "cma_creator_search",
+        "summary": "Search Cleveland Museum Creators",
+        "description": "Search artists, sculptors, and makers in the Cleveland Museum of Art collection. Returns creator name, nationality, birth/death dates, and count of works in the collection. Use accession numbers from results with cma.artwork_detail (CMA Open Access)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cma.creator_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/cma.exhibition_search/call": {
+      "post": {
+        "operationId": "cma_exhibition_search",
+        "summary": "Search Cleveland Museum Exhibitions",
+        "description": "Search past and current exhibitions at the Cleveland Museum of Art. Returns exhibition title, date range, description, and featured artworks. Use for art history research and provenance verification (CMA Open Access)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cma.exhibition_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/smithsonian.search/call": {
       "post": {
         "operationId": "smithsonian_search",
@@ -88124,6 +88400,386 @@
                 "required": [
                   "site_no"
                 ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/who.indicator_search/call": {
+      "post": {
+        "operationId": "who_indicator_search",
+        "summary": "WHO GHO — Search Health Indicators",
+        "description": "Search the WHO Global Health Observatory catalog of 3,000+ health indicators by keyword. Returns indicator codes, full names, and definitions for topics like immunization, life expectancy, mortality, tuberculosis, malaria, maternal health, NCDs, and SDG health metrics. Use the returned indicator_code with who.indicator_data to retrieve actual values. No auth — WHO CC BY-NC-SA 3.0 IGO, unlimited free.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "who.indicator_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "keyword": {
+                    "type": "string",
+                    "description": "Keyword to search indicator names (e.g. \"immunization\", \"mortality\", \"tuberculosis\"). Omit to list all indicators."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of indicators to return (1–100, default 20)."
+                  }
+                },
+                "description": "Search WHO Global Health Observatory indicators by keyword."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/who.indicator_data/call": {
+      "post": {
+        "operationId": "who_indicator_data",
+        "summary": "WHO GHO — Get Indicator Data",
+        "description": "Retrieve time-series values for a specific WHO Global Health Observatory indicator. Filter by country (ISO alpha-3), year range, and sex (both sexes, male, or female). Returns numeric values with confidence intervals for indicators such as life expectancy at birth (WHOSIS_000001), DTP3 immunization coverage (dptv), TB incidence (MDG_0000000020), and 3,000+ more. Use who.indicator_search to find indicator codes. No auth — unlimited free.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "who.indicator_data"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "indicator_code": {
+                    "type": "string",
+                    "description": "WHO GHO indicator code (e.g. \"WHOSIS_000001\" for life expectancy, \"dptv\" for DTP3 immunization, \"MORT_100\" for mortality). Use who.indicator_search to find codes."
+                  },
+                  "country_code": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 3,
+                    "description": "ISO 3166-1 alpha-3 country code to filter results (e.g. \"USA\", \"FRA\", \"IND\")."
+                  },
+                  "year_from": {
+                    "type": "integer",
+                    "minimum": 1900,
+                    "maximum": 2100,
+                    "description": "Start year for time series data (inclusive, e.g. 2015)."
+                  },
+                  "year_to": {
+                    "type": "integer",
+                    "minimum": 1900,
+                    "maximum": 2100,
+                    "description": "End year for time series data (inclusive, e.g. 2023)."
+                  },
+                  "sex": {
+                    "type": "string",
+                    "enum": [
+                      "SEX_BTSX",
+                      "SEX_MLE",
+                      "SEX_FMLE"
+                    ],
+                    "description": "Sex dimension filter: SEX_BTSX (both sexes), SEX_MLE (male), SEX_FMLE (female)."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of data points to return (1–100, default 20)."
+                  }
+                },
+                "required": [
+                  "indicator_code"
+                ],
+                "description": "Get data values for a specific WHO health indicator with optional filters."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/who.country_health/call": {
+      "post": {
+        "operationId": "who_country_health",
+        "summary": "WHO GHO — Country Health Data",
+        "description": "Get WHO health indicator data for a specific country. Specify a 3-letter ISO country code and optionally filter by indicator and year. Useful for country-level health profiles: life expectancy, immunization coverage, maternal mortality, disease burden, and SDG health targets. Use who.dimension_values with dimension=\"COUNTRY\" to discover valid country codes. No auth — WHO public data, unlimited free.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "who.country_health"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "country_code": {
+                    "type": "string",
+                    "description": "ISO 3166-1 alpha-3 country code (e.g. \"USA\", \"BRA\", \"KEN\", \"IND\"). Use who.dimension_values with dimension=\"COUNTRY\" to list all valid codes.",
+                    "minLength": 3,
+                    "maxLength": 3
+                  },
+                  "indicator_code": {
+                    "type": "string",
+                    "description": "WHO GHO indicator code to retrieve (default: WHOSIS_000001 for life expectancy). Use who.indicator_search to find codes."
+                  },
+                  "year": {
+                    "type": "integer",
+                    "minimum": 1900,
+                    "maximum": 2100,
+                    "description": "Specific year to retrieve data for (e.g. 2022). Omit to get all available years."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of records to return (1–100, default 20)."
+                  }
+                },
+                "required": [
+                  "country_code"
+                ],
+                "description": "Get WHO health indicator data for a specific country."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/who.dimension_values/call": {
+      "post": {
+        "operationId": "who_dimension_values",
+        "summary": "WHO GHO — List Dimension Values",
+        "description": "List valid values for a WHO GHO dimension such as countries (COUNTRY), WHO regions (REGION), sex categories (SEX), age groups (AGEGROUP), or world bank income groups (WORLDBANKINCOMEGROUP). Essential for discovering valid filter values before querying indicator data. Returns codes and human-readable titles for all values in the dimension. No auth — WHO public reference data, unlimited free.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "who.dimension_values"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "dimension": {
+                    "type": "string",
+                    "description": "Dimension code to list values for (e.g. \"COUNTRY\" for country codes, \"REGION\" for WHO regions, \"SEX\" for sex categories, \"AGEGROUP\" for age groups)."
+                  },
+                  "search": {
+                    "type": "string",
+                    "description": "Filter dimension values by partial title match (e.g. \"africa\" to filter African countries)."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of values to return (1–100, default 20)."
+                  }
+                },
+                "required": [
+                  "dimension"
+                ],
+                "description": "List valid values for a WHO GHO dimension such as countries, regions, or age groups."
               }
             }
           }

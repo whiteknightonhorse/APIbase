@@ -11197,4 +11197,58 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+
+  // WHO Global Health Observatory OData (4)
+  {
+    toolId: 'who.indicator_search',
+    mcpName: 'who.health.indicator_search',
+    title: 'WHO GHO — Search Health Indicators',
+    description:
+      'Search the WHO Global Health Observatory catalog of 3,000+ health indicators by keyword. ' +
+      'Returns indicator codes, full names, and definitions for topics like immunization, life expectancy, ' +
+      'mortality, tuberculosis, malaria, maternal health, NCDs, and SDG health metrics. ' +
+      'Use the returned indicator_code with who.indicator_data to retrieve actual values. ' +
+      'No auth — WHO CC BY-NC-SA 3.0 IGO, unlimited free.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'who.indicator_data',
+    mcpName: 'who.health.indicator_data',
+    title: 'WHO GHO — Get Indicator Data',
+    description:
+      'Retrieve time-series values for a specific WHO Global Health Observatory indicator. ' +
+      'Filter by country (ISO alpha-3), year range, and sex (both sexes, male, or female). ' +
+      'Returns numeric values with confidence intervals for indicators such as life expectancy at birth ' +
+      '(WHOSIS_000001), DTP3 immunization coverage (dptv), TB incidence (MDG_0000000020), and 3,000+ more. ' +
+      'Use who.indicator_search to find indicator codes. No auth — unlimited free.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'who.country_health',
+    mcpName: 'who.health.country_data',
+    title: 'WHO GHO — Country Health Data',
+    description:
+      'Get WHO health indicator data for a specific country. Specify a 3-letter ISO country code ' +
+      'and optionally filter by indicator and year. Useful for country-level health profiles: ' +
+      'life expectancy, immunization coverage, maternal mortality, disease burden, and SDG health targets. ' +
+      'Use who.dimension_values with dimension="COUNTRY" to discover valid country codes. ' +
+      'No auth — WHO public data, unlimited free.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'who.dimension_values',
+    mcpName: 'who.health.dimension_values',
+    title: 'WHO GHO — List Dimension Values',
+    description:
+      'List valid values for a WHO GHO dimension such as countries (COUNTRY), WHO regions (REGION), ' +
+      'sex categories (SEX), age groups (AGEGROUP), or world bank income groups (WORLDBANKINCOMEGROUP). ' +
+      'Essential for discovering valid filter values before querying indicator data. ' +
+      'Returns codes and human-readable titles for all values in the dimension. ' +
+      'No auth — WHO public reference data, unlimited free.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
 ];

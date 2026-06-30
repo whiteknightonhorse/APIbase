@@ -275,6 +275,7 @@ import { biomodelsSchemas } from './biomodels.schema';
 import { openmeteoaqSchemas } from './openmeteoaq.schema';
 import { usgsHansVolcanoSchemas } from './usgs-hans-volcano.schema';
 import { usgsNwisSchemas } from './usgs-nwis.schema';
+import { whoGhoSchemas } from './who-gho.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -553,4 +554,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...openmeteoaqSchemas,
   ...usgsHansVolcanoSchemas,
   ...usgsNwisSchemas,
+  ...whoGhoSchemas,
 };

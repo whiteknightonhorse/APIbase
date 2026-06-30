@@ -5907,6 +5907,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-558: WHO Global Health Observatory OData ---
+  - tool_id: who.indicator_search
+    name: WHO GHO — Search Health Indicators
+    provider: who-gho
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: who.indicator_data
+    name: WHO GHO — Get Indicator Data
+    provider: who-gho
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: who.country_health
+    name: WHO GHO — Country Health Data
+    provider: who-gho
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: who.dimension_values
+    name: WHO GHO — List Dimension Values
+    provider: who-gho
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

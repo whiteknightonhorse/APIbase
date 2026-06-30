@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 986 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 990 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -56789,6 +56789,262 @@
         "required": [
           "site_no"
         ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "who.health.country_data",
+      "title": "WHO GHO \u2014 Country Health Data",
+      "description": "Get WHO health indicator data for a specific country. Specify a 3-letter ISO country code and optionally filter by indicator and year. Useful for country-level health profiles: life expectancy, immunization coverage, maternal mortality, disease burden, and SDG health targets. Use who.dimension_values with dimension=\"COUNTRY\" to discover valid country codes. No auth \u2014 WHO public data, unlimited free.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "country_code": {
+            "type": "string",
+            "description": "ISO 3166-1 alpha-3 country code (e.g. \"USA\", \"BRA\", \"KEN\", \"IND\"). Use who.dimension_values with dimension=\"COUNTRY\" to list all valid codes.",
+            "minLength": 3,
+            "maxLength": 3
+          },
+          "indicator_code": {
+            "type": "string",
+            "description": "WHO GHO indicator code to retrieve (default: WHOSIS_000001 for life expectancy). Use who.indicator_search to find codes."
+          },
+          "year": {
+            "type": "integer",
+            "minimum": 1900,
+            "maximum": 2100,
+            "description": "Specific year to retrieve data for (e.g. 2022). Omit to get all available years."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Maximum number of records to return (1\u2013100, default 20)."
+          }
+        },
+        "required": [
+          "country_code"
+        ],
+        "description": "Get WHO health indicator data for a specific country."
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "who.health.dimension_values",
+      "title": "WHO GHO \u2014 List Dimension Values",
+      "description": "List valid values for a WHO GHO dimension such as countries (COUNTRY), WHO regions (REGION), sex categories (SEX), age groups (AGEGROUP), or world bank income groups (WORLDBANKINCOMEGROUP). Essential for discovering valid filter values before querying indicator data. Returns codes and human-readable titles for all values in the dimension. No auth \u2014 WHO public reference data, unlimited free.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "dimension": {
+            "type": "string",
+            "description": "Dimension code to list values for (e.g. \"COUNTRY\" for country codes, \"REGION\" for WHO regions, \"SEX\" for sex categories, \"AGEGROUP\" for age groups)."
+          },
+          "search": {
+            "type": "string",
+            "description": "Filter dimension values by partial title match (e.g. \"africa\" to filter African countries)."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Maximum number of values to return (1\u2013100, default 20)."
+          }
+        },
+        "required": [
+          "dimension"
+        ],
+        "description": "List valid values for a WHO GHO dimension such as countries, regions, or age groups."
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "who.health.indicator_data",
+      "title": "WHO GHO \u2014 Get Indicator Data",
+      "description": "Retrieve time-series values for a specific WHO Global Health Observatory indicator. Filter by country (ISO alpha-3), year range, and sex (both sexes, male, or female). Returns numeric values with confidence intervals for indicators such as life expectancy at birth (WHOSIS_000001), DTP3 immunization coverage (dptv), TB incidence (MDG_0000000020), and 3,000+ more. Use who.indicator_search to find indicator codes. No auth \u2014 unlimited free.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "indicator_code": {
+            "type": "string",
+            "description": "WHO GHO indicator code (e.g. \"WHOSIS_000001\" for life expectancy, \"dptv\" for DTP3 immunization, \"MORT_100\" for mortality). Use who.indicator_search to find codes."
+          },
+          "country_code": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "ISO 3166-1 alpha-3 country code to filter results (e.g. \"USA\", \"FRA\", \"IND\")."
+          },
+          "year_from": {
+            "type": "integer",
+            "minimum": 1900,
+            "maximum": 2100,
+            "description": "Start year for time series data (inclusive, e.g. 2015)."
+          },
+          "year_to": {
+            "type": "integer",
+            "minimum": 1900,
+            "maximum": 2100,
+            "description": "End year for time series data (inclusive, e.g. 2023)."
+          },
+          "sex": {
+            "type": "string",
+            "enum": [
+              "SEX_BTSX",
+              "SEX_MLE",
+              "SEX_FMLE"
+            ],
+            "description": "Sex dimension filter: SEX_BTSX (both sexes), SEX_MLE (male), SEX_FMLE (female)."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Maximum number of data points to return (1\u2013100, default 20)."
+          }
+        },
+        "required": [
+          "indicator_code"
+        ],
+        "description": "Get data values for a specific WHO health indicator with optional filters."
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "who.health.indicator_search",
+      "title": "WHO GHO \u2014 Search Health Indicators",
+      "description": "Search the WHO Global Health Observatory catalog of 3,000+ health indicators by keyword. Returns indicator codes, full names, and definitions for topics like immunization, life expectancy, mortality, tuberculosis, malaria, maternal health, NCDs, and SDG health metrics. Use the returned indicator_code with who.indicator_data to retrieve actual values. No auth \u2014 WHO CC BY-NC-SA 3.0 IGO, unlimited free.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "keyword": {
+            "type": "string",
+            "description": "Keyword to search indicator names (e.g. \"immunization\", \"mortality\", \"tuberculosis\"). Omit to list all indicators."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Maximum number of indicators to return (1\u2013100, default 20)."
+          }
+        },
+        "description": "Search WHO Global Health Observatory indicators by keyword."
       },
       "outputSchema": {
         "type": "object",

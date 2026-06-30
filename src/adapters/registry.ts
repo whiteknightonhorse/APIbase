@@ -275,6 +275,7 @@ import { BioModelsAdapter } from './biomodels';
 import { OpenMeteoAqAdapter } from './openmeteoaq';
 import { UsgsHansVolcanoAdapter } from './usgs-hans-volcano';
 import { UsgsNwisAdapter } from './usgs-nwis';
+import { WhoGhoAdapter } from './who-gho';
 import { config } from '../config';
 
 /**
@@ -1553,6 +1554,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'usgs-nwis':
       // USGS NWIS Streamflow (UC-557) — daily values, annual stats, basin conditions, site metadata; no auth, US Gov public domain
       return getOrCreate('usgs-nwis', () => new UsgsNwisAdapter());
+    case 'who-gho':
+      // WHO Global Health Observatory OData (UC-558) — 3K+ health indicators, disease surveillance, immunization; no auth, CC BY-NC-SA
+      return getOrCreate('who-gho', () => new WhoGhoAdapter());
     default:
       return undefined;
   }
