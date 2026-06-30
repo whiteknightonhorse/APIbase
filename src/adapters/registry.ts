@@ -277,6 +277,7 @@ import { UsgsHansVolcanoAdapter } from './usgs-hans-volcano';
 import { UsgsNwisAdapter } from './usgs-nwis';
 import { WhoGhoAdapter } from './who-gho';
 import { DelphiAdapter } from './delphi';
+import { NlmIcd11Adapter } from './nlm-icd11';
 import { config } from '../config';
 
 /**
@@ -1561,6 +1562,10 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'delphi':
       // CMU Delphi Epidata (UC-559) — flu surveillance, COVID signals, hospitalization; no auth, open access
       return getOrCreate('delphi', () => new DelphiAdapter());
+    case 'icd11':
+    case 'nlm-icd11':
+      // NLM ICD-11 Clinical Tables (UC-560) — disease classification, diagnosis codes, ICD-11 search; no auth, US NLM public domain
+      return getOrCreate('nlm-icd11', () => new NlmIcd11Adapter());
     default:
       return undefined;
   }

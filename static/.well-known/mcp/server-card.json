@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 994 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 998 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -57305,6 +57305,219 @@
           "error": {
             "type": "object",
             "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "icd11.disease.autocomplete",
+      "title": "NLM ICD-11 \u2014 Autocomplete Suggestions",
+      "description": "Get fast ICD-11 code autocomplete suggestions for a partial clinical term. Returns up to 10 matching codes and titles as the user types \u2014 ideal for building clinical coding interfaces, EHR integrations, or any application requiring responsive disease/diagnosis search. Input partial terms like \"dia\" \u2192 diabetes options, \"hyp\" \u2192 hypertension, \"pneu\" \u2192 pneumonia. No auth \u2014 US National Library of Medicine public domain, unlimited free.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "terms": {
+            "type": "string",
+            "description": "Partial clinical term for autocomplete suggestions (e.g. \"dia\" \u2192 diabetes options, \"hyp\" \u2192 hypertension options)",
+            "minLength": 1
+          },
+          "max_results": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10,
+            "description": "Maximum number of autocomplete suggestions (1-10). Default: 5",
+            "default": 5
+          }
+        },
+        "required": [
+          "terms"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "icd11.disease.lookup",
+      "title": "NLM ICD-11 \u2014 Look Up Specific Code",
+      "description": "Retrieve the title and classification type for a specific ICD-11 code. Returns the human-readable disease/condition name and whether the code is a primary stem code or an extension modifier. Use to validate ICD-11 codes, decode alphanumeric codes in clinical records, or verify correct code usage. Examples: BA00 \u2192 Essential hypertension, 5A10 \u2192 Type 1 diabetes mellitus, CA40 \u2192 Pneumonia. No auth \u2014 US National Library of Medicine public domain, unlimited free.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "ICD-11 code to look up \u2014 alphanumeric code from the ICD-11 classification (e.g. \"BA00\" for essential hypertension, \"5A10\" for type 1 diabetes, \"CA40\" for pneumonia)",
+            "minLength": 2
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "icd11.disease.primary_search",
+      "title": "NLM ICD-11 \u2014 Search Primary Diagnosis Codes",
+      "description": "Search ICD-11 codes returning only primary (stem) diagnosis codes \u2014 filters out extension/modifier codes. Stem codes represent principal diagnoses and standalone conditions, while extension codes are qualifiers (severity, laterality, histopathology). Use this when you need clean primary diagnoses for: mortality coding, disease surveillance, DRG assignment, or primary diagnosis classification. No auth \u2014 US National Library of Medicine public domain, unlimited free.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "terms": {
+            "type": "string",
+            "description": "Clinical search term to find primary (stem) ICD-11 diagnosis codes only \u2014 excludes extension/modifier codes (e.g. \"cancer\", \"fever\", \"infection\")",
+            "minLength": 1
+          },
+          "max_results": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 25,
+            "description": "Maximum number of primary (stem) codes to return (1-25). Default: 10",
+            "default": 10
+          }
+        },
+        "required": [
+          "terms"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "icd11.disease.search",
+      "title": "NLM ICD-11 \u2014 Search Disease Codes",
+      "description": "Search the ICD-11 disease classification for diagnosis codes by clinical term. Returns matching ICD-11 codes with titles and code type (stem = primary diagnosis, extension = modifier/qualifier). Covers all 55,000+ ICD-11 codes including diseases, injuries, external causes, and functional assessments. Use for clinical coding, medical record classification, disease surveillance, and health informatics. No auth \u2014 US National Library of Medicine public domain, unlimited free.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "terms": {
+            "type": "string",
+            "description": "Clinical search term \u2014 disease name, symptom, or condition (e.g. \"diabetes mellitus\", \"pneumonia\", \"hypertension\", \"fracture\")",
+            "minLength": 1
+          },
+          "max_results": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 25,
+            "description": "Maximum number of results to return (1-25). Default: 10",
+            "default": 10
+          }
+        },
+        "required": [
+          "terms"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
           }
         },
         "required": [

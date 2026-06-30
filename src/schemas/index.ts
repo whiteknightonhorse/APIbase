@@ -277,6 +277,7 @@ import { usgsHansVolcanoSchemas } from './usgs-hans-volcano.schema';
 import { usgsNwisSchemas } from './usgs-nwis.schema';
 import { whoGhoSchemas } from './who-gho.schema';
 import { delphiSchemas } from './delphi.schema';
+import { nlmIcd11Schemas } from './nlm-icd11.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -557,4 +558,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...usgsNwisSchemas,
   ...whoGhoSchemas,
   ...delphiSchemas,
+  ...nlmIcd11Schemas,
 };

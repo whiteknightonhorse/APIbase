@@ -11252,6 +11252,60 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     annotations: READ_ONLY,
   },
 
+  // NLM ICD-11 Clinical Tables (4) — UC-560
+  {
+    toolId: 'icd11.search',
+    mcpName: 'icd11.disease.search',
+    title: 'NLM ICD-11 — Search Disease Codes',
+    description:
+      'Search the ICD-11 disease classification for diagnosis codes by clinical term. ' +
+      'Returns matching ICD-11 codes with titles and code type (stem = primary diagnosis, extension = modifier/qualifier). ' +
+      'Covers all 55,000+ ICD-11 codes including diseases, injuries, external causes, and functional assessments. ' +
+      'Use for clinical coding, medical record classification, disease surveillance, and health informatics. ' +
+      'No auth — US National Library of Medicine public domain, unlimited free.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'icd11.lookup',
+    mcpName: 'icd11.disease.lookup',
+    title: 'NLM ICD-11 — Look Up Specific Code',
+    description:
+      'Retrieve the title and classification type for a specific ICD-11 code. ' +
+      'Returns the human-readable disease/condition name and whether the code is a primary stem code or an extension modifier. ' +
+      'Use to validate ICD-11 codes, decode alphanumeric codes in clinical records, or verify correct code usage. ' +
+      'Examples: BA00 → Essential hypertension, 5A10 → Type 1 diabetes mellitus, CA40 → Pneumonia. ' +
+      'No auth — US National Library of Medicine public domain, unlimited free.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'icd11.autocomplete',
+    mcpName: 'icd11.disease.autocomplete',
+    title: 'NLM ICD-11 — Autocomplete Suggestions',
+    description:
+      'Get fast ICD-11 code autocomplete suggestions for a partial clinical term. ' +
+      'Returns up to 10 matching codes and titles as the user types — ideal for building clinical coding interfaces, ' +
+      'EHR integrations, or any application requiring responsive disease/diagnosis search. ' +
+      'Input partial terms like "dia" → diabetes options, "hyp" → hypertension, "pneu" → pneumonia. ' +
+      'No auth — US National Library of Medicine public domain, unlimited free.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'icd11.primary_search',
+    mcpName: 'icd11.disease.primary_search',
+    title: 'NLM ICD-11 — Search Primary Diagnosis Codes',
+    description:
+      'Search ICD-11 codes returning only primary (stem) diagnosis codes — filters out extension/modifier codes. ' +
+      'Stem codes represent principal diagnoses and standalone conditions, while extension codes are qualifiers ' +
+      '(severity, laterality, histopathology). Use this when you need clean primary diagnoses for: ' +
+      'mortality coding, disease surveillance, DRG assignment, or primary diagnosis classification. ' +
+      'No auth — US National Library of Medicine public domain, unlimited free.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+
   // CMU Delphi Epidata (4) — UC-559
   {
     toolId: 'delphi.fluview',

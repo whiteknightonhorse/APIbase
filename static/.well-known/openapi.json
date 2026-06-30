@@ -88815,6 +88815,343 @@
         ]
       }
     },
+    "/api/v1/tools/icd11.search/call": {
+      "post": {
+        "operationId": "icd11_search",
+        "summary": "NLM ICD-11 — Search Disease Codes",
+        "description": "Search the ICD-11 disease classification for diagnosis codes by clinical term. Returns matching ICD-11 codes with titles and code type (stem = primary diagnosis, extension = modifier/qualifier). Covers all 55,000+ ICD-11 codes including diseases, injuries, external causes, and functional assessments. Use for clinical coding, medical record classification, disease surveillance, and health informatics. No auth — US National Library of Medicine public domain, unlimited free.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "icd11.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "terms": {
+                    "type": "string",
+                    "description": "Clinical search term — disease name, symptom, or condition (e.g. \"diabetes mellitus\", \"pneumonia\", \"hypertension\", \"fracture\")",
+                    "minLength": 1
+                  },
+                  "max_results": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 25,
+                    "description": "Maximum number of results to return (1-25). Default: 10",
+                    "default": 10
+                  }
+                },
+                "required": [
+                  "terms"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/icd11.lookup/call": {
+      "post": {
+        "operationId": "icd11_lookup",
+        "summary": "NLM ICD-11 — Look Up Specific Code",
+        "description": "Retrieve the title and classification type for a specific ICD-11 code. Returns the human-readable disease/condition name and whether the code is a primary stem code or an extension modifier. Use to validate ICD-11 codes, decode alphanumeric codes in clinical records, or verify correct code usage. Examples: BA00 → Essential hypertension, 5A10 → Type 1 diabetes mellitus, CA40 → Pneumonia. No auth — US National Library of Medicine public domain, unlimited free.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "icd11.lookup"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "description": "ICD-11 code to look up — alphanumeric code from the ICD-11 classification (e.g. \"BA00\" for essential hypertension, \"5A10\" for type 1 diabetes, \"CA40\" for pneumonia)",
+                    "minLength": 2
+                  }
+                },
+                "required": [
+                  "code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/icd11.autocomplete/call": {
+      "post": {
+        "operationId": "icd11_autocomplete",
+        "summary": "NLM ICD-11 — Autocomplete Suggestions",
+        "description": "Get fast ICD-11 code autocomplete suggestions for a partial clinical term. Returns up to 10 matching codes and titles as the user types — ideal for building clinical coding interfaces, EHR integrations, or any application requiring responsive disease/diagnosis search. Input partial terms like \"dia\" → diabetes options, \"hyp\" → hypertension, \"pneu\" → pneumonia. No auth — US National Library of Medicine public domain, unlimited free.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "icd11.autocomplete"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "terms": {
+                    "type": "string",
+                    "description": "Partial clinical term for autocomplete suggestions (e.g. \"dia\" → diabetes options, \"hyp\" → hypertension options)",
+                    "minLength": 1
+                  },
+                  "max_results": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10,
+                    "description": "Maximum number of autocomplete suggestions (1-10). Default: 5",
+                    "default": 5
+                  }
+                },
+                "required": [
+                  "terms"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/icd11.primary_search/call": {
+      "post": {
+        "operationId": "icd11_primary_search",
+        "summary": "NLM ICD-11 — Search Primary Diagnosis Codes",
+        "description": "Search ICD-11 codes returning only primary (stem) diagnosis codes — filters out extension/modifier codes. Stem codes represent principal diagnoses and standalone conditions, while extension codes are qualifiers (severity, laterality, histopathology). Use this when you need clean primary diagnoses for: mortality coding, disease surveillance, DRG assignment, or primary diagnosis classification. No auth — US National Library of Medicine public domain, unlimited free.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "icd11.primary_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "terms": {
+                    "type": "string",
+                    "description": "Clinical search term to find primary (stem) ICD-11 diagnosis codes only — excludes extension/modifier codes (e.g. \"cancer\", \"fever\", \"infection\")",
+                    "minLength": 1
+                  },
+                  "max_results": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 25,
+                    "description": "Maximum number of primary (stem) codes to return (1-25). Default: 10",
+                    "default": 10
+                  }
+                },
+                "required": [
+                  "terms"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/delphi.fluview/call": {
       "post": {
         "operationId": "delphi_fluview",

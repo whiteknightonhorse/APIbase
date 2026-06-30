@@ -5932,6 +5932,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-560: NLM ICD-11 Clinical Tables ---
+  - tool_id: icd11.search
+    name: NLM ICD-11 — Search Disease Codes
+    provider: nlm-icd11
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: icd11.lookup
+    name: NLM ICD-11 — Look Up Specific Code
+    provider: nlm-icd11
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: icd11.autocomplete
+    name: NLM ICD-11 — Autocomplete Suggestions
+    provider: nlm-icd11
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: icd11.primary_search
+    name: NLM ICD-11 — Search Primary Diagnosis Codes
+    provider: nlm-icd11
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   # --- UC-559: CMU Delphi Epidata ---
   - tool_id: delphi.fluview
     name: CMU Delphi — CDC ILINet Flu Surveillance

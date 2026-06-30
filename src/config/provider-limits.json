@@ -2492,5 +2492,14 @@
     "reset_period": "none",
     "docs_url": "https://cmu-delphi.github.io/delphi-epidata/api/README.html",
     "limit_proof": "CMU Delphi Epidata API — no authentication required, no documented rate limits. Open epidemiological surveillance data (ILINet, FluSurv-NET, COVIDcast). Academic/research open access."
+  },
+  "nlm-icd11": {
+    "display_name": "NLM ICD-11 Clinical Tables",
+    "health_url": "https://clinicaltables.nlm.nih.gov/api/icd11_codes/v3/search?terms=diabetes&maxList=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://clinicaltables.nlm.nih.gov/apidoc/icd11_codes/v3/doc.html",
+    "limit_proof": "US National Library of Medicine Clinical Tables API — no authentication required, no documented rate limits. Public domain ICD-11 classification search service."
   }
 }
