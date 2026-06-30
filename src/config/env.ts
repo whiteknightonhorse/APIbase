@@ -413,6 +413,9 @@ export const appEnvSchema = z.object({
   // Africa API (UC-546) — Pan-African economic data for 54 countries; Bearer token auth
   PROVIDER_KEY_AFRICAAPI: z.string().optional().default(''),
 
+  // HuggingFace Inference API (UC-547) — NLP: sentiment, NER, zero-shot, translation, summarization
+  PROVIDER_KEY_HF_INFERENCE: z.string().optional().default(''),
+
   // GeoNames geographical database (UC-512) — place search, postal codes, country info, timezones
   GEONAMES_USERNAME: z.string().optional().default('APIbase'),
 

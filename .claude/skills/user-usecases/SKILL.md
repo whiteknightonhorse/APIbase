@@ -241,6 +241,7 @@ Use these examples as reference patterns when:
 | UC-544 | Banco de México SIE | Finance / Mexico Economics | LIVE | Token auth, free, 5 tools | `usecases/UC-544-banxico.md` |
 | UC-545 | Bureau of Economic Analysis (BEA) | Finance / US Economics | LIVE | API key, free US Gov, 5 tools | `usecases/UC-545-bea.md` |
 | UC-546 | Africa API | Country Data / Finance | LIVE | Bearer token, 1K/mo free, 5 tools | `usecases/UC-546-africaapi.md` |
+| UC-547 | HuggingFace Inference NLP | Developer | LIVE | Bearer token, ~30K/mo free, 5 tools | `usecases/UC-547-hf_inference.md` |
 
 ## How to Use
 

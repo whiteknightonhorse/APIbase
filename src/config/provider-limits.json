@@ -2375,5 +2375,14 @@
     "reset_period": "monthly",
     "docs_url": "https://africa-api.com/docs",
     "limit_proof": "Free plan: 1,000 requests/month, 5 requests/minute. Paid plans available for higher throughput."
+  },
+  "hf_inference": {
+    "display_name": "HuggingFace Inference",
+    "health_url": "https://router.huggingface.co/hf-inference/models/cardiffnlp/twitter-roberta-base-sentiment-latest",
+    "limit_type": "monthly",
+    "free_limit": 30000,
+    "reset_period": "monthly",
+    "docs_url": "https://huggingface.co/docs/api-inference/rate-limits",
+    "limit_proof": "Free tier: rate-limited serverless inference, ~30,000 requests/month per model; Pro plan for higher throughput. User Access Token required."
   }
 }

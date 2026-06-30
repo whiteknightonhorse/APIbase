@@ -264,6 +264,7 @@ import { AbrAdapter } from './abr';
 import { BanxicoAdapter } from './banxico';
 import { BeaAdapter } from './bea';
 import { AfricaApiAdapter } from './africa';
+import { HfInferenceAdapter } from './hf_inference';
 import { config } from '../config';
 
 /**
@@ -1504,6 +1505,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'africa':
       // Africa API (UC-546) — Pan-African economic data for 54 countries; Bearer token auth
       return getOrCreate('africa', () => new AfricaApiAdapter(config.PROVIDER_KEY_AFRICAAPI));
+    case 'hf_inference':
+      // HuggingFace Inference NLP (UC-547) — sentiment, NER, zero-shot, translation, summarization
+      return getOrCreate(
+        'hf_inference',
+        () => new HfInferenceAdapter(config.PROVIDER_KEY_HF_INFERENCE),
+      );
     default:
       return undefined;
   }

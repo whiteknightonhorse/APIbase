@@ -83895,6 +83895,466 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/hf_inference.sentiment/call": {
+      "post": {
+        "operationId": "hf_inference_sentiment",
+        "summary": "HuggingFace — Sentiment Analysis",
+        "description": "Classify the sentiment of a text using a HuggingFace NLP model via the Inference API. Returns a predicted label (positive, negative, or neutral) with a confidence score, plus scores for all classes. Default model (cardiffnlp/twitter-roberta-base-sentiment-latest) is optimized for social media and short-form text. Supports custom model override. Useful for customer feedback analysis, social media monitoring, and review classification.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hf_inference.sentiment"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "description": "Input text to process. Maximum ~10,000 characters depending on model context window.",
+                    "minLength": 1
+                  },
+                  "model": {
+                    "type": "string",
+                    "description": "HuggingFace model ID to use for sentiment classification. Default: \"cardiffnlp/twitter-roberta-base-sentiment-latest\" (3-class: positive/neutral/negative). Alternatives: \"distilbert-base-uncased-finetuned-sst-2-english\" (2-class: POSITIVE/NEGATIVE), \"nlptown/bert-base-multilingual-uncased-sentiment\" (1-5 star, multilingual)."
+                  }
+                },
+                "required": [
+                  "text"
+                ],
+                "description": "Classify the sentiment of a text using a HuggingFace NLP model. Returns a predicted label (positive, negative, or neutral) with a confidence score, plus scores for all classes. Default model is optimized for social media and short-form text. Useful for customer feedback analysis, social media monitoring, and review classification."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/hf_inference.ner/call": {
+      "post": {
+        "operationId": "hf_inference_ner",
+        "summary": "HuggingFace — Named Entity Recognition",
+        "description": "Extract named entities — people (PER), locations (LOC), organizations (ORG), and miscellaneous (MISC) — from text using a BERT-based NER model via HuggingFace Inference API. Returns each detected entity with its type, confidence score, and character positions in the original text. Default model: dbmdz/bert-large-cased-finetuned-conll03-english (CoNLL-2003, English). Useful for document parsing, contact extraction, and knowledge graph construction.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hf_inference.ner"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "description": "Input text to process. Maximum ~10,000 characters depending on model context window.",
+                    "minLength": 1
+                  },
+                  "model": {
+                    "type": "string",
+                    "description": "HuggingFace model ID to use for named entity recognition. Default: \"dbmdz/bert-large-cased-finetuned-conll03-english\" (English NER: PER, LOC, ORG, MISC). Alternatives: \"dslim/bert-base-NER\" (lightweight English NER), \"Jean-Baptiste/roberta-large-ner-english\" (higher accuracy English NER)."
+                  }
+                },
+                "required": [
+                  "text"
+                ],
+                "description": "Extract named entities (people, locations, organizations, and miscellaneous) from text using a BERT-based NER model. Returns each detected entity with its type, confidence score, and character positions in the original text. Useful for document parsing, contact extraction, and knowledge graph construction."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/hf_inference.zero_shot/call": {
+      "post": {
+        "operationId": "hf_inference_zero_shot",
+        "summary": "HuggingFace — Zero-shot Text Classification",
+        "description": "Classify text into any custom set of categories without requiring model fine-tuning or training data. Provide a list of 2–20 candidate labels; the model determines which best describes the input text. Returns labels ranked by confidence score. Supports multi-label mode (text can match multiple categories). Default model: facebook/bart-large-mnli. Ideal for routing, content moderation, intent detection, and ad-hoc categorization tasks.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hf_inference.zero_shot"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "description": "Input text to process. Maximum ~10,000 characters depending on model context window.",
+                    "minLength": 1
+                  },
+                  "candidate_labels": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "description": "List of candidate category labels to classify the text into (2–20 labels). Example: [\"politics\", \"sports\", \"technology\", \"entertainment\"]. Labels can be any descriptive phrases — the model performs inference without prior training on these labels.",
+                    "minItems": 2,
+                    "maxItems": 20
+                  },
+                  "multi_label": {
+                    "type": "boolean",
+                    "description": "If true, scores are independent for each label (text can match multiple categories simultaneously). If false (default), scores are mutually exclusive and sum to 1 (single best category)."
+                  },
+                  "model": {
+                    "type": "string",
+                    "description": "HuggingFace model ID to use for zero-shot classification. Default: \"facebook/bart-large-mnli\" (MNLI-trained, accurate but slower). Alternatives: \"cross-encoder/nli-deberta-v3-small\" (lighter and faster)."
+                  }
+                },
+                "required": [
+                  "text",
+                  "candidate_labels"
+                ],
+                "description": "Classify text into any custom set of categories without requiring model fine-tuning. Provide a list of candidate labels and the model determines which best describes the input text. Returns labels ranked by confidence score. Ideal for routing, content moderation, intent detection, and ad-hoc categorization."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/hf_inference.translate/call": {
+      "post": {
+        "operationId": "hf_inference_translate",
+        "summary": "HuggingFace — Machine Translation",
+        "description": "Translate text between languages using the Helsinki-NLP opus-mt model family via HuggingFace Inference API. Covers 1,000+ language pairs (English to French, Spanish, German, Chinese, Japanese, Arabic, Russian, etc.). Specify target_lang as a 2-letter ISO 639-1 code (e.g. \"fr\", \"es\", \"de\", \"zh\", \"ja\"). The adapter automatically selects the opus-mt-{source}-{target} model. Useful for multilingual content pipelines, localization, and cross-language information retrieval.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hf_inference.translate"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "description": "Input text to process. Maximum ~10,000 characters depending on model context window.",
+                    "minLength": 1
+                  },
+                  "target_lang": {
+                    "type": "string",
+                    "description": "ISO 639-1 two-letter target language code (e.g. \"fr\" for French, \"es\" for Spanish, \"de\" for German, \"pt\" for Portuguese, \"it\" for Italian, \"nl\" for Dutch, \"ru\" for Russian, \"zh\" for Chinese, \"ja\" for Japanese, \"ar\" for Arabic, \"ko\" for Korean, \"hi\" for Hindi). Must have an available Helsinki-NLP/opus-mt model for the source→target pair.",
+                    "minLength": 2,
+                    "maxLength": 2
+                  },
+                  "source_lang": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2,
+                    "description": "ISO 639-1 two-letter source language code. Default: \"en\" (English). Change if the input text is in a language other than English (e.g. \"fr\" for French input, \"es\" for Spanish input). A Helsinki-NLP/opus-mt model must exist for the source→target language pair."
+                  },
+                  "model": {
+                    "type": "string",
+                    "description": "Override the HuggingFace model ID for translation. If omitted, the adapter automatically selects \"Helsinki-NLP/opus-mt-{source_lang}-{target_lang}\" (e.g. \"Helsinki-NLP/opus-mt-en-fr\"). Use this to specify a different translation model, such as \"facebook/nllb-200-distilled-600M\" for broader multilingual coverage."
+                  }
+                },
+                "required": [
+                  "text",
+                  "target_lang"
+                ],
+                "description": "Translate text between languages using the Helsinki-NLP opus-mt model family. Covers 1,000+ language pairs. By default translates from English to the target language. Specify source_lang to translate from other languages. Useful for multilingual content pipelines, localization, and cross-language analysis."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/hf_inference.summarize/call": {
+      "post": {
+        "operationId": "hf_inference_summarize",
+        "summary": "HuggingFace — Text Summarization",
+        "description": "Summarize a long text into a shorter, coherent paragraph using the facebook/bart-large-cnn model via HuggingFace Inference API. Trained on CNN/DailyMail news articles; works well for factual prose. Control output length with max_length (token cap) and min_length (token floor) parameters. Custom model override supported (e.g. google/pegasus-xsum for extreme single-sentence summaries). Useful for article digests, executive summaries, and reducing LLM context window usage.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hf_inference.summarize"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "description": "Input text to process. Maximum ~10,000 characters depending on model context window.",
+                    "minLength": 1
+                  },
+                  "max_length": {
+                    "type": "integer",
+                    "minimum": 20,
+                    "maximum": 1024,
+                    "description": "Maximum number of tokens in the generated summary (20–1024). Default: model-controlled (typically ~150 tokens for BART-large-CNN). Set lower for shorter summaries (e.g. 60 for a single-sentence abstract)."
+                  },
+                  "min_length": {
+                    "type": "integer",
+                    "minimum": 10,
+                    "maximum": 512,
+                    "description": "Minimum number of tokens in the generated summary (10–512). Prevents very short or empty summaries. Default: model-controlled (typically ~30 tokens). Set min_length lower than max_length."
+                  },
+                  "model": {
+                    "type": "string",
+                    "description": "HuggingFace model ID to use for summarization. Default: \"facebook/bart-large-cnn\" (trained on CNN/DailyMail, excellent for news and articles). Alternatives: \"sshleifer/distilbart-cnn-12-6\" (faster, lighter), \"google/pegasus-xsum\" (extreme summarization, single sentence)."
+                  }
+                },
+                "required": [
+                  "text"
+                ],
+                "description": "Summarize a long text into a shorter, coherent paragraph using a sequence-to-sequence NLP model. The default BART model is trained on news articles (CNN/DailyMail) and works well for factual prose. Control output length with max_length and min_length parameters. Useful for article digests, executive summaries, and reducing LLM context window usage."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

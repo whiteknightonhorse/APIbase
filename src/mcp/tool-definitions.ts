@@ -10492,4 +10492,71 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+
+  // HuggingFace Inference NLP (5)
+  {
+    toolId: 'hf_inference.sentiment',
+    mcpName: 'hf_inference.nlp.sentiment',
+    title: 'HuggingFace — Sentiment Analysis',
+    description:
+      'Classify the sentiment of a text using a HuggingFace NLP model via the Inference API. ' +
+      'Returns a predicted label (positive, negative, or neutral) with a confidence score, ' +
+      'plus scores for all classes. Default model (cardiffnlp/twitter-roberta-base-sentiment-latest) ' +
+      'is optimized for social media and short-form text. Supports custom model override. ' +
+      'Useful for customer feedback analysis, social media monitoring, and review classification.',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'hf_inference.ner',
+    mcpName: 'hf_inference.nlp.ner',
+    title: 'HuggingFace — Named Entity Recognition',
+    description:
+      'Extract named entities — people (PER), locations (LOC), organizations (ORG), and miscellaneous (MISC) ' +
+      '— from text using a BERT-based NER model via HuggingFace Inference API. ' +
+      'Returns each detected entity with its type, confidence score, and character positions in the original text. ' +
+      'Default model: dbmdz/bert-large-cased-finetuned-conll03-english (CoNLL-2003, English). ' +
+      'Useful for document parsing, contact extraction, and knowledge graph construction.',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'hf_inference.zero_shot',
+    mcpName: 'hf_inference.nlp.zero_shot',
+    title: 'HuggingFace — Zero-shot Text Classification',
+    description:
+      'Classify text into any custom set of categories without requiring model fine-tuning or training data. ' +
+      'Provide a list of 2–20 candidate labels; the model determines which best describes the input text. ' +
+      'Returns labels ranked by confidence score. Supports multi-label mode (text can match multiple categories). ' +
+      'Default model: facebook/bart-large-mnli. ' +
+      'Ideal for routing, content moderation, intent detection, and ad-hoc categorization tasks.',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'hf_inference.translate',
+    mcpName: 'hf_inference.nlp.translate',
+    title: 'HuggingFace — Machine Translation',
+    description:
+      'Translate text between languages using the Helsinki-NLP opus-mt model family via HuggingFace Inference API. ' +
+      'Covers 1,000+ language pairs (English to French, Spanish, German, Chinese, Japanese, Arabic, Russian, etc.). ' +
+      'Specify target_lang as a 2-letter ISO 639-1 code (e.g. "fr", "es", "de", "zh", "ja"). ' +
+      'The adapter automatically selects the opus-mt-{source}-{target} model. ' +
+      'Useful for multilingual content pipelines, localization, and cross-language information retrieval.',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'hf_inference.summarize',
+    mcpName: 'hf_inference.nlp.summarize',
+    title: 'HuggingFace — Text Summarization',
+    description:
+      'Summarize a long text into a shorter, coherent paragraph using the facebook/bart-large-cnn model ' +
+      'via HuggingFace Inference API. Trained on CNN/DailyMail news articles; works well for factual prose. ' +
+      'Control output length with max_length (token cap) and min_length (token floor) parameters. ' +
+      'Custom model override supported (e.g. google/pegasus-xsum for extreme single-sentence summaries). ' +
+      'Useful for article digests, executive summaries, and reducing LLM context window usage.',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
 ];
