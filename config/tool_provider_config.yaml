@@ -5845,6 +5845,43 @@ tools:
     price_usd: "0.001"
     cache_ttl: 1800
 
+  # --- UC-556: USGS HANS Volcano ---
+  - tool_id: volcano.monitored
+    name: USGS — Monitored Volcanoes
+    provider: usgs-hans-volcano
+    price_usd: "0.001"
+    cache_ttl: 300
+
+  - tool_id: volcano.elevated
+    name: USGS — Elevated Alert Volcanoes
+    provider: usgs-hans-volcano
+    price_usd: "0.001"
+    cache_ttl: 120
+
+  - tool_id: volcano.cap_alerts
+    name: USGS — CAP Volcanic Alerts
+    provider: usgs-hans-volcano
+    price_usd: "0.002"
+    cache_ttl: 120
+
+  - tool_id: volcano.us_catalog
+    name: USGS — US Volcano Catalog
+    provider: usgs-hans-volcano
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: volcano.detail
+    name: USGS — Volcano Detail
+    provider: usgs-hans-volcano
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: volcano.latest_notice
+    name: USGS — Latest Volcano Notice
+    provider: usgs-hans-volcano
+    price_usd: "0.002"
+    cache_ttl: 300
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

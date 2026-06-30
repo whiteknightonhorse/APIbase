@@ -2456,5 +2456,14 @@
     "reset_period": "none",
     "docs_url": "https://open-meteo.com/en/terms",
     "limit_proof": "Open-Meteo is free for non-commercial use with no rate limits documented; commercial use requires a subscription but API access is open. CC BY 4.0. Copernicus CAMS global air quality data."
+  },
+  "usgs-hans-volcano": {
+    "display_name": "USGS HANS Volcano",
+    "health_url": "https://volcanoes.usgs.gov/hans-public/api/volcano/getElevatedVolcanoes",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://volcanoes.usgs.gov/hans-public/api/",
+    "limit_proof": "US Government open data, no authentication required, no documented rate limits. USGS Volcano Hazards Program HANS public API."
   }
 }

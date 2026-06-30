@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 976 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 982 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -56314,6 +56314,288 @@
           "error": {
             "type": "object",
             "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "volcano.alerts.cap",
+      "title": "USGS \u2014 CAP Volcanic Alerts",
+      "description": "Get Common Alerting Protocol (CAP) information for highly elevated volcanoes (ORANGE/WATCH or higher). CAP is the international emergency alert standard used by aviation authorities and civil protection agencies. Returns full CAP metadata: location (lat/lon/elevation), alert certainty, severity, urgency, synopsis text, expiry time, and previous alert state. Only volcanoes that have been at ORANGE or above at least once appear here. Use for integration with emergency management systems, aviation NOTAM workflows, or real-time public alerting pipelines. No auth \u2014 USGS public domain.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "min_alert_level": {
+            "type": "string",
+            "enum": [
+              "ADVISORY",
+              "WATCH",
+              "WARNING"
+            ],
+            "description": "Minimum alert level to include: ADVISORY, WATCH, or WARNING (default: all elevated)"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "volcano.catalog.detail",
+      "title": "USGS \u2014 Volcano Detail",
+      "description": "Get detailed information for a single US volcano by its USGS volcano code or Smithsonian vnum. Returns name, coordinates, elevation, region, NVEWS threat rating, observatory, plain-text description (HTML stripped), official volcano page URL, image URL, and links to the HANS hazard page and newest notice API. Use volcano.us_catalog or volcano.monitored to discover valid volcano IDs. Example: volcano_id=\"ak277\" for Takawangha, \"311120\" for Great Sitkin. No auth \u2014 USGS public domain.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "volcano_id": {
+            "type": "string",
+            "description": "USGS volcano code (e.g. ak277) or Smithsonian volcano number (e.g. 311090). Get IDs from volcano.us_catalog or volcano.monitored."
+          }
+        },
+        "required": [
+          "volcano_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "volcano.status.elevated",
+      "title": "USGS \u2014 Elevated Alert Volcanoes",
+      "description": "Get all US volcanoes currently in an elevated state (color code YELLOW, ORANGE, or RED; alert level ADVISORY, WATCH, or WARNING). Returns only volcanoes with active unrest or eruption. Includes volcano name, Smithsonian vnum, USGS volcano code, current alert level and color code, observatory, time of last notice, and notice URL. Returns an empty array when all monitored volcanoes are at NORMAL/GREEN status. Ideal for real-time hazard monitoring dashboards and aviation safety agents. No auth \u2014 USGS public domain, updated within minutes of official notice issuance.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "color_code": {
+            "type": "string",
+            "enum": [
+              "YELLOW",
+              "ORANGE",
+              "RED"
+            ],
+            "description": "Filter by aviation color code: YELLOW (advisory), ORANGE (watch), RED (warning)"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "volcano.notices.latest",
+      "title": "USGS \u2014 Latest Volcano Notice",
+      "description": "Get the text of the most recent official notice for a specific US volcano. USGS observatories issue daily updates, information statements, and activity alerts in a standardized format. Returns the notice as plain text (HTML stripped) and optionally the original HTML. Notices describe current volcanic activity: seismicity, deformation, emissions, lava flow extent, ash cloud height, and recommended actions. Use with volcano_id from volcano.monitored or volcano.us_catalog. No auth \u2014 USGS public domain, data updated as notices are issued.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "volcano_id": {
+            "type": "string",
+            "description": "USGS volcano code (e.g. ak277) or Smithsonian volcano number (e.g. 311090). Get IDs from volcano.us_catalog or volcano.monitored."
+          }
+        },
+        "required": [
+          "volcano_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "volcano.status.monitored",
+      "title": "USGS \u2014 Monitored Volcanoes",
+      "description": "Get all US volcanoes currently under active monitoring by the USGS Volcano Hazards Program. Returns ~69 volcanoes with current alert level (NORMAL/ADVISORY/WATCH/WARNING), aviation color code (GREEN/YELLOW/ORANGE/RED), observatory name, and the most recent notice URL. Monitoring requires ground-based instruments to be operational \u2014 some volcanoes may be temporarily excluded during equipment outages. Use as a first step to identify volcano IDs for detail/notice lookups. No auth \u2014 USGS public domain, data updated in real time as notices are issued.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "description": "Maximum number of monitored volcanoes to return (1\u2013200, default all ~69)"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "volcano.catalog.us",
+      "title": "USGS \u2014 US Volcano Catalog",
+      "description": "Get the full catalog of all 170 US volcanoes tracked by the USGS Volcano Hazards Program. Includes Alaska, Hawaii, Cascades (Washington/Oregon/California), and other regions. Each entry contains: Smithsonian volcano number (vnum), USGS volcano code, region, GPS coordinates, elevation, NVEWS threat rating (Very High / High / Moderate / Low / Very Low), observatory contact, official volcano page URL, and image URL. Optionally filter by region substring (e.g. \"Alaska\", \"Hawaii\", \"Cascades\"). Use to enumerate all US volcanoes, discover IDs, or build regional hazard maps. No auth \u2014 USGS public domain.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "region": {
+            "type": "string",
+            "description": "Filter by region name substring (e.g. \"Alaska\", \"Hawaii\", \"Cascades\", \"California\")"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
           }
         },
         "required": [

@@ -273,6 +273,7 @@ import { clevelandArtSchemas } from './cleveland-art.schema';
 import { uniprotSchemas } from './uniprot.schema';
 import { biomodelsSchemas } from './biomodels.schema';
 import { openmeteoaqSchemas } from './openmeteoaq.schema';
+import { usgsHansVolcanoSchemas } from './usgs-hans-volcano.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -549,4 +550,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...uniprotSchemas,
   ...biomodelsSchemas,
   ...openmeteoaqSchemas,
+  ...usgsHansVolcanoSchemas,
 };

@@ -11006,4 +11006,98 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'health',
     annotations: READ_ONLY,
   },
+  // USGS HANS Volcano (6)
+  {
+    toolId: 'volcano.monitored',
+    mcpName: 'volcano.status.monitored',
+    title: 'USGS — Monitored Volcanoes',
+    description:
+      'Get all US volcanoes currently under active monitoring by the USGS Volcano Hazards Program. ' +
+      'Returns ~69 volcanoes with current alert level (NORMAL/ADVISORY/WATCH/WARNING), aviation ' +
+      'color code (GREEN/YELLOW/ORANGE/RED), observatory name, and the most recent notice URL. ' +
+      'Monitoring requires ground-based instruments to be operational — some volcanoes may be ' +
+      'temporarily excluded during equipment outages. ' +
+      'Use as a first step to identify volcano IDs for detail/notice lookups. ' +
+      'No auth — USGS public domain, data updated in real time as notices are issued.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'volcano.elevated',
+    mcpName: 'volcano.status.elevated',
+    title: 'USGS — Elevated Alert Volcanoes',
+    description:
+      'Get all US volcanoes currently in an elevated state (color code YELLOW, ORANGE, or RED; ' +
+      'alert level ADVISORY, WATCH, or WARNING). Returns only volcanoes with active unrest or eruption. ' +
+      'Includes volcano name, Smithsonian vnum, USGS volcano code, current alert level and color code, ' +
+      'observatory, time of last notice, and notice URL. ' +
+      'Returns an empty array when all monitored volcanoes are at NORMAL/GREEN status. ' +
+      'Ideal for real-time hazard monitoring dashboards and aviation safety agents. ' +
+      'No auth — USGS public domain, updated within minutes of official notice issuance.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'volcano.cap_alerts',
+    mcpName: 'volcano.alerts.cap',
+    title: 'USGS — CAP Volcanic Alerts',
+    description:
+      'Get Common Alerting Protocol (CAP) information for highly elevated volcanoes (ORANGE/WATCH ' +
+      'or higher). CAP is the international emergency alert standard used by aviation authorities ' +
+      'and civil protection agencies. Returns full CAP metadata: location (lat/lon/elevation), ' +
+      'alert certainty, severity, urgency, synopsis text, expiry time, and previous alert state. ' +
+      'Only volcanoes that have been at ORANGE or above at least once appear here. ' +
+      'Use for integration with emergency management systems, aviation NOTAM workflows, or ' +
+      'real-time public alerting pipelines. ' +
+      'No auth — USGS public domain.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'volcano.us_catalog',
+    mcpName: 'volcano.catalog.us',
+    title: 'USGS — US Volcano Catalog',
+    description:
+      'Get the full catalog of all 170 US volcanoes tracked by the USGS Volcano Hazards Program. ' +
+      'Includes Alaska, Hawaii, Cascades (Washington/Oregon/California), and other regions. ' +
+      'Each entry contains: Smithsonian volcano number (vnum), USGS volcano code, region, ' +
+      'GPS coordinates, elevation, NVEWS threat rating (Very High / High / Moderate / Low / Very Low), ' +
+      'observatory contact, official volcano page URL, and image URL. ' +
+      'Optionally filter by region substring (e.g. "Alaska", "Hawaii", "Cascades"). ' +
+      'Use to enumerate all US volcanoes, discover IDs, or build regional hazard maps. ' +
+      'No auth — USGS public domain.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'volcano.detail',
+    mcpName: 'volcano.catalog.detail',
+    title: 'USGS — Volcano Detail',
+    description:
+      'Get detailed information for a single US volcano by its USGS volcano code or Smithsonian vnum. ' +
+      'Returns name, coordinates, elevation, region, NVEWS threat rating, observatory, ' +
+      'plain-text description (HTML stripped), official volcano page URL, image URL, and ' +
+      'links to the HANS hazard page and newest notice API. ' +
+      'Use volcano.us_catalog or volcano.monitored to discover valid volcano IDs. ' +
+      'Example: volcano_id="ak277" for Takawangha, "311120" for Great Sitkin. ' +
+      'No auth — USGS public domain.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'volcano.latest_notice',
+    mcpName: 'volcano.notices.latest',
+    title: 'USGS — Latest Volcano Notice',
+    description:
+      'Get the text of the most recent official notice for a specific US volcano. ' +
+      'USGS observatories issue daily updates, information statements, and activity alerts ' +
+      'in a standardized format. Returns the notice as plain text (HTML stripped) and ' +
+      'optionally the original HTML. ' +
+      'Notices describe current volcanic activity: seismicity, deformation, emissions, ' +
+      'lava flow extent, ash cloud height, and recommended actions. ' +
+      'Use with volcano_id from volcano.monitored or volcano.us_catalog. ' +
+      'No auth — USGS public domain, data updated as notices are issued.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

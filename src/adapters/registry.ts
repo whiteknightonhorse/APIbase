@@ -273,6 +273,7 @@ import { ClevelandArtAdapter } from './cleveland-art';
 import { UniprotAdapter } from './uniprot';
 import { BioModelsAdapter } from './biomodels';
 import { OpenMeteoAqAdapter } from './openmeteoaq';
+import { UsgsHansVolcanoAdapter } from './usgs-hans-volcano';
 import { config } from '../config';
 
 /**
@@ -1543,6 +1544,10 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'openmeteoaq':
       // Open-Meteo Air Quality (UC-555) — global AQI, PM2.5/PM10, pollutants, pollen; no auth, CC BY 4.0
       return getOrCreate('openmeteoaq', () => new OpenMeteoAqAdapter());
+    case 'volcano':
+    case 'usgs-hans-volcano':
+      // USGS HANS Volcano (UC-556) — 170 US volcanoes, real-time alerts, CAP; no auth, US Gov public domain
+      return getOrCreate('usgs-hans-volcano', () => new UsgsHansVolcanoAdapter());
     default:
       return undefined;
   }
