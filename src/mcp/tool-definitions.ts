@@ -11251,4 +11251,60 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'health',
     annotations: READ_ONLY,
   },
+
+  // CMU Delphi Epidata (4) — UC-559
+  {
+    toolId: 'delphi.fluview',
+    mcpName: 'delphi.flu.fluview',
+    title: 'CMU Delphi — CDC ILINet Flu Surveillance',
+    description:
+      'Retrieve weekly CDC ILINet influenza-like illness (ILI) surveillance data by US region. ' +
+      'Covers national ("nat"), HHS regions (hhs1-hhs10), Census regions (cen1-cen9), and individual states. ' +
+      'Returns weighted ILI (wILI) rate, unweighted ILI rate, patient counts, provider counts, ' +
+      'and age-group breakdown (0-4, 5-24, 25-49, 50-64, 65+) for each epiweek. ' +
+      'Historical data from 1997 onward. No auth — CMU Delphi open epidemiological data, unlimited free.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'delphi.flusurv',
+    mcpName: 'delphi.flu.flusurv',
+    title: 'CMU Delphi — FluSurv-NET Hospitalization Rates',
+    description:
+      'Retrieve CDC FluSurv-NET influenza hospitalization surveillance rates. ' +
+      'Covers the national network ("network_all"), EIP sites ("network_eip"), IHSP sites ("network_ihsp"), ' +
+      'and individual state networks. Returns hospitalization rates per 100,000 population overall and by ' +
+      'age group (0-4, 5-17, 18-49, 50-64, 65+), sex (male, female), and flu type (A/B). ' +
+      'Essential for tracking influenza severity and hospitalizations by season. ' +
+      'No auth — CDC/CMU Delphi open data, unlimited free.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'delphi.covidcast',
+    mcpName: 'delphi.covid.covidcast',
+    title: 'CMU Delphi — COVID-19 Signal Data (COVIDcast)',
+    description:
+      'Access COVID-19 epidemiological signals from multiple data sources via CMU Delphi COVIDcast. ' +
+      'Sources include: "jhu-csse" (JHU confirmed cases/deaths), "hhs" (HHS hospitalization admissions), ' +
+      '"fb-survey" (COVID symptom surveys), "doctor-visits" (CLI doctor visits), and more. ' +
+      'Signals can be filtered by geographic level (nation, state, county, MSA, HHS region) and date range. ' +
+      'Returns signal value, standard error, sample size, and reporting lag. ' +
+      'No auth — CMU Delphi open COVID surveillance data, unlimited free.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'delphi.covid_hosp',
+    mcpName: 'delphi.covid.hospitalization',
+    title: 'CMU Delphi — COVID-19 Hospitalization State Timeseries',
+    description:
+      'Retrieve daily COVID-19 hospitalization data from HHS Protect via CMU Delphi for US states. ' +
+      'Returns adult and pediatric ICU/hospital patient counts, new daily admissions, and bed utilization ' +
+      'metrics per state per day. Data available from 2020-07-15 onward. Supports multi-state queries ' +
+      'and date ranges in YYYYMMDD format. Useful for tracking pandemic hospital burden over time. ' +
+      'No auth — HHS/CMU Delphi open public health data, unlimited free.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
 ];

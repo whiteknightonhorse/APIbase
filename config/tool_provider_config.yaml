@@ -5932,6 +5932,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-559: CMU Delphi Epidata ---
+  - tool_id: delphi.fluview
+    name: CMU Delphi — CDC ILINet Flu Surveillance
+    provider: delphi
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: delphi.flusurv
+    name: CMU Delphi — FluSurv-NET Hospitalization Rates
+    provider: delphi
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: delphi.covidcast
+    name: CMU Delphi — COVID-19 Signal Data (COVIDcast)
+    provider: delphi
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: delphi.covid_hosp
+    name: CMU Delphi — COVID-19 Hospitalization State Timeseries
+    provider: delphi
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

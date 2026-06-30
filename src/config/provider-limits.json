@@ -2483,5 +2483,14 @@
     "reset_period": "none",
     "docs_url": "https://www.who.int/data/gho/info/gho-odata-api",
     "limit_proof": "WHO GHO OData API — no authentication required, no documented rate limits. CC BY-NC-SA 3.0 IGO. Azure CDN endpoint, publicly accessible."
+  },
+  "delphi": {
+    "display_name": "CMU Delphi Epidata",
+    "health_url": "https://api.delphi.cmu.edu/epidata/fluview/?regions=nat&epiweeks=202001",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://cmu-delphi.github.io/delphi-epidata/api/README.html",
+    "limit_proof": "CMU Delphi Epidata API — no authentication required, no documented rate limits. Open epidemiological surveillance data (ILINet, FluSurv-NET, COVIDcast). Academic/research open access."
   }
 }

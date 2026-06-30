@@ -253,6 +253,7 @@ Use these examples as reference patterns when:
 | UC-556 | USGS HANS Volcano | World / Natural Hazards | LIVE | No auth, US Gov public domain, 6 tools | `usecases/UC-556-usgs-hans-volcano.md` |
 | UC-557 | USGS NWIS Streamflow | World / Hydrology | LIVE | No auth, US Gov public domain, 4 tools | `usecases/UC-557-usgs-nwis-streamflow.md` |
 | UC-558 | WHO Global Health Observatory OData | Health / Disease Surveillance | LIVE | No auth, CC BY-NC-SA 3.0 IGO, 4 tools | `usecases/UC-558-who-gho-odata.md` |
+| UC-559 | CMU Delphi Epidata | Health / Epidemiological Surveillance | LIVE | No auth, open access, 4 tools | `usecases/UC-559-cmu-delphi-epidata.md` |
 
 ## How to Use
 

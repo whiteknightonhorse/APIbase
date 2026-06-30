@@ -276,6 +276,7 @@ import { openmeteoaqSchemas } from './openmeteoaq.schema';
 import { usgsHansVolcanoSchemas } from './usgs-hans-volcano.schema';
 import { usgsNwisSchemas } from './usgs-nwis.schema';
 import { whoGhoSchemas } from './who-gho.schema';
+import { delphiSchemas } from './delphi.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -555,4 +556,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...usgsHansVolcanoSchemas,
   ...usgsNwisSchemas,
   ...whoGhoSchemas,
+  ...delphiSchemas,
 };

@@ -276,6 +276,7 @@ import { OpenMeteoAqAdapter } from './openmeteoaq';
 import { UsgsHansVolcanoAdapter } from './usgs-hans-volcano';
 import { UsgsNwisAdapter } from './usgs-nwis';
 import { WhoGhoAdapter } from './who-gho';
+import { DelphiAdapter } from './delphi';
 import { config } from '../config';
 
 /**
@@ -1557,6 +1558,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'who-gho':
       // WHO Global Health Observatory OData (UC-558) — 3K+ health indicators, disease surveillance, immunization; no auth, CC BY-NC-SA
       return getOrCreate('who-gho', () => new WhoGhoAdapter());
+    case 'delphi':
+      // CMU Delphi Epidata (UC-559) — flu surveillance, COVID signals, hospitalization; no auth, open access
+      return getOrCreate('delphi', () => new DelphiAdapter());
     default:
       return undefined;
   }

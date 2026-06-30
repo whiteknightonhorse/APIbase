@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 990 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 994 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -57045,6 +57045,248 @@
           }
         },
         "description": "Search WHO Global Health Observatory indicators by keyword."
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "delphi.covid.hospitalization",
+      "title": "CMU Delphi \u2014 COVID-19 Hospitalization State Timeseries",
+      "description": "Retrieve daily COVID-19 hospitalization data from HHS Protect via CMU Delphi for US states. Returns adult and pediatric ICU/hospital patient counts, new daily admissions, and bed utilization metrics per state per day. Data available from 2020-07-15 onward. Supports multi-state queries and date ranges in YYYYMMDD format. Useful for tracking pandemic hospital burden over time. No auth \u2014 HHS/CMU Delphi open public health data, unlimited free.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "states": {
+            "type": "string",
+            "description": "2-letter US state abbreviation(s) (e.g. \"ca\", \"ny\", \"tx\"). Comma-separated for multiple states: \"ca,ny,tx\"."
+          },
+          "dates": {
+            "type": "string",
+            "description": "Date(s) in YYYYMMDD format. Single: \"20210101\". Range: \"20210101-20210131\". Daily HHS hospitalization data, available from 2020-07-15 onward."
+          }
+        },
+        "required": [
+          "states",
+          "dates"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "delphi.covid.covidcast",
+      "title": "CMU Delphi \u2014 COVID-19 Signal Data (COVIDcast)",
+      "description": "Access COVID-19 epidemiological signals from multiple data sources via CMU Delphi COVIDcast. Sources include: \"jhu-csse\" (JHU confirmed cases/deaths), \"hhs\" (HHS hospitalization admissions), \"fb-survey\" (COVID symptom surveys), \"doctor-visits\" (CLI doctor visits), and more. Signals can be filtered by geographic level (nation, state, county, MSA, HHS region) and date range. Returns signal value, standard error, sample size, and reporting lag. No auth \u2014 CMU Delphi open COVID surveillance data, unlimited free.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "data_source": {
+            "type": "string",
+            "description": "Signal data source. Common values: \"jhu-csse\" (JHU confirmed cases/deaths), \"cdc\" (CDC surveillance), \"hhs\" (HHS hospitalization), \"fb-survey\" (COVID symptoms survey), \"doctor-visits\" (doctor visits with CLI). See https://cmu-delphi.github.io/delphi-epidata/api/covidcast_signals.html."
+          },
+          "signal": {
+            "type": "string",
+            "description": "Signal name within the data source. Examples for jhu-csse: \"confirmed_cumulative_num\", \"confirmed_incidence_num\", \"deaths_cumulative_num\", \"deaths_incidence_num\". For hhs: \"confirmed_admissions_covid_1d\"."
+          },
+          "time_values": {
+            "type": "string",
+            "description": "Date(s) in YYYYMMDD format. Single: \"20210101\". Range: \"20210101-20210131\". Supports up to ~200 dates per call."
+          },
+          "geo_value": {
+            "type": "string",
+            "description": "Geographic identifier. For state: 2-letter code (e.g. \"ca\", \"ny\"). For county: 5-digit FIPS (e.g. \"06037\"). For nation: \"us\". For hrr: HRR number. Case-insensitive."
+          },
+          "geo_type": {
+            "type": "string",
+            "enum": [
+              "nation",
+              "state",
+              "county",
+              "msa",
+              "hrr",
+              "hhs"
+            ],
+            "description": "Geographic aggregation level (default: \"state\"). \"nation\"=US, \"state\"=US state, \"county\"=county FIPS, \"msa\"=metro area, \"hrr\"=hospital referral region, \"hhs\"=HHS region."
+          },
+          "time_type": {
+            "type": "string",
+            "enum": [
+              "day",
+              "week"
+            ],
+            "description": "Temporal resolution: \"day\" (daily, default) or \"week\" (weekly epiweek)."
+          }
+        },
+        "required": [
+          "data_source",
+          "signal",
+          "time_values",
+          "geo_value"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "delphi.flu.flusurv",
+      "title": "CMU Delphi \u2014 FluSurv-NET Hospitalization Rates",
+      "description": "Retrieve CDC FluSurv-NET influenza hospitalization surveillance rates. Covers the national network (\"network_all\"), EIP sites (\"network_eip\"), IHSP sites (\"network_ihsp\"), and individual state networks. Returns hospitalization rates per 100,000 population overall and by age group (0-4, 5-17, 18-49, 50-64, 65+), sex (male, female), and flu type (A/B). Essential for tracking influenza severity and hospitalizations by season. No auth \u2014 CDC/CMU Delphi open data, unlimited free.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locations": {
+            "type": "string",
+            "description": "FluSurv-NET location(s). \"network_all\" (national), \"network_eip\" (EIP sites), \"network_ihsp\" (IHSP sites), or state name (e.g. \"california\", \"new_york\"). Comma-separated for multiple."
+          },
+          "epiweeks": {
+            "type": "string",
+            "description": "Epiweek(s) in YYYYWW format. Single: \"202001\". Range: \"201940-202039\" (full season). List: \"202001,202010\"."
+          }
+        },
+        "required": [
+          "locations",
+          "epiweeks"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "delphi.flu.fluview",
+      "title": "CMU Delphi \u2014 CDC ILINet Flu Surveillance",
+      "description": "Retrieve weekly CDC ILINet influenza-like illness (ILI) surveillance data by US region. Covers national (\"nat\"), HHS regions (hhs1-hhs10), Census regions (cen1-cen9), and individual states. Returns weighted ILI (wILI) rate, unweighted ILI rate, patient counts, provider counts, and age-group breakdown (0-4, 5-24, 25-49, 50-64, 65+) for each epiweek. Historical data from 1997 onward. No auth \u2014 CMU Delphi open epidemiological data, unlimited free.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "regions": {
+            "type": "string",
+            "description": "Comma-separated region codes: \"nat\" (national), \"hhs1\"-\"hhs10\" (HHS regions), \"cen1\"-\"cen9\" (Census regions), or 2-letter state abbreviation (e.g. \"ca\"). Multiple: \"nat,hhs1\"."
+          },
+          "epiweeks": {
+            "type": "string",
+            "description": "Epiweek(s) in YYYYWW format. Single: \"202001\". Range: \"202001-202020\". List: \"202001,202010,202020\". Epiweeks start Sunday; week 1 contains Jan 1."
+          },
+          "issues": {
+            "type": "string",
+            "description": "Filter to a specific issue/release epiweek (YYYYWW). Omit to get the most recent revision for each epiweek."
+          }
+        },
+        "required": [
+          "regions",
+          "epiweeks"
+        ]
       },
       "outputSchema": {
         "type": "object",
