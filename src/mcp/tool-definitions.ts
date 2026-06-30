@@ -10779,4 +10779,57 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'education',
     annotations: READ_ONLY,
   },
+  // Cleveland Museum of Art Open Access (4)
+  {
+    toolId: 'cma.artwork_search',
+    mcpName: 'cma.artwork.search',
+    title: 'Cleveland Museum of Art — Search Artworks',
+    description:
+      'Search 68,000+ artworks in the Cleveland Museum of Art open access collection. ' +
+      'Filter by keyword, artwork type (Painting, Drawing, Print, Sculpture, Photograph, Textile), ' +
+      'museum department, and whether an image is available. ' +
+      'Returns title, creator names, type, department, creation date, culture, technique, ' +
+      'web-resolution image URL, and artwork page URL. ' +
+      'All records are freely available under CC0 or CC BY — usable for research, education, and creative projects. ' +
+      'Collections span ancient Egypt, medieval Europe, East Asian art, American modernism, and more.',
+    category: 'media',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'cma.artwork_detail',
+    mcpName: 'cma.artwork.detail',
+    title: 'Cleveland Museum of Art — Artwork Detail',
+    description:
+      'Retrieve complete metadata for a single artwork by its numeric ID from the Cleveland Museum of Art collection. ' +
+      'Returns full tombstone, tombstone text, creator biographies, medium/technique, measurements, provenance creditline, ' +
+      'copyright status, gallery location, loan status, image URLs in web/print/full resolutions, ' +
+      'and the CMA collection page URL. ' +
+      'Use after cma.artwork.search to get the complete record for a specific work.',
+    category: 'media',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'cma.creator_search',
+    mcpName: 'cma.creator.search',
+    title: 'Cleveland Museum of Art — Search Creators',
+    description:
+      'Search 9,200+ artists and creators in the Cleveland Museum of Art open access database. ' +
+      'Find artists by name or nationality. Returns creator name, nationality, biography, ' +
+      'birth/death years, and a list of artworks held by the CMA attributed to that creator. ' +
+      'Covers painters, sculptors, printmakers, photographers, and craftspeople across all periods and cultures.',
+    category: 'media',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'cma.exhibition_search',
+    mcpName: 'cma.exhibition.search',
+    title: 'Cleveland Museum of Art — Search Exhibitions',
+    description:
+      'Search 5,600+ exhibitions in the Cleveland Museum of Art historical archive. ' +
+      'Find past and current exhibitions by keyword, and optionally filter to those held at the CMA itself. ' +
+      'Returns exhibition title, organizer, opening and closing dates, and venue list with dates. ' +
+      'Useful for art history research, provenance tracking, and understanding the institutional history of CMA artworks.',
+    category: 'media',
+    annotations: READ_ONLY,
+  },
 ];

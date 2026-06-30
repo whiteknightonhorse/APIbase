@@ -85910,6 +85910,363 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/cma.artwork_search/call": {
+      "post": {
+        "operationId": "cma_artwork_search",
+        "summary": "Cleveland Museum of Art — Search Artworks",
+        "description": "Search 68,000+ artworks in the Cleveland Museum of Art open access collection. Filter by keyword, artwork type (Painting, Drawing, Print, Sculpture, Photograph, Textile), museum department, and whether an image is available. Returns title, creator names, type, department, creation date, culture, technique, web-resolution image URL, and artwork page URL. All records are freely available under CC0 or CC BY — usable for research, education, and creative projects. Collections span ancient Egypt, medieval Europe, East Asian art, American modernism, and more.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cma.artwork_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Full-text search query (e.g. \"monet\", \"landscape\", \"still life\"). Searches title, creator, tombstone, and description fields."
+                  },
+                  "type": {
+                    "type": "string",
+                    "description": "Artwork classification type filter (e.g. \"Painting\", \"Drawing\", \"Print\", \"Sculpture\", \"Photograph\", \"Textile\"). Case-insensitive."
+                  },
+                  "department": {
+                    "type": "string",
+                    "description": "Museum department filter (e.g. \"European Paintings\", \"Asian Art\", \"Prints\", \"Photography\", \"Decorative Art and Design\")."
+                  },
+                  "has_image": {
+                    "type": "boolean",
+                    "description": "When true, returns only artworks that have at least one image available. Recommended for visual use cases."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of results to return (1–50). Default: 10."
+                  },
+                  "skip": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Number of results to skip for pagination. Default: 0."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/cma.artwork_detail/call": {
+      "post": {
+        "operationId": "cma_artwork_detail",
+        "summary": "Cleveland Museum of Art — Artwork Detail",
+        "description": "Retrieve complete metadata for a single artwork by its numeric ID from the Cleveland Museum of Art collection. Returns full tombstone, tombstone text, creator biographies, medium/technique, measurements, provenance creditline, copyright status, gallery location, loan status, image URLs in web/print/full resolutions, and the CMA collection page URL. Use after cma.artwork.search to get the complete record for a specific work.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cma.artwork_detail"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "artwork_id": {
+                    "type": "integer",
+                    "description": "Numeric ID of the artwork in the Cleveland Museum of Art collection (e.g. 127859). Obtain from cma.artwork.search results.",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "artwork_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/cma.creator_search/call": {
+      "post": {
+        "operationId": "cma_creator_search",
+        "summary": "Cleveland Museum of Art — Search Creators",
+        "description": "Search 9,200+ artists and creators in the Cleveland Museum of Art open access database. Find artists by name or nationality. Returns creator name, nationality, biography, birth/death years, and a list of artworks held by the CMA attributed to that creator. Covers painters, sculptors, printmakers, photographers, and craftspeople across all periods and cultures.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cma.creator_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Artist or creator name to search for (e.g. \"Picasso\", \"Rembrandt\", \"Mary Cassatt\"). Partial name matches are supported."
+                  },
+                  "nationality": {
+                    "type": "string",
+                    "description": "Filter by creator nationality (e.g. \"American\", \"French\", \"Dutch\", \"Italian\", \"Japanese\"). Case-insensitive."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of results to return (1–50). Default: 10."
+                  },
+                  "skip": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Number of results to skip for pagination. Default: 0."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/cma.exhibition_search/call": {
+      "post": {
+        "operationId": "cma_exhibition_search",
+        "summary": "Cleveland Museum of Art — Search Exhibitions",
+        "description": "Search 5,600+ exhibitions in the Cleveland Museum of Art historical archive. Find past and current exhibitions by keyword, and optionally filter to those held at the CMA itself. Returns exhibition title, organizer, opening and closing dates, and venue list with dates. Useful for art history research, provenance tracking, and understanding the institutional history of CMA artworks.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cma.exhibition_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Full-text search query over exhibition titles and related content (e.g. \"impressionism\", \"medieval\", \"contemporary\")."
+                  },
+                  "is_venue_cma": {
+                    "type": "boolean",
+                    "description": "When true, limits results to exhibitions held at the Cleveland Museum of Art itself (excludes traveling exhibitions at other venues)."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of results to return (1–50). Default: 10."
+                  },
+                  "skip": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Number of results to skip for pagination. Default: 0."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

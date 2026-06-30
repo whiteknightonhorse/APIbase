@@ -2420,5 +2420,14 @@
     "reset_period": "none",
     "docs_url": "https://doaj.org/api/docs",
     "limit_proof": "DOAJ API is publicly accessible with no auth, no rate limits documented. Open data, CC0 metadata. Swagger: https://doaj.org/api/swagger.json"
+  },
+  "cma": {
+    "display_name": "Cleveland Museum of Art",
+    "health_url": "https://openaccess-api.clevelandart.org/api/artworks/?limit=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://openaccess-api.clevelandart.org/",
+    "limit_proof": "Cleveland Museum of Art Open Access API — no auth required, no documented rate limits. CC0/CC BY open data with 68K+ artworks."
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 956 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 960 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -55219,6 +55219,239 @@
           "error": {
             "type": "object",
             "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "cma.artwork.detail",
+      "title": "Cleveland Museum of Art \u2014 Artwork Detail",
+      "description": "Retrieve complete metadata for a single artwork by its numeric ID from the Cleveland Museum of Art collection. Returns full tombstone, tombstone text, creator biographies, medium/technique, measurements, provenance creditline, copyright status, gallery location, loan status, image URLs in web/print/full resolutions, and the CMA collection page URL. Use after cma.artwork.search to get the complete record for a specific work.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "artwork_id": {
+            "type": "integer",
+            "description": "Numeric ID of the artwork in the Cleveland Museum of Art collection (e.g. 127859). Obtain from cma.artwork.search results.",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "artwork_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "cma.artwork.search",
+      "title": "Cleveland Museum of Art \u2014 Search Artworks",
+      "description": "Search 68,000+ artworks in the Cleveland Museum of Art open access collection. Filter by keyword, artwork type (Painting, Drawing, Print, Sculpture, Photograph, Textile), museum department, and whether an image is available. Returns title, creator names, type, department, creation date, culture, technique, web-resolution image URL, and artwork page URL. All records are freely available under CC0 or CC BY \u2014 usable for research, education, and creative projects. Collections span ancient Egypt, medieval Europe, East Asian art, American modernism, and more.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Full-text search query (e.g. \"monet\", \"landscape\", \"still life\"). Searches title, creator, tombstone, and description fields."
+          },
+          "type": {
+            "type": "string",
+            "description": "Artwork classification type filter (e.g. \"Painting\", \"Drawing\", \"Print\", \"Sculpture\", \"Photograph\", \"Textile\"). Case-insensitive."
+          },
+          "department": {
+            "type": "string",
+            "description": "Museum department filter (e.g. \"European Paintings\", \"Asian Art\", \"Prints\", \"Photography\", \"Decorative Art and Design\")."
+          },
+          "has_image": {
+            "type": "boolean",
+            "description": "When true, returns only artworks that have at least one image available. Recommended for visual use cases."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Maximum number of results to return (1\u201350). Default: 10."
+          },
+          "skip": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of results to skip for pagination. Default: 0."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "cma.creator.search",
+      "title": "Cleveland Museum of Art \u2014 Search Creators",
+      "description": "Search 9,200+ artists and creators in the Cleveland Museum of Art open access database. Find artists by name or nationality. Returns creator name, nationality, biography, birth/death years, and a list of artworks held by the CMA attributed to that creator. Covers painters, sculptors, printmakers, photographers, and craftspeople across all periods and cultures.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Artist or creator name to search for (e.g. \"Picasso\", \"Rembrandt\", \"Mary Cassatt\"). Partial name matches are supported."
+          },
+          "nationality": {
+            "type": "string",
+            "description": "Filter by creator nationality (e.g. \"American\", \"French\", \"Dutch\", \"Italian\", \"Japanese\"). Case-insensitive."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Maximum number of results to return (1\u201350). Default: 10."
+          },
+          "skip": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of results to skip for pagination. Default: 0."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "cma.exhibition.search",
+      "title": "Cleveland Museum of Art \u2014 Search Exhibitions",
+      "description": "Search 5,600+ exhibitions in the Cleveland Museum of Art historical archive. Find past and current exhibitions by keyword, and optionally filter to those held at the CMA itself. Returns exhibition title, organizer, opening and closing dates, and venue list with dates. Useful for art history research, provenance tracking, and understanding the institutional history of CMA artworks.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Full-text search query over exhibition titles and related content (e.g. \"impressionism\", \"medieval\", \"contemporary\")."
+          },
+          "is_venue_cma": {
+            "type": "boolean",
+            "description": "When true, limits results to exhibitions held at the Cleveland Museum of Art itself (excludes traveling exhibitions at other venues)."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Maximum number of results to return (1\u201350). Default: 10."
+          },
+          "skip": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of results to skip for pagination. Default: 0."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
           }
         },
         "required": [

@@ -246,6 +246,7 @@ Use these examples as reference patterns when:
 | UC-549 | CORDIS EU Research | Education / Science | LIVE | No auth, SPARQL public, 4 tools | `usecases/UC-549-cordis.md` |
 | UC-550 | IRENA IRENASTAT | World / Energy / Climate | LIVE | No auth, PX-Web public, 4 tools | `usecases/UC-550-irena.md` |
 | UC-551 | DOAJ Open Access Journals | Education / Academic Research | LIVE | No auth, CC0 metadata, 4 tools | `usecases/UC-551-doaj.md` |
+| UC-552 | Cleveland Museum of Art Open Access | Media / Art & Culture | LIVE | No auth, CC0/CC BY, 4 tools | `usecases/UC-552-cleveland-art.md` |
 
 ## How to Use
 

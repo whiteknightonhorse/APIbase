@@ -5745,6 +5745,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-552: Cleveland Museum of Art Open Access ---
+  - tool_id: cma.artwork_search
+    name: Cleveland Museum of Art — Search Artworks
+    provider: cma
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: cma.artwork_detail
+    name: Cleveland Museum of Art — Artwork Detail
+    provider: cma
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: cma.creator_search
+    name: Cleveland Museum of Art — Search Creators
+    provider: cma
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: cma.exhibition_search
+    name: Cleveland Museum of Art — Search Exhibitions
+    provider: cma
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

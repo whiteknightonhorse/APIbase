@@ -269,6 +269,7 @@ import { UnhabitatAdapter } from './unhabitat';
 import { CordisAdapter } from './cordis';
 import { IrenaAdapter } from './irena';
 import { DoajAdapter } from './doaj';
+import { ClevelandArtAdapter } from './cleveland-art';
 import { config } from '../config';
 
 /**
@@ -1527,6 +1528,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'doaj':
       // DOAJ Directory of Open Access Journals (UC-551) — 20K+ OA journals + 10M+ articles; no auth
       return getOrCreate('doaj', () => new DoajAdapter());
+    case 'cma':
+      // Cleveland Museum of Art Open Access (UC-552) — 68K+ artworks, 9K+ creators; no auth, CC0/CC BY
+      return getOrCreate('cma', () => new ClevelandArtAdapter());
     default:
       return undefined;
   }
