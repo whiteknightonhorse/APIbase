@@ -266,6 +266,7 @@ import { BeaAdapter } from './bea';
 import { AfricaApiAdapter } from './africa';
 import { HfInferenceAdapter } from './hf_inference';
 import { UnhabitatAdapter } from './unhabitat';
+import { CordisAdapter } from './cordis';
 import { config } from '../config';
 
 /**
@@ -1515,6 +1516,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'unhabitat':
       // UN-Habitat Urban Indicators DB (UC-548) — SDG 11.2.1/11.3.1/11.7.1 + city budgets; no auth
       return getOrCreate('unhabitat', () => new UnhabitatAdapter());
+    case 'cordis':
+      // CORDIS EURIO (UC-549) — 80K+ EU Horizon/H2020 research projects; no auth, SPARQL
+      return getOrCreate('cordis', () => new CordisAdapter());
     default:
       return undefined;
   }

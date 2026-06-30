@@ -10599,6 +10599,64 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+  // CORDIS EU Research (4)
+  {
+    toolId: 'cordis.project_search',
+    mcpName: 'cordis.research.project_search',
+    title: 'CORDIS — EU Research Project Search',
+    description:
+      'Search 80,000+ EU-funded research projects from Horizon Europe (2021–2027) and H2020 (2014–2020) ' +
+      'using the CORDIS EURIO linked-data SPARQL endpoint. Filter by keywords in the project title, ' +
+      'lifecycle status (SIGNED = active, CLOSED = completed, TERMINATED = cancelled), ' +
+      'and start year range. Returns grant agreement ID, RCN, title, dates, and status. ' +
+      'Use the `id` field with cordis.research.project_details to get full project data. ' +
+      'Covers research in AI, climate, health, energy, space, digital, and all Horizon thematic clusters.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'cordis.project_details',
+    mcpName: 'cordis.research.project_details',
+    title: 'CORDIS — EU Project Full Details',
+    description:
+      'Retrieve full details for a specific EU-funded research project by its grant agreement number. ' +
+      'Returns project title, acronym, abstract (project description and scientific objectives), ' +
+      'start and end dates, total EU funding in EUR, duration in months, signature date, ' +
+      'project status, and the list of all participating organisations with their roles ' +
+      '(coordinator vs participant). ' +
+      'Use the Horizon Europe CORDIS project page URL for direct browser access. ' +
+      'Grant IDs are typically 9-digit numbers (Horizon Europe) or 6-digit numbers (H2020).',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'cordis.organisation_search',
+    mcpName: 'cordis.research.organisation_search',
+    title: 'CORDIS — EU Research Organisation Search',
+    description:
+      'Find universities, research institutes, companies, and SMEs registered in CORDIS as ' +
+      'participants in EU-funded research. Search by organisation name fragment (case-insensitive). ' +
+      'Optionally filter by ISO 2-letter country code. Returns CORDIS organisation ID (PIC number), ' +
+      'legal name, country, website URL, and entity type (Organisation / ForProfitOrganisation / SME). ' +
+      'Useful for partner discovery, consortium research, and EU research landscape mapping. ' +
+      'Covers 72,000+ organisations across all EU member states and associated countries.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'cordis.project_publications',
+    mcpName: 'cordis.research.project_publications',
+    title: 'CORDIS — EU Project Publications Search',
+    description:
+      'Search research publications (journal papers, conference proceedings) linked to EU-funded projects ' +
+      'in the CORDIS linked-data knowledge graph. Filter by keyword in the publication title, ' +
+      'or scope to a specific project by providing the grant agreement number. ' +
+      'Returns publication identifier, full title, DOI (when available), publication date, ' +
+      'and the RCN of the parent EU project. ' +
+      'Covers 283,000+ journal papers and 92,000+ proceedings papers from Horizon/H2020 research.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
   {
     toolId: 'hf_inference.summarize',
     mcpName: 'hf_inference.nlp.summarize',

@@ -2393,5 +2393,14 @@
     "reset_period": "none",
     "docs_url": "https://data.unhabitat.org/",
     "limit_proof": "UN-Habitat ArcGIS Feature Services are publicly accessible with no documented rate limits or auth requirements."
+  },
+  "cordis": {
+    "display_name": "CORDIS EU Research",
+    "health_url": "https://cordis.europa.eu/datalab/sparql?query=SELECT%20%3Fs%20WHERE%20%7B%20%3Fs%20%3Fp%20%3Fo%20%7D%20LIMIT%201",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://cordis.europa.eu/about/services",
+    "limit_proof": "CORDIS EURIO SPARQL endpoint is publicly accessible with no documented rate limits or auth requirements. EU Commission open data."
   }
 }

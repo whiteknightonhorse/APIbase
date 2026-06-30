@@ -243,6 +243,7 @@ Use these examples as reference patterns when:
 | UC-546 | Africa API | Country Data / Finance | LIVE | Bearer token, 1K/mo free, 5 tools | `usecases/UC-546-africaapi.md` |
 | UC-547 | HuggingFace Inference NLP | Developer | LIVE | Bearer token, ~30K/mo free, 5 tools | `usecases/UC-547-hf_inference.md` |
 | UC-548 | UN-Habitat Urban Data | World / Science | LIVE | No auth, ArcGIS public, 4 tools | `usecases/UC-548-unhabitat.md` |
+| UC-549 | CORDIS EU Research | Education / Science | LIVE | No auth, SPARQL public, 4 tools | `usecases/UC-549-cordis.md` |
 
 ## How to Use
 

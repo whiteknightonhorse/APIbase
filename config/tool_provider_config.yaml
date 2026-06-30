@@ -5670,6 +5670,31 @@ tools:
     price_usd: "0.003"
     cache_ttl: 300
 
+  # --- UC-549: CORDIS EU Research ---
+  - tool_id: cordis.project_search
+    name: CORDIS — EU Research Project Search
+    provider: cordis
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: cordis.project_details
+    name: CORDIS — EU Project Full Details
+    provider: cordis
+    price_usd: "0.003"
+    cache_ttl: 86400
+
+  - tool_id: cordis.organisation_search
+    name: CORDIS — EU Research Organisation Search
+    provider: cordis
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: cordis.project_publications
+    name: CORDIS — EU Project Publications Search
+    provider: cordis
+    price_usd: "0.002"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

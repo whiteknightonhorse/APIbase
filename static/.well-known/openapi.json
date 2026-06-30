@@ -84624,6 +84624,371 @@
         ]
       }
     },
+    "/api/v1/tools/cordis.project_search/call": {
+      "post": {
+        "operationId": "cordis_project_search",
+        "summary": "CORDIS — EU Research Project Search",
+        "description": "Search 80,000+ EU-funded research projects from Horizon Europe (2021–2027) and H2020 (2014–2020) using the CORDIS EURIO linked-data SPARQL endpoint. Filter by keywords in the project title, lifecycle status (SIGNED = active, CLOSED = completed, TERMINATED = cancelled), and start year range. Returns grant agreement ID, RCN, title, dates, and status. Use the `id` field with cordis.research.project_details to get full project data. Covers research in AI, climate, health, energy, space, digital, and all Horizon thematic clusters.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cordis.project_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Keyword(s) to search in project titles (e.g. \"artificial intelligence\", \"climate change\", \"renewable energy\")",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "SIGNED",
+                      "CLOSED",
+                      "TERMINATED"
+                    ],
+                    "description": "Project lifecycle status filter. SIGNED = active/running, CLOSED = completed, TERMINATED = cancelled early."
+                  },
+                  "year_from": {
+                    "type": "integer",
+                    "minimum": 1984,
+                    "maximum": 2030,
+                    "description": "Filter projects starting on or after this year (e.g. 2020 for Horizon Europe era)"
+                  },
+                  "year_to": {
+                    "type": "integer",
+                    "minimum": 1984,
+                    "maximum": 2035,
+                    "description": "Filter projects starting on or before this year (e.g. 2027)"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20,
+                    "description": "Maximum number of results to return (1-20, default 10)"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/cordis.project_details/call": {
+      "post": {
+        "operationId": "cordis_project_details",
+        "summary": "CORDIS — EU Project Full Details",
+        "description": "Retrieve full details for a specific EU-funded research project by its grant agreement number. Returns project title, acronym, abstract (project description and scientific objectives), start and end dates, total EU funding in EUR, duration in months, signature date, project status, and the list of all participating organisations with their roles (coordinator vs participant). Use the Horizon Europe CORDIS project page URL for direct browser access. Grant IDs are typically 9-digit numbers (Horizon Europe) or 6-digit numbers (H2020).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cordis.project_details"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "grant_id": {
+                    "type": "string",
+                    "description": "Grant agreement number — typically 9 digits for Horizon Europe (e.g. \"101181585\") or 6 digits for H2020 (e.g. \"101004410\"). Found in cordis.project_search results as the `id` field.",
+                    "minLength": 6
+                  }
+                },
+                "required": [
+                  "grant_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/cordis.organisation_search/call": {
+      "post": {
+        "operationId": "cordis_organisation_search",
+        "summary": "CORDIS — EU Research Organisation Search",
+        "description": "Find universities, research institutes, companies, and SMEs registered in CORDIS as participants in EU-funded research. Search by organisation name fragment (case-insensitive). Optionally filter by ISO 2-letter country code. Returns CORDIS organisation ID (PIC number), legal name, country, website URL, and entity type (Organisation / ForProfitOrganisation / SME). Useful for partner discovery, consortium research, and EU research landscape mapping. Covers 72,000+ organisations across all EU member states and associated countries.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cordis.organisation_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Organisation name fragment to search (case-insensitive). E.g. \"university of cambridge\", \"fraunhofer\", \"CERN\".",
+                    "minLength": 2
+                  },
+                  "country": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2,
+                    "description": "ISO 3166-1 alpha-2 country code to filter by (e.g. \"DE\" for Germany, \"FR\" for France, \"GB\" for UK)"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20,
+                    "description": "Maximum number of results (1-20, default 10)"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/cordis.project_publications/call": {
+      "post": {
+        "operationId": "cordis_project_publications",
+        "summary": "CORDIS — EU Project Publications Search",
+        "description": "Search research publications (journal papers, conference proceedings) linked to EU-funded projects in the CORDIS linked-data knowledge graph. Filter by keyword in the publication title, or scope to a specific project by providing the grant agreement number. Returns publication identifier, full title, DOI (when available), publication date, and the RCN of the parent EU project. Covers 283,000+ journal papers and 92,000+ proceedings papers from Horizon/H2020 research.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cordis.project_publications"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Keyword(s) to search in publication titles (e.g. \"machine learning\", \"cancer therapy\", \"battery storage\")",
+                    "minLength": 2
+                  },
+                  "project_id": {
+                    "type": "string",
+                    "description": "Optional grant agreement number to scope publications to a specific EU project (e.g. \"101181585\")"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20,
+                    "description": "Maximum number of publications to return (1-20, default 10)"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/hf_inference.summarize/call": {
       "post": {
         "operationId": "hf_inference_summarize",
