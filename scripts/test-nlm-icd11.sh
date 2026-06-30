@@ -3,7 +3,7 @@
 set -euo pipefail
 
 API_URL="${API_URL:-https://apibase.pro}"
-API_KEY="${TEST_API_KEY:-ak_live_00000000000000000000000000000000}"
+API_KEY="${TEST_API_KEY:-ak_live_PLACEHOLDER_SET_TEST_API_KEY_ENV}"
 PASS=0; FAIL=0
 
 check() {
