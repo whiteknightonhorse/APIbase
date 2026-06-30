@@ -232,6 +232,7 @@ Use these examples as reference patterns when:
 | UC-535 | USDA LMPR Datamart | Agriculture / Livestock Prices | LIVE | US Gov public domain, no auth, unlimited | `usecases/UC-535-usda-lmpr.md` |
 | UC-536 | TreasuryDirect TA_WS | Finance / Treasury Securities | LIVE | US Gov open data, no auth, unlimited | `usecases/UC-536-treasury-direct.md` |
 | UC-537 | OpenTopography | Science / Terrain / Elevation | LIVE | Free registration, 5K req/day, CC BY 4.0 | `usecases/UC-537-opentopography.md` |
+| UC-538 | OECD Statistics | Economics / Finance / Environment | LIVE | CC BY 4.0, no auth, unlimited | `usecases/UC-538-oecd-stats.md` |
 
 ## How to Use
 

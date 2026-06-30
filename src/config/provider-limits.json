@@ -2294,5 +2294,14 @@
     "reset_period": "daily",
     "docs_url": "https://portal.opentopography.org/apidocs/",
     "limit_proof": "Free registered API key: 5,000 requests per 24-hour period (portal.opentopography.org/requestApiKey). Demo key: 50 req/day."
+  },
+  "oecd-stats": {
+    "display_name": "OECD Statistics",
+    "health_url": "https://sdmx.oecd.org/public/rest/dataflow/OECD.SDD.NAD/all/latest?detail=allstubs",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.oecd.org/en/data/tools/oecd-data-explorer.html",
+    "limit_proof": "OECD SDMX REST API is a public open-access service with no documented rate limits; CC BY 4.0 licence permits commercial use."
   }
 }

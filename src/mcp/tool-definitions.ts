@@ -9903,4 +9903,84 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+
+  // OECD Statistics (5)
+  {
+    toolId: 'oecd.economy.gdp',
+    mcpName: 'oecd.economy.gdp',
+    title: 'OECD Annual GDP and National Accounts',
+    description:
+      'Fetch annual GDP and national accounts data for any OECD member country. Returns GDP at ' +
+      'current USD exchange rates, gross operating surplus, compensation of employees, and other ' +
+      'national accounts aggregates from the OECD National Accounts Main Aggregates database ' +
+      '(NAMAIN10). Covers 38 OECD countries from the 1970s to the latest year. Data is sourced from ' +
+      'official national statistics offices and harmonised to SNA 2008 standards. Each series includes ' +
+      'the exact transaction code (e.g. B1GQ = GDP at market prices), sector, unit of measure ' +
+      '(USD millions at exchange rates), and price base. ' +
+      'Source: OECD SDMX API, CC BY 4.0, no auth required, unlimited.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'oecd.economy.unemployment',
+    mcpName: 'oecd.economy.unemployment',
+    title: 'OECD Monthly Unemployment Rate',
+    description:
+      'Retrieve monthly unemployment rates from the OECD Labour Force Survey (LFS) for any OECD ' +
+      'member country. Returns the unemployment rate as a percentage of the labour force for persons ' +
+      'aged 15+, total and by sex, with both seasonally adjusted and unadjusted series. Covers OECD ' +
+      'members with typical lags of 1–3 months. The series use standardised ILO definitions of ' +
+      'unemployment (persons without work, available, and actively seeking employment). Useful for ' +
+      'tracking labour market conditions, comparing countries, and detecting recessions. ' +
+      'Source: OECD SDMX API, CC BY 4.0, no auth required, unlimited.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'oecd.economy.inflation',
+    mcpName: 'oecd.economy.inflation',
+    title: 'OECD Consumer Price Index (CPI)',
+    description:
+      'Get consumer price index (CPI) data and year-on-year inflation rates for any OECD country. ' +
+      'Returns all-items CPI growth rate (annual % change) based on the COICOP 1999 classification. ' +
+      'Covers all 38 OECD members plus selected non-members at monthly frequency with typical lags ' +
+      'of 2–4 weeks. Includes national CPI and Eurostat HICP (for EU members), broken down by ' +
+      'expenditure category (food, energy, services, housing, transport, etc.). Essential for ' +
+      'inflation monitoring, monetary policy analysis, and cost-of-living comparisons. ' +
+      'Source: OECD SDMX API, CC BY 4.0, no auth required, unlimited.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'oecd.environment.emissions',
+    mcpName: 'oecd.environment.emissions',
+    title: 'OECD Greenhouse Gas Emissions',
+    description:
+      'Retrieve annual greenhouse gas (GHG) emissions data for any OECD country from the OECD ' +
+      'Environment Policy and Progress indicators database. Returns CO2-equivalent emissions (in ' +
+      'million tonnes) broken down by gas type (CO2, CH4, N2O, F-gases, etc.) and economic sector ' +
+      '(energy, transport, agriculture, industry, waste, etc.). Covers OECD members from 1990 to ' +
+      'the latest available year, with data aligned to IPCC inventory guidelines and UNFCCC reporting. ' +
+      'Useful for climate policy analysis, carbon footprint comparisons, and tracking progress ' +
+      'towards net-zero targets. ' +
+      'Source: OECD ENV.EPI SDMX API, CC BY 4.0, no auth required, unlimited.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'oecd.economy.trade',
+    mcpName: 'oecd.economy.trade',
+    title: 'OECD Balance of Payments',
+    description:
+      'Retrieve Balance of Payments (BoP) data for any OECD member country. Returns current account ' +
+      'balance, goods trade balance, services trade balance, and financial account indicators in ' +
+      'USD millions. Based on IMF BPM6 standards and reported to the OECD. Covers 38 OECD countries ' +
+      'at quarterly and annual frequency with typical lags of 3–6 months. Useful for macroeconomic ' +
+      "analysis, currency risk assessment, and understanding a country's external position with the " +
+      'rest of the world. Current account surplus = country exports more than it imports; deficit = ' +
+      'imports exceed exports. ' +
+      'Source: OECD SDMX API, CC BY 4.0, no auth required, unlimited.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
 ];

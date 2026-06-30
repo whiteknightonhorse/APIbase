@@ -5359,6 +5359,37 @@ tools:
     price_usd: "0.002"
     cache_ttl: 3600
 
+  # --- UC-538: OECD Statistics ---
+  - tool_id: oecd.economy.gdp
+    name: OECD Annual GDP and National Accounts
+    provider: oecd-stats
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: oecd.economy.unemployment
+    name: OECD Monthly Unemployment Rate
+    provider: oecd-stats
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: oecd.economy.inflation
+    name: OECD Consumer Price Index (CPI)
+    provider: oecd-stats
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: oecd.environment.emissions
+    name: OECD Greenhouse Gas Emissions
+    provider: oecd-stats
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: oecd.economy.trade
+    name: OECD Balance of Payments
+    provider: oecd-stats
+    price_usd: "0.002"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

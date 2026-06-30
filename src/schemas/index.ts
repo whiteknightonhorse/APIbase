@@ -255,6 +255,7 @@ import { comtradeSchemas } from './comtrade.schema';
 import { lmprSchemas } from './lmpr.schema';
 import { treasuryDirectSchemas } from './treasurydirect.schema';
 import { opentopographySchemas } from './opentopography.schema';
+import { oecdStatsSchemas } from './oecd-stats.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -513,4 +514,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...lmprSchemas,
   ...treasuryDirectSchemas,
   ...opentopographySchemas,
+  ...oecdStatsSchemas,
 };

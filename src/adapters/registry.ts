@@ -255,6 +255,7 @@ import { ComtradeAdapter } from './comtrade';
 import { LmprAdapter } from './lmpr';
 import { TreasuryDirectAdapter } from './treasurydirect';
 import { OpenTopographyAdapter } from './opentopography';
+import { OecdStatsAdapter } from './oecd-stats';
 import { config } from '../config';
 
 /**
@@ -1467,6 +1468,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
         'opentopography',
         () => new OpenTopographyAdapter(config.PROVIDER_KEY_OPENTOPO),
       );
+    case 'oecd-stats':
+      // OECD SDMX Statistics (UC-538) — GDP, unemployment, CPI, GHG, BoP; CC BY 4.0, no auth
+      return getOrCreate('oecd-stats', () => new OecdStatsAdapter());
     default:
       return undefined;
   }
