@@ -5982,6 +5982,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-561: CMS Provider Data ---
+  - tool_id: cms.hospital_search
+    name: CMS — US Hospital Search
+    provider: cms
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: cms.nursing_home_search
+    name: CMS — US Nursing Home Search
+    provider: cms
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: cms.home_health_search
+    name: CMS — US Home Health Agency Search
+    provider: cms
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: cms.dialysis_search
+    name: CMS — US Dialysis Facility Search
+    provider: cms
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

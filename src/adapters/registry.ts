@@ -278,6 +278,7 @@ import { UsgsNwisAdapter } from './usgs-nwis';
 import { WhoGhoAdapter } from './who-gho';
 import { DelphiAdapter } from './delphi';
 import { NlmIcd11Adapter } from './nlm-icd11';
+import { CmsAdapter } from './cms';
 import { config } from '../config';
 
 /**
@@ -1566,6 +1567,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'nlm-icd11':
       // NLM ICD-11 Clinical Tables (UC-560) — disease classification, diagnosis codes, ICD-11 search; no auth, US NLM public domain
       return getOrCreate('nlm-icd11', () => new NlmIcd11Adapter());
+    case 'cms':
+      // CMS Provider Data (UC-561) — US hospital, nursing home, home health, dialysis search; no auth, US Gov public domain
+      return getOrCreate('cms', () => new CmsAdapter());
     default:
       return undefined;
   }

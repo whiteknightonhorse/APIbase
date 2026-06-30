@@ -2501,5 +2501,14 @@
     "reset_period": "none",
     "docs_url": "https://clinicaltables.nlm.nih.gov/apidoc/icd11_codes/v3/doc.html",
     "limit_proof": "US National Library of Medicine Clinical Tables API — no authentication required, no documented rate limits. Public domain ICD-11 classification search service."
+  },
+  "cms": {
+    "display_name": "CMS Provider Data",
+    "health_url": "https://data.cms.gov/provider-data/api/1/datastore/query/xubh-q36u/0",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://data.cms.gov/provider-data/api/1/",
+    "limit_proof": "US Centers for Medicare & Medicaid Services Provider Data Catalog — no authentication required, no documented rate limits. Public domain under 17 USC §105. Covers 5 400+ hospitals, 14 600+ nursing homes, 12 300+ home health agencies, 7 500+ dialysis facilities."
   }
 }

@@ -11361,4 +11361,68 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'health',
     annotations: READ_ONLY,
   },
+
+  // CMS Provider Data (4) — UC-561
+  {
+    toolId: 'cms.hospital_search',
+    mcpName: 'cms.hospital.search',
+    title: 'CMS — US Hospital Search',
+    description:
+      'Search 5 400+ US hospitals in the CMS Provider Data catalog with quality star ratings (1–5 stars). ' +
+      'Filter by state, city, ZIP code, hospital name, hospital type (Acute Care, Critical Access, Childrens, ' +
+      'Psychiatric, Rehabilitation), and minimum overall rating. Returns CMS Certification Number (CCN), ' +
+      'facility name, address, phone, hospital type, ownership, emergency services flag, and overall star rating. ' +
+      'Star ratings are composite scores from CMS Hospital Compare — 5 stars = top quality. ' +
+      'Covers all Medicare/Medicaid-certified hospitals. ' +
+      'No auth — US Centers for Medicare & Medicaid Services public domain, unlimited free.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'cms.nursing_home_search',
+    mcpName: 'cms.nursing_home.search',
+    title: 'CMS — US Nursing Home Search',
+    description:
+      'Search 14 600+ Medicare/Medicaid-certified nursing homes and long-term care facilities in the US ' +
+      'with CMS 5-star quality ratings. Filter by state, city, ZIP code, name, minimum overall rating, ' +
+      'and ownership type (for-profit, non-profit, government). Returns CMS Certification Number (CCN), ' +
+      'provider name, address, phone, ownership, certified bed count, and four separate quality ratings: ' +
+      'overall (1–5 stars), health inspection, staffing, and quality measures. ' +
+      'Star ratings help families compare nursing homes objectively for long-term care placement. ' +
+      'No auth — US Centers for Medicare & Medicaid Services public domain, unlimited free.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'cms.home_health_search',
+    mcpName: 'cms.home_health.search',
+    title: 'CMS — US Home Health Agency Search',
+    description:
+      'Search 12 300+ Medicare-certified home health agencies across the US providing skilled nursing, ' +
+      "physical therapy, occupational therapy, and speech pathology services in patients' homes. " +
+      'Filter by state, city, ZIP code, agency name, and whether nursing care is offered. ' +
+      'Returns CMS Certification Number (CCN), agency name, address, phone, ownership type, ' +
+      'services offered (nursing, PT, OT), and CMS quality-of-patient-care star rating. ' +
+      'Essential for patients transitioning from hospital to home, post-surgical recovery, ' +
+      'or managing chronic conditions without nursing home admission. ' +
+      'No auth — US Centers for Medicare & Medicaid Services public domain, unlimited free.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'cms.dialysis_search',
+    mcpName: 'cms.dialysis.search',
+    title: 'CMS — US Dialysis Facility Search',
+    description:
+      'Search 7 500+ Medicare-certified dialysis (ESRD — End-Stage Renal Disease) facilities across the US ' +
+      'with CMS 5-star quality ratings. Filter by state, city, ZIP code, facility name, and non-profit status. ' +
+      'Returns CMS Certification Number (CCN), facility name, address, phone, profit/non-profit status, ' +
+      'chain ownership flag, and 5-star quality rating from CMS ESRD Quality Incentive Program (QIP). ' +
+      'Dialysis is required 3× per week for ESRD patients — finding a conveniently located, ' +
+      'high-quality facility is critical for quality of life. Covers all DaVita, Fresenius, US Renal Care, ' +
+      'and independent clinic locations. ' +
+      'No auth — US Centers for Medicare & Medicaid Services public domain, unlimited free.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
 ];

@@ -89517,6 +89517,450 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/cms.hospital_search/call": {
+      "post": {
+        "operationId": "cms_hospital_search",
+        "summary": "CMS — US Hospital Search",
+        "description": "Search 5 400+ US hospitals in the CMS Provider Data catalog with quality star ratings (1–5 stars). Filter by state, city, ZIP code, hospital name, hospital type (Acute Care, Critical Access, Childrens, Psychiatric, Rehabilitation), and minimum overall rating. Returns CMS Certification Number (CCN), facility name, address, phone, hospital type, ownership, emergency services flag, and overall star rating. Star ratings are composite scores from CMS Hospital Compare — 5 stars = top quality. Covers all Medicare/Medicaid-certified hospitals. No auth — US Centers for Medicare & Medicaid Services public domain, unlimited free.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cms.hospital_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2,
+                    "description": "Two-letter US state abbreviation to filter hospitals (e.g. CA, NY, TX). Returns all hospitals in the state when specified."
+                  },
+                  "city": {
+                    "type": "string",
+                    "description": "City or town name to filter hospitals (partial match, case-insensitive). Example: \"Los Angeles\", \"Boston\"."
+                  },
+                  "zip_code": {
+                    "type": "string",
+                    "description": "5-digit US ZIP code to filter hospitals by location. Example: \"90210\", \"10001\"."
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Partial hospital name to search (case-insensitive substring match). Example: \"Memorial\", \"General Hospital\", \"St. Mary\"."
+                  },
+                  "hospital_type": {
+                    "type": "string",
+                    "enum": [
+                      "Acute Care Hospitals",
+                      "Critical Access Hospitals",
+                      "Childrens",
+                      "Psychiatric",
+                      "Rehabilitation",
+                      "Long-Term Care"
+                    ],
+                    "description": "Filter by hospital type classification. Most common: \"Acute Care Hospitals\" (general hospitals), \"Critical Access Hospitals\" (rural/small), \"Childrens\" (pediatric)."
+                  },
+                  "min_rating": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 5,
+                    "description": "Minimum CMS Overall Hospital Star Rating (1–5 stars). Filter to only return hospitals with rating >= this value. Example: 4 returns 4-star and 5-star hospitals only."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of hospitals to return (1–100, default 20).",
+                    "default": 20
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Number of results to skip for pagination (default 0).",
+                    "default": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/cms.nursing_home_search/call": {
+      "post": {
+        "operationId": "cms_nursing_home_search",
+        "summary": "CMS — US Nursing Home Search",
+        "description": "Search 14 600+ Medicare/Medicaid-certified nursing homes and long-term care facilities in the US with CMS 5-star quality ratings. Filter by state, city, ZIP code, name, minimum overall rating, and ownership type (for-profit, non-profit, government). Returns CMS Certification Number (CCN), provider name, address, phone, ownership, certified bed count, and four separate quality ratings: overall (1–5 stars), health inspection, staffing, and quality measures. Star ratings help families compare nursing homes objectively for long-term care placement. No auth — US Centers for Medicare & Medicaid Services public domain, unlimited free.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cms.nursing_home_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2,
+                    "description": "Two-letter US state abbreviation to filter nursing homes (e.g. FL, CA, TX)."
+                  },
+                  "city": {
+                    "type": "string",
+                    "description": "City or town name to filter nursing homes (partial match). Example: \"Miami\", \"Chicago\"."
+                  },
+                  "zip_code": {
+                    "type": "string",
+                    "description": "5-digit US ZIP code to filter nursing homes by location."
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Partial nursing home name to search (case-insensitive substring match). Example: \"Sunrise\", \"Brookdale\", \"Manor\"."
+                  },
+                  "min_rating": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 5,
+                    "description": "Minimum CMS Overall Star Rating (1–5 stars). Higher ratings indicate better quality of care based on health inspections, staffing levels, and quality measures."
+                  },
+                  "ownership_type": {
+                    "type": "string",
+                    "description": "Filter by ownership type. Common values: \"For profit - Corporation\", \"Non profit - Corporation\", \"Government - State\", \"Government - County\", \"For profit - Individual\"."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of nursing homes to return (1–100, default 20).",
+                    "default": 20
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Number of results to skip for pagination (default 0).",
+                    "default": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/cms.home_health_search/call": {
+      "post": {
+        "operationId": "cms_home_health_search",
+        "summary": "CMS — US Home Health Agency Search",
+        "description": "Search 12 300+ Medicare-certified home health agencies across the US providing skilled nursing, physical therapy, occupational therapy, and speech pathology services in patients' homes. Filter by state, city, ZIP code, agency name, and whether nursing care is offered. Returns CMS Certification Number (CCN), agency name, address, phone, ownership type, services offered (nursing, PT, OT), and CMS quality-of-patient-care star rating. Essential for patients transitioning from hospital to home, post-surgical recovery, or managing chronic conditions without nursing home admission. No auth — US Centers for Medicare & Medicaid Services public domain, unlimited free.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cms.home_health_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2,
+                    "description": "Two-letter US state abbreviation to filter home health agencies (e.g. TX, CA, NY)."
+                  },
+                  "city": {
+                    "type": "string",
+                    "description": "City or town name to filter agencies (partial match). Example: \"Houston\", \"Phoenix\"."
+                  },
+                  "zip_code": {
+                    "type": "string",
+                    "description": "5-digit US ZIP code to filter home health agencies."
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Partial agency name to search (case-insensitive substring match). Example: \"Amedisys\", \"LHC Group\", \"Encompass\"."
+                  },
+                  "offers_nursing": {
+                    "type": "boolean",
+                    "description": "When true, filter to only agencies that offer skilled nursing care services. Skilled nursing covers wound care, injections, IV therapy, and post-surgery monitoring."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of agencies to return (1–100, default 20).",
+                    "default": 20
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Number of results to skip for pagination (default 0).",
+                    "default": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/cms.dialysis_search/call": {
+      "post": {
+        "operationId": "cms_dialysis_search",
+        "summary": "CMS — US Dialysis Facility Search",
+        "description": "Search 7 500+ Medicare-certified dialysis (ESRD — End-Stage Renal Disease) facilities across the US with CMS 5-star quality ratings. Filter by state, city, ZIP code, facility name, and non-profit status. Returns CMS Certification Number (CCN), facility name, address, phone, profit/non-profit status, chain ownership flag, and 5-star quality rating from CMS ESRD Quality Incentive Program (QIP). Dialysis is required 3× per week for ESRD patients — finding a conveniently located, high-quality facility is critical for quality of life. Covers all DaVita, Fresenius, US Renal Care, and independent clinic locations. No auth — US Centers for Medicare & Medicaid Services public domain, unlimited free.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cms.dialysis_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2,
+                    "description": "Two-letter US state abbreviation to filter dialysis facilities (e.g. CA, FL, TX)."
+                  },
+                  "city": {
+                    "type": "string",
+                    "description": "City or town name to filter dialysis facilities (partial match). Example: \"Atlanta\", \"Denver\"."
+                  },
+                  "zip_code": {
+                    "type": "string",
+                    "description": "5-digit US ZIP code to filter dialysis facilities."
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Partial facility name to search (case-insensitive substring match). Example: \"DaVita\", \"Fresenius\", \"Dialysis Center\"."
+                  },
+                  "nonprofit_only": {
+                    "type": "boolean",
+                    "description": "When true, filter to only non-profit dialysis facilities. Non-profit facilities may have different care incentives vs. for-profit chains."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of dialysis facilities to return (1–100, default 20).",
+                    "default": 20
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Number of results to skip for pagination (default 0).",
+                    "default": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {
