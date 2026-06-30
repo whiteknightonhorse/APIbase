@@ -81579,6 +81579,330 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/swissnbm.fx_rates/call": {
+      "post": {
+        "operationId": "swissnbm_fx_rates",
+        "summary": "SNB — CHF FX Rates",
+        "description": "Retrieve Swiss National Bank official CHF exchange rates for 27 currencies including EUR, USD, GBP, JPY, CNY and more. Returns monthly average or end-of-month fixing values as reported by the SNB at 11 am. Covers historical series back to 1914 for major currencies; specify limit to control how many recent monthly periods are returned (default 24 months). Ideal for CHF valuation, Swiss currency analysis, and monetary research. Source: Swiss National Bank data.snb.ch (cube: devkum), Swiss OGD open license, no auth.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "swissnbm.fx_rates"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "period": {
+                    "type": "string",
+                    "enum": [
+                      "monthly_avg",
+                      "end_of_month"
+                    ],
+                    "description": "Rate type: \"monthly_avg\" for monthly average (default) or \"end_of_month\" for end-of-month fixing."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 120,
+                    "description": "Number of most recent monthly observations to return per currency (1–120, default 24)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/swissnbm.policy_rate/call": {
+      "post": {
+        "operationId": "swissnbm_policy_rate",
+        "summary": "SNB — Policy Rate & Sight Deposit Rates",
+        "description": "Retrieve the current Swiss National Bank policy rate, SARON overnight fixing, special rate (Liquidity-Shortage Financing Facility), and interest rates on sight deposits (below and above threshold). Returns daily observations for the requested period. The SNB policy rate is the primary monetary policy instrument; as of June 2026 it stands at 0.0%. Essential for Swiss monetary policy analysis, CHF rate expectations, and fixed-income research. Source: Swiss National Bank data.snb.ch (cube: snbgwdzid), Swiss OGD open license, no auth.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "swissnbm.policy_rate"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 365,
+                    "description": "Number of most recent daily observations to return per rate series (1–365, default 90)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/swissnbm.saron_rates/call": {
+      "post": {
+        "operationId": "swissnbm_saron_rates",
+        "summary": "SNB — SARON Reference Rates",
+        "description": "Retrieve Swiss Average Rate Overnight (SARON) and compound term rates published by the Swiss National Bank: overnight SARON, Tomorrow Next, 1-month, 3-month, and 6-month compound rates. SARON replaced LIBOR as the Swiss reference rate benchmark in 2021. Returns daily observations for the requested period. Vital for Swiss franc derivatives pricing, loan referencing, and interest rate risk analysis. Source: Swiss National Bank data.snb.ch (cube: zirepo), Swiss OGD open license, no auth.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "swissnbm.saron_rates"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 365,
+                    "description": "Number of most recent daily observations to return per SARON series (1–365, default 90)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/swissnbm.monetary_aggregates/call": {
+      "post": {
+        "operationId": "swissnbm_monetary_aggregates",
+        "summary": "SNB — Swiss Monetary Aggregates (M1/M2/M3)",
+        "description": "Retrieve Swiss monetary aggregate statistics published by the Swiss National Bank: currency in circulation, sight deposits, M1 (narrowest money), savings deposits, M2, time deposits, and M3 (broadest money supply). Values in CHF millions (level) or percent period-over-period change. Data updated monthly; most recent observations typically available with a 4–6 week lag. Ideal for Swiss monetary conditions analysis, inflation research, and macroeconomic studies. Source: Swiss National Bank data.snb.ch (cube: snbmonagg), Swiss OGD open license, no auth.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "swissnbm.monetary_aggregates"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "level_type": {
+                    "type": "string",
+                    "enum": [
+                      "level",
+                      "change"
+                    ],
+                    "description": "Data type: \"level\" for absolute CHF million values (default) or \"change\" for period-over-period percent change."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 120,
+                    "description": "Number of most recent monthly observations to return per aggregate (1–120, default 24)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

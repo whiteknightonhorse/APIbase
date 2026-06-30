@@ -10118,4 +10118,62 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'legal',
     annotations: READ_ONLY,
   },
+
+  // Swiss National Bank (4) — UC-541
+  {
+    toolId: 'swissnbm.fx_rates',
+    mcpName: 'swissnbm.fx.rates',
+    title: 'SNB — CHF FX Rates',
+    description:
+      'Retrieve Swiss National Bank official CHF exchange rates for 27 currencies including EUR, USD, ' +
+      'GBP, JPY, CNY and more. Returns monthly average or end-of-month fixing values as reported by ' +
+      'the SNB at 11 am. Covers historical series back to 1914 for major currencies; specify limit ' +
+      'to control how many recent monthly periods are returned (default 24 months). Ideal for CHF ' +
+      'valuation, Swiss currency analysis, and monetary research. ' +
+      'Source: Swiss National Bank data.snb.ch (cube: devkum), Swiss OGD open license, no auth.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'swissnbm.policy_rate',
+    mcpName: 'swissnbm.rates.policy',
+    title: 'SNB — Policy Rate & Sight Deposit Rates',
+    description:
+      'Retrieve the current Swiss National Bank policy rate, SARON overnight fixing, special rate ' +
+      '(Liquidity-Shortage Financing Facility), and interest rates on sight deposits (below and above ' +
+      'threshold). Returns daily observations for the requested period. The SNB policy rate is the ' +
+      'primary monetary policy instrument; as of June 2026 it stands at 0.0%. Essential for Swiss ' +
+      'monetary policy analysis, CHF rate expectations, and fixed-income research. ' +
+      'Source: Swiss National Bank data.snb.ch (cube: snbgwdzid), Swiss OGD open license, no auth.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'swissnbm.saron_rates',
+    mcpName: 'swissnbm.rates.saron',
+    title: 'SNB — SARON Reference Rates',
+    description:
+      'Retrieve Swiss Average Rate Overnight (SARON) and compound term rates published by the Swiss ' +
+      'National Bank: overnight SARON, Tomorrow Next, 1-month, 3-month, and 6-month compound rates. ' +
+      'SARON replaced LIBOR as the Swiss reference rate benchmark in 2021. Returns daily observations ' +
+      'for the requested period. Vital for Swiss franc derivatives pricing, loan referencing, and ' +
+      'interest rate risk analysis. ' +
+      'Source: Swiss National Bank data.snb.ch (cube: zirepo), Swiss OGD open license, no auth.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'swissnbm.monetary_aggregates',
+    mcpName: 'swissnbm.money.aggregates',
+    title: 'SNB — Swiss Monetary Aggregates (M1/M2/M3)',
+    description:
+      'Retrieve Swiss monetary aggregate statistics published by the Swiss National Bank: currency in ' +
+      'circulation, sight deposits, M1 (narrowest money), savings deposits, M2, time deposits, and M3 ' +
+      '(broadest money supply). Values in CHF millions (level) or percent period-over-period change. ' +
+      'Data updated monthly; most recent observations typically available with a 4–6 week lag. ' +
+      'Ideal for Swiss monetary conditions analysis, inflation research, and macroeconomic studies. ' +
+      'Source: Swiss National Bank data.snb.ch (cube: snbmonagg), Swiss OGD open license, no auth.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
 ];

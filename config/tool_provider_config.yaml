@@ -5446,6 +5446,31 @@ tools:
     price_usd: "0.002"
     cache_ttl: 86400
 
+  # --- UC-541: Swiss National Bank ---
+  - tool_id: swissnbm.fx_rates
+    name: SNB CHF FX Rates
+    provider: swissnbm
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: swissnbm.policy_rate
+    name: SNB Policy Rate and Sight Deposit Rates
+    provider: swissnbm
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: swissnbm.saron_rates
+    name: SNB SARON Reference Rates
+    provider: swissnbm
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: swissnbm.monetary_aggregates
+    name: SNB Swiss Monetary Aggregates
+    provider: swissnbm
+    price_usd: "0.002"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

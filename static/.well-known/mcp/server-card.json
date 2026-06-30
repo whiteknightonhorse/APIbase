@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 908 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 912 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -52543,6 +52543,206 @@
           "error": {
             "type": "object",
             "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "swissnbm.fx.rates",
+      "title": "SNB CHF FX Rates",
+      "description": "Retrieve Swiss National Bank official CHF exchange rates for 27 currencies including EUR, USD, GBP, JPY, CNY and more. Returns monthly average or end-of-month fixing values as reported by the SNB at 11 am. Covers historical series back to 1914 for major currencies; specify limit to control how many recent monthly periods are returned (default 24 months). Ideal for CHF valuation, Swiss currency analysis, and monetary research. Source: Swiss National Bank data.snb.ch (cube: devkum), Swiss OGD open license, no auth.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "period": {
+            "type": "string",
+            "enum": [
+              "monthly_avg",
+              "end_of_month"
+            ],
+            "description": "Rate type: \"monthly_avg\" for monthly average (default) or \"end_of_month\" for end-of-month fixing."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 120,
+            "description": "Number of most recent monthly observations to return per currency (1\u2013120, default 24)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "swissnbm.money.aggregates",
+      "title": "SNB Swiss Monetary Aggregates",
+      "description": "Retrieve Swiss monetary aggregate statistics published by the Swiss National Bank: currency in circulation, sight deposits, M1 (narrowest money), savings deposits, M2, time deposits, and M3 (broadest money supply). Values in CHF millions (level) or percent period-over-period change. Data updated monthly; most recent observations typically available with a 4\u20136 week lag. Ideal for Swiss monetary conditions analysis, inflation research, and macroeconomic studies. Source: Swiss National Bank data.snb.ch (cube: snbmonagg), Swiss OGD open license, no auth.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "level_type": {
+            "type": "string",
+            "enum": [
+              "level",
+              "change"
+            ],
+            "description": "Data type: \"level\" for absolute CHF million values (default) or \"change\" for period-over-period percent change."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 120,
+            "description": "Number of most recent monthly observations to return per aggregate (1\u2013120, default 24)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "swissnbm.rates.policy",
+      "title": "SNB Policy Rate and Sight Deposit Rates",
+      "description": "Retrieve the current Swiss National Bank policy rate, SARON overnight fixing, special rate (Liquidity-Shortage Financing Facility), and interest rates on sight deposits (below and above threshold). Returns daily observations for the requested period. The SNB policy rate is the primary monetary policy instrument; as of June 2026 it stands at 0.0%. Essential for Swiss monetary policy analysis, CHF rate expectations, and fixed-income research. Source: Swiss National Bank data.snb.ch (cube: snbgwdzid), Swiss OGD open license, no auth.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 365,
+            "description": "Number of most recent daily observations to return per rate series (1\u2013365, default 90)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "swissnbm.rates.saron",
+      "title": "SNB SARON Reference Rates",
+      "description": "Retrieve Swiss Average Rate Overnight (SARON) and compound term rates published by the Swiss National Bank: overnight SARON, Tomorrow Next, 1-month, 3-month, and 6-month compound rates. SARON replaced LIBOR as the Swiss reference rate benchmark in 2021. Returns daily observations for the requested period. Vital for Swiss franc derivatives pricing, loan referencing, and interest rate risk analysis. Source: Swiss National Bank data.snb.ch (cube: zirepo), Swiss OGD open license, no auth.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 365,
+            "description": "Number of most recent daily observations to return per SARON series (1\u2013365, default 90)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
           }
         },
         "required": [

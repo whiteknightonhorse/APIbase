@@ -258,6 +258,7 @@ import { OpenTopographyAdapter } from './opentopography';
 import { OecdStatsAdapter } from './oecd-stats';
 import { StatCanAdapter } from './statcan';
 import { FbiCdeAdapter } from './fbi';
+import { SwissNbmAdapter } from './swissnbm';
 import { config } from '../config';
 
 /**
@@ -1480,6 +1481,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'fbi':
       // FBI Crime Data Explorer UCR (UC-540) — national/state crime stats; api.data.gov shared key
       return getOrCreate('fbi', () => new FbiCdeAdapter(config.PROVIDER_KEY_API_DATA_GOV));
+    case 'swissnbm':
+      // Swiss National Bank (UC-541) — FX rates, policy rate, SARON, monetary aggregates; no auth
+      return getOrCreate('swissnbm', () => new SwissNbmAdapter());
     default:
       return undefined;
   }

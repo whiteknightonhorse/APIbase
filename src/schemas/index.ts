@@ -258,6 +258,7 @@ import { opentopographySchemas } from './opentopography.schema';
 import { oecdStatsSchemas } from './oecd-stats.schema';
 import { statcanSchemas } from './statcan.schema';
 import { fbiSchemas } from './fbi.schema';
+import { swissnbmSchemas } from './swissnbm.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -519,4 +520,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...oecdStatsSchemas,
   ...statcanSchemas,
   ...fbiSchemas,
+  ...swissnbmSchemas,
 };

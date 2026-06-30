@@ -2321,5 +2321,14 @@
     "reset_period": "hourly",
     "docs_url": "https://cde.ucr.cjis.gov/LATEST/webapp/#/pages/docApi",
     "limit_proof": "api.data.gov standard tier: 1,000 requests/hr; burst rate 10 req/s. US Gov public domain (UCR data). Shared PROVIDER_KEY_API_DATA_GOV key."
+  },
+  "swissnbm": {
+    "display_name": "Swiss National Bank (SNB)",
+    "health_url": "https://data.snb.ch/api/cube/snbgwdzid/data/json/en",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://data.snb.ch/en/help_api",
+    "limit_proof": "Swiss OGD (open government data) — no auth required, no documented rate limits. Data portal at data.snb.ch is public and free."
   }
 }
