@@ -263,6 +263,7 @@ import { Eurostat2Adapter } from './eurostat2';
 import { AbrAdapter } from './abr';
 import { BanxicoAdapter } from './banxico';
 import { BeaAdapter } from './bea';
+import { AfricaApiAdapter } from './africa';
 import { config } from '../config';
 
 /**
@@ -1500,6 +1501,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'bea':
       // Bureau of Economic Analysis (UC-545) — GDP, personal income, trade, state GDP, industry; api_key
       return getOrCreate('bea', () => new BeaAdapter(config.PROVIDER_KEY_BEA));
+    case 'africa':
+      // Africa API (UC-546) — Pan-African economic data for 54 countries; Bearer token auth
+      return getOrCreate('africa', () => new AfricaApiAdapter(config.PROVIDER_KEY_AFRICAAPI));
     default:
       return undefined;
   }

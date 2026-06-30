@@ -10425,4 +10425,71 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+  // Africa API (UC-546) — 5 tools
+  {
+    toolId: 'africa.countries.list',
+    mcpName: 'africa.countries.list',
+    title: 'Africa API — List African Countries',
+    description:
+      'List all 54 African countries with ISO codes, capitals, regional classifications, ' +
+      'currencies, languages, area, timezone, and border countries. Optionally filter by ' +
+      'sub-region: North Africa, West Africa, East Africa, Central Africa, or Southern Africa. ' +
+      'Use as a discovery step to get country codes for other Africa API tools.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'africa.countries.signals',
+    mcpName: 'africa.countries.signals',
+    title: 'Africa API — Country Economic Signals',
+    description:
+      'Get a live macroeconomic snapshot for an African country. Returns 20–60 indicators ' +
+      'across economy (GDP, inflation, trade), climate (precipitation, air quality), ' +
+      'health (life expectancy, access to services), and demographic signals. ' +
+      'Sources: World Bank WDI, IMF, UN, NASA POWER. Use country_code from africa.countries.list. ' +
+      'Ideal for rapid country assessment and investment screening across 54 African nations.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'africa.markets.fx_rates',
+    mcpName: 'africa.markets.fx_rates',
+    title: 'Africa API — African FX Rates',
+    description:
+      'Get daily USD exchange rates for all 50+ African currencies. Returns current rate per USD ' +
+      'for NGN (Nigerian naira), KES (Kenyan shilling), ZAR (South African rand), ' +
+      'EGP (Egyptian pound), GHS (Ghanaian cedi), ETB (Ethiopian birr), MAD (Moroccan dirham), ' +
+      'and all other African currency pairs. Rates updated daily. ' +
+      "Filter by country code to get the rate for a specific country's currency.",
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'africa.data.indicator',
+    mcpName: 'africa.data.indicator',
+    title: 'Africa API — Economic Indicator Data',
+    description:
+      'Query a specific economic indicator time series for an African country. Supports 120+ metrics ' +
+      'including GDP (gdp_usd), inflation rate (inflation_pct), GDP per capita (gdp_per_capita_usd), ' +
+      'unemployment (unemployment_pct), trade balance (trade_balance_usd), ' +
+      'foreign direct investment (fdi_inflows_usd), and more. ' +
+      'Returns annual data sourced from World Bank, IMF, and UN. ' +
+      'Omit start_year/end_year for latest value; supply both for a historical range (e.g. 2010–2024). ' +
+      'Use africa.countries.signals to discover available metric_key values for a country.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'africa.politics.elections',
+    mcpName: 'africa.politics.elections',
+    title: 'Africa API — African Elections',
+    description:
+      'List presidential, parliamentary, and local government elections across all 54 African countries. ' +
+      'Returns election scope (presidential/parliamentary/local), status (upcoming/completed/ongoing), ' +
+      'dates, and country. Filter by country code, election status, or year range. ' +
+      'Use status="upcoming" to find upcoming African elections relevant to political risk analysis ' +
+      'or investment due diligence. Data sourced from Wikidata and official election commission records.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

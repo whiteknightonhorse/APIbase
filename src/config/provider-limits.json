@@ -2366,5 +2366,14 @@
     "reset_period": "none",
     "docs_url": "https://apps.bea.gov/api/signup/",
     "limit_proof": "BEA API docs state no rate limits; US Government open data (Bureau of Economic Analysis); free API key registration."
+  },
+  "africa": {
+    "display_name": "Africa API",
+    "health_url": "https://api.africa-api.com/health",
+    "limit_type": "monthly",
+    "free_limit": 1000,
+    "reset_period": "monthly",
+    "docs_url": "https://africa-api.com/docs",
+    "limit_proof": "Free plan: 1,000 requests/month, 5 requests/minute. Paid plans available for higher throughput."
   }
 }

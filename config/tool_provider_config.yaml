@@ -5583,6 +5583,37 @@ tools:
     price_usd: "0.002"
     cache_ttl: 86400
 
+  # --- UC-546: Africa API ---
+  - tool_id: africa.countries.list
+    name: Africa API — List African Countries
+    provider: africa
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: africa.countries.signals
+    name: Africa API — Country Economic Signals
+    provider: africa
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: africa.markets.fx_rates
+    name: Africa API — African FX Rates
+    provider: africa
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: africa.data.indicator
+    name: Africa API — Economic Indicator Data
+    provider: africa
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: africa.politics.elections
+    name: Africa API — African Elections
+    provider: africa
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

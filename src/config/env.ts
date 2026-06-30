@@ -410,6 +410,9 @@ export const appEnvSchema = z.object({
   // Bureau of Economic Analysis (UC-545) — GDP, personal income, trade balance, state GDP; api_key auth
   PROVIDER_KEY_BEA: z.string().optional().default(''),
 
+  // Africa API (UC-546) — Pan-African economic data for 54 countries; Bearer token auth
+  PROVIDER_KEY_AFRICAAPI: z.string().optional().default(''),
+
   // GeoNames geographical database (UC-512) — place search, postal codes, country info, timezones
   GEONAMES_USERNAME: z.string().optional().default('APIbase'),
 

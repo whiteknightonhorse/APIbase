@@ -263,6 +263,7 @@ import { eurostat2Schemas } from './eurostat2.schema';
 import { abrSchemas } from './abr.schema';
 import { banxicoSchemas } from './banxico.schema';
 import { beaSchemas } from './bea.schema';
+import { africaSchemas } from './africa.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -529,4 +530,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...abrSchemas,
   ...banxicoSchemas,
   ...beaSchemas,
+  ...africaSchemas,
 };
