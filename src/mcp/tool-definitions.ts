@@ -5926,6 +5926,42 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'entertainment',
     annotations: READ_ONLY,
   },
+  {
+    toolId: 'cma.artwork_search',
+    mcpName: 'cma.artwork.search',
+    title: 'Search Cleveland Museum Artworks',
+    description:
+      'Search 64,000+ artworks at the Cleveland Museum of Art by keyword, artist, type, or culture. Returns title, artist, date, medium, image URLs, and CC0 license status. Use cma.artwork_detail for full record (CMA Open Access)',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'cma.artwork_detail',
+    mcpName: 'cma.artwork.detail',
+    title: 'Get Cleveland Museum Artwork Detail',
+    description:
+      'Get complete metadata for a Cleveland Museum artwork by accession number — artist, date, medium, dimensions, culture, provenance, exhibition history, image URLs (web + print). Use cma.artwork_search to find accession numbers (CMA Open Access)',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'cma.creator_search',
+    mcpName: 'cma.creator.search',
+    title: 'Search Cleveland Museum Creators',
+    description:
+      'Search artists, sculptors, and makers in the Cleveland Museum of Art collection. Returns creator name, nationality, birth/death dates, and count of works in the collection. Use accession numbers from results with cma.artwork_detail (CMA Open Access)',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'cma.exhibition_search',
+    mcpName: 'cma.exhibition.search',
+    title: 'Search Cleveland Museum Exhibitions',
+    description:
+      'Search past and current exhibitions at the Cleveland Museum of Art. Returns exhibition title, date range, description, and featured artworks. Use for art history research and provenance verification (CMA Open Access)',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
   // ---------------------------------------------------------------------------
   // Smithsonian Institution — 19 museums, 11M+ Open Access records (UC-382)
   // ---------------------------------------------------------------------------
@@ -11097,6 +11133,67 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
       'lava flow extent, ash cloud height, and recommended actions. ' +
       'Use with volcano_id from volcano.monitored or volcano.us_catalog. ' +
       'No auth — USGS public domain, data updated as notices are issued.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
+  // USGS NWIS Streamflow (UC-557) — 4 tools
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'nwis.daily_values',
+    mcpName: 'nwis.streamflow.daily_values',
+    title: 'USGS NWIS — Daily Streamflow Values',
+    description:
+      'Get historical daily mean streamflow (discharge) values for a USGS gauge station over any date range. ' +
+      'Returns one measurement per day (midnight UTC) in cubic feet per second (ft3/s). ' +
+      'Also supports gage height (ft), water temperature (°C), specific conductance, and turbidity via parameter_cd. ' +
+      'Ideal for trend analysis, drought monitoring, flood season review, and hydrology research. ' +
+      'Coverage: 1,500+ active US streamflow stations, records from 1900s to present. ' +
+      'Use water.sites to look up station numbers by state or bounding box. ' +
+      'No auth — USGS public domain, unlimited calls.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nwis.annual_stats',
+    mcpName: 'nwis.streamflow.annual_stats',
+    title: 'USGS NWIS — Annual Streamflow Statistics',
+    description:
+      'Get year-by-year annual mean streamflow statistics for a USGS gauge station. ' +
+      'Returns mean discharge (ft3/s) for each water year with records going back to 1900s at major stations. ' +
+      'Useful for long-term hydrologic trend analysis, climate change assessment, and water resource planning. ' +
+      'Typical major stations have 60–90 years of annual records. ' +
+      'Use water.sites to look up station numbers by state or bounding box. ' +
+      'No auth — USGS public domain, unlimited calls.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nwis.basin_conditions',
+    mcpName: 'nwis.streamflow.basin_conditions',
+    title: 'USGS NWIS — Basin-Wide Streamflow Conditions',
+    description:
+      'Get real-time streamflow readings for all active USGS gauge stations within a HUC-8 watershed basin. ' +
+      'Returns current discharge (ft3/s) at every station in the basin — typically 5–40 sites — in a single call. ' +
+      'Ideal for watershed-scale flood monitoring, drought assessment, and basin hydrology surveys. ' +
+      'HUC-8 (8-digit Hydrologic Unit Code) defines a sub-basin level watershed (e.g. "02070008" = Potomac Basin). ' +
+      'Find HUC codes at water.usgs.gov or use huc=XXXXXXXX for your area of interest. ' +
+      'No auth — USGS public domain, updated every 15 minutes.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nwis.site_info',
+    mcpName: 'nwis.streamflow.site_info',
+    title: 'USGS NWIS — Gauge Station Metadata',
+    description:
+      'Get detailed metadata for a specific USGS hydrologic monitoring station: drainage area, HUC watershed code, ' +
+      'precise coordinates, altitude, site type, state/county codes, and timezone. ' +
+      'The drainage_area_sqmi field is critical for discharge-to-runoff calculations and flood frequency analysis. ' +
+      'Complements water.sites (which searches by state/bounding box) by providing deep metadata for a known site. ' +
+      'Use water.sites first to find the site_no, then call this for full station context. ' +
+      'No auth — USGS public domain, unlimited calls.',
     category: 'world',
     annotations: READ_ONLY,
   },

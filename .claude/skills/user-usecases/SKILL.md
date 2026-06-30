@@ -251,6 +251,7 @@ Use these examples as reference patterns when:
 | UC-554 | BioModels EMBL-EBI | Science / Systems Biology | LIVE | No auth, CC0, 4 tools | `usecases/UC-554-biomodels.md` |
 | UC-555 | Open-Meteo Air Quality | Weather / Air Quality | LIVE | No auth, CC BY 4.0, 4 tools | `usecases/UC-555-openmeteoaq.md` |
 | UC-556 | USGS HANS Volcano | World / Natural Hazards | LIVE | No auth, US Gov public domain, 6 tools | `usecases/UC-556-usgs-hans-volcano.md` |
+| UC-557 | USGS NWIS Streamflow | World / Hydrology | LIVE | No auth, US Gov public domain, 4 tools | `usecases/UC-557-usgs-nwis-streamflow.md` |
 
 ## How to Use
 

@@ -274,6 +274,7 @@ import { uniprotSchemas } from './uniprot.schema';
 import { biomodelsSchemas } from './biomodels.schema';
 import { openmeteoaqSchemas } from './openmeteoaq.schema';
 import { usgsHansVolcanoSchemas } from './usgs-hans-volcano.schema';
+import { usgsNwisSchemas } from './usgs-nwis.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -551,4 +552,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...biomodelsSchemas,
   ...openmeteoaqSchemas,
   ...usgsHansVolcanoSchemas,
+  ...usgsNwisSchemas,
 };

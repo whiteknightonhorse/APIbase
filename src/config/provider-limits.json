@@ -2465,5 +2465,14 @@
     "reset_period": "none",
     "docs_url": "https://volcanoes.usgs.gov/hans-public/api/",
     "limit_proof": "US Government open data, no authentication required, no documented rate limits. USGS Volcano Hazards Program HANS public API."
+  },
+  "usgs-nwis": {
+    "display_name": "USGS NWIS Streamflow",
+    "health_url": "https://waterservices.usgs.gov/nwis/iv/?format=json&sites=01646500&parameterCd=00060&period=PT1H",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://waterservices.usgs.gov/rest/",
+    "limit_proof": "US Government open data (USGS National Water Information System), no authentication required, no documented rate limits. Public domain under 17 USC §105."
   }
 }

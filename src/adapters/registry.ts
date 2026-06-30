@@ -274,6 +274,7 @@ import { UniprotAdapter } from './uniprot';
 import { BioModelsAdapter } from './biomodels';
 import { OpenMeteoAqAdapter } from './openmeteoaq';
 import { UsgsHansVolcanoAdapter } from './usgs-hans-volcano';
+import { UsgsNwisAdapter } from './usgs-nwis';
 import { config } from '../config';
 
 /**
@@ -1548,6 +1549,10 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'usgs-hans-volcano':
       // USGS HANS Volcano (UC-556) — 170 US volcanoes, real-time alerts, CAP; no auth, US Gov public domain
       return getOrCreate('usgs-hans-volcano', () => new UsgsHansVolcanoAdapter());
+    case 'nwis':
+    case 'usgs-nwis':
+      // USGS NWIS Streamflow (UC-557) — daily values, annual stats, basin conditions, site metadata; no auth, US Gov public domain
+      return getOrCreate('usgs-nwis', () => new UsgsNwisAdapter());
     default:
       return undefined;
   }

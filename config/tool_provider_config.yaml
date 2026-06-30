@@ -5882,6 +5882,31 @@ tools:
     price_usd: "0.002"
     cache_ttl: 300
 
+  # --- UC-557: USGS NWIS Streamflow ---
+  - tool_id: nwis.daily_values
+    name: USGS NWIS — Daily Streamflow Values
+    provider: usgs-nwis
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: nwis.annual_stats
+    name: USGS NWIS — Annual Streamflow Statistics
+    provider: usgs-nwis
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: nwis.basin_conditions
+    name: USGS NWIS — Basin-Wide Streamflow Conditions
+    provider: usgs-nwis
+    price_usd: "0.003"
+    cache_ttl: 300
+
+  - tool_id: nwis.site_info
+    name: USGS NWIS — Gauge Station Metadata
+    provider: usgs-nwis
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

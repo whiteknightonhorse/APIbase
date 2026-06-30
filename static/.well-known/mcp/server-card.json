@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 982 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 986 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -56596,6 +56596,217 @@
           "error": {
             "type": "object",
             "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "nwis.streamflow.annual_stats",
+      "title": "USGS NWIS \u2014 Annual Streamflow Statistics",
+      "description": "Get year-by-year annual mean streamflow statistics for a USGS gauge station. Returns mean discharge (ft3/s) for each water year with records going back to 1900s at major stations. Useful for long-term hydrologic trend analysis, climate change assessment, and water resource planning. Typical major stations have 60\u201390 years of annual records. Use water.sites to look up station numbers by state or bounding box. No auth \u2014 USGS public domain, unlimited calls.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "site_no": {
+            "type": "string",
+            "description": "USGS gauge station number, 8\u201315 digits (e.g. \"01646500\" for Potomac River near DC). Use water.sites to find station numbers."
+          }
+        },
+        "required": [
+          "site_no"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "nwis.streamflow.basin_conditions",
+      "title": "USGS NWIS \u2014 Basin-Wide Streamflow Conditions",
+      "description": "Get real-time streamflow readings for all active USGS gauge stations within a HUC-8 watershed basin. Returns current discharge (ft3/s) at every station in the basin \u2014 typically 5\u201340 sites \u2014 in a single call. Ideal for watershed-scale flood monitoring, drought assessment, and basin hydrology surveys. HUC-8 (8-digit Hydrologic Unit Code) defines a sub-basin level watershed (e.g. \"02070008\" = Potomac Basin). Find HUC codes at water.usgs.gov or use huc=XXXXXXXX for your area of interest. No auth \u2014 USGS public domain, updated every 15 minutes.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "huc_code": {
+            "type": "string",
+            "description": "USGS Hydrologic Unit Code (HUC) \u2014 8-digit watershed code (e.g. \"02070008\" for the Potomac Basin). Use 8-digit HUC for best results. Find HUC codes at water.usgs.gov/lookup/getwatershed."
+          },
+          "period": {
+            "type": "string",
+            "description": "ISO 8601 duration for how recent the data should be (e.g. \"PT2H\" = last 2 hours, \"PT6H\" = last 6 hours). Default is \"PT2H\". Longer periods return more data but may slow the response."
+          }
+        },
+        "required": [
+          "huc_code"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "nwis.streamflow.daily_values",
+      "title": "USGS NWIS \u2014 Daily Streamflow Values",
+      "description": "Get historical daily mean streamflow (discharge) values for a USGS gauge station over any date range. Returns one measurement per day (midnight UTC) in cubic feet per second (ft3/s). Also supports gage height (ft), water temperature (\u00b0C), specific conductance, and turbidity via parameter_cd. Ideal for trend analysis, drought monitoring, flood season review, and hydrology research. Coverage: 1,500+ active US streamflow stations, records from 1900s to present. Use water.sites to look up station numbers by state or bounding box. No auth \u2014 USGS public domain, unlimited calls.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "site_no": {
+            "type": "string",
+            "description": "USGS gauge station number, 8\u201315 digits (e.g. \"01646500\" for Potomac River near DC). Use water.sites to find station numbers."
+          },
+          "start_date": {
+            "type": "string",
+            "description": "Start date in YYYY-MM-DD format (e.g. \"2026-01-01\"). Defaults to 30 days ago if omitted."
+          },
+          "end_date": {
+            "type": "string",
+            "description": "End date in YYYY-MM-DD format (e.g. \"2026-06-30\"). Defaults to today if omitted. Max range: 1 year."
+          },
+          "parameter_cd": {
+            "type": "string",
+            "enum": [
+              "00060",
+              "00065",
+              "00010",
+              "00095",
+              "63680"
+            ],
+            "description": "USGS parameter code. \"00060\" = discharge/streamflow (ft3/s, default), \"00065\" = gage height (ft), \"00010\" = water temperature (\u00b0C), \"00095\" = specific conductance (\u00b5S/cm), \"63680\" = turbidity (FNU)."
+          }
+        },
+        "required": [
+          "site_no"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "nwis.streamflow.site_info",
+      "title": "USGS NWIS \u2014 Gauge Station Metadata",
+      "description": "Get detailed metadata for a specific USGS hydrologic monitoring station: drainage area, HUC watershed code, precise coordinates, altitude, site type, state/county codes, and timezone. The drainage_area_sqmi field is critical for discharge-to-runoff calculations and flood frequency analysis. Complements water.sites (which searches by state/bounding box) by providing deep metadata for a known site. Use water.sites first to find the site_no, then call this for full station context. No auth \u2014 USGS public domain, unlimited calls.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "site_no": {
+            "type": "string",
+            "description": "USGS gauge station number, 8\u201315 digits (e.g. \"01646500\" for Potomac River near DC, \"09380000\" for Colorado River at Lee Ferry). Use water.sites to search by state or bounding box."
+          }
+        },
+        "required": [
+          "site_no"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
           }
         },
         "required": [
