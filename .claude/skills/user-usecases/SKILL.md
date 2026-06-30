@@ -66,6 +66,7 @@ Use these examples as reference patterns when:
 | UC-042 | BarcodeAPI | Barcode Generation | Candidate | Fully free | `usecases/UC-042-barcodeapi.md` |
 | UC-043 | Rakuten Web Service | Japan / E-commerce | Candidate | Fully free | `usecases/UC-043-rakuten-web-service.md` |
 | UC-044 | e-Stat Japan | Japan / Government Stats | Candidate | Fully free | `usecases/UC-044-e-stat-japan.md` |
+| UC-192 | disease.sh | Health / Disease Data | LIVE | No auth, MIT, 4 tools | `usecases/UC-192-disease-sh.md` |
 | UC-213 | PubChem | Chemistry / Compound Data | Candidate | Free (US Gov) | `usecases/UC-213-pubchem.md` |
 | UC-214 | Open Charge Map | EV / Charging Stations | Candidate | Free (open data) | `usecases/UC-214-openchargemap.md` |
 | UC-215 | ChEMBL | Drug Bioactivity | Candidate | Free (CC BY-SA) | `usecases/UC-215-chembl.md` |

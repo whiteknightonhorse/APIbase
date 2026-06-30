@@ -34806,13 +34806,11 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "source": {
-                    "type": "string",
-                    "enum": [
-                      "ilinet",
-                      "usil"
-                    ],
-                    "description": "Data source: \"ilinet\" for ILI network data or \"usil\" for US ILI summary (default \"ilinet\")"
+                  "weeks": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 104,
+                    "description": "Number of most recent weeks to return (default all, up to 104). CDC ILI data is published weekly."
                   }
                 }
               }

@@ -47,13 +47,21 @@ export class DiseaseAdapter extends BaseAdapter {
         if (params.yesterday) qs.set('yesterday', 'true');
         if (params.strict) qs.set('strict', 'true');
         const q = qs.toString();
-        return { url: `${this.baseUrl}/covid-19/countries/${country}${q ? '?' + q : ''}`, method: 'GET', headers };
+        return {
+          url: `${this.baseUrl}/covid-19/countries/${country}${q ? '?' + q : ''}`,
+          method: 'GET',
+          headers,
+        };
       }
 
       case 'disease.covid_history': {
         const country = encodeURIComponent(String(params.country || 'all'));
         const lastdays = params.lastdays ?? 30;
-        return { url: `${this.baseUrl}/covid-19/historical/${country}?lastdays=${lastdays}`, method: 'GET', headers };
+        return {
+          url: `${this.baseUrl}/covid-19/historical/${country}?lastdays=${lastdays}`,
+          method: 'GET',
+          headers,
+        };
       }
 
       case 'disease.influenza': {
@@ -140,8 +148,18 @@ export class DiseaseAdapter extends BaseAdapter {
         };
       }
 
-      case 'disease.influenza':
-        return body;
+      case 'disease.influenza': {
+        const params = req.params as Record<string, unknown>;
+        const weeks = Math.min(Number(params.weeks) || 0, 104);
+        const data = (body.data as unknown[]) ?? [];
+        return {
+          source: body.source,
+          updated: body.updated ? new Date(body.updated as number).toISOString() : null,
+          total_weeks: data.length,
+          returned_weeks: weeks > 0 ? Math.min(weeks, data.length) : data.length,
+          data: weeks > 0 ? data.slice(-weeks) : data,
+        };
+      }
 
       default:
         return body;
