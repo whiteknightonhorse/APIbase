@@ -17,7 +17,7 @@ for f in static/index.html static/terms.html static/frameworks.html static/conta
          static/privacy.html static/dashboard.html static/llms.txt static/ai.txt README.md; do
   [ -f "$f" ] || continue
   b=$(md5sum "$f" | cut -d" " -f1)
-  sed -i -E "s/[0-9]{3,}\+?( [A-Za-z]+)? tools/${TOOLS} tools/g; s/[0-9]{3,}\+? providers/${PROV} providers/g" "$f"
+  sed -i -E "s/[0-9]{3,}\+?( [A-Za-z]+)? tools/${TOOLS} tools/g; s/[0-9]{3,}\+?( [A-Za-z]+)? providers/${PROV} providers/g" "$f"
   [ "$(md5sum "$f" | cut -d" " -f1)" != "$b" ] && { echo "  updated $f"; CHANGED=$((CHANGED+1)); }
 done
 
