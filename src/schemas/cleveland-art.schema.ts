@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const clevelandArtSchemas: Record<string, z.ZodSchema> = {
-  'cma.artwork_search': z
+  'clevelandart.artwork_search': z
     .object({
       query: z
         .string()
@@ -47,7 +47,7 @@ export const clevelandArtSchemas: Record<string, z.ZodSchema> = {
     })
     .strip(),
 
-  'cma.artwork_detail': z
+  'clevelandart.artwork_detail': z
     .object({
       artwork_id: z
         .number()
@@ -60,7 +60,7 @@ export const clevelandArtSchemas: Record<string, z.ZodSchema> = {
     })
     .strip(),
 
-  'cma.creator_search': z
+  'clevelandart.creator_search': z
     .object({
       query: z
         .string()
@@ -92,7 +92,7 @@ export const clevelandArtSchemas: Record<string, z.ZodSchema> = {
     })
     .strip(),
 
-  'cma.exhibition_search': z
+  'clevelandart.exhibition_search': z
     .object({
       query: z
         .string()

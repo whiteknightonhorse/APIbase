@@ -10781,8 +10781,8 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   },
   // Cleveland Museum of Art Open Access (4)
   {
-    toolId: 'cma.artwork_search',
-    mcpName: 'cma.artwork.search',
+    toolId: 'clevelandart.artwork_search',
+    mcpName: 'clevelandart.artwork.search',
     title: 'Cleveland Museum of Art — Search Artworks',
     description:
       'Search 68,000+ artworks in the Cleveland Museum of Art open access collection. ' +
@@ -10796,21 +10796,21 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     annotations: READ_ONLY,
   },
   {
-    toolId: 'cma.artwork_detail',
-    mcpName: 'cma.artwork.detail',
+    toolId: 'clevelandart.artwork_detail',
+    mcpName: 'clevelandart.artwork.detail',
     title: 'Cleveland Museum of Art — Artwork Detail',
     description:
       'Retrieve complete metadata for a single artwork by its numeric ID from the Cleveland Museum of Art collection. ' +
       'Returns full tombstone, tombstone text, creator biographies, medium/technique, measurements, provenance creditline, ' +
       'copyright status, gallery location, loan status, image URLs in web/print/full resolutions, ' +
       'and the CMA collection page URL. ' +
-      'Use after cma.artwork.search to get the complete record for a specific work.',
+      'Use after clevelandart.artwork_detail to get the complete record for a specific work.',
     category: 'media',
     annotations: READ_ONLY,
   },
   {
-    toolId: 'cma.creator_search',
-    mcpName: 'cma.creator.search',
+    toolId: 'clevelandart.creator_search',
+    mcpName: 'clevelandart.creator.search',
     title: 'Cleveland Museum of Art — Search Creators',
     description:
       'Search 9,200+ artists and creators in the Cleveland Museum of Art open access database. ' +
@@ -10821,8 +10821,8 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     annotations: READ_ONLY,
   },
   {
-    toolId: 'cma.exhibition_search',
-    mcpName: 'cma.exhibition.search',
+    toolId: 'clevelandart.exhibition_search',
+    mcpName: 'clevelandart.exhibition.search',
     title: 'Cleveland Museum of Art — Search Exhibitions',
     description:
       'Search 5,600+ exhibitions in the Cleveland Museum of Art historical archive. ' +

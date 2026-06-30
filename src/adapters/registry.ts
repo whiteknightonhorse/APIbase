@@ -1528,9 +1528,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'doaj':
       // DOAJ Directory of Open Access Journals (UC-551) — 20K+ OA journals + 10M+ articles; no auth
       return getOrCreate('doaj', () => new DoajAdapter());
-    case 'cma':
+    case 'clevelandart':
       // Cleveland Museum of Art Open Access (UC-552) — 68K+ artworks, 9K+ creators; no auth, CC0/CC BY
-      return getOrCreate('cma', () => new ClevelandArtAdapter());
+      return getOrCreate('clevelandart', () => new ClevelandArtAdapter());
     default:
       return undefined;
   }

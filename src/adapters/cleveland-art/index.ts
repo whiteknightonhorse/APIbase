@@ -18,7 +18,7 @@ const CMA_BASE = 'https://openaccess-api.clevelandart.org/api';
 
 export class ClevelandArtAdapter extends BaseAdapter {
   constructor() {
-    super({ provider: 'cma', baseUrl: CMA_BASE });
+    super({ provider: 'clevelandart', baseUrl: CMA_BASE });
   }
 
   protected buildRequest(req: ProviderRequest): {
@@ -30,7 +30,7 @@ export class ClevelandArtAdapter extends BaseAdapter {
     const headers: Record<string, string> = { Accept: 'application/json' };
 
     switch (req.toolId) {
-      case 'cma.artwork_search': {
+      case 'clevelandart.artwork_search': {
         const qp = new URLSearchParams();
         if (params.query) qp.set('q', String(params.query));
         if (params.type) qp.set('type', String(params.type));
@@ -41,12 +41,12 @@ export class ClevelandArtAdapter extends BaseAdapter {
         return { url: `${CMA_BASE}/artworks/?${qp.toString()}`, method: 'GET', headers };
       }
 
-      case 'cma.artwork_detail': {
+      case 'clevelandart.artwork_detail': {
         const id = encodeURIComponent(String(params.artwork_id));
         return { url: `${CMA_BASE}/artworks/${id}`, method: 'GET', headers };
       }
 
-      case 'cma.creator_search': {
+      case 'clevelandart.creator_search': {
         const qp = new URLSearchParams();
         if (params.query) qp.set('q', String(params.query));
         if (params.nationality) qp.set('nationality', String(params.nationality));
@@ -55,7 +55,7 @@ export class ClevelandArtAdapter extends BaseAdapter {
         return { url: `${CMA_BASE}/creators/?${qp.toString()}`, method: 'GET', headers };
       }
 
-      case 'cma.exhibition_search': {
+      case 'clevelandart.exhibition_search': {
         const qp = new URLSearchParams();
         if (params.query) qp.set('q', String(params.query));
         if (params.is_venue_cma) qp.set('is_venue_cma', '1');
@@ -80,13 +80,13 @@ export class ClevelandArtAdapter extends BaseAdapter {
     const body = raw.body as Record<string, unknown>;
 
     switch (req.toolId) {
-      case 'cma.artwork_search':
+      case 'clevelandart.artwork_search':
         return this.parseArtworkSearch(body);
-      case 'cma.artwork_detail':
+      case 'clevelandart.artwork_detail':
         return this.parseArtworkDetail(body);
-      case 'cma.creator_search':
+      case 'clevelandart.creator_search':
         return this.parseCreatorSearch(body);
-      case 'cma.exhibition_search':
+      case 'clevelandart.exhibition_search':
         return this.parseExhibitionSearch(body);
       default:
         return body;
