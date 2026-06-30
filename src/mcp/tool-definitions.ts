@@ -10060,4 +10060,62 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+
+  // FBI Crime Data Explorer UCR (4)
+  {
+    toolId: 'fbi.national_offenses',
+    mcpName: 'fbi.crime.national_offenses',
+    title: 'FBI UCR — National Crime Statistics',
+    description:
+      'Retrieve monthly national Uniform Crime Reporting (UCR) crime statistics from the FBI Crime Data ' +
+      'Explorer. Returns raw offense counts, rates per 100,000 population, and clearance counts by month ' +
+      'for the requested offense type and date range. Offense types include violent-crime, property-crime, ' +
+      'homicide, rape, robbery, aggravated-assault, burglary, larceny, motor-vehicle-theft, and arson. ' +
+      'Data covers the full US participating law-enforcement agencies (95%+ population coverage). ' +
+      'Source: FBI UCR / CDE, US Gov public domain, api.data.gov, no auth required.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'fbi.state_offenses',
+    mcpName: 'fbi.crime.state_offenses',
+    title: 'FBI UCR — State Crime Statistics vs National',
+    description:
+      'Retrieve monthly state-level UCR crime statistics from the FBI Crime Data Explorer, including a ' +
+      'side-by-side national comparison. Returns offense counts, rates per 100,000 people, and clearance ' +
+      'counts for both the requested state and the national average. Supports all 50 US states and DC ' +
+      '(use 2-letter abbreviation, e.g. CA, TX, NY). Same 10 offense types as the national endpoint. ' +
+      "Ideal for comparing a state's crime rate against the national benchmark. " +
+      'Source: FBI UCR / CDE, US Gov public domain, no auth required.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'fbi.national_annual',
+    mcpName: 'fbi.crime.national_annual',
+    title: 'FBI UCR — National Annual Crime Trends',
+    description:
+      'Retrieve national year-over-year annual crime totals from FBI UCR data, aggregated from monthly ' +
+      'reporting. Returns total offense counts, average rate per 100,000 population, total clearances, ' +
+      'and clearance rate percentage for each calendar year. Supports date ranges spanning multiple ' +
+      'decades (data available from 1979). Ideal for long-term trend analysis: "Has the US murder rate ' +
+      'declined since the 1990s?" or "What are 10-year property crime trends?". ' +
+      'Source: FBI UCR / CDE, US Gov public domain, no auth required.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'fbi.state_annual',
+    mcpName: 'fbi.crime.state_annual',
+    title: 'FBI UCR — State Annual Crime Trends vs National',
+    description:
+      'Retrieve state-level annual crime totals from FBI UCR data with national comparison, aggregated ' +
+      'from monthly reporting. Returns year-by-year offense counts, rates, clearances, and clearance ' +
+      'rates for both the specified state and the national average. Perfect for tracking state crime ' +
+      'trends over time and comparing against the national picture. Supports 50 states + DC (2-letter ' +
+      'code) and multi-decade date ranges back to 1979. ' +
+      'Source: FBI UCR / CDE, US Gov public domain, no auth required.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
 ];

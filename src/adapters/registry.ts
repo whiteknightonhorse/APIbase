@@ -257,6 +257,7 @@ import { TreasuryDirectAdapter } from './treasurydirect';
 import { OpenTopographyAdapter } from './opentopography';
 import { OecdStatsAdapter } from './oecd-stats';
 import { StatCanAdapter } from './statcan';
+import { FbiCdeAdapter } from './fbi';
 import { config } from '../config';
 
 /**
@@ -1476,6 +1477,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'statcan':
       // Statistics Canada WDS (UC-539) — 6000+ time-series; Canada Open Licence, no auth
       return getOrCreate('statcan', () => new StatCanAdapter());
+    case 'fbi':
+      // FBI Crime Data Explorer UCR (UC-540) — national/state crime stats; api.data.gov shared key
+      return getOrCreate('fbi', () => new FbiCdeAdapter(config.PROVIDER_KEY_API_DATA_GOV));
     default:
       return undefined;
   }

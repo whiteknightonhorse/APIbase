@@ -2312,5 +2312,14 @@
     "reset_period": "none",
     "docs_url": "https://www.statcan.gc.ca/en/developers/wds/user-guide",
     "limit_proof": "Statistics Canada WDS: 25 req/s per IP, 50 req/s per server; no documented daily/monthly quota. Canada Open Licence permits commercial use."
+  },
+  "fbi": {
+    "display_name": "FBI Crime Data Explorer (UCR)",
+    "health_url": "https://api.usa.gov/crime/fbi/cde/summarized/national/violent-crime?from=01-2022&to=12-2022&api_key=TOKEN_FROM_ENV",
+    "limit_type": "hourly",
+    "free_limit": 1000,
+    "reset_period": "hourly",
+    "docs_url": "https://cde.ucr.cjis.gov/LATEST/webapp/#/pages/docApi",
+    "limit_proof": "api.data.gov standard tier: 1,000 requests/hr; burst rate 10 req/s. US Gov public domain (UCR data). Shared PROVIDER_KEY_API_DATA_GOV key."
   }
 }

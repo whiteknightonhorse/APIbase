@@ -81161,6 +81161,424 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/fbi.national_offenses/call": {
+      "post": {
+        "operationId": "fbi_national_offenses",
+        "summary": "FBI UCR — National Crime Statistics",
+        "description": "Retrieve monthly national Uniform Crime Reporting (UCR) crime statistics from the FBI Crime Data Explorer. Returns raw offense counts, rates per 100,000 population, and clearance counts by month for the requested offense type and date range. Offense types include violent-crime, property-crime, homicide, rape, robbery, aggravated-assault, burglary, larceny, motor-vehicle-theft, and arson. Data covers the full US participating law-enforcement agencies (95%+ population coverage). Source: FBI UCR / CDE, US Gov public domain, api.data.gov, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fbi.national_offenses"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "offense_type": {
+                    "type": "string",
+                    "enum": [
+                      "violent-crime",
+                      "property-crime",
+                      "homicide",
+                      "rape",
+                      "robbery",
+                      "aggravated-assault",
+                      "burglary",
+                      "larceny",
+                      "motor-vehicle-theft",
+                      "arson"
+                    ],
+                    "description": "FBI UCR offense category. violent-crime (murder+rape+robbery+assault), property-crime (burglary+larceny+auto+arson), or individual offense type"
+                  },
+                  "from_month": {
+                    "type": "string",
+                    "description": "Start month in MM-YYYY format (e.g. 01-2019). Data available from 01-1979."
+                  },
+                  "to_month": {
+                    "type": "string",
+                    "description": "End month in MM-YYYY format (e.g. 12-2022). Defaults to last full year."
+                  }
+                },
+                "required": [
+                  "offense_type"
+                ],
+                "description": "Get national UCR crime statistics. Returns monthly actuals, rates per 100k, and clearance counts."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/fbi.state_offenses/call": {
+      "post": {
+        "operationId": "fbi_state_offenses",
+        "summary": "FBI UCR — State Crime Statistics vs National",
+        "description": "Retrieve monthly state-level UCR crime statistics from the FBI Crime Data Explorer, including a side-by-side national comparison. Returns offense counts, rates per 100,000 people, and clearance counts for both the requested state and the national average. Supports all 50 US states and DC (use 2-letter abbreviation, e.g. CA, TX, NY). Same 10 offense types as the national endpoint. Ideal for comparing a state's crime rate against the national benchmark. Source: FBI UCR / CDE, US Gov public domain, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fbi.state_offenses"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "type": "string",
+                    "description": "Two-letter US state abbreviation (e.g. CA, TX, NY, FL). All 50 states + DC supported.",
+                    "minLength": 2,
+                    "maxLength": 2
+                  },
+                  "offense_type": {
+                    "type": "string",
+                    "enum": [
+                      "violent-crime",
+                      "property-crime",
+                      "homicide",
+                      "rape",
+                      "robbery",
+                      "aggravated-assault",
+                      "burglary",
+                      "larceny",
+                      "motor-vehicle-theft",
+                      "arson"
+                    ],
+                    "description": "FBI UCR offense category. violent-crime (murder+rape+robbery+assault), property-crime (burglary+larceny+auto+arson), or individual offense type"
+                  },
+                  "from_month": {
+                    "type": "string",
+                    "description": "Start month in MM-YYYY format (e.g. 01-2019). Data available from 01-1979."
+                  },
+                  "to_month": {
+                    "type": "string",
+                    "description": "End month in MM-YYYY format (e.g. 12-2022). Defaults to last full year."
+                  }
+                },
+                "required": [
+                  "state",
+                  "offense_type"
+                ],
+                "description": "Get state UCR crime statistics compared to the national average for the same offense type."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/fbi.national_annual/call": {
+      "post": {
+        "operationId": "fbi_national_annual",
+        "summary": "FBI UCR — National Annual Crime Trends",
+        "description": "Retrieve national year-over-year annual crime totals from FBI UCR data, aggregated from monthly reporting. Returns total offense counts, average rate per 100,000 population, total clearances, and clearance rate percentage for each calendar year. Supports date ranges spanning multiple decades (data available from 1979). Ideal for long-term trend analysis: \"Has the US murder rate declined since the 1990s?\" or \"What are 10-year property crime trends?\". Source: FBI UCR / CDE, US Gov public domain, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fbi.national_annual"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "offense_type": {
+                    "type": "string",
+                    "enum": [
+                      "violent-crime",
+                      "property-crime",
+                      "homicide",
+                      "rape",
+                      "robbery",
+                      "aggravated-assault",
+                      "burglary",
+                      "larceny",
+                      "motor-vehicle-theft",
+                      "arson"
+                    ],
+                    "description": "FBI UCR offense category. violent-crime (murder+rape+robbery+assault), property-crime (burglary+larceny+auto+arson), or individual offense type"
+                  },
+                  "from_year": {
+                    "type": "integer",
+                    "description": "Start year for annual trend data (e.g. 2010). Data available from 1979.",
+                    "minimum": 1979,
+                    "maximum": 2030
+                  },
+                  "to_year": {
+                    "type": "integer",
+                    "description": "End year for annual trend data inclusive (e.g. 2022). Defaults to last full year.",
+                    "minimum": 1979,
+                    "maximum": 2030
+                  }
+                },
+                "required": [
+                  "offense_type"
+                ],
+                "description": "Get national UCR annual crime totals (aggregated from monthly). Ideal for multi-year trend analysis."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/fbi.state_annual/call": {
+      "post": {
+        "operationId": "fbi_state_annual",
+        "summary": "FBI UCR — State Annual Crime Trends vs National",
+        "description": "Retrieve state-level annual crime totals from FBI UCR data with national comparison, aggregated from monthly reporting. Returns year-by-year offense counts, rates, clearances, and clearance rates for both the specified state and the national average. Perfect for tracking state crime trends over time and comparing against the national picture. Supports 50 states + DC (2-letter code) and multi-decade date ranges back to 1979. Source: FBI UCR / CDE, US Gov public domain, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fbi.state_annual"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "type": "string",
+                    "description": "Two-letter US state abbreviation (e.g. CA, TX, NY, FL). All 50 states + DC supported.",
+                    "minLength": 2,
+                    "maxLength": 2
+                  },
+                  "offense_type": {
+                    "type": "string",
+                    "enum": [
+                      "violent-crime",
+                      "property-crime",
+                      "homicide",
+                      "rape",
+                      "robbery",
+                      "aggravated-assault",
+                      "burglary",
+                      "larceny",
+                      "motor-vehicle-theft",
+                      "arson"
+                    ],
+                    "description": "FBI UCR offense category. violent-crime (murder+rape+robbery+assault), property-crime (burglary+larceny+auto+arson), or individual offense type"
+                  },
+                  "from_year": {
+                    "type": "integer",
+                    "description": "Start year for annual trend data (e.g. 2010). Data available from 1979.",
+                    "minimum": 1979,
+                    "maximum": 2030
+                  },
+                  "to_year": {
+                    "type": "integer",
+                    "description": "End year for annual trend data inclusive (e.g. 2022). Defaults to last full year.",
+                    "minimum": 1979,
+                    "maximum": 2030
+                  }
+                },
+                "required": [
+                  "state",
+                  "offense_type"
+                ],
+                "description": "Get state UCR annual crime totals with national comparison. Useful for year-over-year state trend analysis."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

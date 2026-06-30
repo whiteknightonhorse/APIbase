@@ -234,6 +234,7 @@ Use these examples as reference patterns when:
 | UC-537 | OpenTopography | Science / Terrain / Elevation | LIVE | Free registration, 5K req/day, CC BY 4.0 | `usecases/UC-537-opentopography.md` |
 | UC-538 | OECD Statistics | Economics / Finance / Environment | LIVE | CC BY 4.0, no auth, unlimited | `usecases/UC-538-oecd-stats.md` |
 | UC-539 | Statistics Canada WDS | Government Statistics / Macroeconomics | LIVE | Canada Open Licence, no auth, unlimited | `usecases/UC-539-statcan-wds.md` |
+| UC-540 | FBI Crime Data Explorer (UCR) | Legal / Government Statistics | LIVE | US Gov public domain, api.data.gov shared key | `usecases/UC-540-fbi-crime.md` |
 
 ## How to Use
 
