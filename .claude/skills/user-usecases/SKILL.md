@@ -233,6 +233,7 @@ Use these examples as reference patterns when:
 | UC-536 | TreasuryDirect TA_WS | Finance / Treasury Securities | LIVE | US Gov open data, no auth, unlimited | `usecases/UC-536-treasury-direct.md` |
 | UC-537 | OpenTopography | Science / Terrain / Elevation | LIVE | Free registration, 5K req/day, CC BY 4.0 | `usecases/UC-537-opentopography.md` |
 | UC-538 | OECD Statistics | Economics / Finance / Environment | LIVE | CC BY 4.0, no auth, unlimited | `usecases/UC-538-oecd-stats.md` |
+| UC-539 | Statistics Canada WDS | Government Statistics / Macroeconomics | LIVE | Canada Open Licence, no auth, unlimited | `usecases/UC-539-statcan-wds.md` |
 
 ## How to Use
 

@@ -5390,6 +5390,37 @@ tools:
     price_usd: "0.002"
     cache_ttl: 86400
 
+  # --- UC-539: Statistics Canada WDS ---
+  - tool_id: statcan.catalogue_search
+    name: Statistics Canada Table Search
+    provider: statcan
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: statcan.table_metadata
+    name: Statistics Canada Table Metadata
+    provider: statcan
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: statcan.series_info
+    name: Statistics Canada Series Info
+    provider: statcan
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: statcan.series_data
+    name: Statistics Canada Series Data
+    provider: statcan
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: statcan.table_data
+    name: Statistics Canada Table Data
+    provider: statcan
+    price_usd: "0.002"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

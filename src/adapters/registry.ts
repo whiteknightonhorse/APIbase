@@ -256,6 +256,7 @@ import { LmprAdapter } from './lmpr';
 import { TreasuryDirectAdapter } from './treasurydirect';
 import { OpenTopographyAdapter } from './opentopography';
 import { OecdStatsAdapter } from './oecd-stats';
+import { StatCanAdapter } from './statcan';
 import { config } from '../config';
 
 /**
@@ -1468,9 +1469,13 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
         'opentopography',
         () => new OpenTopographyAdapter(config.PROVIDER_KEY_OPENTOPO),
       );
+    case 'oecd':
     case 'oecd-stats':
       // OECD SDMX Statistics (UC-538) — GDP, unemployment, CPI, GHG, BoP; CC BY 4.0, no auth
       return getOrCreate('oecd-stats', () => new OecdStatsAdapter());
+    case 'statcan':
+      // Statistics Canada WDS (UC-539) — 6000+ time-series; Canada Open Licence, no auth
+      return getOrCreate('statcan', () => new StatCanAdapter());
     default:
       return undefined;
   }

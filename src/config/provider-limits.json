@@ -2303,5 +2303,14 @@
     "reset_period": "none",
     "docs_url": "https://www.oecd.org/en/data/tools/oecd-data-explorer.html",
     "limit_proof": "OECD SDMX REST API is a public open-access service with no documented rate limits; CC BY 4.0 licence permits commercial use."
+  },
+  "statcan": {
+    "display_name": "Statistics Canada WDS",
+    "health_url": "https://www150.statcan.gc.ca/t1/wds/rest/getAllCubesListLite",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.statcan.gc.ca/en/developers/wds/user-guide",
+    "limit_proof": "Statistics Canada WDS: 25 req/s per IP, 50 req/s per server; no documented daily/monthly quota. Canada Open Licence permits commercial use."
   }
 }

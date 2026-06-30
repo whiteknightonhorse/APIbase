@@ -9983,4 +9983,81 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+
+  // Statistics Canada WDS (5)
+  {
+    toolId: 'statcan.catalogue_search',
+    mcpName: 'statcan.catalogue.search',
+    title: 'Statistics Canada — Table Search',
+    description:
+      'Search and discover Statistics Canada data tables (6,000+ available). Filter by keyword ' +
+      'in the English table title, by Statistics Canada subject code (e.g. "14" for Labour, ' +
+      '"16" for Prices and price indexes, "36" for National accounts), and by active vs. archived ' +
+      'status. Returns table product IDs, CANSIM IDs, titles, date ranges, release frequency ' +
+      '(annual/monthly/quarterly), and subject codes. Use the product_id from results to fetch ' +
+      'full metadata (table_metadata) or time-series data (table_data). ' +
+      'Source: Statistics Canada WDS, Canada Open Licence, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'statcan.table_metadata',
+    mcpName: 'statcan.table.metadata',
+    title: 'Statistics Canada — Table Metadata',
+    description:
+      'Retrieve full metadata for a Statistics Canada table by its 8-digit product ID. Returns ' +
+      'table title, date range, release frequency, subject codes, survey codes, and complete ' +
+      'dimension hierarchy including all member categories with their IDs and names. Dimensions ' +
+      'contain the coordinate values needed to select specific time-series within the table ' +
+      '(e.g. geography, industry, demographic group). Members are truncated to 50 per dimension. ' +
+      'Use coordinate values to call table_data. Product IDs are visible in StatCan table URLs: ' +
+      'www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=<productId>01. ' +
+      'Source: Statistics Canada WDS, Canada Open Licence, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'statcan.series_info',
+    mcpName: 'statcan.series.info',
+    title: 'Statistics Canada — Series Info',
+    description:
+      'Get metadata for a specific Statistics Canada time-series (vector) by its vector ID. ' +
+      'Returns the series title (e.g. "Ontario; Consumer Price Index, All items"), parent table ' +
+      'product ID, coordinate within the table, release frequency, decimal precision, and whether ' +
+      'the series is terminated. Vector IDs are 8–9 digit numbers assigned by Statistics Canada ' +
+      'to uniquely identify each time series. Use series_data to retrieve actual observations. ' +
+      'Source: Statistics Canada WDS, Canada Open Licence, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'statcan.series_data',
+    mcpName: 'statcan.series.data',
+    title: 'Statistics Canada — Series Data',
+    description:
+      'Retrieve the latest N data points for a Statistics Canada time series identified by vector ' +
+      'ID. Returns chronological observations with reference period, value, and release timestamp. ' +
+      'For annual series: latest_n=10 returns 10 years; for monthly series: 10 returns 10 months. ' +
+      'Maximum 100 periods per call. Values represent the original unit (e.g. index points, ' +
+      'thousands of persons, millions of CAD) with precision set by the series decimals field. ' +
+      'Null values indicate suppressed or unavailable data for that period. ' +
+      'Source: Statistics Canada WDS, Canada Open Licence, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'statcan.table_data',
+    mcpName: 'statcan.table.data',
+    title: 'Statistics Canada — Table Data by Coordinate',
+    description:
+      'Retrieve the latest N data points for a specific Statistics Canada time series identified ' +
+      'by table product ID and dot-separated dimension coordinate. The coordinate selects one ' +
+      'unique series within a multi-dimensional table (e.g. "1.12.0.0.0.0.0.0.0.0" selects ' +
+      'Newfoundland probation rate). Use table_metadata to discover available coordinates from ' +
+      'the dimension/member hierarchy. Returns reference periods, values, and release timestamps. ' +
+      'Maximum 100 periods per call. ' +
+      'Source: Statistics Canada WDS, Canada Open Licence, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];
