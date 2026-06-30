@@ -272,6 +272,7 @@ import { DoajAdapter } from './doaj';
 import { ClevelandArtAdapter } from './cleveland-art';
 import { UniprotAdapter } from './uniprot';
 import { BioModelsAdapter } from './biomodels';
+import { OpenMeteoAqAdapter } from './openmeteoaq';
 import { config } from '../config';
 
 /**
@@ -1539,6 +1540,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'biomodels':
       // BioModels mathematical biology repository (UC-554) — 3K+ curated SBML models; no auth, CC0
       return getOrCreate('biomodels', () => new BioModelsAdapter());
+    case 'openmeteoaq':
+      // Open-Meteo Air Quality (UC-555) — global AQI, PM2.5/PM10, pollutants, pollen; no auth, CC BY 4.0
+      return getOrCreate('openmeteoaq', () => new OpenMeteoAqAdapter());
     default:
       return undefined;
   }

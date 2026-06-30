@@ -86877,6 +86877,410 @@
         ]
       }
     },
+    "/api/v1/tools/openmeteoaq.current/call": {
+      "post": {
+        "operationId": "openmeteoaq_current",
+        "summary": "Open-Meteo — Current Air Quality",
+        "description": "Get real-time air quality conditions for any global location using Copernicus CAMS data. Returns PM10, PM2.5 (μg/m³), carbon monoxide, nitrogen dioxide, sulphur dioxide, ozone, aerosol optical depth, dust, UV index, ammonia, European AQI (0–500 CAQI scale), and US AQI (0–500+ EPA scale). No API key required. Coverage: global, hourly updates. Open-source Open-Meteo — CC BY 4.0.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "openmeteoaq.current"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "latitude": {
+                    "type": "number",
+                    "description": "Latitude of the location in decimal degrees (e.g. 48.8566 for Paris)",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "longitude": {
+                    "type": "number",
+                    "description": "Longitude of the location in decimal degrees (e.g. 2.3522 for Paris)",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  "timezone": {
+                    "type": "string",
+                    "description": "IANA timezone name for returned timestamps (e.g. \"Europe/Paris\", \"America/New_York\"). Defaults to UTC.",
+                    "default": "UTC"
+                  }
+                },
+                "required": [
+                  "latitude",
+                  "longitude"
+                ],
+                "description": "Get current air quality conditions for a global location. Returns PM10, PM2.5, NO2, O3, SO2, CO, dust, UV index, European AQI (0-500), and US AQI (0-500+). Data sourced from Copernicus CAMS."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/openmeteoaq.forecast/call": {
+      "post": {
+        "operationId": "openmeteoaq_forecast",
+        "summary": "Open-Meteo — Air Quality Forecast",
+        "description": "Get hourly air quality forecast (1–7 days ahead) for any global location. Returns time-series arrays for selected pollutants: PM10, PM2.5, NO2, ozone, SO2, CO, aerosol optical depth, dust, UV index, ammonia, European AQI, US AQI. Useful for trip planning, outdoor event scheduling, or health risk monitoring. Copernicus CAMS model, no auth. Open-Meteo CC BY 4.0.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "openmeteoaq.forecast"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "latitude": {
+                    "type": "number",
+                    "description": "Latitude of the location in decimal degrees (e.g. 48.8566 for Paris)",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "longitude": {
+                    "type": "number",
+                    "description": "Longitude of the location in decimal degrees (e.g. 2.3522 for Paris)",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  "timezone": {
+                    "type": "string",
+                    "description": "IANA timezone name for returned timestamps (e.g. \"Europe/Paris\", \"America/New_York\"). Defaults to UTC.",
+                    "default": "UTC"
+                  },
+                  "forecast_days": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 7,
+                    "description": "Number of days to forecast (1–7). Defaults to 3.",
+                    "default": 3
+                  },
+                  "pollutants": {
+                    "type": "string",
+                    "description": "Comma-separated pollutant variables to return. Available: pm10, pm2_5, carbon_monoxide, nitrogen_dioxide, sulphur_dioxide, ozone, aerosol_optical_depth, dust, uv_index, ammonia, european_aqi, us_aqi. Defaults to pm10,pm2_5,nitrogen_dioxide,ozone,european_aqi,us_aqi."
+                  }
+                },
+                "required": [
+                  "latitude",
+                  "longitude"
+                ],
+                "description": "Get hourly air quality forecast for up to 7 days for a global location. Returns time-series arrays for selected pollutants and AQI indices. Data sourced from Copernicus CAMS."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/openmeteoaq.historical/call": {
+      "post": {
+        "operationId": "openmeteoaq_historical",
+        "summary": "Open-Meteo — Historical Air Quality",
+        "description": "Retrieve hourly historical air quality data for a date range at any global location. Returns PM10, PM2.5, ozone, nitrogen dioxide, European AQI, US AQI and other pollutants. Historical data available from 2022-01-01. Maximum query range ~1 year per call. Copernicus CAMS reanalysis, no auth. Open-Meteo CC BY 4.0.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "openmeteoaq.historical"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "latitude": {
+                    "type": "number",
+                    "description": "Latitude of the location in decimal degrees (e.g. 48.8566 for Paris)",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "longitude": {
+                    "type": "number",
+                    "description": "Longitude of the location in decimal degrees (e.g. 2.3522 for Paris)",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  "timezone": {
+                    "type": "string",
+                    "description": "IANA timezone name for returned timestamps (e.g. \"Europe/Paris\", \"America/New_York\"). Defaults to UTC.",
+                    "default": "UTC"
+                  },
+                  "start_date": {
+                    "type": "string",
+                    "description": "Start date in YYYY-MM-DD format (e.g. \"2024-01-01\"). Historical data from 2022."
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "End date in YYYY-MM-DD format (e.g. \"2024-01-31\"). Maximum range is ~1 year per query."
+                  },
+                  "pollutants": {
+                    "type": "string",
+                    "description": "Comma-separated pollutant variables to return. Available: pm10, pm2_5, carbon_monoxide, nitrogen_dioxide, sulphur_dioxide, ozone, aerosol_optical_depth, dust, uv_index, ammonia, european_aqi, us_aqi. Defaults to pm10,pm2_5,nitrogen_dioxide,ozone,european_aqi,us_aqi."
+                  }
+                },
+                "required": [
+                  "latitude",
+                  "longitude",
+                  "start_date",
+                  "end_date"
+                ],
+                "description": "Retrieve historical hourly air quality data for a date range at any global location. Returns time-series arrays for PM2.5, PM10, AQI and other pollutants. History available from 2022."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/openmeteoaq.pollen/call": {
+      "post": {
+        "operationId": "openmeteoaq_pollen",
+        "summary": "Open-Meteo — Pollen Forecast",
+        "description": "Get current and forecast pollen concentrations (grains/m³) for any global location. Returns alder, birch, grass, mugwort, olive, and ragweed pollen — the six key allergens. Includes current reading plus hourly forecast for 1–7 days. Useful for allergy apps, outdoor scheduling, and health risk agents. Copernicus CAMS pollen model, no auth. Open-Meteo CC BY 4.0.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "openmeteoaq.pollen"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "latitude": {
+                    "type": "number",
+                    "description": "Latitude of the location in decimal degrees (e.g. 48.8566 for Paris)",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "longitude": {
+                    "type": "number",
+                    "description": "Longitude of the location in decimal degrees (e.g. 2.3522 for Paris)",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  "timezone": {
+                    "type": "string",
+                    "description": "IANA timezone name for returned timestamps (e.g. \"Europe/Paris\", \"America/New_York\"). Defaults to UTC.",
+                    "default": "UTC"
+                  },
+                  "forecast_days": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 7,
+                    "description": "Number of forecast days to include in hourly pollen data (1–7). Defaults to 3.",
+                    "default": 3
+                  }
+                },
+                "required": [
+                  "latitude",
+                  "longitude"
+                ],
+                "description": "Get current and forecast pollen concentrations (grains/m³) for a global location. Returns alder, birch, grass, mugwort, olive, and ragweed pollen — useful for allergy risk agents. Data sourced from Copernicus CAMS."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/biomodels.model.latest/call": {
       "post": {
         "operationId": "biomodels_model_latest",

@@ -5820,6 +5820,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 1800
 
+  # --- UC-555: Open-Meteo Air Quality ---
+  - tool_id: openmeteoaq.current
+    name: Open-Meteo — Current Air Quality
+    provider: openmeteoaq
+    price_usd: "0.001"
+    cache_ttl: 1800
+
+  - tool_id: openmeteoaq.forecast
+    name: Open-Meteo — Air Quality Forecast
+    provider: openmeteoaq
+    price_usd: "0.002"
+    cache_ttl: 1800
+
+  - tool_id: openmeteoaq.historical
+    name: Open-Meteo — Historical Air Quality
+    provider: openmeteoaq
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: openmeteoaq.pollen
+    name: Open-Meteo — Pollen Forecast
+    provider: openmeteoaq
+    price_usd: "0.001"
+    cache_ttl: 1800
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

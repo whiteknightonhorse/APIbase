@@ -249,6 +249,7 @@ Use these examples as reference patterns when:
 | UC-552 | Cleveland Museum of Art Open Access | Media / Art & Culture | LIVE | No auth, CC0/CC BY, 4 tools | `usecases/UC-552-cleveland-art.md` |
 | UC-553 | UniProt Protein Database | Science / Health / Bioinformatics | LIVE | No auth, CC BY 4.0, 4 tools | `usecases/UC-553-uniprot.md` |
 | UC-554 | BioModels EMBL-EBI | Science / Systems Biology | LIVE | No auth, CC0, 4 tools | `usecases/UC-554-biomodels.md` |
+| UC-555 | Open-Meteo Air Quality | Weather / Air Quality | LIVE | No auth, CC BY 4.0, 4 tools | `usecases/UC-555-openmeteoaq.md` |
 
 ## How to Use
 

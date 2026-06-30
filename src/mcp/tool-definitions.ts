@@ -10939,6 +10939,58 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'health',
     annotations: READ_ONLY,
   },
+  // Open-Meteo Air Quality (4)
+  {
+    toolId: 'openmeteoaq.current',
+    mcpName: 'openmeteoaq.air.current',
+    title: 'Open-Meteo — Current Air Quality',
+    description:
+      'Get real-time air quality conditions for any global location using Copernicus CAMS data. ' +
+      'Returns PM10, PM2.5 (μg/m³), carbon monoxide, nitrogen dioxide, sulphur dioxide, ozone, ' +
+      'aerosol optical depth, dust, UV index, ammonia, European AQI (0–500 CAQI scale), ' +
+      'and US AQI (0–500+ EPA scale). No API key required. Coverage: global, hourly updates. ' +
+      'Open-source Open-Meteo — CC BY 4.0.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'openmeteoaq.forecast',
+    mcpName: 'openmeteoaq.air.forecast',
+    title: 'Open-Meteo — Air Quality Forecast',
+    description:
+      'Get hourly air quality forecast (1–7 days ahead) for any global location. ' +
+      'Returns time-series arrays for selected pollutants: PM10, PM2.5, NO2, ozone, SO2, CO, ' +
+      'aerosol optical depth, dust, UV index, ammonia, European AQI, US AQI. ' +
+      'Useful for trip planning, outdoor event scheduling, or health risk monitoring. ' +
+      'Copernicus CAMS model, no auth. Open-Meteo CC BY 4.0.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'openmeteoaq.historical',
+    mcpName: 'openmeteoaq.air.historical',
+    title: 'Open-Meteo — Historical Air Quality',
+    description:
+      'Retrieve hourly historical air quality data for a date range at any global location. ' +
+      'Returns PM10, PM2.5, ozone, nitrogen dioxide, European AQI, US AQI and other pollutants. ' +
+      'Historical data available from 2022-01-01. Maximum query range ~1 year per call. ' +
+      'Copernicus CAMS reanalysis, no auth. Open-Meteo CC BY 4.0.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'openmeteoaq.pollen',
+    mcpName: 'openmeteoaq.air.pollen',
+    title: 'Open-Meteo — Pollen Forecast',
+    description:
+      'Get current and forecast pollen concentrations (grains/m³) for any global location. ' +
+      'Returns alder, birch, grass, mugwort, olive, and ragweed pollen — the six key allergens. ' +
+      'Includes current reading plus hourly forecast for 1–7 days. ' +
+      'Useful for allergy apps, outdoor scheduling, and health risk agents. ' +
+      'Copernicus CAMS pollen model, no auth. Open-Meteo CC BY 4.0.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
   {
     toolId: 'biomodels.model.latest',
     mcpName: 'biomodels.model.latest',

@@ -2447,5 +2447,14 @@
     "reset_period": "none",
     "docs_url": "https://www.ebi.ac.uk/biomodels/docs/",
     "limit_proof": "BioModels REST API (EMBL-EBI) — no auth required, no documented rate limits. CC0 Public Domain. 3,200+ curated mathematical biology models."
+  },
+  "openmeteoaq": {
+    "display_name": "Open-Meteo Air Quality",
+    "health_url": "https://air-quality-api.open-meteo.com/v1/air-quality?latitude=48.85&longitude=2.35&current=us_aqi",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://open-meteo.com/en/terms",
+    "limit_proof": "Open-Meteo is free for non-commercial use with no rate limits documented; commercial use requires a subscription but API access is open. CC BY 4.0. Copernicus CAMS global air quality data."
   }
 }
