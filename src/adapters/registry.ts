@@ -271,6 +271,7 @@ import { IrenaAdapter } from './irena';
 import { DoajAdapter } from './doaj';
 import { ClevelandArtAdapter } from './cleveland-art';
 import { UniprotAdapter } from './uniprot';
+import { BioModelsAdapter } from './biomodels';
 import { config } from '../config';
 
 /**
@@ -1535,6 +1536,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'uniprot':
       // UniProt protein sequence and annotation database (UC-553) — 250M+ sequences; no auth, CC BY 4.0
       return getOrCreate('uniprot', () => new UniprotAdapter());
+    case 'biomodels':
+      // BioModels mathematical biology repository (UC-554) — 3K+ curated SBML models; no auth, CC0
+      return getOrCreate('biomodels', () => new BioModelsAdapter());
     default:
       return undefined;
   }

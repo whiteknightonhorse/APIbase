@@ -5795,6 +5795,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-554: BioModels ---
+  - tool_id: biomodels.model.search
+    name: BioModels — Search Biological Models
+    provider: biomodels
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: biomodels.model.detail
+    name: BioModels — Model Details
+    provider: biomodels
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: biomodels.model.files
+    name: BioModels — Model Download Files
+    provider: biomodels
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: biomodels.model.latest
+    name: BioModels — Latest Curated Models
+    provider: biomodels
+    price_usd: "0.001"
+    cache_ttl: 1800
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

@@ -2438,5 +2438,14 @@
     "reset_period": "none",
     "docs_url": "https://www.uniprot.org/help/programmatic_access",
     "limit_proof": "UniProt REST API is freely accessible with no auth, no documented rate limits (fair-use policy). CC BY 4.0. 250M+ protein sequences."
+  },
+  "biomodels": {
+    "display_name": "BioModels",
+    "health_url": "https://biomodels.org/search?query=insulin&numResults=1&format=json",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.ebi.ac.uk/biomodels/docs/",
+    "limit_proof": "BioModels REST API (EMBL-EBI) — no auth required, no documented rate limits. CC0 Public Domain. 3,200+ curated mathematical biology models."
   }
 }

@@ -10891,4 +10891,67 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'health',
     annotations: READ_ONLY,
   },
+
+  // BioModels (4)
+  {
+    toolId: 'biomodels.model.search',
+    mcpName: 'biomodels.model.search',
+    title: 'BioModels — Search Biological Models',
+    description:
+      'Search the BioModels repository for peer-reviewed mathematical models of biological and biomedical systems. ' +
+      "BioModels is the world's primary repository for quantitative kinetic models, hosted by EMBL-EBI. " +
+      'Contains 3,200+ models in SBML format covering signaling pathways, metabolic networks, gene regulation, ' +
+      'pharmacokinetics, circadian rhythms, disease dynamics (COVID-19, diabetes, cancer), and more. ' +
+      'Returns model accession IDs (BIOMD prefix = curated, MODEL prefix = submitted), names, formats, ' +
+      'submitter info, and URLs. Filter by curation status to restrict to manually validated models. ' +
+      'CC0 Public Domain — European Bioinformatics Institute (EMBL-EBI)',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'biomodels.model.detail',
+    mcpName: 'biomodels.model.detail',
+    title: 'BioModels — Model Details',
+    description:
+      'Get full metadata for a specific BioModels mathematical model by accession ID ' +
+      '(e.g. "BIOMD0000000001" for the Edelstein 1996 nicotinic acetylcholine receptor model). ' +
+      'Returns model name, curation status, modelling approach (ODE, logical, stochastic), ' +
+      'SBML format and version, description of the biological system, linked peer-reviewed publication ' +
+      '(PubMed ID, journal, year, authors), contributor roles (curator, submitter, encoder), ' +
+      'and model-level ontology annotations (GO terms, disease terms, taxonomy, pathway cross-references). ' +
+      'Use biomodels.model.search first to discover accession IDs. ' +
+      'CC0 Public Domain — EMBL-EBI BioModels Database',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'biomodels.model.files',
+    mcpName: 'biomodels.model.files',
+    title: 'BioModels — Model Download Files',
+    description:
+      'List all downloadable file representations for a BioModels model by accession ID. ' +
+      'Returns the main SBML file (primary format, compatible with COPASI, libSBML, JWS Online, Tellurium), ' +
+      'plus auto-generated alternative formats: BioPAX Level 2 and 3 (OWL/RDF for pathway databases), ' +
+      'MATLAB/Octave simulation scripts (.m files), and any author-supplied supplementary files. ' +
+      'Each entry includes filename, description, MIME type, file size in bytes, MD5 checksum, ' +
+      'and the direct download URL. Use to retrieve simulation-ready model files for computational biology workflows. ' +
+      'CC0 Public Domain — EMBL-EBI BioModels Database',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'biomodels.model.latest',
+    mcpName: 'biomodels.model.latest',
+    title: 'BioModels — Latest Curated Models',
+    description:
+      'List the most recently updated manually curated mathematical models in BioModels. ' +
+      'Curated models (BIOMD prefix) are peer-validated: each has been reproduced, annotated with ' +
+      'standard ontologies (Gene Ontology, KEGG, ChEBI, UniProt, PubMed), and verified to match ' +
+      'the figures in the linked publication. Returns model accession IDs, names, format, ' +
+      'submission date, last modification date, submitter, and model URL, sorted by last update descending. ' +
+      'Use to discover newly added or recently revised biological models across all domains. ' +
+      'CC0 Public Domain — EMBL-EBI BioModels Database',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
 ];
