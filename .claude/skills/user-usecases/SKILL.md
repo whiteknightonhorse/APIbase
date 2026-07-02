@@ -286,6 +286,7 @@ Use these examples as reference patterns when:
 | UC-588 | European Parliament Open Data | MEP profiles + memberships, adopted legislative texts, legislative procedures; CC BY 4.0; no auth; 500 req/5min | LIVE | No auth, 4 tools | `usecases/UC-588-eu-parliament.md` |
 | UC-589 | UK Legislation (legislation.gov.uk) | UK statute book: search Acts/SIs/Scottish/Welsh/NI legislation, get details/TOC/sections, recent legislation; OGL v3, no auth | LIVE | No auth, 4 tools | `usecases/UC-589-uk-legislation.md` |
 | UC-590 | OFAC Sanctions List (US Treasury) | SDN list search, entity aliases, sanctions programs, publication info; public domain, no auth; AML/KYC compliance | LIVE | No auth, 4 tools | `usecases/UC-590-ofac-list.md` |
+| UC-591 | Japan Postal Codes (postcode.teraren.com) | Postcode lookup, text search, prefecture list; 124K+ Japan Post codes; kanji/kana/romaji + GPS; MIT, no auth | LIVE | No auth, 3 tools | `usecases/UC-591-postcode-japan.md` |
 
 ## How to Use
 
