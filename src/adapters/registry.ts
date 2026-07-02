@@ -1,5 +1,6 @@
 import { type BaseAdapter } from './base.adapter';
 import { PostcodeJapanAdapter } from './postcode-japan';
+import { P2pquakeAdapter } from './p2pquake';
 import { OfacAdapter } from './ofac';
 import { JolpicaF1Adapter } from './jolpica-f1';
 import { TheSportsDbAdapter } from './thesportsdb';
@@ -1692,6 +1693,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'postcode-japan':
       // Japan Postal Codes (UC-591) — postcode lookup, text search, prefecture list; no auth; MIT
       return getOrCreate('postcode-japan', () => new PostcodeJapanAdapter());
+    case 'p2pquake':
+      // P2PQuake (UC-592) — Japan JMA earthquake reports, tsunami warnings, historical search; no auth; open data
+      return getOrCreate('p2pquake', () => new P2pquakeAdapter());
     default:
       return undefined;
   }

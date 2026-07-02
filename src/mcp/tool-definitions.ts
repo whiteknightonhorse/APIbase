@@ -13184,6 +13184,57 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     annotations: READ_ONLY,
   },
 
+  // P2PQuake — api.p2pquake.net (UC-592, 3 tools)
+  {
+    toolId: 'p2pquake.recent_quakes',
+    mcpName: 'p2pquake.seismic.recent_quakes',
+    title: 'Japan Recent Earthquakes',
+    description:
+      'Get recent earthquake reports issued by the Japan Meteorological Agency (JMA) via the P2PQuake network. ' +
+      'Returns seismic events with epicenter name, coordinates, depth, Richter magnitude, ' +
+      'maximum JMA intensity (Shindo scale 1–7), tsunami advisory status, ' +
+      'and per-prefecture/city observation points. ' +
+      'Filter by minimum/maximum seismic intensity, magnitude, prefecture (JIS code 1–47), or report type. ' +
+      'Sort newest-first (default) or oldest-first. ' +
+      'JMA intensity scale: 10=Shindo1, 20=Shindo2, ..., 60=Shindo6w, 65=Shindo6s, 70=Shindo7. ' +
+      'Tsunami status: None | Checking | NonEffective | Watch | Warning. ' +
+      'Data source: P2PQuake — community-operated JMA relay, open data, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'p2pquake.tsunami_warnings',
+    mcpName: 'p2pquake.seismic.tsunami_warnings',
+    title: 'Japan Tsunami Warnings',
+    description:
+      'Get current and recent tsunami warning/advisory bulletins issued by JMA via the P2PQuake network. ' +
+      'Returns warning grade per coastal area (MajorWarning/Warning/Watch), immediate-danger flag, ' +
+      'estimated wave height, expected first-arrival time, and the triggering earthquake details. ' +
+      'Cancelled bulletins are included with cancelled=true for audit trails. ' +
+      'Coverage: all Pacific, Sea of Japan, and Inland Sea coastal areas of Japan. ' +
+      'Typical warning lifecycle: FirstReport → Update → AllClear. ' +
+      'Use this tool for real-time tsunami monitoring in Japan. ' +
+      'Data source: P2PQuake — community-operated JMA relay, open data, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'p2pquake.quake_history',
+    mcpName: 'p2pquake.seismic.quake_history',
+    title: 'Japan Earthquake History',
+    description:
+      'Search historical JMA earthquake records via the P2PQuake history endpoint. ' +
+      'Supports pagination, intensity and magnitude filters, and prefecture filtering for deeper analysis. ' +
+      'Returns epicenter name, coordinates, depth, Richter magnitude, max JMA intensity label, ' +
+      'domestic tsunami advisory, report type, and observation point count. ' +
+      'Use this for trend analysis, seismic risk assessment, or retrieving older events not in the recent feed. ' +
+      'Filter examples: min_scale=60 for Shindo 6+ events, min_magnitude=7.0 for major quakes, ' +
+      'prefecture=13 for Tokyo area events. ' +
+      'Data source: P2PQuake — community-operated JMA relay, open data, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+
   // Japan Postal Codes — postcode.teraren.com (UC-591, 3 tools)
   {
     toolId: 'postcode-japan.lookup',

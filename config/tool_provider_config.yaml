@@ -6751,6 +6751,25 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-592: P2PQuake ---
+  - tool_id: p2pquake.recent_quakes
+    name: Japan Recent Earthquakes
+    provider: p2pquake
+    price_usd: "0.001"
+    cache_ttl: 60
+
+  - tool_id: p2pquake.tsunami_warnings
+    name: Japan Tsunami Warnings
+    provider: p2pquake
+    price_usd: "0.001"
+    cache_ttl: 60
+
+  - tool_id: p2pquake.quake_history
+    name: Japan Earthquake History
+    provider: p2pquake
+    price_usd: "0.001"
+    cache_ttl: 300
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

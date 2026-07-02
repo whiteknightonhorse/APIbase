@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 1121 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 1124 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -53962,6 +53962,226 @@
             "maximum": 100,
             "description": "Maximum number of results to return (1\u2013100, default 20).",
             "default": 20
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "p2pquake.seismic.quake_history",
+      "title": "Japan Earthquake History",
+      "description": "Search historical JMA earthquake records via the P2PQuake history endpoint. Supports pagination, intensity and magnitude filters, and prefecture filtering for deeper analysis. Returns epicenter name, coordinates, depth, Richter magnitude, max JMA intensity label, domestic tsunami advisory, report type, and observation point count. Use this for trend analysis, seismic risk assessment, or retrieving older events not in the recent feed. Filter examples: min_scale=60 for Shindo 6+ events, min_magnitude=7.0 for major quakes, prefecture=13 for Tokyo area events. Data source: P2PQuake \u2014 community-operated JMA relay, open data, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Number of historical earthquake records to return (default 20, max 100)"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Pagination offset for browsing older events (0-based, default 0)"
+          },
+          "order": {
+            "type": "integer",
+            "description": "Sort direction: -1 for newest-first (default), 1 for oldest-first"
+          },
+          "min_scale": {
+            "type": "integer",
+            "description": "Minimum JMA intensity (10=Shindo1, 20=Shindo2, 30=Shindo3, 40=Shindo4, 45=Shindo4+, 50=Shindo5w, 55=Shindo5s, 60=Shindo6w, 65=Shindo6s, 70=Shindo7)"
+          },
+          "max_scale": {
+            "type": "integer",
+            "description": "Maximum JMA seismic intensity raw scale value"
+          },
+          "min_magnitude": {
+            "type": "number",
+            "description": "Minimum Richter magnitude (e.g. 6.0 for strong earthquakes)"
+          },
+          "max_magnitude": {
+            "type": "number",
+            "description": "Maximum Richter magnitude"
+          },
+          "prefecture": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 47,
+            "description": "Filter by prefecture JIS code (1=Hokkaido, 13=Tokyo, 27=Osaka, 40=Fukuoka, 47=Okinawa)"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "p2pquake.seismic.recent_quakes",
+      "title": "Japan Recent Earthquakes",
+      "description": "Get recent earthquake reports issued by the Japan Meteorological Agency (JMA) via the P2PQuake network. Returns seismic events with epicenter name, coordinates, depth, Richter magnitude, maximum JMA intensity (Shindo scale 1\u20137), tsunami advisory status, and per-prefecture/city observation points. Filter by minimum/maximum seismic intensity, magnitude, prefecture (JIS code 1\u201347), or report type. Sort newest-first (default) or oldest-first. JMA intensity scale: 10=Shindo1, 20=Shindo2, ..., 60=Shindo6w, 65=Shindo6s, 70=Shindo7. Tsunami status: None | Checking | NonEffective | Watch | Warning. Data source: P2PQuake \u2014 community-operated JMA relay, open data, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Number of events to return (default 10, max 100)"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Pagination offset (0-based, default 0)"
+          },
+          "order": {
+            "type": "integer",
+            "description": "Sort direction: -1 for newest-first (default), 1 for oldest-first"
+          },
+          "min_scale": {
+            "type": "integer",
+            "description": "Minimum JMA seismic intensity as raw scale value (10=Shindo1, 20=Shindo2, 30=Shindo3, 40=Shindo4, 45=Shindo4+, 50=Shindo5w, 55=Shindo5s, 60=Shindo6w, 65=Shindo6s, 70=Shindo7)"
+          },
+          "max_scale": {
+            "type": "integer",
+            "description": "Maximum JMA seismic intensity as raw scale value (same scale as min_scale)"
+          },
+          "min_magnitude": {
+            "type": "number",
+            "description": "Minimum earthquake magnitude (Richter scale, e.g. 5.0 for moderate earthquakes)"
+          },
+          "max_magnitude": {
+            "type": "number",
+            "description": "Maximum earthquake magnitude (Richter scale)"
+          },
+          "prefecture": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 47,
+            "description": "Filter by Japanese prefecture JIS code (1=Hokkaido, 13=Tokyo, 27=Osaka, 40=Fukuoka, 47=Okinawa)"
+          },
+          "quake_type": {
+            "type": "string",
+            "enum": [
+              "ScalePrompt",
+              "Destination",
+              "DetailScale",
+              "Foreign",
+              "Other"
+            ],
+            "description": "JMA report type filter: ScalePrompt=intensity prompt, Destination=epicenter info, DetailScale=full epicenter+intensity report, Foreign=overseas earthquake, Other=miscellaneous"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "p2pquake.seismic.tsunami_warnings",
+      "title": "Japan Tsunami Warnings",
+      "description": "Get current and recent tsunami warning/advisory bulletins issued by JMA via the P2PQuake network. Returns warning grade per coastal area (MajorWarning/Warning/Watch), immediate-danger flag, estimated wave height, expected first-arrival time, and the triggering earthquake details. Cancelled bulletins are included with cancelled=true for audit trails. Coverage: all Pacific, Sea of Japan, and Inland Sea coastal areas of Japan. Typical warning lifecycle: FirstReport \u2192 Update \u2192 AllClear. Use this tool for real-time tsunami monitoring in Japan. Data source: P2PQuake \u2014 community-operated JMA relay, open data, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Number of tsunami events to return (default 10, max 100)"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Pagination offset (0-based, default 0)"
+          },
+          "order": {
+            "type": "integer",
+            "description": "Sort direction: -1 for newest-first (default), 1 for oldest-first"
           }
         }
       },

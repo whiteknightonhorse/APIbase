@@ -309,6 +309,7 @@ import { euParliamentSchemas } from './eu-parliament.schema';
 import { uklegislationSchemas } from './uklegislation.schema';
 import { ofacSchemas } from './ofac.schema';
 import { postcodeJapanSchemas } from './postcode-japan.schema';
+import { p2pquakeSchemas } from './p2pquake.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -621,4 +622,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...uklegislationSchemas,
   ...ofacSchemas,
   ...postcodeJapanSchemas,
+  ...p2pquakeSchemas,
 };

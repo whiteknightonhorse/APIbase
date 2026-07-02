@@ -2771,5 +2771,14 @@
     "reset_period": "none",
     "docs_url": "https://postcode.teraren.com",
     "limit_proof": "Open source MIT-licensed API, no auth, no documented rate limits"
+  },
+  "p2pquake": {
+    "display_name": "P2PQuake Japan Seismic",
+    "health_url": "https://api.p2pquake.net/v2/jma/quake?limit=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://github.com/p2pquake/web-api-v2-spec",
+    "limit_proof": "Community-operated open API; MIT license; no auth required; no documented rate limits"
   }
 }
