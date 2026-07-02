@@ -288,6 +288,7 @@ import { CoopsAdapter } from './coops';
 import { TflAdapter } from './tfl';
 import { NbiAdapter } from './nbi';
 import { BrightSkyAdapter } from './brightsky';
+import { StatfinAdapter } from './statfin';
 import { config } from '../config';
 
 /**
@@ -1608,6 +1609,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'brightsky':
       // Bright Sky DWD (UC-570) — Germany weather: current, observations, alerts, stations; no auth; DWD open data
       return getOrCreate('brightsky', () => new BrightSkyAdapter());
+    case 'statfin':
+      // Statistics Finland PxWeb (UC-571) — CPI, population, unemployment, table search; no auth; CC BY 4.0
+      return getOrCreate('statfin', () => new StatfinAdapter());
     default:
       return undefined;
   }

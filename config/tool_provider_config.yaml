@@ -6232,6 +6232,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-571: Statistics Finland PxWeb ---
+  - tool_id: statfin.consumer_price_index
+    name: Statistics Finland — Consumer Price Index (CPI)
+    provider: statfin
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: statfin.population
+    name: Statistics Finland — Population of Finland
+    provider: statfin
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: statfin.unemployment
+    name: Statistics Finland — Unemployed Jobseekers in Finland
+    provider: statfin
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: statfin.table_search
+    name: Statistics Finland — List Statistical Tables
+    provider: statfin
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

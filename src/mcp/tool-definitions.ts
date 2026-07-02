@@ -11956,4 +11956,61 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'weather',
     annotations: READ_ONLY,
   },
+  // Statistics Finland PxWeb (4)
+  {
+    toolId: 'statfin.consumer_price_index',
+    mcpName: 'statfin.economy.consumer_price_index',
+    title: 'Statistics Finland — Consumer Price Index (CPI)',
+    description:
+      'Get Finland Consumer Price Index (CPI) monthly data from Statistics Finland (Stat.fi). ' +
+      'Returns index point values for the chosen base year (default 2015=100) for the last N months. ' +
+      'Available base years: 1972, 1977, 1981, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2025. ' +
+      'Monthly time series back to 1972. Data updated monthly by Statistics Finland. ' +
+      'No API key required — official Finnish government open data (CC BY 4.0).',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'statfin.population',
+    mcpName: 'statfin.demographics.population',
+    title: 'Statistics Finland — Population of Finland',
+    description:
+      'Get the historical and current population of Finland on 31 December each year. ' +
+      'Returns annual population figures (total, male, or female) for up to 276 years back to 1750. ' +
+      'Includes the latest official figure, e.g. 5,652,881 persons at end of 2025. ' +
+      'Data from Statistics Finland population register — authoritative national headcount. ' +
+      'No API key required — official Finnish government open data (CC BY 4.0).',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'statfin.unemployment',
+    mcpName: 'statfin.economy.unemployment',
+    title: 'Statistics Finland — Unemployed Jobseekers in Finland',
+    description:
+      'Get the number of unemployed jobseekers registered at Finnish Employment and Economic Development Offices ' +
+      '(TE-services) at the end of each month for the whole country. ' +
+      'Returns monthly figures from 2008 onwards. Latest data: ~325,000–360,000 persons. ' +
+      'Source: Ministry of Economic Affairs and Employment (TEM) via Statistics Finland PxWeb. ' +
+      'No API key required — official Finnish government open data (CC BY 4.0).',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'statfin.table_search',
+    mcpName: 'statfin.statistics.table_search',
+    title: 'Statistics Finland — List Statistical Tables',
+    description:
+      'List all available data tables in a Statistics Finland (StatFin) category. ' +
+      'Use this to discover what datasets are published in a given statistical domain. ' +
+      'Returns table IDs, titles, and last-updated timestamps. ' +
+      'Category examples: "khi" (consumer prices), "vaerak" (population), "tyonv" (unemployment), ' +
+      '"synt" (births), "kans" (citizenships), "kbar" (consumer confidence), "rki" (building cost index), ' +
+      '"ilma" (air transport), "matk" (accommodation statistics). ' +
+      'The table IDs returned can be queried via the Statistics Finland PxWeb API at ' +
+      'https://pxdata.stat.fi/PxWeb/api/v1/en/StatFin/{category}/{table_id}. ' +
+      'No API key required — official Finnish government open data (CC BY 4.0).',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

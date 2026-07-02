@@ -266,6 +266,7 @@ Use these examples as reference patterns when:
 | UC-568 | Transport for London (TfL) | Travel / Multi-modal transit — London line status, arrivals, journey planner, bike points | LIVE | No auth, TfL Open Data CC-BY, 4 tools | `usecases/UC-568-tfl-london.md` |
 | UC-569 | National Bridge Inventory (NBI) | Infrastructure — US highway bridge search, detail, nearby, condition stats | LIVE | No auth, USDOT/FHWA public domain, 4 tools | `usecases/UC-569-nbi-bridges.md` |
 | UC-570 | Bright Sky (DWD) | Weather — Germany current conditions, hourly observations/forecast, DWD alerts, nearby stations | LIVE | No auth, DWD open data MIT licence, 4 tools | `usecases/UC-570-brightsky-dwd.md` |
+| UC-571 | Statistics Finland (StatFin) | Finance/World — Finland CPI, population, unemployment, statistical table discovery | LIVE | No auth, CC BY 4.0, 4 tools | `usecases/UC-571-stat-finland.md` |
 
 ## How to Use
 

@@ -2582,5 +2582,14 @@
     "reset_period": "none",
     "docs_url": "https://brightsky.dev/docs/",
     "limit_proof": "Open MIT-licensed API wrapping DWD (Deutscher Wetterdienst) open data. No API key required, no documented rate limits (brightsky.dev/docs)."
+  },
+  "statfin": {
+    "display_name": "Statistics Finland (StatFin)",
+    "health_url": "https://pxdata.stat.fi/PxWeb/api/v1/en/StatFin",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.stat.fi/org/avoindata/rajapinta_en.html",
+    "limit_proof": "Statistics Finland PxWeb API — official Finnish government open data, CC BY 4.0, no API key required, no documented rate limits."
   }
 }
