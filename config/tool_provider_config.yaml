@@ -6282,6 +6282,31 @@ tools:
     price_usd: "0.002"
     cache_ttl: 3600
 
+  # --- UC-573: SMHI Open Data ---
+  - tool_id: smhi.forecast
+    name: SMHI — Point Weather Forecast
+    provider: smhi
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: smhi.fire_risk
+    name: SMHI — Fire Weather Index Forecast
+    provider: smhi
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: smhi.warnings
+    name: SMHI — Active Weather Warnings for Sweden
+    provider: smhi
+    price_usd: "0.001"
+    cache_ttl: 300
+
+  - tool_id: smhi.observations
+    name: SMHI — Weather Station Observations
+    provider: smhi
+    price_usd: "0.001"
+    cache_ttl: 600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

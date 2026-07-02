@@ -94107,6 +94107,362 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/smhi.forecast/call": {
+      "post": {
+        "operationId": "smhi_forecast",
+        "summary": "SMHI — Point Weather Forecast",
+        "description": "Get an 82-step hourly weather forecast (~10 days) for any point in Europe from the Swedish Meteorological and Hydrological Institute (SMHI). Uses SMHI's high-resolution NWP model (snow1g) covering most of Europe at ~2.5 km grid spacing. Each hourly step includes 25 parameters: air temperature (°C), wind speed (m/s), wind direction (°), wind gust (m/s), relative humidity (%), sea-level pressure (hPa), visibility (km), thunderstorm probability (%), cloud cover (%), precipitation amount (mm/h, with min/max/median), precipitation probability (%), frozen precipitation probability (%), symbol_code (WMO weather symbol 1–27). Swedish weather symbol codes: 1=clear sky, 2=nearly clear, 3=variable cloudiness, 4=half-cloudy, 5=cloudy, 6=overcast, 7=fog, 8=light rain, 9=moderate rain, 10=heavy rain, 11=thunderstorm, 12=light sleet, 13=moderate sleet, 14=heavy sleet, 15=light snow, 16=moderate snow, 17=heavy snow. No API key required — SMHI open data, Creative Commons BY 4.0.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "smhi.forecast"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "latitude": {
+                    "type": "number",
+                    "description": "Latitude in decimal degrees (WGS84). Covers most of Europe. Examples: 59.3293 = Stockholm, 57.7089 = Göteborg, 67.8558 = Umeå, 51.5074 = London.",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "longitude": {
+                    "type": "number",
+                    "description": "Longitude in decimal degrees (WGS84). Covers most of Europe. Examples: 18.0686 = Stockholm, 11.9746 = Göteborg, 20.2253 = Umeå, -0.1278 = London.",
+                    "minimum": -180,
+                    "maximum": 180
+                  }
+                },
+                "required": [
+                  "latitude",
+                  "longitude"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/smhi.fire_risk/call": {
+      "post": {
+        "operationId": "smhi_fire_risk",
+        "summary": "SMHI — Fire Weather Index Forecast",
+        "description": "Get the 7-day daily fire weather risk forecast for a location in Sweden from SMHI. Provides the Canadian Forest Fire Weather Index (FWI) system adapted for Swedish conditions. Returns per-day values for: fwiindex (composite fire danger 1–6 scale), grassfire (grass fire risk 1–6), forestdry (forest drought index), fwi (Fire Weather Index), isi (Initial Spread Index), bui (Build-Up Index), ffmc (Fine Fuel Moisture Code), dmc (Duff Moisture Code), dc (Drought Code), plus weather inputs: t (temperature °C), ws (wind speed m/s), wd (wind direction °), r (relative humidity %), and accumulated precipitation over 1/2/3/5/7/10/14/20/30/40/50/60 days. fwiindex scale: 1=Very low, 2=Low, 3=Moderate, 4=High, 5=Very high, 6=Extreme. Covers Sweden only (lat 55–70°N, lon 10–30°E). No API key required — SMHI open data, Creative Commons BY 4.0.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "smhi.fire_risk"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "latitude": {
+                    "type": "number",
+                    "description": "Latitude in decimal degrees for the location in Sweden (55–70°N). Examples: 59.3293 = Stockholm, 55.6050 = Malmö, 65.5848 = Sundsvall.",
+                    "minimum": 55,
+                    "maximum": 70
+                  },
+                  "longitude": {
+                    "type": "number",
+                    "description": "Longitude in decimal degrees for the location in Sweden (10–30°E). Examples: 18.0686 = Stockholm, 13.0038 = Malmö, 17.3102 = Sundsvall.",
+                    "minimum": 10,
+                    "maximum": 30
+                  },
+                  "period": {
+                    "type": "string",
+                    "enum": [
+                      "daily",
+                      "hourly"
+                    ],
+                    "description": "Forecast period granularity. \"daily\" = 7 daily steps (default, recommended for planning). \"hourly\" = sub-daily steps with higher temporal resolution.",
+                    "default": "daily"
+                  }
+                },
+                "required": [
+                  "latitude",
+                  "longitude"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/smhi.warnings/call": {
+      "post": {
+        "operationId": "smhi_warnings",
+        "summary": "SMHI — Active Weather Warnings for Sweden",
+        "description": "Get all currently active official weather warnings issued by SMHI for Sweden. Returns event type, warning level, affected areas, and time windows in English. Warning levels: MESSAGE (advisory), YELLOW (moderate risk), ORANGE (significant risk), RED (extreme risk). Event types include: WIND (storm), PRECIPITATION (heavy rain/snow), THUNDERSTORM, SNOWFALL, SLEET, FIRE (wildfire risk), FROST, FOG, HIGH_TEMPERATURE, LOW_SEA_LEVEL, HIGH_SEA_LEVEL, WATER_SHORTAGE, WIND_SEA, AVALANCHE. Each warning specifies the Swedish counties (Länen) and municipalities affected. SMHI is the official Swedish meteorological authority — these are the same warnings issued to emergency services and broadcast to the Swedish public. No API key required — SMHI open data, Creative Commons BY 4.0.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "smhi.warnings"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "language": {
+                    "type": "string",
+                    "enum": [
+                      "en",
+                      "sv"
+                    ],
+                    "description": "Response language preference (not sent to API — all warnings include English). \"en\" = English area names (default). \"sv\" = Swedish area names.",
+                    "default": "en"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/smhi.observations/call": {
+      "post": {
+        "operationId": "smhi_observations",
+        "summary": "SMHI — Weather Station Observations",
+        "description": "Get weather observations from a specific SMHI monitoring station in Sweden — current readings or time-series history (up to several months). SMHI operates 1000+ stations from southern Malmö to Abisko in the Arctic Circle. Stations measure different parameters: major airports (Stockholm-Arlanda, Göteborg-Landvetter) typically have temperature, wind, humidity, pressure, and visibility; automated rural stations may have just temperature and precipitation. Returns timestamp, numeric value, unit, and quality flag (G=approved, Y=provisional). Common station IDs: \"97400\" = Stockholm-Arlanda, \"98230\" = Stockholm-Observatoriekullen, \"72630\" = Göteborg, \"61740\" = Malmö, \"188800\" = Abisko (Lapland). Common parameter IDs: \"1\" = temperature (°C), \"4\" = wind speed (m/s), \"6\" = humidity (%), \"9\" = pressure (hPa), \"39\" = dew-point (°C). No API key required — SMHI open data, Creative Commons BY 4.0.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "smhi.observations"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "station_id": {
+                    "type": "string",
+                    "description": "SMHI weather station ID (numeric string). Common examples: \"97400\" = Stockholm-Arlanda Flygplats, \"98230\" = Stockholm-Observatoriekullen A, \"72630\" = Göteborg, \"188800\" = Abisko (Lapland), \"61740\" = Malmö. Station IDs can be found via the SMHI Open Data Meteorological Observations catalog (opendata-download-metobs.smhi.se) — over 1000 stations across Sweden."
+                  },
+                  "parameter_id": {
+                    "type": "string",
+                    "description": "SMHI measurement parameter ID. Defaults to \"1\" (air temperature, °C, hourly). Common values: \"1\" = air temperature (°C), \"4\" = wind speed (m/s), \"6\" = relative humidity (%), \"9\" = sea-level pressure (hPa), \"12\" = visibility (m), \"39\" = dew-point temperature (°C). Not all parameters are measured at every station.",
+                    "default": "1"
+                  },
+                  "period": {
+                    "type": "string",
+                    "enum": [
+                      "latest-hour",
+                      "latest-day",
+                      "latest-months"
+                    ],
+                    "description": "Time window for observations. \"latest-hour\" = most recent single reading. \"latest-day\" = last 24 hours with hourly readings (~25 values, default). \"latest-months\" = recent months of data (availability varies by station).",
+                    "default": "latest-day"
+                  }
+                },
+                "required": [
+                  "station_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

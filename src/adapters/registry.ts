@@ -290,6 +290,7 @@ import { NbiAdapter } from './nbi';
 import { BrightSkyAdapter } from './brightsky';
 import { StatfinAdapter } from './statfin';
 import { DbnomicsAdapter } from './dbnomics';
+import { SmhiAdapter } from './smhi';
 import { config } from '../config';
 
 /**
@@ -1616,6 +1617,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'dbnomics':
       // DBnomics (UC-572) — 93+ statistical agencies: IMF, World Bank, OECD, Eurostat; no auth; CC-BY 4.0
       return getOrCreate('dbnomics', () => new DbnomicsAdapter());
+    case 'smhi':
+      // SMHI Open Data (UC-573) — 1000+ Swedish weather stations: temperature, wind, humidity, pressure; no auth; CC BY 4.0
+      return getOrCreate('smhi', () => new SmhiAdapter());
     default:
       return undefined;
   }

@@ -2600,5 +2600,14 @@
     "reset_period": "none",
     "docs_url": "https://api.db.nomics.world/v22/apidocs",
     "limit_proof": "DBnomics public REST API — open data aggregator, no API key required, no documented rate limits (api.db.nomics.world/v22/apidocs)."
+  },
+  "smhi": {
+    "display_name": "SMHI Open Data",
+    "health_url": "https://opendata-download-warnings.smhi.se/ibww/api/version/1/warning.json",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://opendata.smhi.se/apidocs/",
+    "limit_proof": "SMHI is a Swedish government authority — open data under CC BY 4.0, no API key required, no documented rate limits. Cache-Control: max-age=600–3600."
   }
 }

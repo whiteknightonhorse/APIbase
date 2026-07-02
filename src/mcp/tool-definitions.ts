@@ -12077,4 +12077,82 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+
+  // SMHI Open Data — Sweden Weather (4)
+  {
+    toolId: 'smhi.forecast',
+    mcpName: 'smhi.weather.forecast',
+    title: 'SMHI — Point Weather Forecast',
+    description:
+      'Get an 82-step hourly weather forecast (~10 days) for any point in Europe from the Swedish Meteorological and Hydrological Institute (SMHI). ' +
+      "Uses SMHI's high-resolution NWP model (snow1g) covering most of Europe at ~2.5 km grid spacing. " +
+      'Each hourly step includes 25 parameters: air temperature (°C), wind speed (m/s), wind direction (°), ' +
+      'wind gust (m/s), relative humidity (%), sea-level pressure (hPa), visibility (km), ' +
+      'thunderstorm probability (%), cloud cover (%), precipitation amount (mm/h, with min/max/median), ' +
+      'precipitation probability (%), frozen precipitation probability (%), symbol_code (WMO weather symbol 1–27). ' +
+      'Swedish weather symbol codes: 1=clear sky, 2=nearly clear, 3=variable cloudiness, 4=half-cloudy, ' +
+      '5=cloudy, 6=overcast, 7=fog, 8=light rain, 9=moderate rain, 10=heavy rain, ' +
+      '11=thunderstorm, 12=light sleet, 13=moderate sleet, 14=heavy sleet, ' +
+      '15=light snow, 16=moderate snow, 17=heavy snow. ' +
+      'No API key required — SMHI open data, Creative Commons BY 4.0.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'smhi.fire_risk',
+    mcpName: 'smhi.weather.fire_risk',
+    title: 'SMHI — Fire Weather Index Forecast',
+    description:
+      'Get the 7-day daily fire weather risk forecast for a location in Sweden from SMHI. ' +
+      'Provides the Canadian Forest Fire Weather Index (FWI) system adapted for Swedish conditions. ' +
+      'Returns per-day values for: fwiindex (composite fire danger 1–6 scale), ' +
+      'grassfire (grass fire risk 1–6), forestdry (forest drought index), ' +
+      'fwi (Fire Weather Index), isi (Initial Spread Index), bui (Build-Up Index), ' +
+      'ffmc (Fine Fuel Moisture Code), dmc (Duff Moisture Code), dc (Drought Code), ' +
+      'plus weather inputs: t (temperature °C), ws (wind speed m/s), wd (wind direction °), ' +
+      'r (relative humidity %), and accumulated precipitation over 1/2/3/5/7/10/14/20/30/40/50/60 days. ' +
+      'fwiindex scale: 1=Very low, 2=Low, 3=Moderate, 4=High, 5=Very high, 6=Extreme. ' +
+      'Covers Sweden only (lat 55–70°N, lon 10–30°E). ' +
+      'No API key required — SMHI open data, Creative Commons BY 4.0.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'smhi.warnings',
+    mcpName: 'smhi.weather.warnings',
+    title: 'SMHI — Active Weather Warnings for Sweden',
+    description:
+      'Get all currently active official weather warnings issued by SMHI for Sweden. ' +
+      'Returns event type, warning level, affected areas, and time windows in English. ' +
+      'Warning levels: MESSAGE (advisory), YELLOW (moderate risk), ORANGE (significant risk), RED (extreme risk). ' +
+      'Event types include: WIND (storm), PRECIPITATION (heavy rain/snow), THUNDERSTORM, ' +
+      'SNOWFALL, SLEET, FIRE (wildfire risk), FROST, FOG, HIGH_TEMPERATURE, ' +
+      'LOW_SEA_LEVEL, HIGH_SEA_LEVEL, WATER_SHORTAGE, WIND_SEA, AVALANCHE. ' +
+      'Each warning specifies the Swedish counties (Länen) and municipalities affected. ' +
+      'SMHI is the official Swedish meteorological authority — these are the same warnings issued to ' +
+      'emergency services and broadcast to the Swedish public. ' +
+      'No API key required — SMHI open data, Creative Commons BY 4.0.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'smhi.observations',
+    mcpName: 'smhi.weather.observations',
+    title: 'SMHI — Weather Station Observations',
+    description:
+      'Get weather observations from a specific SMHI monitoring station in Sweden — ' +
+      'current readings or time-series history (up to several months). ' +
+      'SMHI operates 1000+ stations from southern Malmö to Abisko in the Arctic Circle. ' +
+      'Stations measure different parameters: major airports (Stockholm-Arlanda, Göteborg-Landvetter) ' +
+      'typically have temperature, wind, humidity, pressure, and visibility; ' +
+      'automated rural stations may have just temperature and precipitation. ' +
+      'Returns timestamp, numeric value, unit, and quality flag (G=approved, Y=provisional). ' +
+      'Common station IDs: "97400" = Stockholm-Arlanda, "98230" = Stockholm-Observatoriekullen, ' +
+      '"72630" = Göteborg, "61740" = Malmö, "188800" = Abisko (Lapland). ' +
+      'Common parameter IDs: "1" = temperature (°C), "4" = wind speed (m/s), ' +
+      '"6" = humidity (%), "9" = pressure (hPa), "39" = dew-point (°C). ' +
+      'No API key required — SMHI open data, Creative Commons BY 4.0.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
 ];

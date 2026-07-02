@@ -268,6 +268,7 @@ Use these examples as reference patterns when:
 | UC-570 | Bright Sky (DWD) | Weather — Germany current conditions, hourly observations/forecast, DWD alerts, nearby stations | LIVE | No auth, DWD open data MIT licence, 4 tools | `usecases/UC-570-brightsky-dwd.md` |
 | UC-571 | Statistics Finland (StatFin) | Finance/World — Finland CPI, population, unemployment, statistical table discovery | LIVE | No auth, CC BY 4.0, 4 tools | `usecases/UC-571-stat-finland.md` |
 | UC-572 | DBnomics | Finance — 93+ agencies: IMF, World Bank, OECD, Eurostat; providers, datasets, series browse, time-series fetch | LIVE | No auth, CC-BY 4.0, 4 tools | `usecases/UC-572-dbnomics.md` |
+| UC-573 | SMHI Open Data | Weather — Sweden/Europe: 82-step hourly forecast, 7-day fire risk, active warnings, 1000+ station observations | LIVE | No auth, CC BY 4.0, 4 tools | `usecases/UC-573-smhi-sweden.md` |
 
 ## How to Use
 
