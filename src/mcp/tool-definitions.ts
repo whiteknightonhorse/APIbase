@@ -12877,4 +12877,59 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'entertainment',
     annotations: READ_ONLY,
   },
+
+  // TheSportsDB (UC-586) — 4 tools
+  {
+    toolId: 'thesportsdb.team_search',
+    mcpName: 'thesportsdb.teams.search',
+    title: 'Sports Team Search',
+    description:
+      'Search for a sports team by name across all sports (soccer, basketball, NFL, NHL, baseball, rugby, etc.). ' +
+      'Returns team profile including sport type, primary league with league ID, stadium, location, country, ' +
+      'founding year, website, and badge/logo URL. Use the returned league_id to retrieve past or upcoming ' +
+      'match results via the events_past and events_next tools. ' +
+      'Data source: TheSportsDB — free public sports database, no auth required.',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'thesportsdb.player_search',
+    mcpName: 'thesportsdb.players.search',
+    title: 'Sports Player Search',
+    description:
+      'Search for a professional sports player by name across all sports. ' +
+      'Returns player profile including current team, sport, position, nationality, date of birth, ' +
+      'active status, gender, and player photo URLs (thumbnail and cutout). ' +
+      'Supports partial name matching. Multiple results are returned when the name is ambiguous. ' +
+      'Data source: TheSportsDB — free public sports database, no auth required.',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'thesportsdb.events_past',
+    mcpName: 'thesportsdb.events.past',
+    title: 'Past League Match Results',
+    description:
+      'Get the most recent completed match results for a sports league, identified by its TheSportsDB league ID. ' +
+      'Returns match events with home/away teams, scores, round number, date, time, venue, and result string. ' +
+      'Common league IDs: 4328 (English Premier League), 4387 (NBA), 4391 (NFL), 4380 (MLB), 4335 (Scottish Premier League). ' +
+      'Obtain league IDs from team_search results (the league_id field). ' +
+      'Data source: TheSportsDB — free public sports database, no auth required.',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'thesportsdb.events_next',
+    mcpName: 'thesportsdb.events.next',
+    title: 'Upcoming League Match Schedule',
+    description:
+      'Get the next scheduled matches for a sports league, identified by its TheSportsDB league ID. ' +
+      'Returns upcoming events with home/away teams, scheduled date, kickoff time, round number, venue, ' +
+      'and team badge URLs. Status field indicates scheduling state (NS = not started, PPD = postponed). ' +
+      'Common league IDs: 4328 (English Premier League), 4387 (NBA), 4391 (NFL), 4380 (MLB), 4335 (Scottish Premier League). ' +
+      'Obtain league IDs from team_search results (the league_id field). ' +
+      'Data source: TheSportsDB — free public sports database, no auth required.',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
 ];

@@ -1,5 +1,6 @@
 import { type BaseAdapter } from './base.adapter';
 import { JolpicaF1Adapter } from './jolpica-f1';
+import { TheSportsDbAdapter } from './thesportsdb';
 import { PolymarketAdapter } from './polymarket';
 import { HyperliquidAdapter } from './hyperliquid';
 import { AsterDexAdapter } from './asterdex';
@@ -1668,6 +1669,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'f1':
       // Jolpica F1 (UC-585) — Formula 1 race schedule, results, driver/constructor standings; Ergast-compatible; no auth; free unlimited
       return getOrCreate('f1', () => new JolpicaF1Adapter());
+    case 'thesportsdb':
+      // TheSportsDB (UC-586) — Multi-sport team/player search and league match schedules; no auth; free public API
+      return getOrCreate('thesportsdb', () => new TheSportsDbAdapter());
     default:
       return undefined;
   }

@@ -6607,6 +6607,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 300
 
+  # --- UC-586: TheSportsDB ---
+  - tool_id: thesportsdb.team_search
+    name: Sports Team Search
+    provider: thesportsdb
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: thesportsdb.player_search
+    name: Sports Player Search
+    provider: thesportsdb
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: thesportsdb.events_past
+    name: Past League Match Results
+    provider: thesportsdb
+    price_usd: "0.001"
+    cache_ttl: 300
+
+  - tool_id: thesportsdb.events_next
+    name: Upcoming League Match Schedule
+    provider: thesportsdb
+    price_usd: "0.001"
+    cache_ttl: 300
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

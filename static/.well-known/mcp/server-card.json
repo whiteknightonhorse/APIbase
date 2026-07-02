@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 1098 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 1102 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -52644,6 +52644,196 @@
           }
         },
         "description": "Get driver World Championship standings for a season."
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "thesportsdb.events.next",
+      "title": "Upcoming League Match Schedule",
+      "description": "Get the next scheduled matches for a sports league, identified by its TheSportsDB league ID. Returns upcoming events with home/away teams, scheduled date, kickoff time, round number, venue, and team badge URLs. Status field indicates scheduling state (NS = not started, PPD = postponed). Common league IDs: 4328 (English Premier League), 4387 (NBA), 4391 (NFL), 4380 (MLB), 4335 (Scottish Premier League). Obtain league IDs from team_search results (the league_id field). Data source: TheSportsDB \u2014 free public sports database, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "league_id": {
+            "type": "string",
+            "description": "TheSportsDB league ID to retrieve upcoming events for (e.g. \"4328\" for English Premier League, \"4387\" for NBA, \"4391\" for NFL). Obtain a league ID from team search results."
+          }
+        },
+        "required": [
+          "league_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "thesportsdb.events.past",
+      "title": "Past League Match Results",
+      "description": "Get the most recent completed match results for a sports league, identified by its TheSportsDB league ID. Returns match events with home/away teams, scores, round number, date, time, venue, and result string. Common league IDs: 4328 (English Premier League), 4387 (NBA), 4391 (NFL), 4380 (MLB), 4335 (Scottish Premier League). Obtain league IDs from team_search results (the league_id field). Data source: TheSportsDB \u2014 free public sports database, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "league_id": {
+            "type": "string",
+            "description": "TheSportsDB league ID to retrieve past events for (e.g. \"4328\" for English Premier League, \"4387\" for NBA, \"4391\" for NFL). Obtain a league ID from team search results."
+          }
+        },
+        "required": [
+          "league_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "thesportsdb.players.search",
+      "title": "Sports Player Search",
+      "description": "Search for a professional sports player by name across all sports. Returns player profile including current team, sport, position, nationality, date of birth, active status, gender, and player photo URLs (thumbnail and cutout). Supports partial name matching. Multiple results are returned when the name is ambiguous. Data source: TheSportsDB \u2014 free public sports database, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Player name to search for (e.g. \"Harry Kane\", \"LeBron James\"). Partial names are supported.",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "thesportsdb.teams.search",
+      "title": "Sports Team Search",
+      "description": "Search for a sports team by name across all sports (soccer, basketball, NFL, NHL, baseball, rugby, etc.). Returns team profile including sport type, primary league with league ID, stadium, location, country, founding year, website, and badge/logo URL. Use the returned league_id to retrieve past or upcoming match results via the events_past and events_next tools. Data source: TheSportsDB \u2014 free public sports database, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Team name to search for (e.g. \"Arsenal\", \"Lakers\", \"New England Patriots\"). Partial names are supported.",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "name"
+        ]
       },
       "outputSchema": {
         "type": "object",
