@@ -282,6 +282,7 @@ import { CmsAdapter } from './cms';
 import { CpscAdapter } from './cpsc';
 import { NrcAdapter } from './nrc';
 import { BtsTransportAdapter } from './bts-transport';
+import { CdcChronicAdapter } from './cdc-chronic';
 import { config } from '../config';
 
 /**
@@ -1583,6 +1584,10 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'bts-transport':
       // BTS Transport (UC-564) — border crossings, TSI, freight indicators, aviation traffic; no auth, US Gov open data
       return getOrCreate('bts-transport', () => new BtsTransportAdapter());
+    case 'cdc_chronic':
+    case 'cdc-chronic':
+      // CDC Chronic Disease Indicators (UC-565) — 19 topics, 50 states, 398K records; no auth, US Gov public domain
+      return getOrCreate('cdc-chronic', () => new CdcChronicAdapter());
     default:
       return undefined;
   }

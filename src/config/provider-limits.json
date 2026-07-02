@@ -2528,5 +2528,14 @@
     "reset_period": "none",
     "docs_url": "https://www.bts.gov/topics/latest-numbers",
     "limit_proof": "US Bureau of Transportation Statistics open Socrata API \u2014 no auth required, no documented rate limits (US Gov public domain)"
+  },
+  "cdc-chronic": {
+    "display_name": "CDC Chronic Disease Indicators",
+    "health_url": "https://chronicdata.cdc.gov/resource/hksd-2xuw.json?$limit=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://chronicdata.cdc.gov/Chronic-Disease-Indicators/U-S-Chronic-Disease-Indicators/hksd-2xuw/about_data",
+    "limit_proof": "US CDC open Socrata API \u2014 no auth required, no documented rate limits, US Government public domain data (17 USC \u00a7105)"
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 1014 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 1018 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -58541,6 +58541,342 @@
           "error": {
             "type": "object",
             "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "cdc_chronic.disease.indicators",
+      "title": "CDC \u2014 Chronic Disease Indicators Query",
+      "description": "Query the CDC U.S. Chronic Disease Indicators (CDI) dataset covering 19 chronic disease topics (diabetes, cardiovascular, cancer, asthma, tobacco, alcohol, arthritis, COPD, mental health, etc.) across all 50 US states + DC and national level. Filter by topic ID (e.g. DIA, CVD, TOB), specific question ID, state abbreviation (e.g. CA, TX, US for national), year range, and demographic stratification (Overall, Female, Male, age groups, race/ethnicity). Returns prevalence rates, confidence intervals, data source, and stratification. 398K records, data through 2023. Source: CDC CDI Socrata dataset hksd-2xuw. No auth \u2014 US Gov public domain.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "topic_id": {
+            "type": "string",
+            "enum": [
+              "ALC",
+              "ART",
+              "AST",
+              "CAN",
+              "CHC",
+              "CKD",
+              "COPD",
+              "CVD",
+              "DIA",
+              "DIS",
+              "HEA",
+              "IMM",
+              "MAT",
+              "MEN",
+              "NMED",
+              "NPAW",
+              "ORH",
+              "SLEP",
+              "TOB"
+            ],
+            "description": "Topic ID to filter by. Options: ALC=Alcohol, ART=Arthritis, AST=Asthma, CAN=Cancer, CHC=Cognitive Health, CKD=Chronic Kidney Disease, COPD=COPD, CVD=Cardiovascular, DIA=Diabetes, DIS=Disability, HEA=Health Status, IMM=Immunization, MAT=Maternal Health, MEN=Mental Health, NMED=Non-Medical Factors, NPAW=Nutrition/Physical Activity/Weight, ORH=Oral Health, SLEP=Sleep, TOB=Tobacco."
+          },
+          "question_id": {
+            "type": "string",
+            "description": "Specific question ID to retrieve (e.g. \"DIA01\" for diabetes prevalence, \"TOB04\" for cigarette smoking, \"CVD01\" for high blood pressure). Combine with topic_id or use alone."
+          },
+          "location": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "US state abbreviation (e.g. \"CA\", \"TX\", \"NY\") or \"US\" for national-level data. Two-letter FIPS abbreviation."
+          },
+          "year_start": {
+            "type": "integer",
+            "minimum": 2010,
+            "maximum": 2030,
+            "description": "Earliest year to include (e.g. 2020). Data ranges from ~2010 to 2023. Defaults to all available years."
+          },
+          "year_end": {
+            "type": "integer",
+            "minimum": 2010,
+            "maximum": 2030,
+            "description": "Latest year to include (e.g. 2023). Must be >= year_start. Defaults to all available years."
+          },
+          "stratification_id": {
+            "type": "string",
+            "enum": [
+              "OVR",
+              "SEXF",
+              "SEXM",
+              "AGE0_44",
+              "AGE1844",
+              "AGE4564",
+              "AGE65P",
+              "WHT",
+              "BLK",
+              "HIS",
+              "ASN",
+              "AIAN",
+              "HAPI",
+              "MRC"
+            ],
+            "description": "Stratification (demographic subgroup) ID. OVR=Overall (default aggregate), SEXF=Female, SEXM=Male, AGE1844=Age 18-44, AGE4564=Age 45-64, AGE65P=Age 65+, WHT=White non-Hispanic, BLK=Black non-Hispanic, HIS=Hispanic, ASN=Asian non-Hispanic, AIAN=American Indian/Alaska Native, HAPI=Native Hawaiian/Pacific Islander, MRC=Multiracial non-Hispanic."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "description": "Maximum number of indicator records to return (1\u2013200, default 25)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "cdc_chronic.disease.state_compare",
+      "title": "CDC \u2014 Chronic Disease State-by-State Comparison",
+      "description": "Compare a chronic disease indicator across all US states for a given year. Returns the value for each state (prevalence %, rate, or count) plus the 5 highest and 5 lowest states for quick ranking. Requires a question_id (e.g. \"DIA01\" for diabetes prevalence, \"TOB04\" for smoking, \"CVD01\" for high blood pressure). Optional year (default most recent 2023) and demographic stratification. Useful for geographic health disparity analysis and policy research. Source: CDC CDI Socrata dataset hksd-2xuw. No auth \u2014 US Gov public domain.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "question_id": {
+            "type": "string",
+            "description": "Question ID to compare across states (e.g. \"DIA01\" for diabetes prevalence, \"TOB04\" for smoking, \"CVD01\" for high blood pressure, \"AST01\" for asthma prevalence). Use cdc_chronic.topics to find valid IDs. Defaults to \"DIA01\"."
+          },
+          "year": {
+            "type": "integer",
+            "minimum": 2010,
+            "maximum": 2030,
+            "description": "Data year for comparison (e.g. 2023). Defaults to most recent available year (2023 or later). All states return the same year for a fair comparison."
+          },
+          "stratification_id": {
+            "type": "string",
+            "enum": [
+              "OVR",
+              "SEXF",
+              "SEXM",
+              "AGE0_44",
+              "AGE1844",
+              "AGE4564",
+              "AGE65P",
+              "WHT",
+              "BLK",
+              "HIS",
+              "ASN",
+              "AIAN",
+              "HAPI",
+              "MRC"
+            ],
+            "description": "Demographic subgroup to compare. OVR=Overall (default, all adults), SEXF=Female, SEXM=Male, WHT=White non-Hispanic, BLK=Black non-Hispanic, HIS=Hispanic, AGE65P=Age 65+, etc."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "cdc_chronic.disease.topics",
+      "title": "CDC \u2014 Chronic Disease Topics & Questions",
+      "description": "List all available chronic disease topics and their associated indicator questions in the CDC CDI dataset. Returns topic IDs (e.g. DIA=Diabetes, CVD=Cardiovascular, TOB=Tobacco) and question IDs (e.g. DIA01=Diabetes prevalence, TOB04=Cigarette smoking, CVD01=High blood pressure) needed for other cdc_chronic tools. Optionally filter to a single topic. 19 topics, 100+ indicator questions. Source: CDC CDI Socrata dataset hksd-2xuw. No auth \u2014 US Gov public domain.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "topic_id": {
+            "type": "string",
+            "enum": [
+              "ALC",
+              "ART",
+              "AST",
+              "CAN",
+              "CHC",
+              "CKD",
+              "COPD",
+              "CVD",
+              "DIA",
+              "DIS",
+              "HEA",
+              "IMM",
+              "MAT",
+              "MEN",
+              "NMED",
+              "NPAW",
+              "ORH",
+              "SLEP",
+              "TOB"
+            ],
+            "description": "Filter by a single topic to see only its questions. Omit to list all 19 topics with their questions. Options: ALC=Alcohol, ART=Arthritis, AST=Asthma, CAN=Cancer, CHC=Cognitive Health, CKD=Chronic Kidney Disease, COPD=COPD, CVD=Cardiovascular, DIA=Diabetes, DIS=Disability, HEA=Health Status, IMM=Immunization, MAT=Maternal Health, MEN=Mental Health, NMED=Non-Medical Factors, NPAW=Nutrition/Physical Activity/Weight, ORH=Oral Health, SLEP=Sleep, TOB=Tobacco."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "cdc_chronic.disease.trend",
+      "title": "CDC \u2014 Chronic Disease Trend Over Years",
+      "description": "Retrieve multi-year trend data for a specific chronic disease indicator at the national or state level. Returns annual values with confidence intervals so you can track how a metric changes over time (e.g. declining smoking rates, rising obesity, improving diabetes control). Filter by question ID, location (state abbreviation or \"US\" for national), demographic subgroup, and value type (crude prevalence, age-adjusted prevalence, rate per 100K, number). Data from ~2010 to 2023. Source: CDC CDI Socrata dataset hksd-2xuw. No auth \u2014 US Gov public domain.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "question_id": {
+            "type": "string",
+            "description": "Question ID to retrieve trend data for (e.g. \"TOB04\" for cigarette smoking, \"DIA01\" for diabetes, \"CVD01\" for high blood pressure, \"CAN01\" for cancer screening). Use cdc_chronic.topics to find valid IDs. Defaults to \"TOB04\"."
+          },
+          "location": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "US state abbreviation (e.g. \"CA\", \"TX\", \"FL\") or \"US\" for national trend. Defaults to \"US\" for national-level data."
+          },
+          "stratification_id": {
+            "type": "string",
+            "enum": [
+              "OVR",
+              "SEXF",
+              "SEXM",
+              "AGE0_44",
+              "AGE1844",
+              "AGE4564",
+              "AGE65P",
+              "WHT",
+              "BLK",
+              "HIS",
+              "ASN",
+              "AIAN",
+              "HAPI",
+              "MRC"
+            ],
+            "description": "Demographic subgroup for trend. OVR=Overall, SEXF=Female, SEXM=Male, BLK=Black non-Hispanic, HIS=Hispanic, etc. Omit for all subgroups."
+          },
+          "value_type_id": {
+            "type": "string",
+            "enum": [
+              "CRDPREV",
+              "AGEADJPREV",
+              "NMBR",
+              "CRDRATE",
+              "AGEADJRATE",
+              "PCT"
+            ],
+            "description": "Data value type to filter on. CRDPREV=Crude Prevalence (%, unadjusted), AGEADJPREV=Age-adjusted Prevalence (%, adjusted), NMBR=Number (absolute count), CRDRATE=Crude Rate (per 100K), AGEADJRATE=Age-adjusted Rate (per 100K), PCT=Percentage."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Maximum number of annual data points to return (1\u201350, default 20). Returns most recent years first."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
           }
         },
         "required": [

@@ -11603,4 +11603,61 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+  // CDC Chronic Disease Indicators (UC-565) — 4 tools
+  {
+    toolId: 'cdc_chronic.indicators',
+    mcpName: 'cdc_chronic.disease.indicators',
+    title: 'CDC — Chronic Disease Indicators Query',
+    description:
+      'Query the CDC U.S. Chronic Disease Indicators (CDI) dataset covering 19 chronic disease topics ' +
+      '(diabetes, cardiovascular, cancer, asthma, tobacco, alcohol, arthritis, COPD, mental health, etc.) ' +
+      'across all 50 US states + DC and national level. Filter by topic ID (e.g. DIA, CVD, TOB), specific ' +
+      'question ID, state abbreviation (e.g. CA, TX, US for national), year range, and demographic stratification ' +
+      '(Overall, Female, Male, age groups, race/ethnicity). Returns prevalence rates, confidence intervals, ' +
+      'data source, and stratification. 398K records, data through 2023. ' +
+      'Source: CDC CDI Socrata dataset hksd-2xuw. No auth — US Gov public domain.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'cdc_chronic.topics',
+    mcpName: 'cdc_chronic.disease.topics',
+    title: 'CDC — Chronic Disease Topics & Questions',
+    description:
+      'List all available chronic disease topics and their associated indicator questions in the CDC CDI dataset. ' +
+      'Returns topic IDs (e.g. DIA=Diabetes, CVD=Cardiovascular, TOB=Tobacco) and question IDs ' +
+      '(e.g. DIA01=Diabetes prevalence, TOB04=Cigarette smoking, CVD01=High blood pressure) needed for ' +
+      'other cdc_chronic tools. Optionally filter to a single topic. 19 topics, 100+ indicator questions. ' +
+      'Source: CDC CDI Socrata dataset hksd-2xuw. No auth — US Gov public domain.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'cdc_chronic.state_compare',
+    mcpName: 'cdc_chronic.disease.state_compare',
+    title: 'CDC — Chronic Disease State-by-State Comparison',
+    description:
+      'Compare a chronic disease indicator across all US states for a given year. Returns the value for each ' +
+      'state (prevalence %, rate, or count) plus the 5 highest and 5 lowest states for quick ranking. ' +
+      'Requires a question_id (e.g. "DIA01" for diabetes prevalence, "TOB04" for smoking, "CVD01" for high ' +
+      'blood pressure). Optional year (default most recent 2023) and demographic stratification. ' +
+      'Useful for geographic health disparity analysis and policy research. ' +
+      'Source: CDC CDI Socrata dataset hksd-2xuw. No auth — US Gov public domain.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'cdc_chronic.trend',
+    mcpName: 'cdc_chronic.disease.trend',
+    title: 'CDC — Chronic Disease Trend Over Years',
+    description:
+      'Retrieve multi-year trend data for a specific chronic disease indicator at the national or state level. ' +
+      'Returns annual values with confidence intervals so you can track how a metric changes over time ' +
+      '(e.g. declining smoking rates, rising obesity, improving diabetes control). Filter by question ID, ' +
+      'location (state abbreviation or "US" for national), demographic subgroup, and value type ' +
+      '(crude prevalence, age-adjusted prevalence, rate per 100K, number). Data from ~2010 to 2023. ' +
+      'Source: CDC CDI Socrata dataset hksd-2xuw. No auth — US Gov public domain.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
 ];

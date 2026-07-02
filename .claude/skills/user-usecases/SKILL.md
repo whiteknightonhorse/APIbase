@@ -260,6 +260,7 @@ Use these examples as reference patterns when:
 | UC-562 | CPSC SaferProducts.gov | World / Consumer Safety | LIVE | No auth, US Gov public domain, 4 tools | `usecases/UC-562-cpsc-recalls.md` |
 | UC-563 | NRC Power Reactor Status | World / Nuclear Energy Grid Monitoring | LIVE | No auth, US Gov public domain, 4 tools | `usecases/UC-563-nrc-reactor-status.md` |
 | UC-564 | BTS Transportation Statistics | World / US Transportation Data | LIVE | No auth, US Gov Socrata API, 4 tools | `usecases/UC-564-bts-transport.md` |
+| UC-565 | CDC Chronic Disease Indicators | Health / US Chronic Disease Data | LIVE | No auth, US Gov Socrata API, 4 tools | `usecases/UC-565-cdc-chronic-disease.md` |
 
 ## How to Use
 

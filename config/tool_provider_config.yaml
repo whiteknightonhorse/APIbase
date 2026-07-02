@@ -6082,6 +6082,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-565: CDC Chronic Disease Indicators ---
+  - tool_id: cdc_chronic.indicators
+    name: CDC — Chronic Disease Indicators Query
+    provider: cdc-chronic
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: cdc_chronic.topics
+    name: CDC — Chronic Disease Topics & Questions
+    provider: cdc-chronic
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: cdc_chronic.state_compare
+    name: CDC — Chronic Disease State-by-State Comparison
+    provider: cdc-chronic
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: cdc_chronic.trend
+    name: CDC — Chronic Disease Trend Over Years
+    provider: cdc-chronic
+    price_usd: "0.002"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform
