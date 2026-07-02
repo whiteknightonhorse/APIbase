@@ -2573,5 +2573,14 @@
     "reset_period": "none",
     "docs_url": "https://www.fhwa.dot.gov/bridge/nbi/ascii.cfm",
     "limit_proof": "USDOT/FHWA public domain data via ArcGIS FeatureServer — no auth required, no documented rate limits on geo.dot.gov public services."
+  },
+  "brightsky": {
+    "display_name": "Bright Sky (DWD)",
+    "health_url": "https://api.brightsky.dev/",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://brightsky.dev/docs/",
+    "limit_proof": "Open MIT-licensed API wrapping DWD (Deutscher Wetterdienst) open data. No API key required, no documented rate limits (brightsky.dev/docs)."
   }
 }

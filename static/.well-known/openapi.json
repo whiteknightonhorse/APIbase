@@ -93027,6 +93027,384 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/brightsky.current/call": {
+      "post": {
+        "operationId": "brightsky_current",
+        "summary": "Bright Sky — Current Weather in Germany",
+        "description": "Get current weather conditions for any location in Germany from the nearest DWD (Deutscher Wetterdienst) station. Returns: temperature (°C), humidity, dew point, pressure (hPa), cloud cover, visibility, wind speed/direction, wind gusts, precipitation in the last 10/30/60 minutes, sunshine duration, solar radiation, and weather condition (dry, fog, rain, sleet, snow, hail, thunderstorm). Source: official German Weather Service real-time observations. Coverage: Germany only. No API key required — open DWD data via Bright Sky (MIT licence).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "brightsky.current"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "latitude": {
+                    "type": "number",
+                    "description": "Latitude of the location in Germany (e.g. 52.52 for Berlin, range 47–56)",
+                    "minimum": 47,
+                    "maximum": 56
+                  },
+                  "longitude": {
+                    "type": "number",
+                    "description": "Longitude of the location in Germany (e.g. 13.40 for Berlin, range 5–16)",
+                    "minimum": 5,
+                    "maximum": 16
+                  },
+                  "units": {
+                    "type": "string",
+                    "enum": [
+                      "dwd",
+                      "si"
+                    ],
+                    "description": "Unit system: \"dwd\" (default) uses km/h wind and °C temperature; \"si\" uses m/s wind"
+                  }
+                },
+                "required": [
+                  "latitude",
+                  "longitude"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/brightsky.observations/call": {
+      "post": {
+        "operationId": "brightsky_observations",
+        "summary": "Bright Sky — Hourly Weather Observations / Forecast for Germany",
+        "description": "Get hourly weather observations or forecast for any location in Germany from DWD (Deutscher Wetterdienst). Pass a past date to retrieve historical observations; pass a future date to retrieve the DWD numerical forecast. Each hour includes: temperature, dew point, humidity, pressure, cloud cover, visibility, precipitation, sunshine, wind speed/direction, wind gusts, precipitation probability, solar irradiance, and condition icon. Returns up to 10 days of data (240 hourly records). No API key required — open DWD data via Bright Sky (MIT licence).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "brightsky.observations"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "latitude": {
+                    "type": "number",
+                    "description": "Latitude of the location in Germany (e.g. 52.52 for Berlin, range 47–56)",
+                    "minimum": 47,
+                    "maximum": 56
+                  },
+                  "longitude": {
+                    "type": "number",
+                    "description": "Longitude of the location in Germany (e.g. 13.40 for Berlin, range 5–16)",
+                    "minimum": 5,
+                    "maximum": 16
+                  },
+                  "date": {
+                    "type": "string",
+                    "description": "Start date/time for observations in ISO 8601 format (e.g. \"2026-07-01\" or \"2026-07-01T08:00:00\"). Returns historical data when date is in the past; returns DWD forecast when date is in the future."
+                  },
+                  "last_date": {
+                    "type": "string",
+                    "description": "End date/time for observations in ISO 8601 format. When omitted, returns data for the 24-hour period starting at \"date\". Maximum range is 10 days."
+                  },
+                  "units": {
+                    "type": "string",
+                    "enum": [
+                      "dwd",
+                      "si"
+                    ],
+                    "description": "Unit system: \"dwd\" (default) uses km/h wind and °C temperature; \"si\" uses m/s wind"
+                  }
+                },
+                "required": [
+                  "latitude",
+                  "longitude",
+                  "date"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/brightsky.alerts/call": {
+      "post": {
+        "operationId": "brightsky_alerts",
+        "summary": "Bright Sky — DWD Severe Weather Alerts for Germany",
+        "description": "Get active DWD (Deutscher Wetterdienst) severe weather alerts and warnings for any location in Germany. Identifies the warn cell (administrative district) for the given coordinates and returns all current alerts with: event type (e.g. thunderstorm, heavy rain, frost, storm), severity (Minor/Moderate/Severe/Extreme), urgency, certainty, onset/expiry times, headline, description, and recommended action in English. Returns an empty list when no warnings are active. No API key required — open DWD data via Bright Sky (MIT licence).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "brightsky.alerts"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "latitude": {
+                    "type": "number",
+                    "description": "Latitude of the location in Germany (e.g. 52.52 for Berlin, range 47–56)",
+                    "minimum": 47,
+                    "maximum": 56
+                  },
+                  "longitude": {
+                    "type": "number",
+                    "description": "Longitude of the location in Germany (e.g. 13.40 for Berlin, range 5–16)",
+                    "minimum": 5,
+                    "maximum": 16
+                  }
+                },
+                "required": [
+                  "latitude",
+                  "longitude"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/brightsky.stations/call": {
+      "post": {
+        "operationId": "brightsky_stations",
+        "summary": "Bright Sky — Find Nearby DWD Weather Stations",
+        "description": "Find DWD (Deutscher Wetterdienst) weather stations near a given latitude/longitude in Germany. Returns each station's DWD station ID, WMO station ID, name, coordinates, elevation, observation type (current / recent / historical / forecast), date range of available records, and distance from the query point. Useful for discovering which stations cover a location before querying observations or synop data. No distance filter by default — returns all matching sources sorted by proximity. No API key required — open DWD data via Bright Sky (MIT licence).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "brightsky.stations"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "latitude": {
+                    "type": "number",
+                    "description": "Latitude of the location in Germany (e.g. 52.52 for Berlin, range 47–56)",
+                    "minimum": 47,
+                    "maximum": 56
+                  },
+                  "longitude": {
+                    "type": "number",
+                    "description": "Longitude of the location in Germany (e.g. 13.40 for Berlin, range 5–16)",
+                    "minimum": 5,
+                    "maximum": 16
+                  },
+                  "max_dist": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Maximum distance in metres from the given coordinates to include stations. When omitted, all DWD stations are returned sorted by proximity."
+                  }
+                },
+                "required": [
+                  "latitude",
+                  "longitude"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

@@ -287,6 +287,7 @@ import { OpenSkyAdapter } from './opensky';
 import { CoopsAdapter } from './coops';
 import { TflAdapter } from './tfl';
 import { NbiAdapter } from './nbi';
+import { BrightSkyAdapter } from './brightsky';
 import { config } from '../config';
 
 /**
@@ -1604,6 +1605,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'nbi':
       // National Bridge Inventory (UC-569) — FHWA 621K+ US bridges; condition, detail, nearby, stats; no auth
       return getOrCreate('nbi', () => new NbiAdapter());
+    case 'brightsky':
+      // Bright Sky DWD (UC-570) — Germany weather: current, observations, alerts, stations; no auth; DWD open data
+      return getOrCreate('brightsky', () => new BrightSkyAdapter());
     default:
       return undefined;
   }

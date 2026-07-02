@@ -37,7 +37,7 @@
     },
     {
       "name": "weather",
-      "tools": 46,
+      "tools": 50,
       "providers": "OpenWeatherMap, NWS, IQAir, NOAA, NOAA AWC, CheckWX, AVWX, US Drought Monitor, OpenSenseMap, Open-Meteo Marine, MET Norway",
       "examples": "current weather, forecast, alerts, air quality, aviation METAR/TAF/SIGMET (raw + decoded JSON), parsed NOTAMs and PIREPs, drought severity statistics, crowdsourced IoT sensor data (PM2.5/temp/humidity/UV), ocean wave/swell/sea-surface-temperature forecast"
     },

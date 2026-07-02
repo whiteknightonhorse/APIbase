@@ -6207,6 +6207,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-570: Bright Sky DWD ---
+  - tool_id: brightsky.current
+    name: Bright Sky — Current Weather in Germany
+    provider: brightsky
+    price_usd: "0.001"
+    cache_ttl: 300
+
+  - tool_id: brightsky.observations
+    name: Bright Sky — Hourly Weather Observations / Forecast for Germany
+    provider: brightsky
+    price_usd: "0.002"
+    cache_ttl: 1800
+
+  - tool_id: brightsky.alerts
+    name: Bright Sky — DWD Severe Weather Alerts for Germany
+    provider: brightsky
+    price_usd: "0.001"
+    cache_ttl: 300
+
+  - tool_id: brightsky.stations
+    name: Bright Sky — Find Nearby DWD Weather Stations
+    provider: brightsky
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

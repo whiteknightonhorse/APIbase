@@ -11898,4 +11898,62 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'infrastructure',
     annotations: READ_ONLY,
   },
+
+  // Bright Sky DWD (4)
+  {
+    toolId: 'brightsky.current',
+    mcpName: 'brightsky.weather.current',
+    title: 'Bright Sky — Current Weather in Germany',
+    description:
+      'Get current weather conditions for any location in Germany from the nearest DWD (Deutscher Wetterdienst) station. ' +
+      'Returns: temperature (°C), humidity, dew point, pressure (hPa), cloud cover, visibility, wind speed/direction, ' +
+      'wind gusts, precipitation in the last 10/30/60 minutes, sunshine duration, solar radiation, and weather condition ' +
+      '(dry, fog, rain, sleet, snow, hail, thunderstorm). ' +
+      'Source: official German Weather Service real-time observations. Coverage: Germany only. ' +
+      'No API key required — open DWD data via Bright Sky (MIT licence).',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'brightsky.observations',
+    mcpName: 'brightsky.weather.observations',
+    title: 'Bright Sky — Hourly Weather Observations / Forecast for Germany',
+    description:
+      'Get hourly weather observations or forecast for any location in Germany from DWD (Deutscher Wetterdienst). ' +
+      'Pass a past date to retrieve historical observations; pass a future date to retrieve the DWD numerical forecast. ' +
+      'Each hour includes: temperature, dew point, humidity, pressure, cloud cover, visibility, precipitation, ' +
+      'sunshine, wind speed/direction, wind gusts, precipitation probability, solar irradiance, and condition icon. ' +
+      'Returns up to 10 days of data (240 hourly records). ' +
+      'No API key required — open DWD data via Bright Sky (MIT licence).',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'brightsky.alerts',
+    mcpName: 'brightsky.weather.alerts',
+    title: 'Bright Sky — DWD Severe Weather Alerts for Germany',
+    description:
+      'Get active DWD (Deutscher Wetterdienst) severe weather alerts and warnings for any location in Germany. ' +
+      'Identifies the warn cell (administrative district) for the given coordinates and returns all current alerts ' +
+      'with: event type (e.g. thunderstorm, heavy rain, frost, storm), severity (Minor/Moderate/Severe/Extreme), ' +
+      'urgency, certainty, onset/expiry times, headline, description, and recommended action in English. ' +
+      'Returns an empty list when no warnings are active. ' +
+      'No API key required — open DWD data via Bright Sky (MIT licence).',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'brightsky.stations',
+    mcpName: 'brightsky.stations.nearby',
+    title: 'Bright Sky — Find Nearby DWD Weather Stations',
+    description:
+      'Find DWD (Deutscher Wetterdienst) weather stations near a given latitude/longitude in Germany. ' +
+      "Returns each station's DWD station ID, WMO station ID, name, coordinates, elevation, observation type " +
+      '(current / recent / historical / forecast), date range of available records, and distance from the query point. ' +
+      'Useful for discovering which stations cover a location before querying observations or synop data. ' +
+      'No distance filter by default — returns all matching sources sorted by proximity. ' +
+      'No API key required — open DWD data via Bright Sky (MIT licence).',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
 ];
