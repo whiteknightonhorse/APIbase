@@ -300,6 +300,7 @@ import { chemblSchemas } from './chembl.schema';
 import { medlineplusSchemas } from './medlineplus.schema';
 import { orphadataSchemas } from './orphadata.schema';
 import { cbsNetherlandsSchemas } from './cbs-netherlands.schema';
+import { adbkidbSchemas } from './adbkidb.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -603,4 +604,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...medlineplusSchemas,
   ...orphadataSchemas,
   ...cbsNetherlandsSchemas,
+  ...adbkidbSchemas,
 };

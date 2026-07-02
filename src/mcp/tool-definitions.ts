@@ -12688,4 +12688,72 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+
+  // ADB KIDB — Asian Development Bank Key Indicators Database (UC-583, 4 tools)
+  {
+    toolId: 'adbkidb.dataflows_list',
+    mcpName: 'adbkidb.explore.dataflows',
+    title: 'ADB KIDB — List Dataflows',
+    description:
+      'List the 62 available dataflow categories in the ADB Key Indicators Database (KIDB). ' +
+      'Covers macroeconomic and social statistics for 50 Asia-Pacific economies. ' +
+      'Dataflows are hierarchical topic groups: People (PPL), Economy and Output (EO), ' +
+      'Money Finance and Prices (MFP), Government and Governance (GG), Globalization (GLB), ' +
+      'Energy and Electricity (EGELC), Transport and Communication (TC), ' +
+      'Environment and Climate Change (ENV), and Sustainable Development Goals (SDG_01–SDG_17). ' +
+      'Use the returned code with adbkidb.indicators to discover indicator codes, ' +
+      'then adbkidb.data to fetch actual values. ' +
+      'Source: kidb.adb.org — Asian Development Bank open data, no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'adbkidb.indicators',
+    mcpName: 'adbkidb.explore.indicators',
+    title: 'ADB KIDB — List Indicators',
+    description:
+      'List all available indicators within an ADB KIDB dataflow. ' +
+      'Returns indicator codes, names, and descriptions for a given topic category. ' +
+      'For example, dataflow EO_NA returns GDP, GVA, investment, and savings indicators ' +
+      'with codes like NGDP_XDC (GDP at current prices) and NGDP_RPCH (real GDP growth). ' +
+      'Use the returned codes with adbkidb.data to query actual time-series observations. ' +
+      'Typical dataflow codes: PPL_POP (population), EO_NA (national accounts), ' +
+      'MFP_XR (exchange rates), GLB_ET (external trade), ENV_CC (climate data). ' +
+      'Source: kidb.adb.org — Asian Development Bank open data, no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'adbkidb.data',
+    mcpName: 'adbkidb.data.query',
+    title: 'ADB KIDB — Query Economic Data',
+    description:
+      'Fetch annual macroeconomic time-series data from the ADB Key Indicators Database for any combination ' +
+      'of Asian Development Bank member economies and SDMX indicators. ' +
+      'Returns structured observations with values, units, data sources, and footnotes. ' +
+      'Covers GDP, population, inflation, exchange rates, trade, energy, SDGs, and 700+ other indicators ' +
+      'for 50 Asia-Pacific economies (China=PRC, India=IND, Japan=JPN, Indonesia=INO, etc.) from 1960s onward. ' +
+      'Workflow: (1) adbkidb.dataflows_list to pick a topic, (2) adbkidb.indicators to find indicator codes, ' +
+      '(3) this tool to fetch values. ' +
+      'Example: dataflow=EO_NA, indicator_codes=[NGDP_XDC], economy_codes=[PRC,IND], start_year=2015 ' +
+      'returns GDP at current prices for China and India from 2015 to present. ' +
+      'Source: kidb.adb.org SDMX v3.0 API — ADB open data, no auth, 20 req/min.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'adbkidb.economies',
+    mcpName: 'adbkidb.explore.economies',
+    title: 'ADB KIDB — List Member Economies',
+    description:
+      'List the 50 ADB member economy codes used to query the Key Indicators Database. ' +
+      "Returns each economy's 3-letter code and full name. " +
+      'These codes are used as economy_codes in adbkidb.data queries. ' +
+      'Key codes: PRC (China), IND (India), JPN (Japan), INO (Indonesia), KOR (Korea), ' +
+      'PAK (Pakistan), BAN (Bangladesh), PHI (Philippines), VIE (Viet Nam), THA (Thailand). ' +
+      'Note: China is PRC (not CHN), Indonesia is INO (not IDN), Bangladesh is BAN (not BGD). ' +
+      'Source: kidb.adb.org — Asian Development Bank member economy reference.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
 ];

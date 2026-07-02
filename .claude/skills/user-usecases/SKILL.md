@@ -278,6 +278,7 @@ Use these examples as reference patterns when:
 | UC-580 | MedlinePlus Connect | NLM clinical code → patient health info; ICD-10-CM, ICD-9-CM, SNOMED CT, RxNorm; US Gov public domain, no auth, unlimited free | LIVE | No auth, 4 tools | `usecases/UC-580-medlineplus-connect.md` |
 | UC-581 | Orphadata (Orphanet) | Rare disease lookup, epidemiology, HPO phenotypes, natural history; 4,245+ diseases; CC BY 4.0, no auth, unlimited free | LIVE | No auth, 4 tools | `usecases/UC-581-orphadata.md` |
 | UC-582 | CBS Netherlands (Statistics NL) | Statistics Netherlands OData API; 5900+ statistical datasets (population, economy, labor, health); no auth, CC BY 4.0 | LIVE | No auth, 4 tools | `usecases/UC-582-cbs-netherlands.md` |
+| UC-583 | ADB Key Indicators Database | ADB macroeconomic database; 700+ indicators; 50 Asia-Pacific economies; 62 dataflows; SDMX v3.0; no auth, 20 req/min | LIVE | No auth, 4 tools | `usecases/UC-583-adbkidb.md` |
 
 ## How to Use
 

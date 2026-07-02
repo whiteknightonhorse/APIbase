@@ -6532,6 +6532,31 @@ tools:
     price_usd: "0.002"
     cache_ttl: 3600
 
+  # --- UC-583: ADB KIDB ---
+  - tool_id: adbkidb.dataflows_list
+    name: ADB KIDB — List Dataflows
+    provider: adbkidb
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: adbkidb.indicators
+    name: ADB KIDB — List Indicators
+    provider: adbkidb
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: adbkidb.data
+    name: ADB KIDB — Query Economic Data
+    provider: adbkidb
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: adbkidb.economies
+    name: ADB KIDB — List Member Economies
+    provider: adbkidb
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

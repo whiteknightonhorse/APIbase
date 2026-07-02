@@ -2690,5 +2690,14 @@
     "reset_period": "none",
     "docs_url": "https://www.cbs.nl/en-gb/our-services/open-data/statline-as-open-data/quick-start-guide",
     "limit_proof": "CBS OData API: CC BY 4.0 open government data, no authentication, no documented rate limits. 5900+ statistical datasets."
+  },
+  "adbkidb": {
+    "display_name": "ADB Key Indicators Database",
+    "health_url": "https://kidb.adb.org/api/dataflow/indicators/PPL_POP",
+    "limit_type": "hourly",
+    "free_limit": 20,
+    "reset_period": "hourly",
+    "docs_url": "https://kidb.adb.org/api",
+    "limit_proof": "x-ratelimit-limit: 20 header observed per request window; ADB KIDB API page at kidb.adb.org/api confirms public open access, no auth required."
   }
 }

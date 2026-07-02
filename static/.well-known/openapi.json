@@ -97746,6 +97746,349 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/adbkidb.dataflows_list/call": {
+      "post": {
+        "operationId": "adbkidb_dataflows_list",
+        "summary": "ADB KIDB — List Dataflows",
+        "description": "List the 62 available dataflow categories in the ADB Key Indicators Database (KIDB). Covers macroeconomic and social statistics for 50 Asia-Pacific economies. Dataflows are hierarchical topic groups: People (PPL), Economy and Output (EO), Money Finance and Prices (MFP), Government and Governance (GG), Globalization (GLB), Energy and Electricity (EGELC), Transport and Communication (TC), Environment and Climate Change (ENV), and Sustainable Development Goals (SDG_01–SDG_17). Use the returned code with adbkidb.indicators to discover indicator codes, then adbkidb.data to fetch actual values. Source: kidb.adb.org — Asian Development Bank open data, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "adbkidb.dataflows_list"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "search": {
+                    "type": "string",
+                    "description": "Optional keyword to filter dataflows by code or name (e.g. \"gdp\", \"SDG\", \"EO_NA\"). Leave empty to list all 62 dataflows."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/adbkidb.indicators/call": {
+      "post": {
+        "operationId": "adbkidb_indicators",
+        "summary": "ADB KIDB — List Indicators",
+        "description": "List all available indicators within an ADB KIDB dataflow. Returns indicator codes, names, and descriptions for a given topic category. For example, dataflow EO_NA returns GDP, GVA, investment, and savings indicators with codes like NGDP_XDC (GDP at current prices) and NGDP_RPCH (real GDP growth). Use the returned codes with adbkidb.data to query actual time-series observations. Typical dataflow codes: PPL_POP (population), EO_NA (national accounts), MFP_XR (exchange rates), GLB_ET (external trade), ENV_CC (climate data). Source: kidb.adb.org — Asian Development Bank open data, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "adbkidb.indicators"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "dataflow": {
+                    "type": "string",
+                    "description": "KIDB dataflow code to list indicators for (e.g. \"EO_NA\" for National Accounts, \"PPL_POP\" for Population, \"MFP_XR\" for Exchange Rates, \"SDG_01\" for SDG No Poverty). Use adbkidb.dataflows_list to discover all 62 codes.",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "dataflow"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/adbkidb.data/call": {
+      "post": {
+        "operationId": "adbkidb_data",
+        "summary": "ADB KIDB — Query Economic Data",
+        "description": "Fetch annual macroeconomic time-series data from the ADB Key Indicators Database for any combination of Asian Development Bank member economies and SDMX indicators. Returns structured observations with values, units, data sources, and footnotes. Covers GDP, population, inflation, exchange rates, trade, energy, SDGs, and 700+ other indicators for 50 Asia-Pacific economies (China=PRC, India=IND, Japan=JPN, Indonesia=INO, etc.) from 1960s onward. Workflow: (1) adbkidb.dataflows_list to pick a topic, (2) adbkidb.indicators to find indicator codes, (3) this tool to fetch values. Example: dataflow=EO_NA, indicator_codes=[NGDP_XDC], economy_codes=[PRC,IND], start_year=2015 returns GDP at current prices for China and India from 2015 to present. Source: kidb.adb.org SDMX v3.0 API — ADB open data, no auth, 20 req/min.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "adbkidb.data"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "dataflow": {
+                    "type": "string",
+                    "description": "KIDB dataflow code (e.g. \"EO_NA\" for National Accounts, \"PPL_POP\" for Population, \"MFP_XR\" for Exchange Rates). Use adbkidb.dataflows_list to discover codes, then adbkidb.indicators to find indicator codes within the dataflow.",
+                    "minLength": 1
+                  },
+                  "indicator_codes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "description": "One or more indicator codes within the dataflow (e.g. [\"NGDP_XDC\"] for GDP at current prices in EO_NA, [\"LP_PE_NUM_MOP\"] for population in PPL_POP). Use adbkidb.indicators to discover codes. Maximum 10.",
+                    "minItems": 1,
+                    "maxItems": 10
+                  },
+                  "economy_codes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 2,
+                      "maxLength": 3
+                    },
+                    "description": "One or more ADB economy codes (e.g. [\"PRC\"] for China, [\"IND\"] for India, [\"JPN\"] for Japan, [\"PRC\",\"IND\",\"INO\"] for multiple). Use adbkidb.economies to list all 50 codes. Maximum 10.",
+                    "minItems": 1,
+                    "maxItems": 10
+                  },
+                  "start_year": {
+                    "type": "integer",
+                    "minimum": 1960,
+                    "maximum": 2030,
+                    "description": "Start year for the data range (e.g. 2010). Data availability varies by indicator; most series begin 1990–2000. Defaults to 2000."
+                  },
+                  "end_year": {
+                    "type": "integer",
+                    "minimum": 1960,
+                    "maximum": 2030,
+                    "description": "End year for the data range (e.g. 2024). Defaults to current year. Annual frequency only (A)."
+                  }
+                },
+                "required": [
+                  "dataflow",
+                  "indicator_codes",
+                  "economy_codes"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/adbkidb.economies/call": {
+      "post": {
+        "operationId": "adbkidb_economies",
+        "summary": "ADB KIDB — List Member Economies",
+        "description": "List the 50 ADB member economy codes used to query the Key Indicators Database. Returns each economy's 3-letter code and full name. These codes are used as economy_codes in adbkidb.data queries. Key codes: PRC (China), IND (India), JPN (Japan), INO (Indonesia), KOR (Korea), PAK (Pakistan), BAN (Bangladesh), PHI (Philippines), VIE (Viet Nam), THA (Thailand). Note: China is PRC (not CHN), Indonesia is INO (not IDN), Bangladesh is BAN (not BGD). Source: kidb.adb.org — Asian Development Bank member economy reference.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "adbkidb.economies"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "search": {
+                    "type": "string",
+                    "description": "Optional keyword to filter ADB member economies by code or name (e.g. \"india\", \"PRC\", \"south\"). Leave empty to list all 50 ADB member economies with their 3-letter codes."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

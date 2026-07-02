@@ -300,6 +300,7 @@ import { ChemblAdapter } from './chembl';
 import { MedlineplusAdapter } from './medlineplus';
 import { OrphadataAdapter } from './orphadata';
 import { CbsNetherlandsAdapter } from './cbs-netherlands';
+import { AdbkidbAdapter } from './adbkidb';
 import { config } from '../config';
 
 /**
@@ -1656,6 +1657,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'cbs':
       // CBS Netherlands (UC-582) — Statistics Netherlands OData API; 5900+ statistical datasets; no auth; CC BY 4.0
       return getOrCreate('cbs', () => new CbsNetherlandsAdapter());
+    case 'adbkidb':
+      // ADB KIDB (UC-583) — Asian Development Bank macroeconomic database; 700+ indicators; no auth; open access
+      return getOrCreate('adbkidb', () => new AdbkidbAdapter());
     default:
       return undefined;
   }
