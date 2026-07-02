@@ -277,6 +277,7 @@ Use these examples as reference patterns when:
 | UC-579 | ChEMBL | Drug discovery database — 2.9M molecules, 18K targets, 20M bioactivity measurements; EMBL-EBI; CC BY-SA 3.0, no auth, no rate limits | LIVE | No auth, 4 tools | `usecases/UC-579-chembl.md` |
 | UC-580 | MedlinePlus Connect | NLM clinical code → patient health info; ICD-10-CM, ICD-9-CM, SNOMED CT, RxNorm; US Gov public domain, no auth, unlimited free | LIVE | No auth, 4 tools | `usecases/UC-580-medlineplus-connect.md` |
 | UC-581 | Orphadata (Orphanet) | Rare disease lookup, epidemiology, HPO phenotypes, natural history; 4,245+ diseases; CC BY 4.0, no auth, unlimited free | LIVE | No auth, 4 tools | `usecases/UC-581-orphadata.md` |
+| UC-582 | CBS Netherlands (Statistics NL) | Statistics Netherlands OData API; 5900+ statistical datasets (population, economy, labor, health); no auth, CC BY 4.0 | LIVE | No auth, 4 tools | `usecases/UC-582-cbs-netherlands.md` |
 
 ## How to Use
 

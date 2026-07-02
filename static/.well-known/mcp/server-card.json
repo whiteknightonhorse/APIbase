@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 1082 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 1086 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -62782,6 +62782,243 @@
           "error": {
             "type": "object",
             "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "cbs.catalog.search",
+      "title": "CBS Netherlands \u2014 Catalog Search",
+      "description": "Search the Statistics Netherlands (CBS) open data catalog of 5900+ statistical datasets covering population, economy, labor market, health, education, environment, and more. Returns table identifiers needed for table_info, table_properties, and table_data queries. Filter by keyword (e.g. \"bevolking\", \"werkloosheid\", \"bbp\"), publication frequency (annual/quarterly/monthly), or language. Results ordered by most recently updated. Source: opendata.cbs.nl \u2014 CC BY 4.0, no auth, unlimited free access.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Keyword to search in CBS table titles and descriptions (e.g. \"population\", \"unemployment\", \"gdp\"). Leave empty to list the most recently updated tables."
+          },
+          "frequency": {
+            "type": "string",
+            "enum": [
+              "Perjaar",
+              "Kwartaal",
+              "Maand",
+              "Onregelmatig"
+            ],
+            "description": "Filter by publication frequency: Perjaar (annual), Kwartaal (quarterly), Maand (monthly), Onregelmatig (irregular)."
+          },
+          "language": {
+            "type": "string",
+            "enum": [
+              "nl",
+              "en"
+            ],
+            "description": "Filter by language of the table metadata: nl (Dutch, default) or en (English). English tables are a subset."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of results to return (1\u201350, default 10)."
+          },
+          "skip": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of results to skip for pagination (default 0)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "cbs.table.data",
+      "title": "CBS Netherlands \u2014 Table Data",
+      "description": "Query statistical data from a CBS Netherlands table using OData filters. Supports $filter (e.g. \"Perioden eq '2023JJ00'\" for annual 2023, \"RegioS eq 'NL00  '\" for national), $select (specific columns), $top (max 100 records), and $skip (pagination). Returns typed data rows with all dimension and topic values. Use table_properties first to discover available columns and valid filter values. Annual period codes use format YYYY + JJ00 (e.g. 2023JJ00). Source: opendata.cbs.nl \u2014 CC BY 4.0, no auth, unlimited free access.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "table_id": {
+            "type": "string",
+            "description": "CBS table identifier (e.g. \"83583NED\"). Use catalog_search to find a table, then table_properties to discover its columns.",
+            "minLength": 1
+          },
+          "filter": {
+            "type": "string",
+            "description": "OData $filter expression to narrow results (e.g. \"Perioden eq '2023JJ00'\" for annual 2023 data, or \"RegioS eq 'NL00  '\" for national totals). Use values from the table's dimension endpoints."
+          },
+          "select": {
+            "type": "string",
+            "description": "Comma-separated list of columns to include (e.g. \"Perioden, RegioS, Bevolking_1\"). Reduces response size for wide tables. Omit to return all columns."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Number of data records to return (1\u2013100, default 10)."
+          },
+          "skip": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of records to skip for pagination (default 0)."
+          }
+        },
+        "required": [
+          "table_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "cbs.table.info",
+      "title": "CBS Netherlands \u2014 Table Info",
+      "description": "Get metadata for a specific CBS Netherlands statistical table by its identifier (e.g. \"83583NED\"). Returns full title, description, time period covered (e.g. 2010\u20132024), publication frequency, number of records, data source, output status (provisional/final), and the API URL for data access. Use catalog_search first to discover table identifiers. Source: opendata.cbs.nl \u2014 CC BY 4.0, no auth, unlimited free access.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "table_id": {
+            "type": "string",
+            "description": "CBS table identifier returned by catalog_search (e.g. \"83583NED\", \"37556\"). Used to retrieve metadata about a specific statistical dataset.",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "table_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "cbs.table.properties",
+      "title": "CBS Netherlands \u2014 Table Properties",
+      "description": "Get the column schema for a CBS Netherlands statistical table \u2014 dimension keys, topic keys, data types (TimeDimension, GeoDimension, Topic, TopicGroup), titles, units, and decimal precision. Essential before querying table_data: reveals the exact field names and filter values available. For example, a population table has Perioden (time), RegioS (region), and numeric topic columns. Source: opendata.cbs.nl \u2014 CC BY 4.0, no auth, unlimited free access.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "table_id": {
+            "type": "string",
+            "description": "CBS table identifier (e.g. \"83583NED\"). Returns the column schema (keys, types, titles, units) so you know which fields to use in table_data queries.",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "table_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
           }
         },
         "required": [

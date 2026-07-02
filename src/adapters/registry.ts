@@ -299,6 +299,7 @@ import { NasaCmrAdapter } from './nasa-cmr';
 import { ChemblAdapter } from './chembl';
 import { MedlineplusAdapter } from './medlineplus';
 import { OrphadataAdapter } from './orphadata';
+import { CbsNetherlandsAdapter } from './cbs-netherlands';
 import { config } from '../config';
 
 /**
@@ -1652,6 +1653,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'orphadata':
       // Orphadata (UC-581) — Orphanet rare disease lookup, epidemiology, phenotypes, natural history; CC BY 4.0; no auth
       return getOrCreate('orphadata', () => new OrphadataAdapter());
+    case 'cbs':
+      // CBS Netherlands (UC-582) — Statistics Netherlands OData API; 5900+ statistical datasets; no auth; CC BY 4.0
+      return getOrCreate('cbs', () => new CbsNetherlandsAdapter());
     default:
       return undefined;
   }

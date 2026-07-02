@@ -299,6 +299,7 @@ import { nasaCmrSchemas } from './nasa-cmr.schema';
 import { chemblSchemas } from './chembl.schema';
 import { medlineplusSchemas } from './medlineplus.schema';
 import { orphadataSchemas } from './orphadata.schema';
+import { cbsNetherlandsSchemas } from './cbs-netherlands.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -601,4 +602,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...chemblSchemas,
   ...medlineplusSchemas,
   ...orphadataSchemas,
+  ...cbsNetherlandsSchemas,
 };

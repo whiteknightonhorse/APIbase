@@ -2681,5 +2681,14 @@
     "reset_period": "none",
     "docs_url": "https://api.orphadata.com/",
     "limit_proof": "Orphadata API: CC BY 4.0 open data, no authentication required, no documented rate limits. Data updated biannually (January/July)."
+  },
+  "cbs": {
+    "display_name": "CBS Netherlands (Statistics NL)",
+    "health_url": "https://opendata.cbs.nl/ODataCatalog/Tables?$top=1&$format=json",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.cbs.nl/en-gb/our-services/open-data/statline-as-open-data/quick-start-guide",
+    "limit_proof": "CBS OData API: CC BY 4.0 open government data, no authentication, no documented rate limits. 5900+ statistical datasets."
   }
 }

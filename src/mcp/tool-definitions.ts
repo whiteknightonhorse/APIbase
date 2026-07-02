@@ -12631,4 +12631,61 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'health',
     annotations: READ_ONLY,
   },
+
+  // CBS Netherlands (UC-582) — Statistics Netherlands OData API (4)
+  {
+    toolId: 'cbs.catalog_search',
+    mcpName: 'cbs.catalog.search',
+    title: 'CBS Netherlands Catalog Search',
+    description:
+      'Search the Statistics Netherlands (CBS) open data catalog of 5900+ statistical datasets covering ' +
+      'population, economy, labor market, health, education, environment, and more. ' +
+      'Returns table identifiers needed for table_info, table_properties, and table_data queries. ' +
+      'Filter by keyword (e.g. "bevolking", "werkloosheid", "bbp"), publication frequency (annual/quarterly/monthly), ' +
+      'or language. Results ordered by most recently updated. ' +
+      'Source: opendata.cbs.nl — CC BY 4.0, no auth, unlimited free access.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'cbs.table_info',
+    mcpName: 'cbs.table.info',
+    title: 'CBS Netherlands Table Info',
+    description:
+      'Get metadata for a specific CBS Netherlands statistical table by its identifier (e.g. "83583NED"). ' +
+      'Returns full title, description, time period covered (e.g. 2010–2024), publication frequency, ' +
+      'number of records, data source, output status (provisional/final), and the API URL for data access. ' +
+      'Use catalog_search first to discover table identifiers. ' +
+      'Source: opendata.cbs.nl — CC BY 4.0, no auth, unlimited free access.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'cbs.table_properties',
+    mcpName: 'cbs.table.properties',
+    title: 'CBS Netherlands Table Properties',
+    description:
+      'Get the column schema for a CBS Netherlands statistical table — dimension keys, topic keys, ' +
+      'data types (TimeDimension, GeoDimension, Topic, TopicGroup), titles, units, and decimal precision. ' +
+      'Essential before querying table_data: reveals the exact field names and filter values available. ' +
+      'For example, a population table has Perioden (time), RegioS (region), and numeric topic columns. ' +
+      'Source: opendata.cbs.nl — CC BY 4.0, no auth, unlimited free access.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'cbs.table_data',
+    mcpName: 'cbs.table.data',
+    title: 'CBS Netherlands Table Data',
+    description:
+      'Query statistical data from a CBS Netherlands table using OData filters. ' +
+      'Supports $filter (e.g. "Perioden eq \'2023JJ00\'" for annual 2023, "RegioS eq \'NL00  \'" for national), ' +
+      '$select (specific columns), $top (max 100 records), and $skip (pagination). ' +
+      'Returns typed data rows with all dimension and topic values. ' +
+      'Use table_properties first to discover available columns and valid filter values. ' +
+      'Annual period codes use format YYYY + JJ00 (e.g. 2023JJ00). ' +
+      'Source: opendata.cbs.nl — CC BY 4.0, no auth, unlimited free access.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];
