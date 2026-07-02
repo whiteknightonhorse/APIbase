@@ -92666,6 +92666,367 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/nbi.search/call": {
+      "post": {
+        "operationId": "nbi_search",
+        "summary": "NBI — Search US Bridges by State and Condition",
+        "description": "Search the National Bridge Inventory (NBI) for highway bridges in a US state, with optional filter by overall condition (Good / Fair / Poor). Returns up to 200 bridges per call, sorted by lowest sufficiency rating first. Each result includes: structure number, location, feature below (river/road), facility carried, coordinates, year built/reconstructed, overall bridge condition, deck/superstructure/substructure ratings (0–9 scale), operating load rating (tons), max span length (m), deck width (m), average daily traffic, open/posted/closed status, sufficiency rating, and scour-critical classification. Covers 621,000+ bridges on public roads across all 50 states plus territories. Data: FHWA NBI as of June 2023, updated annually. No auth required — USDOT public domain.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nbi.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "state_code": {
+                    "type": "string",
+                    "description": "Two-digit FIPS state code (e.g. \"06\" for California, \"48\" for Texas, \"36\" for New York, \"17\" for Illinois). Leading zero required for single-digit states (e.g. \"01\" for Alabama).",
+                    "minLength": 2,
+                    "maxLength": 2
+                  },
+                  "condition": {
+                    "type": "string",
+                    "enum": [
+                      "G",
+                      "F",
+                      "P"
+                    ],
+                    "description": "Filter by overall bridge condition: G = Good, F = Fair, P = Poor. Omit to return all conditions."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 200,
+                    "description": "Maximum number of bridges to return (1–200, default 50). Sorted by lowest sufficiency rating ascending."
+                  }
+                },
+                "required": [
+                  "state_code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/nbi.bridge_detail/call": {
+      "post": {
+        "operationId": "nbi_bridge_detail",
+        "summary": "NBI — Detailed Bridge Record by Structure Number",
+        "description": "Retrieve the full NBI record for a specific US highway bridge identified by state FIPS code and NBI structure number. Returns all inspection and inventory fields: condition ratings (deck, superstructure, substructure, channel, culvert), load ratings (operating and inventory, in tons), structural evaluation, waterway adequacy, posting/closure status, scour-critical rating, deck area (m²), approach details, owner and maintenance agency, functional classification, design load, deck structure/surface/membrane type, improvement costs, inspection frequency and date, fracture-critical designation, federal lands flag, and skew angle. Use nbi.search or nbi.nearby to discover structure numbers before calling this tool. Data: FHWA NBI as of June 2023. No auth required — USDOT public domain.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nbi.bridge_detail"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "state_code": {
+                    "type": "string",
+                    "description": "Two-digit FIPS state code (e.g. \"06\" for California, \"48\" for Texas, \"36\" for New York, \"17\" for Illinois). Leading zero required for single-digit states (e.g. \"01\" for Alabama).",
+                    "minLength": 2,
+                    "maxLength": 2
+                  },
+                  "structure_number": {
+                    "type": "string",
+                    "description": "NBI structure number — the unique bridge identifier within the state (e.g. \"06 0021\", \"27 0052\"). Obtainable from the structure_number field in nbi.search or nbi.nearby results.",
+                    "minLength": 1,
+                    "maxLength": 15
+                  }
+                },
+                "required": [
+                  "state_code",
+                  "structure_number"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/nbi.nearby/call": {
+      "post": {
+        "operationId": "nbi_nearby",
+        "summary": "NBI — Find Bridges Near a Location",
+        "description": "Find US highway bridges within a specified radius (up to 50 miles) of a latitude/longitude coordinate. Results are sorted by lowest sufficiency rating ascending (most at-risk bridges first). Returns the same core fields as nbi.search: structure number, location, feature below, coordinates, condition (Good/Fair/Poor), deck/superstructure/substructure ratings, operating load rating, max span length, deck width, average daily traffic, open/posted/closed status, and scour classification. Useful for infrastructure planning, site assessments, disaster response routing, and proximity analysis. Covers all 621,000+ US highway bridges. No auth required — USDOT/FHWA public domain data.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nbi.nearby"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "latitude": {
+                    "type": "number",
+                    "description": "Center latitude of the search area in decimal degrees (e.g. 37.7749 for San Francisco).",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "longitude": {
+                    "type": "number",
+                    "description": "Center longitude of the search area in decimal degrees (e.g. -122.4194 for San Francisco).",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  "radius_miles": {
+                    "type": "number",
+                    "minimum": 0.1,
+                    "maximum": 50,
+                    "description": "Search radius in miles from the center point (0.1–50, default 10). Larger radii may return up to 100 results."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of nearby bridges to return (1–100, default 25). Sorted by lowest sufficiency rating ascending."
+                  }
+                },
+                "required": [
+                  "latitude",
+                  "longitude"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/nbi.condition_stats/call": {
+      "post": {
+        "operationId": "nbi_condition_stats",
+        "summary": "NBI — Bridge Condition Statistics for a State",
+        "description": "Get aggregated bridge condition statistics for all highway bridges in a given US state. Returns counts and percentages for each condition category: Good, Fair, Poor, and Unknown/Not-applicable. This summary matches the metrics used in the FHWA annual Bridge Conditions report and Congressional infrastructure reporting. A bridge is classified as Structurally Deficient if rated Poor. As of June 2023, ~7% of US bridges (43,000+) are in Poor condition. Useful for state-level infrastructure health dashboards, policy analysis, and funding prioritization. Data: FHWA NBI June 2023. No auth required — USDOT public domain.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nbi.condition_stats"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "state_code": {
+                    "type": "string",
+                    "description": "Two-digit FIPS state code (e.g. \"06\" for California, \"48\" for Texas, \"36\" for New York, \"17\" for Illinois). Leading zero required for single-digit states (e.g. \"01\" for Alabama).",
+                    "minLength": 2,
+                    "maxLength": 2
+                  }
+                },
+                "required": [
+                  "state_code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

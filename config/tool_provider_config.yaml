@@ -6182,6 +6182,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 60
 
+  # --- UC-569: National Bridge Inventory (NBI) ---
+  - tool_id: nbi.search
+    name: NBI — Search US Bridges by State and Condition
+    provider: nbi
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: nbi.bridge_detail
+    name: NBI — Detailed Bridge Record by Structure Number
+    provider: nbi
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: nbi.nearby
+    name: NBI — Find Bridges Near a Location
+    provider: nbi
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: nbi.condition_stats
+    name: NBI — Bridge Condition Statistics for a State
+    provider: nbi
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

@@ -2564,5 +2564,14 @@
     "reset_period": "none",
     "docs_url": "https://api-portal.tfl.gov.uk/",
     "limit_proof": "TfL Open Data — no API key required for anonymous access. No documented hard rate limit for unauthenticated requests (api-portal.tfl.gov.uk)."
+  },
+  "nbi": {
+    "display_name": "National Bridge Inventory (NBI)",
+    "health_url": "https://geo.dot.gov/server/rest/services/Hosted/National_Bridge_Inventory/FeatureServer/0?f=json",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.fhwa.dot.gov/bridge/nbi/ascii.cfm",
+    "limit_proof": "USDOT/FHWA public domain data via ArcGIS FeatureServer — no auth required, no documented rate limits on geo.dot.gov public services."
   }
 }

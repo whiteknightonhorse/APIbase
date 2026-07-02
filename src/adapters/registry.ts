@@ -286,6 +286,7 @@ import { CdcChronicAdapter } from './cdc-chronic';
 import { OpenSkyAdapter } from './opensky';
 import { CoopsAdapter } from './coops';
 import { TflAdapter } from './tfl';
+import { NbiAdapter } from './nbi';
 import { config } from '../config';
 
 /**
@@ -1600,6 +1601,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'tfl':
       // Transport for London (UC-568) — line status, arrivals, journey planner, bike points; no auth, TfL Open Data CC-BY
       return getOrCreate('tfl', () => new TflAdapter());
+    case 'nbi':
+      // National Bridge Inventory (UC-569) — FHWA 621K+ US bridges; condition, detail, nearby, stats; no auth
+      return getOrCreate('nbi', () => new NbiAdapter());
     default:
       return undefined;
   }

@@ -264,6 +264,7 @@ Use these examples as reference patterns when:
 | UC-566 | OpenSky Network ADS-B | Travel / Aviation — Live Aircraft Tracking | LIVE | No auth, open community ADS-B network, 4 tools | `usecases/UC-566-opensky-network.md` |
 | UC-567 | NOAA CO-OPS Tides & Currents | Weather / Maritime — Tide predictions, water levels, conditions | LIVE | No auth, US Gov NODD public domain, 4 tools | `usecases/UC-567-noaa-coops-tides.md` |
 | UC-568 | Transport for London (TfL) | Travel / Multi-modal transit — London line status, arrivals, journey planner, bike points | LIVE | No auth, TfL Open Data CC-BY, 4 tools | `usecases/UC-568-tfl-london.md` |
+| UC-569 | National Bridge Inventory (NBI) | Infrastructure — US highway bridge search, detail, nearby, condition stats | LIVE | No auth, USDOT/FHWA public domain, 4 tools | `usecases/UC-569-nbi-bridges.md` |
 
 ## How to Use
 

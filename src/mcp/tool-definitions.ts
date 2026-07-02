@@ -11835,4 +11835,67 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'travel',
     annotations: READ_ONLY,
   },
+
+  // National Bridge Inventory — FHWA/USDOT (4) — UC-569
+  {
+    toolId: 'nbi.search',
+    mcpName: 'nbi.infrastructure.search',
+    title: 'NBI — Search US Bridges by State and Condition',
+    description:
+      'Search the National Bridge Inventory (NBI) for highway bridges in a US state, with optional filter by overall condition ' +
+      '(Good / Fair / Poor). Returns up to 200 bridges per call, sorted by lowest sufficiency rating first. ' +
+      'Each result includes: structure number, location, feature below (river/road), facility carried, coordinates, ' +
+      'year built/reconstructed, overall bridge condition, deck/superstructure/substructure ratings (0–9 scale), ' +
+      'operating load rating (tons), max span length (m), deck width (m), average daily traffic, open/posted/closed status, ' +
+      'sufficiency rating, and scour-critical classification. ' +
+      'Covers 621,000+ bridges on public roads across all 50 states plus territories. ' +
+      'Data: FHWA NBI as of June 2023, updated annually. No auth required — USDOT public domain.',
+    category: 'infrastructure',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nbi.bridge_detail',
+    mcpName: 'nbi.infrastructure.bridge_detail',
+    title: 'NBI — Detailed Bridge Record by Structure Number',
+    description:
+      'Retrieve the full NBI record for a specific US highway bridge identified by state FIPS code and NBI structure number. ' +
+      'Returns all inspection and inventory fields: condition ratings (deck, superstructure, substructure, channel, culvert), ' +
+      'load ratings (operating and inventory, in tons), structural evaluation, waterway adequacy, posting/closure status, ' +
+      'scour-critical rating, deck area (m²), approach details, owner and maintenance agency, functional classification, ' +
+      'design load, deck structure/surface/membrane type, improvement costs, inspection frequency and date, ' +
+      'fracture-critical designation, federal lands flag, and skew angle. ' +
+      'Use nbi.search or nbi.nearby to discover structure numbers before calling this tool. ' +
+      'Data: FHWA NBI as of June 2023. No auth required — USDOT public domain.',
+    category: 'infrastructure',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nbi.nearby',
+    mcpName: 'nbi.infrastructure.nearby',
+    title: 'NBI — Find Bridges Near a Location',
+    description:
+      'Find US highway bridges within a specified radius (up to 50 miles) of a latitude/longitude coordinate. ' +
+      'Results are sorted by lowest sufficiency rating ascending (most at-risk bridges first). ' +
+      'Returns the same core fields as nbi.search: structure number, location, feature below, coordinates, ' +
+      'condition (Good/Fair/Poor), deck/superstructure/substructure ratings, operating load rating, ' +
+      'max span length, deck width, average daily traffic, open/posted/closed status, and scour classification. ' +
+      'Useful for infrastructure planning, site assessments, disaster response routing, and proximity analysis. ' +
+      'Covers all 621,000+ US highway bridges. No auth required — USDOT/FHWA public domain data.',
+    category: 'infrastructure',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nbi.condition_stats',
+    mcpName: 'nbi.infrastructure.condition_stats',
+    title: 'NBI — Bridge Condition Statistics for a State',
+    description:
+      'Get aggregated bridge condition statistics for all highway bridges in a given US state. ' +
+      'Returns counts and percentages for each condition category: Good, Fair, Poor, and Unknown/Not-applicable. ' +
+      'This summary matches the metrics used in the FHWA annual Bridge Conditions report and Congressional infrastructure reporting. ' +
+      'A bridge is classified as Structurally Deficient if rated Poor. As of June 2023, ~7% of US bridges (43,000+) are in Poor condition. ' +
+      'Useful for state-level infrastructure health dashboards, policy analysis, and funding prioritization. ' +
+      'Data: FHWA NBI June 2023. No auth required — USDOT public domain.',
+    category: 'infrastructure',
+    annotations: READ_ONLY,
+  },
 ];

@@ -286,6 +286,7 @@ import { cdcChronicSchemas } from './cdc-chronic.schema';
 import { openskySchemas } from './opensky.schema';
 import { coopsSchemas } from './coops.schema';
 import { tflSchemas } from './tfl.schema';
+import { nbiSchemas } from './nbi.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -575,4 +576,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...openskySchemas,
   ...coopsSchemas,
   ...tflSchemas,
+  ...nbiSchemas,
 };
