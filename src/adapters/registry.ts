@@ -285,6 +285,7 @@ import { BtsTransportAdapter } from './bts-transport';
 import { CdcChronicAdapter } from './cdc-chronic';
 import { OpenSkyAdapter } from './opensky';
 import { CoopsAdapter } from './coops';
+import { TflAdapter } from './tfl';
 import { config } from '../config';
 
 /**
@@ -1596,6 +1597,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'coops':
       // NOAA CO-OPS Tides & Currents (UC-567) — tide predictions, water levels, stations, conditions; no auth
       return getOrCreate('coops', () => new CoopsAdapter());
+    case 'tfl':
+      // Transport for London (UC-568) — line status, arrivals, journey planner, bike points; no auth, TfL Open Data CC-BY
+      return getOrCreate('tfl', () => new TflAdapter());
     default:
       return undefined;
   }

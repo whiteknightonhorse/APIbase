@@ -11777,4 +11777,62 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'weather',
     annotations: READ_ONLY,
   },
+  // Transport for London — TfL Open Data (4)
+  {
+    toolId: 'tfl.line_status',
+    mcpName: 'tfl.transit.line_status',
+    title: 'TfL — Real-Time London Line Status',
+    description:
+      'Get real-time service status for all Transport for London (TfL) lines including Tube, Overground, Elizabeth line, DLR, bus, tram, and cable car. ' +
+      'Returns the current operational status (Good Service, Minor Delays, Severe Delays, Part Suspended, etc.) and the reason for any disruption. ' +
+      'Filter by specific modes (tube, overground, elizabeth-line, dlr, bus, tram, cable-car, river-bus) and choose to show only disrupted lines. ' +
+      'Returns total line count, how many are disrupted, and per-line status with severity score (0=closed, 10=good). ' +
+      'Useful for journey planning, commuter alerts, and real-time London transport monitoring. ' +
+      'Source: TfL Unified API — api.tfl.gov.uk. No auth required, TfL Open Data CC-BY.',
+    category: 'travel',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'tfl.arrivals',
+    mcpName: 'tfl.transit.arrivals',
+    title: 'TfL — Live Arrivals at London Stop',
+    description:
+      'Get live arrival predictions for a specific TfL line at a London stop or station. ' +
+      'Returns upcoming trains sorted by soonest arrival, with destination, platform, direction, and minutes until arrival. ' +
+      'Requires a line_id (e.g. central, bakerloo, jubilee, victoria, elizabeth, dlr, overground) and a NAPTAN stop_id ' +
+      '(e.g. 940GZZLUHPK for Holland Park, 940GZZLUKSX for Kings Cross). ' +
+      'Arrival predictions update every 30 seconds from the TfL real-time feed. ' +
+      'Use direction=inbound/outbound to filter by travel direction. ' +
+      'Source: TfL Unified API — api.tfl.gov.uk. No auth required, TfL Open Data CC-BY.',
+    category: 'travel',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'tfl.journey_plan',
+    mcpName: 'tfl.transit.journey_plan',
+    title: 'TfL — London Journey Planner',
+    description:
+      'Plan a multi-modal journey between any two London locations using the TfL journey planner. ' +
+      'Accepts free-text addresses, NAPTAN stop IDs, ICS station codes, or lat/lon coordinates as origin and destination. ' +
+      'Returns up to 3 journey options with legs, modes (tube, bus, walking, overground, etc.), departure/arrival times, and turn-by-turn summaries. ' +
+      'Optionally specify preferred modes (e.g. tube,bus), date (YYYYMMDD), and time (HHMM) for departing or arriving at a specific time. ' +
+      'Covers all TfL services: Tube, Overground, Elizabeth line, DLR, bus, tram, river bus, and walking. ' +
+      'Source: TfL Unified API — api.tfl.gov.uk. No auth required, TfL Open Data CC-BY.',
+    category: 'travel',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'tfl.bike_points',
+    mcpName: 'tfl.transit.bike_points',
+    title: 'TfL — Santander Cycles Bike Point Availability',
+    description:
+      'Get real-time availability of Santander Cycles (formerly Boris Bikes) at all 800+ docking stations across London. ' +
+      'Returns for each station: name, coordinates, number of available bikes (standard + e-bikes), empty docks, and total dock capacity. ' +
+      'Optionally filter by station name keyword (e.g. Waterloo, Hyde Park, Soho, Paddington). ' +
+      'Availability updates approximately every 2 minutes from the TfL live feed. ' +
+      'Useful for cycle hire planning, last-mile commuting, and real-time docking station capacity monitoring. ' +
+      'Source: TfL Unified API — api.tfl.gov.uk. No auth required, TfL Open Data CC-BY.',
+    category: 'travel',
+    annotations: READ_ONLY,
+  },
 ];

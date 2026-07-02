@@ -2555,5 +2555,14 @@
     "reset_period": "none",
     "docs_url": "https://api.tidesandcurrents.noaa.gov/api/prod/",
     "limit_proof": "US Government NODD public domain — no authentication, no rate limits documented. The NOAA CO-OPS API has served public data without restrictions since 2012 (tidesandcurrents.noaa.gov/web_services_info.html)."
+  },
+  "tfl": {
+    "display_name": "Transport for London (TfL)",
+    "health_url": "https://api.tfl.gov.uk/Line/Mode/tube/Status",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://api-portal.tfl.gov.uk/",
+    "limit_proof": "TfL Open Data — no API key required for anonymous access. No documented hard rate limit for unauthenticated requests (api-portal.tfl.gov.uk)."
   }
 }

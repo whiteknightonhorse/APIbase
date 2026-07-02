@@ -92295,6 +92295,377 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/tfl.line_status/call": {
+      "post": {
+        "operationId": "tfl_line_status",
+        "summary": "TfL — Real-Time London Line Status",
+        "description": "Get real-time service status for all Transport for London (TfL) lines including Tube, Overground, Elizabeth line, DLR, bus, tram, and cable car. Returns the current operational status (Good Service, Minor Delays, Severe Delays, Part Suspended, etc.) and the reason for any disruption. Filter by specific modes (tube, overground, elizabeth-line, dlr, bus, tram, cable-car, river-bus) and choose to show only disrupted lines. Returns total line count, how many are disrupted, and per-line status with severity score (0=closed, 10=good). Useful for journey planning, commuter alerts, and real-time London transport monitoring. Source: TfL Unified API — api.tfl.gov.uk. No auth required, TfL Open Data CC-BY.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "tfl.line_status"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "modes": {
+                    "type": "string",
+                    "description": "Comma-separated transport modes to query (e.g. tube,overground,elizabeth-line,dlr,bus,tram,cable-car). Defaults to tube,overground,elizabeth-line,dlr. Valid modes: tube, overground, elizabeth-line, dlr, bus, tram, cable-car, river-bus."
+                  },
+                  "include_good_service": {
+                    "type": "boolean",
+                    "description": "Whether to include lines running with Good Service in the results (default true). Set to false to return only lines with disruptions, delays, or suspensions."
+                  },
+                  "detail": {
+                    "type": "boolean",
+                    "description": "Include additional disruption detail such as affected stops (default false). When true, the response includes affected station lists for each disruption."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/tfl.arrivals/call": {
+      "post": {
+        "operationId": "tfl_arrivals",
+        "summary": "TfL — Live Arrivals at London Stop",
+        "description": "Get live arrival predictions for a specific TfL line at a London stop or station. Returns upcoming trains sorted by soonest arrival, with destination, platform, direction, and minutes until arrival. Requires a line_id (e.g. central, bakerloo, jubilee, victoria, elizabeth, dlr, overground) and a NAPTAN stop_id (e.g. 940GZZLUHPK for Holland Park, 940GZZLUKSX for Kings Cross). Arrival predictions update every 30 seconds from the TfL real-time feed. Use direction=inbound/outbound to filter by travel direction. Source: TfL Unified API — api.tfl.gov.uk. No auth required, TfL Open Data CC-BY.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "tfl.arrivals"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "line_id": {
+                    "type": "string",
+                    "description": "TfL line ID (e.g. central, bakerloo, victoria, northern, jubilee, elizabeth, overground, dlr, piccadilly). Use lowercase, hyphens for multi-word lines (e.g. elizabeth-line → use elizabeth)."
+                  },
+                  "stop_id": {
+                    "type": "string",
+                    "description": "NAPTAN stop point ID for the station (e.g. 940GZZLUHPK for Holland Park, 940GZZLUKSX for Kings Cross St. Pancras). Format: 940GZZLU + station code for tube stops."
+                  },
+                  "direction": {
+                    "type": "string",
+                    "enum": [
+                      "inbound",
+                      "outbound",
+                      "all"
+                    ],
+                    "description": "Filter arrivals by direction of travel (inbound, outbound, or all). Defaults to all directions."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of arrival predictions to return, sorted by soonest first (1–50). Defaults to 20."
+                  }
+                },
+                "required": [
+                  "line_id",
+                  "stop_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/tfl.journey_plan/call": {
+      "post": {
+        "operationId": "tfl_journey_plan",
+        "summary": "TfL — London Journey Planner",
+        "description": "Plan a multi-modal journey between any two London locations using the TfL journey planner. Accepts free-text addresses, NAPTAN stop IDs, ICS station codes, or lat/lon coordinates as origin and destination. Returns up to 3 journey options with legs, modes (tube, bus, walking, overground, etc.), departure/arrival times, and turn-by-turn summaries. Optionally specify preferred modes (e.g. tube,bus), date (YYYYMMDD), and time (HHMM) for departing or arriving at a specific time. Covers all TfL services: Tube, Overground, Elizabeth line, DLR, bus, tram, river bus, and walking. Source: TfL Unified API — api.tfl.gov.uk. No auth required, TfL Open Data CC-BY.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "tfl.journey_plan"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "from": {
+                    "type": "string",
+                    "description": "Journey origin — accepts NAPTAN IDs (940GZZLUKSX), ICS codes (1000008), lat/lon pairs (51.509,-0.128), or free-text location names (e.g. Kings Cross, Victoria, London Bridge)."
+                  },
+                  "to": {
+                    "type": "string",
+                    "description": "Journey destination — accepts NAPTAN IDs, ICS codes, lat/lon pairs, or free-text location names (e.g. Heathrow Terminal 5, Canary Wharf, Waterloo)."
+                  },
+                  "mode": {
+                    "type": "string",
+                    "description": "Comma-separated preferred transport modes for the journey (e.g. tube,bus,walking or tube,overground,elizabeth-line). Defaults to all available TfL modes including walking."
+                  },
+                  "date": {
+                    "type": "string",
+                    "description": "Journey date in YYYYMMDD format (e.g. 20250710). Defaults to today. Used together with time to find departures or arrivals at that datetime."
+                  },
+                  "time": {
+                    "type": "string",
+                    "description": "Journey time in HHMM 24-hour format (e.g. 0830, 1730). Defaults to current time. Interpreted as departure time unless time_is is set to Arriving."
+                  },
+                  "time_is": {
+                    "type": "string",
+                    "enum": [
+                      "Departing",
+                      "Arriving"
+                    ],
+                    "description": "Whether the time parameter represents a departure or arrival time (Departing or Arriving). Defaults to Departing."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 5,
+                    "description": "Maximum number of journey options to return (1–5). Defaults to 3."
+                  }
+                },
+                "required": [
+                  "from",
+                  "to"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/tfl.bike_points/call": {
+      "post": {
+        "operationId": "tfl_bike_points",
+        "summary": "TfL — Santander Cycles Bike Point Availability",
+        "description": "Get real-time availability of Santander Cycles (formerly Boris Bikes) at all 800+ docking stations across London. Returns for each station: name, coordinates, number of available bikes (standard + e-bikes), empty docks, and total dock capacity. Optionally filter by station name keyword (e.g. Waterloo, Hyde Park, Soho, Paddington). Availability updates approximately every 2 minutes from the TfL live feed. Useful for cycle hire planning, last-mile commuting, and real-time docking station capacity monitoring. Source: TfL Unified API — api.tfl.gov.uk. No auth required, TfL Open Data CC-BY.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "tfl.bike_points"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search by station name or location keyword to filter bike docking points (e.g. Waterloo, Soho, Hyde Park, Paddington). Returns all 799+ stations when omitted."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 200,
+                    "description": "Maximum number of docking stations to return (1–200). Defaults to 50. Use with query to narrow results to a specific area."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

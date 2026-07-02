@@ -6157,6 +6157,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 300
 
+  # --- UC-568: Transport for London (TfL) ---
+  - tool_id: tfl.line_status
+    name: TfL — Real-Time London Line Status
+    provider: tfl
+    price_usd: "0.001"
+    cache_ttl: 30
+
+  - tool_id: tfl.arrivals
+    name: TfL — Live Arrivals at London Stop
+    provider: tfl
+    price_usd: "0.001"
+    cache_ttl: 30
+
+  - tool_id: tfl.journey_plan
+    name: TfL — London Journey Planner
+    provider: tfl
+    price_usd: "0.002"
+    cache_ttl: 300
+
+  - tool_id: tfl.bike_points
+    name: TfL — Santander Cycles Bike Point Availability
+    provider: tfl
+    price_usd: "0.001"
+    cache_ttl: 60
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform
