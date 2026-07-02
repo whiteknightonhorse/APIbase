@@ -42,10 +42,10 @@ toolsRouter.get('/api/tools', async (_req: Request, res: Response, next: NextFun
 toolsRouter.get('/api/v1/tools', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const cursor = typeof req.query.cursor === 'string' ? req.query.cursor : null;
-    const rawLimit = typeof req.query.limit === 'string' ? parseInt(req.query.limit, 10) : 1000;
+    const rawLimit = typeof req.query.limit === 'string' ? parseInt(req.query.limit, 10) : 2000;
 
-    if (isNaN(rawLimit) || rawLimit < 1 || rawLimit > 1000) {
-      throw new AppError(ErrorCode.BAD_REQUEST, 'limit must be between 1 and 1000');
+    if (isNaN(rawLimit) || rawLimit < 1 || rawLimit > 2000) {
+      throw new AppError(ErrorCode.BAD_REQUEST, 'limit must be between 1 and 2000');
     }
 
     let maxPrice: number | undefined;

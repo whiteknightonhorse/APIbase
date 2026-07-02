@@ -283,6 +283,7 @@ import { CpscAdapter } from './cpsc';
 import { NrcAdapter } from './nrc';
 import { BtsTransportAdapter } from './bts-transport';
 import { CdcChronicAdapter } from './cdc-chronic';
+import { OpenSkyAdapter } from './opensky';
 import { config } from '../config';
 
 /**
@@ -1588,6 +1589,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'cdc-chronic':
       // CDC Chronic Disease Indicators (UC-565) — 19 topics, 50 states, 398K records; no auth, US Gov public domain
       return getOrCreate('cdc-chronic', () => new CdcChronicAdapter());
+    case 'opensky':
+      // OpenSky Network ADS-B (UC-566) — live aircraft states, bounding box, tracks; no auth
+      return getOrCreate('opensky', () => new OpenSkyAdapter());
     default:
       return undefined;
   }

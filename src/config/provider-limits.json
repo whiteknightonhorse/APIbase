@@ -2537,5 +2537,14 @@
     "reset_period": "none",
     "docs_url": "https://chronicdata.cdc.gov/Chronic-Disease-Indicators/U-S-Chronic-Disease-Indicators/hksd-2xuw/about_data",
     "limit_proof": "US CDC open Socrata API \u2014 no auth required, no documented rate limits, US Government public domain data (17 USC \u00a7105)"
+  },
+  "opensky": {
+    "display_name": "OpenSky Network ADS-B",
+    "health_url": "https://opensky-network.org/api/states/all?lamin=51.0&lomin=-1.0&lamax=52.0&lomax=1.0",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://openskynetwork.github.io/opensky-api/rest.html",
+    "limit_proof": "Anonymous access to /states/all is free with no hard cap; throttled to ~1 req/10s per IP. No auth or registration required (opensky-network.org/apidoc)."
   }
 }

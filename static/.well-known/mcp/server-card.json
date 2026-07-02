@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 1018 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 1022 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -58859,6 +58859,257 @@
             "description": "Maximum number of annual data points to return (1\u201350, default 20). Returns most recent years first."
           }
         }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "opensky.traffic.aircraft_state",
+      "title": "OpenSky \u2014 Current State for Specific Aircraft",
+      "description": "Get the current real-time ADS-B state vector for a single aircraft identified by its ICAO 24-bit hex address (e.g. 3c6444). Returns position, altitude, speed, heading, vertical rate, squawk, origin country, and whether on ground. If the aircraft is not currently tracked (landed, out of range, or transponder off) the response includes found=false. ICAO24 addresses can be looked up from aircraft registrations (e.g. N-number, D- prefix). Useful for tracking a specific flight in real time. Source: OpenSky Network \u2014 opensky-network.org. No auth, open access.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "icao24": {
+            "type": "string",
+            "description": "ICAO 24-bit hex address of the aircraft transponder (e.g. 3c6444 for a Lufthansa aircraft)"
+          }
+        },
+        "required": [
+          "icao24"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "opensky.traffic.aircraft_track",
+      "title": "OpenSky \u2014 Flight Track / Trajectory for Aircraft",
+      "description": "Retrieve the flight trajectory (sequence of GPS waypoints) for a specific aircraft identified by its ICAO24 hex address. Each waypoint contains Unix timestamp, latitude, longitude, barometric altitude (meters), true track angle, and on-ground flag. Use time=0 or omit for the current active flight track. Requires the aircraft to be actively tracked by the OpenSky network. Useful for reconstructing a flight path, computing distance flown, or detecting airport arrivals and departures. Source: OpenSky Network \u2014 opensky-network.org. No auth, open access.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "icao24": {
+            "type": "string",
+            "description": "ICAO 24-bit hex address of the aircraft (e.g. 3ffc33). Must be an actively tracked flight."
+          },
+          "time": {
+            "type": "integer",
+            "description": "Unix timestamp for which to retrieve the track. Use 0 or omit for the current flight trajectory."
+          }
+        },
+        "required": [
+          "icao24"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "opensky.traffic.states_bbox",
+      "title": "OpenSky \u2014 Live Aircraft in Bounding Box",
+      "description": "Retrieve real-time ADS-B state vectors for all aircraft currently within a geographic bounding box. Returns ICAO24 transponder address, callsign, origin country, position (lat/lon), barometric altitude, velocity, heading, vertical rate, squawk code, and position source (ADS-B/MLAT/FLARM). Data is updated every ~10 seconds from the OpenSky community network of ~5,000 ADS-B receivers. Specify lamin/lomin/lamax/lomax in decimal degrees. Limit per call: 1,000 aircraft (use smaller bbox for dense airspace). Source: OpenSky Network \u2014 opensky-network.org. No auth, open access.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "lamin": {
+            "type": "number",
+            "description": "Minimum latitude of the bounding box in decimal degrees (e.g. 47.0)",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "lomin": {
+            "type": "number",
+            "description": "Minimum longitude of the bounding box in decimal degrees (e.g. 5.0)",
+            "minimum": -180,
+            "maximum": 180
+          },
+          "lamax": {
+            "type": "number",
+            "description": "Maximum latitude of the bounding box in decimal degrees (e.g. 55.0)",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "lomax": {
+            "type": "number",
+            "description": "Maximum longitude of the bounding box in decimal degrees (e.g. 15.0)",
+            "minimum": -180,
+            "maximum": 180
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000,
+            "description": "Maximum number of aircraft to return (default 100, max 1000)"
+          }
+        },
+        "required": [
+          "lamin",
+          "lomin",
+          "lamax",
+          "lomax"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "opensky.traffic.states_country",
+      "title": "OpenSky \u2014 Live Aircraft by Origin Country",
+      "description": "Get real-time ADS-B state vectors for all aircraft currently registered to a specific origin country (e.g. Germany, United States). Filters the global ADS-B feed by the aircraft's registered country of origin from ICAO24 address blocks. Optionally narrow the geographic area using a bounding box (lamin/lomin/lamax/lomax). Returns ICAO24, callsign, position, altitude, velocity, and heading for each matching aircraft. Useful for counting or mapping the live air traffic of a specific country. Source: OpenSky Network \u2014 opensky-network.org. No auth, open access.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "country": {
+            "type": "string",
+            "description": "Origin country name to filter aircraft by (e.g. Germany, United States, France). Case-insensitive."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 500,
+            "description": "Maximum number of matching aircraft to return (default 100, max 500)"
+          },
+          "lamin": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90,
+            "description": "Optional minimum latitude to narrow the search area (decimal degrees)"
+          },
+          "lomin": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180,
+            "description": "Optional minimum longitude to narrow the search area (decimal degrees)"
+          },
+          "lamax": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90,
+            "description": "Optional maximum latitude to narrow the search area (decimal degrees)"
+          },
+          "lomax": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180,
+            "description": "Optional maximum longitude to narrow the search area (decimal degrees)"
+          }
+        },
+        "required": [
+          "country"
+        ]
       },
       "outputSchema": {
         "type": "object",

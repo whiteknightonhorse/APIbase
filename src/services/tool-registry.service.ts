@@ -160,7 +160,7 @@ export async function getPublicCatalog(): Promise<PublicCatalog> {
 }
 
 // ---------------------------------------------------------------------------
-// Paginated list (§12.39 — default 1000, cursor available, max 1000)
+// Paginated list (§12.39 — default 1000, cursor available, max 2000)
 // ---------------------------------------------------------------------------
 
 export async function getToolsPaginated(
@@ -169,7 +169,7 @@ export async function getToolsPaginated(
   filters: { maxPrice?: number; tier?: 'micro' | 'standard' | 'premium' } = {},
 ): Promise<PaginatedTools> {
   const db = getPrisma();
-  const take = Math.min(Math.max(limit, 1), 1000);
+  const take = Math.min(Math.max(limit, 1), 2000);
 
   let decodedCursor: string | null = null;
   if (cursor) {

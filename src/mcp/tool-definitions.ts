@@ -11660,4 +11660,61 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'health',
     annotations: READ_ONLY,
   },
+
+  // OpenSky Network ADS-B (UC-566) — 4 tools
+  {
+    toolId: 'opensky.states_bbox',
+    mcpName: 'opensky.traffic.states_bbox',
+    title: 'OpenSky — Live Aircraft in Bounding Box',
+    description:
+      'Retrieve real-time ADS-B state vectors for all aircraft currently within a geographic bounding box. ' +
+      'Returns ICAO24 transponder address, callsign, origin country, position (lat/lon), barometric altitude, ' +
+      'velocity, heading, vertical rate, squawk code, and position source (ADS-B/MLAT/FLARM). ' +
+      'Data is updated every ~10 seconds from the OpenSky community network of ~5,000 ADS-B receivers. ' +
+      'Specify lamin/lomin/lamax/lomax in decimal degrees. Limit per call: 1,000 aircraft (use smaller bbox for dense airspace). ' +
+      'Source: OpenSky Network — opensky-network.org. No auth, open access.',
+    category: 'travel',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'opensky.aircraft_state',
+    mcpName: 'opensky.traffic.aircraft_state',
+    title: 'OpenSky — Current State for Specific Aircraft',
+    description:
+      'Get the current real-time ADS-B state vector for a single aircraft identified by its ICAO 24-bit hex address (e.g. 3c6444). ' +
+      'Returns position, altitude, speed, heading, vertical rate, squawk, origin country, and whether on ground. ' +
+      'If the aircraft is not currently tracked (landed, out of range, or transponder off) the response includes found=false. ' +
+      'ICAO24 addresses can be looked up from aircraft registrations (e.g. N-number, D- prefix). ' +
+      'Useful for tracking a specific flight in real time. ' +
+      'Source: OpenSky Network — opensky-network.org. No auth, open access.',
+    category: 'travel',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'opensky.states_country',
+    mcpName: 'opensky.traffic.states_country',
+    title: 'OpenSky — Live Aircraft by Origin Country',
+    description:
+      'Get real-time ADS-B state vectors for all aircraft currently registered to a specific origin country (e.g. Germany, United States). ' +
+      "Filters the global ADS-B feed by the aircraft's registered country of origin from ICAO24 address blocks. " +
+      'Optionally narrow the geographic area using a bounding box (lamin/lomin/lamax/lomax). ' +
+      'Returns ICAO24, callsign, position, altitude, velocity, and heading for each matching aircraft. ' +
+      'Useful for counting or mapping the live air traffic of a specific country. ' +
+      'Source: OpenSky Network — opensky-network.org. No auth, open access.',
+    category: 'travel',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'opensky.aircraft_track',
+    mcpName: 'opensky.traffic.aircraft_track',
+    title: 'OpenSky — Flight Track / Trajectory for Aircraft',
+    description:
+      'Retrieve the flight trajectory (sequence of GPS waypoints) for a specific aircraft identified by its ICAO24 hex address. ' +
+      'Each waypoint contains Unix timestamp, latitude, longitude, barometric altitude (meters), true track angle, and on-ground flag. ' +
+      'Use time=0 or omit for the current active flight track. Requires the aircraft to be actively tracked by the OpenSky network. ' +
+      'Useful for reconstructing a flight path, computing distance flown, or detecting airport arrivals and departures. ' +
+      'Source: OpenSky Network — opensky-network.org. No auth, open access.',
+    category: 'travel',
+    annotations: READ_ONLY,
+  },
 ];

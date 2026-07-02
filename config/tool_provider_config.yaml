@@ -6107,6 +6107,31 @@ tools:
     price_usd: "0.002"
     cache_ttl: 3600
 
+  # --- UC-566: OpenSky Network ADS-B ---
+  - tool_id: opensky.states_bbox
+    name: OpenSky — Live Aircraft in Bounding Box
+    provider: opensky
+    price_usd: "0.001"
+    cache_ttl: 60
+
+  - tool_id: opensky.aircraft_state
+    name: OpenSky — Current State for Specific Aircraft
+    provider: opensky
+    price_usd: "0.001"
+    cache_ttl: 60
+
+  - tool_id: opensky.states_country
+    name: OpenSky — Live Aircraft by Origin Country
+    provider: opensky
+    price_usd: "0.002"
+    cache_ttl: 60
+
+  - tool_id: opensky.aircraft_track
+    name: OpenSky — Flight Track / Trajectory for Aircraft
+    provider: opensky
+    price_usd: "0.002"
+    cache_ttl: 120
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform
