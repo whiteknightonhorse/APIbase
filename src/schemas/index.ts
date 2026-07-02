@@ -306,6 +306,7 @@ import { jolpicaF1Schemas } from './jolpica-f1.schema';
 import { thesportsdbSchemas } from './thesportsdb.schema';
 import { eurLexSchemas } from './eurlex.schema';
 import { euParliamentSchemas } from './eu-parliament.schema';
+import { uklegislationSchemas } from './uklegislation.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -615,4 +616,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...thesportsdbSchemas,
   ...eurLexSchemas,
   ...euParliamentSchemas,
+  ...uklegislationSchemas,
 };

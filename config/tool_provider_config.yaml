@@ -6682,6 +6682,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-589: UK Legislation ---
+  - tool_id: ukleg.legislation.search
+    name: Search UK Legislation
+    provider: ukleg
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: ukleg.legislation.details
+    name: Get UK Legislation Details
+    provider: ukleg
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: ukleg.legislation.recent
+    name: Get Recent UK Legislation
+    provider: ukleg
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: ukleg.legislation.sections
+    name: List UK Legislation Sections
+    provider: ukleg
+    price_usd: "0.002"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

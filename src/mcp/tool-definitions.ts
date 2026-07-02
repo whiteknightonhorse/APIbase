@@ -13059,4 +13059,70 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'legal',
     annotations: READ_ONLY,
   },
+
+  // UK Legislation (4) — UC-589
+  {
+    toolId: 'ukleg.legislation.search',
+    mcpName: 'ukleg.legislation.search',
+    title: 'Search UK Legislation',
+    description:
+      'Search the UK statute book (legislation.gov.uk) for Acts of Parliament, Statutory Instruments, ' +
+      'and other UK legislation by title keywords, type, and year. ' +
+      'Returns matching legislation items with title, type (e.g. UK Public General Act), year, chapter number, ' +
+      'description/long title, enactment date, subject categories, and direct URL to the full text. ' +
+      'Supports all UK jurisdictions: England, Wales, Scotland (Scottish Parliament Acts), and Northern Ireland. ' +
+      'Common types: ukpga (UK Public General Acts — major Acts of Parliament), uksi (UK Statutory Instruments), ' +
+      'asp (Acts of the Scottish Parliament), asc (Acts of Senedd Cymru), nia (Northern Ireland Assembly Acts). ' +
+      'Results are paginated (20 per page). Use page parameter to navigate. ' +
+      'Data source: legislation.gov.uk — The National Archives, Open Government Licence v3.0, no auth required.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ukleg.legislation.details',
+    mcpName: 'ukleg.legislation.details',
+    title: 'Get UK Legislation Details',
+    description:
+      'Get detailed metadata and the full table of contents (section list) for a specific piece of UK legislation ' +
+      'identified by its type, year, and chapter/number. ' +
+      'Returns the title, document type, legislative status (enacted/revised), enactment date, ' +
+      'last modification date, territorial extent (E+W+S+N.I. or narrower), paragraph counts, ' +
+      'and the complete structured list of parts, chapters, and sections with their numbers, titles, and URLs. ' +
+      'Use ukleg.legislation.search to find the correct type, year, and number for an act. ' +
+      'Example: type=ukpga, year=2008, number=27 retrieves the Climate Change Act 2008. ' +
+      'Example: type=ukpga, year=2018, number=12 retrieves the Data Protection Act 2018. ' +
+      'Data source: legislation.gov.uk — The National Archives, Open Government Licence v3.0, no auth required.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ukleg.legislation.recent',
+    mcpName: 'ukleg.legislation.recent',
+    title: 'Get Recent UK Legislation',
+    description:
+      'Get the most recently published or updated pieces of UK legislation. ' +
+      'Returns recently enacted Acts, Statutory Instruments, and other legislation with title, type, ' +
+      'year, chapter number, publication date, and brief description. ' +
+      'Filter by legislation category: use primary for Acts of Parliament, secondary for Statutory Instruments, ' +
+      'or specific type codes (ukpga, uksi, asp, asc, nia). ' +
+      'Useful for tracking new laws, regulatory changes, and parliamentary activity. ' +
+      'Data source: legislation.gov.uk — The National Archives, Open Government Licence v3.0, no auth required.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ukleg.legislation.sections',
+    mcpName: 'ukleg.legislation.sections',
+    title: 'List UK Legislation Sections',
+    description:
+      'Get the complete list of sections, parts, and schedules (table of contents) for a specific piece of UK legislation. ' +
+      'Returns each section with its type (section, schedule, part), number, title, and URL to the full section text. ' +
+      'Use this to navigate the structure of an Act before retrieving specific provisions. ' +
+      'Requires the legislation type, year, and chapter number (use ukleg.legislation.search to find these). ' +
+      'Example: type=ukpga, year=2023, number=55 returns all sections of the Online Safety Act 2023. ' +
+      'Example: type=ukpga, year=1998, number=42 returns sections of the Human Rights Act 1998. ' +
+      'Data source: legislation.gov.uk — The National Archives, Open Government Licence v3.0, no auth required.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
 ];

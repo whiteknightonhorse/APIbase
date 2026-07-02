@@ -3,6 +3,7 @@ import { JolpicaF1Adapter } from './jolpica-f1';
 import { TheSportsDbAdapter } from './thesportsdb';
 import { EurLexAdapter } from './eurlex';
 import { EuParliamentAdapter } from './eu-parliament';
+import { UkLegislationAdapter } from './uklegislation';
 import { PolymarketAdapter } from './polymarket';
 import { HyperliquidAdapter } from './hyperliquid';
 import { AsterDexAdapter } from './asterdex';
@@ -1680,6 +1681,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'eu_parliament':
       // European Parliament (UC-588) — MEP profiles, adopted texts, legislative procedures; CC BY 4.0; no auth
       return getOrCreate('eu_parliament', () => new EuParliamentAdapter());
+    case 'ukleg':
+      // UK Legislation (UC-589) — UK statute book: search, details, sections, recent; no auth; OGL v3
+      return getOrCreate('ukleg', () => new UkLegislationAdapter());
     default:
       return undefined;
   }

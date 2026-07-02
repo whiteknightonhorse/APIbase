@@ -99811,6 +99811,422 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/ukleg.legislation.search/call": {
+      "post": {
+        "operationId": "ukleg_legislation_search",
+        "summary": "Search UK Legislation",
+        "description": "Search the UK statute book (legislation.gov.uk) for Acts of Parliament, Statutory Instruments, and other UK legislation by title keywords, type, and year. Returns matching legislation items with title, type (e.g. UK Public General Act), year, chapter number, description/long title, enactment date, subject categories, and direct URL to the full text. Supports all UK jurisdictions: England, Wales, Scotland (Scottish Parliament Acts), and Northern Ireland. Common types: ukpga (UK Public General Acts — major Acts of Parliament), uksi (UK Statutory Instruments), asp (Acts of the Scottish Parliament), asc (Acts of Senedd Cymru), nia (Northern Ireland Assembly Acts). Results are paginated (20 per page). Use page parameter to navigate. Data source: legislation.gov.uk — The National Archives, Open Government Licence v3.0, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ukleg.legislation.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "description": "Search term for the legislation title (e.g. \"climate change\", \"data protection\", \"companies\"). At least one of title, year, or type should be provided."
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "ukpga",
+                      "uksi",
+                      "asp",
+                      "asc",
+                      "anaw",
+                      "nia",
+                      "ukdsi",
+                      "ukcm",
+                      "nisi",
+                      "ukla",
+                      "wsi",
+                      "ssi",
+                      "nisr"
+                    ],
+                    "description": "Legislation type code. Common values: ukpga (UK Public General Acts), uksi (UK Statutory Instruments), asp (Scottish Parliament Acts), asc (Acts of Senedd Cymru/Wales), nia (Northern Ireland Assembly Acts). Omit to search all types."
+                  },
+                  "year": {
+                    "type": "integer",
+                    "minimum": 1267,
+                    "maximum": 2030,
+                    "description": "Year the legislation was enacted (e.g. 2008, 2018). Supports years from 1267 to present."
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Page number for pagination (default 1, 20 results per page)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ukleg.legislation.details/call": {
+      "post": {
+        "operationId": "ukleg_legislation_details",
+        "summary": "Get UK Legislation Details",
+        "description": "Get detailed metadata and the full table of contents (section list) for a specific piece of UK legislation identified by its type, year, and chapter/number. Returns the title, document type, legislative status (enacted/revised), enactment date, last modification date, territorial extent (E+W+S+N.I. or narrower), paragraph counts, and the complete structured list of parts, chapters, and sections with their numbers, titles, and URLs. Use ukleg.legislation.search to find the correct type, year, and number for an act. Example: type=ukpga, year=2008, number=27 retrieves the Climate Change Act 2008. Example: type=ukpga, year=2018, number=12 retrieves the Data Protection Act 2018. Data source: legislation.gov.uk — The National Archives, Open Government Licence v3.0, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ukleg.legislation.details"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "ukpga",
+                      "uksi",
+                      "asp",
+                      "asc",
+                      "anaw",
+                      "nia",
+                      "ukdsi",
+                      "ukcm",
+                      "nisi",
+                      "ukla",
+                      "wsi",
+                      "ssi",
+                      "nisr"
+                    ],
+                    "description": "Legislation type code. Common values: ukpga (UK Public General Acts), uksi (UK Statutory Instruments), asp (Scottish Parliament Acts), asc (Senedd Cymru/Wales Acts), nia (Northern Ireland Acts). Example: ukpga for the Climate Change Act 2008."
+                  },
+                  "year": {
+                    "type": "integer",
+                    "description": "Year the legislation was enacted (e.g. 2008 for Climate Change Act 2008).",
+                    "minimum": 1267,
+                    "maximum": 2030
+                  },
+                  "number": {
+                    "type": "integer",
+                    "description": "Chapter or instrument number of the legislation within the year (e.g. 27 for Climate Change Act 2008 c.27).",
+                    "minimum": 1
+                  }
+                },
+                "required": [
+                  "type",
+                  "year",
+                  "number"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ukleg.legislation.recent/call": {
+      "post": {
+        "operationId": "ukleg_legislation_recent",
+        "summary": "Get Recent UK Legislation",
+        "description": "Get the most recently published or updated pieces of UK legislation. Returns recently enacted Acts, Statutory Instruments, and other legislation with title, type, year, chapter number, publication date, and brief description. Filter by legislation category: use primary for Acts of Parliament, secondary for Statutory Instruments, or specific type codes (ukpga, uksi, asp, asc, nia). Useful for tracking new laws, regulatory changes, and parliamentary activity. Data source: legislation.gov.uk — The National Archives, Open Government Licence v3.0, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ukleg.legislation.recent"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "ukpga",
+                      "uksi",
+                      "asp",
+                      "asc",
+                      "anaw",
+                      "nia",
+                      "ukdsi",
+                      "ukcm",
+                      "nisi",
+                      "ukla",
+                      "wsi",
+                      "ssi",
+                      "nisr",
+                      "primary",
+                      "secondary",
+                      "any"
+                    ],
+                    "description": "Filter by legislation category. Use primary for all primary legislation (Acts), secondary for all Statutory Instruments, or a specific code like ukpga, uksi, asp. Omit or use any for all types."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20,
+                    "description": "Number of recent legislation items to return (1–20, default 10)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ukleg.legislation.sections/call": {
+      "post": {
+        "operationId": "ukleg_legislation_sections",
+        "summary": "List UK Legislation Sections",
+        "description": "Get the complete list of sections, parts, and schedules (table of contents) for a specific piece of UK legislation. Returns each section with its type (section, schedule, part), number, title, and URL to the full section text. Use this to navigate the structure of an Act before retrieving specific provisions. Requires the legislation type, year, and chapter number (use ukleg.legislation.search to find these). Example: type=ukpga, year=2023, number=55 returns all sections of the Online Safety Act 2023. Example: type=ukpga, year=1998, number=42 returns sections of the Human Rights Act 1998. Data source: legislation.gov.uk — The National Archives, Open Government Licence v3.0, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ukleg.legislation.sections"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "ukpga",
+                      "uksi",
+                      "asp",
+                      "asc",
+                      "anaw",
+                      "nia",
+                      "ukdsi",
+                      "ukcm",
+                      "nisi",
+                      "ukla",
+                      "wsi",
+                      "ssi",
+                      "nisr"
+                    ],
+                    "description": "Legislation type code. Common values: ukpga (UK Public General Acts), uksi (UK Statutory Instruments), asp (Scottish Parliament Acts), asc (Senedd Cymru/Wales Acts), nia (Northern Ireland Acts)."
+                  },
+                  "year": {
+                    "type": "integer",
+                    "description": "Year the legislation was enacted (e.g. 2023 for legislation passed in 2023).",
+                    "minimum": 1267,
+                    "maximum": 2030
+                  },
+                  "number": {
+                    "type": "integer",
+                    "description": "Chapter or instrument number within the year (e.g. 55 for the Online Safety Act 2023 c.55).",
+                    "minimum": 1
+                  }
+                },
+                "required": [
+                  "type",
+                  "year",
+                  "number"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

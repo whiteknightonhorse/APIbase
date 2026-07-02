@@ -2744,5 +2744,14 @@
     "reset_period": "none",
     "docs_url": "https://data.europarl.europa.eu/api/v2/",
     "limit_proof": "No cumulative quota; rate limit only: 500 requests per 5 minutes per endpoint. EU open data, CC BY 4.0, no auth required."
+  },
+  "ukleg": {
+    "display_name": "UK Legislation (legislation.gov.uk)",
+    "health_url": "https://www.legislation.gov.uk/search/data.feed?type=ukpga&title=data+protection&legs=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.legislation.gov.uk/developer/formats",
+    "limit_proof": "UK Government open data (The National Archives); Open Government Licence v3.0; no authentication required; no documented rate limits."
   }
 }
