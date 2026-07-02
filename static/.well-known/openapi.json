@@ -90329,6 +90329,335 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/nrc.current_status/call": {
+      "post": {
+        "operationId": "nrc_current_status",
+        "summary": "NRC — US Nuclear Reactor Current Status",
+        "description": "Get the latest daily power output for all ~95 US commercial nuclear reactor units as reported by the US Nuclear Regulatory Commission (NRC). Returns each reactor's current power level as a percentage of licensed thermal power (0–100%), operational status (full_power / reduced_power / shutdown), and fleet-wide summary counts. Data is updated each business day M–F and reflects the previous day's reported capacity. Essential for US energy grid monitoring, nuclear generation capacity dashboards, and power market analysis. No auth — US NRC public domain data (Atomic Energy Act), unlimited free.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nrc.current_status"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sort_by": {
+                    "type": "string",
+                    "enum": [
+                      "name",
+                      "power_asc",
+                      "power_desc"
+                    ],
+                    "description": "Sort order for the reactor list. \"name\" (alphabetical, default), \"power_asc\" (lowest power first), \"power_desc\" (highest power first)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/nrc.reactor_history/call": {
+      "post": {
+        "operationId": "nrc_reactor_history",
+        "summary": "NRC — Nuclear Reactor Power History",
+        "description": "Retrieve up to 365 days of daily power output history for a specific US nuclear reactor unit. Provide the full NRC unit name (e.g. \"Diablo Canyon 1\", \"Watts Bar 2\") and the number of days to look back. Returns a chronological series of power percentages and status labels, enabling trend analysis, outage detection, maintenance window identification, and capacity factor calculation for individual reactors. Covers all units in the NRC 365-day rolling file. No auth — US NRC public domain data (Atomic Energy Act), unlimited free.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nrc.reactor_history"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "unit": {
+                    "type": "string",
+                    "description": "Full NRC reactor unit name as it appears in the status report (e.g. \"Arkansas Nuclear 1\", \"Diablo Canyon 2\", \"Watts Bar 1\"). Case-insensitive.",
+                    "minLength": 1
+                  },
+                  "days": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 365,
+                    "description": "Number of most-recent days to retrieve (1–365). Defaults to 30. Data is available for the last 365 calendar days."
+                  }
+                },
+                "required": [
+                  "unit"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/nrc.outages/call": {
+      "post": {
+        "operationId": "nrc_outages",
+        "summary": "NRC — Nuclear Reactor Outages & Reduced Power",
+        "description": "Identify US nuclear reactors currently operating below a specified power threshold. By default returns all reactors not at full power (below 100%). Set max_power=0 to see only fully-shutdown reactors, or max_power=50 to find reactors at half-power or less. Results include power percentage and status (reduced_power or shutdown) sorted lowest-power first. Useful for energy grid impact assessment, nuclear capacity risk monitoring, and real-time tracking of planned and unplanned reactor outages across the US fleet. No auth — US NRC public domain data (Atomic Energy Act), unlimited free.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nrc.outages"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "max_power": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100,
+                    "description": "Maximum power percentage threshold (inclusive, 0–100). Returns reactors at or below this level. Default 99 returns all reactors not at full power (100%). Set to 0 to see only fully-shutdown reactors."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/nrc.annual_data/call": {
+      "post": {
+        "operationId": "nrc_annual_data",
+        "summary": "NRC — Nuclear Reactor Annual Historical Status",
+        "description": "Retrieve full-year historical power status data for US nuclear reactors from NRC annual archives. Data is available from 1999 through the current year. Optionally filter by reactor unit name to retrieve a single reactor's complete year record. Each record contains the date, unit name, and power percentage (0–100%). Supports capacity factor analysis, long-term outage pattern research, nuclear energy generation modeling, and historical grid impact studies. Returns up to 1000 rows per call (full annual files contain 17K–35K rows). No auth — US NRC public domain data (Atomic Energy Act), unlimited free.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nrc.annual_data"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "year": {
+                    "type": "integer",
+                    "minimum": 1999,
+                    "maximum": 2030,
+                    "description": "Calendar year for the historical archive (1999–current year). Defaults to the current year. Annual files contain daily snapshots for all ~95 US reactors."
+                  },
+                  "unit": {
+                    "type": "string",
+                    "description": "Optional reactor unit name filter (e.g. \"Palo Verde 1\"). When provided, returns only records for that reactor. Case-insensitive."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 1000,
+                    "description": "Maximum number of rows to return (1–1000). Defaults to 200. The full annual file may contain 17K–35K rows."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

@@ -280,6 +280,7 @@ import { delphiSchemas } from './delphi.schema';
 import { nlmIcd11Schemas } from './nlm-icd11.schema';
 import { cmsSchemas } from './cms.schema';
 import { cpscSchemas } from './cpsc.schema';
+import { nrcSchemas } from './nrc.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -563,4 +564,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...nlmIcd11Schemas,
   ...cmsSchemas,
   ...cpscSchemas,
+  ...nrcSchemas,
 };

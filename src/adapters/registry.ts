@@ -280,6 +280,7 @@ import { DelphiAdapter } from './delphi';
 import { NlmIcd11Adapter } from './nlm-icd11';
 import { CmsAdapter } from './cms';
 import { CpscAdapter } from './cpsc';
+import { NrcAdapter } from './nrc';
 import { config } from '../config';
 
 /**
@@ -1574,6 +1575,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'cpsc':
       // CPSC SaferProducts.gov (UC-562) — US consumer product safety recalls; no auth, US Gov public domain
       return getOrCreate('cpsc', () => new CpscAdapter());
+    case 'nrc':
+      // NRC Power Reactor Status (UC-563) — daily power output for all ~95 US nuclear reactors; no auth, US Gov public domain
+      return getOrCreate('nrc', () => new NrcAdapter());
     default:
       return undefined;
   }

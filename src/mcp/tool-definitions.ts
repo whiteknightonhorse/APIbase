@@ -11489,4 +11489,65 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+
+  // NRC Power Reactor Status (4)
+  {
+    toolId: 'nrc.current_status',
+    mcpName: 'nrc.reactor.current_status',
+    title: 'NRC — US Nuclear Reactor Current Status',
+    description:
+      'Get the latest daily power output for all ~95 US commercial nuclear reactor units as reported by the ' +
+      "US Nuclear Regulatory Commission (NRC). Returns each reactor's current power level as a percentage " +
+      'of licensed thermal power (0–100%), operational status (full_power / reduced_power / shutdown), ' +
+      'and fleet-wide summary counts. Data is updated each business day M–F and reflects the previous ' +
+      "day's reported capacity. Essential for US energy grid monitoring, nuclear generation capacity " +
+      'dashboards, and power market analysis. ' +
+      'No auth — US NRC public domain data (Atomic Energy Act), unlimited free.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nrc.reactor_history',
+    mcpName: 'nrc.reactor.history',
+    title: 'NRC — Nuclear Reactor Power History',
+    description:
+      'Retrieve up to 365 days of daily power output history for a specific US nuclear reactor unit. ' +
+      'Provide the full NRC unit name (e.g. "Diablo Canyon 1", "Watts Bar 2") and the number of days ' +
+      'to look back. Returns a chronological series of power percentages and status labels, ' +
+      'enabling trend analysis, outage detection, maintenance window identification, and capacity ' +
+      'factor calculation for individual reactors. Covers all units in the NRC 365-day rolling file. ' +
+      'No auth — US NRC public domain data (Atomic Energy Act), unlimited free.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nrc.outages',
+    mcpName: 'nrc.reactor.outages',
+    title: 'NRC — Nuclear Reactor Outages & Reduced Power',
+    description:
+      'Identify US nuclear reactors currently operating below a specified power threshold. ' +
+      'By default returns all reactors not at full power (below 100%). Set max_power=0 to see only ' +
+      'fully-shutdown reactors, or max_power=50 to find reactors at half-power or less. ' +
+      'Results include power percentage and status (reduced_power or shutdown) sorted lowest-power first. ' +
+      'Useful for energy grid impact assessment, nuclear capacity risk monitoring, and real-time ' +
+      'tracking of planned and unplanned reactor outages across the US fleet. ' +
+      'No auth — US NRC public domain data (Atomic Energy Act), unlimited free.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nrc.annual_data',
+    mcpName: 'nrc.reactor.annual_data',
+    title: 'NRC — Nuclear Reactor Annual Historical Status',
+    description:
+      'Retrieve full-year historical power status data for US nuclear reactors from NRC annual archives. ' +
+      'Data is available from 1999 through the current year. Optionally filter by reactor unit name ' +
+      "to retrieve a single reactor's complete year record. Each record contains the date, unit name, " +
+      'and power percentage (0–100%). Supports capacity factor analysis, long-term outage pattern ' +
+      'research, nuclear energy generation modeling, and historical grid impact studies. ' +
+      'Returns up to 1000 rows per call (full annual files contain 17K–35K rows). ' +
+      'No auth — US NRC public domain data (Atomic Energy Act), unlimited free.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

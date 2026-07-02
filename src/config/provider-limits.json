@@ -267,7 +267,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://openaccess-api.clevelandart.org/",
-    "limit_proof": "CC0 images. No auth, no documented rate limits. 64K+ artworks."
+    "limit_proof": "Cleveland Museum of Art Open Access API \u2014 no auth required, no documented rate limits. CC0/CC BY open data with 68K+ artworks."
   },
   "rijksmuseum": {
     "display_name": "Rijksmuseum",
@@ -2275,7 +2275,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://mpr.datamart.ams.usda.gov/",
-    "limit_proof": "US Government public domain (7 U.S.C. § 198-198b); USDA Livestock Mandatory Price Reporting Datamart — no auth, no documented rate limits"
+    "limit_proof": "US Government public domain (7 U.S.C. \u00a7 198-198b); USDA Livestock Mandatory Price Reporting Datamart \u2014 no auth, no documented rate limits"
   },
   "treasurydirect": {
     "display_name": "TreasuryDirect TA_WS",
@@ -2284,7 +2284,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://www.treasurydirect.gov/TA_WS/",
-    "limit_proof": "US Government open data (31 U.S.C.); TreasuryDirect TA_WS REST API — no auth required, no documented rate limits, commercial use allowed"
+    "limit_proof": "US Government open data (31 U.S.C.); TreasuryDirect TA_WS REST API \u2014 no auth required, no documented rate limits, commercial use allowed"
   },
   "opentopography": {
     "display_name": "OpenTopography",
@@ -2329,7 +2329,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://data.snb.ch/en/help_api",
-    "limit_proof": "Swiss OGD (open government data) — no auth required, no documented rate limits. Data portal at data.snb.ch is public and free."
+    "limit_proof": "Swiss OGD (open government data) \u2014 no auth required, no documented rate limits. Data portal at data.snb.ch is public and free."
   },
   "eurostat2": {
     "display_name": "Eurostat SDMX 2.1",
@@ -2338,7 +2338,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://wikis.ec.europa.eu/display/EUROSTATHELP/API+Statistics+-+data+query",
-    "limit_proof": "Eurostat dissemination API — no auth, no rate limits documented. CC BY 4.0 open data. Public EU statistical office data service."
+    "limit_proof": "Eurostat dissemination API \u2014 no auth, no rate limits documented. CC BY 4.0 open data. Public EU statistical office data service."
   },
   "abr": {
     "display_name": "Australian Business Register (ABR)",
@@ -2347,16 +2347,16 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://abr.business.gov.au/Tools/WebServices",
-    "limit_proof": "ABR Web Services Agreement — free GUID registration, no documented rate limits. Australian Government open data service covering 15M+ ABN entities."
+    "limit_proof": "ABR Web Services Agreement \u2014 free GUID registration, no documented rate limits. Australian Government open data service covering 15M+ ABN entities."
   },
   "banxico": {
-    "display_name": "Banco de México SIE",
+    "display_name": "Banco de M\u00e9xico SIE",
     "health_url": "https://www.banxico.org.mx/SieAPIRest/service/v1/series/SF43718/datos/oportuno",
     "limit_type": "unlimited",
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://www.banxico.org.mx/SieAPIRest/service/v1/doc/catalogoSeries",
-    "limit_proof": "Banco de México SIE API docs state no rate limit is documented; token-based free registration; official Mexican government open data."
+    "limit_proof": "Banco de M\u00e9xico SIE API docs state no rate limit is documented; token-based free registration; official Mexican government open data."
   },
   "bea": {
     "display_name": "Bureau of Economic Analysis",
@@ -2421,15 +2421,6 @@
     "docs_url": "https://doaj.org/api/docs",
     "limit_proof": "DOAJ API is publicly accessible with no auth, no rate limits documented. Open data, CC0 metadata. Swagger: https://doaj.org/api/swagger.json"
   },
-  "cma": {
-    "display_name": "Cleveland Museum of Art",
-    "health_url": "https://openaccess-api.clevelandart.org/api/artworks/?limit=1",
-    "limit_type": "unlimited",
-    "free_limit": 0,
-    "reset_period": "none",
-    "docs_url": "https://openaccess-api.clevelandart.org/",
-    "limit_proof": "Cleveland Museum of Art Open Access API — no auth required, no documented rate limits. CC0/CC BY open data with 68K+ artworks."
-  },
   "uniprot": {
     "display_name": "UniProt",
     "health_url": "https://rest.uniprot.org/uniprotkb/search?query=test&size=1&format=json",
@@ -2446,7 +2437,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://www.ebi.ac.uk/biomodels/docs/",
-    "limit_proof": "BioModels REST API (EMBL-EBI) — no auth required, no documented rate limits. CC0 Public Domain. 3,200+ curated mathematical biology models."
+    "limit_proof": "BioModels REST API (EMBL-EBI) \u2014 no auth required, no documented rate limits. CC0 Public Domain. 3,200+ curated mathematical biology models."
   },
   "openmeteoaq": {
     "display_name": "Open-Meteo Air Quality",
@@ -2473,7 +2464,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://waterservices.usgs.gov/rest/",
-    "limit_proof": "US Government open data (USGS National Water Information System), no authentication required, no documented rate limits. Public domain under 17 USC §105."
+    "limit_proof": "US Government open data (USGS National Water Information System), no authentication required, no documented rate limits. Public domain under 17 USC \u00a7105."
   },
   "who-gho": {
     "display_name": "WHO Global Health Observatory",
@@ -2482,7 +2473,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://www.who.int/data/gho/info/gho-odata-api",
-    "limit_proof": "WHO GHO OData API — no authentication required, no documented rate limits. CC BY-NC-SA 3.0 IGO. Azure CDN endpoint, publicly accessible."
+    "limit_proof": "WHO GHO OData API \u2014 no authentication required, no documented rate limits. CC BY-NC-SA 3.0 IGO. Azure CDN endpoint, publicly accessible."
   },
   "delphi": {
     "display_name": "CMU Delphi Epidata",
@@ -2491,7 +2482,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://cmu-delphi.github.io/delphi-epidata/api/README.html",
-    "limit_proof": "CMU Delphi Epidata API — no authentication required, no documented rate limits. Open epidemiological surveillance data (ILINet, FluSurv-NET, COVIDcast). Academic/research open access."
+    "limit_proof": "CMU Delphi Epidata API \u2014 no authentication required, no documented rate limits. Open epidemiological surveillance data (ILINet, FluSurv-NET, COVIDcast). Academic/research open access."
   },
   "nlm-icd11": {
     "display_name": "NLM ICD-11 Clinical Tables",
@@ -2500,7 +2491,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://clinicaltables.nlm.nih.gov/apidoc/icd11_codes/v3/doc.html",
-    "limit_proof": "US National Library of Medicine Clinical Tables API — no authentication required, no documented rate limits. Public domain ICD-11 classification search service."
+    "limit_proof": "US National Library of Medicine Clinical Tables API \u2014 no authentication required, no documented rate limits. Public domain ICD-11 classification search service."
   },
   "cms": {
     "display_name": "CMS Provider Data",
@@ -2509,7 +2500,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://data.cms.gov/provider-data/api/1/",
-    "limit_proof": "US Centers for Medicare & Medicaid Services Provider Data Catalog — no authentication required, no documented rate limits. Public domain under 17 USC §105. Covers 5 400+ hospitals, 14 600+ nursing homes, 12 300+ home health agencies, 7 500+ dialysis facilities."
+    "limit_proof": "US Centers for Medicare & Medicaid Services Provider Data Catalog \u2014 no authentication required, no documented rate limits. Public domain under 17 USC \u00a7105. Covers 5 400+ hospitals, 14 600+ nursing homes, 12 300+ home health agencies, 7 500+ dialysis facilities."
   },
   "cpsc": {
     "display_name": "CPSC SaferProducts.gov",
@@ -2518,6 +2509,15 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://www.saferproducts.gov/RestWebServices/",
-    "limit_proof": "US Consumer Product Safety Commission open REST API — no authentication required, no documented rate limits. Public domain under the Consumer Product Safety Act (15 USC §2051 et seq.). All recall data from 1974 onward."
+    "limit_proof": "US Consumer Product Safety Commission open REST API \u2014 no authentication required, no documented rate limits. Public domain under the Consumer Product Safety Act (15 USC \u00a72051 et seq.). All recall data from 1974 onward."
+  },
+  "nrc": {
+    "display_name": "NRC Power Reactor Status",
+    "health_url": "https://www.nrc.gov/reading-rm/doc-collections/event-status/reactor-status/PowerReactorStatusForLast365Days.txt",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.nrc.gov/reading-rm/doc-collections/event-status/reactor-status/",
+    "limit_proof": "US NRC public domain data under the Atomic Energy Act \u2014 no auth, no rate limit documented"
   }
 }
