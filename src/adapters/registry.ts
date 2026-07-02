@@ -1,4 +1,5 @@
 import { type BaseAdapter } from './base.adapter';
+import { JmaBosaiAdapter } from './jma-bosai';
 import { PostcodeJapanAdapter } from './postcode-japan';
 import { P2pquakeAdapter } from './p2pquake';
 import { OfacAdapter } from './ofac';
@@ -1696,6 +1697,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'p2pquake':
       // P2PQuake (UC-592) — Japan JMA earthquake reports, tsunami warnings, historical search; no auth; open data
       return getOrCreate('p2pquake', () => new P2pquakeAdapter());
+    case 'jma-bosai':
+      // JMA Bosai (UC-593) — Japan Meteorological Agency: weather forecast, warnings, earthquakes; no auth; open data
+      return getOrCreate('jma-bosai', () => new JmaBosaiAdapter());
     default:
       return undefined;
   }

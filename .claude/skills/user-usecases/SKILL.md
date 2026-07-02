@@ -288,6 +288,7 @@ Use these examples as reference patterns when:
 | UC-590 | OFAC Sanctions List (US Treasury) | SDN list search, entity aliases, sanctions programs, publication info; public domain, no auth; AML/KYC compliance | LIVE | No auth, 4 tools | `usecases/UC-590-ofac-list.md` |
 | UC-591 | Japan Postal Codes (postcode.teraren.com) | Postcode lookup, text search, prefecture list; 124K+ Japan Post codes; kanji/kana/romaji + GPS; MIT, no auth | LIVE | No auth, 3 tools | `usecases/UC-591-postcode-japan.md` |
 | UC-592 | P2PQuake Japan Seismic (api.p2pquake.net) | JMA earthquake reports (Shindo scale), tsunami warnings, historical search; community relay, open data, MIT, no auth | LIVE | No auth, 3 tools | `usecases/UC-592-p2pquake.md` |
+| UC-593 | JMA Bosai (www.jma.go.jp/bosai) | Japan Meteorological Agency official weather forecast, warnings/advisories, earthquake list, area reference; Japanese Government open data, no auth | LIVE | No auth, 5 tools | `usecases/UC-593-jma-bosai.md` |
 
 ## How to Use
 

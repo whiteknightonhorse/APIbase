@@ -13276,4 +13276,79 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'location',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // JMA Bosai — Japan Meteorological Agency (UC-593, 5 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'jma-bosai.forecast',
+    mcpName: 'jma-bosai.weather.forecast',
+    title: 'JMA Weather Forecast',
+    description:
+      'Get the official 3-day weather forecast from the Japan Meteorological Agency (JMA) ' +
+      'for a specified area code (prefecture/region). Returns weather descriptions, wind conditions, ' +
+      'wave heights, precipitation probability (%), and temperature (°C) per time period. ' +
+      'Pass a 6-digit JMA area code (e.g. 130000 for Tokyo, 270000 for Osaka). ' +
+      'Use jma-bosai.reference.areas to look up valid area codes. ' +
+      'Data: JMA official forecast — Japanese Government open data, no auth required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'jma-bosai.overview',
+    mcpName: 'jma-bosai.weather.overview',
+    title: 'JMA Weather Overview',
+    description:
+      'Get the official meteorological overview text from the Japan Meteorological Agency (JMA) ' +
+      'for a specified area. Returns a headline and a full narrative weather summary in Japanese ' +
+      '(the official JMA text as issued). Useful for understanding the weather situation context ' +
+      'beyond just codes and temperatures. ' +
+      'Pass a 6-digit JMA area code (e.g. 130000 for Tokyo, 270000 for Osaka). ' +
+      'Data: JMA official overview — Japanese Government open data, no auth required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'jma-bosai.warnings',
+    mcpName: 'jma-bosai.weather.warnings',
+    title: 'JMA Active Weather Warnings',
+    description:
+      'Get all currently active weather warnings and advisories issued by the Japan Meteorological ' +
+      'Agency (JMA) for a specified area. Returns warning codes, statuses (issued / continuing / lifted), ' +
+      'and a headline summary. Warning code meanings: 02=Wind, 03=Wave, 04=Thunderstorm, 05=Heavy Rain, ' +
+      '06=Windstorm, 10=Tsunami, 12=Snow, 14=Avalanche, 15=Flood, 20=High Wave, etc. ' +
+      'Pass a 6-digit JMA area code (e.g. 130000 for Tokyo). ' +
+      'Data: JMA official warnings — Japanese Government open data, no auth required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'jma-bosai.earthquakes',
+    mcpName: 'jma-bosai.seismic.recent',
+    title: 'JMA Recent Earthquakes',
+    description:
+      'Get the most recent earthquakes reported by the Japan Meteorological Agency (JMA). ' +
+      'Returns epicenter name (English and Japanese), magnitude, JMA seismic intensity (Shindo scale 1–7), ' +
+      'coordinates, depth (km), and occurrence time in ISO 8601. ' +
+      'Filter by minimum magnitude to focus on significant events. ' +
+      'JMA Shindo scale: 1=barely felt, 4=hanging objects swing strongly, 5+=damage possible, 7=catastrophic. ' +
+      'Complements p2pquake.seismic.recent (community network) with the official government feed. ' +
+      'Data: JMA official seismic data — Japanese Government open data, no auth required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'jma-bosai.areas',
+    mcpName: 'jma-bosai.reference.areas',
+    title: 'JMA Area Reference List',
+    description:
+      'Get the complete list of Japan Meteorological Agency (JMA) forecast area codes with ' +
+      'Japanese and English names. Returns all 58 JMA offices/regions with 6-digit codes needed by ' +
+      'jma-bosai.weather.forecast, jma-bosai.weather.overview, and jma-bosai.weather.warnings. ' +
+      'Filter by English name keyword (e.g. "tokyo", "osaka") to find the right code. ' +
+      'Example codes: 130000=Tokyo, 270000=Osaka, 230000=Aichi (Nagoya), 400000=Fukuoka. ' +
+      'Data: JMA area constants — Japanese Government open data, no auth required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
 ];

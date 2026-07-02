@@ -6770,6 +6770,37 @@ tools:
     price_usd: "0.001"
     cache_ttl: 300
 
+  # --- UC-593: JMA Bosai (Japan Meteorological Agency Disaster Prevention) ---
+  - tool_id: jma-bosai.forecast
+    name: JMA Weather Forecast
+    provider: jma-bosai
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: jma-bosai.overview
+    name: JMA Weather Overview
+    provider: jma-bosai
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: jma-bosai.warnings
+    name: JMA Active Weather Warnings
+    provider: jma-bosai
+    price_usd: "0.001"
+    cache_ttl: 600
+
+  - tool_id: jma-bosai.earthquakes
+    name: JMA Recent Earthquakes
+    provider: jma-bosai
+    price_usd: "0.001"
+    cache_ttl: 60
+
+  - tool_id: jma-bosai.areas
+    name: JMA Area Reference List
+    provider: jma-bosai
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

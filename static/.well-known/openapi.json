@@ -101115,6 +101115,392 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/jma-bosai.forecast/call": {
+      "post": {
+        "operationId": "jma-bosai_forecast",
+        "summary": "JMA Weather Forecast",
+        "description": "Get the official 3-day weather forecast from the Japan Meteorological Agency (JMA) for a specified area code (prefecture/region). Returns weather descriptions, wind conditions, wave heights, precipitation probability (%), and temperature (°C) per time period. Pass a 6-digit JMA area code (e.g. 130000 for Tokyo, 270000 for Osaka). Use jma-bosai.reference.areas to look up valid area codes. Data: JMA official forecast — Japanese Government open data, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "jma-bosai.forecast"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "area_code": {
+                    "type": "string",
+                    "description": "JMA 6-digit area (office) code. Use jma-bosai.reference.areas to look up valid codes. Common codes: 130000 (Tokyo), 270000 (Osaka), 230000 (Aichi/Nagoya), 400000 (Fukuoka).",
+                    "default": "130000"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/jma-bosai.overview/call": {
+      "post": {
+        "operationId": "jma-bosai_overview",
+        "summary": "JMA Weather Overview",
+        "description": "Get the official meteorological overview text from the Japan Meteorological Agency (JMA) for a specified area. Returns a headline and a full narrative weather summary in Japanese (the official JMA text as issued). Useful for understanding the weather situation context beyond just codes and temperatures. Pass a 6-digit JMA area code (e.g. 130000 for Tokyo, 270000 for Osaka). Data: JMA official overview — Japanese Government open data, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "jma-bosai.overview"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "area_code": {
+                    "type": "string",
+                    "description": "JMA 6-digit area (office) code. Use jma-bosai.reference.areas to look up valid codes. Common codes: 130000 (Tokyo), 270000 (Osaka), 230000 (Aichi/Nagoya), 400000 (Fukuoka).",
+                    "default": "130000"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/jma-bosai.warnings/call": {
+      "post": {
+        "operationId": "jma-bosai_warnings",
+        "summary": "JMA Active Weather Warnings",
+        "description": "Get all currently active weather warnings and advisories issued by the Japan Meteorological Agency (JMA) for a specified area. Returns warning codes, statuses (issued / continuing / lifted), and a headline summary. Warning code meanings: 02=Wind, 03=Wave, 04=Thunderstorm, 05=Heavy Rain, 06=Windstorm, 10=Tsunami, 12=Snow, 14=Avalanche, 15=Flood, 20=High Wave, etc. Pass a 6-digit JMA area code (e.g. 130000 for Tokyo). Data: JMA official warnings — Japanese Government open data, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "jma-bosai.warnings"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "area_code": {
+                    "type": "string",
+                    "description": "JMA 6-digit area (office) code. Use jma-bosai.reference.areas to look up valid codes. Common codes: 130000 (Tokyo), 270000 (Osaka), 230000 (Aichi/Nagoya), 400000 (Fukuoka).",
+                    "default": "130000"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/jma-bosai.earthquakes/call": {
+      "post": {
+        "operationId": "jma-bosai_earthquakes",
+        "summary": "JMA Recent Earthquakes",
+        "description": "Get the most recent earthquakes reported by the Japan Meteorological Agency (JMA). Returns epicenter name (English and Japanese), magnitude, JMA seismic intensity (Shindo scale 1–7), coordinates, depth (km), and occurrence time in ISO 8601. Filter by minimum magnitude to focus on significant events. JMA Shindo scale: 1=barely felt, 4=hanging objects swing strongly, 5+=damage possible, 7=catastrophic. Complements p2pquake.seismic.recent (community network) with the official government feed. Data: JMA official seismic data — Japanese Government open data, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "jma-bosai.earthquakes"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of earthquakes to return (1–100). Defaults to 20."
+                  },
+                  "min_magnitude": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 9.9,
+                    "description": "Filter — return only earthquakes with magnitude ≥ this value (e.g. 3.0)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/jma-bosai.areas/call": {
+      "post": {
+        "operationId": "jma-bosai_areas",
+        "summary": "JMA Area Reference List",
+        "description": "Get the complete list of Japan Meteorological Agency (JMA) forecast area codes with Japanese and English names. Returns all 58 JMA offices/regions with 6-digit codes needed by jma-bosai.weather.forecast, jma-bosai.weather.overview, and jma-bosai.weather.warnings. Filter by English name keyword (e.g. \"tokyo\", \"osaka\") to find the right code. Example codes: 130000=Tokyo, 270000=Osaka, 230000=Aichi (Nagoya), 400000=Fukuoka. Data: JMA area constants — Japanese Government open data, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "jma-bosai.areas"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name_filter": {
+                    "type": "string",
+                    "description": "Optional English keyword to filter offices by name (case-insensitive). E.g. \"tokyo\", \"osaka\". Leave empty to return all 58 offices."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

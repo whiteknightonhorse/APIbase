@@ -2780,5 +2780,14 @@
     "reset_period": "none",
     "docs_url": "https://github.com/p2pquake/web-api-v2-spec",
     "limit_proof": "Community-operated open API; MIT license; no auth required; no documented rate limits"
+  },
+  "jma-bosai": {
+    "display_name": "JMA Bosai (Japan Met Agency)",
+    "health_url": "https://www.jma.go.jp/bosai/common/const/area.json",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.jma.go.jp/jma/kishou/info/coment.html",
+    "limit_proof": "Japanese Government open data (e-Gov), no auth required, no documented rate limits"
   }
 }
