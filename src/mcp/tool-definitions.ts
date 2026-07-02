@@ -12155,4 +12155,55 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'weather',
     annotations: READ_ONLY,
   },
+
+  // Digital Public Library of America (4)
+  {
+    toolId: 'dpla.items.search',
+    mcpName: 'dpla.archives.search',
+    title: 'DPLA — Search Digitized Items',
+    description:
+      'Search 50M+ digitized items from US libraries, archives, and museums via the Digital Public Library of America. ' +
+      'Filter by media type (image, text, sound, moving image), date range, US state, or contributing institution. ' +
+      'Results include title, creator, date, type, subject tags, rights, and direct links to the original item and thumbnail. ' +
+      'Sources include the Smithsonian, Library of Congress, NYPL, state digitization programs, and 2,000+ contributing institutions. ' +
+      'Returns facets for top subjects, providers, and types within the result set.',
+    category: 'media',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'dpla.items.detail',
+    mcpName: 'dpla.archives.detail',
+    title: 'DPLA — Fetch Item by ID',
+    description:
+      'Fetch the full metadata record for a specific DPLA item by its 32-character hex identifier. ' +
+      'Returns complete fields: title, creator, date, type, format, subject tags, language, rights category, ' +
+      'contributing institution, original item URL, and thumbnail URL. ' +
+      'Use after a search call to retrieve complete details for a specific digitized object.',
+    category: 'media',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'dpla.items.by_subject',
+    mcpName: 'dpla.archives.by_subject',
+    title: 'DPLA — Browse Items by Subject',
+    description:
+      'Browse digitized items from US archives by subject or topic keyword using DPLA subject vocabulary. ' +
+      'Subjects include broad categories (Women, Architecture, Photography) and historical topics ' +
+      '(Civil War, Native Americans, Abolitionists). Optionally filter by media type. ' +
+      'Returns paginated list of matching items with title, creator, date, type, thumbnail, and direct URL.',
+    category: 'media',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'dpla.items.facets',
+    mcpName: 'dpla.archives.facets',
+    title: 'DPLA — Get Top Facets',
+    description:
+      'Get top facet counts (subjects, providers/institutions, media types, US states) across the entire DPLA ' +
+      'collection or scoped to a search query. Useful for discovering what subject areas, contributing libraries, ' +
+      'or media types dominate a given topic. Returns ranked term lists with counts for four dimensions: ' +
+      'subject, provider, type, and state.',
+    category: 'media',
+    annotations: READ_ONLY,
+  },
 ];

@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 1050 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 1054 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -60852,6 +60852,254 @@
           "error": {
             "type": "object",
             "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "dpla.archives.by_subject",
+      "title": "DPLA \u2014 Browse Items by Subject",
+      "description": "Browse digitized items from US archives by subject or topic keyword using DPLA subject vocabulary. Subjects include broad categories (Women, Architecture, Photography) and historical topics (Civil War, Native Americans, Abolitionists). Optionally filter by media type. Returns paginated list of matching items with title, creator, date, type, thumbnail, and direct URL.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "subject": {
+            "type": "string",
+            "description": "Subject or topic to browse (e.g. \"Photography\", \"Women\", \"Architecture\", \"Native Americans\"). Case-insensitive exact match against DPLA subject vocabulary."
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "image",
+              "text",
+              "sound",
+              "moving image",
+              "physical object"
+            ],
+            "description": "Optionally narrow results to a specific media type: image, text, sound, moving image, or physical object"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number for pagination, starting at 1 (default: 1)"
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of items per page, 1\u201350 (default: 10)"
+          }
+        },
+        "required": [
+          "subject"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "dpla.archives.detail",
+      "title": "DPLA \u2014 Fetch Item by ID",
+      "description": "Fetch the full metadata record for a specific DPLA item by its 32-character hex identifier. Returns complete fields: title, creator, date, type, format, subject tags, language, rights category, contributing institution, original item URL, and thumbnail URL. Use after a search call to retrieve complete details for a specific digitized object.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "item_id": {
+            "type": "string",
+            "description": "DPLA item identifier (32-character hex string, e.g. \"eb930b2f9ad638f921429e5e898f0a34\"). Obtain from search results."
+          }
+        },
+        "required": [
+          "item_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "dpla.archives.facets",
+      "title": "DPLA \u2014 Get Top Facets",
+      "description": "Get top facet counts (subjects, providers/institutions, media types, US states) across the entire DPLA collection or scoped to a search query. Useful for discovering what subject areas, contributing libraries, or media types dominate a given topic. Returns ranked term lists with counts for four dimensions: subject, provider, type, and state.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "description": "Optional query to scope the facets (e.g. \"civil war\" returns top subjects/providers/types within that query). Omit for global top facets."
+          },
+          "facet_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of top terms to return per facet dimension, 1\u201350 (default: 10)"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "dpla.archives.search",
+      "title": "DPLA \u2014 Search Digitized Items",
+      "description": "Search 50M+ digitized items from US libraries, archives, and museums via the Digital Public Library of America. Filter by media type (image, text, sound, moving image), date range, US state, or contributing institution. Results include title, creator, date, type, subject tags, rights, and direct links to the original item and thumbnail. Sources include the Smithsonian, Library of Congress, NYPL, state digitization programs, and 2,000+ contributing institutions. Returns facets for top subjects, providers, and types within the result set.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string",
+            "description": "Full-text search query across title, description, creator, and subject fields (e.g. \"civil war photographs\", \"Thomas Jefferson\")"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "image",
+              "text",
+              "sound",
+              "moving image",
+              "physical object"
+            ],
+            "description": "Filter by media type: image (photographs, drawings), text (books, manuscripts), sound (audio recordings), moving image (film/video), physical object"
+          },
+          "date_begin": {
+            "type": "string",
+            "description": "Filter items created on or after this year (e.g. \"1850\"). Use with date_end for a range."
+          },
+          "date_end": {
+            "type": "string",
+            "description": "Filter items created on or before this year (e.g. \"1900\"). Use with date_begin for a range."
+          },
+          "state": {
+            "type": "string",
+            "description": "Filter by US state name where the item originated or is about (e.g. \"Massachusetts\", \"California\")"
+          },
+          "provider": {
+            "type": "string",
+            "description": "Filter by contributing institution name (e.g. \"Smithsonian Institution\", \"The New York Public Library\")"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number for pagination, starting at 1 (default: 1)"
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of items per page, 1\u201350 (default: 10)"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
           }
         },
         "required": [

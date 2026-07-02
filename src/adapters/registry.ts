@@ -291,6 +291,7 @@ import { BrightSkyAdapter } from './brightsky';
 import { StatfinAdapter } from './statfin';
 import { DbnomicsAdapter } from './dbnomics';
 import { SmhiAdapter } from './smhi';
+import { DplaAdapter } from './dpla';
 import { config } from '../config';
 
 /**
@@ -1620,6 +1621,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'smhi':
       // SMHI Open Data (UC-573) — 1000+ Swedish weather stations: temperature, wind, humidity, pressure; no auth; CC BY 4.0
       return getOrCreate('smhi', () => new SmhiAdapter());
+    case 'dpla':
+      // Digital Public Library of America (UC-574) — 50M+ digitized items from US libraries, archives, museums
+      return getOrCreate('dpla', () => new DplaAdapter(config.PROVIDER_KEY_DPLA));
     default:
       return undefined;
   }

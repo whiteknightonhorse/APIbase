@@ -144,6 +144,8 @@ export const appEnvSchema = z.object({
   PROVIDER_KEY_EIA: z.string().optional().default(''),
   // api.data.gov shared key (UC-408 FEC + Census + NASA + ...) — 1K req/hr
   PROVIDER_KEY_API_DATA_GOV: z.string().optional().default(''),
+  // Digital Public Library of America (UC-574) — free api_key, no documented rate limit
+  PROVIDER_KEY_DPLA: z.string().optional().default(''),
 
   // Stability AI (UC-080) — Bearer header, 25 free credits
   PROVIDER_KEY_STABILITY: z.string().optional().default(''),

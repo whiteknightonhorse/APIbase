@@ -6307,6 +6307,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 600
 
+  # --- UC-574: Digital Public Library of America ---
+  - tool_id: dpla.items.search
+    name: DPLA — Search Digitized Items
+    provider: dpla
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: dpla.items.detail
+    name: DPLA — Fetch Item by ID
+    provider: dpla
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: dpla.items.by_subject
+    name: DPLA — Browse Items by Subject
+    provider: dpla
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: dpla.items.facets
+    name: DPLA — Get Top Facets
+    provider: dpla
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

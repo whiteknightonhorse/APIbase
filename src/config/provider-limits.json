@@ -2609,5 +2609,14 @@
     "reset_period": "none",
     "docs_url": "https://opendata.smhi.se/apidocs/",
     "limit_proof": "SMHI is a Swedish government authority — open data under CC BY 4.0, no API key required, no documented rate limits. Cache-Control: max-age=600–3600."
+  },
+  "dpla": {
+    "display_name": "Digital Public Library of America",
+    "health_url": "https://api.dp.la/v2/items?q=test&page_size=1&api_key=TOKEN_FROM_ENV_PROVIDER_KEY_DPLA",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://pro.dp.la/developers/requests",
+    "limit_proof": "DPLA API docs state no rate limit is documented for API key holders. Free keys available — 50M+ items across 2,000+ contributing US institutions."
   }
 }

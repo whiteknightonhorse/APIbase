@@ -269,6 +269,7 @@ Use these examples as reference patterns when:
 | UC-571 | Statistics Finland (StatFin) | Finance/World — Finland CPI, population, unemployment, statistical table discovery | LIVE | No auth, CC BY 4.0, 4 tools | `usecases/UC-571-stat-finland.md` |
 | UC-572 | DBnomics | Finance — 93+ agencies: IMF, World Bank, OECD, Eurostat; providers, datasets, series browse, time-series fetch | LIVE | No auth, CC-BY 4.0, 4 tools | `usecases/UC-572-dbnomics.md` |
 | UC-573 | SMHI Open Data | Weather — Sweden/Europe: 82-step hourly forecast, 7-day fire risk, active warnings, 1000+ station observations | LIVE | No auth, CC BY 4.0, 4 tools | `usecases/UC-573-smhi-sweden.md` |
+| UC-574 | Digital Public Library of America | Media/Archives — 50M+ digitized US library/museum items: search, detail, browse by subject, facets | LIVE | Free API key, no rate limit, 4 tools | `usecases/UC-574-dpla.md` |
 
 ## How to Use
 
