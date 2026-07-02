@@ -293,6 +293,7 @@ import { DbnomicsAdapter } from './dbnomics';
 import { SmhiAdapter } from './smhi';
 import { DplaAdapter } from './dpla';
 import { AviationWeatherAdapter } from './aviationweather';
+import { ObisAdapter } from './obis';
 import { config } from '../config';
 
 /**
@@ -1628,6 +1629,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'aviationweather':
       // NOAA Aviation Weather Center (UC-575) — METAR, TAF, PIREPs, station info; no auth, US Gov public domain
       return getOrCreate('aviationweather', () => new AviationWeatherAdapter());
+    case 'obis':
+      // OBIS (UC-576) — Ocean Biodiversity Information System; 100M+ marine occurrence records; no auth; CC BY 4.0
+      return getOrCreate('obis', () => new ObisAdapter());
     default:
       return undefined;
   }

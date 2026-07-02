@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 1058 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 1062 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -61313,6 +61313,253 @@
           "error": {
             "type": "object",
             "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "obis.marine.checklist",
+      "title": "OBIS \u2014 Marine Species Checklist",
+      "description": "Generate a species checklist from OBIS occurrence data for a given taxon group or geographic area. Returns a ranked list of species with occurrence record counts, full taxonomy (phylum/class/order/family/genus), WoRMS AphiaID, and marine/brackish habitat flags. Filter by parent taxon (e.g. \"Mollusca\" for all molluscs), WoRMS AphiaID, or OBIS area ID. Useful for biodiversity assessments, EIA surveys, and species inventories. Source: OBIS \u2014 free, CC BY 4.0, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "scientificname": {
+            "type": "string",
+            "description": "Scientific name filter \u2014 restricts checklist to a taxon and its descendants (e.g. \"Mollusca\" for all molluscs)."
+          },
+          "taxonid": {
+            "type": "integer",
+            "description": "WoRMS AphiaID to filter checklist by taxon. Alternative to scientificname for precise filtering."
+          },
+          "areaid": {
+            "type": "integer",
+            "description": "OBIS area ID to restrict checklist to a geographic region. Use area search to find IDs."
+          },
+          "marine_only": {
+            "type": "boolean",
+            "description": "If true (default), restricts results to marine-only species. Set false to include brackish/coastal taxa."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Number of species in the checklist to return (1-100, default 20)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "obis.marine.dataset_search",
+      "title": "OBIS \u2014 Marine Dataset Search",
+      "description": "Find marine biodiversity datasets in the OBIS network by species name or geographic area. Returns dataset metadata: title, abstract, record count, citation, and source URL. Useful for discovering primary data sources, citing specific surveys, and understanding data provenance for a species or region. The OBIS network aggregates 4,200+ datasets from 900+ institutions worldwide. Source: OBIS \u2014 free, CC BY 4.0, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "scientificname": {
+            "type": "string",
+            "description": "Scientific name to find datasets containing records for that species (e.g. \"Balaenoptera musculus\")."
+          },
+          "areaid": {
+            "type": "integer",
+            "description": "OBIS area ID to find datasets covering a specific geographic region."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of datasets to return (1-50, default 10)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "obis.marine.occurrence_search",
+      "title": "OBIS \u2014 Marine Species Occurrence Search",
+      "description": "Search 100M+ marine species occurrence records in the Ocean Biodiversity Information System (OBIS). Filter by scientific name, WoRMS AphiaID, geographic coordinates with radius, or year range. Each record includes GPS coordinates, observation year, depth, sea-surface temperature, dataset source, and full taxonomic classification (kingdom\u2192species). Covers all ocean environments: pelagic, benthic, coastal, deep-sea. Source: OBIS \u2014 free, CC BY 4.0, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "scientificname": {
+            "type": "string",
+            "description": "Scientific name of the marine species to search (e.g. \"Abra alba\", \"Gadus morhua\", \"Thunnus thynnus\"). Supports partial matching."
+          },
+          "taxonid": {
+            "type": "integer",
+            "description": "WoRMS AphiaID (numeric taxon identifier). Use instead of or alongside scientificname for precise lookups."
+          },
+          "lat": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90,
+            "description": "Center latitude for geographic search (decimal degrees, -90 to 90). Requires lon and radius."
+          },
+          "lon": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180,
+            "description": "Center longitude for geographic search (decimal degrees, -180 to 180). Requires lat and radius."
+          },
+          "radius": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Search radius in kilometers around the lat/lon center point. Requires lat and lon."
+          },
+          "minyear": {
+            "type": "integer",
+            "minimum": 1600,
+            "maximum": 2030,
+            "description": "Earliest observation year to include (e.g. 2000). Pairs with maxyear."
+          },
+          "maxyear": {
+            "type": "integer",
+            "minimum": 1600,
+            "maximum": 2030,
+            "description": "Latest observation year to include (e.g. 2024). Pairs with minyear."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Number of occurrence records to return (1-100, default 10)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "obis.marine.taxon_search",
+      "title": "OBIS \u2014 Marine Taxon Lookup",
+      "description": "Look up marine species taxonomy in the World Register of Marine Species (WoRMS) via OBIS. Search by scientific name (genus, species, or higher taxon) to retrieve the full taxonomic hierarchy (kingdom through species), WoRMS AphiaID, taxonomic status, accepted name, authorship, and habitat flags (marine / brackish / freshwater). Also returns common (vernacular) names. Source: OBIS + WoRMS \u2014 free, CC BY 4.0, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "scientificname": {
+            "type": "string",
+            "description": "Scientific name of the marine taxon to look up (e.g. \"Tursiops truncatus\", \"Gadus\", \"Cetacea\"). Returns full WoRMS taxonomy.",
+            "minLength": 2
+          }
+        },
+        "required": [
+          "scientificname"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
           }
         },
         "required": [

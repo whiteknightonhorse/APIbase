@@ -271,6 +271,7 @@ Use these examples as reference patterns when:
 | UC-573 | SMHI Open Data | Weather — Sweden/Europe: 82-step hourly forecast, 7-day fire risk, active warnings, 1000+ station observations | LIVE | No auth, CC BY 4.0, 4 tools | `usecases/UC-573-smhi-sweden.md` |
 | UC-574 | Digital Public Library of America | Media/Archives — 50M+ digitized US library/museum items: search, detail, browse by subject, facets | LIVE | Free API key, no rate limit, 4 tools | `usecases/UC-574-dpla.md` |
 | UC-575 | NOAA Aviation Weather Center | Weather — METAR observations, TAF forecasts, pilot reports (PIREPs), station lookup; global ICAO coverage | LIVE | No auth, US Gov public domain, 4 tools | `usecases/UC-575-noaa-aviationweather.md` |
+| UC-576 | OBIS Marine Biodiversity | 100M+ marine species occurrence records, WoRMS taxonomy lookup, species checklists, dataset search; no auth; CC BY 4.0 | LIVE | No auth, unlimited free, 4 tools | `usecases/UC-576-obis.md` |
 
 ## How to Use
 

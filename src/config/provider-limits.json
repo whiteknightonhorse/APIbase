@@ -2627,5 +2627,14 @@
     "reset_period": "none",
     "docs_url": "https://aviationweather.gov/data/api/",
     "limit_proof": "US Government public domain (aviationweather.gov) — no API key, no rate limits documented. METAR/TAF data licensed under US Government Open Data."
+  },
+  "obis": {
+    "display_name": "OBIS Marine Biodiversity",
+    "health_url": "https://api.obis.org/v3/statistics/years",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://api.obis.org/",
+    "limit_proof": "OBIS API is open access, no authentication required, no documented rate limits. Data licensed CC BY 4.0 / CC0."
   }
 }

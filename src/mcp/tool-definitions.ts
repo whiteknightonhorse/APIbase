@@ -12263,4 +12263,62 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'weather',
     annotations: READ_ONLY,
   },
+
+  // OBIS — Ocean Biodiversity Information System (UC-576, 4 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'obis.occurrence_search',
+    mcpName: 'obis.marine.occurrence_search',
+    title: 'OBIS — Marine Species Occurrence Search',
+    description:
+      'Search 100M+ marine species occurrence records in the Ocean Biodiversity Information System (OBIS). ' +
+      'Filter by scientific name, WoRMS AphiaID, geographic coordinates with radius, or year range. ' +
+      'Each record includes GPS coordinates, observation year, depth, sea-surface temperature, dataset source, ' +
+      'and full taxonomic classification (kingdom→species). ' +
+      'Covers all ocean environments: pelagic, benthic, coastal, deep-sea. ' +
+      'Source: OBIS — free, CC BY 4.0, no auth required.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'obis.taxon_search',
+    mcpName: 'obis.marine.taxon_search',
+    title: 'OBIS — Marine Taxon Lookup',
+    description:
+      'Look up marine species taxonomy in the World Register of Marine Species (WoRMS) via OBIS. ' +
+      'Search by scientific name (genus, species, or higher taxon) to retrieve the full taxonomic hierarchy ' +
+      '(kingdom through species), WoRMS AphiaID, taxonomic status, accepted name, authorship, ' +
+      'and habitat flags (marine / brackish / freshwater). Also returns common (vernacular) names. ' +
+      'Source: OBIS + WoRMS — free, CC BY 4.0, no auth required.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'obis.checklist',
+    mcpName: 'obis.marine.checklist',
+    title: 'OBIS — Marine Species Checklist',
+    description:
+      'Generate a species checklist from OBIS occurrence data for a given taxon group or geographic area. ' +
+      'Returns a ranked list of species with occurrence record counts, full taxonomy ' +
+      '(phylum/class/order/family/genus), WoRMS AphiaID, and marine/brackish habitat flags. ' +
+      'Filter by parent taxon (e.g. "Mollusca" for all molluscs), WoRMS AphiaID, or OBIS area ID. ' +
+      'Useful for biodiversity assessments, EIA surveys, and species inventories. ' +
+      'Source: OBIS — free, CC BY 4.0, no auth required.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'obis.dataset_search',
+    mcpName: 'obis.marine.dataset_search',
+    title: 'OBIS — Marine Dataset Search',
+    description:
+      'Find marine biodiversity datasets in the OBIS network by species name or geographic area. ' +
+      'Returns dataset metadata: title, abstract, record count, citation, and source URL. ' +
+      'Useful for discovering primary data sources, citing specific surveys, and understanding ' +
+      'data provenance for a species or region. ' +
+      'The OBIS network aggregates 4,200+ datasets from 900+ institutions worldwide. ' +
+      'Source: OBIS — free, CC BY 4.0, no auth required.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
 ];

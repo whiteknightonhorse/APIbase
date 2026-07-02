@@ -6357,6 +6357,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-576: OBIS (Ocean Biodiversity Information System) ---
+  - tool_id: obis.occurrence_search
+    name: OBIS — Marine Species Occurrence Search
+    provider: obis
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: obis.taxon_search
+    name: OBIS — Marine Taxon Lookup
+    provider: obis
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: obis.checklist
+    name: OBIS — Marine Species Checklist
+    provider: obis
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: obis.dataset_search
+    name: OBIS — Marine Dataset Search
+    provider: obis
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform
