@@ -98089,6 +98089,334 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/opentdb.questions/call": {
+      "post": {
+        "operationId": "opentdb_questions",
+        "summary": "Open Trivia DB — Get Questions",
+        "description": "Fetch random trivia questions from the Open Trivia Database. Returns up to 50 questions per call with category, difficulty, correct answer, incorrect answers, and a shuffled all_answers list for quiz presentation. HTML entities are decoded automatically. Filter by category (use opentdb.trivia.categories to get IDs), difficulty (easy/medium/hard), and type (multiple-choice or True/False). Examples: 10 general knowledge questions (no params), 5 hard science questions (category=17, amount=5, difficulty=hard), True/False history questions (category=23, type=boolean). Source: opentdb.com — CC BY-SA 4.0, user-contributed, 5000+ verified questions, 24 categories, free unlimited.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "opentdb.questions"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Number of trivia questions to return (default 10, max 50)."
+                  },
+                  "category": {
+                    "type": "integer",
+                    "description": "Category ID to filter by (e.g. 9=General Knowledge, 17=Science & Nature, 21=Sports, 23=History). Use opentdb.trivia.categories to list all 24 IDs."
+                  },
+                  "difficulty": {
+                    "type": "string",
+                    "enum": [
+                      "easy",
+                      "medium",
+                      "hard"
+                    ],
+                    "description": "Difficulty filter: easy, medium, or hard. Omit for mixed difficulty."
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "multiple",
+                      "boolean"
+                    ],
+                    "description": "Question type: multiple (4 choices) or boolean (True/False). Omit for both types."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/opentdb.categories/call": {
+      "post": {
+        "operationId": "opentdb_categories",
+        "summary": "Open Trivia DB — List Categories",
+        "description": "List all 24 trivia categories available in the Open Trivia Database with their numeric IDs. Categories include General Knowledge (9), Entertainment: Books (10), Film (11), Music (12), Musicals & Theatres (13), Television (14), Video Games (15), Board Games (16), Science & Nature (17), Computers (18), Mathematics (19), Mythology (20), Sports (21), Geography (22), History (23), Politics (24), Art (25), Celebrities (26), Animals (27), Vehicles (28), Comics (29), Gadgets (30), Japanese Anime & Manga (31), Cartoon & Animations (32). Use returned IDs as the 'category' parameter in opentdb.trivia.questions. Source: opentdb.com — CC BY-SA 4.0, free unlimited.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "opentdb.categories"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "_placeholder": {
+                    "type": "string",
+                    "description": "No parameters required — returns all 24 trivia categories with their numeric IDs."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/opentdb.category_count/call": {
+      "post": {
+        "operationId": "opentdb_category_count",
+        "summary": "Open Trivia DB — Category Question Count",
+        "description": "Get the number of verified trivia questions available in a specific category, broken down by difficulty (easy, medium, hard). Useful for checking availability before requesting questions with opentdb.trivia.questions — if you request more questions than exist in a filtered query, the API returns empty results. Example: category 9 (General Knowledge) has ~469 verified questions. Source: opentdb.com — CC BY-SA 4.0, free unlimited.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "opentdb.category_count"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "category_id": {
+                    "type": "integer",
+                    "description": "Category ID (9–32). Use opentdb.trivia.categories to list all IDs. Examples: 9=General Knowledge, 17=Science & Nature, 21=Sports, 23=History.",
+                    "minimum": 9,
+                    "maximum": 32
+                  }
+                },
+                "required": [
+                  "category_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/opentdb.global_count/call": {
+      "post": {
+        "operationId": "opentdb_global_count",
+        "summary": "Open Trivia DB — Global Question Statistics",
+        "description": "Get global question counts across the entire Open Trivia Database: total questions, verified (live and servable), pending (under review), and rejected, with a per-category breakdown. Useful for understanding database coverage — typically 5000+ verified questions spread across 24 categories. Note: only verified questions are returned by opentdb.trivia.questions. Source: opentdb.com — CC BY-SA 4.0, free unlimited.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "opentdb.global_count"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "_placeholder": {
+                    "type": "string",
+                    "description": "No parameters required — returns global question counts and per-category breakdown."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

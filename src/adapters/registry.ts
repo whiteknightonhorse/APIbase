@@ -301,6 +301,7 @@ import { MedlineplusAdapter } from './medlineplus';
 import { OrphadataAdapter } from './orphadata';
 import { CbsNetherlandsAdapter } from './cbs-netherlands';
 import { AdbkidbAdapter } from './adbkidb';
+import { OpenTdbAdapter } from './opentdb';
 import { config } from '../config';
 
 /**
@@ -1660,6 +1661,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'adbkidb':
       // ADB KIDB (UC-583) — Asian Development Bank macroeconomic database; 700+ indicators; no auth; open access
       return getOrCreate('adbkidb', () => new AdbkidbAdapter());
+    case 'opentdb':
+      // Open Trivia Database (UC-584) — 5000+ user-contributed trivia questions; 24 categories; no auth; CC BY-SA 4.0
+      return getOrCreate('opentdb', () => new OpenTdbAdapter());
     default:
       return undefined;
   }

@@ -301,6 +301,7 @@ import { medlineplusSchemas } from './medlineplus.schema';
 import { orphadataSchemas } from './orphadata.schema';
 import { cbsNetherlandsSchemas } from './cbs-netherlands.schema';
 import { adbkidbSchemas } from './adbkidb.schema';
+import { opentdbSchemas } from './opentdb.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -605,4 +606,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...orphadataSchemas,
   ...cbsNetherlandsSchemas,
   ...adbkidbSchemas,
+  ...opentdbSchemas,
 };

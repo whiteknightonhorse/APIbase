@@ -12756,4 +12756,68 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+
+  // Open Trivia Database (4)
+  {
+    toolId: 'opentdb.questions',
+    mcpName: 'opentdb.trivia.questions',
+    title: 'Open Trivia DB — Get Questions',
+    description:
+      'Fetch random trivia questions from the Open Trivia Database. ' +
+      'Returns up to 50 questions per call with category, difficulty, correct answer, ' +
+      'incorrect answers, and a shuffled all_answers list for quiz presentation. ' +
+      'HTML entities are decoded automatically. ' +
+      'Filter by category (use opentdb.trivia.categories to get IDs), difficulty (easy/medium/hard), ' +
+      'and type (multiple-choice or True/False). ' +
+      'Examples: 10 general knowledge questions (no params), 5 hard science questions (category=17, amount=5, difficulty=hard), ' +
+      'True/False history questions (category=23, type=boolean). ' +
+      'Source: opentdb.com — CC BY-SA 4.0, user-contributed, 5000+ verified questions, 24 categories, free unlimited.',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'opentdb.categories',
+    mcpName: 'opentdb.trivia.categories',
+    title: 'Open Trivia DB — List Categories',
+    description:
+      'List all 24 trivia categories available in the Open Trivia Database with their numeric IDs. ' +
+      'Categories include General Knowledge (9), Entertainment: Books (10), Film (11), Music (12), ' +
+      'Musicals & Theatres (13), Television (14), Video Games (15), Board Games (16), ' +
+      'Science & Nature (17), Computers (18), Mathematics (19), Mythology (20), Sports (21), ' +
+      'Geography (22), History (23), Politics (24), Art (25), Celebrities (26), ' +
+      'Animals (27), Vehicles (28), Comics (29), Gadgets (30), Japanese Anime & Manga (31), ' +
+      "Cartoon & Animations (32). Use returned IDs as the 'category' parameter in opentdb.trivia.questions. " +
+      'Source: opentdb.com — CC BY-SA 4.0, free unlimited.',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'opentdb.category_count',
+    mcpName: 'opentdb.trivia.category_count',
+    title: 'Open Trivia DB — Category Question Count',
+    description:
+      'Get the number of verified trivia questions available in a specific category, ' +
+      'broken down by difficulty (easy, medium, hard). ' +
+      'Useful for checking availability before requesting questions with opentdb.trivia.questions — ' +
+      'if you request more questions than exist in a filtered query, the API returns empty results. ' +
+      'Example: category 9 (General Knowledge) has ~469 verified questions. ' +
+      'Source: opentdb.com — CC BY-SA 4.0, free unlimited.',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'opentdb.global_count',
+    mcpName: 'opentdb.trivia.global_count',
+    title: 'Open Trivia DB — Global Question Statistics',
+    description:
+      'Get global question counts across the entire Open Trivia Database: ' +
+      'total questions, verified (live and servable), pending (under review), and rejected, ' +
+      'with a per-category breakdown. ' +
+      'Useful for understanding database coverage — typically 5000+ verified questions ' +
+      'spread across 24 categories. ' +
+      'Note: only verified questions are returned by opentdb.trivia.questions. ' +
+      'Source: opentdb.com — CC BY-SA 4.0, free unlimited.',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
 ];
