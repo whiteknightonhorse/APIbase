@@ -285,6 +285,7 @@ Use these examples as reference patterns when:
 | UC-587 | EUR-Lex Cellar | EU legislation search/browse/detail via SPARQL (AI Act, GDPR, directives, regulations, decisions); no auth, EU open data, CC BY 4.0 | LIVE | No auth, 4 tools | `usecases/UC-587-eurlex-cellar.md` |
 | UC-588 | European Parliament Open Data | MEP profiles + memberships, adopted legislative texts, legislative procedures; CC BY 4.0; no auth; 500 req/5min | LIVE | No auth, 4 tools | `usecases/UC-588-eu-parliament.md` |
 | UC-589 | UK Legislation (legislation.gov.uk) | UK statute book: search Acts/SIs/Scottish/Welsh/NI legislation, get details/TOC/sections, recent legislation; OGL v3, no auth | LIVE | No auth, 4 tools | `usecases/UC-589-uk-legislation.md` |
+| UC-590 | OFAC Sanctions List (US Treasury) | SDN list search, entity aliases, sanctions programs, publication info; public domain, no auth; AML/KYC compliance | LIVE | No auth, 4 tools | `usecases/UC-590-ofac-list.md` |
 
 ## How to Use
 

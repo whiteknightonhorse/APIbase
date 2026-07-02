@@ -1,4 +1,5 @@
 import { type BaseAdapter } from './base.adapter';
+import { OfacAdapter } from './ofac';
 import { JolpicaF1Adapter } from './jolpica-f1';
 import { TheSportsDbAdapter } from './thesportsdb';
 import { EurLexAdapter } from './eurlex';
@@ -1684,6 +1685,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'ukleg':
       // UK Legislation (UC-589) — UK statute book: search, details, sections, recent; no auth; OGL v3
       return getOrCreate('ukleg', () => new UkLegislationAdapter());
+    case 'ofac':
+      // OFAC Sanctions List (UC-590) — SDN search, aliases, programs, publication info; no auth; public domain
+      return getOrCreate('ofac', () => new OfacAdapter());
     default:
       return undefined;
   }

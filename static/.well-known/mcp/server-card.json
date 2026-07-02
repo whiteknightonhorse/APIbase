@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 1114 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 1118 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -53624,6 +53624,212 @@
           "error": {
             "type": "object",
             "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ofac.meta.programs",
+      "title": "List OFAC Sanctions Programs",
+      "description": "Get the complete list of active OFAC sanctions programs with entity counts from the SDN list. Returns each program code (e.g. IRAN, RUSSIA, CUBA, SDN, DPRK, CYBER, UKRAINE-EO13685, GLOMAG) and the number of entities designated under that program. Use program codes returned here as the \"program\" filter in ofac.sdn.search. Data source: OFAC SDN List \u2014 US Treasury, public domain, updated on business days.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locale": {
+            "type": "string",
+            "description": "No-op \u2014 included for consistency. Response is always in English as published by US Treasury."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ofac.meta.publication_info",
+      "title": "Get OFAC List Publication Info",
+      "description": "Get publication metadata for the OFAC SDN (Specially Designated Nationals) list, including the last modification date and SHA-256 integrity digest. Use this to check when the list was last updated before running compliance screening. The SDN list is updated on US business days as new designations, revocations, and amendments are made. Data source: US Treasury OFAC \u2014 public domain, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locale": {
+            "type": "string",
+            "description": "No-op \u2014 included for consistency. Response is always in English as published by US Treasury."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ofac.sdn.aliases",
+      "title": "Get OFAC Entity Aliases",
+      "description": "Get all known aliases (alternate names) for a specific OFAC SDN entity by its entity number. Returns each alias with its type (aka = also known as, fka = formerly known as, nka = now known as) and the alternate name. Use ofac.sdn.search first to find the entity number (ent_num) for the entity you are screening. Aliases are critical for comprehensive sanctions screening \u2014 sanctioned entities often operate under multiple names. Example: entity 36 (AEROCARIBBEAN AIRLINES) has alias \"AERO-CARIBBEAN\". Data source: OFAC SDN Alternate Names List \u2014 US Treasury, public domain.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ent_num": {
+            "type": "integer",
+            "description": "OFAC entity number (ent_num) of the SDN entry to look up aliases for. Obtain this from ofac.sdn.search results (the \"ent_num\" field on each match).",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "ent_num"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ofac.sdn.search",
+      "title": "Search OFAC SDN List",
+      "description": "Search the US Treasury OFAC Specially Designated Nationals and Blocked Persons (SDN) list by name. Returns matching entities with their entity number, type (individual/entity/vessel/aircraft), sanctions program code, title, and remarks. Filter by type (individual, entity, vessel, aircraft) and/or sanctions program (IRAN, RUSSIA, CUBA, SDN, DPRK, CYBER, etc.). Use this for AML/KYC compliance screening, sanctions risk assessment, and due diligence workflows. Matching is case-insensitive substring search \u2014 search by any distinctive part of the name. Use ofac.meta.programs to see all available program codes. Data source: US Treasury OFAC \u2014 public domain, updated on business days. No API key required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name to search for in the OFAC SDN list (case-insensitive substring match). Examples: \"GAZPROM\", \"Vladimir Putin\", \"Bank Melli Iran\". Use the most distinctive part of the name for best results.",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "individual",
+              "entity",
+              "vessel",
+              "aircraft"
+            ],
+            "description": "Filter by SDN entity type. \"individual\" = natural persons, \"entity\" = companies/organisations, \"vessel\" = ships, \"aircraft\" = aircraft. Omit to search all types."
+          },
+          "program": {
+            "type": "string",
+            "maxLength": 50,
+            "description": "Filter by OFAC sanctions program code (uppercase). Examples: \"IRAN\", \"RUSSIA\", \"CUBA\", \"SDN\", \"DPRK\", \"CYBER\", \"UKRAINE-EO13685\". Use ofac.meta.programs to see the full list of codes."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Maximum number of matches to return (default 20, max 50)."
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
           }
         },
         "required": [

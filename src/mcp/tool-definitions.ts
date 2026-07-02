@@ -13125,4 +13125,62 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'legal',
     annotations: READ_ONLY,
   },
+
+  // OFAC Sanctions List (UC-590) — 4 tools
+  {
+    toolId: 'ofac.sdn.search',
+    mcpName: 'ofac.sdn.search',
+    title: 'Search OFAC SDN List',
+    description:
+      'Search the US Treasury OFAC Specially Designated Nationals and Blocked Persons (SDN) list by name. ' +
+      'Returns matching entities with their entity number, type (individual/entity/vessel/aircraft), ' +
+      'sanctions program code, title, and remarks. ' +
+      'Filter by type (individual, entity, vessel, aircraft) and/or sanctions program (IRAN, RUSSIA, CUBA, SDN, DPRK, CYBER, etc.). ' +
+      'Use this for AML/KYC compliance screening, sanctions risk assessment, and due diligence workflows. ' +
+      'Matching is case-insensitive substring search — search by any distinctive part of the name. ' +
+      'Use ofac.meta.programs to see all available program codes. ' +
+      'Data source: US Treasury OFAC — public domain, updated on business days. No API key required.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ofac.sdn.aliases',
+    mcpName: 'ofac.sdn.aliases',
+    title: 'Get OFAC Entity Aliases',
+    description:
+      'Get all known aliases (alternate names) for a specific OFAC SDN entity by its entity number. ' +
+      'Returns each alias with its type (aka = also known as, fka = formerly known as, nka = now known as) and the alternate name. ' +
+      'Use ofac.sdn.search first to find the entity number (ent_num) for the entity you are screening. ' +
+      'Aliases are critical for comprehensive sanctions screening — sanctioned entities often operate under multiple names. ' +
+      'Example: entity 36 (AEROCARIBBEAN AIRLINES) has alias "AERO-CARIBBEAN". ' +
+      'Data source: OFAC SDN Alternate Names List — US Treasury, public domain.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ofac.meta.programs',
+    mcpName: 'ofac.meta.programs',
+    title: 'List OFAC Sanctions Programs',
+    description:
+      'Get the complete list of active OFAC sanctions programs with entity counts from the SDN list. ' +
+      'Returns each program code (e.g. IRAN, RUSSIA, CUBA, SDN, DPRK, CYBER, UKRAINE-EO13685, GLOMAG) ' +
+      'and the number of entities designated under that program. ' +
+      'Use program codes returned here as the "program" filter in ofac.sdn.search. ' +
+      'Data source: OFAC SDN List — US Treasury, public domain, updated on business days.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ofac.meta.publication_info',
+    mcpName: 'ofac.meta.publication_info',
+    title: 'Get OFAC List Publication Info',
+    description:
+      'Get publication metadata for the OFAC SDN (Specially Designated Nationals) list, ' +
+      'including the last modification date and SHA-256 integrity digest. ' +
+      'Use this to check when the list was last updated before running compliance screening. ' +
+      'The SDN list is updated on US business days as new designations, revocations, and amendments are made. ' +
+      'Data source: US Treasury OFAC — public domain, no auth required.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
 ];

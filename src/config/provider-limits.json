@@ -2554,7 +2554,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://api.tidesandcurrents.noaa.gov/api/prod/",
-    "limit_proof": "US Government NODD public domain — no authentication, no rate limits documented. The NOAA CO-OPS API has served public data without restrictions since 2012 (tidesandcurrents.noaa.gov/web_services_info.html)."
+    "limit_proof": "US Government NODD public domain \u2014 no authentication, no rate limits documented. The NOAA CO-OPS API has served public data without restrictions since 2012 (tidesandcurrents.noaa.gov/web_services_info.html)."
   },
   "tfl": {
     "display_name": "Transport for London (TfL)",
@@ -2563,7 +2563,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://api-portal.tfl.gov.uk/",
-    "limit_proof": "TfL Open Data — no API key required for anonymous access. No documented hard rate limit for unauthenticated requests (api-portal.tfl.gov.uk)."
+    "limit_proof": "TfL Open Data \u2014 no API key required for anonymous access. No documented hard rate limit for unauthenticated requests (api-portal.tfl.gov.uk)."
   },
   "nbi": {
     "display_name": "National Bridge Inventory (NBI)",
@@ -2572,7 +2572,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://www.fhwa.dot.gov/bridge/nbi/ascii.cfm",
-    "limit_proof": "USDOT/FHWA public domain data via ArcGIS FeatureServer — no auth required, no documented rate limits on geo.dot.gov public services."
+    "limit_proof": "USDOT/FHWA public domain data via ArcGIS FeatureServer \u2014 no auth required, no documented rate limits on geo.dot.gov public services."
   },
   "brightsky": {
     "display_name": "Bright Sky (DWD)",
@@ -2590,7 +2590,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://www.stat.fi/org/avoindata/rajapinta_en.html",
-    "limit_proof": "Statistics Finland PxWeb API — official Finnish government open data, CC BY 4.0, no API key required, no documented rate limits."
+    "limit_proof": "Statistics Finland PxWeb API \u2014 official Finnish government open data, CC BY 4.0, no API key required, no documented rate limits."
   },
   "dbnomics": {
     "display_name": "DBnomics",
@@ -2599,7 +2599,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://api.db.nomics.world/v22/apidocs",
-    "limit_proof": "DBnomics public REST API — open data aggregator, no API key required, no documented rate limits (api.db.nomics.world/v22/apidocs)."
+    "limit_proof": "DBnomics public REST API \u2014 open data aggregator, no API key required, no documented rate limits (api.db.nomics.world/v22/apidocs)."
   },
   "smhi": {
     "display_name": "SMHI Open Data",
@@ -2608,7 +2608,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://opendata.smhi.se/apidocs/",
-    "limit_proof": "SMHI is a Swedish government authority — open data under CC BY 4.0, no API key required, no documented rate limits. Cache-Control: max-age=600–3600."
+    "limit_proof": "SMHI is a Swedish government authority \u2014 open data under CC BY 4.0, no API key required, no documented rate limits. Cache-Control: max-age=600\u20133600."
   },
   "dpla": {
     "display_name": "Digital Public Library of America",
@@ -2617,7 +2617,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://pro.dp.la/developers/requests",
-    "limit_proof": "DPLA API docs state no rate limit is documented for API key holders. Free keys available — 50M+ items across 2,000+ contributing US institutions."
+    "limit_proof": "DPLA API docs state no rate limit is documented for API key holders. Free keys available \u2014 50M+ items across 2,000+ contributing US institutions."
   },
   "aviationweather": {
     "display_name": "NOAA Aviation Weather Center",
@@ -2626,7 +2626,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://aviationweather.gov/data/api/",
-    "limit_proof": "US Government public domain (aviationweather.gov) — no API key, no rate limits documented. METAR/TAF data licensed under US Government Open Data."
+    "limit_proof": "US Government public domain (aviationweather.gov) \u2014 no API key, no rate limits documented. METAR/TAF data licensed under US Government Open Data."
   },
   "obis": {
     "display_name": "OBIS Marine Biodiversity",
@@ -2644,7 +2644,7 @@
     "free_limit": 300,
     "reset_period": "hourly",
     "docs_url": "https://echo.epa.gov/tools/web-services",
-    "limit_proof": "ECHO REST services: 300 req/hour, 1500/day per IP. US Gov public domain (17 USC §105), no registration required."
+    "limit_proof": "ECHO REST services: 300 req/hour, 1500/day per IP. US Gov public domain (17 USC \u00a7105), no registration required."
   },
   "nasa-cmr": {
     "display_name": "NASA CMR",
@@ -2653,7 +2653,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html",
-    "limit_proof": "NASA CMR is a US Government open data service with no authentication and no documented rate limits. Public domain (17 USC §105)."
+    "limit_proof": "NASA CMR is a US Government open data service with no authentication and no documented rate limits. Public domain (17 USC \u00a7105)."
   },
   "chembl": {
     "display_name": "ChEMBL",
@@ -2753,5 +2753,14 @@
     "reset_period": "none",
     "docs_url": "https://www.legislation.gov.uk/developer/formats",
     "limit_proof": "UK Government open data (The National Archives); Open Government Licence v3.0; no authentication required; no documented rate limits."
+  },
+  "ofac": {
+    "display_name": "OFAC Sanctions List",
+    "health_url": "https://sanctionslistservice.ofac.treas.gov/api/publicationpreview/exports/sdn.csv",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://home.treasury.gov/policy-issues/financial-sanctions/specially-designated-nationals-and-blocked-persons-list-sdn-human-readable-lists",
+    "limit_proof": "US Government open data \u2014 no auth, no rate limits documented, public domain (17 U.S.C. \u00a7 105)"
   }
 }

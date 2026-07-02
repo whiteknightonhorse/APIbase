@@ -307,6 +307,7 @@ import { thesportsdbSchemas } from './thesportsdb.schema';
 import { eurLexSchemas } from './eurlex.schema';
 import { euParliamentSchemas } from './eu-parliament.schema';
 import { uklegislationSchemas } from './uklegislation.schema';
+import { ofacSchemas } from './ofac.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -617,4 +618,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...eurLexSchemas,
   ...euParliamentSchemas,
   ...uklegislationSchemas,
+  ...ofacSchemas,
 };
