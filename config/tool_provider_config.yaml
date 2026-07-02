@@ -6332,6 +6332,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-575: NOAA Aviation Weather Center ---
+  - tool_id: aviationweather.metar
+    name: Aviation Weather — METAR Observation
+    provider: aviationweather
+    price_usd: "0.001"
+    cache_ttl: 300
+
+  - tool_id: aviationweather.taf
+    name: Aviation Weather — TAF Forecast
+    provider: aviationweather
+    price_usd: "0.001"
+    cache_ttl: 900
+
+  - tool_id: aviationweather.pirep
+    name: Aviation Weather — Pilot Reports (PIREPs)
+    provider: aviationweather
+    price_usd: "0.001"
+    cache_ttl: 300
+
+  - tool_id: aviationweather.stations
+    name: Aviation Weather — Station Lookup
+    provider: aviationweather
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

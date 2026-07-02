@@ -292,6 +292,7 @@ import { statfinSchemas } from './statfin.schema';
 import { dbnomicsSchemas } from './dbnomics.schema';
 import { smhiSchemas } from './smhi.schema';
 import { dplaSchemas } from './dpla.schema';
+import { aviationweatherSchemas } from './aviationweather.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -587,4 +588,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...dbnomicsSchemas,
   ...smhiSchemas,
   ...dplaSchemas,
+  ...aviationweatherSchemas,
 };

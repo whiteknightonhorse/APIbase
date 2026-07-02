@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 1054 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 1058 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -61100,6 +61100,219 @@
           "error": {
             "type": "object",
             "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "aviationweather.observation.metar",
+      "title": "Aviation Weather \u2014 METAR Observation",
+      "description": "Fetch the latest METAR (Meteorological Aerodrome Report) for one or more ICAO airport stations. Returns decoded fields: temperature, dewpoint, wind direction and speed, visibility, altimeter setting, sea-level pressure, sky cover, cloud layers, present weather, and flight category (VFR/MVFR/IFR/LIFR). Also includes the raw METAR string. Data updated every 20\u201360 minutes. Source: NOAA Aviation Weather Center \u2014 US Government public domain, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "string",
+            "description": "Comma-separated ICAO airport codes to retrieve METAR for (e.g. \"KJFK\", \"KJFK,KLAX,EGLL\"). Maximum ~10 stations per call."
+          },
+          "hours_back": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 24,
+            "description": "How many hours back to look for the most recent METAR observation (1\u201324, default 1). Use 3\u20136 if a station may not have reported in the last hour."
+          }
+        },
+        "required": [
+          "ids"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "aviationweather.observation.pirep",
+      "title": "Aviation Weather \u2014 Pilot Reports (PIREPs)",
+      "description": "Retrieve Pilot Reports (PIREPs) near a given ICAO station within a configurable radius and time window. PIREPs are real-time in-flight observations filed by pilots capturing actual icing severity, turbulence intensity, visibility, cloud bases and tops, and conditions at flight level. Returns decoded fields: flight level, icing and turbulence extents, and raw PIREP text. Useful for pre-flight planning, route analysis, and verifying forecast accuracy. Source: NOAA Aviation Weather Center \u2014 US Government public domain, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ICAO station identifier to use as the geographic center of the search (e.g. \"KJFK\", \"KORD\"). Pilot reports within `distance` nautical miles of this station and within the last `age` hours are returned."
+          },
+          "age": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 24,
+            "description": "How many hours back to search for pilot reports (1\u201324, default 2)."
+          },
+          "distance": {
+            "type": "integer",
+            "minimum": 10,
+            "maximum": 200,
+            "description": "Search radius in nautical miles around the station (10\u2013200, default 100). 100 nm covers the typical terminal area plus en-route corridor."
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "aviationweather.reference.stations",
+      "title": "Aviation Weather \u2014 Station Lookup",
+      "description": "Look up aviation weather observation stations by ICAO identifier(s), bounding box, or US state. Returns station metadata: ICAO, IATA, FAA, and WMO identifiers; site name; coordinates; elevation; country/state; and observation types supported (METAR, TAF, PIREP). Useful for discovering station identifiers before calling METAR or TAF tools. Provide one of: ids (comma-separated ICAO codes), bbox (minLat,minLon,maxLat,maxLon), or state (2-letter US). Source: NOAA Aviation Weather Center \u2014 US Government public domain, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "string",
+            "description": "Comma-separated ICAO station identifiers to look up (e.g. \"KJFK,KLAX\"). Use this OR bbox OR state \u2014 not together."
+          },
+          "bbox": {
+            "type": "string",
+            "description": "Bounding box in decimal degrees: \"minLat,minLon,maxLat,maxLon\" (e.g. \"25,-125,50,-65\" for the contiguous US). Returns all aviation weather stations within the box."
+          },
+          "state": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "Two-letter US state abbreviation to filter stations by state (e.g. \"TX\", \"CA\"). Returns all aviation weather stations in that state."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "aviationweather.forecast.taf",
+      "title": "Aviation Weather \u2014 TAF Forecast",
+      "description": "Retrieve the Terminal Aerodrome Forecast (TAF) for one or more ICAO airport stations. A TAF covers a 24\u201330 hour window and includes time-bracketed forecast periods with expected wind, visibility, weather phenomena (rain, fog, snow), and cloud layers. Returns decoded period-by-period breakdown plus the raw TAF bulletin string. Issued every 6 hours from major airports. Source: NOAA Aviation Weather Center \u2014 US Government public domain, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "string",
+            "description": "Comma-separated ICAO airport codes to retrieve Terminal Aerodrome Forecasts for (e.g. \"KJFK\", \"KJFK,KLAX\"). Most major airports publish a TAF valid 24\u201330 hours ahead."
+          }
+        },
+        "required": [
+          "ids"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed."
           }
         },
         "required": [

@@ -270,6 +270,7 @@ Use these examples as reference patterns when:
 | UC-572 | DBnomics | Finance — 93+ agencies: IMF, World Bank, OECD, Eurostat; providers, datasets, series browse, time-series fetch | LIVE | No auth, CC-BY 4.0, 4 tools | `usecases/UC-572-dbnomics.md` |
 | UC-573 | SMHI Open Data | Weather — Sweden/Europe: 82-step hourly forecast, 7-day fire risk, active warnings, 1000+ station observations | LIVE | No auth, CC BY 4.0, 4 tools | `usecases/UC-573-smhi-sweden.md` |
 | UC-574 | Digital Public Library of America | Media/Archives — 50M+ digitized US library/museum items: search, detail, browse by subject, facets | LIVE | Free API key, no rate limit, 4 tools | `usecases/UC-574-dpla.md` |
+| UC-575 | NOAA Aviation Weather Center | Weather — METAR observations, TAF forecasts, pilot reports (PIREPs), station lookup; global ICAO coverage | LIVE | No auth, US Gov public domain, 4 tools | `usecases/UC-575-noaa-aviationweather.md` |
 
 ## How to Use
 

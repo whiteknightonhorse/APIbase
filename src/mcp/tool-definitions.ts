@@ -12206,4 +12206,61 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'media',
     annotations: READ_ONLY,
   },
+
+  // NOAA Aviation Weather Center (4)
+  {
+    toolId: 'aviationweather.metar',
+    mcpName: 'aviationweather.observation.metar',
+    title: 'Aviation Weather — METAR Observation',
+    description:
+      'Fetch the latest METAR (Meteorological Aerodrome Report) for one or more ICAO airport stations. ' +
+      'Returns decoded fields: temperature, dewpoint, wind direction and speed, visibility, altimeter setting, ' +
+      'sea-level pressure, sky cover, cloud layers, present weather, and flight category (VFR/MVFR/IFR/LIFR). ' +
+      'Also includes the raw METAR string. Data updated every 20–60 minutes. ' +
+      'Source: NOAA Aviation Weather Center — US Government public domain, no auth required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'aviationweather.taf',
+    mcpName: 'aviationweather.forecast.taf',
+    title: 'Aviation Weather — TAF Forecast',
+    description:
+      'Retrieve the Terminal Aerodrome Forecast (TAF) for one or more ICAO airport stations. ' +
+      'A TAF covers a 24–30 hour window and includes time-bracketed forecast periods with expected ' +
+      'wind, visibility, weather phenomena (rain, fog, snow), and cloud layers. ' +
+      'Returns decoded period-by-period breakdown plus the raw TAF bulletin string. ' +
+      'Issued every 6 hours from major airports. ' +
+      'Source: NOAA Aviation Weather Center — US Government public domain, no auth required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'aviationweather.pirep',
+    mcpName: 'aviationweather.observation.pirep',
+    title: 'Aviation Weather — Pilot Reports (PIREPs)',
+    description:
+      'Retrieve Pilot Reports (PIREPs) near a given ICAO station within a configurable radius and time window. ' +
+      'PIREPs are real-time in-flight observations filed by pilots capturing actual icing severity, ' +
+      'turbulence intensity, visibility, cloud bases and tops, and conditions at flight level. ' +
+      'Returns decoded fields: flight level, icing and turbulence extents, and raw PIREP text. ' +
+      'Useful for pre-flight planning, route analysis, and verifying forecast accuracy. ' +
+      'Source: NOAA Aviation Weather Center — US Government public domain, no auth required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'aviationweather.stations',
+    mcpName: 'aviationweather.reference.stations',
+    title: 'Aviation Weather — Station Lookup',
+    description:
+      'Look up aviation weather observation stations by ICAO identifier(s), bounding box, or US state. ' +
+      'Returns station metadata: ICAO, IATA, FAA, and WMO identifiers; site name; coordinates; elevation; ' +
+      'country/state; and observation types supported (METAR, TAF, PIREP). ' +
+      'Useful for discovering station identifiers before calling METAR or TAF tools. ' +
+      'Provide one of: ids (comma-separated ICAO codes), bbox (minLat,minLon,maxLat,maxLon), or state (2-letter US). ' +
+      'Source: NOAA Aviation Weather Center — US Government public domain, no auth required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
 ];
