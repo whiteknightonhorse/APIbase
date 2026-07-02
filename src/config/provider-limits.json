@@ -2510,5 +2510,14 @@
     "reset_period": "none",
     "docs_url": "https://data.cms.gov/provider-data/api/1/",
     "limit_proof": "US Centers for Medicare & Medicaid Services Provider Data Catalog — no authentication required, no documented rate limits. Public domain under 17 USC §105. Covers 5 400+ hospitals, 14 600+ nursing homes, 12 300+ home health agencies, 7 500+ dialysis facilities."
+  },
+  "cpsc": {
+    "display_name": "CPSC SaferProducts.gov",
+    "health_url": "https://www.saferproducts.gov/RestWebServices/Recall?format=json&RecallDateStart=2026-06-01&pager.count=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.saferproducts.gov/RestWebServices/",
+    "limit_proof": "US Consumer Product Safety Commission open REST API — no authentication required, no documented rate limits. Public domain under the Consumer Product Safety Act (15 USC §2051 et seq.). All recall data from 1974 onward."
   }
 }

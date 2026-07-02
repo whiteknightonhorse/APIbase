@@ -279,6 +279,7 @@ import { WhoGhoAdapter } from './who-gho';
 import { DelphiAdapter } from './delphi';
 import { NlmIcd11Adapter } from './nlm-icd11';
 import { CmsAdapter } from './cms';
+import { CpscAdapter } from './cpsc';
 import { config } from '../config';
 
 /**
@@ -1570,6 +1571,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'cms':
       // CMS Provider Data (UC-561) — US hospital, nursing home, home health, dialysis search; no auth, US Gov public domain
       return getOrCreate('cms', () => new CmsAdapter());
+    case 'cpsc':
+      // CPSC SaferProducts.gov (UC-562) — US consumer product safety recalls; no auth, US Gov public domain
+      return getOrCreate('cpsc', () => new CpscAdapter());
     default:
       return undefined;
   }

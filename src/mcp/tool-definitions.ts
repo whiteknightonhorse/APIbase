@@ -11425,4 +11425,68 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'health',
     annotations: READ_ONLY,
   },
+
+  // CPSC SaferProducts.gov (4)
+  {
+    toolId: 'cpsc.search',
+    mcpName: 'cpsc.safety.search',
+    title: 'CPSC — US Product Recall Search',
+    description:
+      'Search US Consumer Product Safety Commission (CPSC) recall notices by product name, ' +
+      'product category, manufacturer, date range, hazard type, and country of origin. ' +
+      'Returns matching recalls with title, description, hazards, remedy options, ' +
+      'manufacturer details, and official recall URL from cpsc.gov. ' +
+      'Database contains all recalls since 1974 — over 6 000 active recall records. ' +
+      'Use to check whether a specific product or brand has been recalled for safety defects, ' +
+      'fire hazards, choking risks, or other consumer safety issues. ' +
+      'No auth — US Consumer Product Safety Act public domain data, unlimited free.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'cpsc.detail',
+    mcpName: 'cpsc.safety.detail',
+    title: 'CPSC — US Recall Full Details',
+    description:
+      'Retrieve complete details for a single CPSC recall notice by its numeric RecallID or ' +
+      'recall number string (e.g. "26582"). Returns the full record including: product descriptions, ' +
+      'model numbers, units affected, hazard descriptions and types, injury reports, ' +
+      'all remedy instructions, remedy options (refund/repair/replace), ' +
+      'manufacturer and retailer names, importer and distributor information, ' +
+      'manufacturer country, product UPCs, and all recall images with captions. ' +
+      'Use after cpsc.safety.search to get complete details on a specific recall record. ' +
+      'No auth — US Consumer Product Safety Act public domain data, unlimited free.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'cpsc.recent',
+    mcpName: 'cpsc.safety.recent',
+    title: 'CPSC — Recent US Product Recalls',
+    description:
+      'Get the most recent US CPSC consumer product recall notices issued within the last N days. ' +
+      'Returns recalls ordered newest-first with title, affected products, hazards, ' +
+      'remedy options, and manufacturer details. ' +
+      'Optionally filter by CPSC product category (e.g. "Toys", "Furniture", "Power Tools"). ' +
+      'Ideal for safety monitoring agents, compliance dashboards, and consumer protection workflows ' +
+      'that need to track new recall announcements on a daily or weekly basis. ' +
+      'No auth — US Consumer Product Safety Act public domain data, unlimited free.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'cpsc.by_manufacturer',
+    mcpName: 'cpsc.safety.by_manufacturer',
+    title: 'CPSC — Recalls by Manufacturer',
+    description:
+      'Retrieve all CPSC consumer product recall notices for a specific manufacturer or brand name. ' +
+      'Returns the full recall history for companies like Samsung, Polaris, Kidde, IKEA, or any ' +
+      'manufacturer that has issued CPSC recalls. Supports optional date range filtering. ' +
+      'Returns recall title, products, hazards, remedy options, and recall dates. ' +
+      'Essential for supply chain due diligence, vendor safety audits, product liability research, ' +
+      'and regulatory compliance checks on specific manufacturers or brands. ' +
+      'No auth — US Consumer Product Safety Act public domain data, unlimited free.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

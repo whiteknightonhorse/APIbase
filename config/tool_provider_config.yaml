@@ -6007,6 +6007,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-562: CPSC SaferProducts.gov ---
+  - tool_id: cpsc.search
+    name: CPSC — US Product Recall Search
+    provider: cpsc
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: cpsc.detail
+    name: CPSC — US Recall Full Details
+    provider: cpsc
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: cpsc.recent
+    name: CPSC — Recent US Product Recalls
+    provider: cpsc
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: cpsc.by_manufacturer
+    name: CPSC — Recalls by Manufacturer
+    provider: cpsc
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

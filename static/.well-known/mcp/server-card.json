@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 1002 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 1006 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -57838,6 +57838,250 @@
           "error": {
             "type": "object",
             "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "cpsc.safety.by_manufacturer",
+      "title": "CPSC \u2014 Recalls by Manufacturer",
+      "description": "Retrieve all CPSC consumer product recall notices for a specific manufacturer or brand name. Returns the full recall history for companies like Samsung, Polaris, Kidde, IKEA, or any manufacturer that has issued CPSC recalls. Supports optional date range filtering. Returns recall title, products, hazards, remedy options, and recall dates. Essential for supply chain due diligence, vendor safety audits, product liability research, and regulatory compliance checks on specific manufacturers or brands. No auth \u2014 US Consumer Product Safety Act public domain data, unlimited free.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "manufacturer": {
+            "type": "string",
+            "description": "Manufacturer or brand name to retrieve all recalls for. Partial match is supported. Example: \"Samsung\", \"Polaris\", \"Kidde\", \"Traeger\".",
+            "minLength": 2
+          },
+          "date_start": {
+            "type": "string",
+            "description": "Start date filter (YYYY-MM-DD). Only returns recalls issued on or after this date. Example: \"2020-01-01\"."
+          },
+          "date_end": {
+            "type": "string",
+            "description": "End date filter (YYYY-MM-DD). Only returns recalls issued on or before this date. Example: \"2024-12-31\"."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Maximum number of recalls to return (1\u2013100, default 50). Prolific manufacturers may have many recalls \u2014 use date filters to narrow.",
+            "default": 50
+          }
+        },
+        "required": [
+          "manufacturer"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "cpsc.safety.detail",
+      "title": "CPSC \u2014 US Recall Full Details",
+      "description": "Retrieve complete details for a single CPSC recall notice by its numeric RecallID or recall number string (e.g. \"26582\"). Returns the full record including: product descriptions, model numbers, units affected, hazard descriptions and types, injury reports, all remedy instructions, remedy options (refund/repair/replace), manufacturer and retailer names, importer and distributor information, manufacturer country, product UPCs, and all recall images with captions. Use after cpsc.safety.search to get complete details on a specific recall record. No auth \u2014 US Consumer Product Safety Act public domain data, unlimited free.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "recall_id": {
+            "type": "integer",
+            "description": "Numeric CPSC recall ID (RecallID field). Preferred over recall_number \u2014 use the integer ID returned by cpsc.safety.search. Example: 10840. At least one of recall_id or recall_number must be provided."
+          },
+          "recall_number": {
+            "type": "string",
+            "description": "CPSC recall number string (RecallNumber field). Typically a 5-digit string like \"26582\". Use when you have the recall number from a CPSC press release but not the internal RecallID. At least one of recall_id or recall_number must be provided."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "cpsc.safety.recent",
+      "title": "CPSC \u2014 Recent US Product Recalls",
+      "description": "Get the most recent US CPSC consumer product recall notices issued within the last N days. Returns recalls ordered newest-first with title, affected products, hazards, remedy options, and manufacturer details. Optionally filter by CPSC product category (e.g. \"Toys\", \"Furniture\", \"Power Tools\"). Ideal for safety monitoring agents, compliance dashboards, and consumer protection workflows that need to track new recall announcements on a daily or weekly basis. No auth \u2014 US Consumer Product Safety Act public domain data, unlimited free.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "days": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 365,
+            "description": "Number of days to look back for recent recalls (1\u2013365, default 30). Example: 7 returns recalls from the last week; 90 returns the last quarter.",
+            "default": 30
+          },
+          "product_type": {
+            "type": "string",
+            "description": "Optional CPSC product category to filter recent recalls. Example: \"Toys\", \"Furniture\", \"Power Tools\". Leave blank to get recent recalls across all categories."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Maximum number of recent recalls to return (1\u2013100, default 20). Results are ordered newest-first.",
+            "default": 20
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "cpsc.safety.search",
+      "title": "CPSC \u2014 US Product Recall Search",
+      "description": "Search US Consumer Product Safety Commission (CPSC) recall notices by product name, product category, manufacturer, date range, hazard type, and country of origin. Returns matching recalls with title, description, hazards, remedy options, manufacturer details, and official recall URL from cpsc.gov. Database contains all recalls since 1974 \u2014 over 6 000 active recall records. Use to check whether a specific product or brand has been recalled for safety defects, fire hazards, choking risks, or other consumer safety issues. No auth \u2014 US Consumer Product Safety Act public domain data, unlimited free.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "product_name": {
+            "type": "string",
+            "description": "Product name keyword to filter recalls (partial match). Example: \"bicycle helmet\", \"smoke detector\", \"baby carrier\"."
+          },
+          "product_type": {
+            "type": "string",
+            "description": "CPSC product category to filter recalls. Common values: \"Toys\", \"Clothing\", \"Furniture\", \"Sports & Recreation\", \"Home Furnishings\", \"Electronics\", \"Children's Products\", \"Power Tools\". Must match a CPSC category name exactly."
+          },
+          "manufacturer": {
+            "type": "string",
+            "description": "Manufacturer or brand name to filter recalls (partial match). Example: \"Fisher-Price\", \"IKEA\", \"Honda\"."
+          },
+          "date_start": {
+            "type": "string",
+            "description": "Start date for recall date range filter (ISO 8601 format YYYY-MM-DD). Example: \"2024-01-01\". Only returns recalls issued on or after this date."
+          },
+          "date_end": {
+            "type": "string",
+            "description": "End date for recall date range filter (ISO 8601 format YYYY-MM-DD). Example: \"2024-12-31\". Only returns recalls issued on or before this date."
+          },
+          "hazard": {
+            "type": "string",
+            "description": "Hazard type keyword to filter recalls. Must match an exact CPSC hazard name. Example: \"fire hazard\", \"choking hazard\". Note: use product_name or product_type for broader searches."
+          },
+          "country": {
+            "type": "string",
+            "description": "Manufacturer country of origin to filter recalls. Example: \"China\", \"United States\", \"Vietnam\"."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Maximum number of recalls to return (1\u2013100, default 20). The API may match more records \u2014 use date_start/date_end to narrow results.",
+            "default": 20
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
           }
         },
         "required": [

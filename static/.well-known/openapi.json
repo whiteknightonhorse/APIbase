@@ -89961,6 +89961,374 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/cpsc.search/call": {
+      "post": {
+        "operationId": "cpsc_search",
+        "summary": "CPSC — US Product Recall Search",
+        "description": "Search US Consumer Product Safety Commission (CPSC) recall notices by product name, product category, manufacturer, date range, hazard type, and country of origin. Returns matching recalls with title, description, hazards, remedy options, manufacturer details, and official recall URL from cpsc.gov. Database contains all recalls since 1974 — over 6 000 active recall records. Use to check whether a specific product or brand has been recalled for safety defects, fire hazards, choking risks, or other consumer safety issues. No auth — US Consumer Product Safety Act public domain data, unlimited free.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cpsc.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "product_name": {
+                    "type": "string",
+                    "description": "Product name keyword to filter recalls (partial match). Example: \"bicycle helmet\", \"smoke detector\", \"baby carrier\"."
+                  },
+                  "product_type": {
+                    "type": "string",
+                    "description": "CPSC product category to filter recalls. Common values: \"Toys\", \"Clothing\", \"Furniture\", \"Sports & Recreation\", \"Home Furnishings\", \"Electronics\", \"Children's Products\", \"Power Tools\". Must match a CPSC category name exactly."
+                  },
+                  "manufacturer": {
+                    "type": "string",
+                    "description": "Manufacturer or brand name to filter recalls (partial match). Example: \"Fisher-Price\", \"IKEA\", \"Honda\"."
+                  },
+                  "date_start": {
+                    "type": "string",
+                    "description": "Start date for recall date range filter (ISO 8601 format YYYY-MM-DD). Example: \"2024-01-01\". Only returns recalls issued on or after this date."
+                  },
+                  "date_end": {
+                    "type": "string",
+                    "description": "End date for recall date range filter (ISO 8601 format YYYY-MM-DD). Example: \"2024-12-31\". Only returns recalls issued on or before this date."
+                  },
+                  "hazard": {
+                    "type": "string",
+                    "description": "Hazard type keyword to filter recalls. Must match an exact CPSC hazard name. Example: \"fire hazard\", \"choking hazard\". Note: use product_name or product_type for broader searches."
+                  },
+                  "country": {
+                    "type": "string",
+                    "description": "Manufacturer country of origin to filter recalls. Example: \"China\", \"United States\", \"Vietnam\"."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of recalls to return (1–100, default 20). The API may match more records — use date_start/date_end to narrow results.",
+                    "default": 20
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/cpsc.detail/call": {
+      "post": {
+        "operationId": "cpsc_detail",
+        "summary": "CPSC — US Recall Full Details",
+        "description": "Retrieve complete details for a single CPSC recall notice by its numeric RecallID or recall number string (e.g. \"26582\"). Returns the full record including: product descriptions, model numbers, units affected, hazard descriptions and types, injury reports, all remedy instructions, remedy options (refund/repair/replace), manufacturer and retailer names, importer and distributor information, manufacturer country, product UPCs, and all recall images with captions. Use after cpsc.safety.search to get complete details on a specific recall record. No auth — US Consumer Product Safety Act public domain data, unlimited free.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cpsc.detail"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "recall_id": {
+                    "type": "integer",
+                    "description": "Numeric CPSC recall ID (RecallID field). Preferred over recall_number — use the integer ID returned by cpsc.safety.search. Example: 10840. At least one of recall_id or recall_number must be provided."
+                  },
+                  "recall_number": {
+                    "type": "string",
+                    "description": "CPSC recall number string (RecallNumber field). Typically a 5-digit string like \"26582\". Use when you have the recall number from a CPSC press release but not the internal RecallID. At least one of recall_id or recall_number must be provided."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/cpsc.recent/call": {
+      "post": {
+        "operationId": "cpsc_recent",
+        "summary": "CPSC — Recent US Product Recalls",
+        "description": "Get the most recent US CPSC consumer product recall notices issued within the last N days. Returns recalls ordered newest-first with title, affected products, hazards, remedy options, and manufacturer details. Optionally filter by CPSC product category (e.g. \"Toys\", \"Furniture\", \"Power Tools\"). Ideal for safety monitoring agents, compliance dashboards, and consumer protection workflows that need to track new recall announcements on a daily or weekly basis. No auth — US Consumer Product Safety Act public domain data, unlimited free.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cpsc.recent"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "days": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 365,
+                    "description": "Number of days to look back for recent recalls (1–365, default 30). Example: 7 returns recalls from the last week; 90 returns the last quarter.",
+                    "default": 30
+                  },
+                  "product_type": {
+                    "type": "string",
+                    "description": "Optional CPSC product category to filter recent recalls. Example: \"Toys\", \"Furniture\", \"Power Tools\". Leave blank to get recent recalls across all categories."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of recent recalls to return (1–100, default 20). Results are ordered newest-first.",
+                    "default": 20
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/cpsc.by_manufacturer/call": {
+      "post": {
+        "operationId": "cpsc_by_manufacturer",
+        "summary": "CPSC — Recalls by Manufacturer",
+        "description": "Retrieve all CPSC consumer product recall notices for a specific manufacturer or brand name. Returns the full recall history for companies like Samsung, Polaris, Kidde, IKEA, or any manufacturer that has issued CPSC recalls. Supports optional date range filtering. Returns recall title, products, hazards, remedy options, and recall dates. Essential for supply chain due diligence, vendor safety audits, product liability research, and regulatory compliance checks on specific manufacturers or brands. No auth — US Consumer Product Safety Act public domain data, unlimited free.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cpsc.by_manufacturer"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "manufacturer": {
+                    "type": "string",
+                    "description": "Manufacturer or brand name to retrieve all recalls for. Partial match is supported. Example: \"Samsung\", \"Polaris\", \"Kidde\", \"Traeger\".",
+                    "minLength": 2
+                  },
+                  "date_start": {
+                    "type": "string",
+                    "description": "Start date filter (YYYY-MM-DD). Only returns recalls issued on or after this date. Example: \"2020-01-01\"."
+                  },
+                  "date_end": {
+                    "type": "string",
+                    "description": "End date filter (YYYY-MM-DD). Only returns recalls issued on or before this date. Example: \"2024-12-31\"."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of recalls to return (1–100, default 50). Prolific manufacturers may have many recalls — use date filters to narrow.",
+                    "default": 50
+                  }
+                },
+                "required": [
+                  "manufacturer"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

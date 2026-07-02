@@ -279,6 +279,7 @@ import { whoGhoSchemas } from './who-gho.schema';
 import { delphiSchemas } from './delphi.schema';
 import { nlmIcd11Schemas } from './nlm-icd11.schema';
 import { cmsSchemas } from './cms.schema';
+import { cpscSchemas } from './cpsc.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -561,4 +562,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...delphiSchemas,
   ...nlmIcd11Schemas,
   ...cmsSchemas,
+  ...cpscSchemas,
 };
