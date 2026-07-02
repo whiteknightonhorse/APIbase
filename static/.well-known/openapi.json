@@ -96641,6 +96641,362 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/medlineplus.icd10_lookup/call": {
+      "post": {
+        "operationId": "medlineplus_icd10_lookup",
+        "summary": "MedlinePlus Connect — ICD-10 Code Lookup",
+        "description": "Look up patient-friendly health information for an ICD-10-CM diagnosis code via the NLM MedlinePlus Connect service. Returns MedlinePlus topic titles, URLs, and plain-language summaries for conditions matching the code (e.g. E11 → Type 2 Diabetes, J18.9 → Pneumonia, I21 → Myocardial Infarction). Supports English and Spanish responses (language=es). Used in EHR/clinical contexts to link clinical codes to patient education materials. Source: US NLM MedlinePlus Connect — public domain, no auth, unlimited free.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "medlineplus.icd10_lookup"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "description": "ICD-10-CM diagnosis code to look up (e.g. E11 for Type 2 Diabetes, J18.9 for Pneumonia)."
+                  },
+                  "language": {
+                    "type": "string",
+                    "enum": [
+                      "en",
+                      "es"
+                    ],
+                    "description": "Response language: en (English) or es (Spanish). Default: en.",
+                    "default": "en"
+                  }
+                },
+                "required": [
+                  "code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/medlineplus.icd9_lookup/call": {
+      "post": {
+        "operationId": "medlineplus_icd9_lookup",
+        "summary": "MedlinePlus Connect — ICD-9 Code Lookup",
+        "description": "Look up patient-friendly health information for an ICD-9-CM diagnosis code via the NLM MedlinePlus Connect service. Returns MedlinePlus topic titles, URLs, and plain-language summaries for conditions matching the code (e.g. 250 → Diabetes mellitus, 410 → Acute myocardial infarction). Useful for legacy EHR systems still using ICD-9-CM coding. Supports English and Spanish responses (language=es). Source: US NLM MedlinePlus Connect — public domain, no auth, unlimited free.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "medlineplus.icd9_lookup"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "description": "ICD-9-CM diagnosis code to look up (e.g. 250 for Diabetes mellitus)."
+                  },
+                  "language": {
+                    "type": "string",
+                    "enum": [
+                      "en",
+                      "es"
+                    ],
+                    "description": "Response language: en (English) or es (Spanish). Default: en.",
+                    "default": "en"
+                  }
+                },
+                "required": [
+                  "code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/medlineplus.snomed_lookup/call": {
+      "post": {
+        "operationId": "medlineplus_snomed_lookup",
+        "summary": "MedlinePlus Connect — SNOMED CT Lookup",
+        "description": "Look up patient-friendly health information for a SNOMED CT clinical concept via the NLM MedlinePlus Connect service. Returns MedlinePlus topic titles, URLs, and plain-language summaries for conditions matching the concept (e.g. 44054006 → Diabetes mellitus type 2, 22298006 → Myocardial infarction, 195967001 → Asthma). Provide the optional display_name to improve match accuracy. Supports English and Spanish responses (language=es). Source: US NLM MedlinePlus Connect — public domain, no auth, unlimited free.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "medlineplus.snomed_lookup"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "description": "SNOMED CT concept ID to look up (e.g. 44054006 for Diabetes mellitus type 2, 22298006 for Myocardial infarction)."
+                  },
+                  "display_name": {
+                    "type": "string",
+                    "description": "Human-readable SNOMED concept name (optional, improves matching). Example: \"Diabetes mellitus\"."
+                  },
+                  "language": {
+                    "type": "string",
+                    "enum": [
+                      "en",
+                      "es"
+                    ],
+                    "description": "Response language: en (English) or es (Spanish). Default: en.",
+                    "default": "en"
+                  }
+                },
+                "required": [
+                  "code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/medlineplus.rxnorm_lookup/call": {
+      "post": {
+        "operationId": "medlineplus_rxnorm_lookup",
+        "summary": "MedlinePlus Connect — RxNorm Drug Lookup",
+        "description": "Look up patient-friendly drug information for an RxNorm concept ID (RXCUI) via the NLM MedlinePlus Connect service. Returns MedlinePlus drug topic titles, URLs, and plain-language summaries for medications matching the concept (e.g. 161 → Aspirin, 5640 → Ibuprofen, 723 → Metformin, 29046 → Lisinopril, 41493 → Atorvastatin). Provide the optional display_name to improve match accuracy. Supports English and Spanish responses (language=es). Source: US NLM MedlinePlus Connect — public domain, no auth, unlimited free.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "medlineplus.rxnorm_lookup"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "rxcui": {
+                    "type": "string",
+                    "description": "RxNorm concept unique identifier (RXCUI) for the drug (e.g. 161 for Aspirin, 5640 for Ibuprofen, 723 for Metformin)."
+                  },
+                  "display_name": {
+                    "type": "string",
+                    "description": "Human-readable drug name (optional, improves matching). Example: \"Metformin\"."
+                  },
+                  "language": {
+                    "type": "string",
+                    "enum": [
+                      "en",
+                      "es"
+                    ],
+                    "description": "Response language: en (English) or es (Spanish). Default: en.",
+                    "default": "en"
+                  }
+                },
+                "required": [
+                  "rxcui"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

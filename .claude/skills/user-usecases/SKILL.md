@@ -275,6 +275,7 @@ Use these examples as reference patterns when:
 | UC-577 | EPA ECHO | Enforcement and Compliance History Online — facility search, detail, air program, violations; US Gov public domain, 300 req/hr limit | LIVE | No auth, 4 tools | `usecases/UC-577-epa-echo.md` |
 | UC-578 | NASA CMR | Common Metadata Repository — satellite dataset search, collection detail, granule search, providers; US Gov public domain, no auth, no rate limits | LIVE | No auth, 4 tools | `usecases/UC-578-nasa-cmr.md` |
 | UC-579 | ChEMBL | Drug discovery database — 2.9M molecules, 18K targets, 20M bioactivity measurements; EMBL-EBI; CC BY-SA 3.0, no auth, no rate limits | LIVE | No auth, 4 tools | `usecases/UC-579-chembl.md` |
+| UC-580 | MedlinePlus Connect | NLM clinical code → patient health info; ICD-10-CM, ICD-9-CM, SNOMED CT, RxNorm; US Gov public domain, no auth, unlimited free | LIVE | No auth, 4 tools | `usecases/UC-580-medlineplus-connect.md` |
 
 ## How to Use
 

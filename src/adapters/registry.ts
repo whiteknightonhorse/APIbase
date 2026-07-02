@@ -297,6 +297,7 @@ import { ObisAdapter } from './obis';
 import { EchoAdapter } from './echo';
 import { NasaCmrAdapter } from './nasa-cmr';
 import { ChemblAdapter } from './chembl';
+import { MedlineplusAdapter } from './medlineplus';
 import { config } from '../config';
 
 /**
@@ -1644,6 +1645,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'chembl':
       // ChEMBL (UC-579) — drug discovery: 2.9M molecules, 18K targets, 20M bioactivity measurements; no auth; CC BY-SA 3.0
       return getOrCreate('chembl', () => new ChemblAdapter());
+    case 'medlineplus':
+      // MedlinePlus Connect (UC-580) — NLM clinical code → patient health info; ICD-10/9, SNOMED CT, RxNorm; no auth; public domain
+      return getOrCreate('medlineplus', () => new MedlineplusAdapter());
     default:
       return undefined;
   }

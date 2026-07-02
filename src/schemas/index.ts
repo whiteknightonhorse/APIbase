@@ -297,6 +297,7 @@ import { obisSchemas } from './obis.schema';
 import { echoSchemas } from './echo.schema';
 import { nasaCmrSchemas } from './nasa-cmr.schema';
 import { chemblSchemas } from './chembl.schema';
+import { medlineplusSchemas } from './medlineplus.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -597,4 +598,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...echoSchemas,
   ...nasaCmrSchemas,
   ...chemblSchemas,
+  ...medlineplusSchemas,
 };

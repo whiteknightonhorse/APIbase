@@ -12515,4 +12515,68 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'space',
     annotations: READ_ONLY,
   },
+
+  // MedlinePlus Connect (UC-580) — 4 tools
+  {
+    toolId: 'medlineplus.icd10_lookup',
+    mcpName: 'medlineplus.clinical.icd10_lookup',
+    title: 'MedlinePlus Connect — ICD-10 Code Lookup',
+    description:
+      'Look up patient-friendly health information for an ICD-10-CM diagnosis code via the ' +
+      'NLM MedlinePlus Connect service. ' +
+      'Returns MedlinePlus topic titles, URLs, and plain-language summaries for conditions ' +
+      'matching the code (e.g. E11 → Type 2 Diabetes, J18.9 → Pneumonia, I21 → Myocardial Infarction). ' +
+      'Supports English and Spanish responses (language=es). ' +
+      'Used in EHR/clinical contexts to link clinical codes to patient education materials. ' +
+      'Source: US NLM MedlinePlus Connect — public domain, no auth, unlimited free.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'medlineplus.icd9_lookup',
+    mcpName: 'medlineplus.clinical.icd9_lookup',
+    title: 'MedlinePlus Connect — ICD-9 Code Lookup',
+    description:
+      'Look up patient-friendly health information for an ICD-9-CM diagnosis code via the ' +
+      'NLM MedlinePlus Connect service. ' +
+      'Returns MedlinePlus topic titles, URLs, and plain-language summaries for conditions ' +
+      'matching the code (e.g. 250 → Diabetes mellitus, 410 → Acute myocardial infarction). ' +
+      'Useful for legacy EHR systems still using ICD-9-CM coding. ' +
+      'Supports English and Spanish responses (language=es). ' +
+      'Source: US NLM MedlinePlus Connect — public domain, no auth, unlimited free.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'medlineplus.snomed_lookup',
+    mcpName: 'medlineplus.clinical.snomed_lookup',
+    title: 'MedlinePlus Connect — SNOMED CT Lookup',
+    description:
+      'Look up patient-friendly health information for a SNOMED CT clinical concept via the ' +
+      'NLM MedlinePlus Connect service. ' +
+      'Returns MedlinePlus topic titles, URLs, and plain-language summaries for conditions ' +
+      'matching the concept (e.g. 44054006 → Diabetes mellitus type 2, 22298006 → Myocardial infarction, ' +
+      '195967001 → Asthma). ' +
+      'Provide the optional display_name to improve match accuracy. ' +
+      'Supports English and Spanish responses (language=es). ' +
+      'Source: US NLM MedlinePlus Connect — public domain, no auth, unlimited free.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'medlineplus.rxnorm_lookup',
+    mcpName: 'medlineplus.clinical.rxnorm_lookup',
+    title: 'MedlinePlus Connect — RxNorm Drug Lookup',
+    description:
+      'Look up patient-friendly drug information for an RxNorm concept ID (RXCUI) via the ' +
+      'NLM MedlinePlus Connect service. ' +
+      'Returns MedlinePlus drug topic titles, URLs, and plain-language summaries for medications ' +
+      'matching the concept (e.g. 161 → Aspirin, 5640 → Ibuprofen, 723 → Metformin, ' +
+      '29046 → Lisinopril, 41493 → Atorvastatin). ' +
+      'Provide the optional display_name to improve match accuracy. ' +
+      'Supports English and Spanish responses (language=es). ' +
+      'Source: US NLM MedlinePlus Connect — public domain, no auth, unlimited free.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
 ];

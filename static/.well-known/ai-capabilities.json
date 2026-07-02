@@ -2,8 +2,8 @@
   "platform": "APIbase",
   "version": "2.0",
   "updated_at": "2026-04-01T00:00:00Z",
-  "tools_count": 1037,
-  "providers_count": 289,
+  "tools_count": 1057,
+  "providers_count": 294,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
@@ -73,7 +73,7 @@
     },
     {
       "name": "health",
-      "tools": 75,
+      "tools": 79,
       "providers": "USDA, OpenFDA, WHO, FatSecret, Spoonacular, ClinicalTrials, PubChem, CDC, UK FSA, RxNorm, MyGene.info, MyVariant.info, OpenFDA Devices, EPA SDWIS, WHO GHO",
       "examples": "nutrition, drug safety, clinical trials, recipes, UK food hygiene ratings, drug nomenclature, gene annotation, variant annotation, FDA device recalls, 510k clearances, MAUDE adverse events, drinking water systems, violations"
     },

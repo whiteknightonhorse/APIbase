@@ -6457,6 +6457,31 @@ tools:
     price_usd: "0.002"
     cache_ttl: 3600
 
+  # --- UC-580: MedlinePlus Connect ---
+  - tool_id: medlineplus.icd10_lookup
+    name: MedlinePlus Connect — ICD-10 Code Lookup
+    provider: medlineplus
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: medlineplus.icd9_lookup
+    name: MedlinePlus Connect — ICD-9 Code Lookup
+    provider: medlineplus
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: medlineplus.snomed_lookup
+    name: MedlinePlus Connect — SNOMED CT Lookup
+    provider: medlineplus
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: medlineplus.rxnorm_lookup
+    name: MedlinePlus Connect — RxNorm Drug Lookup
+    provider: medlineplus
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

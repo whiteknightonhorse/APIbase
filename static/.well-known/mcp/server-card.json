@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 1074 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 1078 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -62268,6 +62268,238 @@
             "default": 10
           }
         }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "medlineplus.clinical.icd10_lookup",
+      "title": "MedlinePlus Connect \u2014 ICD-10 Code Lookup",
+      "description": "Look up patient-friendly health information for an ICD-10-CM diagnosis code via the NLM MedlinePlus Connect service. Returns MedlinePlus topic titles, URLs, and plain-language summaries for conditions matching the code (e.g. E11 \u2192 Type 2 Diabetes, J18.9 \u2192 Pneumonia, I21 \u2192 Myocardial Infarction). Supports English and Spanish responses (language=es). Used in EHR/clinical contexts to link clinical codes to patient education materials. Source: US NLM MedlinePlus Connect \u2014 public domain, no auth, unlimited free.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "ICD-10-CM diagnosis code to look up (e.g. E11 for Type 2 Diabetes, J18.9 for Pneumonia)."
+          },
+          "language": {
+            "type": "string",
+            "enum": [
+              "en",
+              "es"
+            ],
+            "description": "Response language: en (English) or es (Spanish). Default: en.",
+            "default": "en"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "medlineplus.clinical.icd9_lookup",
+      "title": "MedlinePlus Connect \u2014 ICD-9 Code Lookup",
+      "description": "Look up patient-friendly health information for an ICD-9-CM diagnosis code via the NLM MedlinePlus Connect service. Returns MedlinePlus topic titles, URLs, and plain-language summaries for conditions matching the code (e.g. 250 \u2192 Diabetes mellitus, 410 \u2192 Acute myocardial infarction). Useful for legacy EHR systems still using ICD-9-CM coding. Supports English and Spanish responses (language=es). Source: US NLM MedlinePlus Connect \u2014 public domain, no auth, unlimited free.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "ICD-9-CM diagnosis code to look up (e.g. 250 for Diabetes mellitus)."
+          },
+          "language": {
+            "type": "string",
+            "enum": [
+              "en",
+              "es"
+            ],
+            "description": "Response language: en (English) or es (Spanish). Default: en.",
+            "default": "en"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "medlineplus.clinical.rxnorm_lookup",
+      "title": "MedlinePlus Connect \u2014 RxNorm Drug Lookup",
+      "description": "Look up patient-friendly drug information for an RxNorm concept ID (RXCUI) via the NLM MedlinePlus Connect service. Returns MedlinePlus drug topic titles, URLs, and plain-language summaries for medications matching the concept (e.g. 161 \u2192 Aspirin, 5640 \u2192 Ibuprofen, 723 \u2192 Metformin, 29046 \u2192 Lisinopril, 41493 \u2192 Atorvastatin). Provide the optional display_name to improve match accuracy. Supports English and Spanish responses (language=es). Source: US NLM MedlinePlus Connect \u2014 public domain, no auth, unlimited free.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "rxcui": {
+            "type": "string",
+            "description": "RxNorm concept unique identifier (RXCUI) for the drug (e.g. 161 for Aspirin, 5640 for Ibuprofen, 723 for Metformin)."
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable drug name (optional, improves matching). Example: \"Metformin\"."
+          },
+          "language": {
+            "type": "string",
+            "enum": [
+              "en",
+              "es"
+            ],
+            "description": "Response language: en (English) or es (Spanish). Default: en.",
+            "default": "en"
+          }
+        },
+        "required": [
+          "rxcui"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "medlineplus.clinical.snomed_lookup",
+      "title": "MedlinePlus Connect \u2014 SNOMED CT Lookup",
+      "description": "Look up patient-friendly health information for a SNOMED CT clinical concept via the NLM MedlinePlus Connect service. Returns MedlinePlus topic titles, URLs, and plain-language summaries for conditions matching the concept (e.g. 44054006 \u2192 Diabetes mellitus type 2, 22298006 \u2192 Myocardial infarction, 195967001 \u2192 Asthma). Provide the optional display_name to improve match accuracy. Supports English and Spanish responses (language=es). Source: US NLM MedlinePlus Connect \u2014 public domain, no auth, unlimited free.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "SNOMED CT concept ID to look up (e.g. 44054006 for Diabetes mellitus type 2, 22298006 for Myocardial infarction)."
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable SNOMED concept name (optional, improves matching). Example: \"Diabetes mellitus\"."
+          },
+          "language": {
+            "type": "string",
+            "enum": [
+              "en",
+              "es"
+            ],
+            "description": "Response language: en (English) or es (Spanish). Default: en.",
+            "default": "en"
+          }
+        },
+        "required": [
+          "code"
+        ]
       },
       "outputSchema": {
         "type": "object",
