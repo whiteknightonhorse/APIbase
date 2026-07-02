@@ -289,6 +289,7 @@ import { tflSchemas } from './tfl.schema';
 import { nbiSchemas } from './nbi.schema';
 import { brightskySchemas } from './brightsky.schema';
 import { statfinSchemas } from './statfin.schema';
+import { dbnomicsSchemas } from './dbnomics.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -581,4 +582,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...nbiSchemas,
   ...brightskySchemas,
   ...statfinSchemas,
+  ...dbnomicsSchemas,
 };

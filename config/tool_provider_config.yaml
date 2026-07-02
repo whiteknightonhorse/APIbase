@@ -6257,6 +6257,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-572: DBnomics ---
+  - tool_id: dbnomics.providers
+    name: DBnomics — List Statistical Data Providers
+    provider: dbnomics
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: dbnomics.datasets
+    name: DBnomics — List Datasets for a Provider
+    provider: dbnomics
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: dbnomics.series
+    name: DBnomics — Browse Series in a Dataset
+    provider: dbnomics
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: dbnomics.fetch_series
+    name: DBnomics — Fetch Time-Series Data
+    provider: dbnomics
+    price_usd: "0.002"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

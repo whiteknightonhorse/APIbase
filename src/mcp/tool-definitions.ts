@@ -12013,4 +12013,68 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+
+  // DBnomics (UC-572) — 4 tools
+  {
+    toolId: 'dbnomics.providers',
+    mcpName: 'dbnomics.data.providers',
+    title: 'DBnomics — List Statistical Data Providers',
+    description:
+      'List all statistical data providers available on DBnomics — the unified gateway to 93+ national and international agencies. ' +
+      'Includes IMF, World Bank (WB), OECD, Eurostat, ECB, BIS, UN, ILO, CEPII, and many more. ' +
+      'Returns provider codes, full names, and regions. ' +
+      'Use the returned provider codes with dbnomics.data.datasets to explore available datasets. ' +
+      'DBnomics aggregates over 46,000 datasets and 1.7 billion time series from official statistical sources. ' +
+      'No API key required — open data under CC-BY 4.0.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'dbnomics.datasets',
+    mcpName: 'dbnomics.data.datasets',
+    title: 'DBnomics — List Datasets for a Provider',
+    description:
+      'List all datasets published by a specific statistical agency on DBnomics. ' +
+      'For example: provider WB has WDI (World Development Indicators, 396K+ series); ' +
+      'provider OECD has QNA (quarterly national accounts), KEI, MEI, and 200+ more; ' +
+      'provider IMF has WEO, BOP, IFS; Eurostat has 1,000+ datasets. ' +
+      'Returns dataset codes, names, and series counts. ' +
+      'Use the returned dataset codes with dbnomics.data.series to browse available time series. ' +
+      'First call dbnomics.data.providers to get valid provider codes. ' +
+      'No API key required — open data under CC-BY 4.0.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'dbnomics.series',
+    mcpName: 'dbnomics.data.series',
+    title: 'DBnomics — Browse Series in a Dataset',
+    description:
+      'List all time series available in a specific dataset on DBnomics, with pagination. ' +
+      'Each series has a unique code, human-readable name, frequency, and dimension labels. ' +
+      'Examples: WB/WDI contains NY.GDP.MKTP.CD (nominal GDP) for 200+ countries; ' +
+      'OECD/QNA contains quarterly GDP growth for OECD members; ' +
+      'EUROSTAT/nama_10_gdp contains GDP component breakdowns by EU country. ' +
+      'Use the returned series codes with dbnomics.data.fetch_series to retrieve actual data. ' +
+      'Supports pagination via limit (max 200) and offset. ' +
+      'No API key required — open data under CC-BY 4.0.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'dbnomics.fetch_series',
+    mcpName: 'dbnomics.data.fetch_series',
+    title: 'DBnomics — Fetch Time-Series Data',
+    description:
+      'Fetch the full time-series history for a specific series from DBnomics. ' +
+      'Returns an array of {period, value} observations covering up to decades of data. ' +
+      'Periods are formatted as YYYY for annual, YYYY-QN for quarterly, YYYY-MM for monthly. ' +
+      'Example: provider=WB, dataset=WDI, series=A-US.NY.GDP.MKTP.CD → US nominal GDP in current USD annually. ' +
+      'Example: provider=OECD, dataset=QNA, series=USA.B1GQ.LNBARSA.Q → US real GDP quarterly. ' +
+      'Use last_n_periods to limit output to the most recent N observations. ' +
+      'Covers data from IMF, World Bank, OECD, Eurostat, ECB, BIS, ILO, and 85+ other agencies. ' +
+      'No API key required — open data under CC-BY 4.0.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
 ];

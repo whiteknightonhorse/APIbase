@@ -2591,5 +2591,14 @@
     "reset_period": "none",
     "docs_url": "https://www.stat.fi/org/avoindata/rajapinta_en.html",
     "limit_proof": "Statistics Finland PxWeb API — official Finnish government open data, CC BY 4.0, no API key required, no documented rate limits."
+  },
+  "dbnomics": {
+    "display_name": "DBnomics",
+    "health_url": "https://api.db.nomics.world/v22/providers?limit=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://api.db.nomics.world/v22/apidocs",
+    "limit_proof": "DBnomics public REST API — open data aggregator, no API key required, no documented rate limits (api.db.nomics.world/v22/apidocs)."
   }
 }

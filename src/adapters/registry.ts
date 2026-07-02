@@ -289,6 +289,7 @@ import { TflAdapter } from './tfl';
 import { NbiAdapter } from './nbi';
 import { BrightSkyAdapter } from './brightsky';
 import { StatfinAdapter } from './statfin';
+import { DbnomicsAdapter } from './dbnomics';
 import { config } from '../config';
 
 /**
@@ -1612,6 +1613,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'statfin':
       // Statistics Finland PxWeb (UC-571) — CPI, population, unemployment, table search; no auth; CC BY 4.0
       return getOrCreate('statfin', () => new StatfinAdapter());
+    case 'dbnomics':
+      // DBnomics (UC-572) — 93+ statistical agencies: IMF, World Bank, OECD, Eurostat; no auth; CC-BY 4.0
+      return getOrCreate('dbnomics', () => new DbnomicsAdapter());
     default:
       return undefined;
   }

@@ -267,6 +267,7 @@ Use these examples as reference patterns when:
 | UC-569 | National Bridge Inventory (NBI) | Infrastructure — US highway bridge search, detail, nearby, condition stats | LIVE | No auth, USDOT/FHWA public domain, 4 tools | `usecases/UC-569-nbi-bridges.md` |
 | UC-570 | Bright Sky (DWD) | Weather — Germany current conditions, hourly observations/forecast, DWD alerts, nearby stations | LIVE | No auth, DWD open data MIT licence, 4 tools | `usecases/UC-570-brightsky-dwd.md` |
 | UC-571 | Statistics Finland (StatFin) | Finance/World — Finland CPI, population, unemployment, statistical table discovery | LIVE | No auth, CC BY 4.0, 4 tools | `usecases/UC-571-stat-finland.md` |
+| UC-572 | DBnomics | Finance — 93+ agencies: IMF, World Bank, OECD, Eurostat; providers, datasets, series browse, time-series fetch | LIVE | No auth, CC-BY 4.0, 4 tools | `usecases/UC-572-dbnomics.md` |
 
 ## How to Use
 
