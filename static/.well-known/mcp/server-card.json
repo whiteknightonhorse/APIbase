@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 1118 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 1121 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -53830,6 +53830,158 @@
           "error": {
             "type": "object",
             "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "postcode-japan.postal.lookup",
+      "title": "Japan Postcode Lookup",
+      "description": "Look up a Japanese postal address by its 7-digit postcode. Returns prefecture, city, suburb, and street-level address in Japanese kanji, hiragana/katakana readings, and romaji, plus JIS administrative code and GPS coordinates. Accepts codes with or without hyphen (e.g. \"1500001\" or \"150-0001\"). Coverage: all ~124,000 active Japan Post postcodes, updated regularly. Data source: postcode.teraren.com \u2014 MIT license, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "postcode": {
+            "type": "string",
+            "description": "Japanese 7-digit postal code with or without hyphen (e.g. \"1000001\" or \"100-0001\" for Chiyoda, \"1500001\" for Shibuya Jinguumae). Hyphens and spaces are stripped automatically.",
+            "minLength": 7,
+            "maxLength": 8
+          }
+        },
+        "required": [
+          "postcode"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "postcode-japan.reference.prefectures",
+      "title": "Japan Prefecture List",
+      "description": "Get the complete list of all 47 Japanese prefectures with JIS codes, official names in kanji, hiragana, katakana, and English, plus geographic region. Use prefecture codes returned here as the \"prefecture\" filter in the postcode-japan.postal.search tool. Data source: postcode.teraren.com \u2014 MIT license, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "_placeholder": {
+            "type": "string",
+            "description": "No parameters required. Returns all 47 Japanese prefectures with JIS code, names in kanji, hiragana, katakana, English, and region."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "postcode-japan.postal.search",
+      "title": "Japan Postcode Search",
+      "description": "Search Japanese postcodes by free-text query, prefecture code (1\u201347), or city name. Returns matching postcodes with full address in kanji, kana, and romaji, plus coordinates. Useful for address autocomplete, geocoding Japanese locations, and finding all postcodes in a given area. Queries can mix Japanese (kanji/kana) and romaji. Filter by prefecture JIS code (e.g. 13 for Tokyo, 27 for Osaka) or city name in Japanese. Data source: postcode.teraren.com \u2014 MIT license, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Free-text search string in Japanese (kanji/kana) or romaji (e.g. \"\u6e0b\u8c37\" for Shibuya, \"Shinjuku\", \"\u9280\u5ea7\"). Matched against prefecture, city, and suburb fields."
+          },
+          "prefecture": {
+            "type": "string",
+            "description": "Filter by prefecture JIS code (1\u201347) or prefecture name in Japanese (e.g. 13 or \"\u6771\u4eac\u90fd\" for Tokyo, 27 for Osaka). Use the prefectures tool to get all codes."
+          },
+          "city": {
+            "type": "string",
+            "description": "Filter by city name in Japanese (e.g. \"\u6e0b\u8c37\u533a\" for Shibuya ward, \"\u5927\u962a\u5e02\u5317\u533a\" for Kita-ku Osaka)."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Maximum number of results to return (1\u2013100, default 20).",
+            "default": 20
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
           }
         },
         "required": [

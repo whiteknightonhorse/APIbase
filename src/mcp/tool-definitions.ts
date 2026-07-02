@@ -13183,4 +13183,46 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'legal',
     annotations: READ_ONLY,
   },
+
+  // Japan Postal Codes — postcode.teraren.com (UC-591, 3 tools)
+  {
+    toolId: 'postcode-japan.lookup',
+    mcpName: 'postcode-japan.postal.lookup',
+    title: 'Japan Postcode Lookup',
+    description:
+      'Look up a Japanese postal address by its 7-digit postcode. ' +
+      'Returns prefecture, city, suburb, and street-level address in Japanese kanji, ' +
+      'hiragana/katakana readings, and romaji, plus JIS administrative code and GPS coordinates. ' +
+      'Accepts codes with or without hyphen (e.g. "1500001" or "150-0001"). ' +
+      'Coverage: all ~124,000 active Japan Post postcodes, updated regularly. ' +
+      'Data source: postcode.teraren.com — MIT license, no auth required.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'postcode-japan.search',
+    mcpName: 'postcode-japan.postal.search',
+    title: 'Japan Postcode Search',
+    description:
+      'Search Japanese postcodes by free-text query, prefecture code (1–47), or city name. ' +
+      'Returns matching postcodes with full address in kanji, kana, and romaji, plus coordinates. ' +
+      'Useful for address autocomplete, geocoding Japanese locations, and finding all postcodes ' +
+      'in a given area. Queries can mix Japanese (kanji/kana) and romaji. ' +
+      'Filter by prefecture JIS code (e.g. 13 for Tokyo, 27 for Osaka) or city name in Japanese. ' +
+      'Data source: postcode.teraren.com — MIT license, no auth required.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'postcode-japan.prefectures',
+    mcpName: 'postcode-japan.reference.prefectures',
+    title: 'Japan Prefecture List',
+    description:
+      'Get the complete list of all 47 Japanese prefectures with JIS codes, ' +
+      'official names in kanji, hiragana, katakana, and English, plus geographic region. ' +
+      'Use prefecture codes returned here as the "prefecture" filter in the postcode-japan.postal.search tool. ' +
+      'Data source: postcode.teraren.com — MIT license, no auth required.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
 ];

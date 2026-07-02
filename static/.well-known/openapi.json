@@ -100557,6 +100557,251 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/postcode-japan.lookup/call": {
+      "post": {
+        "operationId": "postcode-japan_lookup",
+        "summary": "Japan Postcode Lookup",
+        "description": "Look up a Japanese postal address by its 7-digit postcode. Returns prefecture, city, suburb, and street-level address in Japanese kanji, hiragana/katakana readings, and romaji, plus JIS administrative code and GPS coordinates. Accepts codes with or without hyphen (e.g. \"1500001\" or \"150-0001\"). Coverage: all ~124,000 active Japan Post postcodes, updated regularly. Data source: postcode.teraren.com — MIT license, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "postcode-japan.lookup"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "postcode": {
+                    "type": "string",
+                    "description": "Japanese 7-digit postal code with or without hyphen (e.g. \"1000001\" or \"100-0001\" for Chiyoda, \"1500001\" for Shibuya Jinguumae). Hyphens and spaces are stripped automatically.",
+                    "minLength": 7,
+                    "maxLength": 8
+                  }
+                },
+                "required": [
+                  "postcode"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/postcode-japan.search/call": {
+      "post": {
+        "operationId": "postcode-japan_search",
+        "summary": "Japan Postcode Search",
+        "description": "Search Japanese postcodes by free-text query, prefecture code (1–47), or city name. Returns matching postcodes with full address in kanji, kana, and romaji, plus coordinates. Useful for address autocomplete, geocoding Japanese locations, and finding all postcodes in a given area. Queries can mix Japanese (kanji/kana) and romaji. Filter by prefecture JIS code (e.g. 13 for Tokyo, 27 for Osaka) or city name in Japanese. Data source: postcode.teraren.com — MIT license, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "postcode-japan.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Free-text search string in Japanese (kanji/kana) or romaji (e.g. \"渋谷\" for Shibuya, \"Shinjuku\", \"銀座\"). Matched against prefecture, city, and suburb fields."
+                  },
+                  "prefecture": {
+                    "type": "string",
+                    "description": "Filter by prefecture JIS code (1–47) or prefecture name in Japanese (e.g. 13 or \"東京都\" for Tokyo, 27 for Osaka). Use the prefectures tool to get all codes."
+                  },
+                  "city": {
+                    "type": "string",
+                    "description": "Filter by city name in Japanese (e.g. \"渋谷区\" for Shibuya ward, \"大阪市北区\" for Kita-ku Osaka)."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of results to return (1–100, default 20).",
+                    "default": 20
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/postcode-japan.prefectures/call": {
+      "post": {
+        "operationId": "postcode-japan_prefectures",
+        "summary": "Japan Prefecture List",
+        "description": "Get the complete list of all 47 Japanese prefectures with JIS codes, official names in kanji, hiragana, katakana, and English, plus geographic region. Use prefecture codes returned here as the \"prefecture\" filter in the postcode-japan.postal.search tool. Data source: postcode.teraren.com — MIT license, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "postcode-japan.prefectures"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "_placeholder": {
+                    "type": "string",
+                    "description": "No parameters required. Returns all 47 Japanese prefectures with JIS code, names in kanji, hiragana, katakana, English, and region."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

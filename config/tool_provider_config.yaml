@@ -6732,6 +6732,25 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-591: Japan Postal Codes (postcode.teraren.com) ---
+  - tool_id: postcode-japan.lookup
+    name: Japan Postcode Lookup
+    provider: postcode-japan
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: postcode-japan.search
+    name: Japan Postcode Search
+    provider: postcode-japan
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: postcode-japan.prefectures
+    name: Japan Prefecture List
+    provider: postcode-japan
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

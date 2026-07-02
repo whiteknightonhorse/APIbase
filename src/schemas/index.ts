@@ -308,6 +308,7 @@ import { eurLexSchemas } from './eurlex.schema';
 import { euParliamentSchemas } from './eu-parliament.schema';
 import { uklegislationSchemas } from './uklegislation.schema';
 import { ofacSchemas } from './ofac.schema';
+import { postcodeJapanSchemas } from './postcode-japan.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -619,4 +620,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...euParliamentSchemas,
   ...uklegislationSchemas,
   ...ofacSchemas,
+  ...postcodeJapanSchemas,
 };

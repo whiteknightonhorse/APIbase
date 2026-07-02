@@ -1,4 +1,5 @@
 import { type BaseAdapter } from './base.adapter';
+import { PostcodeJapanAdapter } from './postcode-japan';
 import { OfacAdapter } from './ofac';
 import { JolpicaF1Adapter } from './jolpica-f1';
 import { TheSportsDbAdapter } from './thesportsdb';
@@ -1688,6 +1689,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'ofac':
       // OFAC Sanctions List (UC-590) — SDN search, aliases, programs, publication info; no auth; public domain
       return getOrCreate('ofac', () => new OfacAdapter());
+    case 'postcode-japan':
+      // Japan Postal Codes (UC-591) — postcode lookup, text search, prefecture list; no auth; MIT
+      return getOrCreate('postcode-japan', () => new PostcodeJapanAdapter());
     default:
       return undefined;
   }
