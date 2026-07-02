@@ -2636,5 +2636,23 @@
     "reset_period": "none",
     "docs_url": "https://api.obis.org/",
     "limit_proof": "OBIS API is open access, no authentication required, no documented rate limits. Data licensed CC BY 4.0 / CC0."
+  },
+  "echo": {
+    "display_name": "EPA ECHO",
+    "health_url": "https://echodata.epa.gov/echo/echo_rest_services.get_facilities?output=JSON&p_zip=10001&rows=1",
+    "limit_type": "hourly",
+    "free_limit": 300,
+    "reset_period": "hourly",
+    "docs_url": "https://echo.epa.gov/tools/web-services",
+    "limit_proof": "ECHO REST services: 300 req/hour, 1500/day per IP. US Gov public domain (17 USC §105), no registration required."
+  },
+  "nasa-cmr": {
+    "display_name": "NASA CMR",
+    "health_url": "https://cmr.earthdata.nasa.gov/search/collections.json?keyword=climate&page_size=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html",
+    "limit_proof": "NASA CMR is a US Government open data service with no authentication and no documented rate limits. Public domain (17 USC §105)."
   }
 }

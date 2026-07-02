@@ -12321,4 +12321,130 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'education',
     annotations: READ_ONLY,
   },
+
+  // EPA ECHO (4)
+  {
+    toolId: 'echo.facility_search',
+    mcpName: 'echo.compliance.facility_search',
+    title: 'EPA ECHO — Facility Search',
+    description:
+      'Search EPA-regulated facilities across all environmental programs by ZIP code or facility name. ' +
+      'Returns facility name, address, coordinates, industry codes (SIC/NAICS), program flags ' +
+      '(CAA, CWA, RCRA, SDWA, TRI, GHG), total penalties assessed, inspection count, and ' +
+      'formal/informal action counts. Use zip_code for location-based discovery, or facility_name ' +
+      'with state for targeted searches. Covers 1M+ regulated US facilities. ' +
+      'Source: EPA ECHO (Enforcement and Compliance History Online) — US Gov public domain, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'echo.facility_detail',
+    mcpName: 'echo.compliance.facility_detail',
+    title: 'EPA ECHO — Facility Detail',
+    description:
+      'Retrieve detailed compliance profile for a specific EPA-regulated facility by Registry ID. ' +
+      'Returns full address with county, coordinates, SIC/NAICS codes, HUC watershed code, ' +
+      'federal facility status, facility creation/termination dates, and a complete list of ' +
+      'environmental program interests (e.g. "CAA Stationary Source", "NPDES Permit"). ' +
+      'Registry IDs are obtained from echo.compliance.facility_search results. ' +
+      'Essential for due diligence, ESG screening, and permit verification. ' +
+      'Source: EPA ECHO — US Gov public domain, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'echo.air_facilities',
+    mcpName: 'echo.compliance.air_facilities',
+    title: 'EPA ECHO — Air Program Facilities',
+    description:
+      'Search facilities regulated under the Clean Air Act (CAA) by ZIP code or facility name. ' +
+      'Returns facility name, address, coordinates, CAA permit types and status, quarters of ' +
+      'noncompliance, inspection count, and High Priority Violation (HPV) flag. ' +
+      'Ideal for air quality compliance monitoring, permit research, and environmental due diligence. ' +
+      'Use zip_code for location search or facility_name with state for targeted search. ' +
+      'Source: EPA ECHO Air program data — US Gov public domain, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'echo.violations',
+    mcpName: 'echo.compliance.violations',
+    title: 'EPA ECHO — Facility Violations & Enforcement',
+    description:
+      'Retrieve enforcement actions and violation history for a specific EPA-regulated facility. ' +
+      'Returns enforcement activity type, action type, settlement date, federal and state penalties ' +
+      'assessed, supplemental environmental project (SEP) amounts, and affected program codes ' +
+      '(e.g. CAA, CWA, RCRA). ' +
+      'Registry IDs are obtained from echo.compliance.facility_search results. ' +
+      'Critical for environmental liability assessment, ESG due diligence, and compliance monitoring. ' +
+      'Source: EPA ECHO — US Gov public domain, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+
+  // NASA CMR (4)
+  {
+    toolId: 'nasa-cmr.search_collections',
+    mcpName: 'nasa-cmr.datasets.search',
+    title: 'NASA CMR — Search Earth Science Datasets',
+    description:
+      'Search NASA Common Metadata Repository (CMR) for Earth science satellite datasets and ' +
+      'collections. Filter by keyword, data provider (ORNL_DAAC, GES_DISC, LPDAAC_ECS, PODAAC, ' +
+      'NSIDC_ECS), temporal range, spatial bounding box, and processing level. ' +
+      'Returns concept IDs, titles, summaries, data centers, temporal coverage, and access flags. ' +
+      'CMR indexes 45,000+ collections covering climate, land, atmosphere, ocean, cryosphere, ' +
+      'and biosphere from 60+ NASA data archives. Concept IDs from results feed into ' +
+      'nasa-cmr.datasets.detail and nasa-cmr.granules.search. ' +
+      'Source: NASA CMR — US Gov public domain, no auth required.',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nasa-cmr.collection_detail',
+    mcpName: 'nasa-cmr.datasets.detail',
+    title: 'NASA CMR — Collection Metadata Detail',
+    description:
+      'Retrieve full UMM (Universal Metadata Model) metadata for a specific NASA CMR collection ' +
+      'identified by its concept ID (e.g. "C2515837343-GES_DISC"). ' +
+      'Returns abstract, version, processing level, temporal extents, observing platforms and ' +
+      'instruments, science keywords (GCMD taxonomy: category/topic/term), DOI, related URLs, ' +
+      'and data center information. Concept IDs are obtained from nasa-cmr.datasets.search results. ' +
+      'Essential for understanding dataset scope, instrument provenance, and citation details ' +
+      'before downloading granules. ' +
+      'Source: NASA CMR — US Gov public domain, no auth required.',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nasa-cmr.search_granules',
+    mcpName: 'nasa-cmr.granules.search',
+    title: 'NASA CMR — Search Data Granules',
+    description:
+      'Search for individual data granules (files) within a NASA CMR collection. ' +
+      'Filter by collection concept ID or short name (e.g. "MOD09GA"), temporal range, ' +
+      'spatial bounding box, and day/night acquisition flag. ' +
+      'Returns granule IDs, titles, acquisition times, cloud cover percentage, file size (MB), ' +
+      'online access status, browse image availability, and direct download URLs. ' +
+      'Granules are the individual science data files (HDF, NetCDF, GeoTIFF) that agents ' +
+      'can download for analysis. Use nasa-cmr.datasets.search first to find the collection ' +
+      'concept ID, then use this tool to locate specific files by time/area. ' +
+      'Source: NASA CMR — US Gov public domain, no auth required.',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nasa-cmr.list_providers',
+    mcpName: 'nasa-cmr.providers.list',
+    title: 'NASA CMR — List Data Providers',
+    description:
+      'List all data centers and archive providers registered in the NASA CMR system. ' +
+      'Returns provider IDs (e.g. GES_DISC, ORNL_DAAC, LPDAAC_ECS, PODAAC, NSIDC_ECS, ' +
+      'LAADS, ASDC, GHRC_DAAC), organization names, URLs, roles, and consortium memberships. ' +
+      'Use provider IDs as the "provider" parameter in nasa-cmr.datasets.search to scope ' +
+      'dataset discovery to a specific NASA archive center. ' +
+      'There are approximately 60 active providers covering distinct Earth science disciplines. ' +
+      'Source: NASA CMR — US Gov public domain, no auth required.',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
 ];

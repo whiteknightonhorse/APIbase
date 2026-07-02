@@ -6382,6 +6382,56 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-577: EPA ECHO ---
+  - tool_id: echo.facility_search
+    name: EPA ECHO — Facility Search
+    provider: echo
+    price_usd: "0.003"
+    cache_ttl: 3600
+
+  - tool_id: echo.facility_detail
+    name: EPA ECHO — Facility Detail
+    provider: echo
+    price_usd: "0.003"
+    cache_ttl: 86400
+
+  - tool_id: echo.air_facilities
+    name: EPA ECHO — Air Program Facilities
+    provider: echo
+    price_usd: "0.003"
+    cache_ttl: 3600
+
+  - tool_id: echo.violations
+    name: EPA ECHO — Facility Violations & Enforcement
+    provider: echo
+    price_usd: "0.003"
+    cache_ttl: 86400
+
+  # --- UC-578: NASA CMR ---
+  - tool_id: nasa-cmr.search_collections
+    name: NASA CMR — Search Earth Science Datasets
+    provider: nasa-cmr
+    price_usd: "0.002"
+    cache_ttl: 300
+
+  - tool_id: nasa-cmr.collection_detail
+    name: NASA CMR — Collection Metadata Detail
+    provider: nasa-cmr
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: nasa-cmr.search_granules
+    name: NASA CMR — Search Data Granules
+    provider: nasa-cmr
+    price_usd: "0.002"
+    cache_ttl: 300
+
+  - tool_id: nasa-cmr.list_providers
+    name: NASA CMR — List Data Providers
+    provider: nasa-cmr
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

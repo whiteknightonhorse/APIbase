@@ -95543,6 +95543,728 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/echo.facility_search/call": {
+      "post": {
+        "operationId": "echo_facility_search",
+        "summary": "EPA ECHO — Facility Search",
+        "description": "Search EPA-regulated facilities across all environmental programs by ZIP code or facility name. Returns facility name, address, coordinates, industry codes (SIC/NAICS), program flags (CAA, CWA, RCRA, SDWA, TRI, GHG), total penalties assessed, inspection count, and formal/informal action counts. Use zip_code for location-based discovery, or facility_name with state for targeted searches. Covers 1M+ regulated US facilities. Source: EPA ECHO (Enforcement and Compliance History Online) — US Gov public domain, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "echo.facility_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "zip_code": {
+                    "type": "string",
+                    "description": "US ZIP code to search within (e.g. \"94601\"). Recommended for precise results. Provide either zip_code or facility_name."
+                  },
+                  "facility_name": {
+                    "type": "string",
+                    "description": "Partial or full facility name to search for (e.g. \"Chevron\"). Use with state for best results."
+                  },
+                  "state": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2,
+                    "description": "Two-letter US state code to narrow results (e.g. \"CA\", \"TX\"). Required when using facility_name without zip_code."
+                  },
+                  "active_only": {
+                    "type": "boolean",
+                    "description": "Return only currently active regulated facilities. Default true.",
+                    "default": true
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of facilities to return (1–50). Default 10.",
+                    "default": 10
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/echo.facility_detail/call": {
+      "post": {
+        "operationId": "echo_facility_detail",
+        "summary": "EPA ECHO — Facility Detail",
+        "description": "Retrieve detailed compliance profile for a specific EPA-regulated facility by Registry ID. Returns full address with county, coordinates, SIC/NAICS codes, HUC watershed code, federal facility status, facility creation/termination dates, and a complete list of environmental program interests (e.g. \"CAA Stationary Source\", \"NPDES Permit\"). Registry IDs are obtained from echo.compliance.facility_search results. Essential for due diligence, ESG screening, and permit verification. Source: EPA ECHO — US Gov public domain, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "echo.facility_detail"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "registry_id": {
+                    "type": "string",
+                    "description": "EPA Facility Registry System (FRS) Registry ID for the facility (e.g. \"110000350226\"). Obtained from echo.facility_search results."
+                  }
+                },
+                "required": [
+                  "registry_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/echo.air_facilities/call": {
+      "post": {
+        "operationId": "echo_air_facilities",
+        "summary": "EPA ECHO — Air Program Facilities",
+        "description": "Search facilities regulated under the Clean Air Act (CAA) by ZIP code or facility name. Returns facility name, address, coordinates, CAA permit types and status, quarters of noncompliance, inspection count, and High Priority Violation (HPV) flag. Ideal for air quality compliance monitoring, permit research, and environmental due diligence. Use zip_code for location search or facility_name with state for targeted search. Source: EPA ECHO Air program data — US Gov public domain, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "echo.air_facilities"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "zip_code": {
+                    "type": "string",
+                    "description": "US ZIP code to search within (e.g. \"77002\"). Recommended for precise results. Provide either zip_code or facility_name."
+                  },
+                  "facility_name": {
+                    "type": "string",
+                    "description": "Partial or full facility name to search for (e.g. \"Exxon\"). Use with state for best results."
+                  },
+                  "state": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2,
+                    "description": "Two-letter US state code to narrow results (e.g. \"TX\", \"OH\"). Required when using facility_name without zip_code."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of facilities to return (1–50). Default 10.",
+                    "default": 10
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/echo.violations/call": {
+      "post": {
+        "operationId": "echo_violations",
+        "summary": "EPA ECHO — Facility Violations & Enforcement",
+        "description": "Retrieve enforcement actions and violation history for a specific EPA-regulated facility. Returns enforcement activity type, action type, settlement date, federal and state penalties assessed, supplemental environmental project (SEP) amounts, and affected program codes (e.g. CAA, CWA, RCRA). Registry IDs are obtained from echo.compliance.facility_search results. Critical for environmental liability assessment, ESG due diligence, and compliance monitoring. Source: EPA ECHO — US Gov public domain, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "echo.violations"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "registry_id": {
+                    "type": "string",
+                    "description": "EPA Facility Registry System (FRS) Registry ID to retrieve enforcement and violation history for (e.g. \"110000350226\"). Obtained from echo.facility_search results."
+                  }
+                },
+                "required": [
+                  "registry_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/nasa-cmr.search_collections/call": {
+      "post": {
+        "operationId": "nasa-cmr_search_collections",
+        "summary": "NASA CMR — Search Earth Science Datasets",
+        "description": "Search NASA Common Metadata Repository (CMR) for Earth science satellite datasets and collections. Filter by keyword, data provider (ORNL_DAAC, GES_DISC, LPDAAC_ECS, PODAAC, NSIDC_ECS), temporal range, spatial bounding box, and processing level. Returns concept IDs, titles, summaries, data centers, temporal coverage, and access flags. CMR indexes 45,000+ collections covering climate, land, atmosphere, ocean, cryosphere, and biosphere from 60+ NASA data archives. Concept IDs from results feed into nasa-cmr.datasets.detail and nasa-cmr.granules.search. Source: NASA CMR — US Gov public domain, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nasa-cmr.search_collections"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "keyword": {
+                    "type": "string",
+                    "description": "Free-text keyword to search collection titles, summaries, and metadata (e.g. \"sea surface temperature\", \"MODIS land cover\", \"global precipitation\")."
+                  },
+                  "short_name": {
+                    "type": "string",
+                    "description": "Exact collection short name identifier (e.g. \"MOD13A2\", \"GPM_3IMERGHHE\"). Use when you know the specific dataset short name."
+                  },
+                  "provider": {
+                    "type": "string",
+                    "description": "Filter by NASA data center / archive provider ID (e.g. \"GES_DISC\", \"ORNL_DAAC\", \"LPDAAC_ECS\", \"PODAAC\", \"NSIDC_ECS\"). Use nasa-cmr.providers.list to discover available provider IDs."
+                  },
+                  "temporal_start": {
+                    "type": "string",
+                    "description": "Start of temporal coverage filter in ISO 8601 UTC format (e.g. \"2020-01-01T00:00:00Z\"). Returns collections whose temporal extent overlaps this range."
+                  },
+                  "temporal_end": {
+                    "type": "string",
+                    "description": "End of temporal coverage filter in ISO 8601 UTC format (e.g. \"2023-12-31T23:59:59Z\"). Returns collections whose temporal extent overlaps this range."
+                  },
+                  "bbox": {
+                    "type": "string",
+                    "description": "Bounding box spatial filter as \"west,south,east,north\" decimal degrees (e.g. \"-180,-90,180,90\" for global, \"-125,24,-66,50\" for continental US). Returns collections with spatial coverage intersecting the box."
+                  },
+                  "processing_level": {
+                    "type": "string",
+                    "description": "NASA data processing level filter (e.g. \"1B\", \"2\", \"3\", \"4\"). Level 1 = raw/calibrated; Level 2 = geophysical retrievals; Level 3 = gridded; Level 4 = model output."
+                  },
+                  "sort_key": {
+                    "type": "string",
+                    "enum": [
+                      "-score",
+                      "entry_title",
+                      "-entry_title",
+                      "start_date",
+                      "-start_date"
+                    ],
+                    "description": "Sort order for results: \"-score\" (relevance, default), \"entry_title\" / \"-entry_title\" (alphabetical), \"start_date\" / \"-start_date\" (temporal coverage start date)."
+                  },
+                  "page_size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20,
+                    "description": "Number of collections to return per page (1–20, default 10)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/nasa-cmr.collection_detail/call": {
+      "post": {
+        "operationId": "nasa-cmr_collection_detail",
+        "summary": "NASA CMR — Collection Metadata Detail",
+        "description": "Retrieve full UMM (Universal Metadata Model) metadata for a specific NASA CMR collection identified by its concept ID (e.g. \"C2515837343-GES_DISC\"). Returns abstract, version, processing level, temporal extents, observing platforms and instruments, science keywords (GCMD taxonomy: category/topic/term), DOI, related URLs, and data center information. Concept IDs are obtained from nasa-cmr.datasets.search results. Essential for understanding dataset scope, instrument provenance, and citation details before downloading granules. Source: NASA CMR — US Gov public domain, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nasa-cmr.collection_detail"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "concept_id": {
+                    "type": "string",
+                    "description": "CMR concept ID of the collection to retrieve full UMM metadata for (e.g. \"C2515837343-GES_DISC\"). Obtain concept IDs from nasa-cmr.datasets.search results."
+                  }
+                },
+                "required": [
+                  "concept_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/nasa-cmr.search_granules/call": {
+      "post": {
+        "operationId": "nasa-cmr_search_granules",
+        "summary": "NASA CMR — Search Data Granules",
+        "description": "Search for individual data granules (files) within a NASA CMR collection. Filter by collection concept ID or short name (e.g. \"MOD09GA\"), temporal range, spatial bounding box, and day/night acquisition flag. Returns granule IDs, titles, acquisition times, cloud cover percentage, file size (MB), online access status, browse image availability, and direct download URLs. Granules are the individual science data files (HDF, NetCDF, GeoTIFF) that agents can download for analysis. Use nasa-cmr.datasets.search first to find the collection concept ID, then use this tool to locate specific files by time/area. Source: NASA CMR — US Gov public domain, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nasa-cmr.search_granules"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "collection_concept_id": {
+                    "type": "string",
+                    "description": "CMR concept ID of the parent collection to search granules within (e.g. \"C2515837343-GES_DISC\"). Obtain from nasa-cmr.datasets.search results. Provide this or short_name to scope the search."
+                  },
+                  "short_name": {
+                    "type": "string",
+                    "description": "Collection short name to search granules for (e.g. \"MOD09GA\", \"GPM_3IMERGHHE\"). Alternative to collection_concept_id for well-known datasets."
+                  },
+                  "temporal_start": {
+                    "type": "string",
+                    "description": "Start of temporal filter in ISO 8601 UTC format (e.g. \"2023-01-01T00:00:00Z\"). Returns granules with data acquisition time overlapping this range."
+                  },
+                  "temporal_end": {
+                    "type": "string",
+                    "description": "End of temporal filter in ISO 8601 UTC format (e.g. \"2023-01-31T23:59:59Z\"). Returns granules with data acquisition time overlapping this range."
+                  },
+                  "bbox": {
+                    "type": "string",
+                    "description": "Bounding box spatial filter as \"west,south,east,north\" decimal degrees (e.g. \"-10.0,35.0,30.0,60.0\" for Europe). Returns granules with spatial coverage intersecting the box."
+                  },
+                  "day_night_flag": {
+                    "type": "string",
+                    "enum": [
+                      "day",
+                      "night",
+                      "unspecified"
+                    ],
+                    "description": "Filter granules by illumination condition during acquisition: \"day\" (daylight pass), \"night\" (nighttime pass), or \"unspecified\"."
+                  },
+                  "page_size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20,
+                    "description": "Number of granules to return per page (1–20, default 10)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/nasa-cmr.list_providers/call": {
+      "post": {
+        "operationId": "nasa-cmr_list_providers",
+        "summary": "NASA CMR — List Data Providers",
+        "description": "List all data centers and archive providers registered in the NASA CMR system. Returns provider IDs (e.g. GES_DISC, ORNL_DAAC, LPDAAC_ECS, PODAAC, NSIDC_ECS, LAADS, ASDC, GHRC_DAAC), organization names, URLs, roles, and consortium memberships. Use provider IDs as the \"provider\" parameter in nasa-cmr.datasets.search to scope dataset discovery to a specific NASA archive center. There are approximately 60 active providers covering distinct Earth science disciplines. Source: NASA CMR — US Gov public domain, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nasa-cmr.list_providers"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "page_size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Number of providers to return (1–100, default 50). There are approximately 60 active NASA CMR data centers."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {
