@@ -2546,5 +2546,14 @@
     "reset_period": "none",
     "docs_url": "https://openskynetwork.github.io/opensky-api/rest.html",
     "limit_proof": "Anonymous access to /states/all is free with no hard cap; throttled to ~1 req/10s per IP. No auth or registration required (opensky-network.org/apidoc)."
+  },
+  "coops": {
+    "display_name": "NOAA CO-OPS Tides & Currents",
+    "health_url": "https://api.tidesandcurrents.noaa.gov/mdapi/prod/webapi/stations.json?type=waterlevels&units=english",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://api.tidesandcurrents.noaa.gov/api/prod/",
+    "limit_proof": "US Government NODD public domain — no authentication, no rate limits documented. The NOAA CO-OPS API has served public data without restrictions since 2012 (tidesandcurrents.noaa.gov/web_services_info.html)."
   }
 }

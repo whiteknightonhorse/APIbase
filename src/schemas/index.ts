@@ -284,6 +284,7 @@ import { nrcSchemas } from './nrc.schema';
 import { btsTransportSchemas } from './bts-transport.schema';
 import { cdcChronicSchemas } from './cdc-chronic.schema';
 import { openskySchemas } from './opensky.schema';
+import { coopsSchemas } from './coops.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -571,4 +572,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...btsTransportSchemas,
   ...cdcChronicSchemas,
   ...openskySchemas,
+  ...coopsSchemas,
 };

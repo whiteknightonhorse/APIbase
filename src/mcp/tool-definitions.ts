@@ -11706,6 +11706,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   },
   {
     toolId: 'opensky.aircraft_track',
+
     mcpName: 'opensky.traffic.aircraft_track',
     title: 'OpenSky — Flight Track / Trajectory for Aircraft',
     description:
@@ -11715,6 +11716,65 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
       'Useful for reconstructing a flight path, computing distance flown, or detecting airport arrivals and departures. ' +
       'Source: OpenSky Network — opensky-network.org. No auth, open access.',
     category: 'travel',
+    annotations: READ_ONLY,
+  },
+
+  // NOAA CO-OPS Tides & Currents (UC-567) — 4 tools
+  {
+    toolId: 'coops.predictions',
+    mcpName: 'coops.tides.predictions',
+    title: 'NOAA CO-OPS — Tide High/Low Predictions',
+    description:
+      'Get predicted high and low tide times and heights for any NOAA CO-OPS tide gauge station in the US, Puerto Rico, Pacific Islands, and Great Lakes. ' +
+      'Returns a chronological list of high (H) and low (L) tides with UTC timestamps and water heights. ' +
+      'Specify a station_id (e.g. 8443970 for Boston, 9414290 for San Francisco, 8518750 for New York) and optional date range (default: next 7 days). ' +
+      'Datum defaults to MLLW (Mean Lower Low Water) — the reference datum used on NOAA nautical charts. ' +
+      'Data is generated from harmonic tide predictions. Useful for sailing, fishing, coastal engineering, and flood planning. ' +
+      'Source: NOAA Center for Operational Oceanographic Products and Services (CO-OPS) — tidesandcurrents.noaa.gov. No auth, US Gov public domain.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'coops.water_level',
+    mcpName: 'coops.tides.water_level',
+    title: 'NOAA CO-OPS — Observed Water Level',
+    description:
+      'Get verified observed water level readings (at 6-minute intervals) from a NOAA CO-OPS tide gauge station. ' +
+      'Returns time-series data with UTC timestamps, water height in feet or meters relative to the chosen datum, and data quality flags. ' +
+      'Specify station_id and optional date range (default: last 24 hours, max range 31 days). ' +
+      'Datum defaults to MLLW. Observed data may lag real-time by up to 6 minutes; use coops.tides.predictions for future forecasts. ' +
+      'Useful for flood monitoring, storm surge analysis, historical tide research, and comparing observed vs. predicted tides. ' +
+      'Source: NOAA CO-OPS — tidesandcurrents.noaa.gov. No auth, US Gov public domain.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'coops.stations',
+    mcpName: 'coops.tides.stations',
+    title: 'NOAA CO-OPS — List Tide Gauge Stations',
+    description:
+      'List active NOAA CO-OPS tide gauge stations with their IDs, names, coordinates, and metadata. ' +
+      'Over 300 stations covering US coastal states, Puerto Rico, Pacific Islands, and the Great Lakes. ' +
+      'Filter by state abbreviation (e.g. CA, FL, NY) to find local stations. ' +
+      'Returns station_id, name, latitude, longitude, state, timezone, tidal flag, and forecast availability. ' +
+      'Use the returned station_id values with coops.tides.predictions, coops.tides.water_level, and coops.tides.conditions. ' +
+      'Source: NOAA CO-OPS — tidesandcurrents.noaa.gov. No auth, US Gov public domain.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'coops.conditions',
+    mcpName: 'coops.tides.conditions',
+    title: 'NOAA CO-OPS — Marine Meteorological Conditions',
+    description:
+      'Get observed meteorological data from a NOAA CO-OPS station. Supports five products: ' +
+      'air_temperature (°F or °C), water_temperature (sea surface °F or °C), air_pressure (millibars), ' +
+      'humidity (relative humidity %), and wind (speed and direction — available at select stations). ' +
+      'Returns 6-minute interval readings for the specified date range (default: last 24 hours) plus the most recent reading for quick lookups. ' +
+      'Note: not all stations have all sensors — if a product is unavailable at the requested station, the API returns an error. ' +
+      'Try station 8443970 (Boston) for air_temperature, 9414290 (San Francisco) for water_temperature. ' +
+      'Source: NOAA CO-OPS — tidesandcurrents.noaa.gov. No auth, US Gov public domain.',
+    category: 'weather',
     annotations: READ_ONLY,
   },
 ];

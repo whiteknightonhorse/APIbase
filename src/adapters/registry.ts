@@ -284,6 +284,7 @@ import { NrcAdapter } from './nrc';
 import { BtsTransportAdapter } from './bts-transport';
 import { CdcChronicAdapter } from './cdc-chronic';
 import { OpenSkyAdapter } from './opensky';
+import { CoopsAdapter } from './coops';
 import { config } from '../config';
 
 /**
@@ -1592,6 +1593,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'opensky':
       // OpenSky Network ADS-B (UC-566) — live aircraft states, bounding box, tracks; no auth
       return getOrCreate('opensky', () => new OpenSkyAdapter());
+    case 'coops':
+      // NOAA CO-OPS Tides & Currents (UC-567) — tide predictions, water levels, stations, conditions; no auth
+      return getOrCreate('coops', () => new CoopsAdapter());
     default:
       return undefined;
   }

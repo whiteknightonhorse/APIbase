@@ -91871,6 +91871,430 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/coops.predictions/call": {
+      "post": {
+        "operationId": "coops_predictions",
+        "summary": "NOAA CO-OPS — Tide High/Low Predictions",
+        "description": "Get predicted high and low tide times and heights for any NOAA CO-OPS tide gauge station in the US, Puerto Rico, Pacific Islands, and Great Lakes. Returns a chronological list of high (H) and low (L) tides with UTC timestamps and water heights. Specify a station_id (e.g. 8443970 for Boston, 9414290 for San Francisco, 8518750 for New York) and optional date range (default: next 7 days). Datum defaults to MLLW (Mean Lower Low Water) — the reference datum used on NOAA nautical charts. Data is generated from harmonic tide predictions. Useful for sailing, fishing, coastal engineering, and flood planning. Source: NOAA Center for Operational Oceanographic Products and Services (CO-OPS) — tidesandcurrents.noaa.gov. No auth, US Gov public domain.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "coops.predictions"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "station_id": {
+                    "type": "string",
+                    "description": "NOAA CO-OPS station ID (4–7 digits, e.g. 8443970 for Boston MA). Find station IDs with the coops.tides.stations tool."
+                  },
+                  "begin_date": {
+                    "type": "string",
+                    "description": "Start date for tide predictions in YYYY-MM-DD or YYYYMMDD format (e.g. 2025-07-04). Defaults to today. Maximum range: 366 days."
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "End date for tide predictions in YYYY-MM-DD or YYYYMMDD format (e.g. 2025-07-11). Defaults to 7 days from today. Maximum range: 366 days."
+                  },
+                  "datum": {
+                    "type": "string",
+                    "enum": [
+                      "MLLW",
+                      "MLW",
+                      "MSL",
+                      "MHW",
+                      "MHHW",
+                      "NAVD",
+                      "STND"
+                    ],
+                    "description": "Vertical datum for water height measurements. MLLW (Mean Lower Low Water) is the chart datum used for nautical charts. MSL = Mean Sea Level. Defaults to MLLW."
+                  },
+                  "units": {
+                    "type": "string",
+                    "enum": [
+                      "english",
+                      "metric"
+                    ],
+                    "description": "Unit system for water heights. english = feet, metric = meters. Defaults to english."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 500,
+                    "description": "Maximum number of tide predictions to return (1–500). Defaults to 100. A 7-day window typically has 28 high/low tides."
+                  }
+                },
+                "required": [
+                  "station_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/coops.water_level/call": {
+      "post": {
+        "operationId": "coops_water_level",
+        "summary": "NOAA CO-OPS — Observed Water Level",
+        "description": "Get verified observed water level readings (at 6-minute intervals) from a NOAA CO-OPS tide gauge station. Returns time-series data with UTC timestamps, water height in feet or meters relative to the chosen datum, and data quality flags. Specify station_id and optional date range (default: last 24 hours, max range 31 days). Datum defaults to MLLW. Observed data may lag real-time by up to 6 minutes; use coops.tides.predictions for future forecasts. Useful for flood monitoring, storm surge analysis, historical tide research, and comparing observed vs. predicted tides. Source: NOAA CO-OPS — tidesandcurrents.noaa.gov. No auth, US Gov public domain.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "coops.water_level"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "station_id": {
+                    "type": "string",
+                    "description": "NOAA CO-OPS station ID (4–7 digits, e.g. 8443970 for Boston MA). Find station IDs with the coops.tides.stations tool."
+                  },
+                  "begin_date": {
+                    "type": "string",
+                    "description": "Start date for water level observations in YYYY-MM-DD or YYYYMMDD format (e.g. 2025-07-01). Defaults to yesterday. Maximum range: 31 days."
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "End date for water level observations in YYYY-MM-DD or YYYYMMDD format (e.g. 2025-07-02). Defaults to today. Maximum range: 31 days."
+                  },
+                  "datum": {
+                    "type": "string",
+                    "enum": [
+                      "MLLW",
+                      "MLW",
+                      "MSL",
+                      "MHW",
+                      "MHHW",
+                      "NAVD",
+                      "STND"
+                    ],
+                    "description": "Vertical datum for water height measurements. MLLW is the standard chart datum. Defaults to MLLW."
+                  },
+                  "units": {
+                    "type": "string",
+                    "enum": [
+                      "english",
+                      "metric"
+                    ],
+                    "description": "Unit system: english = feet, metric = meters. Defaults to english."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 500,
+                    "description": "Maximum number of 6-minute interval readings to return (1–500). Defaults to 120. One day has 240 readings."
+                  }
+                },
+                "required": [
+                  "station_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/coops.stations/call": {
+      "post": {
+        "operationId": "coops_stations",
+        "summary": "NOAA CO-OPS — List Tide Gauge Stations",
+        "description": "List active NOAA CO-OPS tide gauge stations with their IDs, names, coordinates, and metadata. Over 300 stations covering US coastal states, Puerto Rico, Pacific Islands, and the Great Lakes. Filter by state abbreviation (e.g. CA, FL, NY) to find local stations. Returns station_id, name, latitude, longitude, state, timezone, tidal flag, and forecast availability. Use the returned station_id values with coops.tides.predictions, coops.tides.water_level, and coops.tides.conditions. Source: NOAA CO-OPS — tidesandcurrents.noaa.gov. No auth, US Gov public domain.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "coops.stations"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2,
+                    "description": "Filter stations by US state abbreviation (e.g. CA, NY, FL, TX). Must be exactly 2 uppercase letters. Omit for all states."
+                  },
+                  "tidal_only": {
+                    "type": "boolean",
+                    "description": "When true (default), return only tidal stations. Set to false to include Great Lakes and non-tidal stations."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 200,
+                    "description": "Maximum number of stations to return (1–200). Defaults to 50."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/coops.conditions/call": {
+      "post": {
+        "operationId": "coops_conditions",
+        "summary": "NOAA CO-OPS — Marine Meteorological Conditions",
+        "description": "Get observed meteorological data from a NOAA CO-OPS station. Supports five products: air_temperature (°F or °C), water_temperature (sea surface °F or °C), air_pressure (millibars), humidity (relative humidity %), and wind (speed and direction — available at select stations). Returns 6-minute interval readings for the specified date range (default: last 24 hours) plus the most recent reading for quick lookups. Note: not all stations have all sensors — if a product is unavailable at the requested station, the API returns an error. Try station 8443970 (Boston) for air_temperature, 9414290 (San Francisco) for water_temperature. Source: NOAA CO-OPS — tidesandcurrents.noaa.gov. No auth, US Gov public domain.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "coops.conditions"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "station_id": {
+                    "type": "string",
+                    "description": "NOAA CO-OPS station ID (4–7 digits, e.g. 8443970 for Boston MA). Find station IDs with the coops.tides.stations tool."
+                  },
+                  "product": {
+                    "type": "string",
+                    "enum": [
+                      "air_temperature",
+                      "water_temperature",
+                      "air_pressure",
+                      "humidity",
+                      "wind"
+                    ],
+                    "description": "Meteorological product to retrieve. air_temperature = air temp in °F (or °C), water_temperature = sea surface temp, air_pressure = barometric pressure in mb, humidity = relative humidity %, wind = wind speed/direction. Not all stations have all sensors. Defaults to air_temperature."
+                  },
+                  "begin_date": {
+                    "type": "string",
+                    "description": "Start date for observations in YYYY-MM-DD or YYYYMMDD format (e.g. 2025-07-01). Defaults to yesterday. Maximum range: 31 days."
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "End date for observations in YYYY-MM-DD or YYYYMMDD format (e.g. 2025-07-02). Defaults to today. Maximum range: 31 days."
+                  },
+                  "units": {
+                    "type": "string",
+                    "enum": [
+                      "english",
+                      "metric"
+                    ],
+                    "description": "Unit system: english = °F / knots / feet, metric = °C / m/s / meters. Defaults to english."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 500,
+                    "description": "Maximum number of recent readings to return (1–500). Readings are at 6-minute intervals. Defaults to 60 (last 6 hours)."
+                  }
+                },
+                "required": [
+                  "station_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {
