@@ -283,6 +283,7 @@ Use these examples as reference patterns when:
 | UC-585 | Jolpica F1 | Formula 1 race calendar, results, driver/constructor standings; Ergast-compatible; no auth, unlimited free | LIVE | No auth, 4 tools | `usecases/UC-585-jolpica-f1.md` |
 | UC-586 | TheSportsDB | Multi-sport team/player search, league match schedules (soccer, NFL, NBA, MLB, etc.); no auth, free public API | LIVE | No auth, 4 tools | `usecases/UC-586-thesportsdb.md` |
 | UC-587 | EUR-Lex Cellar | EU legislation search/browse/detail via SPARQL (AI Act, GDPR, directives, regulations, decisions); no auth, EU open data, CC BY 4.0 | LIVE | No auth, 4 tools | `usecases/UC-587-eurlex-cellar.md` |
+| UC-588 | European Parliament Open Data | MEP profiles + memberships, adopted legislative texts, legislative procedures; CC BY 4.0; no auth; 500 req/5min | LIVE | No auth, 4 tools | `usecases/UC-588-eu-parliament.md` |
 
 ## How to Use
 

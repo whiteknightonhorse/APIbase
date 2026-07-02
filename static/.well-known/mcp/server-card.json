@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 1106 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 1110 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -53072,6 +53072,266 @@
           "error": {
             "type": "object",
             "description": "Present only when the call failed."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "eu_parliament.legislation.adopted_texts",
+      "title": "List EP Adopted Legislative Texts",
+      "description": "List legislative texts adopted (voted into law) by the European Parliament plenary. Returns document identifiers, adoption dates, parliamentary term, parent procedure references, and Eurovoc subject thematic codes. Filter by parliamentary term (e.g. term 10 = 2024\u20132029 legislature). The most recent adopted texts appear first. Use the document ID (e.g. TA-10-2025-0181) to look up the full text on EUR-Lex (eurlex.legislation.detail tool). Supports pagination via limit (max 100) and offset. Data source: European Parliament Open Data API v2 \u2014 CC BY 4.0, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "parliamentary_term": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10,
+            "description": "Filter by parliamentary term (1\u201310). Example: 10 for texts adopted in the 2024\u20132029 term."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Number of adopted texts to return (1\u2013100, default 20)."
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of results to skip for pagination (default 0)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "eu_parliament.legislation.procedures",
+      "title": "List EP Legislative Procedures",
+      "description": "List European Parliament legislative procedures (the full legislative tracks that produce EU law). Returns each procedure's unique EP reference (e.g. 1972/0003(COD)), procedure type code, and human-readable label. Filter by parliamentary term or procedure type: COD (ordinary legislative \u2014 co-decision with Council), CNS (consultation), BUD (budgetary), INI (own-initiative resolution), RSP (response resolution). Supports pagination via limit (max 100) and offset. Data source: European Parliament Open Data API v2 \u2014 CC BY 4.0, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "parliamentary_term": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10,
+            "description": "Filter by parliamentary term (1\u201310). Example: 10 for the 2024\u20132029 term procedures."
+          },
+          "procedure_type": {
+            "type": "string",
+            "enum": [
+              "COD",
+              "CNS",
+              "BUD",
+              "INI",
+              "RSP",
+              "REG",
+              "DEC",
+              "DIR"
+            ],
+            "description": "Filter by procedure type. COD=ordinary legislative, CNS=consultation, BUD=budgetary, INI=own-initiative, RSP=resolution."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Number of procedures to return (1\u2013100, default 20)."
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of results to skip for pagination (default 0)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "eu_parliament.meps.details",
+      "title": "Get MEP Profile and Memberships",
+      "description": "Retrieve the full profile and complete parliamentary membership history of a specific MEP by their numeric CODICT identifier. Returns the MEP's name, date of birth, gender, and all committee, political group, intergroup, and delegation memberships with start/end dates and roles. Use the meps.list tool to look up MEP identifiers. Useful for understanding an MEP's committee responsibilities, political affiliations over time, and interparliamentary delegation work. Data source: European Parliament Open Data API v2 \u2014 CC BY 4.0, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "mep_id": {
+            "type": "string",
+            "description": "Numeric MEP identifier from the European Parliament CODICT system. Example: 197539 for Mikul\u00e1\u0161 Peksa. Obtain IDs via the meps.list tool."
+          }
+        },
+        "required": [
+          "mep_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "eu_parliament.meps.list",
+      "title": "List EU Parliament MEPs",
+      "description": "List Members of the European Parliament (MEPs) currently serving in the active parliamentary term. Filter by country (ISO 3166-1 alpha-2 code), political group (PPE, S-D, RENEW, VERTS-ALE, ECR, THE-LEFT, ID, NI), or gender. Returns each MEP's numeric CODICT identifier, full name, family name, given name, country of representation, and political group abbreviation. Use the returned identifier with the meps.details tool to fetch the full membership history. Supports pagination via limit (max 100) and offset. Data source: European Parliament Open Data API v2 \u2014 CC BY 4.0, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "parliamentary_term": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10,
+            "description": "Parliamentary term number (1\u201310). Omit for current term (10). Example: 10 for the 2024\u20132029 term."
+          },
+          "country": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "Filter by EU member state using ISO 3166-1 alpha-2 code. Example: DE (Germany), FR (France), PL (Poland)."
+          },
+          "political_group": {
+            "type": "string",
+            "enum": [
+              "PPE",
+              "NI",
+              "S-D",
+              "VERTS-ALE",
+              "ECR",
+              "RENEW",
+              "THE-LEFT",
+              "ID"
+            ],
+            "description": "Filter by EP political group abbreviation. PPE=centre-right, S-D=social-democrat, RENEW=liberal, VERTS-ALE=green, ECR=conservative, THE-LEFT=far-left, ID=far-right, NI=non-attached."
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "MALE",
+              "FEMALE"
+            ],
+            "description": "Filter MEPs by gender (MALE or FEMALE)."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Number of MEPs to return (1\u2013100, default 50)."
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of results to skip for pagination (default 0)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
           }
         },
         "required": [

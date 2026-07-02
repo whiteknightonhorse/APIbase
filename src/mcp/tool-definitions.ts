@@ -12996,4 +12996,67 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'legal',
     annotations: READ_ONLY,
   },
+
+  // European Parliament (4) — UC-588
+  {
+    toolId: 'eu_parliament.meps.list',
+    mcpName: 'eu_parliament.meps.list',
+    title: 'List EU Parliament MEPs',
+    description:
+      'List Members of the European Parliament (MEPs) currently serving in the active parliamentary term. ' +
+      'Filter by country (ISO 3166-1 alpha-2 code), political group (PPE, S-D, RENEW, VERTS-ALE, ECR, THE-LEFT, ID, NI), ' +
+      "or gender. Returns each MEP's numeric CODICT identifier, full name, family name, given name, " +
+      'country of representation, and political group abbreviation. ' +
+      'Use the returned identifier with the meps.details tool to fetch the full membership history. ' +
+      'Supports pagination via limit (max 100) and offset. ' +
+      'Data source: European Parliament Open Data API v2 — CC BY 4.0, no auth required.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'eu_parliament.meps.details',
+    mcpName: 'eu_parliament.meps.details',
+    title: 'Get MEP Profile and Memberships',
+    description:
+      'Retrieve the full profile and complete parliamentary membership history of a specific MEP by their ' +
+      "numeric CODICT identifier. Returns the MEP's name, date of birth, gender, and all committee, " +
+      'political group, intergroup, and delegation memberships with start/end dates and roles. ' +
+      'Use the meps.list tool to look up MEP identifiers. ' +
+      "Useful for understanding an MEP's committee responsibilities, political affiliations over time, " +
+      'and interparliamentary delegation work. ' +
+      'Data source: European Parliament Open Data API v2 — CC BY 4.0, no auth required.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'eu_parliament.legislation.adopted_texts',
+    mcpName: 'eu_parliament.legislation.adopted_texts',
+    title: 'List EP Adopted Legislative Texts',
+    description:
+      'List legislative texts adopted (voted into law) by the European Parliament plenary. ' +
+      'Returns document identifiers, adoption dates, parliamentary term, parent procedure references, ' +
+      'and Eurovoc subject thematic codes. ' +
+      'Filter by parliamentary term (e.g. term 10 = 2024–2029 legislature). ' +
+      'The most recent adopted texts appear first. ' +
+      'Use the document ID (e.g. TA-10-2025-0181) to look up the full text on EUR-Lex (eurlex.legislation.detail tool). ' +
+      'Supports pagination via limit (max 100) and offset. ' +
+      'Data source: European Parliament Open Data API v2 — CC BY 4.0, no auth required.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'eu_parliament.legislation.procedures',
+    mcpName: 'eu_parliament.legislation.procedures',
+    title: 'List EP Legislative Procedures',
+    description:
+      'List European Parliament legislative procedures (the full legislative tracks that produce EU law). ' +
+      "Returns each procedure's unique EP reference (e.g. 1972/0003(COD)), procedure type code, " +
+      'and human-readable label. ' +
+      'Filter by parliamentary term or procedure type: COD (ordinary legislative — co-decision with Council), ' +
+      'CNS (consultation), BUD (budgetary), INI (own-initiative resolution), RSP (response resolution). ' +
+      'Supports pagination via limit (max 100) and offset. ' +
+      'Data source: European Parliament Open Data API v2 — CC BY 4.0, no auth required.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
 ];

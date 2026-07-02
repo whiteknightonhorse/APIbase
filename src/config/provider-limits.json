@@ -2735,5 +2735,14 @@
     "reset_period": "none",
     "docs_url": "https://publications.europa.eu/webapi/rdf/sparql",
     "limit_proof": "EU Publications Office public SPARQL endpoint; no authentication required; no documented rate limits; EU open data under CC BY 4.0."
+  },
+  "eu_parliament": {
+    "display_name": "EU Parliament Open Data",
+    "health_url": "https://data.europarl.europa.eu/api/v2/meps/show-current?format=application/ld%2Bjson&limit=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://data.europarl.europa.eu/api/v2/",
+    "limit_proof": "No cumulative quota; rate limit only: 500 requests per 5 minutes per endpoint. EU open data, CC BY 4.0, no auth required."
   }
 }

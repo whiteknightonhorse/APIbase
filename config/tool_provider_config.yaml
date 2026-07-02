@@ -6657,6 +6657,31 @@ tools:
     price_usd: "0.002"
     cache_ttl: 3600
 
+  # --- UC-588: European Parliament ---
+  - tool_id: eu_parliament.meps.list
+    name: List EU Parliament MEPs
+    provider: eu_parliament
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: eu_parliament.meps.details
+    name: Get MEP Profile and Memberships
+    provider: eu_parliament
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: eu_parliament.legislation.adopted_texts
+    name: List EP Adopted Legislative Texts
+    provider: eu_parliament
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: eu_parliament.legislation.procedures
+    name: List EP Legislative Procedures
+    provider: eu_parliament
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform
