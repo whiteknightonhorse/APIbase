@@ -2708,5 +2708,14 @@
     "reset_period": "none",
     "docs_url": "https://opentdb.com/api_config.php",
     "limit_proof": "Fully free, no auth required; docs ask for courtesy 1 req/5s but no hard rate limit enforced; CC BY-SA 4.0 license permits commercial use."
+  },
+  "f1": {
+    "display_name": "Jolpica F1 (Ergast)",
+    "health_url": "https://api.jolpi.ca/ergast/f1/current.json?limit=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://api.jolpi.ca/",
+    "limit_proof": "No auth, no documented rate limits; Jolpica is an open Ergast-compatible F1 API; free unlimited access per jolpi.ca docs."
   }
 }

@@ -12820,4 +12820,61 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'entertainment',
     annotations: READ_ONLY,
   },
+
+  // Jolpica F1 (UC-585) — 4 tools
+  {
+    toolId: 'f1.races.schedule',
+    mcpName: 'f1.races.schedule',
+    title: 'F1 Race Schedule',
+    description:
+      'Get the Formula 1 race calendar for any season from 1950 to the current year. ' +
+      'Returns each Grand Prix with round number, race name, circuit, location, race date/time (UTC), ' +
+      'qualifying date/time, and sprint date when applicable. ' +
+      'Omit the season parameter to get the current season schedule. ' +
+      'Data source: Jolpica F1 (Ergast-compatible API) — free, unlimited, no auth required.',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'f1.races.results',
+    mcpName: 'f1.races.results',
+    title: 'F1 Race Results',
+    description:
+      'Get the finishing results for a specific Formula 1 race: final classified positions, ' +
+      'driver name, constructor, grid position, laps completed, finish status (Finished/DNF/DSQ/+N Laps), ' +
+      'points scored, finish time, and fastest lap time and rank. ' +
+      'Defaults to the most recently completed race (round=last) of the current season. ' +
+      'Specify season + round to fetch any race back to 1950. ' +
+      'Data source: Jolpica F1 (Ergast-compatible API) — free, unlimited, no auth required.',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'f1.standings.drivers',
+    mcpName: 'f1.standings.drivers',
+    title: 'F1 Driver Championship Standings',
+    description:
+      'Get Formula 1 World Drivers Championship standings for any season. ' +
+      'Returns each driver ranked by points, with their constructor, nationality, wins count, ' +
+      'and total championship points as of the latest completed round. ' +
+      'Omit the season parameter to get current live standings. ' +
+      'Historical seasons available back to 1950. ' +
+      'Data source: Jolpica F1 (Ergast-compatible API) — free, unlimited, no auth required.',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'f1.standings.constructors',
+    mcpName: 'f1.standings.constructors',
+    title: 'F1 Constructor Championship Standings',
+    description:
+      'Get Formula 1 World Constructors Championship standings for any season. ' +
+      'Returns each team (constructor) ranked by points, with nationality, total wins, ' +
+      'and championship points as of the latest completed round. ' +
+      'Omit the season parameter to get current live standings. ' +
+      'Historical seasons available back to 1958 (first constructor championship). ' +
+      'Data source: Jolpica F1 (Ergast-compatible API) — free, unlimited, no auth required.',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
 ];

@@ -280,6 +280,7 @@ Use these examples as reference patterns when:
 | UC-582 | CBS Netherlands (Statistics NL) | Statistics Netherlands OData API; 5900+ statistical datasets (population, economy, labor, health); no auth, CC BY 4.0 | LIVE | No auth, 4 tools | `usecases/UC-582-cbs-netherlands.md` |
 | UC-583 | ADB Key Indicators Database | ADB macroeconomic database; 700+ indicators; 50 Asia-Pacific economies; 62 dataflows; SDMX v3.0; no auth, 20 req/min | LIVE | No auth, 4 tools | `usecases/UC-583-adbkidb.md` |
 | UC-584 | Open Trivia Database | User-contributed trivia questions; 5000+ verified; 24 categories; no auth, CC BY-SA 4.0, unlimited free | LIVE | No auth, 4 tools | `usecases/UC-584-opentdb.md` |
+| UC-585 | Jolpica F1 | Formula 1 race calendar, results, driver/constructor standings; Ergast-compatible; no auth, unlimited free | LIVE | No auth, 4 tools | `usecases/UC-585-jolpica-f1.md` |
 
 ## How to Use
 

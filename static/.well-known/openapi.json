@@ -98417,6 +98417,358 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/f1.races.schedule/call": {
+      "post": {
+        "operationId": "f1_races_schedule",
+        "summary": "F1 Race Schedule",
+        "description": "Get the Formula 1 race calendar for any season from 1950 to the current year. Returns each Grand Prix with round number, race name, circuit, location, race date/time (UTC), qualifying date/time, and sprint date when applicable. Omit the season parameter to get the current season schedule. Data source: Jolpica F1 (Ergast-compatible API) — free, unlimited, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "f1.races.schedule"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "season": {
+                    "type": "string",
+                    "description": "Season year (e.g. 2026, 2024, 2023). Omit for the current season."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of results to return (1–100, default 30)."
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Pagination offset — number of results to skip (default 0)."
+                  }
+                },
+                "description": "Get the Formula 1 race calendar for a season."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/f1.races.results/call": {
+      "post": {
+        "operationId": "f1_races_results",
+        "summary": "F1 Race Results",
+        "description": "Get the finishing results for a specific Formula 1 race: final classified positions, driver name, constructor, grid position, laps completed, finish status (Finished/DNF/DSQ/+N Laps), points scored, finish time, and fastest lap time and rank. Defaults to the most recently completed race (round=last) of the current season. Specify season + round to fetch any race back to 1950. Data source: Jolpica F1 (Ergast-compatible API) — free, unlimited, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "f1.races.results"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "season": {
+                    "type": "string",
+                    "description": "Season year (e.g. 2026, 2024, 2023). Omit for the current season."
+                  },
+                  "round": {
+                    "type": "string",
+                    "description": "Race round number within the season (1-based), or 'last' for the most recent completed race. Omit for last race."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of results to return (1–100, default 30)."
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Pagination offset — number of results to skip (default 0)."
+                  }
+                },
+                "description": "Get finishing results for a specific Formula 1 race."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/f1.standings.drivers/call": {
+      "post": {
+        "operationId": "f1_standings_drivers",
+        "summary": "F1 Driver Championship Standings",
+        "description": "Get Formula 1 World Drivers Championship standings for any season. Returns each driver ranked by points, with their constructor, nationality, wins count, and total championship points as of the latest completed round. Omit the season parameter to get current live standings. Historical seasons available back to 1950. Data source: Jolpica F1 (Ergast-compatible API) — free, unlimited, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "f1.standings.drivers"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "season": {
+                    "type": "string",
+                    "description": "Season year (e.g. 2026, 2024, 2023). Omit for the current season."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of results to return (1–100, default 30)."
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Pagination offset — number of results to skip (default 0)."
+                  }
+                },
+                "description": "Get driver World Championship standings for a season."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/f1.standings.constructors/call": {
+      "post": {
+        "operationId": "f1_standings_constructors",
+        "summary": "F1 Constructor Championship Standings",
+        "description": "Get Formula 1 World Constructors Championship standings for any season. Returns each team (constructor) ranked by points, with nationality, total wins, and championship points as of the latest completed round. Omit the season parameter to get current live standings. Historical seasons available back to 1958 (first constructor championship). Data source: Jolpica F1 (Ergast-compatible API) — free, unlimited, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "f1.standings.constructors"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "season": {
+                    "type": "string",
+                    "description": "Season year (e.g. 2026, 2024, 2023). Omit for the current season."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of results to return (1–100, default 30)."
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Pagination offset — number of results to skip (default 0)."
+                  }
+                },
+                "description": "Get constructor (team) World Championship standings for a season."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

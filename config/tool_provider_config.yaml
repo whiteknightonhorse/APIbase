@@ -6582,6 +6582,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-585: Jolpica F1 ---
+  - tool_id: f1.races.schedule
+    name: F1 Race Schedule
+    provider: f1
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: f1.races.results
+    name: F1 Race Results
+    provider: f1
+    price_usd: "0.001"
+    cache_ttl: 300
+
+  - tool_id: f1.standings.drivers
+    name: F1 Driver Championship Standings
+    provider: f1
+    price_usd: "0.001"
+    cache_ttl: 300
+
+  - tool_id: f1.standings.constructors
+    name: F1 Constructor Championship Standings
+    provider: f1
+    price_usd: "0.001"
+    cache_ttl: 300
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

@@ -1,4 +1,5 @@
 import { type BaseAdapter } from './base.adapter';
+import { JolpicaF1Adapter } from './jolpica-f1';
 import { PolymarketAdapter } from './polymarket';
 import { HyperliquidAdapter } from './hyperliquid';
 import { AsterDexAdapter } from './asterdex';
@@ -1664,6 +1665,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'opentdb':
       // Open Trivia Database (UC-584) — 5000+ user-contributed trivia questions; 24 categories; no auth; CC BY-SA 4.0
       return getOrCreate('opentdb', () => new OpenTdbAdapter());
+    case 'f1':
+      // Jolpica F1 (UC-585) — Formula 1 race schedule, results, driver/constructor standings; Ergast-compatible; no auth; free unlimited
+      return getOrCreate('f1', () => new JolpicaF1Adapter());
     default:
       return undefined;
   }
