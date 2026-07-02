@@ -2726,5 +2726,14 @@
     "reset_period": "none",
     "docs_url": "https://www.thesportsdb.com/api.php",
     "limit_proof": "Free public API key '3' included in URL path; no documented rate limits for basic endpoints; community-maintained open sports database."
+  },
+  "eurlex": {
+    "display_name": "EUR-Lex Cellar",
+    "health_url": "https://publications.europa.eu/webapi/rdf/sparql?query=SELECT+%3Fs+WHERE+%7B+%3Fs+a+%3Chttp%3A//publications.europa.eu/ontology/cdm%23work%3E+%7D+LIMIT+1&format=application/sparql-results+json",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://publications.europa.eu/webapi/rdf/sparql",
+    "limit_proof": "EU Publications Office public SPARQL endpoint; no authentication required; no documented rate limits; EU open data under CC BY 4.0."
   }
 }

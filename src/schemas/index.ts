@@ -304,6 +304,7 @@ import { adbkidbSchemas } from './adbkidb.schema';
 import { opentdbSchemas } from './opentdb.schema';
 import { jolpicaF1Schemas } from './jolpica-f1.schema';
 import { thesportsdbSchemas } from './thesportsdb.schema';
+import { eurLexSchemas } from './eurlex.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -611,4 +612,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...opentdbSchemas,
   ...jolpicaF1Schemas,
   ...thesportsdbSchemas,
+  ...eurLexSchemas,
 };

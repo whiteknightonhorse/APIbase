@@ -99083,6 +99083,350 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/eurlex.legislation.search/call": {
+      "post": {
+        "operationId": "eurlex_legislation_search",
+        "summary": "Search EU Legislation",
+        "description": "Search the official EUR-Lex Cellar SPARQL endpoint for EU legislative acts by keyword in English titles. Returns matching regulations, directives, and decisions with CELEX identifier, date, English title, in-force status, Cellar URI, and a direct EUR-Lex URL. Examples: keyword=\"artificial intelligence\" returns the EU AI Act (32024R1689); keyword=\"GDPR\" returns the General Data Protection Regulation (32016R0679). Results are ordered by most recent date first. Optionally restrict to acts published on or after from_date. CELEX format: 3 + 4-digit year + type letter (R=Regulation, L=Directive, D=Decision) + number. Data source: EU Publications Office EUR-Lex Cellar — official EU law repository, no auth required, open access.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "eurlex.legislation.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "keyword": {
+                    "type": "string",
+                    "description": "English keyword to search for in EU legislation titles (e.g. \"artificial intelligence\", \"GDPR\", \"carbon border adjustment\")"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20,
+                    "description": "Maximum number of results to return (1–20, default 10)"
+                  },
+                  "from_date": {
+                    "type": "string",
+                    "description": "Restrict results to legislation published on or after this date in YYYY-MM-DD format (e.g. \"2020-01-01\"). Omit for all dates."
+                  }
+                },
+                "required": [
+                  "keyword"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/eurlex.legislation.recent/call": {
+      "post": {
+        "operationId": "eurlex_legislation_recent",
+        "summary": "Recent EU Legislation",
+        "description": "Get the most recently published EU legislative acts from EUR-Lex Cellar. Returns acts ordered by publication date descending with CELEX identifier, date, English title (where available), in-force status, Cellar URI, and direct EUR-Lex URL. Covers all secondary EU legislation (regulations, directives, decisions) published within the specified number of days. Default look-back is 30 days; max 365 days. Data source: EU Publications Office EUR-Lex Cellar — official EU law repository, no auth required, open access.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "eurlex.legislation.recent"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "days": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 365,
+                    "description": "Look back this many days for recently published EU legislation (1–365, default 30)"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20,
+                    "description": "Maximum number of results to return (1–20, default 10)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/eurlex.legislation.detail/call": {
+      "post": {
+        "operationId": "eurlex_legislation_detail",
+        "summary": "EU Legal Act Detail",
+        "description": "Retrieve full metadata for a specific EU legal act identified by its CELEX number from EUR-Lex Cellar. Returns CELEX identifier, publication date, English title, in-force status, Cellar URI, and direct EUR-Lex URL. CELEX examples: \"32024R1689\" (EU AI Act), \"32016R0679\" (GDPR), \"32023R1115\" (EU Deforestation Regulation), \"32022R2065\" (Digital Services Act), \"32020R0852\" (EU Taxonomy Regulation). CELEX format: sector digit (3 = secondary EU law) + 4-digit year + type letter (R=Regulation, L=Directive, D=Decision) + sequential number. Returns found=false if the CELEX number does not exist in EUR-Lex Cellar. Data source: EU Publications Office EUR-Lex Cellar — official EU law repository, no auth required, open access.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "eurlex.legislation.detail"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "celex": {
+                    "type": "string",
+                    "description": "CELEX identifier of the EU legal act to retrieve (e.g. \"32024R1689\" for the EU AI Act, \"32016R0679\" for GDPR, \"32023R1115\" for EU Deforestation Regulation). Format: sector digit (3 = secondary legislation) + 4-digit year + type letter (R=Regulation, L=Directive, D=Decision) + sequential number."
+                  }
+                },
+                "required": [
+                  "celex"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/eurlex.legislation.by_type/call": {
+      "post": {
+        "operationId": "eurlex_legislation_by_type",
+        "summary": "Browse EU Legislation by Type",
+        "description": "Browse EU legislative acts by document type (regulation, directive, or decision) from EUR-Lex Cellar. Returns acts with CELEX identifier, publication date, English title, in-force status, Cellar URI, and direct EUR-Lex URL, ordered by most recent date first. Regulations are directly applicable in all EU member states without national implementation; directives set binding objectives but require member state transposition; decisions are binding on specific addressees (states, companies, or individuals). Use from_year to restrict to acts published from that year onwards (e.g. 2020 for recent acts). Data source: EU Publications Office EUR-Lex Cellar — official EU law repository, no auth required, open access.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "eurlex.legislation.by_type"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "doc_type": {
+                    "type": "string",
+                    "enum": [
+                      "regulation",
+                      "directive",
+                      "decision"
+                    ],
+                    "description": "Type of EU legislative act: \"regulation\" (directly applicable in all EU member states), \"directive\" (binding on objectives, member states choose implementation means), \"decision\" (binding on specific addressees)"
+                  },
+                  "from_year": {
+                    "type": "integer",
+                    "minimum": 1950,
+                    "maximum": 2030,
+                    "description": "Only return legislation from this year onwards (e.g. 2020). Omit to retrieve the most recent across all years."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20,
+                    "description": "Maximum number of results to return (1–20, default 10)"
+                  }
+                },
+                "required": [
+                  "doc_type"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

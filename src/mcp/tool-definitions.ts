@@ -12932,4 +12932,68 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'entertainment',
     annotations: READ_ONLY,
   },
+
+  // EUR-Lex Cellar (4)
+  {
+    toolId: 'eurlex.legislation.search',
+    mcpName: 'eurlex.legislation.search',
+    title: 'Search EU Legislation',
+    description:
+      'Search the official EUR-Lex Cellar SPARQL endpoint for EU legislative acts by keyword in English titles. ' +
+      'Returns matching regulations, directives, and decisions with CELEX identifier, date, English title, ' +
+      'in-force status, Cellar URI, and a direct EUR-Lex URL. ' +
+      'Examples: keyword="artificial intelligence" returns the EU AI Act (32024R1689); ' +
+      'keyword="GDPR" returns the General Data Protection Regulation (32016R0679). ' +
+      'Results are ordered by most recent date first. Optionally restrict to acts published on or after from_date. ' +
+      'CELEX format: 3 + 4-digit year + type letter (R=Regulation, L=Directive, D=Decision) + number. ' +
+      'Data source: EU Publications Office EUR-Lex Cellar — official EU law repository, no auth required, open access.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'eurlex.legislation.recent',
+    mcpName: 'eurlex.legislation.recent',
+    title: 'Recent EU Legislation',
+    description:
+      'Get the most recently published EU legislative acts from EUR-Lex Cellar. ' +
+      'Returns acts ordered by publication date descending with CELEX identifier, date, English title ' +
+      '(where available), in-force status, Cellar URI, and direct EUR-Lex URL. ' +
+      'Covers all secondary EU legislation (regulations, directives, decisions) published within the ' +
+      'specified number of days. Default look-back is 30 days; max 365 days. ' +
+      'Data source: EU Publications Office EUR-Lex Cellar — official EU law repository, no auth required, open access.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'eurlex.legislation.detail',
+    mcpName: 'eurlex.legislation.detail',
+    title: 'EU Legal Act Detail',
+    description:
+      'Retrieve full metadata for a specific EU legal act identified by its CELEX number from EUR-Lex Cellar. ' +
+      'Returns CELEX identifier, publication date, English title, in-force status, Cellar URI, and direct EUR-Lex URL. ' +
+      'CELEX examples: "32024R1689" (EU AI Act), "32016R0679" (GDPR), "32023R1115" (EU Deforestation Regulation), ' +
+      '"32022R2065" (Digital Services Act), "32020R0852" (EU Taxonomy Regulation). ' +
+      'CELEX format: sector digit (3 = secondary EU law) + 4-digit year + ' +
+      'type letter (R=Regulation, L=Directive, D=Decision) + sequential number. ' +
+      'Returns found=false if the CELEX number does not exist in EUR-Lex Cellar. ' +
+      'Data source: EU Publications Office EUR-Lex Cellar — official EU law repository, no auth required, open access.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'eurlex.legislation.by_type',
+    mcpName: 'eurlex.legislation.by_type',
+    title: 'Browse EU Legislation by Type',
+    description:
+      'Browse EU legislative acts by document type (regulation, directive, or decision) from EUR-Lex Cellar. ' +
+      'Returns acts with CELEX identifier, publication date, English title, in-force status, Cellar URI, ' +
+      'and direct EUR-Lex URL, ordered by most recent date first. ' +
+      'Regulations are directly applicable in all EU member states without national implementation; ' +
+      'directives set binding objectives but require member state transposition; ' +
+      'decisions are binding on specific addressees (states, companies, or individuals). ' +
+      'Use from_year to restrict to acts published from that year onwards (e.g. 2020 for recent acts). ' +
+      'Data source: EU Publications Office EUR-Lex Cellar — official EU law repository, no auth required, open access.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
 ];

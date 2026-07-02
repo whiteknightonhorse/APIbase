@@ -1,6 +1,7 @@
 import { type BaseAdapter } from './base.adapter';
 import { JolpicaF1Adapter } from './jolpica-f1';
 import { TheSportsDbAdapter } from './thesportsdb';
+import { EurLexAdapter } from './eurlex';
 import { PolymarketAdapter } from './polymarket';
 import { HyperliquidAdapter } from './hyperliquid';
 import { AsterDexAdapter } from './asterdex';
@@ -1672,6 +1673,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'thesportsdb':
       // TheSportsDB (UC-586) — Multi-sport team/player search and league match schedules; no auth; free public API
       return getOrCreate('thesportsdb', () => new TheSportsDbAdapter());
+    case 'eurlex':
+      // EUR-Lex Cellar (UC-587) — EU legislation SPARQL search, recent acts, detail by CELEX, filter by type; no auth; EU open data
+      return getOrCreate('eurlex', () => new EurLexAdapter());
     default:
       return undefined;
   }

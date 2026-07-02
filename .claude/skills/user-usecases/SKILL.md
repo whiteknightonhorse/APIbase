@@ -282,6 +282,7 @@ Use these examples as reference patterns when:
 | UC-584 | Open Trivia Database | User-contributed trivia questions; 5000+ verified; 24 categories; no auth, CC BY-SA 4.0, unlimited free | LIVE | No auth, 4 tools | `usecases/UC-584-opentdb.md` |
 | UC-585 | Jolpica F1 | Formula 1 race calendar, results, driver/constructor standings; Ergast-compatible; no auth, unlimited free | LIVE | No auth, 4 tools | `usecases/UC-585-jolpica-f1.md` |
 | UC-586 | TheSportsDB | Multi-sport team/player search, league match schedules (soccer, NFL, NBA, MLB, etc.); no auth, free public API | LIVE | No auth, 4 tools | `usecases/UC-586-thesportsdb.md` |
+| UC-587 | EUR-Lex Cellar | EU legislation search/browse/detail via SPARQL (AI Act, GDPR, directives, regulations, decisions); no auth, EU open data, CC BY 4.0 | LIVE | No auth, 4 tools | `usecases/UC-587-eurlex-cellar.md` |
 
 ## How to Use
 

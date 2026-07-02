@@ -6632,6 +6632,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 300
 
+  # --- UC-587: EUR-Lex Cellar ---
+  - tool_id: eurlex.legislation.search
+    name: Search EU Legislation
+    provider: eurlex
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: eurlex.legislation.recent
+    name: Recent EU Legislation
+    provider: eurlex
+    price_usd: "0.001"
+    cache_ttl: 1800
+
+  - tool_id: eurlex.legislation.detail
+    name: EU Legal Act Detail
+    provider: eurlex
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: eurlex.legislation.by_type
+    name: Browse EU Legislation by Type
+    provider: eurlex
+    price_usd: "0.002"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform
