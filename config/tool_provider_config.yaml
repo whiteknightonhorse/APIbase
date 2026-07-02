@@ -6057,6 +6057,31 @@ tools:
     price_usd: "0.003"
     cache_ttl: 86400
 
+  # --- UC-564: BTS Transport ---
+  - tool_id: bts.border_crossings
+    name: BTS — US Border Crossing Entry Data
+    provider: bts-transport
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: bts.tsi
+    name: BTS — Transportation Services Index
+    provider: bts-transport
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: bts.freight_indicators
+    name: BTS — Supply Chain & Freight Indicators
+    provider: bts-transport
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: bts.aviation_traffic
+    name: BTS — US Aviation Traffic by Airport (T100)
+    provider: bts-transport
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

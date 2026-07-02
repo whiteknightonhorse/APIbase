@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 1010 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 1014 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -58269,6 +58269,260 @@
         "required": [
           "unit"
         ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "bts.aviation.traffic",
+      "title": "BTS \u2014 US Aviation Traffic by Airport (T100)",
+      "description": "Query T100 airline segment statistics from BTS giving passenger counts, departures, seats, load factor, and payload by US airport. Filter by IATA airport code (e.g. ATL, JFK, LAX, ORD) and year/period (annual \"2025\" or quarterly \"2026M1-3\"). Data covers all US commercial service airports through the most recent quarter. Source: BTS T100 Segment Summary By Origin Airport (Socrata r495-tyji). No auth \u2014 US Gov public domain.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "airport_code": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "IATA airport code to filter by (e.g. \"ATL\" for Atlanta, \"JFK\" for New York JFK, \"LAX\" for Los Angeles). Returns top airports if omitted."
+          },
+          "year": {
+            "type": "string",
+            "description": "Year or period to filter by. Annual values use format \"YYYY\" (e.g. \"2025\"). Quarterly use \"YYYYQn\" (e.g. \"2026M1-3\" for Q1 2026). Latest available is 2026M1-3."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 500,
+            "description": "Maximum number of airport traffic records to return (1\u2013500, default 20)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "bts.borders.crossings",
+      "title": "BTS \u2014 US Border Crossing Entry Data",
+      "description": "Query monthly US border crossing statistics from the Bureau of Transportation Statistics. Filter by border (US-Canada or US-Mexico), crossing type (Trucks, Personal Vehicles, Pedestrians, Buses, Trains, etc.), port name, and date range. Data covers all official land ports of entry updated monthly. Source: BTS Border Crossing Entry Data (Socrata keg4-3bc2). No auth \u2014 US Gov public domain.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "border": {
+            "type": "string",
+            "enum": [
+              "US-Canada Border",
+              "US-Mexico Border"
+            ],
+            "description": "Filter by border: \"US-Canada Border\" or \"US-Mexico Border\". Omit for both borders."
+          },
+          "measure": {
+            "type": "string",
+            "enum": [
+              "Buses",
+              "Bus Passengers",
+              "Pedestrians",
+              "Personal Vehicle Passengers",
+              "Personal Vehicles",
+              "Train Passengers",
+              "Trains",
+              "Trucks"
+            ],
+            "description": "Type of crossing to count. Options: Buses, Bus Passengers, Pedestrians, Personal Vehicle Passengers, Personal Vehicles, Train Passengers, Trains, Trucks."
+          },
+          "port_name": {
+            "type": "string",
+            "description": "Filter by port name (partial match, e.g. \"San Diego\", \"El Paso\", \"Detroit\")."
+          },
+          "start_date": {
+            "type": "string",
+            "description": "Start of date range in YYYY-MM-DD format (e.g. \"2025-01-01\")."
+          },
+          "end_date": {
+            "type": "string",
+            "description": "End of date range in YYYY-MM-DD format (e.g. \"2025-12-31\")."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 500,
+            "description": "Maximum number of records to return (1\u2013500, default 20)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "bts.freight.indicators",
+      "title": "BTS \u2014 Supply Chain & Freight Indicators",
+      "description": "Access weekly and monthly supply chain performance indicators from BTS, including containerized import/export volumes at US ports, railroad terminal dwell times, truck speeds at bottleneck locations, freight rates (Shanghai\u2013LA), vessel waiting times, carrier employment, and the Freight Transportation Services Index. Filter by indicator name (partial match), year, or date range. Source: BTS Supply Chain and Freight Indicators (Socrata y5ut-ibwt). No auth \u2014 US Gov public domain.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "indicator": {
+            "type": "string",
+            "description": "Partial name of the indicator to filter by (e.g. \"Freight Transportation Services Index\", \"Containerized Imports\", \"Railroad\", \"Truck Speed\"). Case-insensitive substring match."
+          },
+          "year": {
+            "type": "integer",
+            "minimum": 2019,
+            "maximum": 2030,
+            "description": "Filter by year (e.g. 2024). Data available from 2019."
+          },
+          "start_date": {
+            "type": "string",
+            "description": "Start of date range in YYYY-MM-DD format (e.g. \"2024-01-01\")."
+          },
+          "end_date": {
+            "type": "string",
+            "description": "End of date range in YYYY-MM-DD format (e.g. \"2024-12-31\")."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 500,
+            "description": "Maximum number of indicator records to return (1\u2013500, default 20)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "bts.transport.tsi",
+      "title": "BTS \u2014 Transportation Services Index",
+      "description": "Retrieve the BTS Transportation Services Index (TSI), a monthly economic indicator measuring the volume of freight and passenger transportation services across all modes. Returns total TSI, freight TSI, passenger TSI, plus component indices (vehicle miles traveled, rail carloads, transit, petroleum/gas pipelines). Base year 2000=100. Data from 2000 to present. Source: BTS TSI dataset (Socrata bw6n-ddqk). No auth \u2014 US Gov public domain.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "start_date": {
+            "type": "string",
+            "description": "Start of date range in YYYY-MM-DD format (e.g. \"2024-01-01\"). Index goes back to 2000."
+          },
+          "end_date": {
+            "type": "string",
+            "description": "End of date range in YYYY-MM-DD format (e.g. \"2024-12-31\")."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 300,
+            "description": "Maximum number of monthly records to return (1\u2013300, default 12)."
+          }
+        }
       },
       "outputSchema": {
         "type": "object",

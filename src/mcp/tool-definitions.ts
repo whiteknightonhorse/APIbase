@@ -11550,4 +11550,57 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+
+  // BTS Transport (4)
+  {
+    toolId: 'bts.border_crossings',
+    mcpName: 'bts.borders.crossings',
+    title: 'BTS — US Border Crossing Entry Data',
+    description:
+      'Query monthly US border crossing statistics from the Bureau of Transportation Statistics. ' +
+      'Filter by border (US-Canada or US-Mexico), crossing type (Trucks, Personal Vehicles, Pedestrians, Buses, Trains, etc.), ' +
+      'port name, and date range. Data covers all official land ports of entry updated monthly. ' +
+      'Source: BTS Border Crossing Entry Data (Socrata keg4-3bc2). No auth — US Gov public domain.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bts.tsi',
+    mcpName: 'bts.transport.tsi',
+    title: 'BTS — Transportation Services Index',
+    description:
+      'Retrieve the BTS Transportation Services Index (TSI), a monthly economic indicator measuring ' +
+      'the volume of freight and passenger transportation services across all modes. Returns total TSI, ' +
+      'freight TSI, passenger TSI, plus component indices (vehicle miles traveled, rail carloads, transit, ' +
+      'petroleum/gas pipelines). Base year 2000=100. Data from 2000 to present. ' +
+      'Source: BTS TSI dataset (Socrata bw6n-ddqk). No auth — US Gov public domain.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bts.freight_indicators',
+    mcpName: 'bts.freight.indicators',
+    title: 'BTS — Supply Chain & Freight Indicators',
+    description:
+      'Access weekly and monthly supply chain performance indicators from BTS, including containerized ' +
+      'import/export volumes at US ports, railroad terminal dwell times, truck speeds at bottleneck locations, ' +
+      'freight rates (Shanghai–LA), vessel waiting times, carrier employment, and the Freight Transportation ' +
+      'Services Index. Filter by indicator name (partial match), year, or date range. ' +
+      'Source: BTS Supply Chain and Freight Indicators (Socrata y5ut-ibwt). No auth — US Gov public domain.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bts.aviation_traffic',
+    mcpName: 'bts.aviation.traffic',
+    title: 'BTS — US Aviation Traffic by Airport (T100)',
+    description:
+      'Query T100 airline segment statistics from BTS giving passenger counts, departures, seats, ' +
+      'load factor, and payload by US airport. Filter by IATA airport code (e.g. ATL, JFK, LAX, ORD) ' +
+      'and year/period (annual "2025" or quarterly "2026M1-3"). Data covers all US commercial service ' +
+      'airports through the most recent quarter. ' +
+      'Source: BTS T100 Segment Summary By Origin Airport (Socrata r495-tyji). No auth — US Gov public domain.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

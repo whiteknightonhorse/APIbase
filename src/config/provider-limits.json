@@ -2519,5 +2519,14 @@
     "reset_period": "none",
     "docs_url": "https://www.nrc.gov/reading-rm/doc-collections/event-status/reactor-status/",
     "limit_proof": "US NRC public domain data under the Atomic Energy Act \u2014 no auth, no rate limit documented"
+  },
+  "bts-transport": {
+    "display_name": "BTS Transportation Statistics",
+    "health_url": "https://data.bts.gov/resource/keg4-3bc2.json?$limit=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.bts.gov/topics/latest-numbers",
+    "limit_proof": "US Bureau of Transportation Statistics open Socrata API \u2014 no auth required, no documented rate limits (US Gov public domain)"
   }
 }

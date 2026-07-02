@@ -281,6 +281,7 @@ import { nlmIcd11Schemas } from './nlm-icd11.schema';
 import { cmsSchemas } from './cms.schema';
 import { cpscSchemas } from './cpsc.schema';
 import { nrcSchemas } from './nrc.schema';
+import { btsTransportSchemas } from './bts-transport.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -565,4 +566,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...cmsSchemas,
   ...cpscSchemas,
   ...nrcSchemas,
+  ...btsTransportSchemas,
 };

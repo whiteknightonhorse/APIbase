@@ -281,6 +281,7 @@ import { NlmIcd11Adapter } from './nlm-icd11';
 import { CmsAdapter } from './cms';
 import { CpscAdapter } from './cpsc';
 import { NrcAdapter } from './nrc';
+import { BtsTransportAdapter } from './bts-transport';
 import { config } from '../config';
 
 /**
@@ -1578,6 +1579,10 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'nrc':
       // NRC Power Reactor Status (UC-563) — daily power output for all ~95 US nuclear reactors; no auth, US Gov public domain
       return getOrCreate('nrc', () => new NrcAdapter());
+    case 'bts':
+    case 'bts-transport':
+      // BTS Transport (UC-564) — border crossings, TSI, freight indicators, aviation traffic; no auth, US Gov open data
+      return getOrCreate('bts-transport', () => new BtsTransportAdapter());
     default:
       return undefined;
   }
