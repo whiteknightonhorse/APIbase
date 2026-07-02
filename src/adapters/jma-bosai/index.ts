@@ -140,7 +140,7 @@ export class JmaBosaiAdapter extends BaseAdapter {
       case 'jma-bosai.earthquakes':
         return this.parseEarthquakes(body as JmaQuakeListEntry[], params);
       case 'jma-bosai.areas':
-        return this.parseAreas(body as JmaAreaConst);
+        return this.parseAreas(body as JmaAreaConst, params);
       default:
         return body;
     }
@@ -270,14 +270,21 @@ export class JmaBosaiAdapter extends BaseAdapter {
     };
   }
 
-  private parseAreas(data: JmaAreaConst): unknown {
-    const offices = Object.entries(data.offices ?? {}).map(([code, o]) => ({
+  private parseAreas(data: JmaAreaConst, params: Record<string, unknown>): unknown {
+    let offices = Object.entries(data.offices ?? {}).map(([code, o]) => ({
       code,
       name_ja: o.name,
       name_en: o.enName,
       office_name: o.officeName,
       parent_code: o.parent,
     }));
+
+    const filter = params.name_filter ? String(params.name_filter).toLowerCase() : null;
+    if (filter) {
+      offices = offices.filter(
+        (o) => o.name_en.toLowerCase().includes(filter) || o.name_ja.includes(filter),
+      );
+    }
 
     return {
       total_offices: offices.length,
