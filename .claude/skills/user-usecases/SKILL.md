@@ -276,6 +276,7 @@ Use these examples as reference patterns when:
 | UC-578 | NASA CMR | Common Metadata Repository — satellite dataset search, collection detail, granule search, providers; US Gov public domain, no auth, no rate limits | LIVE | No auth, 4 tools | `usecases/UC-578-nasa-cmr.md` |
 | UC-579 | ChEMBL | Drug discovery database — 2.9M molecules, 18K targets, 20M bioactivity measurements; EMBL-EBI; CC BY-SA 3.0, no auth, no rate limits | LIVE | No auth, 4 tools | `usecases/UC-579-chembl.md` |
 | UC-580 | MedlinePlus Connect | NLM clinical code → patient health info; ICD-10-CM, ICD-9-CM, SNOMED CT, RxNorm; US Gov public domain, no auth, unlimited free | LIVE | No auth, 4 tools | `usecases/UC-580-medlineplus-connect.md` |
+| UC-581 | Orphadata (Orphanet) | Rare disease lookup, epidemiology, HPO phenotypes, natural history; 4,245+ diseases; CC BY 4.0, no auth, unlimited free | LIVE | No auth, 4 tools | `usecases/UC-581-orphadata.md` |
 
 ## How to Use
 

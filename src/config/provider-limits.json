@@ -2672,5 +2672,14 @@
     "reset_period": "none",
     "docs_url": "https://connect.medlineplus.gov/",
     "limit_proof": "US NLM MedlinePlus Connect: public domain US Government service, no authentication required, no documented rate limits."
+  },
+  "orphadata": {
+    "display_name": "Orphadata (Orphanet)",
+    "health_url": "https://api.orphadata.com/rd-cross-referencing/orphacodes/names/marfan",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://api.orphadata.com/",
+    "limit_proof": "Orphadata API: CC BY 4.0 open data, no authentication required, no documented rate limits. Data updated biannually (January/July)."
   }
 }

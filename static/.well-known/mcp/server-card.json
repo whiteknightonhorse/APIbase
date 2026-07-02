@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 1078 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 1082 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -62518,6 +62518,270 @@
           "error": {
             "type": "object",
             "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "orphadata.raredisease.disease_epidemiology",
+      "title": "Orphadata \u2014 Rare Disease Epidemiology",
+      "description": "Get prevalence and incidence data for a rare disease by its Orphanet ORPHAcode. Returns prevalence records with geographic area (Europe, Worldwide, US, UK, etc.), measurement type (point prevalence, birth prevalence, annual incidence), prevalence class (e.g. 1-5/10,000), numeric mean value, and PMID citations from peer-reviewed literature. Source: Orphadata / Orphanet \u2014 CC BY 4.0, no auth, unlimited free.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "orphacode": {
+            "type": "integer",
+            "description": "Orphanet ORPHAcode \u2014 the unique numeric identifier for the rare disease (e.g. 558 for Marfan syndrome).",
+            "minimum": 0
+          },
+          "lang": {
+            "type": "string",
+            "enum": [
+              "en",
+              "fr",
+              "de",
+              "es",
+              "it",
+              "pt",
+              "nl",
+              "pl",
+              "cs",
+              "tr",
+              "uk",
+              "zh"
+            ],
+            "description": "Response language (default: en). Supported: en, fr, de, es, it, pt, nl, pl, cs, tr, uk, zh."
+          }
+        },
+        "required": [
+          "orphacode"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "orphadata.raredisease.disease_lookup",
+      "title": "Orphadata \u2014 Rare Disease Lookup",
+      "description": "Search Orphanet rare disease database by disease name and retrieve cross-references to major medical coding systems. Returns ORPHAcode, full disease definition, synonyms, and validated cross-references to ICD-10, ICD-11, OMIM, MONDO, MeSH, MedDRA, UMLS, and Orphanet URL. Covers 4,245+ rare diseases. Supports 12 languages (en, fr, de, es, it, pt, nl, pl, cs, tr, uk, zh). Source: Orphadata / Orphanet \u2014 CC BY 4.0, no auth, unlimited free.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Preferred name (or part of it) of the rare disease to search (e.g. \"Marfan syndrome\", \"cystic fibrosis\").",
+            "minLength": 1
+          },
+          "lang": {
+            "type": "string",
+            "enum": [
+              "en",
+              "fr",
+              "de",
+              "es",
+              "it",
+              "pt",
+              "nl",
+              "pl",
+              "cs",
+              "tr",
+              "uk",
+              "zh"
+            ],
+            "description": "Response language (default: en). Supported: en, fr, de, es, it, pt, nl, pl, cs, tr, uk, zh."
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "orphadata.raredisease.disease_natural_history",
+      "title": "Orphadata \u2014 Rare Disease Natural History",
+      "description": "Get genetic inheritance mode and clinical timeline for a rare disease by its Orphanet ORPHAcode. Returns inheritance modes (e.g. Autosomal dominant, X-linked recessive, Mitochondrial), average age of onset (e.g. Neonatal, Infancy, All ages), and disease group/typology classification. Supports 12 languages (en, fr, de, es, it, pt, nl, pl, cs, tr, uk, zh). Source: Orphadata / Orphanet \u2014 CC BY 4.0, no auth, unlimited free.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "orphacode": {
+            "type": "integer",
+            "description": "Orphanet ORPHAcode of the rare disease to get inheritance mode and age-of-onset data for (e.g. 558 for Marfan syndrome).",
+            "minimum": 0
+          },
+          "lang": {
+            "type": "string",
+            "enum": [
+              "en",
+              "fr",
+              "de",
+              "es",
+              "it",
+              "pt",
+              "nl",
+              "pl",
+              "cs",
+              "tr",
+              "uk",
+              "zh"
+            ],
+            "description": "Response language (default: en). Supported: en, fr, de, es, it, pt, nl, pl, cs, tr, uk, zh."
+          }
+        },
+        "required": [
+          "orphacode"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "orphadata.raredisease.disease_phenotypes",
+      "title": "Orphadata \u2014 Rare Disease Phenotypes (HPO)",
+      "description": "Get clinical signs and symptoms (HPO phenotypes) for a rare disease by its Orphanet ORPHAcode. Returns HPO identifiers and terms annotated with frequency categories (Very frequent 99-80%, Frequent 79-30%, Occasional 29-5%) and whether each sign is a diagnostic criterion. Up to 68+ HPO terms per disease, cited from PubMed. Source: Orphadata / Orphanet \u2014 CC BY 4.0, no auth, unlimited free.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "orphacode": {
+            "type": "integer",
+            "description": "Orphanet ORPHAcode of the rare disease whose HPO phenotypes to retrieve (e.g. 558 for Marfan syndrome).",
+            "minimum": 0
+          },
+          "lang": {
+            "type": "string",
+            "enum": [
+              "en",
+              "fr",
+              "de",
+              "es",
+              "it",
+              "pt",
+              "nl",
+              "pl",
+              "cs",
+              "tr",
+              "uk",
+              "zh"
+            ],
+            "description": "Response language (default: en). Supported: en, fr, de, es, it, pt, nl, pl, cs, tr, uk, zh."
+          }
+        },
+        "required": [
+          "orphacode"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only on failure."
           }
         },
         "required": [

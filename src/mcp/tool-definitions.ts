@@ -12579,4 +12579,56 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'health',
     annotations: READ_ONLY,
   },
+  // ---------------------------------------------------------------------------
+  // Orphadata — Rare Disease Knowledge Base (UC-581, 4 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'orphadata.disease_lookup',
+    mcpName: 'orphadata.raredisease.disease_lookup',
+    title: 'Orphadata Rare Disease Lookup',
+    description:
+      'Search Orphanet rare disease database by disease name and retrieve cross-references to major medical coding systems. ' +
+      'Returns ORPHAcode, full disease definition, synonyms, and validated cross-references to ICD-10, ICD-11, OMIM, MONDO, MeSH, MedDRA, UMLS, and Orphanet URL. ' +
+      'Covers 4,245+ rare diseases. Supports 12 languages (en, fr, de, es, it, pt, nl, pl, cs, tr, uk, zh). ' +
+      'Source: Orphadata / Orphanet — CC BY 4.0, no auth, unlimited free.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'orphadata.disease_epidemiology',
+    mcpName: 'orphadata.raredisease.disease_epidemiology',
+    title: 'Orphadata Rare Disease Epidemiology',
+    description:
+      'Get prevalence and incidence data for a rare disease by its Orphanet ORPHAcode. ' +
+      'Returns prevalence records with geographic area (Europe, Worldwide, US, UK, etc.), measurement type (point prevalence, birth prevalence, annual incidence), ' +
+      'prevalence class (e.g. 1-5/10,000), numeric mean value, and PMID citations from peer-reviewed literature. ' +
+      'Source: Orphadata / Orphanet — CC BY 4.0, no auth, unlimited free.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'orphadata.disease_phenotypes',
+    mcpName: 'orphadata.raredisease.disease_phenotypes',
+    title: 'Orphadata Rare Disease Phenotypes',
+    description:
+      'Get clinical signs and symptoms (HPO phenotypes) for a rare disease by its Orphanet ORPHAcode. ' +
+      'Returns HPO identifiers and terms annotated with frequency categories (Very frequent 99-80%, Frequent 79-30%, Occasional 29-5%) ' +
+      'and whether each sign is a diagnostic criterion. Up to 68+ HPO terms per disease, cited from PubMed. ' +
+      'Source: Orphadata / Orphanet — CC BY 4.0, no auth, unlimited free.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'orphadata.disease_natural_history',
+    mcpName: 'orphadata.raredisease.disease_natural_history',
+    title: 'Orphadata Rare Disease Natural History',
+    description:
+      'Get genetic inheritance mode and clinical timeline for a rare disease by its Orphanet ORPHAcode. ' +
+      'Returns inheritance modes (e.g. Autosomal dominant, X-linked recessive, Mitochondrial), ' +
+      'average age of onset (e.g. Neonatal, Infancy, All ages), and disease group/typology classification. ' +
+      'Supports 12 languages (en, fr, de, es, it, pt, nl, pl, cs, tr, uk, zh). ' +
+      'Source: Orphadata / Orphanet — CC BY 4.0, no auth, unlimited free.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
 ];

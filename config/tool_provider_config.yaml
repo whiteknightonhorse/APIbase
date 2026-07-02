@@ -6482,6 +6482,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-581: Orphadata — Orphanet Rare Disease Knowledge Base ---
+  - tool_id: orphadata.disease_lookup
+    name: Orphadata — Rare Disease Lookup
+    provider: orphadata
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: orphadata.disease_epidemiology
+    name: Orphadata — Rare Disease Epidemiology
+    provider: orphadata
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: orphadata.disease_phenotypes
+    name: Orphadata — Rare Disease Phenotypes (HPO)
+    provider: orphadata
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: orphadata.disease_natural_history
+    name: Orphadata — Rare Disease Natural History
+    provider: orphadata
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

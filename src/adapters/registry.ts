@@ -298,6 +298,7 @@ import { EchoAdapter } from './echo';
 import { NasaCmrAdapter } from './nasa-cmr';
 import { ChemblAdapter } from './chembl';
 import { MedlineplusAdapter } from './medlineplus';
+import { OrphadataAdapter } from './orphadata';
 import { config } from '../config';
 
 /**
@@ -1648,6 +1649,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'medlineplus':
       // MedlinePlus Connect (UC-580) — NLM clinical code → patient health info; ICD-10/9, SNOMED CT, RxNorm; no auth; public domain
       return getOrCreate('medlineplus', () => new MedlineplusAdapter());
+    case 'orphadata':
+      // Orphadata (UC-581) — Orphanet rare disease lookup, epidemiology, phenotypes, natural history; CC BY 4.0; no auth
+      return getOrCreate('orphadata', () => new OrphadataAdapter());
     default:
       return undefined;
   }
