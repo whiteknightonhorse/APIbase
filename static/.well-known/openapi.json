@@ -96189,6 +96189,382 @@
         ]
       }
     },
+    "/api/v1/tools/chembl.molecule_search/call": {
+      "post": {
+        "operationId": "chembl_molecule_search",
+        "summary": "ChEMBL — Search Drug Molecules",
+        "description": "Search the ChEMBL database for drug molecules and bioactive compounds by name, clinical development phase, and molecular type. Returns molecular formula, molecular weight, lipophilicity (ALogP), hydrogen bond donors/acceptors, polar surface area, Lipinski rule-of-5 violations, canonical SMILES structure, InChIKey, oral/parenteral/topical flags, ATC classification codes, and clinical approval year. max_phase=4 for approved drugs, max_phase_gte=3 for late-stage candidates. ChEMBL covers 2.9M+ molecules sourced from 88K+ peer-reviewed publications. Source: EMBL-EBI ChEMBL — CC BY-SA 3.0, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "chembl.molecule_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Drug or molecule name to search (case-insensitive substring match). Examples: \"aspirin\", \"ibuprofen\", \"paclitaxel\". Omit to browse all molecules with other filters applied."
+                  },
+                  "max_phase": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4,
+                    "description": "Exact clinical development phase filter. 0 = preclinical, 1 = Phase I, 2 = Phase II, 3 = Phase III, 4 = approved/marketed. Use max_phase_gte for \"at least\" filtering."
+                  },
+                  "max_phase_gte": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4,
+                    "description": "Minimum clinical development phase. max_phase_gte=4 returns only approved drugs. max_phase_gte=3 returns Phase III and approved drugs."
+                  },
+                  "molecule_type": {
+                    "type": "string",
+                    "enum": [
+                      "Small molecule",
+                      "Protein",
+                      "Antibody",
+                      "Oligosaccharide",
+                      "Oligonucleotide",
+                      "Cell",
+                      "Enzyme",
+                      "Unknown"
+                    ],
+                    "description": "Filter by molecule type. Small molecule covers most traditional drugs. Protein/Antibody covers biologics."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 25,
+                    "description": "Number of results to return (1–25, default 10).",
+                    "default": 10
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/chembl.molecule_detail/call": {
+      "post": {
+        "operationId": "chembl_molecule_detail",
+        "summary": "ChEMBL — Molecule Detail by ID",
+        "description": "Retrieve full structural and pharmacological data for a specific ChEMBL molecule. Returns canonical SMILES, standard InChI, InChIKey, molecular formula, exact weight, ALogP, polar surface area, hydrogen bond count, QED drug-likeness score (0–1), Lipinski rule-of-5 violations, black box warning flag, natural product flag, clinical phase (max_phase), first approval year, ATC codes, and administration routes. Use chembl.molecules.search to discover ChEMBL IDs (format: CHEMBL25, CHEMBL521). Source: EMBL-EBI ChEMBL — CC BY-SA 3.0, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "chembl.molecule_detail"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "chembl_id": {
+                    "type": "string",
+                    "description": "ChEMBL molecule identifier (e.g. CHEMBL25 for aspirin, CHEMBL521 for ibuprofen). Use chembl.molecule.search to find IDs by name."
+                  }
+                },
+                "required": [
+                  "chembl_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/chembl.target_search/call": {
+      "post": {
+        "operationId": "chembl_target_search",
+        "summary": "ChEMBL — Search Biological Targets",
+        "description": "Search for biological drug targets (proteins, enzymes, receptors, ion channels) in the ChEMBL database by name, target type, and source organism. Returns target ChEMBL ID, preferred name, target classification (SINGLE PROTEIN, PROTEIN COMPLEX, PROTEIN FAMILY, etc.), organism, UniProt accession numbers, and gene symbols. Use returned target_chembl_id with chembl.activity.bioactivity to retrieve all compounds tested against a target and their potency values. ChEMBL covers 18,500+ targets from 650+ organisms. Source: EMBL-EBI ChEMBL — CC BY-SA 3.0, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "chembl.target_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Biological target name to search (case-insensitive substring match). Examples: \"Acetylcholinesterase\", \"Epidermal growth factor receptor\", \"COX-2\". Omit to browse with other filters."
+                  },
+                  "target_type": {
+                    "type": "string",
+                    "enum": [
+                      "SINGLE PROTEIN",
+                      "PROTEIN COMPLEX",
+                      "PROTEIN FAMILY",
+                      "NUCLEIC-ACID",
+                      "CELL-LINE",
+                      "TISSUE",
+                      "ORGANISM",
+                      "UNKNOWN"
+                    ],
+                    "description": "Filter by target classification. SINGLE PROTEIN is the most common for drug targets. PROTEIN COMPLEX for multi-subunit targets."
+                  },
+                  "organism": {
+                    "type": "string",
+                    "description": "Filter by source organism (case-insensitive substring match). Examples: \"Homo sapiens\", \"Rattus norvegicus\", \"Escherichia coli\"."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 25,
+                    "description": "Number of results to return (1–25, default 10).",
+                    "default": 10
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/chembl.bioactivity/call": {
+      "post": {
+        "operationId": "chembl_bioactivity",
+        "summary": "ChEMBL — Bioactivity Measurements",
+        "description": "Retrieve bioactivity data (potency measurements) for a drug molecule or biological target from ChEMBL's curated assay database. Returns activity type (IC50, Ki, EC50, Kd, MIC, GI50), measured value and units, relation operator (<, =, >), pChEMBL value (−log10 molar, comparable across assay types), assay ChEMBL ID, assay description, and source document ChEMBL ID. Filter by activity_type (e.g. \"IC50\") to focus on one measurement class. Requires at least one of: molecule_chembl_id (compound-centric) or target_chembl_id (target-centric, all inhibitors). ChEMBL contains 20M+ curated bioactivity measurements from scientific literature. Source: EMBL-EBI ChEMBL — CC BY-SA 3.0, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "chembl.bioactivity"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "molecule_chembl_id": {
+                    "type": "string",
+                    "description": "ChEMBL molecule ID to retrieve bioactivity data for (e.g. CHEMBL25). Returns all assay measurements for this compound. Provide at least one of molecule_chembl_id or target_chembl_id."
+                  },
+                  "target_chembl_id": {
+                    "type": "string",
+                    "description": "ChEMBL target ID to retrieve bioactivity data for (e.g. CHEMBL220 for Acetylcholinesterase). Returns activity measurements from all tested compounds against this target. Provide at least one of molecule_chembl_id or target_chembl_id."
+                  },
+                  "activity_type": {
+                    "type": "string",
+                    "description": "Filter by activity measurement type. Common values: IC50 (inhibitor concentration 50%), Ki (inhibition constant), EC50 (effective concentration 50%), Kd (dissociation constant), MIC (minimum inhibitory concentration), GI50 (growth inhibition 50%). Case-sensitive; use uppercase."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 25,
+                    "description": "Number of activity records to return (1–25, default 10).",
+                    "default": 10
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/nasa-cmr.list_providers/call": {
       "post": {
         "operationId": "nasa-cmr_list_providers",

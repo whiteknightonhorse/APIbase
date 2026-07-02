@@ -6432,6 +6432,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-579: ChEMBL ---
+  - tool_id: chembl.molecule_search
+    name: ChEMBL — Search Drug Molecules
+    provider: chembl
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: chembl.molecule_detail
+    name: ChEMBL — Molecule Detail by ID
+    provider: chembl
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: chembl.target_search
+    name: ChEMBL — Search Biological Targets
+    provider: chembl
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: chembl.bioactivity
+    name: ChEMBL — Bioactivity Measurements
+    provider: chembl
+    price_usd: "0.002"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

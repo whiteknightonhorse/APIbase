@@ -296,6 +296,7 @@ import { aviationweatherSchemas } from './aviationweather.schema';
 import { obisSchemas } from './obis.schema';
 import { echoSchemas } from './echo.schema';
 import { nasaCmrSchemas } from './nasa-cmr.schema';
+import { chemblSchemas } from './chembl.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -595,4 +596,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...obisSchemas,
   ...echoSchemas,
   ...nasaCmrSchemas,
+  ...chemblSchemas,
 };

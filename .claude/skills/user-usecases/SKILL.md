@@ -274,6 +274,7 @@ Use these examples as reference patterns when:
 | UC-576 | OBIS Marine Biodiversity | 100M+ marine species occurrence records, WoRMS taxonomy lookup, species checklists, dataset search; no auth; CC BY 4.0 | LIVE | No auth, unlimited free, 4 tools | `usecases/UC-576-obis.md` |
 | UC-577 | EPA ECHO | Enforcement and Compliance History Online — facility search, detail, air program, violations; US Gov public domain, 300 req/hr limit | LIVE | No auth, 4 tools | `usecases/UC-577-epa-echo.md` |
 | UC-578 | NASA CMR | Common Metadata Repository — satellite dataset search, collection detail, granule search, providers; US Gov public domain, no auth, no rate limits | LIVE | No auth, 4 tools | `usecases/UC-578-nasa-cmr.md` |
+| UC-579 | ChEMBL | Drug discovery database — 2.9M molecules, 18K targets, 20M bioactivity measurements; EMBL-EBI; CC BY-SA 3.0, no auth, no rate limits | LIVE | No auth, 4 tools | `usecases/UC-579-chembl.md` |
 
 ## How to Use
 

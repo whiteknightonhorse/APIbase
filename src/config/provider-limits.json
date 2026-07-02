@@ -2654,5 +2654,14 @@
     "reset_period": "none",
     "docs_url": "https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html",
     "limit_proof": "NASA CMR is a US Government open data service with no authentication and no documented rate limits. Public domain (17 USC §105)."
+  },
+  "chembl": {
+    "display_name": "ChEMBL",
+    "health_url": "https://www.ebi.ac.uk/chembl/api/data/molecule/CHEMBL25?format=json",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.ebi.ac.uk/chembl/api/data/",
+    "limit_proof": "EMBL-EBI ChEMBL REST API: no authentication required, no documented rate limits. CC BY-SA 3.0 license, freely redistributable."
   }
 }

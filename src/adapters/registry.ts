@@ -296,6 +296,7 @@ import { AviationWeatherAdapter } from './aviationweather';
 import { ObisAdapter } from './obis';
 import { EchoAdapter } from './echo';
 import { NasaCmrAdapter } from './nasa-cmr';
+import { ChemblAdapter } from './chembl';
 import { config } from '../config';
 
 /**
@@ -1640,6 +1641,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'nasa-cmr':
       // NASA CMR (UC-578) — satellite dataset search, collection detail, granule search, providers; no auth; US Gov public domain
       return getOrCreate('nasa-cmr', () => new NasaCmrAdapter());
+    case 'chembl':
+      // ChEMBL (UC-579) — drug discovery: 2.9M molecules, 18K targets, 20M bioactivity measurements; no auth; CC BY-SA 3.0
+      return getOrCreate('chembl', () => new ChemblAdapter());
     default:
       return undefined;
   }

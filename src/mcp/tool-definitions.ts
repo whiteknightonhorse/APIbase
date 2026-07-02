@@ -12432,6 +12432,74 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'space',
     annotations: READ_ONLY,
   },
+  // ChEMBL (4)
+  {
+    toolId: 'chembl.molecule_search',
+    mcpName: 'chembl.molecules.search',
+    title: 'ChEMBL — Search Drug Molecules',
+    description:
+      'Search the ChEMBL database for drug molecules and bioactive compounds by name, ' +
+      'clinical development phase, and molecular type. ' +
+      'Returns molecular formula, molecular weight, lipophilicity (ALogP), ' +
+      'hydrogen bond donors/acceptors, polar surface area, Lipinski rule-of-5 violations, ' +
+      'canonical SMILES structure, InChIKey, oral/parenteral/topical flags, ' +
+      'ATC classification codes, and clinical approval year. ' +
+      'max_phase=4 for approved drugs, max_phase_gte=3 for late-stage candidates. ' +
+      'ChEMBL covers 2.9M+ molecules sourced from 88K+ peer-reviewed publications. ' +
+      'Source: EMBL-EBI ChEMBL — CC BY-SA 3.0, no auth required.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'chembl.molecule_detail',
+    mcpName: 'chembl.molecules.detail',
+    title: 'ChEMBL — Molecule Detail by ID',
+    description:
+      'Retrieve full structural and pharmacological data for a specific ChEMBL molecule. ' +
+      'Returns canonical SMILES, standard InChI, InChIKey, molecular formula, exact weight, ' +
+      'ALogP, polar surface area, hydrogen bond count, QED drug-likeness score (0–1), ' +
+      'Lipinski rule-of-5 violations, black box warning flag, natural product flag, ' +
+      'clinical phase (max_phase), first approval year, ATC codes, and administration routes. ' +
+      'Use chembl.molecules.search to discover ChEMBL IDs (format: CHEMBL25, CHEMBL521). ' +
+      'Source: EMBL-EBI ChEMBL — CC BY-SA 3.0, no auth required.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'chembl.target_search',
+    mcpName: 'chembl.targets.search',
+    title: 'ChEMBL — Search Biological Targets',
+    description:
+      'Search for biological drug targets (proteins, enzymes, receptors, ion channels) ' +
+      'in the ChEMBL database by name, target type, and source organism. ' +
+      'Returns target ChEMBL ID, preferred name, target classification ' +
+      '(SINGLE PROTEIN, PROTEIN COMPLEX, PROTEIN FAMILY, etc.), ' +
+      'organism, UniProt accession numbers, and gene symbols. ' +
+      'Use returned target_chembl_id with chembl.activity.bioactivity to retrieve ' +
+      'all compounds tested against a target and their potency values. ' +
+      'ChEMBL covers 18,500+ targets from 650+ organisms. ' +
+      'Source: EMBL-EBI ChEMBL — CC BY-SA 3.0, no auth required.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'chembl.bioactivity',
+    mcpName: 'chembl.activity.bioactivity',
+    title: 'ChEMBL — Bioactivity Measurements',
+    description:
+      'Retrieve bioactivity data (potency measurements) for a drug molecule or biological target ' +
+      "from ChEMBL's curated assay database. " +
+      'Returns activity type (IC50, Ki, EC50, Kd, MIC, GI50), measured value and units, ' +
+      'relation operator (<, =, >), pChEMBL value (−log10 molar, comparable across assay types), ' +
+      'assay ChEMBL ID, assay description, and source document ChEMBL ID. ' +
+      'Filter by activity_type (e.g. "IC50") to focus on one measurement class. ' +
+      'Requires at least one of: molecule_chembl_id (compound-centric) or ' +
+      'target_chembl_id (target-centric, all inhibitors). ' +
+      'ChEMBL contains 20M+ curated bioactivity measurements from scientific literature. ' +
+      'Source: EMBL-EBI ChEMBL — CC BY-SA 3.0, no auth required.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
   {
     toolId: 'nasa-cmr.list_providers',
     mcpName: 'nasa-cmr.providers.list',
