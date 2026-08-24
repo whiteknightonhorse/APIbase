@@ -18,9 +18,9 @@ def in_config(lc):
     return bool(re.search(r"provider:\s*%s\b" % re.escape(lc), t) or re.search(r"tool_id:.*%s\." % re.escape(lc), t))
 def verify(lc):
     lc = lc.lower()
-    # adapter-only (config written later by recorder). Try name variants (hyphen/underscore/none) — fixed 2026-07-01
+    # requires BOTH adapter file AND config row (A-08 fix). Try name variants (hyphen/underscore/none) — fixed 2026-07-01
     for name in {lc, lc.replace("-",""), lc.replace("-","_"), lc.replace("_","-"), lc.replace("_","")}:
-        if (ADAPTERS / name / "index.ts").exists():
+        if (ADAPTERS / name / "index.ts").exists() and in_config(name):
             return True
     return False
 
