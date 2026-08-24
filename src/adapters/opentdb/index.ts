@@ -141,31 +141,39 @@ export class OpenTdbAdapter extends BaseAdapter {
   }
 }
 
+const HTML_ENTITY_MAP: Record<string, string> = {
+  amp: '&',
+  lt: '<',
+  gt: '>',
+  quot: '"',
+  apos: "'",
+  lsquo: '‘',
+  rsquo: '’',
+  ldquo: '“',
+  rdquo: '”',
+  ndash: '–',
+  mdash: '—',
+  hellip: '…',
+  nbsp: ' ',
+  deg: '°',
+  eacute: 'é',
+  agrave: 'à',
+  oacute: 'ó',
+  uuml: 'ü',
+  ouml: 'ö',
+  auml: 'ä',
+  aring: 'å',
+};
+
 function decodeHtml(str: string): string {
-  return str
-    .replace(/&#(\d+);/g, (_: string, n: string) => String.fromCharCode(Number(n)))
-    .replace(/&#x([0-9a-fA-F]+);/g, (_: string, h: string) => String.fromCharCode(parseInt(h, 16)))
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&apos;/g, "'")
-    .replace(/&lsquo;/g, '‘')
-    .replace(/&rsquo;/g, '’')
-    .replace(/&ldquo;/g, '“')
-    .replace(/&rdquo;/g, '”')
-    .replace(/&ndash;/g, '–')
-    .replace(/&mdash;/g, '—')
-    .replace(/&hellip;/g, '…')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&deg;/g, '°')
-    .replace(/&eacute;/g, 'é')
-    .replace(/&agrave;/g, 'à')
-    .replace(/&oacute;/g, 'ó')
-    .replace(/&uuml;/g, 'ü')
-    .replace(/&ouml;/g, 'ö')
-    .replace(/&auml;/g, 'ä')
-    .replace(/&aring;/g, 'å');
+  return str.replace(/&(#\d+|#x[0-9a-fA-F]+|[a-zA-Z]+);/g, (match, ent: string) => {
+    if (ent[0] === '#') {
+      const code =
+        ent[1] === 'x' || ent[1] === 'X' ? parseInt(ent.slice(2), 16) : parseInt(ent.slice(1), 10);
+      return Number.isNaN(code) ? match : String.fromCharCode(code);
+    }
+    return HTML_ENTITY_MAP[ent] ?? match;
+  });
 }
 
 function shuffle<T>(arr: T[]): T[] {
