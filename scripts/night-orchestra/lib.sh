@@ -82,62 +82,69 @@ log(){ echo "[$(ts)] $*" | tee -a "$(daily_log)"; }
 # retries, e.g. onboard-remotive ran 3 times in one night), and for a start left unpaired it
 # checks two things before declaring it dead — (a) at least 60s old, so a start line from an
 # agent that is still legitimately mid-run within its declared timeout is never flagged, and
-# (b) no live process on the host still mentions the label on its command line (best-effort
-# `pgrep -af`, not a tracked PID — this must ALSO catch orphans that were logged before this
-# function existed, e.g. K-02's own reproduction case, which have no PID to check). If both hold,
-# it appends a synthetic "AGENT LABEL FAIL rc=LOST" line so `grep -c 'AGENT start:'` always equals
-# the completion-line count. Cost of a false positive: one extra diagnostic line (the real agent,
-# if it is in fact still alive, still writes its own completion line later — this function never
-# touches the process). Cost of staying silent: a swallowed failure indistinguishable from "still
-# running", which is the exact defect this closes. Bias to alert, per CLAUDE.md AP-3 fail-fast.
+# (b) the PID recorded in the start line (see run_agent) is no longer alive on the host.
+#
+# M-01: this used to be a `pgrep -af LABEL` substring match instead of a tracked PID. That check
+# was structurally broken, not just flaky: LABEL (e.g. "onboard-statistics-denmark") is a
+# run_agent-internal bookkeeping string that never appears in the child's argv — the prompt text
+# only substitutes __NAME__ (e.g. "statistics-denmark"), never the "onboard-" prefix — so
+# `pgrep -af "$label"` could NEVER match the live claude process. Every genuinely running agent
+# with an "onboard-", "fix-", etc. label older than 60s was declared LOST the moment reconcile ran
+# again (start/completion parity broke, e.g. 31 vs 32 in production). Fix: run_agent now launches
+# its child in the background, captures the real $! PID, and stamps it into the start line itself
+# ("... pid 12345)"). Liveness here is a direct /proc/<pid> check — authoritative, independent of
+# what text happens to be on the command line. A start line from before this fix carries no PID
+# (nothing to check) and is treated as dead once past the 60s guard — those are historical/
+# one-time-migration entries only; every start line written by the fixed run_agent always carries
+# a PID. If a start line has a live PID whose /proc/<pid>/cmdline mentions neither "timeout" nor
+# "claude", it's a reused PID pointing at an unrelated process (astronomically unlikely inside the
+# minutes/hours this check runs on, but checked anyway) and is treated as dead too.
+#
+# Cost of a false positive: one extra diagnostic line (the real agent, if it is in fact still
+# alive, still writes its own completion line later — this function never touches the process).
+# Cost of staying silent: a swallowed failure indistinguishable from "still running", which is the
+# exact defect this closes. Bias to alert, per CLAUDE.md AP-3 fail-fast.
 reconcile_log_orphans(){
   local logfile="$1"
   [ -f "$logfile" ] || return 0
   python3 - "$logfile" <<'PYEOF'
-import sys, os, re, collections, subprocess, datetime
+import sys, re, collections, datetime
 
 logfile = sys.argv[1]
 with open(logfile) as f:
     lines = f.readlines()
 
-start_re = re.compile(r'^\[([^\]]+)\] AGENT start: (\S+) \(timeout (\d+)s')
+start_re = re.compile(r'^\[([^\]]+)\] AGENT start: (\S+) \(timeout (\d+)s(?:, model \S+)?(?:, pid (\d+))?\)')
 outcome_re = re.compile(r'^\[([^\]]+)\] AGENT (\S+) (done|RATE-LIMITED|TIMEOUT|AUTH-FAIL|EMPTY-OUTPUT|FAIL)\b')
 
-pending = collections.OrderedDict()  # label -> deque of (started_iso, timeout_s)
+pending = collections.OrderedDict()  # label -> deque of (started_iso, timeout_s, pid_or_None)
 for line in lines:
     m = start_re.match(line)
     if m:
-        pending.setdefault(m.group(2), collections.deque()).append((m.group(1), int(m.group(3))))
+        pid = int(m.group(4)) if m.group(4) else None
+        pending.setdefault(m.group(2), collections.deque()).append((m.group(1), int(m.group(3)), pid))
         continue
     m = outcome_re.match(line)
     if m and pending.get(m.group(2)):
         pending[m.group(2)].popleft()
 
-# pgrep -af matches full cmdlines, including our OWN ancestor shells if the label text happens
-# to appear on their command line (e.g. an interactive debug session that greps the same label
-# right next to the reconcile call) -- exclude our own ancestor PIDs so that can never look like
-# "still alive". A genuinely running sibling agent process is never our ancestor.
-def ancestor_pids():
-    pids, pid = set(), os.getpid()
-    for _ in range(50):
-        pids.add(pid)
-        try:
-            with open(f'/proc/{pid}/stat') as f:
-                stat = f.read()
-            ppid = int(stat[stat.rfind(')') + 2:].split()[1])
-        except Exception:
-            break
-        if ppid in pids or ppid <= 1:
-            pids.add(ppid)
-            break
-        pid = ppid
-    return pids
+def pid_alive(pid):
+    try:
+        with open(f'/proc/{pid}/cmdline', 'rb') as f:
+            cmd = f.read()
+    except (FileNotFoundError, ProcessLookupError):
+        return False
+    except Exception:
+        return True  # can't verify -> don't falsely declare dead
+    if not cmd:
+        return False  # /proc/<pid> exists but cmdline is empty -> zombie, already exited
+    text = cmd.replace(b'\x00', b' ').decode('utf-8', 'replace')
+    return ('timeout' in text) or ('claude' in text)
 
-ancestors = ancestor_pids()
 now = datetime.datetime.now(datetime.timezone.utc)
 new_lines = []
 for label, q in pending.items():
-    for started_iso, tmo in q:
+    for started_iso, tmo, pid in q:
         try:
             started = datetime.datetime.strptime(started_iso, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=datetime.timezone.utc)
         except ValueError:
@@ -145,19 +152,17 @@ for label, q in pending.items():
         age = (now - started).total_seconds()
         if age < 60:
             continue  # too young to judge -- could still be legitimately running
-        try:
-            out = subprocess.run(['pgrep', '-af', label], capture_output=True, text=True, timeout=5).stdout
-            matches = [l for l in out.splitlines() if l.strip()]
-            found = any(int(l.split(None, 1)[0]) not in ancestors for l in matches)
-        except Exception:
-            found = True  # can't verify -> don't falsely declare dead
-        if found:
-            continue
+        if pid is not None:
+            if pid_alive(pid):
+                continue
+            pid_note = f", pid {pid} no longer running"
+        else:
+            pid_note = ", no PID recorded (pre-fix log line)"
         stamp = now.strftime("%Y-%m-%dT%H:%M:%SZ")
         new_lines.append(
             f"[{stamp}] AGENT {label} FAIL rc=LOST (start logged at {started_iso}, declared timeout "
-            f"{tmo}s, age {int(age)}s, no completion line ever written and no matching process found "
-            f"on the host -- process died silently; reconciled by K-02 orphan check)\n"
+            f"{tmo}s, age {int(age)}s{pid_note}, no completion line ever written -- process died "
+            f"silently; reconciled by M-01 PID-tracked orphan check)\n"
         )
 
 if new_lines:
@@ -201,7 +206,6 @@ run_agent(){
       flags="--print --dangerously-skip-permissions --model $model --no-session-persistence";;
   esac
   local out="$LOGS/${label}-$(date -u +%H%M%S).log"
-  log "AGENT start: $label (timeout ${tmo}s, model $model)" >&2
   cd "$ROOT" || return 1
   # pricing and onboard (DB seed step) need DB write access but must not read .env themselves:
   # the trusted orchestrator (this script, never exposed to fetched web content) extracts ONLY
@@ -214,11 +218,18 @@ run_agent(){
   case "$core" in
     pricing-*|onboard-*) db_url=$(node -e "require('dotenv').config({path:'$ROOT/.env'});process.stdout.write(process.env.DATABASE_URL||'')" 2>/dev/null);;
   esac
+  # M-01: launch in the background so we can capture the REAL child PID ($!) and stamp it into
+  # the "AGENT start:" line. reconcile_log_orphans() then checks /proc/<pid> directly instead of
+  # text-matching the label against process command lines (the label is never part of the
+  # child's argv, so that check could never work — see the reconcile_log_orphans comment).
   if [ -n "$db_url" ]; then
-    timeout "$tmo" env "DATABASE_URL=$db_url" $CLAUDE_BIN $flags "$prompt" >"$out" 2>&1
+    timeout "$tmo" env "DATABASE_URL=$db_url" $CLAUDE_BIN $flags "$prompt" >"$out" 2>&1 &
   else
-    timeout "$tmo" $CLAUDE_BIN $flags "$prompt" >"$out" 2>&1
+    timeout "$tmo" $CLAUDE_BIN $flags "$prompt" >"$out" 2>&1 &
   fi
+  local child_pid=$!
+  log "AGENT start: $label (timeout ${tmo}s, model $model, pid $child_pid)" >&2
+  wait "$child_pid"
   local rc=$?
   if grep -qiE "Failed to authenticate|Invalid authentication credentials|401 Invalid authentication|Not logged in|Please run /login" "$out"; then
     log "AGENT $label AUTH-FAIL 401 (claude token dead)" >&2; echo "$out"; return 98
