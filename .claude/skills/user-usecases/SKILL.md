@@ -289,6 +289,7 @@ Use these examples as reference patterns when:
 | UC-591 | Japan Postal Codes (postcode.teraren.com) | Postcode lookup, text search, prefecture list; 124K+ Japan Post codes; kanji/kana/romaji + GPS; MIT, no auth | LIVE | No auth, 3 tools | `usecases/UC-591-postcode-japan.md` |
 | UC-592 | P2PQuake Japan Seismic (api.p2pquake.net) | JMA earthquake reports (Shindo scale), tsunami warnings, historical search; community relay, open data, MIT, no auth | LIVE | No auth, 3 tools | `usecases/UC-592-p2pquake.md` |
 | UC-593 | JMA Bosai (www.jma.go.jp/bosai) | Japan Meteorological Agency official weather forecast, warnings/advisories, earthquake list, area reference; Japanese Government open data, no auth | LIVE | No auth, 5 tools | `usecases/UC-593-jma-bosai.md` |
+| UC-594 | Statistics Denmark (api.statbank.dk) | Danish national statistics — subject tree, table search, table metadata/dimensions, JSON-stat data query; population/labour/economy/social/education/business/transport/culture/environment; no auth, CC open data | LIVE | No auth, 4 tools | `usecases/UC-594-statistics-denmark.md` |
 
 ## How to Use
 
