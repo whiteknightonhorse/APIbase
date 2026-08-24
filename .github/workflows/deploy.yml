@@ -13,7 +13,10 @@ name: Deploy
 
 on:
   push:
-    branches: [main]
+    # ci-staging: required-status-check gate for branch-protected main (A-05).
+    # push skill lands a commit here first so "Build & Push Image" reports
+    # success for that SHA *before* GitHub allows it to land on main.
+    branches: [main, ci-staging]
 
 permissions:
   contents: read
@@ -99,6 +102,7 @@ jobs:
   deploy:
     name: Deploy to Production
     needs: build
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     environment: production
