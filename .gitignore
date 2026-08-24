@@ -79,6 +79,6 @@ static/video/*.mp4
 *.bak.*
 *.bak
 
-# Состояние и журналы оркестры — рабочее состояние, не исходный код.
-scripts/night-orchestra/state/
-scripts/night-orchestra/logs/
+# night-orchestra now lives in its own private repo (B-01, github.com/whiteknightonhorse/night-orchestra)
+# — pricing-audit.md carries margin policy that must never reach this PUBLIC repo. Whole dir excluded.
+scripts/night-orchestra/
