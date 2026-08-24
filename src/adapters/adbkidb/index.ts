@@ -17,6 +17,14 @@ import type {
 
 const KIDB_BASE = 'https://kidb.adb.org';
 
+const XML_ATTR_ENTITY_MAP: Record<string, string> = {
+  amp: '&',
+  lt: '<',
+  gt: '>',
+  quot: '"',
+  '#39': "'",
+};
+
 // ADB member economies (50 developing and developed member countries)
 const ADB_ECONOMIES: Array<{ code: string; name: string }> = [
   { code: 'AFG', name: 'Afghanistan' },
@@ -347,12 +355,10 @@ export class AdbkidbAdapter extends BaseAdapter {
     const regex = /(\w+)="([^"]*)"/g;
     let m: RegExpExecArray | null;
     while ((m = regex.exec(attrStr)) !== null) {
-      result[m[1]] = m[2]
-        .replace(/&amp;/g, '&')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&quot;/g, '"')
-        .replace(/&#39;/g, "'");
+      result[m[1]] = m[2].replace(
+        /&(amp|lt|gt|quot|#39);/g,
+        (match, ent) => XML_ATTR_ENTITY_MAP[ent] ?? match,
+      );
     }
     return result;
   }
