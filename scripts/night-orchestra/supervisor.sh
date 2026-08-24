@@ -11,7 +11,7 @@ DEADLINE=$(( $(date +%s) + ORCH_DEADLINE_SECONDS ))
 echo "{\"pid\":$$,\"deadline\":$DEADLINE,\"started\":\"$(ts)\",\"dry\":$ORCH_DRY}" > "$STATE/run-state.json"
 echo "$$" > "$STATE/supervisor.pid"
 trap 'rm -f "$STATE/supervisor.pid"' EXIT
-log "ORCHESTRA START pid=$$ deadline=$(date -u -d @$DEADLINE +%FT%TZ) dry=$ORCH_DRY max=$ORCH_MAX_ONBOARDS"
+log "ORCHESTRA START pid=$$ deadline=$(date -u -d @$DEADLINE +%FT%TZ) dry=$ORCH_DRY max_onboards=$ORCH_MAX_ONBOARDS max_attempts=$ORCH_MAX_ATTEMPTS"
 # AUTH PRE-FLIGHT (2026-06-23): a dead claude token wasted an entire night on 401 idle-loops.
 # Verify auth BEFORE the loop; if dead -> Telegram alert + skip the run (don't burn the window).
 __pf=$(timeout 45 $CLAUDE_BIN --print --model haiku "reply with exactly: AUTHOK" 2>&1)
@@ -143,6 +143,12 @@ OPERATOR PRIORITY CATEGORIES TONIGHT: $(cat "$STATE/priority.txt") — prefer di
   fi
 
   if [ "$ORCH_MAX_ONBOARDS" -gt 0 ] && [ "$ONBOARDS" -ge "$ORCH_MAX_ONBOARDS" ]; then log "MAX_ONBOARDS reached → stop"; break; fi
+  # I-02: ceiling on ATTEMPTS (onboards+fails), not just successes — a night where every
+  # candidate fails must still stop burning tokens instead of running to DEADLINE.
+  if [ "$ORCH_MAX_ATTEMPTS" -gt 0 ] && [ "$((ONBOARDS+FAILS))" -ge "$ORCH_MAX_ATTEMPTS" ]; then
+    log "MAX_ATTEMPTS reached (attempt-cap onboards=$ONBOARDS fails=$FAILS >= $ORCH_MAX_ATTEMPTS) → stop"
+    break
+  fi
 
   if [ "$ORCH_DRY" != "1" ] && [ $(( $(date +%s) - last_push )) -ge 3600 ]; then
     log "hourly batch push"
