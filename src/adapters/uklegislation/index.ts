@@ -51,14 +51,17 @@ function xmlText(xml: string, tag: string): string | null {
   return m ? m[1].replace(/\s+/g, ' ').trim() : null;
 }
 
+const XML_ENTITY_MAP: Record<string, string> = {
+  amp: '&',
+  lt: '<',
+  gt: '>',
+  quot: '"',
+  apos: "'",
+  '#39': "'",
+};
+
 function decodeXmlEntities(s: string): string {
-  return s
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&apos;/g, "'");
+  return s.replace(/&(amp|lt|gt|quot|apos|#39);/g, (m, ent) => XML_ENTITY_MAP[ent] ?? m);
 }
 
 function parseAtomEntry(entry: string): {
