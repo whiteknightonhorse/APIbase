@@ -19,7 +19,15 @@ mkdir -p "$STATE" "$LOGS"
 [ -f "$STATE/tg.env" ] && . "$STATE/tg.env"
 : "${ORCH_DEADLINE_SECONDS:=32400}"   # 9h default
 : "${ORCH_DRY:=0}"                    # 1 = no push/Smithery (local only)
-: "${ORCH_MAX_ONBOARDS:=0}"           # 0 = unlimited (until deadline); >0 = cap (dry-run)
+# ПОТОЛОК ВМЕСТО ОКНА (решение оператора 2026-08-24). Прежнее «0 = без потолка, работай до
+# дедлайна» означало: сколько успеет за девять часов, столько и подключит — расход токенов не
+# ограничен ничем, кроме времени. Оператор попросил 5-10 подключений в сутки, после чего чистый
+# выход и пауза до следующего дня.
+#
+# Число берётся ДЕТЕРМИНИРОВАННО от даты, а не случайно: одна и та же дата всегда даёт одно и то
+# же число, поэтому при разборе прогон воспроизводим — но снаружи расписание не читается как
+# ровная ферма. Тот же приём, что у джиттера слотов в соседних проектах.
+: "${ORCH_MAX_ONBOARDS:=$(( 5 + 10#$(date -u +%j) % 6 ))}"   # 5..10 за прогон, от дня года
 : "${QUEUE_THRESHOLD:=6}"
 CLAUDE_BIN="${CLAUDE_BIN:-/usr/bin/claude}"
 
@@ -34,7 +42,13 @@ run_agent(){
   # Per-role model (token cost): cheap/high-frequency roles -> Haiku; code/debug -> Sonnet.
   local model="sonnet"
   case "$label" in
-    finder*|record-*|pricing-*|test-*|key-instructions*|disk-cleanup*) model="haiku";;
+    # Haiku — там, где нужен ОБЪЁМ и скорость: поиск кандидатов, запись US-cases, тесты,
+    # инструкции по ключам, уборка диска. Всё это перебор и оформление, не суждение.
+    finder*|record-*|test-*|key-instructions*|disk-cleanup*) model="haiku";;
+    # ⚠️ pricing-audit НАМЕРЕННО остаётся на Sonnet. Постановление Fable 2026-08-24: это самый
+    # чувствительный к деньгам шаг — он назначает наценку и решает, сколько будет стоить вызов.
+    # Экономия на модели, которая считает цену, — это не экономия, а перенос риска на выручку.
+    pricing-*) model="sonnet";;
   esac
   # A-04 SANDBOX: finder/record/pricing/test read untrusted web pages or third-party output
   # (a prompt-injection vector). They get a permission-checked profile (no .env, no git push,
