@@ -1,5 +1,6 @@
 import { type BaseAdapter } from './base.adapter';
 import { JmaBosaiAdapter } from './jma-bosai';
+import { DestatisAdapter } from './destatis';
 import { PostcodeJapanAdapter } from './postcode-japan';
 import { P2pquakeAdapter } from './p2pquake';
 import { OfacAdapter } from './ofac';
@@ -1703,6 +1704,13 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'jma-bosai':
       // JMA Bosai (UC-593) — Japan Meteorological Agency: weather forecast, warnings, earthquakes; no auth; open data
       return getOrCreate('jma-bosai', () => new JmaBosaiAdapter());
+    case 'destatis': {
+      // Destatis GENESIS-Online (UC-452) — German official statistics; username+password as HTTP headers
+      const username = cfgKey('DESTATIS_USERNAME');
+      const password = cfgKey('DESTATIS_PASSWORD');
+      if (!username || !password) return undefined;
+      return getOrCreate('destatis', () => new DestatisAdapter(username, password));
+    }
     default:
       return undefined;
   }

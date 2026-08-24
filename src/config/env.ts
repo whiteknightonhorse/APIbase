@@ -421,6 +421,10 @@ export const appEnvSchema = z.object({
   // GeoNames geographical database (UC-512) — place search, postal codes, country info, timezones
   GEONAMES_USERNAME: z.string().optional().default('APIbase'),
 
+  // Destatis GENESIS-Online (UC-452) — German official statistics (Statistisches Bundesamt)
+  DESTATIS_USERNAME: z.string().optional().default(''),
+  DESTATIS_PASSWORD: z.string().optional().default(''),
+
   // Polymarket trading — Phase 2 (UC-001 §3-§8)
   POLYMARKET_WALLET_ADDRESS: z.string().startsWith('0x').optional().default(''),
   POLYMARKET_PRIVATE_KEY: z.string().optional().default(''),

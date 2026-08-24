@@ -6801,6 +6801,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-452: Destatis GENESIS-Online (4 tools) ---
+  - tool_id: destatis.gdp
+    name: Germany GDP & National Accounts
+    provider: destatis
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: destatis.population
+    name: Germany Population by Reference Date
+    provider: destatis
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: destatis.prices
+    name: Germany Consumer Price Index
+    provider: destatis
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: destatis.trade
+    name: Germany Foreign Trade (Exports/Imports)
+    provider: destatis
+    price_usd: "0.002"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

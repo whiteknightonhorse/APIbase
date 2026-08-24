@@ -2789,5 +2789,14 @@
     "reset_period": "none",
     "docs_url": "https://www.jma.go.jp/jma/kishou/info/coment.html",
     "limit_proof": "Japanese Government open data (e-Gov), no auth required, no documented rate limits"
+  },
+  "destatis": {
+    "display_name": "Destatis GENESIS-Online",
+    "health_url": "https://genesis.destatis.de/genesisWS/rest/2020/helloworld/logincheck",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.destatis.de/EN/Service/OpenData/api-webservice.html",
+    "limit_proof": "German Federal Statistical Office open data API; free account, no documented rate limit or quota — 'All users have access to the same range of data'"
   }
 }

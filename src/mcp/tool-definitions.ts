@@ -13351,4 +13351,50 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'weather',
     annotations: READ_ONLY,
   },
+  {
+    toolId: 'destatis.gdp',
+    mcpName: 'destatis.finance.gdp',
+    title: 'Germany GDP & National Accounts',
+    description:
+      'Get German gross domestic product and gross value added from official national accounts ' +
+      '(Statistisches Bundesamt GENESIS-Online table 81000-0001). Annual series, nominal and ' +
+      'price-adjusted. Filter by startyear/endyear (e.g. 2015-2025). ' +
+      'Data: German Federal Statistical Office, DL-DE/BY-2-0 open data licence.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'destatis.population',
+    mcpName: 'destatis.reference.population',
+    title: 'Germany Population by Reference Date',
+    description:
+      'Get official German population figures by reference date (Statistisches Bundesamt GENESIS-Online ' +
+      'table 12411-0001), including results based on the 2011 and 2022 census. Annual series from 1950. ' +
+      'Filter by startyear/endyear. Data: German Federal Statistical Office, DL-DE/BY-2-0 open data licence.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'destatis.prices',
+    mcpName: 'destatis.finance.cpi',
+    title: 'Germany Consumer Price Index',
+    description:
+      'Get the official German consumer price index and annual change (Statistisches Bundesamt ' +
+      'GENESIS-Online table 61111-0001), base year 2020=100. Filter by startyear/endyear. ' +
+      'Data: German Federal Statistical Office, DL-DE/BY-2-0 open data licence.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'destatis.trade',
+    mcpName: 'destatis.finance.trade',
+    title: 'Germany Foreign Trade (Exports/Imports)',
+    description:
+      'Get official German foreign trade statistics — export and import net mass and value, ' +
+      'including value in US dollars (Statistisches Bundesamt GENESIS-Online table 51000-0001). ' +
+      'Annual series from 1950. Filter by startyear/endyear. ' +
+      'Data: German Federal Statistical Office, DL-DE/BY-2-0 open data licence.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
 ];
