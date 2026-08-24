@@ -204,8 +204,6 @@ read_control(){ # parse operator command-comments -> apply to local state. Best-
 dedup_check(){
   local name="$1"; local lc; lc=$(echo "$name" | tr 'A-Z' 'a-z')
   [ -d "$ROOT/src/adapters/$lc" ] && return 1
-  grep -qiE "\"$lc\"|/$lc[\"/ ]|$lc\\." "$ROOT/.claude/skills/resort/candidates-registry.json" 2>/dev/null && \
-    grep -qi "onboard" "$ROOT/.claude/skills/resort/candidates-registry.json" 2>/dev/null
   grep -qiE "^- *tool_id:.*$lc\\.|provider: *$lc\$" "$ROOT/config/tool_provider_config.yaml" 2>/dev/null && return 1
   return 0
 }
