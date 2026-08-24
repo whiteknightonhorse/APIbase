@@ -58294,6 +58294,344 @@
         ]
       }
     },
+    "/api/v1/tools/statistics-denmark.subjects/call": {
+      "post": {
+        "operationId": "statistics-denmark_subjects",
+        "summary": "Statistics Denmark Subject Areas",
+        "description": "List the subject/topic areas covered by Statistics Denmark (StatBank) — People, Labour and income, Economy, Social conditions, Education and research, Business, Transport, Culture and leisure, Environment and energy, About Statistics Denmark. Set recursive=true to drill down into the full nested topic tree (e.g. People → Population → Population figures) used to browse toward specific tables. Statistics Denmark (Danmarks Statistik) is the Danish national statistics authority.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "statistics-denmark.subjects"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "recursive": {
+                    "type": "boolean",
+                    "description": "If true, return the full nested subject tree down to leaf topics (e.g. People → Population → Population figures). If false (default), return only the 10 top-level subject areas (People, Labour and income, Economy, Social conditions, Education and research, Business, Transport, Culture and leisure, Environment and energy, About Statistics Denmark).",
+                    "default": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/statistics-denmark.tables/call": {
+      "post": {
+        "operationId": "statistics-denmark_tables",
+        "summary": "Statistics Denmark Table Search",
+        "description": "Search or list Statistics Denmark (StatBank) statistical tables by keyword and/or subject area. Returns matching table IDs, full titles, measurement unit, last-updated timestamp, first/latest available period, and the dimension names each table can be broken down by. Use the returned table ID with statistics-denmark.data.table_info to discover dimension codes, then statistics-denmark.data.query to fetch data. Example keywords: \"population\", \"gdp\", \"unemployment\", \"inflation\", \"immigration\", \"housing\", \"energy\", \"crime\", \"wages\", \"trade\".",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "statistics-denmark.tables"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Keyword to search for in StatBank table titles. Examples: \"population\", \"gdp\", \"unemployment\", \"inflation\", \"immigration\", \"housing\", \"energy\", \"crime\". Omit to list all 2,000+ active tables (large response)."
+                  },
+                  "subjects": {
+                    "type": "string",
+                    "description": "Comma-separated subject area ID(s) to scope the listing (from statistics-denmark.subjects), e.g. \"1\" for People, \"3\" for Economy. Optional — combine with or omit query."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/statistics-denmark.table_info/call": {
+      "post": {
+        "operationId": "statistics-denmark_table_info",
+        "summary": "Statistics Denmark Table Metadata",
+        "description": "Get the full metadata for a specific Statistics Denmark table — dimension codes, valid value codes, and human-readable labels needed to construct a data query. Returns table title, description, unit, last-updated timestamp, and an array of variables (dimensions) each with its code (e.g. \"OMRÅDE\" for region), readable name, and the list of valid value codes with labels. This is the required second step before querying data: call statistics-denmark.data.tables to find a table ID, then statistics-denmark.data.table_info to learn the dimension codes and valid values, then statistics-denmark.data.query to retrieve actual data. Common table IDs: \"FOLK1A\" (quarterly population by region/sex/age/marital status), \"BEFOLK1\" (annual population by sex/age since 1971), \"AKU1\" (labour force survey), \"NAN1\" (GDP and national accounts), \"PRIS111\" (consumer price index).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "statistics-denmark.table_info"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "table_id": {
+                    "type": "string",
+                    "description": "StatBank table ID (short alphanumeric code). Obtain from statistics-denmark.tables. Common tables: \"FOLK1A\" (population by region/sex/age/marital status, quarterly), \"BEFOLK1\" (population by sex/age, annual since 1971), \"AKU1\" (labour force survey), \"NAN1\" (GDP and national accounts), \"PRIS111\" (consumer price index), \"FORBRUG1\" (household consumption). Returns dimension codes and valid value codes needed for statistics-denmark.data."
+                  }
+                },
+                "required": [
+                  "table_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/statistics-denmark.data/call": {
+      "post": {
+        "operationId": "statistics-denmark_data",
+        "summary": "Statistics Denmark Table Data",
+        "description": "Fetch statistical data from a specific Statistics Denmark table using dimension filters. Returns a JSON-stat dataset with dimension labels, a flat value array, and metadata (updated timestamp, source). Use statistics-denmark.data.tables to find the table ID, statistics-denmark.data.table_info to get valid dimension codes and values, then pass them here as a variables array — one entry per dimension you want to filter or break out by (e.g. region, sex, age, time). Any dimension left out is auto-aggregated to its total by StatBank. Use values:[\"*\"] to include all values for a dimension (e.g. the full time series). Covers population, labour market, economy, social conditions, education, business, transport, culture, and environment statistics for Denmark.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "statistics-denmark.data"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "table_id": {
+                    "type": "string",
+                    "description": "StatBank table ID to query — from statistics-denmark.tables or statistics-denmark.table_info. Example: \"FOLK1A\" for quarterly population."
+                  },
+                  "variables": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "description": "Dimension code from statistics-denmark.table_info variables[].code. Examples: \"OMRÅDE\" (region), \"KØN\" (sex), \"ALDER\" (age), \"Tid\" (time)."
+                        },
+                        "values": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "Value codes to select for this dimension, from statistics-denmark.table_info variables[].values[].id. Use [\"*\"] to select all values for the dimension, or [\"000\"] etc. for a specific code. For the time dimension use specific period codes (e.g. [\"2026K3\"] for a quarter, [\"2026\"] for a year) or [\"*\"] for the full series."
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "values"
+                      ],
+                      "description": "Selected value codes for one table dimension."
+                    },
+                    "description": "Array of dimension filters. Any dimension left out is auto-eliminated (aggregated to its default/total value) by StatBank — include a dimension only when you need to filter or break out by it. Example: [{code:\"OMRÅDE\",values:[\"000\"]},{code:\"KØN\",values:[\"TOT\"]},{code:\"ALDER\",values:[\"IALT\"]},{code:\"CIVILSTAND\",values:[\"TOT\"]},{code:\"Tid\",values:[\"*\"]}]. Response is a JSON-stat dataset with dimension labels and a flat value array.",
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "table_id",
+                  "variables"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/overpass.amenities/call": {
       "post": {
         "operationId": "overpass_amenities",
@@ -101463,6 +101801,354 @@
                   "name_filter": {
                     "type": "string",
                     "description": "Optional English keyword to filter offices by name (case-insensitive). E.g. \"tokyo\", \"osaka\". Leave empty to return all 58 offices."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/destatis.gdp/call": {
+      "post": {
+        "operationId": "destatis_gdp",
+        "summary": "Germany GDP & National Accounts",
+        "description": "Get German gross domestic product and gross value added from official national accounts (Statistisches Bundesamt GENESIS-Online table 81000-0001). Annual series, nominal and price-adjusted. Filter by startyear/endyear (e.g. 2015-2025). Data: German Federal Statistical Office, DL-DE/BY-2-0 open data licence.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "destatis.gdp"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "startyear": {
+                    "type": "integer",
+                    "description": "Earliest year to include (e.g. 2015). Omit to return the full available history."
+                  },
+                  "endyear": {
+                    "type": "integer",
+                    "description": "Latest year to include (e.g. 2025). Omit to return the full available history."
+                  },
+                  "language": {
+                    "type": "string",
+                    "enum": [
+                      "en",
+                      "de"
+                    ],
+                    "description": "Response language for labels — \"en\" (default) or \"de\"."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/destatis.population/call": {
+      "post": {
+        "operationId": "destatis_population",
+        "summary": "Germany Population by Reference Date",
+        "description": "Get official German population figures by reference date (Statistisches Bundesamt GENESIS-Online table 12411-0001), including results based on the 2011 and 2022 census. Annual series from 1950. Filter by startyear/endyear. Data: German Federal Statistical Office, DL-DE/BY-2-0 open data licence.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "destatis.population"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "startyear": {
+                    "type": "integer",
+                    "description": "Earliest year to include (e.g. 2015). Omit to return the full available history."
+                  },
+                  "endyear": {
+                    "type": "integer",
+                    "description": "Latest year to include (e.g. 2025). Omit to return the full available history."
+                  },
+                  "language": {
+                    "type": "string",
+                    "enum": [
+                      "en",
+                      "de"
+                    ],
+                    "description": "Response language for labels — \"en\" (default) or \"de\"."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/destatis.prices/call": {
+      "post": {
+        "operationId": "destatis_prices",
+        "summary": "Germany Consumer Price Index",
+        "description": "Get the official German consumer price index and annual change (Statistisches Bundesamt GENESIS-Online table 61111-0001), base year 2020=100. Filter by startyear/endyear. Data: German Federal Statistical Office, DL-DE/BY-2-0 open data licence.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "destatis.prices"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "startyear": {
+                    "type": "integer",
+                    "description": "Earliest year to include (e.g. 2015). Omit to return the full available history."
+                  },
+                  "endyear": {
+                    "type": "integer",
+                    "description": "Latest year to include (e.g. 2025). Omit to return the full available history."
+                  },
+                  "language": {
+                    "type": "string",
+                    "enum": [
+                      "en",
+                      "de"
+                    ],
+                    "description": "Response language for labels — \"en\" (default) or \"de\"."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/destatis.trade/call": {
+      "post": {
+        "operationId": "destatis_trade",
+        "summary": "Germany Foreign Trade (Exports/Imports)",
+        "description": "Get official German foreign trade statistics — export and import net mass and value, including value in US dollars (Statistisches Bundesamt GENESIS-Online table 51000-0001). Annual series from 1950. Filter by startyear/endyear. Data: German Federal Statistical Office, DL-DE/BY-2-0 open data licence.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "destatis.trade"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "startyear": {
+                    "type": "integer",
+                    "description": "Earliest year to include (e.g. 2015). Omit to return the full available history."
+                  },
+                  "endyear": {
+                    "type": "integer",
+                    "description": "Latest year to include (e.g. 2025). Omit to return the full available history."
+                  },
+                  "language": {
+                    "type": "string",
+                    "enum": [
+                      "en",
+                      "de"
+                    ],
+                    "description": "Response language for labels — \"en\" (default) or \"de\"."
                   }
                 }
               }

@@ -68,6 +68,7 @@ import { BrasilApiAdapter } from './brasilapi';
 import { IbgeAdapter } from './ibge';
 import { BcbAdapter } from './bcb';
 import { EurostatAdapter } from './eurostat';
+import { StatisticsDenmarkAdapter } from './statistics-denmark';
 import { DataGovSgAdapter } from './datagovsg';
 import { AirNowAdapter } from './airnow';
 import { NpsAdapter } from './nps';
@@ -663,6 +664,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'eurostat':
       // Eurostat — 35K+ EU stat datasets, CC BY 4.0, no auth (UC-410)
       return getOrCreate('eurostat', () => new EurostatAdapter());
+    case 'statistics-denmark':
+      // Statistics Denmark (StatBank) — 2K+ Danish stat tables, no auth (UC-594)
+      return getOrCreate('statistics-denmark', () => new StatisticsDenmarkAdapter());
     case 'sg':
       // Singapore data.gov.sg — NEA/LTA real-time data, SG Open Data Licence v1.0 (UC-412)
       return getOrCreate('datagovsg', () => new DataGovSgAdapter());

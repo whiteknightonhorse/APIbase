@@ -1773,6 +1773,15 @@
     "docs_url": "https://www.ssb.no/en/statbank/api",
     "limit_proof": "SSB StatBank PXWeb API is open government data (NLOD 2.0); no authentication required and no documented rate limits"
   },
+  "statistics-denmark": {
+    "display_name": "Statistics Denmark (StatBank)",
+    "health_url": "https://api.statbank.dk/v1/tables?query=population&lang=en",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.dst.dk/en/Statistik/brug-statistikken/muligheder-i-statistikbanken/api",
+    "limit_proof": "Statistics Denmark StatBank API is open government data, no authentication required, no documented rate limits (per official API docs page)"
+  },
   "overpass": {
     "display_name": "Overpass API (OpenStreetMap)",
     "health_url": "https://overpass-api.de/api/interpreter?data=%5Bout%3Ajson%5D%5Btimeout%3A5%5D%3Bnode(1)%3Bout%3B",

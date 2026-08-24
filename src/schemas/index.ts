@@ -57,6 +57,7 @@ import { brasilapiSchemas } from './brasilapi.schema';
 import { ibgeSchemas } from './ibge.schema';
 import { bcbSchemas } from './bcb.schema';
 import { eurostatSchemas } from './eurostat.schema';
+import { statisticsDenmarkSchemas } from './statistics-denmark.schema';
 import { datagovsgSchemas } from './datagovsg.schema';
 import { airnowSchemas } from './airnow.schema';
 import { npsSchemas } from './nps.schema';
@@ -372,6 +373,7 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...ibgeSchemas,
   ...bcbSchemas,
   ...eurostatSchemas,
+  ...statisticsDenmarkSchemas,
   ...datagovsgSchemas,
   ...airnowSchemas,
   ...npsSchemas,

@@ -3836,6 +3836,28 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-594: Statistics Denmark (StatBank) ---
+  - tool_id: statistics-denmark.subjects
+    name: Statistics Denmark Subject Areas
+    provider: statistics-denmark
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: statistics-denmark.tables
+    name: Statistics Denmark Table Search
+    provider: statistics-denmark
+    price_usd: "0.001"
+    cache_ttl: 3600
+  - tool_id: statistics-denmark.table_info
+    name: Statistics Denmark Table Metadata
+    provider: statistics-denmark
+    price_usd: "0.001"
+    cache_ttl: 86400
+  - tool_id: statistics-denmark.data
+    name: Statistics Denmark Table Data
+    provider: statistics-denmark
+    price_usd: "0.002"
+    cache_ttl: 3600
+
   # --- UC-460: Overpass API (OpenStreetMap) ---
   - tool_id: overpass.amenities
     name: Find OSM Amenities in Bounding Box

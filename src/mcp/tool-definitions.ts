@@ -6652,6 +6652,44 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     annotations: READ_ONLY,
   },
 
+  // Statistics Denmark / StatBank (4) — UC-594
+  {
+    toolId: 'statistics-denmark.subjects',
+    mcpName: 'statistics-denmark.data.subjects',
+    title: 'Statistics Denmark Subject Areas',
+    description:
+      'List the subject/topic areas covered by Statistics Denmark (StatBank) — People, Labour and income, Economy, Social conditions, Education and research, Business, Transport, Culture and leisure, Environment and energy, About Statistics Denmark. Set recursive=true to drill down into the full nested topic tree (e.g. People → Population → Population figures) used to browse toward specific tables. Statistics Denmark (Danmarks Statistik) is the Danish national statistics authority.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'statistics-denmark.tables',
+    mcpName: 'statistics-denmark.data.tables',
+    title: 'Statistics Denmark Table Search',
+    description:
+      'Search or list Statistics Denmark (StatBank) statistical tables by keyword and/or subject area. Returns matching table IDs, full titles, measurement unit, last-updated timestamp, first/latest available period, and the dimension names each table can be broken down by. Use the returned table ID with statistics-denmark.data.table_info to discover dimension codes, then statistics-denmark.data.query to fetch data. Example keywords: "population", "gdp", "unemployment", "inflation", "immigration", "housing", "energy", "crime", "wages", "trade".',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'statistics-denmark.table_info',
+    mcpName: 'statistics-denmark.data.table_info',
+    title: 'Statistics Denmark Table Metadata',
+    description:
+      'Get the full metadata for a specific Statistics Denmark table — dimension codes, valid value codes, and human-readable labels needed to construct a data query. Returns table title, description, unit, last-updated timestamp, and an array of variables (dimensions) each with its code (e.g. "OMRÅDE" for region), readable name, and the list of valid value codes with labels. This is the required second step before querying data: call statistics-denmark.data.tables to find a table ID, then statistics-denmark.data.table_info to learn the dimension codes and valid values, then statistics-denmark.data.query to retrieve actual data. Common table IDs: "FOLK1A" (quarterly population by region/sex/age/marital status), "BEFOLK1" (annual population by sex/age since 1971), "AKU1" (labour force survey), "NAN1" (GDP and national accounts), "PRIS111" (consumer price index).',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'statistics-denmark.data',
+    mcpName: 'statistics-denmark.data.query',
+    title: 'Statistics Denmark Table Data',
+    description:
+      'Fetch statistical data from a specific Statistics Denmark table using dimension filters. Returns a JSON-stat dataset with dimension labels, a flat value array, and metadata (updated timestamp, source). Use statistics-denmark.data.tables to find the table ID, statistics-denmark.data.table_info to get valid dimension codes and values, then pass them here as a variables array — one entry per dimension you want to filter or break out by (e.g. region, sex, age, time). Any dimension left out is auto-aggregated to its total by StatBank. Use values:["*"] to include all values for a dimension (e.g. the full time series). Covers population, labour market, economy, social conditions, education, business, transport, culture, and environment statistics for Denmark.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+
   // Overpass API (4)
   {
     toolId: 'overpass.amenities',
