@@ -1517,8 +1517,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'treasurydirect':
       // TreasuryDirect TA_WS (UC-536) — Treasury auction data: Bills, Notes, Bonds, TIPS, FRN; no auth
       return getOrCreate('treasurydirect', () => new TreasuryDirectAdapter());
+    case 'opentopo':
     case 'opentopography':
-      // OpenTopography (UC-537) — global DEM elevation + LiDAR catalog; free registration, 5K req/day
+      // OpenTopography (UC-537) — global DEM elevation + LiDAR catalog; free registration, 5K req/day.
+      // Seeded tool_id prefix is 'opentopo' (matches OpenTopographyAdapter's own toolId checks);
+      // 'opentopography' kept as an alias in case anything already depends on it.
       return getOrCreate(
         'opentopography',
         () => new OpenTopographyAdapter(config.PROVIDER_KEY_OPENTOPO),
