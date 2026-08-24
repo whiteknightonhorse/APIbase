@@ -32,6 +32,9 @@ export interface MppPaymentInfo {
   amount: string;
   txHash: string;
   method: string;
+  /** Raw `Authorization: Payment ...` header value — needed by ESCROW to
+   *  derive the replay-guard nonce (the HMAC-bound challenge id, §A-01). */
+  header: string;
 }
 
 // Extend Express Request type globally

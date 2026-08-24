@@ -48,6 +48,7 @@ executeRouter.post(
         ctx.mppPaid = true;
         ctx.mppPayer = req.mppPayment.payer;
         ctx.mppMethod = req.mppPayment.method;
+        ctx.mppPaymentHeader = req.mppPayment.header;
       }
 
       const result = await runPipeline(ctx);

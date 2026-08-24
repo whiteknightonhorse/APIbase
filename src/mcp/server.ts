@@ -157,6 +157,7 @@ function extractPaymentFromReq(req: express.Request): PaymentContext {
     mppPaid: !!mpp?.verified,
     mppPayer: mpp?.payer ?? null,
     mppMethod: mpp?.method ?? null,
+    mppPaymentHeader: (req.headers['authorization'] as string) ?? null,
   };
 }
 

@@ -54,6 +54,7 @@ export interface PaymentContext {
   mppPaid: boolean;
   mppPayer: string | null;
   mppMethod: string | null;
+  mppPaymentHeader: string | null;
 }
 
 /**
@@ -127,6 +128,7 @@ export function registerTools(
             ctx.mppPaid = true;
             ctx.mppPayer = paymentCtx.mppPayer ?? undefined;
             ctx.mppMethod = paymentCtx.mppMethod ?? undefined;
+            ctx.mppPaymentHeader = paymentCtx.mppPaymentHeader ?? undefined;
           }
         }
 

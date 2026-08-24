@@ -102,6 +102,7 @@ export function mppMiddleware(req: Request, _res: Response, next: NextFunction):
 
 async function verifyMppPayment(req: Request): Promise<void> {
   const log = req.log ?? logger;
+  const authHeader = req.headers['authorization'] as string;
   const mppx = await getMppxInstance();
 
   if (!mppx) {
@@ -152,6 +153,7 @@ async function verifyMppPayment(req: Request): Promise<void> {
       amount: '0',
       txHash: 'mpp-verified',
       method: 'tempo',
+      header: authHeader,
     };
 
     log.info({ requestId: req.requestId, method: 'tempo' }, 'mpp: payment verified');

@@ -111,6 +111,7 @@ export interface PipelineContext {
   mppPaid?: boolean;
   mppPayer?: string;
   mppMethod?: string;
+  mppPaymentHeader?: string;
 
   // PROVIDER_CALL stage
   providerResponse?: NormalizedResponse;

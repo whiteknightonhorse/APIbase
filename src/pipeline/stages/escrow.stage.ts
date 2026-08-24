@@ -12,6 +12,107 @@ import { getX402Config, buildServerX402Requirements } from '../../config/x402.co
 import { getSharedResourceServer } from '../../services/x402-server.service';
 import { decodePaymentSignatureHeader } from '@x402/core/http';
 import { parsePaymentPayload } from '@x402/core/schemas';
+import { claimPaymentNonce } from '../../services/payment-nonce.service';
+
+/** Fallback replay-guard TTL (seconds) when a signed payment carries no
+ *  discoverable expiry — bounds Redis memory without depending on the rail. */
+const NONCE_FALLBACK_TTL_SECONDS = 120;
+
+function replayRejected(priceUsd: number): PipelineError {
+  return {
+    code: 402,
+    error: 'payment_required',
+    message: 'This payment has already been consumed. Sign a new authorization for each tool call.',
+    extra: {
+      price_usd: priceUsd,
+      payment_address: getX402Config().paymentAddress,
+      price_version: 1,
+    },
+  };
+}
+
+const nonceStoreUnavailable: PipelineError = {
+  code: 503,
+  error: 'service_unavailable',
+  message: 'Payment verification service unavailable',
+  retryAfter: 2,
+};
+
+/**
+ * Claim a nonce so the exact same signed payment cannot be consumed twice
+ * (A-01). Returns an error result if this payment was already claimed by a
+ * concurrent or earlier request, or if the nonce store is unreachable
+ * (fail closed, §12.186).
+ */
+async function claimOrReject(
+  rail: string,
+  nonce: string,
+  ttlSeconds: number,
+  priceUsd: number,
+  logCtx: Record<string, unknown>,
+): Promise<Result<true, PipelineError>> {
+  let claimed: boolean;
+  try {
+    claimed = await claimPaymentNonce(rail, nonce, ttlSeconds);
+  } catch (nonceErr) {
+    logger.error(
+      { ...logCtx, err: nonceErr instanceof Error ? nonceErr.message : String(nonceErr) },
+      `${rail} replay guard: nonce store unavailable — failing closed`,
+    );
+    return err(nonceStoreUnavailable);
+  }
+  if (!claimed) {
+    logger.warn(logCtx, `${rail} replay guard: payment nonce already consumed — rejecting`);
+    return err(replayRejected(priceUsd));
+  }
+  return ok(true);
+}
+
+/**
+ * Extract the EIP-3009/Permit2 nonce + expiry from a decoded x402 payload.
+ * Both exact-scheme variants carry a `nonce` alongside `validBefore` (EIP-3009)
+ * or `deadline` (Permit2) inside their respective authorization sub-object.
+ */
+function extractX402Nonce(payload: unknown): { nonce: string; validBefore: number } | null {
+  const raw = (payload as { payload?: Record<string, unknown> } | undefined)?.payload;
+  if (!raw || typeof raw !== 'object') return null;
+  const auth = (raw.authorization ?? raw.permit2Authorization) as
+    | Record<string, unknown>
+    | undefined;
+  if (!auth || typeof auth !== 'object') return null;
+  const nonce = auth.nonce;
+  const validBeforeRaw = auth.validBefore ?? auth.deadline;
+  if (typeof nonce !== 'string' && typeof nonce !== 'number') return null;
+  if (validBeforeRaw === undefined) return null;
+  const validBefore = Number(validBeforeRaw);
+  if (!Number.isFinite(validBefore)) return null;
+  return { nonce: String(nonce), validBefore };
+}
+
+/**
+ * Decode the `id` + `expires` fields out of an mppx `Payment <base64-json>`
+ * credential — just enough to derive the replay-guard key, without a static
+ * `import` of the `mppx` package (root `mppx` ships ESM-only with no CJS
+ * build; a static import would throw `ERR_REQUIRE_ESM` once tsc compiles this
+ * file to CommonJS). The credential's HMAC was already verified by
+ * mpp.middleware.ts before ESCROW runs — this only re-reads two plain fields
+ * from that already-trusted JSON blob (mirrors mppx's own `Credential.deserialize`).
+ */
+function decodeMppChallenge(header: string): { challengeId: string; expires?: string } | null {
+  const match = /^Payment\s+(.+)$/i.exec(header);
+  if (!match) return null;
+  try {
+    const json = Buffer.from(match[1], 'base64').toString('utf8');
+    const parsed = JSON.parse(json) as { challenge?: { id?: unknown; expires?: unknown } };
+    const id = parsed.challenge?.id;
+    if (typeof id !== 'string') return null;
+    const expires =
+      typeof parsed.challenge?.expires === 'string' ? parsed.challenge.expires : undefined;
+    return { challengeId: id, expires };
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Authoritative x402 payment binding (issue #103).
@@ -85,8 +186,65 @@ async function verifyX402Binding(
     return reject(result.invalidReason ?? 'invalid');
   }
 
+  // Single-use guard (A-01): the facilitator verify above is stateless — the
+  // same signed authorization presented N times in parallel passes N times.
+  // Claim its on-chain nonce here, before granting access, so only the first
+  // claimant proceeds to PROVIDER_CALL.
+  const nonceInfo = extractX402Nonce(payload);
+  if (!nonceInfo) {
+    return reject('missing_nonce');
+  }
+  const ttlSeconds = nonceInfo.validBefore - Math.floor(Date.now() / 1000);
+  const claim = await claimOrReject('x402', nonceInfo.nonce, ttlSeconds, priceUsd, {
+    toolId: ctx.toolId,
+    requestId: ctx.requestId,
+  });
+  if (!claim.ok) return claim;
+
   // Authoritative payer for the ledger audit trail (§AP-9).
   ctx.x402Payer = result.payer ?? ctx.x402Payer ?? 'unknown';
+  return ok(ctx);
+}
+
+/**
+ * MPP single-use guard (A-01). mpp.middleware.ts verifies (and settles) the
+ * Tempo credential's HMAC before the pipeline runs, but that verification is
+ * equally stateless — nothing stops the same credential being replayed in
+ * parallel. The credential's HMAC-bound challenge `id` is the unique,
+ * server-verifiable identifier for "this exact signed payment"; claim it here
+ * before granting access to PROVIDER_CALL.
+ */
+async function verifyMppReplay(
+  ctx: PipelineContext,
+  priceUsd: number,
+): Promise<Result<PipelineContext, PipelineError>> {
+  if (!ctx.mppPaymentHeader) {
+    // Should always be set alongside mppPaid — nothing to dedupe on if not.
+    return ok(ctx);
+  }
+
+  const decoded = decodeMppChallenge(ctx.mppPaymentHeader);
+  if (!decoded) {
+    // Already passed mppMiddleware's own HMAC verification — nothing more we
+    // can bind on, but log it since it means the challenge id is unreadable.
+    logger.warn(
+      { toolId: ctx.toolId, requestId: ctx.requestId },
+      'mpp replay guard: could not decode credential — proceeding without replay check',
+    );
+    return ok(ctx);
+  }
+
+  const expiresMs = decoded.expires ? Date.parse(decoded.expires) : NaN;
+  const ttlSeconds = Number.isFinite(expiresMs)
+    ? Math.ceil((expiresMs - Date.now()) / 1000)
+    : NONCE_FALLBACK_TTL_SECONDS;
+
+  const claim = await claimOrReject('mpp', decoded.challengeId, ttlSeconds, priceUsd, {
+    toolId: ctx.toolId,
+    requestId: ctx.requestId,
+  });
+  if (!claim.ok) return claim;
+
   return ok(ctx);
 }
 
@@ -113,8 +271,14 @@ export const escrowStage: Stage = {
     }
 
     // MPP payment verified by middleware (HMAC binds the exact amount) — skip
-    // balance deduction (§8.6).
+    // balance deduction (§8.6). Still claim the replay-guard nonce (A-01)
+    // before granting access to PROVIDER_CALL.
     if (ctx.mppPaid) {
+      const price = ctx.toolPrice ?? 0;
+      if (price > 0) {
+        const replay = await verifyMppReplay(ctx, price);
+        if (!replay.ok) return replay;
+      }
       return ok(ctx);
     }
 

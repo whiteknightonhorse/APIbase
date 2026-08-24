@@ -38,7 +38,29 @@ jest.mock('@x402/core/http', () => ({
   decodePaymentSignatureHeader: jest.fn(() => ({ decoded: true })),
 }));
 jest.mock('@x402/core/schemas', () => ({
-  parsePaymentPayload: jest.fn(() => ({ success: true, data: { accepted: {} } })),
+  parsePaymentPayload: jest.fn(() => ({
+    success: true,
+    data: {
+      accepted: {},
+      payload: {
+        authorization: {
+          from: '0xPAYER',
+          to: '0x50EbDa9dA5dC19c302Ca059d7B9E06e264936480',
+          value: '250000',
+          validAfter: '0',
+          validBefore: String(Math.floor(Date.now() / 1000) + 60),
+          nonce: '0xnonce-binding-test',
+        },
+      },
+    },
+  })),
+}));
+
+// Replay-guard nonce store (A-01) — exercised separately in
+// escrow-payment-replay.test.ts. Here it always claims successfully so these
+// binding tests stay focused on payTo/amount/network verification.
+jest.mock('../../src/services/payment-nonce.service', () => ({
+  claimPaymentNonce: jest.fn().mockResolvedValue(true),
 }));
 
 // The facilitator verify — controlled per test.
