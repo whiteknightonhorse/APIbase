@@ -4,6 +4,7 @@
 set -uo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$HERE/lib.sh"
+reconcile_log_orphans "$(daily_log)"  # K-02: surface orphans left by a previous crashed run before starting fresh
 exec 9>"$STATE/orchestra.lock"
 flock -n 9 || { echo "[lock] another supervisor running — exit"; exit 0; }
 

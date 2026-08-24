@@ -2,6 +2,9 @@
 # Relaunch supervisor if it died while still inside the active 9h window.
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$HERE/lib.sh"
+# K-02: runs every 10min via cron regardless of whether a supervisor is active, so an orphaned
+# "AGENT start" line gets surfaced even during idle daytime hours, not just on the next agent run.
+reconcile_log_orphans "$(daily_log)"
 RS="$STATE/run-state.json"
 [ -f "$RS" ] || exit 0
 DL=$(grep -oE '"deadline":[0-9]+' "$RS" | cut -d: -f2)

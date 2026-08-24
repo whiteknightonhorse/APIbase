@@ -46,10 +46,106 @@ ts(){ date -u +%FT%TZ; }
 daily_log(){ echo "$LOGS/orchestra-$(date -u +%F).log"; }
 log(){ echo "[$(ts)] $*" | tee -a "$(daily_log)"; }
 
+# K-02: an "AGENT start: LABEL" line with no matching completion line is a silent loss — it
+# happens when the WHOLE run_agent process tree (this bash function, the `timeout` wrapper, and
+# the claude child) gets killed externally (harness timeout, OOM, manual kill, session teardown)
+# before the trailing `log "AGENT $label done/RATE-LIMITED/TIMEOUT/AUTH-FAIL..."` line executes —
+# nothing after that point in the function ever runs, so no bash-side fix inside run_agent itself
+# can guarantee its OWN completion line (a SIGKILL is not catchable). What CAN be guaranteed is
+# that the loss is never permanent: this walks the daily log, pairs each "AGENT start: LABEL"
+# with the next "AGENT LABEL <outcome>" line for that SAME label (FIFO — labels repeat across
+# retries, e.g. onboard-remotive ran 3 times in one night), and for a start left unpaired it
+# checks two things before declaring it dead — (a) at least 60s old, so a start line from an
+# agent that is still legitimately mid-run within its declared timeout is never flagged, and
+# (b) no live process on the host still mentions the label on its command line (best-effort
+# `pgrep -af`, not a tracked PID — this must ALSO catch orphans that were logged before this
+# function existed, e.g. K-02's own reproduction case, which have no PID to check). If both hold,
+# it appends a synthetic "AGENT LABEL FAIL rc=LOST" line so `grep -c 'AGENT start:'` always equals
+# the completion-line count. Cost of a false positive: one extra diagnostic line (the real agent,
+# if it is in fact still alive, still writes its own completion line later — this function never
+# touches the process). Cost of staying silent: a swallowed failure indistinguishable from "still
+# running", which is the exact defect this closes. Bias to alert, per CLAUDE.md AP-3 fail-fast.
+reconcile_log_orphans(){
+  local logfile="$1"
+  [ -f "$logfile" ] || return 0
+  python3 - "$logfile" <<'PYEOF'
+import sys, os, re, collections, subprocess, datetime
+
+logfile = sys.argv[1]
+with open(logfile) as f:
+    lines = f.readlines()
+
+start_re = re.compile(r'^\[([^\]]+)\] AGENT start: (\S+) \(timeout (\d+)s')
+outcome_re = re.compile(r'^\[([^\]]+)\] AGENT (\S+) (done|RATE-LIMITED|TIMEOUT|AUTH-FAIL|EMPTY-OUTPUT|FAIL)\b')
+
+pending = collections.OrderedDict()  # label -> deque of (started_iso, timeout_s)
+for line in lines:
+    m = start_re.match(line)
+    if m:
+        pending.setdefault(m.group(2), collections.deque()).append((m.group(1), int(m.group(3))))
+        continue
+    m = outcome_re.match(line)
+    if m and pending.get(m.group(2)):
+        pending[m.group(2)].popleft()
+
+# pgrep -af matches full cmdlines, including our OWN ancestor shells if the label text happens
+# to appear on their command line (e.g. an interactive debug session that greps the same label
+# right next to the reconcile call) -- exclude our own ancestor PIDs so that can never look like
+# "still alive". A genuinely running sibling agent process is never our ancestor.
+def ancestor_pids():
+    pids, pid = set(), os.getpid()
+    for _ in range(50):
+        pids.add(pid)
+        try:
+            with open(f'/proc/{pid}/stat') as f:
+                stat = f.read()
+            ppid = int(stat[stat.rfind(')') + 2:].split()[1])
+        except Exception:
+            break
+        if ppid in pids or ppid <= 1:
+            pids.add(ppid)
+            break
+        pid = ppid
+    return pids
+
+ancestors = ancestor_pids()
+now = datetime.datetime.now(datetime.timezone.utc)
+new_lines = []
+for label, q in pending.items():
+    for started_iso, tmo in q:
+        try:
+            started = datetime.datetime.strptime(started_iso, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=datetime.timezone.utc)
+        except ValueError:
+            continue
+        age = (now - started).total_seconds()
+        if age < 60:
+            continue  # too young to judge -- could still be legitimately running
+        try:
+            out = subprocess.run(['pgrep', '-af', label], capture_output=True, text=True, timeout=5).stdout
+            matches = [l for l in out.splitlines() if l.strip()]
+            found = any(int(l.split(None, 1)[0]) not in ancestors for l in matches)
+        except Exception:
+            found = True  # can't verify -> don't falsely declare dead
+        if found:
+            continue
+        stamp = now.strftime("%Y-%m-%dT%H:%M:%SZ")
+        new_lines.append(
+            f"[{stamp}] AGENT {label} FAIL rc=LOST (start logged at {started_iso}, declared timeout "
+            f"{tmo}s, age {int(age)}s, no completion line ever written and no matching process found "
+            f"on the host -- process died silently; reconciled by K-02 orphan check)\n"
+        )
+
+if new_lines:
+    with open(logfile, 'a') as f:
+        f.writelines(new_lines)
+PYEOF
+}
+
 # run a headless claude agent. $1=label $2=prompt $3=timeout_sec.
 # returns: 0 ok | 99 rate-limited | 1 error/other. Output saved to a per-step log; tail echoed.
 run_agent(){
   local label="$1" prompt="$2" tmo="${3:-1800}"
+  reconcile_log_orphans "$(daily_log)"  # surface any prior orphaned "AGENT start" before adding a new one
   # Per-role model (token cost): cheap/high-frequency roles -> Haiku; code/debug -> Sonnet.
   local model="sonnet"
   case "$label" in
@@ -106,6 +202,15 @@ run_agent(){
     log "AGENT $label RATE-LIMITED (rc=$rc)" >&2; echo "$out"; return 99
   fi
   if [ "$rc" -eq 124 ]; then log "AGENT $label TIMEOUT" >&2; echo "$out"; return 1; fi
+  # K-02: rc=0 with a 0-byte agent log is not a real success -- a genuinely successful claude
+  # call always writes SOME output (at minimum its final text). 0 bytes at rc=0 means the process
+  # was reaped/replaced/killed in a way that still returned exit code 0 (e.g. `timeout` racing a
+  # parent teardown) -- silently returning 0 here would have step_with_heal read it as a
+  # completed, verified step. Fail loud instead of swallowing it.
+  if [ "$rc" -eq 0 ] && [ ! -s "$out" ]; then
+    log "AGENT $label FAIL rc=0-EMPTY (0-byte agent log with rc=0 -- suspicious silent 'success', treated as failure, not swallowed)" >&2
+    echo "$out"; return 1
+  fi
   log "AGENT $label done rc=$rc (log: $out)" >&2
   echo "$out"; return $rc
 }
