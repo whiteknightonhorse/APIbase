@@ -7,11 +7,11 @@
     "node": ">=20.0.0"
   },
   "scripts": {
-    "build": "tsc || true",
+    "build": "tsc",
     "start": "node dist/api/server.js",
     "dev": "tsx watch src/api/server.ts",
     "test": "jest",
-    "typecheck": "tsc --noEmit || true",
+    "typecheck": "tsc --noEmit",
     "lint": "eslint src/",
     "format": "prettier --write src/",
     "migrate": "prisma migrate deploy",
