@@ -43,7 +43,14 @@ step_with_heal(){
       [ "$waits" -ge 6 ] && { log "$label: rate-limit persists, giving up step"; return 1; }
       backoff "$waits"; waits=$((waits+1)); continue
     fi
-    [ "$rc" -eq 0 ] && return 0
+    if [ "$rc" -eq 0 ]; then
+      # C-03: push-batch.md ends with PUSH_OK/PUSH_BLOCKED, but that string only lived in the
+      # per-step file ($out) — daily_log (orchestra-<date>.log) only got "done rc=0". Surface it
+      # so the branch-protection push outcome is auditable from the one dated log file.
+      local outcome; outcome=$(grep -E 'PUSH_(OK|BLOCKED)' "$out" 2>/dev/null | tail -1 | tr -d '*')
+      [ -n "$outcome" ] && log "$label: $outcome"
+      return 0
+    fi
     if [ "$fixes" -ge 2 ]; then log "$label: unrecoverable after $fixes fixes"; return 1; fi
     local tail; tail=$(tail -40 "$out" 2>/dev/null)
     local fp; fp=$(sed -e "s/__STEP__/$stepname/" "$ROLES/fix.md")

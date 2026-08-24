@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # A-09: unit tests for dedup_check() in lib.sh.
 # A-10: unit tests for sanitize_public() fail-closed behavior in lib.sh.
+# C-05: regression check that the sandboxed-role case branch in run_agent() never regains
+#   --dangerously-skip-permissions.
 # Run: bash scripts/night-orchestra/test-lib.sh
 set -u
 cd "$(dirname "$0")/../.." || exit 1
@@ -74,5 +76,16 @@ done
 # reach a public issue even though it contains no recognizable secret pattern by itself.
 logtail=$(seq 1 40 | sed 's/^/[2026-08-24T00:00:00Z] AGENT step trace line /')
 sanitize_public "$logtail"; assert_eq "raw 40-line log tail -> blocked (shape, not content)" 1 "$?"
+
+# C-05: whole-file `grep -c dangerously lib.sh` is not a valid regression check — it also
+# matches the explanatory comment above the case statement and the trusted (onboard/push/etc.)
+# branch, which legitimately keeps --dangerously-skip-permissions, so it reads 2 even when the
+# sandboxed branch is correct. Scope the count to ONLY the
+# finder*|record-*|pricing-*|test-*) case body so a future edit that reintroduces the flag
+# there (and only there) actually fails this test.
+sandbox_branch=$(awk '/^[[:space:]]*finder\*\|record-\*\|pricing-\*\|test-\*\)/{flag=1} flag{print} flag && /;;/{exit}' scripts/night-orchestra/lib.sh)
+[ -n "$sandbox_branch" ]; assert_eq "sandboxed case branch found in lib.sh" 0 "$?"
+dangerously_count=$(printf '%s\n' "$sandbox_branch" | grep -c dangerously)
+assert_eq "sandboxed finder/record/pricing/test branch has no --dangerously-skip-permissions" 0 "$dangerously_count"
 
 exit $fail
