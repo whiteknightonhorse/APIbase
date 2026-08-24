@@ -110,7 +110,28 @@ OPERATOR PRIORITY CATEGORIES TONIGHT: $(cat "$STATE/priority.txt") — prefer di
   log "ONBOARD candidate: $NAME"
   P=$(sed -e "s/__NAME__/$NAME/g" "$ROLES/onboard-batch.md"); P="${P/__LINE__/$LINE}"
   if step_with_heal "onboard-$NAME" "$P" 3000 "onboard-$NAME"; then
-    # T2 VERIFICATION GATE: agent may claim ONBOARD_OK but produce no adapter/config (destatis bug).
+    # L-03: rc=0 alone only means the agent process exited cleanly — it says nothing about
+    # the agent's OWN verdict. Classify via its declared status line BEFORE trusting
+    # verify_onboarded's filesystem check, so an honest "ONBOARD_FAILED <name> <reason>" (e.g.
+    # a ToS blocker) is never mislabeled as the false-onboard alarm.
+    VERDICT=$(classify_onboard_outcome "$NAME")
+    if [ "$VERDICT" = "FAILED_DECLARED" ]; then
+      FAILS=$((FAILS+1))
+      mark_failed "$NAME" "onboard declared ONBOARD_FAILED (honest refusal, see onboard-$NAME log)"
+      log "ONBOARD_FAILED (declared) $NAME — agent refused honestly, not a false-onboard"
+      report "⚠️ Declined $NAME" "Agent declared ONBOARD_FAILED (see log for reason) — not a false-onboard, no adapter attempted. Fails: $FAILS."
+      continue
+    fi
+    if [ "$VERDICT" = "SUSPICIOUS" ]; then
+      FAILS=$((FAILS+1))
+      mark_failed "$NAME" "onboard rc=0 with neither ONBOARD_OK nor ONBOARD_FAILED in the log (suspicious)"
+      set_connected "$NAME" blocked
+      log "SUSPICIOUS onboard $NAME — rc=0 but no declared status line, treated as an alarm"
+      report "⚠️ Suspicious $NAME" "Onboard process exited cleanly but declared neither OK nor FAILED — blocked, needs manual look. Fails: $FAILS."
+      gh_upsert "🚫 Suspicious onboard: $NAME" "Onboard exited rc=0 but its log has no ONBOARD_OK/ONBOARD_FAILED status line. Needs manual look." "blocked-structural" >/dev/null 2>&1
+      continue
+    fi
+    # VERDICT=OK — T2 VERIFICATION GATE: agent may claim ONBOARD_OK but produce no adapter/config (destatis bug).
     if ! verify_onboarded "$NAME"; then
       FAILS=$((FAILS+1))
       mark_failed "$NAME" "verification gate: ONBOARD_OK but no src/adapters/$NAME/index.ts + config row (false-onboard)"

@@ -103,4 +103,51 @@ db_url_branch=$(awk '/^[[:space:]]*case "\$core" in$/{c++} c==2{print} c==2 && /
 printf '%s\n' "$db_url_branch" | grep -q 'pricing-\*|onboard-\*'
 assert_eq "onboard-* included in the DATABASE_URL-injection case" 0 "$?"
 
+# L-03: classify_onboard_outcome() must tell an honest declared ONBOARD_FAILED (not a
+# false-onboard) apart from a real ONBOARD_OK-but-no-artifacts false-onboard, and from a
+# rc=0 log carrying neither status line (suspicious). Uses temp files under $LOGS matching
+# the real onboard-<name>-<HHMMSS>.log glob classify_onboard_outcome() reads, and cleans up
+# after itself so it never pollutes the real orchestra log directory.
+l03_probe="l03-test-probe-$$"
+l03_cleanup(){ rm -f "$LOGS/onboard-$l03_probe"-*.log; }
+trap l03_cleanup EXIT
+
+# Branch 1 — real production incident: the exact log the open-meteo run produced (ToS
+# blocker, agent correctly did not build an adapter). Read verbatim, not re-typed, so this
+# test breaks if a future edit to onboard-batch.md's status-line format ever drifts.
+real_declined_log="scripts/night-orchestra/logs/onboard-open-meteo-114125.log"
+if [ -f "$real_declined_log" ]; then
+  # classify_onboard_outcome() greps for "ONBOARD_FAILED <name>", so the candidate name in
+  # the fixture must match the probe's glob-safe name — substitute open-meteo -> $l03_probe
+  # rather than hand-typing a new fixture body, so this still exercises the real incident's
+  # exact wording/format, just under a collision-safe name.
+  sed "s/open-meteo/$l03_probe/g" "$real_declined_log" > "$LOGS/onboard-$l03_probe-100000.log"
+  outcome=$(classify_onboard_outcome "$l03_probe")
+  assert_eq "declared ONBOARD_FAILED (real open-meteo incident log) -> FAILED_DECLARED, not false-onboard" "FAILED_DECLARED" "$outcome"
+  rm -f "$LOGS/onboard-$l03_probe"-*.log
+else
+  echo "SKIP: real open-meteo incident log not present, branch-1 fixture skipped"
+fi
+
+# Branch 2 — real false-onboard: agent claims ONBOARD_OK but verify_onboarded finds no
+# adapter/config row (the destatis-class bug T2 already guards against).
+printf 'some agent narration\nONBOARD_OK %s 3 UC-999\n' "$l03_probe" > "$LOGS/onboard-$l03_probe-110000.log"
+outcome=$(classify_onboard_outcome "$l03_probe")
+assert_eq "declared ONBOARD_OK -> OK (verify_onboarded gate still runs after this)" "OK" "$outcome"
+rm -f "$LOGS/onboard-$l03_probe"-*.log
+
+# Branch 3 — suspicious: rc=0 process, log has neither status line (the case the old gate
+# silently mislabeled identically to branch 2's false-onboard).
+printf 'agent rambled and stopped without a final status line\n' > "$LOGS/onboard-$l03_probe-120000.log"
+outcome=$(classify_onboard_outcome "$l03_probe")
+assert_eq "no status line at all -> SUSPICIOUS (alarm, distinct from false-onboard)" "SUSPICIOUS" "$outcome"
+rm -f "$LOGS/onboard-$l03_probe"-*.log
+
+# Branch 3b — no log file at all also classifies as SUSPICIOUS rather than crashing.
+outcome=$(classify_onboard_outcome "$l03_probe")
+assert_eq "no log file present -> SUSPICIOUS" "SUSPICIOUS" "$outcome"
+
+trap - EXIT
+l03_cleanup
+
 exit $fail

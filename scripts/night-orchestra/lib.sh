@@ -13,6 +13,31 @@ TRACKING="$STATE/tracking-issue"
 CDB="$ORCH/connected_db.py"
 # connected-providers DB wrappers (T2): tracking + completion-verification + key-queue dedup
 verify_onboarded(){ python3 "$CDB" verify "$1"; }            # rc0 = real src/adapters/<n>/index.ts AND config row
+
+# L-03: verify_onboarded() only checks the filesystem — it cannot tell an honest declared
+# refusal (e.g. a ToS blocker: "ONBOARD_FAILED open-meteo — upstream ToS forbids commercial
+# resale") from an agent that actually claimed success and produced nothing. Both look
+# identical to verify_onboarded (no adapter/config row), and prior to this function both were
+# reported to the operator as "FALSE-ONBOARD" — a real production alarm — even though the
+# ToS-blocker case is the batch role (roles/onboard-batch.md) working exactly as instructed.
+# classify_onboard_outcome NAME → prints one of:
+#   OK               agent's own status line says ONBOARD_OK <name> ...
+#   FAILED_DECLARED  agent's own status line says ONBOARD_FAILED <name> ... (honest refusal,
+#                    NOT a false-onboard — never route this to the false-onboard alarm)
+#   SUSPICIOUS       run_agent returned rc=0 but the log has neither status line (the
+#                    genuinely alarming case: something exited cleanly without declaring
+#                    anything either way)
+# Reads the newest onboard-<name>-*.log ($LOGS, same glob supervisor.sh already used to find
+# the auth/key-required log tail below) rather than threading run_agent's per-call path through
+# step_with_heal's return value, so callers only need the candidate name.
+classify_onboard_outcome(){
+  local name="$1" log
+  log=$(ls -t "$LOGS"/onboard-"$name"-*.log 2>/dev/null | head -1)
+  if [ -z "$log" ]; then echo "SUSPICIOUS"; return 0; fi
+  if grep -qiE "ONBOARD_FAILED[[:space:]]+$name\b" "$log"; then echo "FAILED_DECLARED"; return 0; fi
+  if grep -qiE "ONBOARD_OK[[:space:]]+$name\b" "$log"; then echo "OK"; return 0; fi
+  echo "SUSPICIOUS"
+}
 set_connected(){ python3 "$CDB" set "$1" "$2" >/dev/null 2>&1 || true; }  # status: connected|blocked|skip|key-pending
 prune_key_queue(){ python3 "$CDB" prune >/dev/null 2>&1 || true; }        # drop connected/blocked/skip from key-required-queue.md
 mkdir -p "$STATE" "$LOGS"
