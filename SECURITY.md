@@ -53,3 +53,22 @@ APIbase implements a 5-layer defense model:
 ## Disclosure Policy
 
 We follow coordinated disclosure. Vulnerabilities will be patched before public disclosure. Credit will be given to reporters unless they prefer anonymity.
+
+## Known Historical Disclosures
+
+- **2026-08-24 (P-01):** `scripts/night-orchestra/` (16 files, including `roles/pricing-audit.md`
+  which states the 30–50%/~100% margin policy) was tracked in this public repo's index from
+  commit `3235dbf` (2026-08-24) through `c745604`/`d179744` despite the directory having a
+  private mirror (github.com/whiteknightonhorse/night-orchestra) and a `.gitignore` entry added
+  in `c745604`. That `.gitignore` entry only stopped *future* staging — it did not untrack the
+  16 files already in the index, so every push kept re-publishing them.
+  Fixed by `git rm -r --cached scripts/night-orchestra/` (files remain on disk and in the private
+  mirror; only the public working tree stopped tracking them).
+  **The already-published git history (commits `3235dbf`..`d179744` on `origin/main`) still
+  contains the margin-policy text and was NOT rewritten** — a history rewrite requires a
+  force-push to a public shared branch, which is a destructive, hard-to-reverse action gated on
+  explicit operator authorization per repo policy. The operator was not reachable at execution
+  time.
+  **Decision: принята как есть, эскалировано (accepted as-is, escalated)** — pending operator
+  choice between "accept the historical exposure permanently" or "manual history rewrite
+  (BFG/filter-repo + coordinated force-push, contributors must re-clone)".
