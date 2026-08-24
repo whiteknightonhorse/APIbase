@@ -11,6 +11,20 @@ Onboard the provider "__NAME__" (candidate line: "__LINE__") into APIbase using 
   (message: "feat: integrate __NAME__ — N tools (UC-NNN)").
 - DO **NOT** run `git push` and DO **NOT** publish to Smithery. The hourly batch-pusher does that.
 - This is a NO-AUTH / no-registration provider: verify endpoints live via curl; no credentials needed.
+
+## I-01 — SANDBOXED ROLE: no `.env`, no push, DATABASE_URL pre-injected
+This role runs under a permission-checked profile (`roles/sandbox-settings.json`), not full
+access — it is the role that fetches/curls the candidate provider's live site, which is
+untrusted content. Reading `.env`/`.env.*` and any Bash command containing `.env`, `git push`,
+or `gh issue|pr|api|repo` is mechanically blocked, not just discouraged:
+- **DB seed (step 6):** do NOT construct `DATABASE_URL` yourself and do NOT read/grep `.env` —
+  it is already set in this process's environment. Just run `npx tsx scripts/seed.ts` directly.
+- **api.data.gov shared key (REC #4):** reference `process.env.PROVIDER_KEY_API_DATA_GOV` (or
+  similar) in the adapter code as usual — the running container reads `.env` itself at
+  startup; you never need to see the key's value.
+- If any step genuinely requires reading `.env` or pushing to git/GitHub beyond the above, STOP
+  and write why to `scripts/night-orchestra/state/failed.txt` — do not attempt to route around
+  the sandbox.
 - PRICING: free/open upstream → price_usd in the $0.001–0.005 range (~100% margin). If any tool has a
   real upstream cost, set price = upstream × 1.4 (keep within 1.3–1.5). Record the margin in the UC
   "Pricing Rationale" table.

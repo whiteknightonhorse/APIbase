@@ -50,15 +50,20 @@ run_agent(){
     # Экономия на модели, которая считает цену, — это не экономия, а перенос риска на выручку.
     pricing-*) model="sonnet";;
   esac
-  # A-04 SANDBOX: finder/record/pricing/test read untrusted web pages or third-party output
-  # (a prompt-injection vector). They get a permission-checked profile (no .env, no git push,
-  # no gh writes — see roles/sandbox-settings.json) instead of --dangerously-skip-permissions.
-  # "fix-<label>" retries of these roles inherit the same sandbox (the log tail they diagnose
-  # can itself carry injected content). onboard/push/security-sweep/etc. build prompts from
-  # local templates only and keep full local access.
+  # A-04 / I-01 SANDBOX: finder/record/pricing/test read untrusted web pages or third-party
+  # output (a prompt-injection vector). onboard ALSO reads untrusted web content — it is the
+  # role that fetches/curls the candidate provider's live docs site (onboard-batch.md) — so it
+  # gets the SAME permission-checked profile (no .env, no git push, no gh writes — see
+  # roles/sandbox-settings.json) instead of --dangerously-skip-permissions. Before this fix
+  # onboard fell into the trusted `*)` branch below: a page-injected "cat .env" would have run
+  # with full read access to every payment key (TEMPO_PRIVATE_KEY, X402_OPERATOR_PRIVATE_KEY,
+  # MPP_SECRET_KEY) and `git push`, with model refusal as the only defense. "fix-<label>"
+  # retries of these roles inherit the same sandbox (the log tail they diagnose can itself
+  # carry injected content). push/security-sweep/etc. build prompts from local templates only,
+  # never touch fetched web content, and keep full local access.
   local core="${label#fix-}" flags
   case "$core" in
-    finder*|record-*|pricing-*|test-*)
+    finder*|record-*|pricing-*|test-*|onboard-*)
       flags="--print --model $model --no-session-persistence --settings $ROLES/sandbox-settings.json";;
     *)
       flags="--print --dangerously-skip-permissions --model $model --no-session-persistence";;
@@ -66,13 +71,16 @@ run_agent(){
   local out="$LOGS/${label}-$(date -u +%H%M%S).log"
   log "AGENT start: $label (timeout ${tmo}s, model $model)" >&2
   cd "$ROOT" || return 1
-  # pricing needs DB write access but must not read .env itself: the trusted orchestrator (this
-  # script, never exposed to fetched web content) extracts ONLY DATABASE_URL via dotenv (not a
-  # blind `source .env` — some values contain literal `$` and corrupt under shell sourcing) and
-  # hands it to the sandboxed subprocess as a plain env var, same as any other inherited env var.
+  # pricing and onboard (DB seed step) need DB write access but must not read .env themselves:
+  # the trusted orchestrator (this script, never exposed to fetched web content) extracts ONLY
+  # DATABASE_URL via dotenv (not a blind `source .env` — some values contain literal `$` and
+  # corrupt under shell sourcing) and hands it to the sandboxed subprocess as a plain env var,
+  # same as any other inherited env var. onboard-batch.md tells the agent to run
+  # `npx tsx scripts/seed.ts` directly (DATABASE_URL already in its environment) instead of the
+  # general skill's `grep POSTGRES_PASSWORD .env` construction, which the sandbox hook blocks.
   local db_url=""
   case "$core" in
-    pricing-*) db_url=$(node -e "require('dotenv').config({path:'$ROOT/.env'});process.stdout.write(process.env.DATABASE_URL||'')" 2>/dev/null);;
+    pricing-*|onboard-*) db_url=$(node -e "require('dotenv').config({path:'$ROOT/.env'});process.stdout.write(process.env.DATABASE_URL||'')" 2>/dev/null);;
   esac
   if [ -n "$db_url" ]; then
     timeout "$tmo" env "DATABASE_URL=$db_url" $CLAUDE_BIN $flags "$prompt" >"$out" 2>&1

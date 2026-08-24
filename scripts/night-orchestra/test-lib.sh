@@ -83,14 +83,24 @@ logtail=$(seq 1 40 | sed 's/^/[2026-08-24T00:00:00Z] AGENT step trace line /')
 sanitize_public "$logtail"; assert_eq "raw 40-line log tail -> blocked (shape, not content)" 1 "$?"
 
 # C-05: whole-file `grep -c dangerously lib.sh` is not a valid regression check — it also
-# matches the explanatory comment above the case statement and the trusted (onboard/push/etc.)
-# branch, which legitimately keeps --dangerously-skip-permissions, so it reads 2 even when the
-# sandboxed branch is correct. Scope the count to ONLY the
-# finder*|record-*|pricing-*|test-*) case body so a future edit that reintroduces the flag
-# there (and only there) actually fails this test.
-sandbox_branch=$(awk '/^[[:space:]]*finder\*\|record-\*\|pricing-\*\|test-\*\)/{flag=1} flag{print} flag && /;;/{exit}' scripts/night-orchestra/lib.sh)
+# matches the explanatory comment above the case statement and the trusted (push/etc.) branch,
+# which legitimately keeps --dangerously-skip-permissions, so it reads a nonzero count even
+# when the sandboxed branch is correct. Scope the count to ONLY the
+# finder*|record-*|pricing-*|test-*|onboard-*) case body so a future edit that reintroduces the
+# flag there (and only there) actually fails this test.
+sandbox_branch=$(awk '/^[[:space:]]*finder\*\|record-\*\|pricing-\*\|test-\*\|onboard-\*\)/{flag=1} flag{print} flag && /;;/{exit}' scripts/night-orchestra/lib.sh)
 [ -n "$sandbox_branch" ]; assert_eq "sandboxed case branch found in lib.sh" 0 "$?"
 dangerously_count=$(printf '%s\n' "$sandbox_branch" | grep -c dangerously)
-assert_eq "sandboxed finder/record/pricing/test branch has no --dangerously-skip-permissions" 0 "$dangerously_count"
+assert_eq "sandboxed finder/record/pricing/test/onboard branch has no --dangerously-skip-permissions" 0 "$dangerously_count"
+
+# I-01: onboard is the untrusted-web-reading role with payment-key/push exposure (A-04 covered
+# finder/record/pricing/test but missed it). Assert onboard-* is IN the sandboxed branch text
+# captured above, and that the DATABASE_URL-injection case (separate from the flags case) also
+# covers onboard-* so the DB-seed step still works without the agent reading .env itself.
+printf '%s\n' "$sandbox_branch" | grep -q 'onboard-\*'
+assert_eq "onboard-* routed through sandbox flags (not the trusted branch)" 0 "$?"
+db_url_branch=$(awk '/^[[:space:]]*case "\$core" in$/{c++} c==2{print} c==2 && /esac/{exit}' scripts/night-orchestra/lib.sh)
+printf '%s\n' "$db_url_branch" | grep -q 'pricing-\*|onboard-\*'
+assert_eq "onboard-* included in the DATABASE_URL-injection case" 0 "$?"
 
 exit $fail
