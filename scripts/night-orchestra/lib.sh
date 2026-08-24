@@ -86,10 +86,17 @@ backoff(){
 
 disk_guard(){
   local use; use=$(df -P "$ROOT" | awk 'NR==2{gsub("%","",$5);print $5}')
+  if [ "${use:-0}" -ge 95 ]; then
+    log "DISK HARD-STOP ${use}%"
+    tg_msg "🔴 apibase night-orchestra: DISK HARD-STOP ${use}% — pausing before it takes down PG/the stack (invariant 12.187). Free space manually; next scheduled run starts fresh, no reset needed."
+    touch "$STATE/pause"
+    return 1
+  fi
   if [ "${use:-0}" -ge 88 ]; then
     log "DISK ${use}% >=88 — running disk-cleanup agent"
     run_agent "disk-cleanup" "Use the disk-cleanup skill to free space on this server. Disk is ${use}% full. Be safe — never delete data/DB/backups; clean caches, old logs, docker dangling images. Report freed space." 900 >/dev/null || true
   fi
+  return 0
 }
 
 # PUBLIC-REPO GUARD: GitHub repo is public. Refuse to post anything that looks like a secret

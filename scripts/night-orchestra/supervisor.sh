@@ -61,7 +61,7 @@ step_with_heal "security-sweep" "$(cat "$ROLES/security-sweep.md")" 1500 "securi
 while [ "$(date +%s)" -lt "$DEADLINE" ]; do
   date -u +%FT%TZ > "$HEARTBEAT"
   [ -f "$STATE/pause" ] && { log "PAUSE flag set → exiting loop"; rm -f "$STATE/pause"; break; }
-  disk_guard
+  disk_guard || { rm -f "$STATE/pause"; break; }
 
   if [ "$(queue_size)" -lt "$QUEUE_THRESHOLD" ]; then
     log "queue low ($(queue_size)) → running finder"
