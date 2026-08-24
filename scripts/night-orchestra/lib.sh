@@ -99,11 +99,21 @@ disk_guard(){
   return 0
 }
 
-# PUBLIC-REPO GUARD: GitHub repo is public. Refuse to post anything that looks like a secret
-# OR commercial info (pricing/margins/revenue). Provider names + status + counts are public-safe;
-# money/keys/business-reasoning NEVER leave the server (they live in state/ only).
+# PUBLIC-REPO GUARD (A-10): GitHub repo is public. Default-DENY, not default-allow — a report
+# is a short templated status line (provider name + status + counters); anything shaped like a
+# raw agent-log dump (many lines / long) is refused even if no known secret pattern matches it,
+# because the blocklist below can never be a complete list of every key format we'll ever add.
 sanitize_public(){ # $1 = text → 0 = safe to post, 1 = MUST stay local
-  printf '%s' "$1" | grep -qiE 'sk-[a-z0-9]{8}|ghp_|gho_|github_pat|xox[baprs]-|AKIA[0-9A-Z]{6}|-----BEGIN|api[_-]?key[\"'"'"' :=]|bearer [a-z0-9]|password|client[_-]?secret|\$[0-9]|\b(margin|markup|revenue|profit|pricing|cost basis|monetiz)\b|[0-9]+ ?% ?(margin|markup|profit)' && return 1
+  local text="$1"
+  # Layer 1: known secret / credential / commercial-info shapes.
+  printf '%s' "$text" | grep -qiE 'sk-[a-z0-9]{8}|ghp_|gho_|github_pat|xox[baprs]-|AKIA[0-9A-Z]{6}|-----BEGIN|api[_-]?key[\"'"'"' :=]|bearer [a-z0-9]|password|client[_-]?secret|ak_live_|0x[0-9a-fA-F]{40,}|\b[0-9a-f]{40,}\b|[A-Za-z0-9+/]{40,}={0,2}|\b[A-Z][A-Z0-9_]*_(PRIVATE|SECRET)_KEY\b|\$[0-9]|\b(margin|markup|revenue|profit|pricing|cost basis|monetiz)\b|[0-9]+ ?% ?(margin|markup|profit)' && return 1
+  # Layer 2: shape check. A legit report()/gh_upsert() body is title+text, at most 2 lines,
+  # well under the length of a pasted log tail (run_agent tails 40 log lines on failure —
+  # that text must never reach here, and if it ever does this line stops it regardless of
+  # whether it happens to contain a recognizable secret pattern).
+  local lines; lines=$(printf '%s' "$text" | grep -c '')
+  [ "$lines" -gt 2 ] && return 1
+  [ "${#text}" -gt 600 ] && return 1
   return 0
 }
 
