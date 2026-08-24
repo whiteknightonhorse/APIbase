@@ -218,6 +218,16 @@ dedup_check(){
   return 0
 }
 
+# D-04: queue.txt stale-entry pre-check — is $1 already status=connected in connected.json?
+# Distinct from dedup_check() (adapter-dir + yaml only): catches a queue slug for a provider
+# the finder re-discovered under a name that still resolves to an already-connected entry in
+# the ledger, even before/without a matching yaml row. 0 = stale (already connected), 1 = not.
+# Cheap python read of the ledger file, no agent spawned.
+queue_entry_stale(){
+  local lc; lc=$(echo "$1" | tr 'A-Z' 'a-z')
+  python3 "$CDB" is-connected "$lc" >/dev/null 2>&1
+}
+
 queue_size(){ [ -f "$QUEUE" ] || { echo 0; return; }; local n; n=$(grep -cvE '^\s*$' "$QUEUE" 2>/dev/null); echo "${n:-0}"; }
 queue_pop(){ local line; line=$(grep -vE '^\s*$' "$QUEUE" 2>/dev/null | head -1) || return 1
   [ -z "$line" ] && return 1

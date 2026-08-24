@@ -30,6 +30,11 @@ dedup_check "coingecko"; assert_eq "name in YAML -> duplicate" 1 "$?"
 # 3) Brand-new name, absent from adapters/, YAML, and registry -> not a duplicate.
 dedup_check "totally-new-fake-provider-xyz123"; assert_eq "new name -> not a duplicate" 0 "$?"
 
+# D-04: unit tests for queue_entry_stale() in lib.sh — pre-check that catches a queue.txt
+# slug already status=connected in connected.json (distinct source from dedup_check's yaml).
+queue_entry_stale "coingecko"; assert_eq "connected.json status=connected -> stale" 0 "$?"
+queue_entry_stale "totally-new-fake-provider-xyz123"; assert_eq "absent from connected.json -> not stale" 1 "$?"
+
 # A-10: sanitize_public() must fail-closed (default-deny), not fail-open (default-allow).
 # Group 1 — leaked-secret shapes named in the task must ALL be blocked (return 1). Built via
 # printf/command-substitution (not written as literal secret-shaped text in this file) so the

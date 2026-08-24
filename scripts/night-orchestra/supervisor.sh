@@ -103,6 +103,7 @@ OPERATOR PRIORITY CATEGORIES TONIGHT: $(cat "$STATE/priority.txt") — prefer di
   NAME=$(read_field "$LINE" 1)
   [ -z "$NAME" ] && continue
   if grep -qxF "$(printf '%s' "$NAME" | tr 'A-Z' 'a-z')" "$STATE/skip.txt" 2>/dev/null; then log "SKIP $NAME (operator skip-list)"; continue; fi
+  if queue_entry_stale "$NAME"; then log "SKIP stale $NAME (already connected in connected.json — stale queue.txt entry)"; continue; fi
   if ! dedup_check "$NAME"; then log "DEDUP skip $NAME (already exists)"; continue; fi
 
   log "ONBOARD candidate: $NAME"
