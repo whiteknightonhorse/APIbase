@@ -2825,5 +2825,14 @@
     "reset_period": "none",
     "docs_url": "https://www.ine.es/dyngs/DAB/index.htm?cid=1100",
     "limit_proof": "Spanish national statistics institute wstempus/Tempus3 API; no authentication, any well-formed GET request returns data; no documented rate limits found in official API reference"
+  },
+  "crossref": {
+    "display_name": "CrossRef",
+    "health_url": "https://api.crossref.org/works?rows=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://api.crossref.org/swagger-ui/index.html",
+    "limit_proof": "Public REST API, no authentication or key required. Observed X-Rate-Limit-Limit: 3 req/1s in the 'polite pool' (User-Agent with mailto contact); limit is dynamic/undocumented and self-reported by CrossRef, not a hard registered quota"
   }
 }

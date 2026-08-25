@@ -13540,4 +13540,55 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+
+  // --- UC-597: CrossRef — 4 tools ---
+  // Official scholarly metadata registry API (api.crossref.org), no auth.
+  {
+    toolId: 'crossref.works_search',
+    mcpName: 'crossref.works.search',
+    title: 'CrossRef Works Search',
+    description:
+      'Search 150M+ scholarly works (journal articles, books, conference papers, datasets) by ' +
+      'title, author, or full text. Returns DOI, title, authors, publisher, container (journal/book) ' +
+      'title, published date, citation count, and abstract. Complements education.doi_lookup ' +
+      '(which resolves a single known DOI) by letting agents discover DOIs from a text query. ' +
+      'Data: api.crossref.org (CrossRef REST API), no auth required, CC0 metadata.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'crossref.journal_lookup',
+    mcpName: 'crossref.journals.lookup',
+    title: 'CrossRef Journal Lookup',
+    description:
+      'Get metadata for an academic journal by its ISSN — title, publisher, subject areas, and ' +
+      "DOI coverage counts (current, backfile, total). Useful for verifying a journal's publisher " +
+      'or gauging its publication volume. Data: api.crossref.org (CrossRef REST API), no auth required.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'crossref.funder_search',
+    mcpName: 'crossref.funders.search',
+    title: 'CrossRef Funder Search',
+    description:
+      'Search the CrossRef Funder Registry (open registry of ~30K research funding organizations, ' +
+      'based on the Funder Registry / ROR data) by name. Returns funder ID (DOI-based), canonical ' +
+      'and alternate names, location, and URI — used to trace grant funding acknowledged in ' +
+      'published papers. Data: api.crossref.org (CrossRef REST API), no auth required.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'crossref.member_search',
+    mcpName: 'crossref.members.search',
+    title: 'CrossRef Member/Publisher Search',
+    description:
+      'Search the CrossRef member registry (17K+ registered publishers and societies) by name. ' +
+      'Returns member ID, primary name, location, DOI prefixes, and DOI coverage counts. Useful for ' +
+      "identifying a publisher's CrossRef member ID or checking publication volume. " +
+      'Data: api.crossref.org (CrossRef REST API), no auth required.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
 ];
