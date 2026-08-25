@@ -293,6 +293,9 @@ Use these examples as reference patterns when:
 | UC-595 | ECB Data Portal (data-api.ecb.europa.eu) | Official ECB Statistical Data Warehouse — key interest rates, HICP inflation, M3 money supply, government bond yield curve; SDMX-JSON, no auth, distinct from finance.ecb_rates FX mirror | LIVE | No auth, 4 tools | `usecases/UC-595-ecb-rates.md` |
 | UC-596 | INE (servicios.ine.es) | Spanish national statistics institute — statistical operations catalog, published tables, series metadata, series observation data; Tempus3 API, no auth, Spanish Gov open data | LIVE | No auth, 4 tools | `usecases/UC-596-ine.md` |
 | UC-597 | CrossRef (api.crossref.org) | Scholarly metadata registry — works search (150M+ articles/books), journal lookup by ISSN, funder registry search, publisher/member registry search; CC0, no auth, polite pool | LIVE | No auth, 4 tools | `usecases/UC-597-crossref.md` |
+| UC-598 | Unpaywall (api.unpaywall.org) | Open-access full-text finder — OA status + best/all free full-text locations by DOI; aggregated from 50K+ publisher/repository sources, no auth (courtesy email), search endpoint broken upstream | LIVE | No auth, 1 tool | `usecases/UC-598-unpaywall.md` |
+| UC-599 | Wikimedia Commons (commons.wikimedia.org) | Free media archive — keyword search, file metadata (URL/license/dimensions), category browsing with pagination, random sampling; 100M+ freely-licensed files, no auth (User-Agent identification only) | LIVE | No auth, 4 tools | `usecases/UC-599-wikimedia-commons.md` |
+| UC-600 | Standard Ebooks (standardebooks.org) | Public-domain ebook catalog — search by title/author/subject with sort+pagination (OPDS 2.0 JSON), new-releases feed (Atom XML); direct EPUB/Kepub/AZW3/XHTML download links, no auth | LIVE | No auth, 2 tools | `usecases/UC-600-standard-ebooks.md` |
 
 ## How to Use
 
