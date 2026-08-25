@@ -2852,5 +2852,14 @@
     "reset_period": "none",
     "docs_url": "https://www.mediawiki.org/wiki/API:Etiquette",
     "limit_proof": "Public MediaWiki Action API, no authentication or key required. No hard registered quota; API:Etiquette asks clients to identify via User-Agent and self-limit request rate under high load."
+  },
+  "standard-ebooks": {
+    "display_name": "Standard Ebooks",
+    "health_url": "https://standardebooks.org/feeds/atom/new-releases",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://standardebooks.org/feeds",
+    "limit_proof": "Free public OPDS/Atom feeds, no API key or registration. No documented rate limit for the search-with-query and new-releases feeds (the full-catalog and per-author feeds require Patrons Circle Basic Auth and are not used here)."
   }
 }

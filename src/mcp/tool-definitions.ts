@@ -13661,4 +13661,33 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'media',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // Standard Ebooks — Free Public-Domain Literature (UC-600, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'standard-ebooks.search',
+    mcpName: 'standard-ebooks.books.search',
+    title: 'Search Standard Ebooks',
+    description:
+      'Search the Standard Ebooks catalog of carefully typeset, public-domain ebooks by title, ' +
+      'author, or subject keyword. Returns title, author, language, description, subjects, cover ' +
+      'image URL, and direct download links (EPUB, advanced EPUB, Kobo Kepub, Kindle AZW3, XHTML). ' +
+      'Sortable by newest, author name, reading ease, length, or popularity. Data: ' +
+      'standardebooks.org OPDS 2.0 JSON feed, no auth required.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'standard-ebooks.new_releases',
+    mcpName: 'standard-ebooks.books.new_releases',
+    title: 'Standard Ebooks New Releases',
+    description:
+      'Get the most recently released Standard Ebooks (up to the latest 15), most-recent first. ' +
+      'Returns title, author, publish date, summary, subjects, cover image URL, and direct download ' +
+      'links (EPUB, advanced EPUB, Kobo Kepub, Kindle AZW3, XHTML). Data: standardebooks.org Atom ' +
+      'feed, no auth required.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
 ];

@@ -318,6 +318,7 @@ import { IneAdapter } from './ine';
 import { CrossrefAdapter } from './crossref';
 import { UnpaywallAdapter } from './unpaywall';
 import { WikimediaCommonsAdapter } from './wikimedia-commons';
+import { StandardEbooksAdapter } from './standard-ebooks';
 import { config } from '../config';
 
 /**
@@ -1735,6 +1736,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'wikimedia-commons':
       // Wikimedia Commons API (UC-599) — media search/info/category/random; no auth
       return getOrCreate('wikimedia-commons', () => new WikimediaCommonsAdapter());
+    case 'standard-ebooks':
+      // Standard Ebooks OPDS feeds (UC-600) — search + new releases; no auth
+      return getOrCreate('standard-ebooks', () => new StandardEbooksAdapter());
     default:
       return undefined;
   }

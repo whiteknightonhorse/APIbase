@@ -6955,6 +6955,18 @@ tools:
     price_usd: "0.001"
     cache_ttl: 0
 
+  - tool_id: standard-ebooks.search
+    name: Search Standard Ebooks
+    provider: standard-ebooks
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: standard-ebooks.new_releases
+    name: Standard Ebooks New Releases
+    provider: standard-ebooks
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

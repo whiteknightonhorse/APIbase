@@ -318,6 +318,7 @@ import { ineSchemas } from './ine.schema';
 import { crossrefSchemas } from './crossref.schema';
 import { unpaywallSchemas } from './unpaywall.schema';
 import { wikimediaCommonsSchemas } from './wikimedia-commons.schema';
+import { standardEbooksSchemas } from './standard-ebooks.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -639,4 +640,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...crossrefSchemas,
   ...unpaywallSchemas,
   ...wikimediaCommonsSchemas,
+  ...standardEbooksSchemas,
 };

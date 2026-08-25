@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1129 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1131 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -53856,6 +53856,100 @@
             "minimum": 1,
             "maximum": 20,
             "description": "Number of random files to return (1-20, default 5)"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "standard-ebooks.books.search",
+      "description": "Search the Standard Ebooks catalog of carefully typeset, public-domain ebooks by title, author, or subject keyword. Returns title, author, language, description, subjects, cover image URL, and direct download links (EPUB, advanced EPUB, Kobo Kepub, Kindle AZW3, XHTML). Sortable by newest, author name, reading ease, length, or popularity. Data: standardebooks.org OPDS 2.0 JSON feed, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Free-text search across title, author name, and subject (e.g. \"frankenstein\", \"jane austen\"). Required — an empty query returns zero results.",
+            "minLength": 1
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "newest",
+              "author",
+              "reading_ease",
+              "length",
+              "popularity"
+            ],
+            "description": "Sort order: \"newest\" (S.E. release date, default), \"author\" (author name A-Z), \"reading_ease\" (easiest first), \"length\" (shortest first), \"popularity\" (most downloaded first)."
+          },
+          "per_page": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 60,
+            "description": "Results per page (default 12, max 60)."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number for pagination (default 1)."
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "standard-ebooks.books.new_releases",
+      "description": "Get the most recently released Standard Ebooks (up to the latest 15), most-recent first. Returns title, author, publish date, summary, subjects, cover image URL, and direct download links (EPUB, advanced EPUB, Kobo Kepub, Kindle AZW3, XHTML). Data: standardebooks.org Atom feed, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 15,
+            "description": "Max number of recent releases to return (default 15, max 15 — feed size is fixed)."
           }
         }
       },
