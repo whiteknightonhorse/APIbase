@@ -290,6 +290,9 @@ Use these examples as reference patterns when:
 | UC-592 | P2PQuake Japan Seismic (api.p2pquake.net) | JMA earthquake reports (Shindo scale), tsunami warnings, historical search; community relay, open data, MIT, no auth | LIVE | No auth, 3 tools | `usecases/UC-592-p2pquake.md` |
 | UC-593 | JMA Bosai (www.jma.go.jp/bosai) | Japan Meteorological Agency official weather forecast, warnings/advisories, earthquake list, area reference; Japanese Government open data, no auth | LIVE | No auth, 5 tools | `usecases/UC-593-jma-bosai.md` |
 | UC-594 | Statistics Denmark (api.statbank.dk) | Danish national statistics — subject tree, table search, table metadata/dimensions, JSON-stat data query; population/labour/economy/social/education/business/transport/culture/environment; no auth, CC open data | LIVE | No auth, 4 tools | `usecases/UC-594-statistics-denmark.md` |
+| UC-595 | ECB Data Portal (data-api.ecb.europa.eu) | Official ECB Statistical Data Warehouse — key interest rates, HICP inflation, M3 money supply, government bond yield curve; SDMX-JSON, no auth, distinct from finance.ecb_rates FX mirror | LIVE | No auth, 4 tools | `usecases/UC-595-ecb-rates.md` |
+| UC-596 | INE (servicios.ine.es) | Spanish national statistics institute — statistical operations catalog, published tables, series metadata, series observation data; Tempus3 API, no auth, Spanish Gov open data | LIVE | No auth, 4 tools | `usecases/UC-596-ine.md` |
+| UC-597 | CrossRef (api.crossref.org) | Scholarly metadata registry — works search (150M+ articles/books), journal lookup by ISSN, funder registry search, publisher/member registry search; CC0, no auth, polite pool | LIVE | No auth, 4 tools | `usecases/UC-597-crossref.md` |
 
 ## How to Use
 
