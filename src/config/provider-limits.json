@@ -2807,5 +2807,14 @@
     "reset_period": "none",
     "docs_url": "https://www.destatis.de/EN/Service/OpenData/api-webservice.html",
     "limit_proof": "German Federal Statistical Office open data API; free account, no documented rate limit or quota — 'All users have access to the same range of data'"
+  },
+  "ecb-rates": {
+    "display_name": "ECB Data Portal",
+    "health_url": "https://data-api.ecb.europa.eu/service/data/FM/D.U2.EUR.4F.KR.DFR.LEV?lastNObservations=1&format=jsondata",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://data.ecb.europa.eu/help/api/overview",
+    "limit_proof": "ECB Statistical Data Warehouse public REST API; no authentication, no documented rate limits (official EU institution open data)"
   }
 }

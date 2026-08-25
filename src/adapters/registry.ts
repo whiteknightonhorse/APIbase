@@ -313,6 +313,7 @@ import { OrphadataAdapter } from './orphadata';
 import { CbsNetherlandsAdapter } from './cbs-netherlands';
 import { AdbkidbAdapter } from './adbkidb';
 import { OpenTdbAdapter } from './opentdb';
+import { EcbRatesAdapter } from './ecb-rates';
 import { config } from '../config';
 
 /**
@@ -1715,6 +1716,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       if (!username || !password) return undefined;
       return getOrCreate('destatis', () => new DestatisAdapter(username, password));
     }
+    case 'ecb-rates':
+      // ECB Data Portal (UC-595) — key interest rates, HICP inflation, M3 money supply, yield curve; no auth; SDMX-JSON
+      return getOrCreate('ecb-rates', () => new EcbRatesAdapter());
     default:
       return undefined;
   }

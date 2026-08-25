@@ -13435,4 +13435,58 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+
+  // ECB Data Portal — official Statistical Data Warehouse (UC-595, 4 tools)
+  // Distinct from finance.ecb_rates (Frankfurter-mirrored exchange rates, UC-016):
+  // this is the ECB's own SDMX-JSON API covering monetary policy + macro series.
+  {
+    toolId: 'ecb-rates.key_rates',
+    mcpName: 'ecb-rates.policy.key_rates',
+    title: 'ECB Key Interest Rates',
+    description:
+      'Get official European Central Bank key interest rates: the deposit facility rate ' +
+      '(rate banks earn on overnight deposits with the Eurosystem), main refinancing rate (MRO), ' +
+      'or marginal lending facility rate (overnight borrowing rate). Daily series. ' +
+      'Filter by rate_type, and either last_n_observations or start_period/end_period. ' +
+      'Data: ECB Statistical Data Warehouse (data-api.ecb.europa.eu), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ecb-rates.hicp_inflation',
+    mcpName: 'ecb-rates.macro.hicp_inflation',
+    title: 'Euro Area HICP Inflation Rate',
+    description:
+      'Get the euro area Harmonised Index of Consumer Prices (HICP) all-items annual rate of ' +
+      "change — the ECB's official inflation measure used for its 2% target. Monthly series. " +
+      'Filter by last_n_observations or start_period/end_period. ' +
+      'Data: ECB Statistical Data Warehouse (data-api.ecb.europa.eu), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ecb-rates.money_supply',
+    mcpName: 'ecb-rates.macro.money_supply',
+    title: 'Euro Area M3 Money Supply',
+    description:
+      'Get the euro area M3 monetary aggregate — outstanding amount at end of period, working-day ' +
+      'and seasonally adjusted, in EUR. M3 is the broad money supply measure the ECB monitors ' +
+      'as a reference value for monetary policy. Monthly series. ' +
+      'Filter by last_n_observations or start_period/end_period. ' +
+      'Data: ECB Statistical Data Warehouse (data-api.ecb.europa.eu), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ecb-rates.yield_curve',
+    mcpName: 'ecb-rates.macro.yield_curve',
+    title: 'Euro Area Government Bond Yield Curve',
+    description:
+      'Get the euro area AAA-rated government bond spot yield curve rate for a given maturity ' +
+      '(1, 5, 10, or 30 years). Business-day series used as a euro area risk-free benchmark. ' +
+      'Filter by tenor_years, and either last_n_observations or start_period/end_period. ' +
+      'Data: ECB Statistical Data Warehouse (data-api.ecb.europa.eu), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
 ];

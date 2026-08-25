@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1112 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1116 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -53142,6 +53142,197 @@
           "name_filter": {
             "type": "string",
             "description": "Optional English keyword to filter offices by name (case-insensitive). E.g. \"tokyo\", \"osaka\". Leave empty to return all 58 offices."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ecb-rates.policy.key_rates",
+      "description": "Get official European Central Bank key interest rates: the deposit facility rate (rate banks earn on overnight deposits with the Eurosystem), main refinancing rate (MRO), or marginal lending facility rate (overnight borrowing rate). Daily series. Filter by rate_type, and either last_n_observations or start_period/end_period. Data: ECB Statistical Data Warehouse (data-api.ecb.europa.eu), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "rate_type": {
+            "type": "string",
+            "enum": [
+              "main_refinancing",
+              "deposit_facility",
+              "marginal_lending"
+            ],
+            "description": "Which ECB key interest rate to fetch: main_refinancing (MRO rate), deposit_facility (rate banks earn on overnight deposits), marginal_lending (overnight borrowing rate). Default deposit_facility."
+          },
+          "last_n_observations": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Return only the most recent N observations (max 100). Takes precedence over start_period/end_period. Default 10 if no range given."
+          },
+          "start_period": {
+            "type": "string",
+            "description": "Start of date range: YYYY, YYYY-MM, or YYYY-MM-DD depending on series frequency. Ignored if last_n_observations is set."
+          },
+          "end_period": {
+            "type": "string",
+            "description": "End of date range: YYYY, YYYY-MM, or YYYY-MM-DD depending on series frequency. Ignored if last_n_observations is set."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ecb-rates.macro.hicp_inflation",
+      "description": "Get the euro area Harmonised Index of Consumer Prices (HICP) all-items annual rate of change — the ECB's official inflation measure used for its 2% target. Monthly series. Filter by last_n_observations or start_period/end_period. Data: ECB Statistical Data Warehouse (data-api.ecb.europa.eu), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "last_n_observations": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Return only the most recent N observations (max 100). Takes precedence over start_period/end_period. Default 10 if no range given."
+          },
+          "start_period": {
+            "type": "string",
+            "description": "Start of date range: YYYY, YYYY-MM, or YYYY-MM-DD depending on series frequency. Ignored if last_n_observations is set."
+          },
+          "end_period": {
+            "type": "string",
+            "description": "End of date range: YYYY, YYYY-MM, or YYYY-MM-DD depending on series frequency. Ignored if last_n_observations is set."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ecb-rates.macro.money_supply",
+      "description": "Get the euro area M3 monetary aggregate — outstanding amount at end of period, working-day and seasonally adjusted, in EUR. M3 is the broad money supply measure the ECB monitors as a reference value for monetary policy. Monthly series. Filter by last_n_observations or start_period/end_period. Data: ECB Statistical Data Warehouse (data-api.ecb.europa.eu), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "last_n_observations": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Return only the most recent N observations (max 100). Takes precedence over start_period/end_period. Default 10 if no range given."
+          },
+          "start_period": {
+            "type": "string",
+            "description": "Start of date range: YYYY, YYYY-MM, or YYYY-MM-DD depending on series frequency. Ignored if last_n_observations is set."
+          },
+          "end_period": {
+            "type": "string",
+            "description": "End of date range: YYYY, YYYY-MM, or YYYY-MM-DD depending on series frequency. Ignored if last_n_observations is set."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ecb-rates.macro.yield_curve",
+      "description": "Get the euro area AAA-rated government bond spot yield curve rate for a given maturity (1, 5, 10, or 30 years). Business-day series used as a euro area risk-free benchmark. Filter by tenor_years, and either last_n_observations or start_period/end_period. Data: ECB Statistical Data Warehouse (data-api.ecb.europa.eu), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "tenor_years": {
+            "type": "string",
+            "enum": [
+              "1",
+              "5",
+              "10",
+              "30"
+            ],
+            "description": "Bond maturity in years for the spot rate: \"1\", \"5\", \"10\", or \"30\". Default \"10\"."
+          },
+          "last_n_observations": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Return only the most recent N observations (max 100). Takes precedence over start_period/end_period. Default 10 if no range given."
+          },
+          "start_period": {
+            "type": "string",
+            "description": "Start of date range: YYYY, YYYY-MM, or YYYY-MM-DD depending on series frequency. Ignored if last_n_observations is set."
+          },
+          "end_period": {
+            "type": "string",
+            "description": "End of date range: YYYY, YYYY-MM, or YYYY-MM-DD depending on series frequency. Ignored if last_n_observations is set."
           }
         }
       },
