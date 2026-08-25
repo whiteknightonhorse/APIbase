@@ -316,6 +316,7 @@ import { AdbkidbAdapter } from './adbkidb';
 import { OpenTdbAdapter } from './opentdb';
 import { EcbRatesAdapter } from './ecb-rates';
 import { IneAdapter } from './ine';
+import { IneChileAdapter } from './ine-chile';
 import { CrossrefAdapter } from './crossref';
 import { UnpaywallAdapter } from './unpaywall';
 import { WikimediaCommonsAdapter } from './wikimedia-commons';
@@ -1730,6 +1731,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'ine':
       // INE Tempus3 (UC-596) — Spanish national statistics (operations/tables/series); no auth
       return getOrCreate('ine', () => new IneAdapter());
+    case 'ine-chile':
+      // INE Chile SIMEL SDMX (UC-602) — Chilean labour-market statistics (dataflows/structure/data); no auth
+      return getOrCreate('ine-chile', () => new IneChileAdapter());
     case 'crossref':
       // CrossRef REST API (UC-597) — scholarly works/journal/funder/member search; no auth
       return getOrCreate('crossref', () => new CrossrefAdapter());

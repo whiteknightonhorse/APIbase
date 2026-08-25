@@ -316,6 +316,7 @@ import { jmaBosaiSchemas } from './jma-bosai.schema';
 import { destatisSchemas } from './destatis.schema';
 import { ecbRatesSchemas } from './ecb-rates.schema';
 import { ineSchemas } from './ine.schema';
+import { ineChileSchemas } from './ine-chile.schema';
 import { crossrefSchemas } from './crossref.schema';
 import { unpaywallSchemas } from './unpaywall.schema';
 import { wikimediaCommonsSchemas } from './wikimedia-commons.schema';
@@ -639,6 +640,7 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...destatisSchemas,
   ...ecbRatesSchemas,
   ...ineSchemas,
+  ...ineChileSchemas,
   ...crossrefSchemas,
   ...unpaywallSchemas,
   ...wikimediaCommonsSchemas,

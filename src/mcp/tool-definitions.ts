@@ -13563,6 +13563,47 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     annotations: READ_ONLY,
   },
 
+  // --- UC-602: INE Chile (Instituto Nacional de Estadísticas, Chile SIMEL) — 3 tools ---
+  // Official Chilean labour-market statistics SDMX REST API (sdmx.ine.gob.cl), no auth.
+  {
+    toolId: 'ine-chile.dataflows',
+    mcpName: 'ine-chile.reference.dataflows',
+    title: 'INE Chile SIMEL Dataflows',
+    description:
+      'Search or list Chilean SIMEL (labour-market information system) dataflows — the ~204 ' +
+      'official indicator series covering employment, unemployment, wages, pensions, and gender ' +
+      'gaps, split by demographic and geographic breakdowns. Filter by name/id with query, or ' +
+      'omit to list all. Use the returned dataflow_id with ine-chile.structure and ine-chile.data. ' +
+      'Data: sdmx.ine.gob.cl (INE Chile SDMX API), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ine-chile.structure',
+    mcpName: 'ine-chile.reference.structure',
+    title: 'INE Chile SIMEL Dataflow Structure',
+    description:
+      'Get the dimensions and valid codes for a Chilean SIMEL dataflow_id (e.g. "DF_NOCU_SEXO") ' +
+      '— area, frequency, indicator, and breakdown dimensions (sex, age, region, etc.) each with ' +
+      'their code list. Use this to interpret the dimension labels returned by ine-chile.data. ' +
+      'Data: sdmx.ine.gob.cl (INE Chile SDMX API), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ine-chile.data',
+    mcpName: 'ine-chile.series.data',
+    title: 'INE Chile SIMEL Dataflow Data',
+    description:
+      'Get observation values for a Chilean SIMEL dataflow_id (e.g. "DF_NOCU_SEXO" for employed ' +
+      'persons by sex). Filter by last_n_observations (most recent N per series, default 10, ' +
+      'max 100) or a start_period/end_period range (e.g. "2020", "2020-01"). Each series is ' +
+      'labeled with its dimension values (sex, region, etc.) and a list of period/value pairs. ' +
+      'Data: sdmx.ine.gob.cl (INE Chile SDMX API), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+
   // --- UC-597: CrossRef — 4 tools ---
   // Official scholarly metadata registry API (api.crossref.org), no auth.
   {

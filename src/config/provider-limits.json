@@ -2835,6 +2835,15 @@
     "docs_url": "https://www.ine.es/dyngs/DAB/index.htm?cid=1100",
     "limit_proof": "Spanish national statistics institute wstempus/Tempus3 API; no authentication, any well-formed GET request returns data; no documented rate limits found in official API reference"
   },
+  "ine-chile": {
+    "display_name": "INE Chile SIMEL",
+    "health_url": "https://sdmx.ine.gob.cl/rest/dataflow/CL01/all/latest",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.ine.gob.cl/simel/que-es",
+    "limit_proof": "Chilean national statistics institute SIMEL SDMX 2.1 REST API (sdmx.ine.gob.cl); no authentication, no login required to browse or export data on the public SIMEL portal, no documented rate limits found"
+  },
   "crossref": {
     "display_name": "CrossRef",
     "health_url": "https://api.crossref.org/works?rows=1",

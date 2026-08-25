@@ -6911,6 +6911,25 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-602: INE Chile (Instituto Nacional de Estadísticas, Chile SIMEL, 3 tools) ---
+  - tool_id: ine-chile.dataflows
+    name: INE Chile SIMEL Dataflows
+    provider: ine-chile
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: ine-chile.structure
+    name: INE Chile SIMEL Dataflow Structure
+    provider: ine-chile
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: ine-chile.data
+    name: INE Chile SIMEL Dataflow Data
+    provider: ine-chile
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   # --- UC-597: CrossRef (Scholarly Metadata Registry, 4 tools) ---
   - tool_id: crossref.works_search
     name: CrossRef Works Search

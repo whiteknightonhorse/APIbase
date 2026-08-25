@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1133 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1136 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -53573,6 +53573,127 @@
         },
         "required": [
           "series_code"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ine-chile.reference.dataflows",
+      "description": "Search or list Chilean SIMEL (labour-market information system) dataflows — the ~204 official indicator series covering employment, unemployment, wages, pensions, and gender gaps, split by demographic and geographic breakdowns. Filter by name/id with query, or omit to list all. Use the returned dataflow_id with ine-chile.structure and ine-chile.data. Data: sdmx.ine.gob.cl (INE Chile SDMX API), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Filter dataflows by name or id substring, case-insensitive (e.g. \"desocup\" for unemployment, \"sexo\" for gender-split indicators). Omit to list all ~204 available dataflows."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ine-chile.reference.structure",
+      "description": "Get the dimensions and valid codes for a Chilean SIMEL dataflow_id (e.g. \"DF_NOCU_SEXO\") — area, frequency, indicator, and breakdown dimensions (sex, age, region, etc.) each with their code list. Use this to interpret the dimension labels returned by ine-chile.data. Data: sdmx.ine.gob.cl (INE Chile SDMX API), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "dataflow_id": {
+            "type": "string",
+            "description": "SIMEL dataflow id, from ine-chile.dataflows (e.g. \"DF_NOCU_SEXO\"). Returns the dimension list (e.g. AREA_REF, FREQ, INDICADOR, SEXO) with each dimension's valid codes — needed to interpret ine-chile.data results.",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "dataflow_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ine-chile.series.data",
+      "description": "Get observation values for a Chilean SIMEL dataflow_id (e.g. \"DF_NOCU_SEXO\" for employed persons by sex). Filter by last_n_observations (most recent N per series, default 10, max 100) or a start_period/end_period range (e.g. \"2020\", \"2020-01\"). Each series is labeled with its dimension values (sex, region, etc.) and a list of period/value pairs. Data: sdmx.ine.gob.cl (INE Chile SDMX API), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "dataflow_id": {
+            "type": "string",
+            "description": "SIMEL dataflow id, from ine-chile.dataflows (e.g. \"DF_NOCU_SEXO\").",
+            "minLength": 1
+          },
+          "start_period": {
+            "type": "string",
+            "description": "Start of period range, e.g. \"2020\" (annual) or \"2020-01\" (monthly). Takes precedence over last_n_observations when set."
+          },
+          "end_period": {
+            "type": "string",
+            "description": "End of period range, e.g. \"2024\" (annual) or \"2024-12\" (monthly). Takes precedence over last_n_observations when set."
+          },
+          "last_n_observations": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Return only the most recent N observations per series (max 100, default 10). Ignored if start_period or end_period is set."
+          }
+        },
+        "required": [
+          "dataflow_id"
         ]
       },
       "outputSchema": {
