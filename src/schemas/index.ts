@@ -77,6 +77,7 @@ import { sslcheckerSchemas } from './sslchecker.schema';
 import { nhtsaSchemas } from './nhtsa.schema';
 import { restcountriesSchemas } from './restcountries.schema';
 import { openfoodfactsSchemas } from './openfoodfacts.schema';
+import { openbeautyfactsSchemas } from './openbeautyfacts.schema';
 import { randomuserSchemas } from './randomuser.schema';
 import { iqairSchemas } from './iqair.schema';
 import { fatsecretSchemas } from './fatsecret.schema';
@@ -399,6 +400,7 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...nhtsaSchemas,
   ...restcountriesSchemas,
   ...openfoodfactsSchemas,
+  ...openbeautyfactsSchemas,
   ...randomuserSchemas,
   ...iqairSchemas,
   ...fatsecretSchemas,

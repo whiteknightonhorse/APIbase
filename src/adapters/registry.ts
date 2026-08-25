@@ -90,6 +90,7 @@ import { SslCheckerAdapter } from './sslchecker';
 import { NhtsaAdapter } from './nhtsa';
 import { RestCountriesAdapter } from './restcountries';
 import { OpenFoodFactsAdapter } from './openfoodfacts';
+import { OpenBeautyFactsAdapter } from './openbeautyfacts';
 import { RandomUserAdapter } from './randomuser';
 import { IqairAdapter } from './iqair';
 import { FatSecretAdapter } from './fatsecret';
@@ -589,6 +590,8 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       return getOrCreate('restcountries', () => new RestCountriesAdapter());
     case 'food':
       return getOrCreate('openfoodfacts', () => new OpenFoodFactsAdapter());
+    case 'openbeautyfacts':
+      return getOrCreate('openbeautyfacts', () => new OpenBeautyFactsAdapter());
     case 'random':
       return getOrCreate('randomuser', () => new RandomUserAdapter());
     case 'ssl':

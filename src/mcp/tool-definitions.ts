@@ -1858,6 +1858,28 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   },
 
   // ---------------------------------------------------------------------------
+  // Open Beauty Facts — Cosmetics Product Database (UC-601, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'openbeautyfacts.barcode',
+    mcpName: 'openbeautyfacts.product.barcode',
+    title: 'Cosmetics Product by Barcode',
+    description:
+      'Lookup a cosmetics/personal-care product by barcode (EAN/UPC) — name, brand, categories, quantity, full ingredients list, image. 6K+ products (Open Beauty Facts)',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'openbeautyfacts.search',
+    mcpName: 'openbeautyfacts.product.search',
+    title: 'Search Cosmetics Products',
+    description:
+      'Search cosmetics/personal-care products by name — returns matching products with brand, barcode, categories, image. Shampoo, lipstick, sunscreen, and more (Open Beauty Facts)',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+
+  // ---------------------------------------------------------------------------
   // RandomUser.me — Random User Generator (UC-124, 1 tool)
   // ---------------------------------------------------------------------------
   {

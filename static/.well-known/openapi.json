@@ -17324,6 +17324,171 @@
         ]
       }
     },
+    "/api/v1/tools/openbeautyfacts.barcode/call": {
+      "post": {
+        "operationId": "openbeautyfacts_barcode",
+        "summary": "Cosmetics Product by Barcode",
+        "description": "Lookup a cosmetics/personal-care product by barcode (EAN/UPC) — name, brand, categories, quantity, full ingredients list, image. 6K+ products (Open Beauty Facts)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "openbeautyfacts.barcode"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "barcode": {
+                    "type": "string",
+                    "description": "Product barcode (EAN-13, UPC-A, etc.) e.g. \"3600523327164\" for a shampoo",
+                    "minLength": 8,
+                    "maxLength": 13
+                  }
+                },
+                "required": [
+                  "barcode"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/openbeautyfacts.search/call": {
+      "post": {
+        "operationId": "openbeautyfacts_search",
+        "summary": "Search Cosmetics Products",
+        "description": "Search cosmetics/personal-care products by name — returns matching products with brand, barcode, categories, image. Shampoo, lipstick, sunscreen, and more (Open Beauty Facts)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "openbeautyfacts.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Cosmetics/personal-care product name to search (e.g. \"shampoo\", \"lipstick\", \"sunscreen\")",
+                    "minLength": 2
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Results count (default 10, max 50)"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/random.user/call": {
       "post": {
         "operationId": "random_user",

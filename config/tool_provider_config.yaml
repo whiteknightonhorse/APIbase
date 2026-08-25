@@ -1173,6 +1173,19 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-601: Open Beauty Facts ---
+  - tool_id: openbeautyfacts.barcode
+    name: Cosmetics Product by Barcode
+    provider: openbeautyfacts
+    price_usd: "0.001"
+    cache_ttl: 604800
+
+  - tool_id: openbeautyfacts.search
+    name: Search Cosmetics Products
+    provider: openbeautyfacts
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   # --- UC-124: RandomUser.me ---
   - tool_id: random.user
     name: Generate Random User

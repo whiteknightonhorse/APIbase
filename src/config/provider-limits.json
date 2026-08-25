@@ -838,6 +838,15 @@
     "docs_url": "https://openfoodfacts.github.io/openfoodfacts-server/api/",
     "limit_proof": "Fully free, no auth, open data (ODbL), 3M+ products"
   },
+  "openbeautyfacts": {
+    "display_name": "Open Beauty Facts",
+    "health_url": "https://world.openbeautyfacts.org/api/v2/product/0100494608925.json",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://openbeautyfacts.github.io/openbeautyfacts-server/api/",
+    "limit_proof": "Fully free, no auth, open data (ODbL), 6K+ cosmetics products"
+  },
   "randomuser": {
     "display_name": "RandomUser.me",
     "health_url": "https://randomuser.me/api/?results=1",
