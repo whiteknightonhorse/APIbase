@@ -296,6 +296,8 @@ Use these examples as reference patterns when:
 | UC-598 | Unpaywall (api.unpaywall.org) | Open-access full-text finder — OA status + best/all free full-text locations by DOI; aggregated from 50K+ publisher/repository sources, no auth (courtesy email), search endpoint broken upstream | LIVE | No auth, 1 tool | `usecases/UC-598-unpaywall.md` |
 | UC-599 | Wikimedia Commons (commons.wikimedia.org) | Free media archive — keyword search, file metadata (URL/license/dimensions), category browsing with pagination, random sampling; 100M+ freely-licensed files, no auth (User-Agent identification only) | LIVE | No auth, 4 tools | `usecases/UC-599-wikimedia-commons.md` |
 | UC-600 | Standard Ebooks (standardebooks.org) | Public-domain ebook catalog — search by title/author/subject with sort+pagination (OPDS 2.0 JSON), new-releases feed (Atom XML); direct EPUB/Kepub/AZW3/XHTML download links, no auth | LIVE | No auth, 2 tools | `usecases/UC-600-standard-ebooks.md` |
+| UC-601 | Open Beauty Facts (world.openbeautyfacts.org) | Cosmetics/personal-care product database — barcode lookup (name, brand, categories, ingredients, image), free-text product search; 6K+ products, ODbL, no auth | LIVE | No auth, 2 tools | `usecases/UC-601-open-beauty-facts.md` |
+| UC-602 | INE Chile SIMEL (sdmx.ine.gob.cl) | Chilean labour-market statistics — dataflow search/list (~204 series), dimension/codelist structure, observation data with period range or last-N filter; SDMX 2.1, no auth, Chilean Gov open data | LIVE | No auth, 3 tools | `usecases/UC-602-ine-chile.md` |
 
 ## How to Use
 
