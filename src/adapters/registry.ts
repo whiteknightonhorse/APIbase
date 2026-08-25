@@ -317,6 +317,7 @@ import { EcbRatesAdapter } from './ecb-rates';
 import { IneAdapter } from './ine';
 import { CrossrefAdapter } from './crossref';
 import { UnpaywallAdapter } from './unpaywall';
+import { WikimediaCommonsAdapter } from './wikimedia-commons';
 import { config } from '../config';
 
 /**
@@ -1731,6 +1732,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'unpaywall':
       // Unpaywall API (UC-598) — open-access status + free full-text location by DOI; no auth
       return getOrCreate('unpaywall', () => new UnpaywallAdapter());
+    case 'wikimedia-commons':
+      // Wikimedia Commons API (UC-599) — media search/info/category/random; no auth
+      return getOrCreate('wikimedia-commons', () => new WikimediaCommonsAdapter());
     default:
       return undefined;
   }

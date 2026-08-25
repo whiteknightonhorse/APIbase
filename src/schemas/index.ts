@@ -317,6 +317,7 @@ import { ecbRatesSchemas } from './ecb-rates.schema';
 import { ineSchemas } from './ine.schema';
 import { crossrefSchemas } from './crossref.schema';
 import { unpaywallSchemas } from './unpaywall.schema';
+import { wikimediaCommonsSchemas } from './wikimedia-commons.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -637,4 +638,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...ineSchemas,
   ...crossrefSchemas,
   ...unpaywallSchemas,
+  ...wikimediaCommonsSchemas,
 };

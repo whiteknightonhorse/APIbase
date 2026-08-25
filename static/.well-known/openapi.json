@@ -103285,6 +103285,336 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/wikimedia-commons.search/call": {
+      "post": {
+        "operationId": "wikimedia-commons_search",
+        "summary": "Wikimedia Commons Media Search",
+        "description": "Search Wikimedia Commons (100M+ freely-licensed images, audio, and video files) by keyword. Returns matching file titles, page IDs, a stripped text snippet, file size, last-edit timestamp, and the Commons description-page URL. Use wikimedia-commons.file_info afterwards for full license, dimensions, and download URL. Data: commons.wikimedia.org (MediaWiki Action API), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "wikimedia-commons.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search keywords for Wikimedia Commons files (e.g. \"Eiffel Tower\")",
+                    "minLength": 1
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of results to return (1-50, default 10)"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/wikimedia-commons.file_info/call": {
+      "post": {
+        "operationId": "wikimedia-commons_file_info",
+        "summary": "Wikimedia Commons File Info",
+        "description": "Get full metadata for a specific Wikimedia Commons file by title (e.g. \"File:Example.jpg\"): direct download URL, dimensions, size, MIME type, description, artist/credit, license name and URL, capture date, and category list. Use after wikimedia-commons.search or wikimedia-commons.category_files to resolve a title into a usable, licensed download link. Data: commons.wikimedia.org (MediaWiki Action API), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "wikimedia-commons.file_info"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "description": "Commons file title, with or without the \"File:\" prefix (e.g. \"File:Tour Eiffel Wikimedia Commons.jpg\")",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "title"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/wikimedia-commons.category_files/call": {
+      "post": {
+        "operationId": "wikimedia-commons_category_files",
+        "summary": "Wikimedia Commons Category Files",
+        "description": "List media files inside a Wikimedia Commons category (e.g. \"Category:Eiffel Tower\"), with a pagination cursor for large categories. Returns file titles, page IDs, and description-page URLs — useful for browsing a curated topic/collection instead of free-text search. Data: commons.wikimedia.org (MediaWiki Action API), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "wikimedia-commons.category_files"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "category": {
+                    "type": "string",
+                    "description": "Commons category name, with or without the \"Category:\" prefix (e.g. \"Category:Eiffel Tower\")",
+                    "minLength": 1
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of files to return (1-50, default 20)"
+                  },
+                  "cursor": {
+                    "type": "string",
+                    "description": "Pagination cursor from a previous call's next_cursor field, to fetch the next page"
+                  }
+                },
+                "required": [
+                  "category"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/wikimedia-commons.random/call": {
+      "post": {
+        "operationId": "wikimedia-commons_random",
+        "summary": "Wikimedia Commons Random Media",
+        "description": "Get a random sample of Wikimedia Commons media files (titles, page IDs, and description-page URLs). Useful for discovery, sampling, or \"surprise me\" style prompts. Data: commons.wikimedia.org (MediaWiki Action API), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "wikimedia-commons.random"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "count": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20,
+                    "description": "Number of random files to return (1-20, default 5)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

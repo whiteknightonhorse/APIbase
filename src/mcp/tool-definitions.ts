@@ -13609,4 +13609,56 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'education',
     annotations: READ_ONLY,
   },
+
+  // --- UC-599: Wikimedia Commons — 4 tools ---
+  // Media archive API (commons.wikimedia.org/w/api.php), no auth (User-Agent identification only).
+  {
+    toolId: 'wikimedia-commons.search',
+    mcpName: 'wikimedia-commons.media.search',
+    title: 'Wikimedia Commons Media Search',
+    description:
+      'Search Wikimedia Commons (100M+ freely-licensed images, audio, and video files) by keyword. ' +
+      'Returns matching file titles, page IDs, a stripped text snippet, file size, last-edit timestamp, ' +
+      'and the Commons description-page URL. Use wikimedia-commons.file_info afterwards for full ' +
+      'license, dimensions, and download URL. Data: commons.wikimedia.org (MediaWiki Action API), no ' +
+      'auth required.',
+    category: 'media',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'wikimedia-commons.file_info',
+    mcpName: 'wikimedia-commons.media.info',
+    title: 'Wikimedia Commons File Info',
+    description:
+      'Get full metadata for a specific Wikimedia Commons file by title (e.g. "File:Example.jpg"): ' +
+      'direct download URL, dimensions, size, MIME type, description, artist/credit, license name and ' +
+      'URL, capture date, and category list. Use after wikimedia-commons.search or ' +
+      'wikimedia-commons.category_files to resolve a title into a usable, licensed download link. ' +
+      'Data: commons.wikimedia.org (MediaWiki Action API), no auth required.',
+    category: 'media',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'wikimedia-commons.category_files',
+    mcpName: 'wikimedia-commons.media.category',
+    title: 'Wikimedia Commons Category Files',
+    description:
+      'List media files inside a Wikimedia Commons category (e.g. "Category:Eiffel Tower"), with a ' +
+      'pagination cursor for large categories. Returns file titles, page IDs, and description-page ' +
+      'URLs — useful for browsing a curated topic/collection instead of free-text search. Data: ' +
+      'commons.wikimedia.org (MediaWiki Action API), no auth required.',
+    category: 'media',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'wikimedia-commons.random',
+    mcpName: 'wikimedia-commons.media.random',
+    title: 'Wikimedia Commons Random Media',
+    description:
+      'Get a random sample of Wikimedia Commons media files (titles, page IDs, and description-page ' +
+      'URLs). Useful for discovery, sampling, or "surprise me" style prompts. Data: ' +
+      'commons.wikimedia.org (MediaWiki Action API), no auth required.',
+    category: 'media',
+    annotations: READ_ONLY,
+  },
 ];

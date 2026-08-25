@@ -6930,6 +6930,31 @@ tools:
     price_usd: "0.002"
     cache_ttl: 86400
 
+  # --- UC-599: Wikimedia Commons (Media Archive, 4 tools) ---
+  - tool_id: wikimedia-commons.search
+    name: Wikimedia Commons Media Search
+    provider: wikimedia-commons
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: wikimedia-commons.file_info
+    name: Wikimedia Commons File Info
+    provider: wikimedia-commons
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: wikimedia-commons.category_files
+    name: Wikimedia Commons Category Files
+    provider: wikimedia-commons
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: wikimedia-commons.random
+    name: Wikimedia Commons Random Media
+    provider: wikimedia-commons
+    price_usd: "0.001"
+    cache_ttl: 0
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

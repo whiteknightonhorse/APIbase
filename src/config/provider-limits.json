@@ -2843,5 +2843,14 @@
     "reset_period": "none",
     "docs_url": "https://unpaywall.org/products/api",
     "limit_proof": "Free public API, no API key. Docs state: 'be reasonable' — no documented hard rate limit for the single-DOI lookup endpoint; recommends batching via the (paid) data feed for bulk use, not applicable here."
+  },
+  "wikimedia-commons": {
+    "display_name": "Wikimedia Commons",
+    "health_url": "https://commons.wikimedia.org/w/api.php?action=query&list=random&rnnamespace=6&rnlimit=1&format=json",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.mediawiki.org/wiki/API:Etiquette",
+    "limit_proof": "Public MediaWiki Action API, no authentication or key required. No hard registered quota; API:Etiquette asks clients to identify via User-Agent and self-limit request rate under high load."
   }
 }
