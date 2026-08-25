@@ -6923,6 +6923,13 @@ tools:
     price_usd: "0.002"
     cache_ttl: 86400
 
+  # --- UC-598: Unpaywall (Open-Access Full-Text Finder, 1 tool) ---
+  - tool_id: unpaywall.oa_lookup
+    name: Unpaywall Open-Access Lookup
+    provider: unpaywall
+    price_usd: "0.002"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

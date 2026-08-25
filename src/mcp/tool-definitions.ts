@@ -13591,4 +13591,22 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'education',
     annotations: READ_ONLY,
   },
+
+  // --- UC-598: Unpaywall — 1 tool ---
+  // Open-access full-text finder API (api.unpaywall.org), no auth (courtesy contact email only).
+  {
+    toolId: 'unpaywall.oa_lookup',
+    mcpName: 'unpaywall.oa.lookup',
+    title: 'Unpaywall Open-Access Lookup',
+    description:
+      'Look up the open-access status of a scholarly work by DOI and get a direct link to a free, ' +
+      'legal full-text copy if one exists — aggregated from 50K+ publisher and repository sources ' +
+      '(institutional repositories, PubMed Central, arXiv, publisher OA pages). Returns oa_status ' +
+      '(gold/green/hybrid/bronze/closed), the best OA location (PDF URL, license, host type, version), ' +
+      'and all known OA locations. Complements education.doi_lookup and crossref.works_search (which ' +
+      'return bibliographic metadata, not full-text availability). Data: api.unpaywall.org, no auth ' +
+      'required (an internal contact email is sent per API terms, not a user credential).',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
 ];

@@ -103206,6 +103206,85 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/unpaywall.oa_lookup/call": {
+      "post": {
+        "operationId": "unpaywall_oa_lookup",
+        "summary": "Unpaywall Open-Access Lookup",
+        "description": "Look up the open-access status of a scholarly work by DOI and get a direct link to a free, legal full-text copy if one exists — aggregated from 50K+ publisher and repository sources (institutional repositories, PubMed Central, arXiv, publisher OA pages). Returns oa_status (gold/green/hybrid/bronze/closed), the best OA location (PDF URL, license, host type, version), and all known OA locations. Complements education.doi_lookup and crossref.works_search (which return bibliographic metadata, not full-text availability). Data: api.unpaywall.org, no auth required (an internal contact email is sent per API terms, not a user credential).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "unpaywall.oa_lookup"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "doi": {
+                    "type": "string",
+                    "description": "DOI of the scholarly work to look up, with or without the \"https://doi.org/\" prefix (e.g. 10.1038/nature12373)",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "doi"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {
