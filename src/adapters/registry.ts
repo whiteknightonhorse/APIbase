@@ -314,6 +314,7 @@ import { CbsNetherlandsAdapter } from './cbs-netherlands';
 import { AdbkidbAdapter } from './adbkidb';
 import { OpenTdbAdapter } from './opentdb';
 import { EcbRatesAdapter } from './ecb-rates';
+import { IneAdapter } from './ine';
 import { config } from '../config';
 
 /**
@@ -1719,6 +1720,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'ecb-rates':
       // ECB Data Portal (UC-595) — key interest rates, HICP inflation, M3 money supply, yield curve; no auth; SDMX-JSON
       return getOrCreate('ecb-rates', () => new EcbRatesAdapter());
+    case 'ine':
+      // INE Tempus3 (UC-596) — Spanish national statistics (operations/tables/series); no auth
+      return getOrCreate('ine', () => new IneAdapter());
     default:
       return undefined;
   }

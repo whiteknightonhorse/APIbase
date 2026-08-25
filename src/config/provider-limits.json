@@ -2816,5 +2816,14 @@
     "reset_period": "none",
     "docs_url": "https://data.ecb.europa.eu/help/api/overview",
     "limit_proof": "ECB Statistical Data Warehouse public REST API; no authentication, no documented rate limits (official EU institution open data)"
+  },
+  "ine": {
+    "display_name": "INE (Instituto Nacional de Estadística)",
+    "health_url": "https://servicios.ine.es/wstempus/js/ES/OPERACIONES_DISPONIBLES",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.ine.es/dyngs/DAB/index.htm?cid=1100",
+    "limit_proof": "Spanish national statistics institute wstempus/Tempus3 API; no authentication, any well-formed GET request returns data; no documented rate limits found in official API reference"
   }
 }

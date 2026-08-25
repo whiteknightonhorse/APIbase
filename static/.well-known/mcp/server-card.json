@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1116 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1120 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -53335,6 +53335,164 @@
             "description": "End of date range: YYYY, YYYY-MM, or YYYY-MM-DD depending on series frequency. Ignored if last_n_observations is set."
           }
         }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ine.reference.operations",
+      "description": "Search or list Spanish INE (national statistics institute) statistical operations — the top-level catalog of official series like IPC (Consumer Price Index), EPA (Labour Force Survey), or population census. Filter by name/code with query, or omit to list all ~110 available operations. Use the returned operation code with ine.tables. Data: servicios.ine.es (INE Tempus3 API), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Filter operations by name or short code substring, case-insensitive (e.g. \"IPC\", \"empleo\", \"población\"). Omit to list all ~110 available operations."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ine.reference.tables",
+      "description": "List the published data tables for a Spanish INE statistical operation (e.g. \"IPC\", \"EPA\"), including periodicity, publication name, and start period. Use an operation_code from ine.operations. Data: servicios.ine.es (INE Tempus3 API), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "operation_code": {
+            "type": "string",
+            "description": "Short code of the statistical operation, from ine.operations (e.g. \"IPC\" for Consumer Price Index, \"EPA\" for Labour Force Survey).",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "operation_code"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ine.series.metadata",
+      "description": "Get metadata for a Spanish INE time series by its series_code — name, decimals, periodicity (monthly/quarterly/annual), parent operation, and publication. Data: servicios.ine.es (INE Tempus3 API), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "series_code": {
+            "type": "string",
+            "description": "INE series code (e.g. \"IPC206449\" for the national CPI monthly change series).",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "series_code"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ine.series.data",
+      "description": "Get observation values for a Spanish INE time series by its series_code — e.g. IPC206449 for the national CPI monthly change. Filter by last_n (most recent N observations, default 10, max 100) or a start_date/end_date range (YYYYMMDD). Values include the period label, year, and whether the observation is provisional or final. Data: servicios.ine.es (INE Tempus3 API), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "series_code": {
+            "type": "string",
+            "description": "INE series code (e.g. \"IPC206449\" for the national CPI monthly change series).",
+            "minLength": 1
+          },
+          "last_n": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Return only the most recent N observations (max 100, default 10). Ignored if start_date or end_date is set."
+          },
+          "start_date": {
+            "type": "string",
+            "description": "Start of date range, format YYYYMMDD (e.g. \"20200101\"). Takes precedence over last_n."
+          },
+          "end_date": {
+            "type": "string",
+            "description": "End of date range, format YYYYMMDD (e.g. \"20231231\"). Takes precedence over last_n."
+          }
+        },
+        "required": [
+          "series_code"
+        ]
       },
       "outputSchema": {
         "type": "object",

@@ -314,6 +314,7 @@ import { p2pquakeSchemas } from './p2pquake.schema';
 import { jmaBosaiSchemas } from './jma-bosai.schema';
 import { destatisSchemas } from './destatis.schema';
 import { ecbRatesSchemas } from './ecb-rates.schema';
+import { ineSchemas } from './ine.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -631,4 +632,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...jmaBosaiSchemas,
   ...destatisSchemas,
   ...ecbRatesSchemas,
+  ...ineSchemas,
 };

@@ -102546,6 +102546,332 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/ine.operations/call": {
+      "post": {
+        "operationId": "ine_operations",
+        "summary": "INE Statistical Operations",
+        "description": "Search or list Spanish INE (national statistics institute) statistical operations — the top-level catalog of official series like IPC (Consumer Price Index), EPA (Labour Force Survey), or population census. Filter by name/code with query, or omit to list all ~110 available operations. Use the returned operation code with ine.tables. Data: servicios.ine.es (INE Tempus3 API), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ine.operations"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Filter operations by name or short code substring, case-insensitive (e.g. \"IPC\", \"empleo\", \"población\"). Omit to list all ~110 available operations."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ine.tables/call": {
+      "post": {
+        "operationId": "ine_tables",
+        "summary": "INE Tables for an Operation",
+        "description": "List the published data tables for a Spanish INE statistical operation (e.g. \"IPC\", \"EPA\"), including periodicity, publication name, and start period. Use an operation_code from ine.operations. Data: servicios.ine.es (INE Tempus3 API), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ine.tables"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "operation_code": {
+                    "type": "string",
+                    "description": "Short code of the statistical operation, from ine.operations (e.g. \"IPC\" for Consumer Price Index, \"EPA\" for Labour Force Survey).",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "operation_code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ine.series_metadata/call": {
+      "post": {
+        "operationId": "ine_series_metadata",
+        "summary": "INE Series Metadata",
+        "description": "Get metadata for a Spanish INE time series by its series_code — name, decimals, periodicity (monthly/quarterly/annual), parent operation, and publication. Data: servicios.ine.es (INE Tempus3 API), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ine.series_metadata"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "series_code": {
+                    "type": "string",
+                    "description": "INE series code (e.g. \"IPC206449\" for the national CPI monthly change series).",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "series_code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ine.series_data/call": {
+      "post": {
+        "operationId": "ine_series_data",
+        "summary": "INE Series Data",
+        "description": "Get observation values for a Spanish INE time series by its series_code — e.g. IPC206449 for the national CPI monthly change. Filter by last_n (most recent N observations, default 10, max 100) or a start_date/end_date range (YYYYMMDD). Values include the period label, year, and whether the observation is provisional or final. Data: servicios.ine.es (INE Tempus3 API), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ine.series_data"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "series_code": {
+                    "type": "string",
+                    "description": "INE series code (e.g. \"IPC206449\" for the national CPI monthly change series).",
+                    "minLength": 1
+                  },
+                  "last_n": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Return only the most recent N observations (max 100, default 10). Ignored if start_date or end_date is set."
+                  },
+                  "start_date": {
+                    "type": "string",
+                    "description": "Start of date range, format YYYYMMDD (e.g. \"20200101\"). Takes precedence over last_n."
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "End of date range, format YYYYMMDD (e.g. \"20231231\"). Takes precedence over last_n."
+                  }
+                },
+                "required": [
+                  "series_code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

@@ -6873,6 +6873,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-596: INE (Instituto Nacional de Estadística, Spain, 4 tools) ---
+  - tool_id: ine.operations
+    name: INE Statistical Operations
+    provider: ine
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: ine.tables
+    name: INE Tables for an Operation
+    provider: ine
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: ine.series_metadata
+    name: INE Series Metadata
+    provider: ine
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: ine.series_data
+    name: INE Series Data
+    provider: ine
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

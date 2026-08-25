@@ -13489,4 +13489,55 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+
+  // --- UC-596: INE (Instituto Nacional de Estadística, Spain) — 4 tools ---
+  // Official Spanish national statistics API (servicios.ine.es/wstempus), no auth.
+  {
+    toolId: 'ine.operations',
+    mcpName: 'ine.reference.operations',
+    title: 'INE Statistical Operations',
+    description:
+      'Search or list Spanish INE (national statistics institute) statistical operations — ' +
+      'the top-level catalog of official series like IPC (Consumer Price Index), EPA (Labour ' +
+      'Force Survey), or population census. Filter by name/code with query, or omit to list ' +
+      'all ~110 available operations. Use the returned operation code with ine.tables. ' +
+      'Data: servicios.ine.es (INE Tempus3 API), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ine.tables',
+    mcpName: 'ine.reference.tables',
+    title: 'INE Tables for an Operation',
+    description:
+      'List the published data tables for a Spanish INE statistical operation (e.g. "IPC", ' +
+      '"EPA"), including periodicity, publication name, and start period. Use an operation_code ' +
+      'from ine.operations. Data: servicios.ine.es (INE Tempus3 API), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ine.series_metadata',
+    mcpName: 'ine.series.metadata',
+    title: 'INE Series Metadata',
+    description:
+      'Get metadata for a Spanish INE time series by its series_code — name, decimals, ' +
+      'periodicity (monthly/quarterly/annual), parent operation, and publication. ' +
+      'Data: servicios.ine.es (INE Tempus3 API), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ine.series_data',
+    mcpName: 'ine.series.data',
+    title: 'INE Series Data',
+    description:
+      'Get observation values for a Spanish INE time series by its series_code — e.g. IPC206449 ' +
+      'for the national CPI monthly change. Filter by last_n (most recent N observations, ' +
+      'default 10, max 100) or a start_date/end_date range (YYYYMMDD). Values include the ' +
+      'period label, year, and whether the observation is provisional or final. ' +
+      'Data: servicios.ine.es (INE Tempus3 API), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
 ];
