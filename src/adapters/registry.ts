@@ -325,6 +325,7 @@ import { IndecGeorefAdapter } from './indec-georef';
 import { EnviroatlasAdapter } from './enviroatlas';
 import { FederalRegisterAdapter } from './federalregister';
 import { EnsemblAdapter } from './ensembl';
+import { CveMitreAdapter } from './cve-mitre';
 import { config } from '../config';
 
 /**
@@ -1762,6 +1763,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'ensembl':
       // Ensembl REST API (UC-440) — gene lookup + genomic sequence retrieval; no auth
       return getOrCreate('ensembl', () => new EnsemblAdapter());
+    case 'cve-mitre':
+      // CVE Program Services API (UC-606) — canonical CNA-published CVE records + ID status; no auth
+      return getOrCreate('cve-mitre', () => new CveMitreAdapter());
     default:
       return undefined;
   }

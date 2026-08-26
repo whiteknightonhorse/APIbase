@@ -2915,5 +2915,14 @@
     "reset_period": "hourly",
     "docs_url": "https://rest.ensembl.org/documentation",
     "limit_proof": "No API key or registration required (EMBL-EBI / Wellcome Sanger Institute, Apache 2.0). Live response headers confirm: x-ratelimit-limit: 55000, x-ratelimit-period: 3600 (i.e. 55,000 req/hour)."
+  },
+  "cve-mitre": {
+    "display_name": "CVE Program (MITRE)",
+    "health_url": "https://cveawg.mitre.org/api/cve/CVE-2021-44228",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://cveproject.github.io/cve-schema/schema/docs/",
+    "limit_proof": "No API key or registration required (US Government sponsored, CVE Program / MITRE Corporation). Live response headers confirm ratelimit-policy: 25000;w=60 (25,000 requests per 60s rolling window) — no documented lower per-caller cap."
   }
 }

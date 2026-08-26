@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1150 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1152 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -54767,6 +54767,80 @@
         "required": [
           "species",
           "region"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "cve-mitre.cves.record",
+      "description": "Fetch the full canonical CVE record as published by the assigning CNA (CVE Numbering Authority) in CVE JSON 5.x format — title, description, affected vendor/product/version ranges, CVSS score/vector (if scored), CWE weakness types, and references. This is the authoritative source record; distinct from nvd.cves.detail, which serves NIST's downstream-enriched copy (added CPE configurations, NVD-analyst CVSS). Example: CVE-2021-44228 (Log4Shell). Data: cveawg.mitre.org (CVE Program, MITRE Corporation), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "cve_id": {
+            "type": "string",
+            "description": "CVE identifier, e.g. \"CVE-2021-44228\" (Log4Shell) or \"CVE-2024-3400\".",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "cve_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "cve-mitre.cves.id_status",
+      "description": "Check a CVE ID's current lifecycle state (RESERVED, PUBLISHED, or REJECTED) and which CNA owns/assigned it, even for IDs that have been reserved but have no published record yet. NVD has no equivalent — it only indexes published records. Data: cveawg.mitre.org (CVE Program, MITRE Corporation), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "cve_id": {
+            "type": "string",
+            "description": "CVE identifier to check, e.g. \"CVE-2021-44228\". Returns state (RESERVED/PUBLISHED/REJECTED) and the assigning CNA even for IDs with no published record yet.",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "cve_id"
         ]
       },
       "outputSchema": {

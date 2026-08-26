@@ -325,6 +325,7 @@ import { indecGeorefSchemas } from './indec-georef.schema';
 import { enviroatlasSchemas } from './enviroatlas.schema';
 import { federalRegisterSchemas } from './federalregister.schema';
 import { ensemblSchemas } from './ensembl.schema';
+import { cveMitreSchemas } from './cve-mitre.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -653,4 +654,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...enviroatlasSchemas,
   ...federalRegisterSchemas,
   ...ensemblSchemas,
+  ...cveMitreSchemas,
 };

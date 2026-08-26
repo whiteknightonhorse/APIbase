@@ -13923,4 +13923,31 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'health',
     annotations: READ_ONLY,
   },
+  // CVE Program / MITRE (2)
+  {
+    toolId: 'cve-mitre.record',
+    mcpName: 'cve-mitre.cves.record',
+    title: 'Get Canonical CVE Record',
+    description:
+      'Fetch the full canonical CVE record as published by the assigning CNA (CVE Numbering ' +
+      'Authority) in CVE JSON 5.x format — title, description, affected vendor/product/version ' +
+      'ranges, CVSS score/vector (if scored), CWE weakness types, and references. This is the ' +
+      "authoritative source record; distinct from nvd.cves.detail, which serves NIST's " +
+      'downstream-enriched copy (added CPE configurations, NVD-analyst CVSS). Example: ' +
+      'CVE-2021-44228 (Log4Shell). Data: cveawg.mitre.org (CVE Program, MITRE Corporation), no auth required.',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'cve-mitre.id_status',
+    mcpName: 'cve-mitre.cves.id_status',
+    title: 'Check CVE ID Reservation Status',
+    description:
+      "Check a CVE ID's current lifecycle state (RESERVED, PUBLISHED, or REJECTED) and which CNA " +
+      'owns/assigned it, even for IDs that have been reserved but have no published record yet. ' +
+      'NVD has no equivalent — it only indexes published records. Data: cveawg.mitre.org ' +
+      '(CVE Program, MITRE Corporation), no auth required.',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
 ];
