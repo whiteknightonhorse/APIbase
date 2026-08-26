@@ -106211,6 +106211,200 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/usgs-nationalmap.search_products/call": {
+      "post": {
+        "operationId": "usgs-nationalmap_search_products",
+        "summary": "Search USGS National Map Products",
+        "description": "Search the USGS The National Map product catalog within a bounding box for downloadable geospatial data — topographic maps, elevation/lidar, hydrography, imagery, boundaries, and structures. Optional keyword, dataset name, and file format filters. Returns title, format, file size, publication date, and direct download URL for each match. Data: tnmaccess.nationalmap.gov (USGS National Geospatial Program), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "usgs-nationalmap.search_products"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "min_lat": {
+                    "type": "number",
+                    "description": "Minimum (southern) latitude of the bounding box, in decimal degrees (e.g. 39.0).",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "min_lon": {
+                    "type": "number",
+                    "description": "Minimum (western) longitude of the bounding box, in decimal degrees (e.g. -105.0).",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  "max_lat": {
+                    "type": "number",
+                    "description": "Maximum (northern) latitude of the bounding box, in decimal degrees (e.g. 40.0).",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "max_lon": {
+                    "type": "number",
+                    "description": "Maximum (eastern) longitude of the bounding box, in decimal degrees (e.g. -104.0).",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  "keyword": {
+                    "type": "string",
+                    "description": "Free-text keyword to filter products by title/description (e.g. \"elevation\", \"lidar\")."
+                  },
+                  "datasets": {
+                    "type": "string",
+                    "description": "Dataset name to filter by, from usgs-nationalmap.list_datasets (e.g. \"US Topo\", \"National Elevation Dataset (NED) 1/3 arc-second\")."
+                  },
+                  "formats": {
+                    "type": "string",
+                    "description": "File format to filter by (e.g. \"GeoTIFF\", \"GeoPackage\", \"Shapefile\", \"LAS,LAZ\")."
+                  },
+                  "max": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of products to return, 1-50 (default 10)."
+                  }
+                },
+                "required": [
+                  "min_lat",
+                  "min_lon",
+                  "max_lat",
+                  "max_lon"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/usgs-nationalmap.list_datasets/call": {
+      "post": {
+        "operationId": "usgs-nationalmap_list_datasets",
+        "summary": "List USGS National Map Datasets",
+        "description": "List the geospatial dataset collections available from The National Map (e.g. US Topo, 3D Elevation Program, Hydrography, Imagery, National Structures), with category, refresh cycle, available formats, and info URL for each. Use dataset titles from this tool as the `datasets` filter for usgs-nationalmap.search_products. Data: tnmaccess.nationalmap.gov (USGS National Geospatial Program), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "usgs-nationalmap.list_datasets"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "category": {
+                    "type": "string",
+                    "description": "Filter by parent category, e.g. \"Map\" or \"Data\" (case-insensitive, exact match)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

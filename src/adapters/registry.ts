@@ -330,6 +330,7 @@ import { UsgsMrdsAdapter } from './usgs-mrds';
 import { PaleoclimateAdapter } from './paleoclimate';
 import { PlosSearchAdapter } from './plos-search';
 import { NsfAwardsAdapter } from './nsf-awards';
+import { UsgsNationalMapAdapter } from './usgs-nationalmap';
 import { config } from '../config';
 
 /**
@@ -1782,6 +1783,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'nsf-awards':
       // NSF Awards Search API (UC-610) — federal research grant search + detail; no auth
       return getOrCreate('nsf-awards', () => new NsfAwardsAdapter());
+    case 'usgs-nationalmap':
+      // USGS The National Map (TNM) Access API (UC-611) — geospatial product search + dataset catalog; no auth
+      return getOrCreate('usgs-nationalmap', () => new UsgsNationalMapAdapter());
     default:
       return undefined;
   }

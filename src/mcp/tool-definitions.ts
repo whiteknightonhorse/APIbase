@@ -14039,4 +14039,31 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'education',
     annotations: READ_ONLY,
   },
+  // USGS The National Map (TNM) Access API (2)
+  {
+    toolId: 'usgs-nationalmap.search_products',
+    mcpName: 'usgs-nationalmap.products.search',
+    title: 'Search USGS National Map Products',
+    description:
+      'Search the USGS The National Map product catalog within a bounding box for downloadable ' +
+      'geospatial data — topographic maps, elevation/lidar, hydrography, imagery, boundaries, and ' +
+      'structures. Optional keyword, dataset name, and file format filters. Returns title, format, ' +
+      'file size, publication date, and direct download URL for each match. Data: ' +
+      'tnmaccess.nationalmap.gov (USGS National Geospatial Program), no auth required.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'usgs-nationalmap.list_datasets',
+    mcpName: 'usgs-nationalmap.products.list_datasets',
+    title: 'List USGS National Map Datasets',
+    description:
+      'List the geospatial dataset collections available from The National Map (e.g. US Topo, ' +
+      '3D Elevation Program, Hydrography, Imagery, National Structures), with category, refresh ' +
+      'cycle, available formats, and info URL for each. Use dataset titles from this tool as the ' +
+      '`datasets` filter for usgs-nationalmap.search_products. Data: tnmaccess.nationalmap.gov ' +
+      '(USGS National Geospatial Program), no auth required.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
 ];

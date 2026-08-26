@@ -2960,5 +2960,14 @@
     "reset_period": "none",
     "docs_url": "https://www.research.gov/common/webapi/awardapisearch-v1.htm",
     "limit_proof": "No API key or registration required (US Government open data, National Science Foundation). No X-RateLimit headers or documented per-caller cap found in live responses."
+  },
+  "usgs-nationalmap": {
+    "display_name": "USGS The National Map (TNM) Access API",
+    "health_url": "https://tnmaccess.nationalmap.gov/api/v1/products?bbox=-105,39,-104,40&max=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://apps.nationalmap.gov/tnmaccess/",
+    "limit_proof": "No API key or registration required (US Government open data, USGS National Geospatial Program). No X-RateLimit headers or documented per-caller cap found in live responses."
   }
 }

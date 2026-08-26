@@ -7137,6 +7137,18 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  - tool_id: usgs-nationalmap.search_products
+    name: Search USGS National Map Products
+    provider: usgs-nationalmap
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: usgs-nationalmap.list_datasets
+    name: List USGS National Map Datasets
+    provider: usgs-nationalmap
+    price_usd: "0.001"
+    cache_ttl: 604800
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

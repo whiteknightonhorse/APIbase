@@ -330,6 +330,7 @@ import { usgsMrdsSchemas } from './usgs-mrds.schema';
 import { paleoclimateSchemas } from './paleoclimate.schema';
 import { plosSearchSchemas } from './plos-search.schema';
 import { nsfAwardsSchemas } from './nsf-awards.schema';
+import { usgsNationalMapSchemas } from './usgs-nationalmap.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -663,4 +664,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...paleoclimateSchemas,
   ...plosSearchSchemas,
   ...nsfAwardsSchemas,
+  ...usgsNationalMapSchemas,
 };
