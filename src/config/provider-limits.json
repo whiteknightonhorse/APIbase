@@ -2897,5 +2897,14 @@
     "reset_period": "none",
     "docs_url": "https://enviroatlas.epa.gov/arcgis/rest/services",
     "limit_proof": "US EPA public ArcGIS Server open-data REST services, no API key or registration. No documented per-caller rate limit; response headers show no X-RateLimit fields."
+  },
+  "federalregister": {
+    "display_name": "Federal Register API",
+    "health_url": "https://www.federalregister.gov/api/v1/documents.json?per_page=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.federalregister.gov/developers/documentation/api/v1",
+    "limit_proof": "GPO/NARA public open-data REST API, no API key or registration required. Live response headers show no X-RateLimit fields and no documented per-caller cap."
   }
 }

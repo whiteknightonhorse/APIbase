@@ -13850,4 +13850,52 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+  // ---------------------------------------------------------------------------
+  // Federal Register API (UC-605, 4 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'federalregister.search',
+    mcpName: 'federalregister.documents.search',
+    title: 'Search Federal Register Documents',
+    description:
+      'Search official US Federal Register documents (final rules, proposed rules, notices, ' +
+      'presidential documents) by full-text term, agency, document type, and publication date range. ' +
+      'Returns document number, title, abstract, type, agencies, and links. Data: federalregister.gov ' +
+      '(GPO/NARA), no auth required.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'federalregister.document',
+    mcpName: 'federalregister.documents.detail',
+    title: 'Get Federal Register Document Detail',
+    description:
+      'Get full detail for a single Federal Register document by its document number — abstract, ' +
+      'action, agencies, CFR references, docket IDs, effective date, comment deadline, citation, and ' +
+      'links to HTML/PDF/XML full text. Data: federalregister.gov (GPO/NARA), no auth required.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'federalregister.agencies',
+    mcpName: 'federalregister.agencies.search',
+    title: 'Search Federal Agencies',
+    description:
+      'Search or list US federal government agencies tracked by the Federal Register (name, short ' +
+      'name, slug, parent agency). Use the returned slug to filter federalregister.search by agency. ' +
+      'Data: federalregister.gov (GPO/NARA), no auth required.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'federalregister.public_inspection',
+    mcpName: 'federalregister.documents.public_inspection',
+    title: 'Get Upcoming Public Inspection Documents',
+    description:
+      'Get documents currently on public inspection at the Federal Register — filed but not yet ' +
+      'officially published, available ahead of their scheduled publication date. Optionally filter ' +
+      'by agency name. Data: federalregister.gov (GPO/NARA), no auth required.',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
 ];

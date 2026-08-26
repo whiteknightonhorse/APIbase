@@ -323,6 +323,7 @@ import { WikimediaCommonsAdapter } from './wikimedia-commons';
 import { StandardEbooksAdapter } from './standard-ebooks';
 import { IndecGeorefAdapter } from './indec-georef';
 import { EnviroatlasAdapter } from './enviroatlas';
+import { FederalRegisterAdapter } from './federalregister';
 import { config } from '../config';
 
 /**
@@ -1754,6 +1755,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'enviroatlas':
       // EPA EnviroAtlas ArcGIS REST API (UC-604) — community ecosystem-service metrics; no auth
       return getOrCreate('enviroatlas', () => new EnviroatlasAdapter());
+    case 'federalregister':
+      // Federal Register API (UC-605) — federal rules/notices/agencies/public inspection; no auth
+      return getOrCreate('federalregister', () => new FederalRegisterAdapter());
     default:
       return undefined;
   }

@@ -7047,6 +7047,30 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  - tool_id: federalregister.search
+    name: Search Federal Register Documents
+    provider: federalregister
+    price_usd: "0.001"
+    cache_ttl: 900
+
+  - tool_id: federalregister.document
+    name: Get Federal Register Document Detail
+    provider: federalregister
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: federalregister.agencies
+    name: Search Federal Agencies
+    provider: federalregister
+    price_usd: "0.001"
+    cache_ttl: 604800
+
+  - tool_id: federalregister.public_inspection
+    name: Get Upcoming Public Inspection Documents
+    provider: federalregister
+    price_usd: "0.001"
+    cache_ttl: 900
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform
