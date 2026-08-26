@@ -301,6 +301,9 @@ Use these examples as reference patterns when:
 | UC-603 | INDEC Georef (apis.datos.gob.ar/georef) | Argentine geographic reference — forward/reverse geocoding, province/department/locality search with centroid coordinates; Argentine Gov open data, no auth | LIVE | No auth, 5 tools | `usecases/UC-603-indec-georef.md` |
 | UC-604 | EPA EnviroAtlas (enviroatlas.epa.gov) | Community-scale ecosystem-service/environmental-health metrics for 32 EPA pilot communities — community list, block-group point-in-polygon metrics, community-wide summary aggregation; US Gov open data, no auth | LIVE | No auth, 3 tools | `usecases/UC-604-enviroatlas.md` |
 | UC-605 | Federal Register (www.federalregister.gov) | US federal rules/notices registry — full-text/parametric document search, single-document detail (CFR refs, docket IDs, effective/comment dates), agency search, upcoming public-inspection filings; US Gov public domain, no auth | LIVE | No auth, 4 tools | `usecases/UC-605-federalregister.md` |
+| UC-606 | CVE Program / MITRE (cveawg.mitre.org) | Canonical CNA-published CVE records — full CVE JSON 5.x detail (CVSS, CWE, affected versions, references), CVE ID reservation-state lookup (RESERVED/PUBLISHED/REJECTED); distinct from NVD's downstream-enriched copy, no auth | LIVE | No auth, 2 tools | `usecases/UC-606-cve-mitre.md` |
+| UC-607 | USGS Mineral Resources Data System (mrdata.usgs.gov) | Mineral deposits/mines/prospects search by geographic bounding box (WFS BBOX spatial filter) — deposit ID, site name, development status, commodity codes, coordinates; US Gov open data, no auth | LIVE | No auth, 1 tool | `usecases/UC-607-usgs-mrds.md` |
+| UC-609 | PLOS Search API (api.plos.org) | Open-access PLOS research corpus search — free-text/Solr field query with journal filter and sort, single-article detail by DOI; CC-BY content, no auth | LIVE | No auth, 2 tools | `usecases/UC-609-plos-search.md` |
 
 ## How to Use
 
