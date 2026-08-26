@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1157 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1159 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -55095,6 +55095,104 @@
         },
         "required": [
           "doi"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "nsf-awards.grants.search",
+      "description": "Search US National Science Foundation funded research awards by keyword, recipient institution name, US state, CFDA program number, and award date range. Returns award ID, title, awardee, principal investigator, dates, funding amount, program, and an abstract excerpt for each match. Data: api.nsf.gov (National Science Foundation), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "keyword": {
+            "type": "string",
+            "description": "Full-text search term matched against award title/abstract (e.g. \"climate\", \"quantum computing\")."
+          },
+          "awardeeName": {
+            "type": "string",
+            "description": "Filter by recipient institution name substring (e.g. \"Stanford\", \"MIT\")."
+          },
+          "awardeeStateCode": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "Filter by recipient institution US state code, 2 letters (e.g. \"CA\", \"NY\")."
+          },
+          "cfdaNumber": {
+            "type": "string",
+            "description": "Filter by CFDA program number (e.g. \"47.070\" for Computer and Information Science)."
+          },
+          "dateStart": {
+            "type": "string",
+            "description": "Only awards made on/after this date, format MM/DD/YYYY."
+          },
+          "dateEnd": {
+            "type": "string",
+            "description": "Only awards made on/before this date, format MM/DD/YYYY."
+          },
+          "rpp": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 25,
+            "description": "Results per page, 1-25 (default 10)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "nsf-awards.grants.detail",
+      "description": "Get full detail for a single NSF research award by award ID, including the complete abstract, principal investigator and co-PI contacts, program officer, directorate/division, funding by fiscal year, and award dates. Data: api.nsf.gov (National Science Foundation), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "NSF award ID, e.g. \"2617572\". Obtained from nsf-awards.search results.",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "id"
         ]
       },
       "outputSchema": {

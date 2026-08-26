@@ -7125,6 +7125,18 @@ tools:
     price_usd: "0.001"
     cache_ttl: 604800
 
+  - tool_id: nsf-awards.search
+    name: Search NSF Research Awards
+    provider: nsf-awards
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: nsf-awards.award_detail
+    name: Get NSF Award Detail
+    provider: nsf-awards
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

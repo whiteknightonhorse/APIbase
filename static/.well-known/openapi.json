@@ -106029,6 +106029,188 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/nsf-awards.search/call": {
+      "post": {
+        "operationId": "nsf-awards_search",
+        "summary": "Search NSF Research Awards",
+        "description": "Search US National Science Foundation funded research awards by keyword, recipient institution name, US state, CFDA program number, and award date range. Returns award ID, title, awardee, principal investigator, dates, funding amount, program, and an abstract excerpt for each match. Data: api.nsf.gov (National Science Foundation), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nsf-awards.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "keyword": {
+                    "type": "string",
+                    "description": "Full-text search term matched against award title/abstract (e.g. \"climate\", \"quantum computing\")."
+                  },
+                  "awardeeName": {
+                    "type": "string",
+                    "description": "Filter by recipient institution name substring (e.g. \"Stanford\", \"MIT\")."
+                  },
+                  "awardeeStateCode": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2,
+                    "description": "Filter by recipient institution US state code, 2 letters (e.g. \"CA\", \"NY\")."
+                  },
+                  "cfdaNumber": {
+                    "type": "string",
+                    "description": "Filter by CFDA program number (e.g. \"47.070\" for Computer and Information Science)."
+                  },
+                  "dateStart": {
+                    "type": "string",
+                    "description": "Only awards made on/after this date, format MM/DD/YYYY."
+                  },
+                  "dateEnd": {
+                    "type": "string",
+                    "description": "Only awards made on/before this date, format MM/DD/YYYY."
+                  },
+                  "rpp": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 25,
+                    "description": "Results per page, 1-25 (default 10)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/nsf-awards.award_detail/call": {
+      "post": {
+        "operationId": "nsf-awards_award_detail",
+        "summary": "Get NSF Award Detail",
+        "description": "Get full detail for a single NSF research award by award ID, including the complete abstract, principal investigator and co-PI contacts, program officer, directorate/division, funding by fiscal year, and award dates. Data: api.nsf.gov (National Science Foundation), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nsf-awards.award_detail"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "NSF award ID, e.g. \"2617572\". Obtained from nsf-awards.search results.",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

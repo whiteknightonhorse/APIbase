@@ -329,6 +329,7 @@ import { CveMitreAdapter } from './cve-mitre';
 import { UsgsMrdsAdapter } from './usgs-mrds';
 import { PaleoclimateAdapter } from './paleoclimate';
 import { PlosSearchAdapter } from './plos-search';
+import { NsfAwardsAdapter } from './nsf-awards';
 import { config } from '../config';
 
 /**
@@ -1778,6 +1779,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'plos-search':
       // PLOS Search API (UC-609) — open-access article search + detail; no auth
       return getOrCreate('plos-search', () => new PlosSearchAdapter());
+    case 'nsf-awards':
+      // NSF Awards Search API (UC-610) — federal research grant search + detail; no auth
+      return getOrCreate('nsf-awards', () => new NsfAwardsAdapter());
     default:
       return undefined;
   }

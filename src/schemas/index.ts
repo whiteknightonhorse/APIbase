@@ -329,6 +329,7 @@ import { cveMitreSchemas } from './cve-mitre.schema';
 import { usgsMrdsSchemas } from './usgs-mrds.schema';
 import { paleoclimateSchemas } from './paleoclimate.schema';
 import { plosSearchSchemas } from './plos-search.schema';
+import { nsfAwardsSchemas } from './nsf-awards.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -661,4 +662,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...usgsMrdsSchemas,
   ...paleoclimateSchemas,
   ...plosSearchSchemas,
+  ...nsfAwardsSchemas,
 };

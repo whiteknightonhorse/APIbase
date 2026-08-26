@@ -14014,4 +14014,29 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'education',
     annotations: READ_ONLY,
   },
+  // NSF Awards Search API (2)
+  {
+    toolId: 'nsf-awards.search',
+    mcpName: 'nsf-awards.grants.search',
+    title: 'Search NSF Research Awards',
+    description:
+      'Search US National Science Foundation funded research awards by keyword, recipient ' +
+      'institution name, US state, CFDA program number, and award date range. Returns award ID, ' +
+      'title, awardee, principal investigator, dates, funding amount, program, and an abstract ' +
+      'excerpt for each match. Data: api.nsf.gov (National Science Foundation), no auth required.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nsf-awards.award_detail',
+    mcpName: 'nsf-awards.grants.detail',
+    title: 'Get NSF Award Detail',
+    description:
+      'Get full detail for a single NSF research award by award ID, including the complete ' +
+      'abstract, principal investigator and co-PI contacts, program officer, directorate/division, ' +
+      'funding by fiscal year, and award dates. Data: api.nsf.gov (National Science Foundation), no ' +
+      'auth required.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
 ];
