@@ -327,6 +327,7 @@ import { FederalRegisterAdapter } from './federalregister';
 import { EnsemblAdapter } from './ensembl';
 import { CveMitreAdapter } from './cve-mitre';
 import { UsgsMrdsAdapter } from './usgs-mrds';
+import { PaleoclimateAdapter } from './paleoclimate';
 import { config } from '../config';
 
 /**
@@ -1770,6 +1771,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'usgs-mrds':
       // USGS Mineral Resources Data System (UC-607) — mineral deposit search by bounding box; no auth
       return getOrCreate('usgs-mrds', () => new UsgsMrdsAdapter());
+    case 'paleoclimate':
+      // NOAA NCEI Paleoclimatology (UC-608) — study search + detail; no auth
+      return getOrCreate('paleoclimate', () => new PaleoclimateAdapter());
     default:
       return undefined;
   }

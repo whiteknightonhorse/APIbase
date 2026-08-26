@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1153 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1155 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -54906,6 +54906,87 @@
           "min_lon",
           "max_lat",
           "max_lon"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "paleoclimate.study.search",
+      "description": "Search NOAA NCEI Paleoclimatology studies by free text, continent/region, and/or record type (ice cores, tree rings, corals, climate reconstructions, paleoceanography, and more). Returns study ID, name, DOI, investigators, year range, and site locations — useful for finding historical climate reconstructions and proxy records. Data: www.ncei.noaa.gov/access/paleo-search (NOAA National Centers for Environmental Information), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "searchText": {
+            "type": "string",
+            "description": "Free-text search across study title, investigators, and keywords (e.g. \"temperature\", \"El Nino\", \"tree ring\"). Provide this and/or locations/dataTypeId to narrow the search."
+          },
+          "locations": {
+            "type": "string",
+            "description": "Continent or region name to filter by (e.g. \"Antarctica\", \"North America\", \"Europe\", \"Africa\")."
+          },
+          "dataTypeId": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "Numeric paleo record type filter. Known values: 1=Ice Cores, 2/3/7/16=Climate Reconstructions, 4=Corals And Sclerosponges, 5=Fauna, 6=Historical, 8/9/12/13=Paleolimnology, 10=Loess And Paleosol, 11=Climate Forcing, 14=Paleoceanography, 15=Plant Macrofossils."
+          }
+        },
+        "description": "Provide at least one of searchText, locations, or dataTypeId. Broad or unfiltered searches may fail with a response-too-large error — combine filters (e.g. searchText + locations) to narrow results."
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "paleoclimate.study.detail",
+      "description": "Get full detail for a single NOAA NCEI Paleoclimatology study by NOAA Study ID, including investigators, publications, site coordinates, and per-site data tables with direct download links to the underlying proxy data files. Data: www.ncei.noaa.gov/access/paleo-search (NOAA National Centers for Environmental Information), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "NOAAStudyId": {
+            "type": "string",
+            "description": "NOAA Study ID (e.g. \"10437\"), obtained from paleoclimate.study_search results (noaa_study_id field).",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "NOAAStudyId"
         ]
       },
       "outputSchema": {

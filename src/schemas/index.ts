@@ -327,6 +327,7 @@ import { federalRegisterSchemas } from './federalregister.schema';
 import { ensemblSchemas } from './ensembl.schema';
 import { cveMitreSchemas } from './cve-mitre.schema';
 import { usgsMrdsSchemas } from './usgs-mrds.schema';
+import { paleoclimateSchemas } from './paleoclimate.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -657,4 +658,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...ensemblSchemas,
   ...cveMitreSchemas,
   ...usgsMrdsSchemas,
+  ...paleoclimateSchemas,
 };

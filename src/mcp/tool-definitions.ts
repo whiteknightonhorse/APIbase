@@ -13964,4 +13964,30 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+  // NOAA NCEI Paleoclimatology (2)
+  {
+    toolId: 'paleoclimate.study_search',
+    mcpName: 'paleoclimate.study.search',
+    title: 'Search Paleoclimate Studies',
+    description:
+      'Search NOAA NCEI Paleoclimatology studies by free text, continent/region, and/or record type ' +
+      '(ice cores, tree rings, corals, climate reconstructions, paleoceanography, and more). Returns ' +
+      'study ID, name, DOI, investigators, year range, and site locations — useful for finding ' +
+      'historical climate reconstructions and proxy records. Data: www.ncei.noaa.gov/access/paleo-search ' +
+      '(NOAA National Centers for Environmental Information), no auth required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'paleoclimate.study_detail',
+    mcpName: 'paleoclimate.study.detail',
+    title: 'Get Paleoclimate Study Detail',
+    description:
+      'Get full detail for a single NOAA NCEI Paleoclimatology study by NOAA Study ID, including ' +
+      'investigators, publications, site coordinates, and per-site data tables with direct download ' +
+      'links to the underlying proxy data files. Data: www.ncei.noaa.gov/access/paleo-search ' +
+      '(NOAA National Centers for Environmental Information), no auth required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
 ];
