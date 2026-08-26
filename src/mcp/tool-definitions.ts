@@ -14066,4 +14066,45 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'location',
     annotations: READ_ONLY,
   },
+  // SEC EDGAR company facts API (3)
+  {
+    toolId: 'sec-edgar.company_lookup',
+    mcpName: 'sec-edgar.company.lookup',
+    title: 'Look Up SEC-Registered Company',
+    description:
+      'Resolve a stock ticker symbol (exact match) or company name substring to a SEC Central ' +
+      'Index Key (CIK) — the identifier required by all other sec-edgar tools. Returns matching ' +
+      'company name, ticker, and CIK. Data: www.sec.gov (US Securities and Exchange Commission ' +
+      'EDGAR system), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'sec-edgar.filings',
+    mcpName: 'sec-edgar.filings.list',
+    title: 'Get SEC Company Filings',
+    description:
+      "Get a company's recent SEC filings (10-K annual reports, 10-Q quarterly reports, 8-K " +
+      'current reports, proxy statements, insider transaction forms, etc.) plus basic entity ' +
+      'profile — legal name, SIC industry classification, exchanges, fiscal year end. Optional ' +
+      'filter by form type. Each filing includes filing date, accession number, and a direct ' +
+      'document URL. Requires a CIK from sec-edgar.company_lookup. Data: data.sec.gov (US ' +
+      'Securities and Exchange Commission EDGAR system), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'sec-edgar.financial_concept',
+    mcpName: 'sec-edgar.financials.concept',
+    title: 'Get SEC XBRL Financial Concept',
+    description:
+      'Get the historical time series for a single standardized XBRL financial concept ' +
+      '(e.g. Assets, Liabilities, Revenues, NetIncomeLoss, StockholdersEquity) as reported by a ' +
+      'company across its SEC filings — one value per fiscal period with the filing it came from. ' +
+      'Sourced directly from structured XBRL data extracted from 10-K/10-Q filings, not free text. ' +
+      'Requires a CIK from sec-edgar.company_lookup. Data: data.sec.gov (US Securities and Exchange ' +
+      'Commission EDGAR system), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
 ];

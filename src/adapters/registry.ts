@@ -331,6 +331,7 @@ import { PaleoclimateAdapter } from './paleoclimate';
 import { PlosSearchAdapter } from './plos-search';
 import { NsfAwardsAdapter } from './nsf-awards';
 import { UsgsNationalMapAdapter } from './usgs-nationalmap';
+import { SecEdgarAdapter } from './sec-edgar';
 import { config } from '../config';
 
 /**
@@ -1786,6 +1787,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'usgs-nationalmap':
       // USGS The National Map (TNM) Access API (UC-611) — geospatial product search + dataset catalog; no auth
       return getOrCreate('usgs-nationalmap', () => new UsgsNationalMapAdapter());
+    case 'sec-edgar':
+      // SEC EDGAR company facts API (UC-612) — ticker/CIK lookup, filings, XBRL financial concepts; no auth
+      return getOrCreate('sec-edgar', () => new SecEdgarAdapter());
     default:
       return undefined;
   }

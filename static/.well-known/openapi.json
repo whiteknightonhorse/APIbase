@@ -106405,6 +106405,283 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/sec-edgar.company_lookup/call": {
+      "post": {
+        "operationId": "sec-edgar_company_lookup",
+        "summary": "Look Up SEC-Registered Company",
+        "description": "Resolve a stock ticker symbol (exact match) or company name substring to a SEC Central Index Key (CIK) — the identifier required by all other sec-edgar tools. Returns matching company name, ticker, and CIK. Data: www.sec.gov (US Securities and Exchange Commission EDGAR system), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "sec-edgar.company_lookup"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Ticker symbol (exact match, e.g. \"AAPL\") or company name substring (e.g. \"Apple\") to search for.",
+                    "minLength": 1
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 25,
+                    "description": "Maximum number of matching companies to return, 1-25 (default 10)."
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/sec-edgar.filings/call": {
+      "post": {
+        "operationId": "sec-edgar_filings",
+        "summary": "Get SEC Company Filings",
+        "description": "Get a company's recent SEC filings (10-K annual reports, 10-Q quarterly reports, 8-K current reports, proxy statements, insider transaction forms, etc.) plus basic entity profile — legal name, SIC industry classification, exchanges, fiscal year end. Optional filter by form type. Each filing includes filing date, accession number, and a direct document URL. Requires a CIK from sec-edgar.company_lookup. Data: data.sec.gov (US Securities and Exchange Commission EDGAR system), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "sec-edgar.filings"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cik": {
+                    "type": "string",
+                    "description": "SEC Central Index Key for the company, e.g. \"320193\" or \"0000320193\". Obtained from sec-edgar.company_lookup.",
+                    "minLength": 1
+                  },
+                  "form_type": {
+                    "type": "string",
+                    "description": "Filter by SEC form type, e.g. \"10-K\", \"10-Q\", \"8-K\", \"4\" (case-insensitive)."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of filings to return, 1-50 (default 10, most recent first)."
+                  }
+                },
+                "required": [
+                  "cik"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/sec-edgar.financial_concept/call": {
+      "post": {
+        "operationId": "sec-edgar_financial_concept",
+        "summary": "Get SEC XBRL Financial Concept",
+        "description": "Get the historical time series for a single standardized XBRL financial concept (e.g. Assets, Liabilities, Revenues, NetIncomeLoss, StockholdersEquity) as reported by a company across its SEC filings — one value per fiscal period with the filing it came from. Sourced directly from structured XBRL data extracted from 10-K/10-Q filings, not free text. Requires a CIK from sec-edgar.company_lookup. Data: data.sec.gov (US Securities and Exchange Commission EDGAR system), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "sec-edgar.financial_concept"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cik": {
+                    "type": "string",
+                    "description": "SEC Central Index Key for the company, e.g. \"320193\" or \"0000320193\". Obtained from sec-edgar.company_lookup.",
+                    "minLength": 1
+                  },
+                  "tag": {
+                    "type": "string",
+                    "description": "XBRL concept tag name, e.g. \"Assets\", \"Liabilities\", \"Revenues\", \"NetIncomeLoss\", \"StockholdersEquity\", \"CashAndCashEquivalentsAtCarryingValue\", \"EarningsPerShareBasic\".",
+                    "minLength": 1
+                  },
+                  "taxonomy": {
+                    "type": "string",
+                    "enum": [
+                      "us-gaap",
+                      "dei"
+                    ],
+                    "description": "XBRL taxonomy the tag belongs to — \"us-gaap\" for financial statement concepts (default), \"dei\" for document/entity metadata like EntityCommonStockSharesOutstanding."
+                  },
+                  "unit": {
+                    "type": "string",
+                    "description": "Unit of measure to filter by, e.g. \"USD\" or \"shares\" (default: USD if available)."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of reported values to return, 1-100 (default 20, most recent first)."
+                  }
+                },
+                "required": [
+                  "cik",
+                  "tag"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {
