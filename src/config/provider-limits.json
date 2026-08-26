@@ -2879,5 +2879,14 @@
     "reset_period": "none",
     "docs_url": "https://standardebooks.org/feeds",
     "limit_proof": "Free public OPDS/Atom feeds, no API key or registration. No documented rate limit for the search-with-query and new-releases feeds (the full-catalog and per-author feeds require Patrons Circle Basic Auth and are not used here)."
+  },
+  "indec-georef": {
+    "display_name": "INDEC Georef",
+    "health_url": "https://apis.datos.gob.ar/georef/api/provincias?max=1",
+    "limit_type": "daily",
+    "free_limit": 3000000,
+    "reset_period": "daily",
+    "docs_url": "https://apis.datos.gob.ar/georef/api",
+    "limit_proof": "Argentine government open-data geocoding API, no API key. Live response headers confirm quota: X-RateLimit-Limit-Day: 3000000, X-RateLimit-Limit-Hour: 154000, X-RateLimit-Limit-Minute: 6000, X-RateLimit-Limit-Second: 200."
   }
 }

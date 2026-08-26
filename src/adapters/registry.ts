@@ -321,6 +321,7 @@ import { CrossrefAdapter } from './crossref';
 import { UnpaywallAdapter } from './unpaywall';
 import { WikimediaCommonsAdapter } from './wikimedia-commons';
 import { StandardEbooksAdapter } from './standard-ebooks';
+import { IndecGeorefAdapter } from './indec-georef';
 import { config } from '../config';
 
 /**
@@ -1746,6 +1747,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'standard-ebooks':
       // Standard Ebooks OPDS feeds (UC-600) — search + new releases; no auth
       return getOrCreate('standard-ebooks', () => new StandardEbooksAdapter());
+    case 'indec-georef':
+      // INDEC Georef API (UC-603) — Argentina geocoding + admin division search; no auth
+      return getOrCreate('indec-georef', () => new IndecGeorefAdapter());
     default:
       return undefined;
   }

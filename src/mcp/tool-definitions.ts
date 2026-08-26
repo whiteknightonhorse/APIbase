@@ -13753,4 +13753,63 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'education',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // INDEC Georef — Argentina Geographic Reference (UC-603, 5 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'indec-georef.geocode',
+    mcpName: 'indec-georef.location.geocode',
+    title: 'Geocode Argentine Address',
+    description:
+      'Forward geocode an Argentine street address (e.g. "Av Corrientes 1000") to matching ' +
+      'locations with lat/lon coordinates, street name/number, province, department, and locality. ' +
+      'Returns multiple candidates when the address matches more than one place nationwide. Data: ' +
+      'apis.datos.gob.ar/georef (INDEC — Instituto Nacional de Estadística y Censos), no auth required.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'indec-georef.reverse_geocode',
+    mcpName: 'indec-georef.location.reverse_geocode',
+    title: 'Reverse Geocode Argentine Coordinates',
+    description:
+      'Reverse geocode a lat/lon coordinate pair within Argentina to its administrative location — ' +
+      'province, department, and municipality. Data: apis.datos.gob.ar/georef (INDEC), no auth required.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'indec-georef.provincias',
+    mcpName: 'indec-georef.admin.provinces',
+    title: 'List Argentine Provinces',
+    description:
+      "List or search Argentina's 24 provinces (incl. Ciudad Autónoma de Buenos Aires) by name. " +
+      'Returns id, name, and centroid coordinates for each. Data: apis.datos.gob.ar/georef (INDEC), ' +
+      'no auth required.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'indec-georef.departamentos',
+    mcpName: 'indec-georef.admin.departments',
+    title: 'Search Argentine Departments',
+    description:
+      "Search Argentina's second-level administrative divisions (departments/partidos) by name, " +
+      'optionally scoped to a province. Returns id, name, parent province, and centroid coordinates. ' +
+      'Data: apis.datos.gob.ar/georef (INDEC), no auth required.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'indec-georef.localidades',
+    mcpName: 'indec-georef.admin.localities',
+    title: 'Search Argentine Localities',
+    description:
+      'Search Argentine localities (cities/towns) by name, optionally scoped to a province. Returns ' +
+      'id, name, category, parent province/department/municipality, and centroid coordinates. Data: ' +
+      'apis.datos.gob.ar/georef (INDEC), no auth required.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
 ];

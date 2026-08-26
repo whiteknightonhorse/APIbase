@@ -6999,6 +6999,36 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  - tool_id: indec-georef.geocode
+    name: Geocode Argentine Address
+    provider: indec-georef
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: indec-georef.reverse_geocode
+    name: Reverse Geocode Argentine Coordinates
+    provider: indec-georef
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: indec-georef.provincias
+    name: List Argentine Provinces
+    provider: indec-georef
+    price_usd: "0.001"
+    cache_ttl: 604800
+
+  - tool_id: indec-georef.departamentos
+    name: Search Argentine Departments
+    provider: indec-georef
+    price_usd: "0.001"
+    cache_ttl: 604800
+
+  - tool_id: indec-georef.localidades
+    name: Search Argentine Localities
+    provider: indec-georef
+    price_usd: "0.001"
+    cache_ttl: 604800
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

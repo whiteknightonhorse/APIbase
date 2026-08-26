@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1136 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1141 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -54154,6 +54154,223 @@
             "description": "Max number of recent releases to return (default 15, max 15 — feed size is fixed)."
           }
         }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "indec-georef.location.geocode",
+      "description": "Forward geocode an Argentine street address (e.g. \"Av Corrientes 1000\") to matching locations with lat/lon coordinates, street name/number, province, department, and locality. Returns multiple candidates when the address matches more than one place nationwide. Data: apis.datos.gob.ar/georef (INDEC — Instituto Nacional de Estadística y Censos), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": "string",
+            "description": "Argentine street address to geocode, street name + house number (e.g. \"Av Corrientes 1000\"). Returns matching addresses with lat/lon and administrative location.",
+            "minLength": 1
+          },
+          "max": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Maximum number of address matches to return (1-50, default 10)."
+          }
+        },
+        "required": [
+          "address"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "indec-georef.location.reverse_geocode",
+      "description": "Reverse geocode a lat/lon coordinate pair within Argentina to its administrative location — province, department, and municipality. Data: apis.datos.gob.ar/georef (INDEC), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number",
+            "description": "Latitude in decimal degrees (e.g. -34.6).",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "lon": {
+            "type": "number",
+            "description": "Longitude in decimal degrees (e.g. -58.45).",
+            "minimum": -180,
+            "maximum": 180
+          }
+        },
+        "required": [
+          "lat",
+          "lon"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "indec-georef.admin.provinces",
+      "description": "List or search Argentina's 24 provinces (incl. Ciudad Autónoma de Buenos Aires) by name. Returns id, name, and centroid coordinates for each. Data: apis.datos.gob.ar/georef (INDEC), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Filter provinces by name substring, case-insensitive (e.g. \"buenos\" for Buenos Aires). Omit to list all 24 provinces (incl. CABA)."
+          },
+          "max": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Maximum number of provinces to return (1-50, default 10)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "indec-georef.admin.departments",
+      "description": "Search Argentina's second-level administrative divisions (departments/partidos) by name, optionally scoped to a province. Returns id, name, parent province, and centroid coordinates. Data: apis.datos.gob.ar/georef (INDEC), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Filter departments by name substring, case-insensitive (e.g. \"capital\")."
+          },
+          "provincia": {
+            "type": "string",
+            "description": "Restrict results to a province, by name or id (e.g. \"Córdoba\" or \"14\")."
+          },
+          "max": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Maximum number of departments to return (1-50, default 10)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "indec-georef.admin.localities",
+      "description": "Search Argentine localities (cities/towns) by name, optionally scoped to a province. Returns id, name, category, parent province/department/municipality, and centroid coordinates. Data: apis.datos.gob.ar/georef (INDEC), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Locality (city/town) name to search for, case-insensitive (e.g. \"Palermo\").",
+            "minLength": 1
+          },
+          "provincia": {
+            "type": "string",
+            "description": "Restrict results to a province, by name or id (e.g. \"Santa Fe\" or \"82\")."
+          },
+          "max": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Maximum number of localities to return (1-50, default 10)."
+          }
+        },
+        "required": [
+          "query"
+        ]
       },
       "outputSchema": {
         "type": "object",
