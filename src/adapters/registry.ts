@@ -326,6 +326,7 @@ import { EnviroatlasAdapter } from './enviroatlas';
 import { FederalRegisterAdapter } from './federalregister';
 import { EnsemblAdapter } from './ensembl';
 import { CveMitreAdapter } from './cve-mitre';
+import { UsgsMrdsAdapter } from './usgs-mrds';
 import { config } from '../config';
 
 /**
@@ -1766,6 +1767,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'cve-mitre':
       // CVE Program Services API (UC-606) — canonical CNA-published CVE records + ID status; no auth
       return getOrCreate('cve-mitre', () => new CveMitreAdapter());
+    case 'usgs-mrds':
+      // USGS Mineral Resources Data System (UC-607) — mineral deposit search by bounding box; no auth
+      return getOrCreate('usgs-mrds', () => new UsgsMrdsAdapter());
     default:
       return undefined;
   }

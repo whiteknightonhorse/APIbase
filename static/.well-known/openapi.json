@@ -105565,6 +105565,113 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/usgs-mrds.search_by_area/call": {
+      "post": {
+        "operationId": "usgs-mrds_search_by_area",
+        "summary": "Search Mineral Deposits By Area",
+        "description": "Search the USGS Mineral Resources Data System (MRDS) for mineral deposits, mines, and prospects within a geographic bounding box (min/max latitude and longitude). Returns deposit ID, site name, development status, commodity codes, and precise coordinates — useful for regional mineral exploration and mapping. Data: mrdata.usgs.gov (USGS Mineral Resources Program), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "usgs-mrds.search_by_area"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "min_lat": {
+                    "type": "number",
+                    "description": "Southern boundary latitude in decimal degrees.",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "min_lon": {
+                    "type": "number",
+                    "description": "Western boundary longitude in decimal degrees.",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  "max_lat": {
+                    "type": "number",
+                    "description": "Northern boundary latitude in decimal degrees.",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "max_lon": {
+                    "type": "number",
+                    "description": "Eastern boundary longitude in decimal degrees.",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of deposits to return (default 20, max 100)."
+                  }
+                },
+                "required": [
+                  "min_lat",
+                  "min_lon",
+                  "max_lat",
+                  "max_lon"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

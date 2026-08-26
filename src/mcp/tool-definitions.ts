@@ -13950,4 +13950,18 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'developer',
     annotations: READ_ONLY,
   },
+  // USGS Mineral Resources Data System (1)
+  {
+    toolId: 'usgs-mrds.search_by_area',
+    mcpName: 'usgs-mrds.deposits.search_by_area',
+    title: 'Search Mineral Deposits By Area',
+    description:
+      'Search the USGS Mineral Resources Data System (MRDS) for mineral deposits, mines, and ' +
+      'prospects within a geographic bounding box (min/max latitude and longitude). Returns deposit ' +
+      'ID, site name, development status, commodity codes, and precise coordinates — useful for ' +
+      'regional mineral exploration and mapping. Data: mrdata.usgs.gov (USGS Mineral Resources ' +
+      'Program), no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

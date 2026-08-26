@@ -7095,6 +7095,12 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  - tool_id: usgs-mrds.search_by_area
+    name: Search Mineral Deposits By Area
+    provider: usgs-mrds
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform
