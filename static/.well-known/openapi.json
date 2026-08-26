@@ -105232,6 +105232,181 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/ensembl.gene_lookup/call": {
+      "post": {
+        "operationId": "ensembl_gene_lookup",
+        "summary": "Look Up Gene by Symbol",
+        "description": "Look up a gene by symbol (e.g. \"BRCA1\", \"TP53\") in any of 300+ vertebrate and non-vertebrate species. Returns Ensembl gene ID, genomic coordinates, biotype, description, and (optionally) the full list of transcripts with their coordinates. Data: rest.ensembl.org (EMBL-EBI / Wellcome Sanger Institute), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ensembl.gene_lookup"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "species": {
+                    "type": "string",
+                    "description": "Species name in Ensembl format — scientific snake_case (e.g. \"homo_sapiens\", \"mus_musculus\") or common alias (e.g. \"human\", \"mouse\")",
+                    "minLength": 1
+                  },
+                  "symbol": {
+                    "type": "string",
+                    "description": "Gene symbol to look up (e.g. \"BRCA1\", \"TP53\", \"EGFR\")",
+                    "minLength": 1
+                  },
+                  "expand": {
+                    "type": "boolean",
+                    "description": "Include the list of transcripts for this gene in the response. Default: true",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "species",
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ensembl.sequence_region/call": {
+      "post": {
+        "operationId": "ensembl_sequence_region",
+        "summary": "Get Genomic Sequence for Region",
+        "description": "Retrieve the raw DNA sequence for a genomic region (e.g. \"17:7668402-7687550\" on GRCh38). Returns the nucleotide sequence, molecule type, and sequence length. Useful for primer design, variant context, and comparative sequence analysis. Data: rest.ensembl.org (EMBL-EBI / Wellcome Sanger Institute), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ensembl.sequence_region"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "species": {
+                    "type": "string",
+                    "description": "Species name in Ensembl format — scientific snake_case (e.g. \"homo_sapiens\") or common alias (e.g. \"human\", \"mouse\")",
+                    "minLength": 1
+                  },
+                  "region": {
+                    "type": "string",
+                    "description": "Genomic region in \"chromosome:start-end\" format, GRCh38 coordinates (e.g. \"X:1000000-1000100\", \"17:7668402-7687550\" for TP53)",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "species",
+                  "region"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

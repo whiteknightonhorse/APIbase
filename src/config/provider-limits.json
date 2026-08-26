@@ -2906,5 +2906,14 @@
     "reset_period": "none",
     "docs_url": "https://www.federalregister.gov/developers/documentation/api/v1",
     "limit_proof": "GPO/NARA public open-data REST API, no API key or registration required. Live response headers show no X-RateLimit fields and no documented per-caller cap."
+  },
+  "ensembl": {
+    "display_name": "Ensembl REST API",
+    "health_url": "https://rest.ensembl.org/info/ping?content-type=application/json",
+    "limit_type": "hourly",
+    "free_limit": 55000,
+    "reset_period": "hourly",
+    "docs_url": "https://rest.ensembl.org/documentation",
+    "limit_proof": "No API key or registration required (EMBL-EBI / Wellcome Sanger Institute, Apache 2.0). Live response headers confirm: x-ratelimit-limit: 55000, x-ratelimit-period: 3600 (i.e. 55,000 req/hour)."
   }
 }

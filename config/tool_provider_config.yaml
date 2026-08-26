@@ -7071,6 +7071,18 @@ tools:
     price_usd: "0.001"
     cache_ttl: 900
 
+  - tool_id: ensembl.gene_lookup
+    name: Look Up Gene by Symbol
+    provider: ensembl
+    price_usd: "0.002"
+    cache_ttl: 604800
+
+  - tool_id: ensembl.sequence_region
+    name: Get Genomic Sequence for Region
+    provider: ensembl
+    price_usd: "0.001"
+    cache_ttl: 604800
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

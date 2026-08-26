@@ -324,6 +324,7 @@ import { StandardEbooksAdapter } from './standard-ebooks';
 import { IndecGeorefAdapter } from './indec-georef';
 import { EnviroatlasAdapter } from './enviroatlas';
 import { FederalRegisterAdapter } from './federalregister';
+import { EnsemblAdapter } from './ensembl';
 import { config } from '../config';
 
 /**
@@ -1758,6 +1759,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'federalregister':
       // Federal Register API (UC-605) — federal rules/notices/agencies/public inspection; no auth
       return getOrCreate('federalregister', () => new FederalRegisterAdapter());
+    case 'ensembl':
+      // Ensembl REST API (UC-440) — gene lookup + genomic sequence retrieval; no auth
+      return getOrCreate('ensembl', () => new EnsemblAdapter());
     default:
       return undefined;
   }

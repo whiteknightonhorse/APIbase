@@ -13898,4 +13898,29 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'legal',
     annotations: READ_ONLY,
   },
+  // Ensembl (2)
+  {
+    toolId: 'ensembl.gene_lookup',
+    mcpName: 'science.ensembl.gene_lookup',
+    title: 'Look Up Gene by Symbol',
+    description:
+      'Look up a gene by symbol (e.g. "BRCA1", "TP53") in any of 300+ vertebrate and non-vertebrate ' +
+      'species. Returns Ensembl gene ID, genomic coordinates, biotype, description, and (optionally) ' +
+      'the full list of transcripts with their coordinates. Data: rest.ensembl.org (EMBL-EBI / ' +
+      'Wellcome Sanger Institute), no auth required.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ensembl.sequence_region',
+    mcpName: 'science.ensembl.sequence_region',
+    title: 'Get Genomic Sequence for Region',
+    description:
+      'Retrieve the raw DNA sequence for a genomic region (e.g. "17:7668402-7687550" on GRCh38). ' +
+      'Returns the nucleotide sequence, molecule type, and sequence length. Useful for primer design, ' +
+      'variant context, and comparative sequence analysis. Data: rest.ensembl.org (EMBL-EBI / ' +
+      'Wellcome Sanger Institute), no auth required.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
 ];
