@@ -7029,6 +7029,24 @@ tools:
     price_usd: "0.001"
     cache_ttl: 604800
 
+  - tool_id: enviroatlas.communities
+    name: List EnviroAtlas Pilot Communities
+    provider: enviroatlas
+    price_usd: "0.001"
+    cache_ttl: 604800
+
+  - tool_id: enviroatlas.block_group_metrics
+    name: Get Block-Group Ecosystem-Service Metrics
+    provider: enviroatlas
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: enviroatlas.community_summary
+    name: Get Community Ecosystem-Service Summary
+    provider: enviroatlas
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

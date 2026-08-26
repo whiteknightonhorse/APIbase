@@ -104632,6 +104632,247 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/enviroatlas.communities/call": {
+      "post": {
+        "operationId": "enviroatlas_communities",
+        "summary": "List EnviroAtlas Pilot Communities",
+        "description": "List or search the 32 US communities covered by EPA EnviroAtlas block-group ecosystem-service data (e.g. \"Des Moines, IA\", \"Chicago, IL\"). Returns community code, name, and census block group count for each. Call this first to find valid community codes/names for the other EnviroAtlas tools. Data: enviroatlas.epa.gov (US EPA), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "enviroatlas.communities"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Filter the 32 EnviroAtlas pilot communities by name or state substring, case-insensitive (e.g. \"TX\" or \"Portland\"). Omit to list all of them."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/enviroatlas.block_group_metrics/call": {
+      "post": {
+        "operationId": "enviroatlas_block_group_metrics",
+        "summary": "Get Block-Group Ecosystem-Service Metrics",
+        "description": "Get EPA EnviroAtlas ecosystem-service and environmental-health metrics for the census block group containing a lat/lon point — tree cover, green space, impervious area, air pollutant removal, carbon storage/sequestration, flood risk, heat reduction, and park/water-view access. Only covers the 32 EPA pilot communities (see enviroatlas.communities); returns covered=false outside them. Data: enviroatlas.epa.gov (US EPA), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "enviroatlas.block_group_metrics"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "lat": {
+                    "type": "number",
+                    "description": "Latitude in decimal degrees (e.g. 41.5868 for Des Moines, IA).",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "lon": {
+                    "type": "number",
+                    "description": "Longitude in decimal degrees (e.g. -93.6091 for Des Moines, IA).",
+                    "minimum": -180,
+                    "maximum": 180
+                  }
+                },
+                "required": [
+                  "lat",
+                  "lon"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/enviroatlas.community_summary/call": {
+      "post": {
+        "operationId": "enviroatlas_community_summary",
+        "summary": "Get Community Ecosystem-Service Summary",
+        "description": "Get aggregate EPA EnviroAtlas ecosystem-service statistics across all census block groups in an EnviroAtlas pilot community — average tree cover/impervious/green space percent, total population, total carbon stored and sequestration value, and average flood-risk population percent. Data: enviroatlas.epa.gov (US EPA), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "enviroatlas.community_summary"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "community": {
+                    "type": "string",
+                    "description": "EnviroAtlas pilot community code (e.g. \"DMIA\") or name (e.g. \"Des Moines, IA\"). Call enviroatlas.communities first to see all 32 covered communities.",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "community"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

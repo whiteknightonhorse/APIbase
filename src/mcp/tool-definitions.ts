@@ -13812,4 +13812,42 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'location',
     annotations: READ_ONLY,
   },
+  // EnviroAtlas EPA (3)
+  {
+    toolId: 'enviroatlas.communities',
+    mcpName: 'enviroatlas.communities.list',
+    title: 'List EnviroAtlas Pilot Communities',
+    description:
+      'List or search the 32 US communities covered by EPA EnviroAtlas block-group ecosystem-service ' +
+      'data (e.g. "Des Moines, IA", "Chicago, IL"). Returns community code, name, and census block group ' +
+      'count for each. Call this first to find valid community codes/names for the other EnviroAtlas ' +
+      'tools. Data: enviroatlas.epa.gov (US EPA), no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'enviroatlas.block_group_metrics',
+    mcpName: 'enviroatlas.metrics.block_group',
+    title: 'Get Block-Group Ecosystem-Service Metrics',
+    description:
+      'Get EPA EnviroAtlas ecosystem-service and environmental-health metrics for the census block ' +
+      'group containing a lat/lon point — tree cover, green space, impervious area, air pollutant ' +
+      'removal, carbon storage/sequestration, flood risk, heat reduction, and park/water-view access. ' +
+      'Only covers the 32 EPA pilot communities (see enviroatlas.communities); returns covered=false ' +
+      'outside them. Data: enviroatlas.epa.gov (US EPA), no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'enviroatlas.community_summary',
+    mcpName: 'enviroatlas.metrics.community_summary',
+    title: 'Get Community Ecosystem-Service Summary',
+    description:
+      'Get aggregate EPA EnviroAtlas ecosystem-service statistics across all census block groups in an ' +
+      'EnviroAtlas pilot community — average tree cover/impervious/green space percent, total ' +
+      'population, total carbon stored and sequestration value, and average flood-risk population ' +
+      'percent. Data: enviroatlas.epa.gov (US EPA), no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

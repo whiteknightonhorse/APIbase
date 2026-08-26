@@ -322,6 +322,7 @@ import { unpaywallSchemas } from './unpaywall.schema';
 import { wikimediaCommonsSchemas } from './wikimedia-commons.schema';
 import { standardEbooksSchemas } from './standard-ebooks.schema';
 import { indecGeorefSchemas } from './indec-georef.schema';
+import { enviroatlasSchemas } from './enviroatlas.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -647,4 +648,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...wikimediaCommonsSchemas,
   ...standardEbooksSchemas,
   ...indecGeorefSchemas,
+  ...enviroatlasSchemas,
 };

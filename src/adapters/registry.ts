@@ -322,6 +322,7 @@ import { UnpaywallAdapter } from './unpaywall';
 import { WikimediaCommonsAdapter } from './wikimedia-commons';
 import { StandardEbooksAdapter } from './standard-ebooks';
 import { IndecGeorefAdapter } from './indec-georef';
+import { EnviroatlasAdapter } from './enviroatlas';
 import { config } from '../config';
 
 /**
@@ -1750,6 +1751,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'indec-georef':
       // INDEC Georef API (UC-603) — Argentina geocoding + admin division search; no auth
       return getOrCreate('indec-georef', () => new IndecGeorefAdapter());
+    case 'enviroatlas':
+      // EPA EnviroAtlas ArcGIS REST API (UC-604) — community ecosystem-service metrics; no auth
+      return getOrCreate('enviroatlas', () => new EnviroatlasAdapter());
     default:
       return undefined;
   }

@@ -2888,5 +2888,14 @@
     "reset_period": "daily",
     "docs_url": "https://apis.datos.gob.ar/georef/api",
     "limit_proof": "Argentine government open-data geocoding API, no API key. Live response headers confirm quota: X-RateLimit-Limit-Day: 3000000, X-RateLimit-Limit-Hour: 154000, X-RateLimit-Limit-Minute: 6000, X-RateLimit-Limit-Second: 200."
+  },
+  "enviroatlas": {
+    "display_name": "EnviroAtlas (EPA)",
+    "health_url": "https://enviroatlas.epa.gov/arcgis/rest/services/Communities/Community_Locations/MapServer/0/query?where=1=1&outFields=Community&returnGeometry=false&f=json&resultRecordCount=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://enviroatlas.epa.gov/arcgis/rest/services",
+    "limit_proof": "US EPA public ArcGIS Server open-data REST services, no API key or registration. No documented per-caller rate limit; response headers show no X-RateLimit fields."
   }
 }
