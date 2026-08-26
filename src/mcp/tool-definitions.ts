@@ -13990,4 +13990,28 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'weather',
     annotations: READ_ONLY,
   },
+  // PLOS Search API (2)
+  {
+    toolId: 'plos-search.search',
+    mcpName: 'plos-search.article.search',
+    title: 'Search PLOS Open-Access Articles',
+    description:
+      'Search the full open-access PLOS research corpus (PLOS ONE, Biology, Medicine, Genetics, ' +
+      'Computational Biology, Pathogens, Neglected Tropical Diseases, Global Public Health, Digital ' +
+      'Health, Climate, Mental Health, Water, Sustainability and Transformation) by free text or ' +
+      'Solr field query, with optional journal filter and sort. Returns DOI, title, journal, authors, ' +
+      'abstract, and subjects for each match. Data: api.plos.org, no auth required.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'plos-search.article_detail',
+    mcpName: 'plos-search.article.detail',
+    title: 'Get PLOS Article Detail',
+    description:
+      'Get full detail for a single open-access PLOS article by DOI, including title, journal, ' +
+      'publication date, authors, abstract, and subject tags. Data: api.plos.org, no auth required.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
 ];

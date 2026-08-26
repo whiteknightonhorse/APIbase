@@ -328,6 +328,7 @@ import { EnsemblAdapter } from './ensembl';
 import { CveMitreAdapter } from './cve-mitre';
 import { UsgsMrdsAdapter } from './usgs-mrds';
 import { PaleoclimateAdapter } from './paleoclimate';
+import { PlosSearchAdapter } from './plos-search';
 import { config } from '../config';
 
 /**
@@ -1774,6 +1775,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'paleoclimate':
       // NOAA NCEI Paleoclimatology (UC-608) — study search + detail; no auth
       return getOrCreate('paleoclimate', () => new PaleoclimateAdapter());
+    case 'plos-search':
+      // PLOS Search API (UC-609) — open-access article search + detail; no auth
+      return getOrCreate('plos-search', () => new PlosSearchAdapter());
     default:
       return undefined;
   }

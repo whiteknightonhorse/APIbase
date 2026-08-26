@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1155 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1157 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -54987,6 +54987,114 @@
         },
         "required": [
           "NOAAStudyId"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "plos-search.article.search",
+      "description": "Search the full open-access PLOS research corpus (PLOS ONE, Biology, Medicine, Genetics, Computational Biology, Pathogens, Neglected Tropical Diseases, Global Public Health, Digital Health, Climate, Mental Health, Water, Sustainability and Transformation) by free text or Solr field query, with optional journal filter and sort. Returns DOI, title, journal, authors, abstract, and subjects for each match. Data: api.plos.org, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Solr query string, e.g. a free-text term (\"malaria vaccine\") or a field-scoped query (\"title:CRISPR\" or \"author:\\\"Jane Doe\\\"\"). Searches across the full open-access PLOS corpus.",
+            "minLength": 1
+          },
+          "journal": {
+            "type": "string",
+            "enum": [
+              "PLOS ONE",
+              "PLOS Biology",
+              "PLOS Medicine",
+              "PLOS Genetics",
+              "PLOS Computational Biology",
+              "PLOS Pathogens",
+              "PLOS Neglected Tropical Diseases",
+              "PLOS Global Public Health",
+              "PLOS Digital Health",
+              "PLOS Climate",
+              "PLOS Mental Health",
+              "PLOS Water",
+              "PLOS Sustainability and Transformation"
+            ],
+            "description": "Restrict results to one PLOS journal (e.g. \"PLOS ONE\", \"PLOS Biology\")."
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "relevance",
+              "date_desc",
+              "date_asc"
+            ],
+            "description": "Result ordering: \"relevance\" (default), \"date_desc\" (newest first), \"date_asc\" (oldest first)."
+          },
+          "max_results": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Maximum number of articles to return (1-50, default 10)."
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "plos-search.article.detail",
+      "description": "Get full detail for a single open-access PLOS article by DOI, including title, journal, publication date, authors, abstract, and subject tags. Data: api.plos.org, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "doi": {
+            "type": "string",
+            "description": "Article DOI, e.g. \"10.1371/journal.pone.0004050\" (returned as \"doi\" in plos-search.search results).",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "doi"
         ]
       },
       "outputSchema": {

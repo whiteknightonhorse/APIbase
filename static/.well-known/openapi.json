@@ -105837,6 +105837,198 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/plos-search.search/call": {
+      "post": {
+        "operationId": "plos-search_search",
+        "summary": "Search PLOS Open-Access Articles",
+        "description": "Search the full open-access PLOS research corpus (PLOS ONE, Biology, Medicine, Genetics, Computational Biology, Pathogens, Neglected Tropical Diseases, Global Public Health, Digital Health, Climate, Mental Health, Water, Sustainability and Transformation) by free text or Solr field query, with optional journal filter and sort. Returns DOI, title, journal, authors, abstract, and subjects for each match. Data: api.plos.org, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "plos-search.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Solr query string, e.g. a free-text term (\"malaria vaccine\") or a field-scoped query (\"title:CRISPR\" or \"author:\\\"Jane Doe\\\"\"). Searches across the full open-access PLOS corpus.",
+                    "minLength": 1
+                  },
+                  "journal": {
+                    "type": "string",
+                    "enum": [
+                      "PLOS ONE",
+                      "PLOS Biology",
+                      "PLOS Medicine",
+                      "PLOS Genetics",
+                      "PLOS Computational Biology",
+                      "PLOS Pathogens",
+                      "PLOS Neglected Tropical Diseases",
+                      "PLOS Global Public Health",
+                      "PLOS Digital Health",
+                      "PLOS Climate",
+                      "PLOS Mental Health",
+                      "PLOS Water",
+                      "PLOS Sustainability and Transformation"
+                    ],
+                    "description": "Restrict results to one PLOS journal (e.g. \"PLOS ONE\", \"PLOS Biology\")."
+                  },
+                  "sort": {
+                    "type": "string",
+                    "enum": [
+                      "relevance",
+                      "date_desc",
+                      "date_asc"
+                    ],
+                    "description": "Result ordering: \"relevance\" (default), \"date_desc\" (newest first), \"date_asc\" (oldest first)."
+                  },
+                  "max_results": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of articles to return (1-50, default 10)."
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/plos-search.article_detail/call": {
+      "post": {
+        "operationId": "plos-search_article_detail",
+        "summary": "Get PLOS Article Detail",
+        "description": "Get full detail for a single open-access PLOS article by DOI, including title, journal, publication date, authors, abstract, and subject tags. Data: api.plos.org, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "plos-search.article_detail"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "doi": {
+                    "type": "string",
+                    "description": "Article DOI, e.g. \"10.1371/journal.pone.0004050\" (returned as \"doi\" in plos-search.search results).",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "doi"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

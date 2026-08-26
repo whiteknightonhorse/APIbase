@@ -328,6 +328,7 @@ import { ensemblSchemas } from './ensembl.schema';
 import { cveMitreSchemas } from './cve-mitre.schema';
 import { usgsMrdsSchemas } from './usgs-mrds.schema';
 import { paleoclimateSchemas } from './paleoclimate.schema';
+import { plosSearchSchemas } from './plos-search.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -659,4 +660,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...cveMitreSchemas,
   ...usgsMrdsSchemas,
   ...paleoclimateSchemas,
+  ...plosSearchSchemas,
 };
