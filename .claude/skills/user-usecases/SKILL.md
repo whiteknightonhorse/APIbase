@@ -134,7 +134,7 @@ Use these examples as reference patterns when:
 | UC-437 | eCFR US Federal Regulations | Legal / Government | Candidate | Unlimited, no key, public domain | `usecases/UC-437-ecfr.md` |
 | UC-438 | CDC EPH Tracking Network | Health / Environment | Candidate | Unlimited, no key, public domain | `usecases/UC-438-ephtracking.md` |
 | UC-439 | UniProt Protein KB | Bioinformatics | Candidate | Unlimited, no key, CC BY 4.0 | `usecases/UC-439-uniprot.md` |
-| UC-440 | Ensembl Genome REST API | Bioinformatics / Genomics | Candidate | 55K/hr, no key, Apache 2.0 | `usecases/UC-440-ensembl.md` |
+| UC-440 | Ensembl Genome REST API | Bioinformatics / Genomics | LIVE | 55K/hr, no key, Apache 2.0, 2 tools | `usecases/UC-440-ensembl.md` |
 | UC-441 | Open Targets Platform | Drug Discovery | Candidate | Unlimited, no key, CC0 | `usecases/UC-441-opentargets.md` |
 | UC-442 | Cleveland Museum of Art | Cultural Heritage | Candidate | Unlimited, no key, CC0 | `usecases/UC-442-clevelandart.md` |
 | UC-443 | DigitalNZ NZ Heritage | Cultural Heritage | Candidate | 10K/day, no key, metadata OK | `usecases/UC-443-digitalnz.md` |
@@ -298,6 +298,9 @@ Use these examples as reference patterns when:
 | UC-600 | Standard Ebooks (standardebooks.org) | Public-domain ebook catalog — search by title/author/subject with sort+pagination (OPDS 2.0 JSON), new-releases feed (Atom XML); direct EPUB/Kepub/AZW3/XHTML download links, no auth | LIVE | No auth, 2 tools | `usecases/UC-600-standard-ebooks.md` |
 | UC-601 | Open Beauty Facts (world.openbeautyfacts.org) | Cosmetics/personal-care product database — barcode lookup (name, brand, categories, ingredients, image), free-text product search; 6K+ products, ODbL, no auth | LIVE | No auth, 2 tools | `usecases/UC-601-open-beauty-facts.md` |
 | UC-602 | INE Chile SIMEL (sdmx.ine.gob.cl) | Chilean labour-market statistics — dataflow search/list (~204 series), dimension/codelist structure, observation data with period range or last-N filter; SDMX 2.1, no auth, Chilean Gov open data | LIVE | No auth, 3 tools | `usecases/UC-602-ine-chile.md` |
+| UC-603 | INDEC Georef (apis.datos.gob.ar/georef) | Argentine geographic reference — forward/reverse geocoding, province/department/locality search with centroid coordinates; Argentine Gov open data, no auth | LIVE | No auth, 5 tools | `usecases/UC-603-indec-georef.md` |
+| UC-604 | EPA EnviroAtlas (enviroatlas.epa.gov) | Community-scale ecosystem-service/environmental-health metrics for 32 EPA pilot communities — community list, block-group point-in-polygon metrics, community-wide summary aggregation; US Gov open data, no auth | LIVE | No auth, 3 tools | `usecases/UC-604-enviroatlas.md` |
+| UC-605 | Federal Register (www.federalregister.gov) | US federal rules/notices registry — full-text/parametric document search, single-document detail (CFR refs, docket IDs, effective/comment dates), agency search, upcoming public-inspection filings; US Gov public domain, no auth | LIVE | No auth, 4 tools | `usecases/UC-605-federalregister.md` |
 
 ## How to Use
 
