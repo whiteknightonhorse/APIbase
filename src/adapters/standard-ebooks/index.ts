@@ -305,7 +305,9 @@ function simplifyPublication(pub: OpdsPublication): SimplifiedBook {
     return link ? link.href : null;
   };
 
-  const thumbnail = pub.images?.find((i) => i.rel.includes('http://opds-spec.org/image/thumbnail'));
+  const hasRel = (rel: string | string[], value: string): boolean =>
+    (Array.isArray(rel) ? rel : [rel]).some((r) => r === value);
+  const thumbnail = pub.images?.find((i) => hasRel(i.rel, 'http://opds-spec.org/image/thumbnail'));
 
   return {
     title: meta.title,
