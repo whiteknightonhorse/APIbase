@@ -3023,5 +3023,14 @@
     "reset_period": "hourly",
     "docs_url": "https://api.stat.gov.pl/Home/BdlApi",
     "limit_proof": "Anonymous (no X-ClientId) tier observed live: per-endpoint errorResult quota messages of \"1000 per 12h\" and \"100 per 15 min\" — the tighter bucket binds to roughly 80-100 calls/hour; no signup required for this tier."
+  },
+  "inaturalist": {
+    "display_name": "iNaturalist",
+    "health_url": "https://api.inaturalist.org/v1/taxa?q=test&per_page=1",
+    "limit_type": "daily",
+    "free_limit": 10000,
+    "reset_period": "daily",
+    "docs_url": "https://api.inaturalist.org/v1/docs/",
+    "limit_proof": "API docs (https://api.inaturalist.org/v1/docs/): \"we throttle API usage to a max of 100 requests per minute, though we ask that you try to keep it to 60 requests per minute or lower, and to keep under 10,000 requests per day.\" No auth required."
   }
 }

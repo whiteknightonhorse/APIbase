@@ -107748,6 +107748,400 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/inaturalist.taxa_search/call": {
+      "post": {
+        "operationId": "inaturalist_taxa_search",
+        "summary": "Search iNaturalist Species and Taxa",
+        "description": "Look up a species or other taxon by common or scientific name, e.g. \"monarch butterfly\" or \"Quercus\". Returns matching taxa with their taxon_id (for use with inaturalist.observations_search and inaturalist.species_counts), taxonomic rank, common name, total observation count, extinct/threatened flags, and a reference photo. Data: iNaturalist.org global citizen-science community, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "inaturalist.taxa_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Common or scientific name to search for, e.g. \"monarch butterfly\" or \"Quercus\".",
+                    "minLength": 1
+                  },
+                  "rank": {
+                    "type": "string",
+                    "description": "Restrict results to a taxonomic rank, e.g. \"species\", \"genus\", \"family\", \"order\", \"class\", \"kingdom\"."
+                  },
+                  "per_page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 30,
+                    "description": "Number of results to return, 1-30 (default 10)."
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/inaturalist.observations_search/call": {
+      "post": {
+        "operationId": "inaturalist_observations_search",
+        "summary": "Search iNaturalist Wildlife Observations",
+        "description": "Search real-world wildlife sightings logged by the iNaturalist community, filterable by species (taxon_name or taxon_id), place (place_id from inaturalist.places_search), a lat/lng radius, date range, and data quality grade (research/needs_id/casual). Returns each observation's species guess, taxon info, observed date, location, observer, and photo. Data: iNaturalist.org global citizen-science community, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "inaturalist.observations_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "taxon_name": {
+                    "type": "string",
+                    "description": "Scientific or common name to filter observations by, e.g. \"Danaus plexippus\"."
+                  },
+                  "taxon_id": {
+                    "type": "integer",
+                    "description": "Numeric taxon id from inaturalist.taxa_search to filter observations by."
+                  },
+                  "place_id": {
+                    "type": "integer",
+                    "description": "Numeric place id from inaturalist.places_search to filter observations by."
+                  },
+                  "lat": {
+                    "type": "number",
+                    "minimum": -90,
+                    "maximum": 90,
+                    "description": "Latitude for a radius search. Must be paired with lng."
+                  },
+                  "lng": {
+                    "type": "number",
+                    "minimum": -180,
+                    "maximum": 180,
+                    "description": "Longitude for a radius search. Must be paired with lat."
+                  },
+                  "radius_km": {
+                    "type": "number",
+                    "minimum": 0.1,
+                    "maximum": 500,
+                    "description": "Search radius in kilometers around lat/lng (default 10)."
+                  },
+                  "observed_after": {
+                    "type": "string",
+                    "description": "Only include observations on/after this date, ISO 8601 (YYYY-MM-DD)."
+                  },
+                  "observed_before": {
+                    "type": "string",
+                    "description": "Only include observations on/before this date, ISO 8601 (YYYY-MM-DD)."
+                  },
+                  "quality_grade": {
+                    "type": "string",
+                    "enum": [
+                      "casual",
+                      "needs_id",
+                      "research"
+                    ],
+                    "description": "Filter by data quality: \"research\" (community-verified ID), \"needs_id\" (unconfirmed), or \"casual\" (no photo/no location/captive)."
+                  },
+                  "per_page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20,
+                    "description": "Number of results to return, 1-20 (default 10). At least one of taxon_name, taxon_id, place_id, or lat/lng is required."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/inaturalist.species_counts/call": {
+      "post": {
+        "operationId": "inaturalist_species_counts",
+        "summary": "Get Most-Observed Species in a Place",
+        "description": "Get a biodiversity summary for a place (place_id from inaturalist.places_search): the species most frequently observed there, ranked by observation count, optionally filtered to a taxon group (e.g. only birds) and/or a date range. Useful for surveying local wildlife or flora. Data: iNaturalist.org global citizen-science community, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "inaturalist.species_counts"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "place_id": {
+                    "type": "integer",
+                    "description": "Numeric place id from inaturalist.places_search to get species counts for."
+                  },
+                  "taxon_id": {
+                    "type": "integer",
+                    "description": "Restrict to descendants of this taxon id, e.g. only birds or only plants."
+                  },
+                  "observed_after": {
+                    "type": "string",
+                    "description": "Only include observations on/after this date, ISO 8601 (YYYY-MM-DD)."
+                  },
+                  "observed_before": {
+                    "type": "string",
+                    "description": "Only include observations on/before this date, ISO 8601 (YYYY-MM-DD)."
+                  },
+                  "per_page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Number of species to return, ranked by observation count, 1-50 (default 20)."
+                  }
+                },
+                "required": [
+                  "place_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/inaturalist.places_search/call": {
+      "post": {
+        "operationId": "inaturalist_places_search",
+        "summary": "Search iNaturalist Places",
+        "description": "Look up an iNaturalist place_id by name, e.g. \"Berlin\" or \"Yellowstone National Park\", for use with inaturalist.observations_search and inaturalist.species_counts. Returns matching places with their place_id, display name, and place type (e.g. town, county, park). Data: iNaturalist.org global citizen-science community, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "inaturalist.places_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Place name to search for, e.g. \"Berlin\" or \"Yellowstone National Park\".",
+                    "minLength": 1
+                  },
+                  "per_page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20,
+                    "description": "Number of results to return, 1-20 (default 10)."
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

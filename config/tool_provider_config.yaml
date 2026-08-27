@@ -7227,6 +7227,30 @@ tools:
     price_usd: "0.002"
     cache_ttl: 86400
 
+  - tool_id: inaturalist.taxa_search
+    name: Search iNaturalist Species and Taxa
+    provider: inaturalist
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: inaturalist.observations_search
+    name: Search iNaturalist Wildlife Observations
+    provider: inaturalist
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: inaturalist.species_counts
+    name: Get Most-Observed Species in a Place
+    provider: inaturalist
+    price_usd: "0.002"
+    cache_ttl: 21600
+
+  - tool_id: inaturalist.places_search
+    name: Search iNaturalist Places
+    provider: inaturalist
+    price_usd: "0.001"
+    cache_ttl: 604800
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

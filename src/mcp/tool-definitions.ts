@@ -14250,4 +14250,57 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+  // ---------------------------------------------------------------------------
+  // iNaturalist API (UC-620, 4 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'inaturalist.taxa_search',
+    mcpName: 'inaturalist.taxa.search',
+    title: 'Search iNaturalist Species and Taxa',
+    description:
+      'Look up a species or other taxon by common or scientific name, e.g. "monarch butterfly" or ' +
+      '"Quercus". Returns matching taxa with their taxon_id (for use with ' +
+      'inaturalist.observations_search and inaturalist.species_counts), taxonomic rank, common name, ' +
+      'total observation count, extinct/threatened flags, and a reference photo. Data: ' +
+      'iNaturalist.org global citizen-science community, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'inaturalist.observations_search',
+    mcpName: 'inaturalist.observations.search',
+    title: 'Search iNaturalist Wildlife Observations',
+    description:
+      'Search real-world wildlife sightings logged by the iNaturalist community, filterable by ' +
+      'species (taxon_name or taxon_id), place (place_id from inaturalist.places_search), a ' +
+      'lat/lng radius, date range, and data quality grade (research/needs_id/casual). Returns each ' +
+      "observation's species guess, taxon info, observed date, location, observer, and photo. Data: " +
+      'iNaturalist.org global citizen-science community, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'inaturalist.species_counts',
+    mcpName: 'inaturalist.observations.species_counts',
+    title: 'Get Most-Observed Species in a Place',
+    description:
+      'Get a biodiversity summary for a place (place_id from inaturalist.places_search): the ' +
+      'species most frequently observed there, ranked by observation count, optionally filtered to ' +
+      'a taxon group (e.g. only birds) and/or a date range. Useful for surveying local wildlife or ' +
+      'flora. Data: iNaturalist.org global citizen-science community, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'inaturalist.places_search',
+    mcpName: 'inaturalist.places.search',
+    title: 'Search iNaturalist Places',
+    description:
+      'Look up an iNaturalist place_id by name, e.g. "Berlin" or "Yellowstone National Park", for ' +
+      'use with inaturalist.observations_search and inaturalist.species_counts. Returns matching ' +
+      'places with their place_id, display name, and place type (e.g. town, county, park). Data: ' +
+      'iNaturalist.org global citizen-science community, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

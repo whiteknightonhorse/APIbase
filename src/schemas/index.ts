@@ -337,6 +337,7 @@ import { secEdgarSchemas } from './sec-edgar.schema';
 import { usgsEpqsSchemas } from './usgs-epqs.schema';
 import { currentuvindexSchemas } from './currentuvindex.schema';
 import { gusPolandSchemas } from './gus-poland.schema';
+import { inaturalistSchemas } from './inaturalist.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -677,4 +678,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...emscSchemas,
   ...currentuvindexSchemas,
   ...gusPolandSchemas,
+  ...inaturalistSchemas,
 };

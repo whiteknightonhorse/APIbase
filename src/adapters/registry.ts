@@ -337,6 +337,7 @@ import { CfpbComplaintsAdapter } from './cfpb-complaints';
 import { EmscAdapter } from './emsc';
 import { CurrentUvIndexAdapter } from './currentuvindex';
 import { GusPolandAdapter } from './gus-poland';
+import { InaturalistAdapter } from './inaturalist';
 import { config } from '../config';
 
 /**
@@ -1810,6 +1811,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'gus-poland':
       // GUS Poland BDL / Bank Danych Lokalnych API (UC-617) — Polish official statistics by topic/variable/territorial unit; no auth
       return getOrCreate('gus-poland', () => new GusPolandAdapter());
+    case 'inaturalist':
+      // iNaturalist API (UC-620) — species lookup, wildlife observation search, biodiversity stats; no auth
+      return getOrCreate('inaturalist', () => new InaturalistAdapter());
     default:
       return undefined;
   }
