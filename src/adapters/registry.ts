@@ -336,6 +336,7 @@ import { UsgsEpqsAdapter } from './usgs-epqs';
 import { CfpbComplaintsAdapter } from './cfpb-complaints';
 import { EmscAdapter } from './emsc';
 import { CurrentUvIndexAdapter } from './currentuvindex';
+import { GusPolandAdapter } from './gus-poland';
 import { config } from '../config';
 
 /**
@@ -1806,6 +1807,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'currentuvindex':
       // Current UV Index API (UC-616) — global real-time UV index + 120h forecast + 24h history; no auth
       return getOrCreate('currentuvindex', () => new CurrentUvIndexAdapter());
+    case 'gus-poland':
+      // GUS Poland BDL / Bank Danych Lokalnych API (UC-617) — Polish official statistics by topic/variable/territorial unit; no auth
+      return getOrCreate('gus-poland', () => new GusPolandAdapter());
     default:
       return undefined;
   }

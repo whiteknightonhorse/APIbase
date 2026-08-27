@@ -107465,6 +107465,289 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/gus-poland.subjects/call": {
+      "post": {
+        "operationId": "gus-poland_subjects",
+        "summary": "Browse GUS Poland BDL Subject Tree",
+        "description": "Browse the topic hierarchy of Poland's official Local Data Bank (Bank Danych Lokalnych, GUS statistics office) — prices, demography, finance, environment, labour market, and more. Omit parent_id to list the 33 root topics, or pass a parent_id to list its children. Leaf subjects (has_variables=true) can be passed to gus-poland.variables. Data: bdl.stat.gov.pl (GUS BDL API v1), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "gus-poland.subjects"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "parent_id": {
+                    "type": "string",
+                    "description": "BDL subject-tree node id to list children of (e.g. \"K15\" for PRICES, \"G186\" for a sub-topic). Omit to list the 33 root-level topic categories."
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Zero-based page number (default 0)."
+                  },
+                  "page_size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Results per page, 1-100 (default 20)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/gus-poland.variables/call": {
+      "post": {
+        "operationId": "gus-poland_variables",
+        "summary": "Search GUS Poland BDL Variables",
+        "description": "Search for Polish official statistical variables by keyword (e.g. \"population\", \"unemployment\", \"average salary\"), or list all variables under a subject_id from gus-poland.subjects. Returns each variable's numeric variable_id and measurement unit, for use with gus-poland.data. Data: bdl.stat.gov.pl (GUS BDL API v1), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "gus-poland.variables"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search variables by keyword in their name, e.g. \"population\", \"unemployment\", \"average salary\". Either query or subject_id is required."
+                  },
+                  "subject_id": {
+                    "type": "string",
+                    "description": "List all variables under a leaf subject id (hasVariables=true) from gus-poland.subjects, e.g. \"P1458\". Either query or subject_id is required."
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Zero-based page number (default 0)."
+                  },
+                  "page_size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Results per page, 1-100 (default 20)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/gus-poland.data/call": {
+      "post": {
+        "operationId": "gus-poland_data",
+        "summary": "Get GUS Poland BDL Statistical Data",
+        "description": "Get statistical values for a variable_id from gus-poland.variables, broken down by territorial unit. Use unit_level (0=Poland, 1=macroregion, 2=voivodeship, 3=region, 4=subregion, 5=powiat, 6=gmina, 7=locality; default 2) to get all units at that level, or a specific unit_id (12-digit TERYT code, e.g. \"000000000000\" for all of Poland) for one unit's full series. Optionally filter by year(s). Data: bdl.stat.gov.pl (GUS BDL API v1), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "gus-poland.data"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "variable_id": {
+                    "type": "integer",
+                    "description": "Numeric variable id from gus-poland.variables (e.g. 4859 for \"wheat 1 dt\" procurement price)."
+                  },
+                  "unit_id": {
+                    "type": "string",
+                    "description": "BDL 12-digit territorial unit code to fetch a single unit's series (e.g. \"000000000000\" for all of Poland, \"011200000000\" for Małopolskie voivodeship). If set, unit_level is ignored."
+                  },
+                  "unit_level": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 7,
+                    "description": "Administrative level to break the data down by when unit_id is not set: 0=Poland, 1=macroregion, 2=voivodeship, 3=region, 4=subregion, 5=powiat (county), 6=gmina (municipality), 7=statistical locality. Default 2 (voivodeship)."
+                  },
+                  "year": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    },
+                    "maxItems": 10,
+                    "description": "One or more specific years to filter by, e.g. [2022, 2023]. Omit to return the full available history."
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Zero-based page number (default 0)."
+                  },
+                  "page_size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Territorial units per page, 1-100 (default 20)."
+                  }
+                },
+                "required": [
+                  "variable_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

@@ -3014,5 +3014,14 @@
     "reset_period": "daily",
     "docs_url": "https://currentuvindex.com/api",
     "limit_proof": "500 requests per IP per day, reset at 00:00 UTC (stated in API docs; no auth/signup required)."
+  },
+  "gus-poland": {
+    "display_name": "GUS Poland BDL (Local Data Bank)",
+    "health_url": "https://bdl.stat.gov.pl/api/v1/subjects?lang=en&format=json&page-size=1",
+    "limit_type": "hourly",
+    "free_limit": 80,
+    "reset_period": "hourly",
+    "docs_url": "https://api.stat.gov.pl/Home/BdlApi",
+    "limit_proof": "Anonymous (no X-ClientId) tier observed live: per-endpoint errorResult quota messages of \"1000 per 12h\" and \"100 per 15 min\" — the tighter bucket binds to roughly 80-100 calls/hour; no signup required for this tier."
   }
 }

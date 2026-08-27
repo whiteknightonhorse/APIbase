@@ -14208,4 +14208,46 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'weather',
     annotations: READ_ONLY,
   },
+  // ---------------------------------------------------------------------------
+  // GUS Poland BDL / Bank Danych Lokalnych API (UC-617, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'gus-poland.subjects',
+    mcpName: 'gus-poland.reference.subjects',
+    title: 'Browse GUS Poland BDL Subject Tree',
+    description:
+      "Browse the topic hierarchy of Poland's official Local Data Bank (Bank Danych Lokalnych, " +
+      'GUS statistics office) — prices, demography, finance, environment, labour market, and more. ' +
+      'Omit parent_id to list the 33 root topics, or pass a parent_id to list its children. Leaf ' +
+      'subjects (has_variables=true) can be passed to gus-poland.variables. Data: bdl.stat.gov.pl ' +
+      '(GUS BDL API v1), no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'gus-poland.variables',
+    mcpName: 'gus-poland.reference.variables',
+    title: 'Search GUS Poland BDL Variables',
+    description:
+      'Search for Polish official statistical variables by keyword (e.g. "population", ' +
+      '"unemployment", "average salary"), or list all variables under a subject_id from ' +
+      "gus-poland.subjects. Returns each variable's numeric variable_id and measurement unit, " +
+      'for use with gus-poland.data. Data: bdl.stat.gov.pl (GUS BDL API v1), no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'gus-poland.data',
+    mcpName: 'gus-poland.series.data',
+    title: 'Get GUS Poland BDL Statistical Data',
+    description:
+      'Get statistical values for a variable_id from gus-poland.variables, broken down by ' +
+      'territorial unit. Use unit_level (0=Poland, 1=macroregion, 2=voivodeship, 3=region, ' +
+      '4=subregion, 5=powiat, 6=gmina, 7=locality; default 2) to get all units at that level, or ' +
+      'a specific unit_id (12-digit TERYT code, e.g. "000000000000" for all of Poland) for one ' +
+      "unit's full series. Optionally filter by year(s). Data: bdl.stat.gov.pl (GUS BDL API v1), " +
+      'no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

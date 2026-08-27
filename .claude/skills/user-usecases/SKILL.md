@@ -311,6 +311,7 @@ Use these examples as reference patterns when:
 | UC-614 | CFPB Consumer Complaint Database (consumerfinance.gov) | Search 17M+ consumer complaints against financial companies by product/company/state/issue/response/date; complaint-volume trend over time; per-state complaint counts with top products/issues; US Gov open data, no auth | LIVE | No auth, 3 tools | `usecases/UC-614-cfpb-complaints.md` |
 | UC-615 | EMSC Real-Time Earthquakes (seismicportal.eu) | European-Mediterranean seismicity search by time/bbox/point+radius/magnitude/depth, single-event detail by unid; distinct regional network from USGS earthquake.*; CC BY 4.0, no auth | LIVE | No auth, 2 tools | `usecases/UC-615-emsc-earthquakes.md` |
 | UC-616 | Current UV Index (currentuvindex.com) | Global real-time UV Index by latitude/longitude, ~120h hourly forecast, up to 24h hourly history, WHO/EPA risk category per point, peak-forecast summary; CC BY 4.0, no auth | LIVE | No auth, 1 tool | `usecases/UC-616-currentuvindex.md` |
+| UC-617 | GUS Poland BDL (bdl.stat.gov.pl) | Polish official statistics (prices, demography, finance, environment, labour market) by topic/variable/territorial unit; Polish Gov open data, no auth | LIVE | No auth, 3 tools | `usecases/UC-617-gus-poland.md` |
 
 ## How to Use
 

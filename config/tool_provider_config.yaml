@@ -7209,6 +7209,24 @@ tools:
     price_usd: "0.002"
     cache_ttl: 1800
 
+  - tool_id: gus-poland.subjects
+    name: Browse GUS Poland BDL Subject Tree
+    provider: gus-poland
+    price_usd: "0.001"
+    cache_ttl: 604800
+
+  - tool_id: gus-poland.variables
+    name: Search GUS Poland BDL Variables
+    provider: gus-poland
+    price_usd: "0.001"
+    cache_ttl: 604800
+
+  - tool_id: gus-poland.data
+    name: Get GUS Poland BDL Statistical Data
+    provider: gus-poland
+    price_usd: "0.002"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform
