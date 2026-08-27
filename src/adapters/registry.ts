@@ -334,6 +334,8 @@ import { UsgsNationalMapAdapter } from './usgs-nationalmap';
 import { SecEdgarAdapter } from './sec-edgar';
 import { UsgsEpqsAdapter } from './usgs-epqs';
 import { CfpbComplaintsAdapter } from './cfpb-complaints';
+import { EmscAdapter } from './emsc';
+import { CurrentUvIndexAdapter } from './currentuvindex';
 import { config } from '../config';
 
 /**
@@ -1798,6 +1800,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'cfpb-complaints':
       // CFPB Consumer Complaint Database API (UC-614) — complaint search, trends, per-state stats; no auth
       return getOrCreate('cfpb-complaints', () => new CfpbComplaintsAdapter());
+    case 'emsc':
+      // EMSC FDSN Event Web Service (UC-615) — European-Mediterranean real-time seismicity; no auth
+      return getOrCreate('emsc', () => new EmscAdapter());
+    case 'currentuvindex':
+      // Current UV Index API (UC-616) — global real-time UV index + 120h forecast + 24h history; no auth
+      return getOrCreate('currentuvindex', () => new CurrentUvIndexAdapter());
     default:
       return undefined;
   }

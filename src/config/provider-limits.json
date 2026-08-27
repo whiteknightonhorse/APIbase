@@ -2996,5 +2996,23 @@
     "reset_period": "none",
     "docs_url": "https://cfpb.github.io/api/ccdb/",
     "limit_proof": "No API key or registration required (US Government open data, Consumer Financial Protection Bureau). No X-RateLimit headers or documented per-caller cap found in live responses."
+  },
+  "emsc": {
+    "display_name": "EMSC Real-Time Earthquakes",
+    "health_url": "https://www.seismicportal.eu/fdsnws/event/1/query?format=json&limit=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.seismicportal.eu/fdsn-wsevent.html",
+    "limit_proof": "Public FDSN event service, no auth, no documented rate limit — EMSC operational real-time network (CC BY 4.0 open data)."
+  },
+  "currentuvindex": {
+    "display_name": "Current UV Index",
+    "health_url": "https://currentuvindex.com/api/v1/uvi?latitude=40.6943&longitude=-73.9249",
+    "limit_type": "daily",
+    "free_limit": 500,
+    "reset_period": "daily",
+    "docs_url": "https://currentuvindex.com/api",
+    "limit_proof": "500 requests per IP per day, reset at 00:00 UTC (stated in API docs; no auth/signup required)."
   }
 }

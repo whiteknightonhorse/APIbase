@@ -309,6 +309,8 @@ Use these examples as reference patterns when:
 | UC-612 | SEC EDGAR Company Facts API (data.sec.gov) | Ticker/name → CIK lookup, recent SEC filings (10-K/10-Q/8-K etc.) with document URLs + entity profile, single XBRL financial concept time series (Assets, Revenues, NetIncomeLoss, etc.); US Gov public domain, no auth (declared User-Agent required) | LIVE | No auth, 3 tools | `usecases/UC-612-sec-edgar.md` |
 | UC-613 | USGS Elevation Point Query Service (epqs.nationalmap.gov) | Single-point ground surface elevation from the USGS 3DEP digital elevation model — lat/lon in, elevation in meters/feet, source raster resolution, optional acquisition date; continental US + territories only, US Gov open data, no auth | LIVE | No auth, 1 tool | `usecases/UC-613-usgs-epqs.md` |
 | UC-614 | CFPB Consumer Complaint Database (consumerfinance.gov) | Search 17M+ consumer complaints against financial companies by product/company/state/issue/response/date; complaint-volume trend over time; per-state complaint counts with top products/issues; US Gov open data, no auth | LIVE | No auth, 3 tools | `usecases/UC-614-cfpb-complaints.md` |
+| UC-615 | EMSC Real-Time Earthquakes (seismicportal.eu) | European-Mediterranean seismicity search by time/bbox/point+radius/magnitude/depth, single-event detail by unid; distinct regional network from USGS earthquake.*; CC BY 4.0, no auth | LIVE | No auth, 2 tools | `usecases/UC-615-emsc-earthquakes.md` |
+| UC-616 | Current UV Index (currentuvindex.com) | Global real-time UV Index by latitude/longitude, ~120h hourly forecast, up to 24h hourly history, WHO/EPA risk category per point, peak-forecast summary; CC BY 4.0, no auth | LIVE | No auth, 1 tool | `usecases/UC-616-currentuvindex.md` |
 
 ## How to Use
 

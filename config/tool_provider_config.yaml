@@ -7191,6 +7191,24 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  - tool_id: emsc.search_earthquakes
+    name: Search EMSC Real-Time Earthquakes
+    provider: emsc
+    price_usd: "0.002"
+    cache_ttl: 60
+
+  - tool_id: emsc.event_detail
+    name: Get EMSC Earthquake Event Detail
+    provider: emsc
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: currentuvindex.uv_index
+    name: Get Current UV Index and Forecast
+    provider: currentuvindex
+    price_usd: "0.002"
+    cache_ttl: 1800
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

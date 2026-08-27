@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1168 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1171 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -55754,6 +55754,196 @@
             "description": "Exact registered company name as CFPB records it, typically uppercase with legal suffix (e.g. \"EQUIFAX, INC.\", \"WELLS FARGO & COMPANY\", \"BANK OF AMERICA, NATIONAL ASSOCIATION\"). A near-miss silently returns 0 results rather than an error."
           }
         }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "emsc.seismic.search",
+      "description": "Search the European-Mediterranean Seismological Centre (EMSC) real-time seismicity catalog (EMSC-RTS) by time range, bounding box or point+radius, magnitude range, and depth range. A distinct regional network from USGS, often lower-latency for Euro-Mediterranean events, with per-event reporting-agency attribution. Returns event ID, time, magnitude, location, depth, region name, and reporting agency for each match. Data: seismicportal.eu (EMSC), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "starttime": {
+            "type": "string",
+            "description": "Start of the time window, ISO 8601 date or datetime (e.g. 2026-08-01 or 2026-08-01T00:00:00). Omit for no lower bound."
+          },
+          "endtime": {
+            "type": "string",
+            "description": "End of the time window, ISO 8601 date or datetime (e.g. 2026-08-27T23:59:59). Omit for no upper bound."
+          },
+          "minlatitude": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90,
+            "description": "Minimum latitude in decimal degrees for a bounding-box search (e.g. 34.0)."
+          },
+          "maxlatitude": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90,
+            "description": "Maximum latitude in decimal degrees for a bounding-box search (e.g. 45.0)."
+          },
+          "minlongitude": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180,
+            "description": "Minimum longitude in decimal degrees for a bounding-box search (e.g. 5.0)."
+          },
+          "maxlongitude": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180,
+            "description": "Maximum longitude in decimal degrees for a bounding-box search (e.g. 25.0)."
+          },
+          "latitude": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90,
+            "description": "Center latitude in decimal degrees for a point+radius search (use with longitude and maxradius)."
+          },
+          "longitude": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180,
+            "description": "Center longitude in decimal degrees for a point+radius search (use with latitude and maxradius)."
+          },
+          "maxradius": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Search radius in degrees around the latitude/longitude point (e.g. 5 for ~550km at the equator)."
+          },
+          "minmagnitude": {
+            "type": "number",
+            "description": "Minimum earthquake magnitude to include (e.g. 3.0)."
+          },
+          "maxmagnitude": {
+            "type": "number",
+            "description": "Maximum earthquake magnitude to include (e.g. 7.0)."
+          },
+          "mindepth": {
+            "type": "number",
+            "description": "Minimum hypocenter depth in kilometers."
+          },
+          "maxdepth": {
+            "type": "number",
+            "description": "Maximum hypocenter depth in kilometers."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "description": "Maximum number of events to return, 1-200 (default 50)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "emsc.seismic.event_detail",
+      "description": "Get full detail for a single earthquake event from the EMSC real-time seismicity catalog by its event ID (unid), as returned by emsc.search_earthquakes. Optionally include all reported magnitude estimates and origin solutions, not just the preferred ones. Data: seismicportal.eu (EMSC), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "eventid": {
+            "type": "string",
+            "description": "EMSC event unique ID / unid (e.g. 20260827_0000123), as returned by emsc.search_earthquakes.",
+            "minLength": 1
+          },
+          "includeallmagnitudes": {
+            "type": "boolean",
+            "description": "Include all reported magnitude estimates for the event, not just the preferred one (default false)."
+          },
+          "includeallorigins": {
+            "type": "boolean",
+            "description": "Include all reported origin solutions for the event, not just the preferred one (default false)."
+          }
+        },
+        "required": [
+          "eventid"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "currentuvindex.weather.uv_index",
+      "description": "Get the current UV Index, an hourly forecast for the next ~120 hours, and up to 24 hours of recent history for any latitude/longitude worldwide. Each data point includes a WHO/EPA risk category (Low, Moderate, High, Very High, Extreme). Also returns the peak forecasted UV Index and when it occurs. Data: currentuvindex.com, CC BY 4.0 license, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "latitude": {
+            "type": "number",
+            "description": "Latitude of the location, decimal degrees (-90 to 90). Example: 40.6943.",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "longitude": {
+            "type": "number",
+            "description": "Longitude of the location, decimal degrees (-180 to 180). Example: -73.9249.",
+            "minimum": -180,
+            "maximum": 180
+          }
+        },
+        "required": [
+          "latitude",
+          "longitude"
+        ]
       },
       "outputSchema": {
         "type": "object",

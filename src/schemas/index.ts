@@ -326,6 +326,7 @@ import { enviroatlasSchemas } from './enviroatlas.schema';
 import { federalRegisterSchemas } from './federalregister.schema';
 import { ensemblSchemas } from './ensembl.schema';
 import { cfpbComplaintsSchemas } from './cfpb-complaints.schema';
+import { emscSchemas } from './emsc.schema';
 import { cveMitreSchemas } from './cve-mitre.schema';
 import { usgsMrdsSchemas } from './usgs-mrds.schema';
 import { paleoclimateSchemas } from './paleoclimate.schema';
@@ -334,6 +335,7 @@ import { nsfAwardsSchemas } from './nsf-awards.schema';
 import { usgsNationalMapSchemas } from './usgs-nationalmap.schema';
 import { secEdgarSchemas } from './sec-edgar.schema';
 import { usgsEpqsSchemas } from './usgs-epqs.schema';
+import { currentuvindexSchemas } from './currentuvindex.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -671,4 +673,6 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...secEdgarSchemas,
   ...usgsEpqsSchemas,
   ...cfpbComplaintsSchemas,
+  ...emscSchemas,
+  ...currentuvindexSchemas,
 };

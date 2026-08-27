@@ -14164,4 +14164,48 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+  // ---------------------------------------------------------------------------
+  // EMSC FDSN Event Web Service (UC-615, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'emsc.search_earthquakes',
+    mcpName: 'emsc.seismic.search',
+    title: 'Search EMSC Real-Time Earthquakes',
+    description:
+      'Search the European-Mediterranean Seismological Centre (EMSC) real-time seismicity catalog ' +
+      '(EMSC-RTS) by time range, bounding box or point+radius, magnitude range, and depth range. ' +
+      'A distinct regional network from USGS, often lower-latency for Euro-Mediterranean events, ' +
+      'with per-event reporting-agency attribution. Returns event ID, time, magnitude, location, ' +
+      'depth, region name, and reporting agency for each match. Data: seismicportal.eu (EMSC), no ' +
+      'auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'emsc.event_detail',
+    mcpName: 'emsc.seismic.event_detail',
+    title: 'Get EMSC Earthquake Event Detail',
+    description:
+      'Get full detail for a single earthquake event from the EMSC real-time seismicity catalog by ' +
+      'its event ID (unid), as returned by emsc.search_earthquakes. Optionally include all reported ' +
+      'magnitude estimates and origin solutions, not just the preferred ones. Data: seismicportal.eu ' +
+      '(EMSC), no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  // ---------------------------------------------------------------------------
+  // Current UV Index API (UC-616, 1 tool)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'currentuvindex.uv_index',
+    mcpName: 'currentuvindex.weather.uv_index',
+    title: 'Get Current UV Index and Forecast',
+    description:
+      'Get the current UV Index, an hourly forecast for the next ~120 hours, and up to 24 hours of ' +
+      'recent history for any latitude/longitude worldwide. Each data point includes a WHO/EPA risk ' +
+      'category (Low, Moderate, High, Very High, Extreme). Also returns the peak forecasted UV Index ' +
+      'and when it occurs. Data: currentuvindex.com, CC BY 4.0 license, no auth required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
 ];

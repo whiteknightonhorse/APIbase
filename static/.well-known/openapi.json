@@ -107149,6 +107149,322 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/emsc.search_earthquakes/call": {
+      "post": {
+        "operationId": "emsc_search_earthquakes",
+        "summary": "Search EMSC Real-Time Earthquakes",
+        "description": "Search the European-Mediterranean Seismological Centre (EMSC) real-time seismicity catalog (EMSC-RTS) by time range, bounding box or point+radius, magnitude range, and depth range. A distinct regional network from USGS, often lower-latency for Euro-Mediterranean events, with per-event reporting-agency attribution. Returns event ID, time, magnitude, location, depth, region name, and reporting agency for each match. Data: seismicportal.eu (EMSC), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "emsc.search_earthquakes"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "starttime": {
+                    "type": "string",
+                    "description": "Start of the time window, ISO 8601 date or datetime (e.g. 2026-08-01 or 2026-08-01T00:00:00). Omit for no lower bound."
+                  },
+                  "endtime": {
+                    "type": "string",
+                    "description": "End of the time window, ISO 8601 date or datetime (e.g. 2026-08-27T23:59:59). Omit for no upper bound."
+                  },
+                  "minlatitude": {
+                    "type": "number",
+                    "minimum": -90,
+                    "maximum": 90,
+                    "description": "Minimum latitude in decimal degrees for a bounding-box search (e.g. 34.0)."
+                  },
+                  "maxlatitude": {
+                    "type": "number",
+                    "minimum": -90,
+                    "maximum": 90,
+                    "description": "Maximum latitude in decimal degrees for a bounding-box search (e.g. 45.0)."
+                  },
+                  "minlongitude": {
+                    "type": "number",
+                    "minimum": -180,
+                    "maximum": 180,
+                    "description": "Minimum longitude in decimal degrees for a bounding-box search (e.g. 5.0)."
+                  },
+                  "maxlongitude": {
+                    "type": "number",
+                    "minimum": -180,
+                    "maximum": 180,
+                    "description": "Maximum longitude in decimal degrees for a bounding-box search (e.g. 25.0)."
+                  },
+                  "latitude": {
+                    "type": "number",
+                    "minimum": -90,
+                    "maximum": 90,
+                    "description": "Center latitude in decimal degrees for a point+radius search (use with longitude and maxradius)."
+                  },
+                  "longitude": {
+                    "type": "number",
+                    "minimum": -180,
+                    "maximum": 180,
+                    "description": "Center longitude in decimal degrees for a point+radius search (use with latitude and maxradius)."
+                  },
+                  "maxradius": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Search radius in degrees around the latitude/longitude point (e.g. 5 for ~550km at the equator)."
+                  },
+                  "minmagnitude": {
+                    "type": "number",
+                    "description": "Minimum earthquake magnitude to include (e.g. 3.0)."
+                  },
+                  "maxmagnitude": {
+                    "type": "number",
+                    "description": "Maximum earthquake magnitude to include (e.g. 7.0)."
+                  },
+                  "mindepth": {
+                    "type": "number",
+                    "description": "Minimum hypocenter depth in kilometers."
+                  },
+                  "maxdepth": {
+                    "type": "number",
+                    "description": "Maximum hypocenter depth in kilometers."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 200,
+                    "description": "Maximum number of events to return, 1-200 (default 50)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/emsc.event_detail/call": {
+      "post": {
+        "operationId": "emsc_event_detail",
+        "summary": "Get EMSC Earthquake Event Detail",
+        "description": "Get full detail for a single earthquake event from the EMSC real-time seismicity catalog by its event ID (unid), as returned by emsc.search_earthquakes. Optionally include all reported magnitude estimates and origin solutions, not just the preferred ones. Data: seismicportal.eu (EMSC), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "emsc.event_detail"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "eventid": {
+                    "type": "string",
+                    "description": "EMSC event unique ID / unid (e.g. 20260827_0000123), as returned by emsc.search_earthquakes.",
+                    "minLength": 1
+                  },
+                  "includeallmagnitudes": {
+                    "type": "boolean",
+                    "description": "Include all reported magnitude estimates for the event, not just the preferred one (default false)."
+                  },
+                  "includeallorigins": {
+                    "type": "boolean",
+                    "description": "Include all reported origin solutions for the event, not just the preferred one (default false)."
+                  }
+                },
+                "required": [
+                  "eventid"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/currentuvindex.uv_index/call": {
+      "post": {
+        "operationId": "currentuvindex_uv_index",
+        "summary": "Get Current UV Index and Forecast",
+        "description": "Get the current UV Index, an hourly forecast for the next ~120 hours, and up to 24 hours of recent history for any latitude/longitude worldwide. Each data point includes a WHO/EPA risk category (Low, Moderate, High, Very High, Extreme). Also returns the peak forecasted UV Index and when it occurs. Data: currentuvindex.com, CC BY 4.0 license, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "currentuvindex.uv_index"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "latitude": {
+                    "type": "number",
+                    "description": "Latitude of the location, decimal degrees (-90 to 90). Example: 40.6943.",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "longitude": {
+                    "type": "number",
+                    "description": "Longitude of the location, decimal degrees (-180 to 180). Example: -73.9249.",
+                    "minimum": -180,
+                    "maximum": 180
+                  }
+                },
+                "required": [
+                  "latitude",
+                  "longitude"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {
