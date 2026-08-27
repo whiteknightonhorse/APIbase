@@ -332,6 +332,7 @@ import { PlosSearchAdapter } from './plos-search';
 import { NsfAwardsAdapter } from './nsf-awards';
 import { UsgsNationalMapAdapter } from './usgs-nationalmap';
 import { SecEdgarAdapter } from './sec-edgar';
+import { UsgsEpqsAdapter } from './usgs-epqs';
 import { config } from '../config';
 
 /**
@@ -1790,6 +1791,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'sec-edgar':
       // SEC EDGAR company facts API (UC-612) — ticker/CIK lookup, filings, XBRL financial concepts; no auth
       return getOrCreate('sec-edgar', () => new SecEdgarAdapter());
+    case 'usgs-epqs':
+      // USGS Elevation Point Query Service (UC-613) — single-point 3DEP elevation; no auth
+      return getOrCreate('usgs-epqs', () => new UsgsEpqsAdapter());
     default:
       return undefined;
   }

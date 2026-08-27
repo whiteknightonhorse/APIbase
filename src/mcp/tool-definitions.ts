@@ -14107,4 +14107,19 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+  // USGS Elevation Point Query Service (UC-613)
+  {
+    toolId: 'usgs-epqs.elevation',
+    mcpName: 'usgs-epqs.elevation.point',
+    title: 'USGS Elevation Point Query',
+    description:
+      'Get ground surface elevation for a single latitude/longitude coordinate from the USGS 3D ' +
+      'Elevation Program (3DEP) — the authoritative US Government digital elevation model, with ' +
+      'resolution as fine as 1 meter in many areas. Returns elevation in meters or feet, the ' +
+      'source raster resolution, and optionally the DEM acquisition date. Continental US + ' +
+      'territories only (no ocean or international coverage). Data: epqs.nationalmap.gov (USGS ' +
+      '3D Elevation Program), no auth required.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
 ];

@@ -106682,6 +106682,105 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/usgs-epqs.elevation/call": {
+      "post": {
+        "operationId": "usgs-epqs_elevation",
+        "summary": "USGS Elevation Point Query",
+        "description": "Get ground surface elevation for a single latitude/longitude coordinate from the USGS 3D Elevation Program (3DEP) — the authoritative US Government digital elevation model, with resolution as fine as 1 meter in many areas. Returns elevation in meters or feet, the source raster resolution, and optionally the DEM acquisition date. Continental US + territories only (no ocean or international coverage). Data: epqs.nationalmap.gov (USGS 3D Elevation Program), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "usgs-epqs.elevation"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "latitude": {
+                    "type": "number",
+                    "description": "Latitude in decimal degrees, WGS84 (e.g. 39.7147). Continental US + territories only.",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "longitude": {
+                    "type": "number",
+                    "description": "Longitude in decimal degrees, WGS84 (e.g. -105.0178).",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  "units": {
+                    "type": "string",
+                    "enum": [
+                      "Meters",
+                      "Feet"
+                    ],
+                    "description": "Elevation output units, \"Meters\" or \"Feet\" (default \"Meters\")."
+                  },
+                  "include_date": {
+                    "type": "boolean",
+                    "description": "Include the source DEM raster acquisition date in the response (default false)."
+                  }
+                },
+                "required": [
+                  "latitude",
+                  "longitude"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {
