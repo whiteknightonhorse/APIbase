@@ -325,6 +325,7 @@ import { indecGeorefSchemas } from './indec-georef.schema';
 import { enviroatlasSchemas } from './enviroatlas.schema';
 import { federalRegisterSchemas } from './federalregister.schema';
 import { ensemblSchemas } from './ensembl.schema';
+import { cfpbComplaintsSchemas } from './cfpb-complaints.schema';
 import { cveMitreSchemas } from './cve-mitre.schema';
 import { usgsMrdsSchemas } from './usgs-mrds.schema';
 import { paleoclimateSchemas } from './paleoclimate.schema';
@@ -669,4 +670,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...usgsNationalMapSchemas,
   ...secEdgarSchemas,
   ...usgsEpqsSchemas,
+  ...cfpbComplaintsSchemas,
 };

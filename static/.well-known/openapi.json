@@ -106781,6 +106781,374 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/cfpb-complaints.search/call": {
+      "post": {
+        "operationId": "cfpb-complaints_search",
+        "summary": "Search CFPB Consumer Complaints",
+        "description": "Search the US Consumer Financial Protection Bureau public complaint database of 17M+ consumer complaints against financial companies (banks, credit reporting agencies, debt collectors, lenders). Filter by product, company, US state, issue, company response, timeliness, whether a narrative was provided, and date range, or full-text search consumer narratives. Returns complaint records with product/issue category, company, state, dates, and company response. Data: consumerfinance.gov (CFPB), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cfpb-complaints.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "search_term": {
+                    "type": "string",
+                    "description": "Full-text search query (e.g. \"overdraft fee\", \"credit report error\"). Searched against the field named by `field`."
+                  },
+                  "field": {
+                    "type": "string",
+                    "enum": [
+                      "complaint_what_happened",
+                      "all"
+                    ],
+                    "description": "Which field `search_term` searches: \"complaint_what_happened\" (consumer narrative text, default) or \"all\" (all indexed text fields)."
+                  },
+                  "product": {
+                    "type": "string",
+                    "description": "Exact CFPB product category — must match verbatim, e.g. \"Credit reporting or other personal consumer reports\", \"Debt collection\", \"Mortgage\", \"Checking or savings account\", \"Credit card\", \"Credit card or prepaid card\", \"Money transfer, virtual currency, or money service\", \"Student loan\", \"Vehicle loan or lease\", \"Payday loan, title loan, personal loan, or advance loan\", \"Prepaid card\". A near-miss (e.g. wrong wording) silently returns 0 results rather than an error."
+                  },
+                  "company": {
+                    "type": "string",
+                    "description": "Exact registered company name as CFPB records it, typically uppercase with legal suffix (e.g. \"EQUIFAX, INC.\", \"WELLS FARGO & COMPANY\", \"BANK OF AMERICA, NATIONAL ASSOCIATION\"). A near-miss silently returns 0 results rather than an error."
+                  },
+                  "state": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2,
+                    "description": "Two-letter US state or territory postal abbreviation (e.g. \"CA\", \"NY\", \"PR\")."
+                  },
+                  "issue": {
+                    "type": "string",
+                    "description": "Exact CFPB issue category — must match verbatim, e.g. \"Incorrect information on your report\", \"Attempts to collect debt not owed\", \"Managing an account\", \"Written notification about debt\". A near-miss silently returns 0 results rather than an error."
+                  },
+                  "company_response": {
+                    "type": "string",
+                    "enum": [
+                      "Closed with explanation",
+                      "Closed with non-monetary relief",
+                      "Closed with monetary relief",
+                      "Closed with relief",
+                      "Closed without relief",
+                      "In progress",
+                      "Untimely response",
+                      "Closed"
+                    ],
+                    "description": "How the company responded to the complaint."
+                  },
+                  "timely": {
+                    "type": "string",
+                    "enum": [
+                      "Yes",
+                      "No"
+                    ],
+                    "description": "Whether the company responded to the complaint in a timely manner."
+                  },
+                  "has_narrative": {
+                    "type": "boolean",
+                    "description": "Only return complaints that include (true) or omit (false) a consumer narrative."
+                  },
+                  "date_received_min": {
+                    "type": "string",
+                    "description": "Only complaints received on/after this date, format YYYY-MM-DD."
+                  },
+                  "date_received_max": {
+                    "type": "string",
+                    "description": "Only complaints received on/before this date, format YYYY-MM-DD."
+                  },
+                  "size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Number of complaints to return, 1-100 (default 10)."
+                  },
+                  "frm": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9900,
+                    "description": "Offset for pagination, i.e. skip this many results (default 0)."
+                  },
+                  "sort": {
+                    "type": "string",
+                    "enum": [
+                      "relevance_desc",
+                      "relevance_asc",
+                      "created_date_desc",
+                      "created_date_asc"
+                    ],
+                    "description": "Result ordering (default \"created_date_desc\")."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/cfpb-complaints.trends/call": {
+      "post": {
+        "operationId": "cfpb-complaints_trends",
+        "summary": "CFPB Consumer Complaint Volume Trends",
+        "description": "Get the time-series trend of CFPB consumer complaint volume — weekly, monthly, or yearly buckets — optionally filtered by product, company, or US state, and optionally broken down (e.g. by sub-product or issue when a lens is specified). Useful for spotting spikes in complaints against a company or product over time. Data: consumerfinance.gov (CFPB), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cfpb-complaints.trends"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "lens": {
+                    "type": "string",
+                    "enum": [
+                      "overview",
+                      "product",
+                      "issue",
+                      "company"
+                    ],
+                    "description": "Trend breakdown dimension (default \"overview\" — total volume only, no `sub_lens` needed). \"product\"/\"issue\"/\"company\" require `sub_lens` to be set, or upstream returns a 422 listing the valid sub-lens choices for that lens."
+                  },
+                  "sub_lens": {
+                    "type": "string",
+                    "enum": [
+                      "sub_product",
+                      "issue",
+                      "sub_issue",
+                      "company",
+                      "tags",
+                      "product"
+                    ],
+                    "description": "Secondary breakdown required when `lens` is not \"overview\". Valid per lens: product→(sub_product, issue, company, tags); issue→(product, sub_issue, company, tags); company→(product, issue, tags)."
+                  },
+                  "trend_interval": {
+                    "type": "string",
+                    "enum": [
+                      "week",
+                      "month",
+                      "year"
+                    ],
+                    "description": "Time bucket size for the trend series (default \"month\")."
+                  },
+                  "date_min": {
+                    "type": "string",
+                    "description": "Start of the date range, format YYYY-MM-DD."
+                  },
+                  "date_max": {
+                    "type": "string",
+                    "description": "End of the date range, format YYYY-MM-DD."
+                  },
+                  "product": {
+                    "type": "string",
+                    "description": "Exact CFPB product category — must match verbatim, e.g. \"Credit reporting or other personal consumer reports\", \"Debt collection\", \"Mortgage\", \"Checking or savings account\", \"Credit card\", \"Credit card or prepaid card\", \"Money transfer, virtual currency, or money service\", \"Student loan\", \"Vehicle loan or lease\", \"Payday loan, title loan, personal loan, or advance loan\", \"Prepaid card\". A near-miss (e.g. wrong wording) silently returns 0 results rather than an error."
+                  },
+                  "company": {
+                    "type": "string",
+                    "description": "Exact registered company name as CFPB records it, typically uppercase with legal suffix (e.g. \"EQUIFAX, INC.\", \"WELLS FARGO & COMPANY\", \"BANK OF AMERICA, NATIONAL ASSOCIATION\"). A near-miss silently returns 0 results rather than an error."
+                  },
+                  "state": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2,
+                    "description": "Two-letter US state or territory postal abbreviation (e.g. \"CA\", \"NY\", \"PR\")."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/cfpb-complaints.geo_states/call": {
+      "post": {
+        "operationId": "cfpb-complaints_geo_states",
+        "summary": "CFPB Consumer Complaints by US State",
+        "description": "Get per-US-state consumer complaint counts from the CFPB complaint database, with each state's top complaint products and issues, optionally filtered by date range, product, or company. Useful for geographic analysis of consumer financial complaints. Data: consumerfinance.gov (CFPB), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cfpb-complaints.geo_states"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "date_received_min": {
+                    "type": "string",
+                    "description": "Only count complaints received on/after this date, format YYYY-MM-DD."
+                  },
+                  "date_received_max": {
+                    "type": "string",
+                    "description": "Only count complaints received on/before this date, format YYYY-MM-DD."
+                  },
+                  "product": {
+                    "type": "string",
+                    "description": "Exact CFPB product category — must match verbatim, e.g. \"Credit reporting or other personal consumer reports\", \"Debt collection\", \"Mortgage\", \"Checking or savings account\", \"Credit card\", \"Credit card or prepaid card\", \"Money transfer, virtual currency, or money service\", \"Student loan\", \"Vehicle loan or lease\", \"Payday loan, title loan, personal loan, or advance loan\", \"Prepaid card\". A near-miss (e.g. wrong wording) silently returns 0 results rather than an error."
+                  },
+                  "company": {
+                    "type": "string",
+                    "description": "Exact registered company name as CFPB records it, typically uppercase with legal suffix (e.g. \"EQUIFAX, INC.\", \"WELLS FARGO & COMPANY\", \"BANK OF AMERICA, NATIONAL ASSOCIATION\"). A near-miss silently returns 0 results rather than an error."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

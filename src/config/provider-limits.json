@@ -2987,5 +2987,14 @@
     "reset_period": "none",
     "docs_url": "https://apps.nationalmap.gov/epqs/",
     "limit_proof": "No API key or registration required (US Government open data, USGS 3D Elevation Program). No X-RateLimit headers or documented per-caller cap found in live responses."
+  },
+  "cfpb-complaints": {
+    "display_name": "CFPB Consumer Complaint Database",
+    "health_url": "https://www.consumerfinance.gov/data-research/consumer-complaints/search/api/v1/?size=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://cfpb.github.io/api/ccdb/",
+    "limit_proof": "No API key or registration required (US Government open data, Consumer Financial Protection Bureau). No X-RateLimit headers or documented per-caller cap found in live responses."
   }
 }

@@ -333,6 +333,7 @@ import { NsfAwardsAdapter } from './nsf-awards';
 import { UsgsNationalMapAdapter } from './usgs-nationalmap';
 import { SecEdgarAdapter } from './sec-edgar';
 import { UsgsEpqsAdapter } from './usgs-epqs';
+import { CfpbComplaintsAdapter } from './cfpb-complaints';
 import { config } from '../config';
 
 /**
@@ -1794,6 +1795,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'usgs-epqs':
       // USGS Elevation Point Query Service (UC-613) — single-point 3DEP elevation; no auth
       return getOrCreate('usgs-epqs', () => new UsgsEpqsAdapter());
+    case 'cfpb-complaints':
+      // CFPB Consumer Complaint Database API (UC-614) — complaint search, trends, per-state stats; no auth
+      return getOrCreate('cfpb-complaints', () => new CfpbComplaintsAdapter());
     default:
       return undefined;
   }

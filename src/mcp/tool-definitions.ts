@@ -14122,4 +14122,46 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'location',
     annotations: READ_ONLY,
   },
+  // ---------------------------------------------------------------------------
+  // CFPB Consumer Complaint Database API (UC-614, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'cfpb-complaints.search',
+    mcpName: 'cfpb-complaints.complaints.search',
+    title: 'Search CFPB Consumer Complaints',
+    description:
+      'Search the US Consumer Financial Protection Bureau public complaint database of 17M+ ' +
+      'consumer complaints against financial companies (banks, credit reporting agencies, debt ' +
+      'collectors, lenders). Filter by product, company, US state, issue, company response, ' +
+      'timeliness, whether a narrative was provided, and date range, or full-text search consumer ' +
+      'narratives. Returns complaint records with product/issue category, company, state, dates, and ' +
+      'company response. Data: consumerfinance.gov (CFPB), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'cfpb-complaints.trends',
+    mcpName: 'cfpb-complaints.complaints.trends',
+    title: 'CFPB Consumer Complaint Volume Trends',
+    description:
+      'Get the time-series trend of CFPB consumer complaint volume — weekly, monthly, or yearly ' +
+      'buckets — optionally filtered by product, company, or US state, and optionally broken down ' +
+      '(e.g. by sub-product or issue when a lens is specified). Useful for spotting spikes in ' +
+      'complaints against a company or product over time. Data: consumerfinance.gov (CFPB), no auth ' +
+      'required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'cfpb-complaints.geo_states',
+    mcpName: 'cfpb-complaints.complaints.by_state',
+    title: 'CFPB Consumer Complaints by US State',
+    description:
+      'Get per-US-state consumer complaint counts from the CFPB complaint database, with each ' +
+      "state's top complaint products and issues, optionally filtered by date range, product, or " +
+      'company. Useful for geographic analysis of consumer financial complaints. Data: ' +
+      'consumerfinance.gov (CFPB), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
 ];

@@ -7173,6 +7173,24 @@ tools:
     price_usd: "0.001"
     cache_ttl: 604800
 
+  - tool_id: cfpb-complaints.search
+    name: Search CFPB Consumer Complaints
+    provider: cfpb-complaints
+    price_usd: "0.002"
+    cache_ttl: 900
+
+  - tool_id: cfpb-complaints.trends
+    name: CFPB Consumer Complaint Volume Trends
+    provider: cfpb-complaints
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: cfpb-complaints.geo_states
+    name: CFPB Consumer Complaints by US State
+    provider: cfpb-complaints
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform
