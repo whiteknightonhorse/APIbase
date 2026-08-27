@@ -313,6 +313,7 @@ Use these examples as reference patterns when:
 | UC-616 | Current UV Index (currentuvindex.com) | Global real-time UV Index by latitude/longitude, ~120h hourly forecast, up to 24h hourly history, WHO/EPA risk category per point, peak-forecast summary; CC BY 4.0, no auth | LIVE | No auth, 1 tool | `usecases/UC-616-currentuvindex.md` |
 | UC-617 | GUS Poland BDL (bdl.stat.gov.pl) | Polish official statistics (prices, demography, finance, environment, labour market) by topic/variable/territorial unit; Polish Gov open data, no auth | LIVE | No auth, 3 tools | `usecases/UC-617-gus-poland.md` |
 | UC-620 | iNaturalist (api.inaturalist.org) | Global citizen-science wildlife database — taxon/species search, observation search by species/place/radius/date/quality, per-place most-observed species summary, place name lookup; no auth | LIVE | No auth, 4 tools | `usecases/UC-620-inaturalist.md` |
+| UC-621 | Figshare (api.figshare.com) | Open research repository — article search by query/DOI/item-type, full article detail (authors, license, downloadable files, citation), 2,180-entry subject-category taxonomy browse/search; CC-licensed outputs, no auth | LIVE | No auth, 3 tools | `usecases/UC-621-figshare.md` |
 
 ## How to Use
 

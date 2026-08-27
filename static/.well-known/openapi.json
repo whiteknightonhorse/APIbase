@@ -108142,6 +108142,282 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/figshare.search/call": {
+      "post": {
+        "operationId": "figshare_search",
+        "summary": "Search Figshare Research Articles",
+        "description": "Search Figshare's open research repository for datasets, figures, papers, preprints, media, and other research outputs, e.g. \"soil moisture\" or \"gene expression\". Filter by free-text query, exact DOI, or research output type (dataset, figure, journal_contribution, preprint, thesis, software, etc.), sorted by publication date. Returns each article's id (for use with figshare.article_details), title, DOI, item type, publish date, and URL. Data: Figshare.com, CC-licensed research outputs, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "figshare.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Free-text search across title, description, and author (e.g. \"soil moisture\", \"gene expression\")."
+                  },
+                  "doi": {
+                    "type": "string",
+                    "description": "Filter by exact DOI (e.g. \"10.6084/m9.figshare.33350571.v1\")."
+                  },
+                  "item_type": {
+                    "type": "string",
+                    "enum": [
+                      "figure",
+                      "media",
+                      "dataset",
+                      "poster",
+                      "journal_contribution",
+                      "presentation",
+                      "thesis",
+                      "software",
+                      "online_resource",
+                      "preprint",
+                      "book",
+                      "conference_contribution"
+                    ],
+                    "description": "Filter by research output type: figure, media, dataset, poster, journal_contribution, presentation, thesis, software, online_resource, preprint, book, or conference_contribution."
+                  },
+                  "order_direction": {
+                    "type": "string",
+                    "enum": [
+                      "asc",
+                      "desc"
+                    ],
+                    "description": "Sort direction by published date (default \"desc\" — newest first)."
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Page number for pagination (default 1)."
+                  },
+                  "page_size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Results per page (default 10, max 50)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/figshare.article_details/call": {
+      "post": {
+        "operationId": "figshare_article_details",
+        "summary": "Get Figshare Article Details",
+        "description": "Get full metadata for a Figshare research article by its article_id (from figshare.search): description, citation, authors with ORCID IDs, tags, subject categories, license, version, publish/modified dates, and downloadable files with direct download URLs, sizes, and MIME types. Data: Figshare.com, CC-licensed research outputs, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "figshare.article_details"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "article_id": {
+                    "type": "integer",
+                    "description": "Figshare article ID (e.g. 33350571) — obtained from figshare.search results.",
+                    "minimum": 1
+                  }
+                },
+                "required": [
+                  "article_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/figshare.categories/call": {
+      "post": {
+        "operationId": "figshare_categories",
+        "summary": "Browse Figshare Subject Categories",
+        "description": "Browse or search Figshare's subject taxonomy (2000+ categories, e.g. \"Ecohydrology\", \"Agricultural biotechnology\") used to classify research articles. Optionally filter by a free-text title query. Returns category id, title, parent_id, and taxonomy path — useful for understanding how Figshare organizes research by subject area. Data: Figshare.com, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "figshare.categories"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Optional free-text filter on category/subject title (e.g. \"ecology\", \"biotechnology\"). Omit to browse the full taxonomy."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 200,
+                    "description": "Max categories to return (default 50, max 200)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

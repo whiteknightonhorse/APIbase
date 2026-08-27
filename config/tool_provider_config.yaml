@@ -7251,6 +7251,24 @@ tools:
     price_usd: "0.001"
     cache_ttl: 604800
 
+  - tool_id: figshare.search
+    name: Search Figshare Research Articles
+    provider: figshare
+    price_usd: "0.001"
+    cache_ttl: 900
+
+  - tool_id: figshare.article_details
+    name: Get Figshare Article Details
+    provider: figshare
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: figshare.categories
+    name: Browse Figshare Subject Categories
+    provider: figshare
+    price_usd: "0.001"
+    cache_ttl: 604800
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

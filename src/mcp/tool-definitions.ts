@@ -14303,4 +14303,46 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+  // ---------------------------------------------------------------------------
+  // Figshare API (UC-621, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'figshare.search',
+    mcpName: 'figshare.articles.search',
+    title: 'Search Figshare Research Articles',
+    description:
+      "Search Figshare's open research repository for datasets, figures, papers, preprints, " +
+      'media, and other research outputs, e.g. "soil moisture" or "gene expression". Filter by ' +
+      'free-text query, exact DOI, or research output type (dataset, figure, journal_contribution, ' +
+      "preprint, thesis, software, etc.), sorted by publication date. Returns each article's id " +
+      '(for use with figshare.article_details), title, DOI, item type, publish date, and URL. Data: ' +
+      'Figshare.com, CC-licensed research outputs, no auth required.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'figshare.article_details',
+    mcpName: 'figshare.articles.details',
+    title: 'Get Figshare Article Details',
+    description:
+      'Get full metadata for a Figshare research article by its article_id (from figshare.search): ' +
+      'description, citation, authors with ORCID IDs, tags, subject categories, license, version, ' +
+      'publish/modified dates, and downloadable files with direct download URLs, sizes, and MIME ' +
+      'types. Data: Figshare.com, CC-licensed research outputs, no auth required.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'figshare.categories',
+    mcpName: 'figshare.taxonomy.categories',
+    title: 'Browse Figshare Subject Categories',
+    description:
+      'Browse or search Figshare\'s subject taxonomy (2000+ categories, e.g. "Ecohydrology", ' +
+      '"Agricultural biotechnology") used to classify research articles. Optionally filter by a ' +
+      'free-text title query. Returns category id, title, parent_id, and taxonomy path — useful ' +
+      'for understanding how Figshare organizes research by subject area. Data: Figshare.com, no ' +
+      'auth required.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
 ];

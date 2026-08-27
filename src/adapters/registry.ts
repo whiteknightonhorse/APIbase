@@ -338,6 +338,7 @@ import { EmscAdapter } from './emsc';
 import { CurrentUvIndexAdapter } from './currentuvindex';
 import { GusPolandAdapter } from './gus-poland';
 import { InaturalistAdapter } from './inaturalist';
+import { FigshareAdapter } from './figshare';
 import { config } from '../config';
 
 /**
@@ -1814,6 +1815,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'inaturalist':
       // iNaturalist API (UC-620) — species lookup, wildlife observation search, biodiversity stats; no auth
       return getOrCreate('inaturalist', () => new InaturalistAdapter());
+    case 'figshare':
+      // Figshare API (UC-621) — open research article search, article details, subject categories; no auth
+      return getOrCreate('figshare', () => new FigshareAdapter());
     default:
       return undefined;
   }
