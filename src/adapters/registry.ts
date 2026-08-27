@@ -339,6 +339,8 @@ import { CurrentUvIndexAdapter } from './currentuvindex';
 import { GusPolandAdapter } from './gus-poland';
 import { InaturalistAdapter } from './inaturalist';
 import { FigshareAdapter } from './figshare';
+import { OpenaireAdapter } from './openaire';
+import { GebcoAdapter } from './gebco';
 import { config } from '../config';
 
 /**
@@ -1818,6 +1820,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'figshare':
       // Figshare API (UC-621) — open research article search, article details, subject categories; no auth
       return getOrCreate('figshare', () => new FigshareAdapter());
+    case 'openaire':
+      // OpenAIRE Graph API (UC-622) — research product/project/organization search; no auth
+      return getOrCreate('openaire', () => new OpenaireAdapter());
+    case 'gebco':
+      // GEBCO WMS (UC-623) — global bathymetry/topography point + profile elevation lookup; no auth
+      return getOrCreate('gebco', () => new GebcoAdapter());
     default:
       return undefined;
   }

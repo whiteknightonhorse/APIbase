@@ -339,6 +339,8 @@ import { currentuvindexSchemas } from './currentuvindex.schema';
 import { gusPolandSchemas } from './gus-poland.schema';
 import { inaturalistSchemas } from './inaturalist.schema';
 import { figshareSchemas } from './figshare.schema';
+import { openaireSchemas } from './openaire.schema';
+import { gebcoSchemas } from './gebco.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -681,4 +683,6 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...gusPolandSchemas,
   ...inaturalistSchemas,
   ...figshareSchemas,
+  ...openaireSchemas,
+  ...gebcoSchemas,
 };

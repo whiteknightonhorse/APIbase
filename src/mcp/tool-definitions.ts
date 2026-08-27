@@ -14345,4 +14345,91 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'education',
     annotations: READ_ONLY,
   },
+  // ---------------------------------------------------------------------------
+  // OpenAIRE Graph API (UC-622, 4 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'openaire.search',
+    mcpName: 'openaire.products.search',
+    title: 'Search OpenAIRE Research Products',
+    description:
+      'Search the OpenAIRE Graph — a research-literature graph aggregating metadata from ' +
+      'thousands of repositories, journals, and archives worldwide — for publications, datasets, ' +
+      'software, and other research outputs, e.g. "climate change adaptation" or "CRISPR gene ' +
+      'editing". Filter by free-text query and/or output type. Returns each product\'s id (for use ' +
+      'with openaire.product_details), title, authors, publication date, publisher, language, open ' +
+      'access status, and DOI. Data: OpenAIRE Graph API, EU-funded open science infrastructure, no ' +
+      'auth required.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'openaire.product_details',
+    mcpName: 'openaire.products.details',
+    title: 'Get OpenAIRE Research Product Details',
+    description:
+      'Get full metadata for an OpenAIRE research product by its product_id (from ' +
+      'openaire.search): title, description, full author list, publication date, publisher, ' +
+      'language, best open access right, source repositories, and persistent identifiers (DOIs). ' +
+      'Data: OpenAIRE Graph API, EU-funded open science infrastructure, no auth required.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'openaire.project_search',
+    mcpName: 'openaire.projects.search',
+    title: 'Search OpenAIRE Research Projects',
+    description:
+      'Search OpenAIRE for funded research projects by free-text query across title, acronym, ' +
+      'and keywords, e.g. "renewable energy" or "H2020". Returns project code, acronym, title, ' +
+      'website, start/end dates, call identifier, keywords, summary, and funder details (funding ' +
+      'body, jurisdiction, funding stream). Data: OpenAIRE Graph API, EU-funded open science ' +
+      'infrastructure, no auth required.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'openaire.organization_search',
+    mcpName: 'openaire.organizations.search',
+    title: 'Search OpenAIRE Research Organizations',
+    description:
+      'Search OpenAIRE for research organizations (universities, funders, institutes) by legal ' +
+      'or alternative name, e.g. "CERN" or "University of Oxford". Returns organization id, legal ' +
+      'name, short name, alternative names, website, and country. Data: OpenAIRE Graph API, ' +
+      'EU-funded open science infrastructure, no auth required.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  // ---------------------------------------------------------------------------
+  // GEBCO Bathymetry (UC-623, 2 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'gebco.elevation_point',
+    mcpName: 'gebco.elevation.point',
+    title: 'Get GEBCO Point Elevation',
+    description:
+      'Get the seafloor depth or land elevation at a single latitude/longitude point from the ' +
+      'GEBCO global bathymetric grid (General Bathymetric Chart of the Oceans, IHO/IOC Seabed ' +
+      '2030 project). Returns elevation in meters relative to sea level — negative for ocean ' +
+      'depth, positive for land height, e.g. -5943 near the Mariana Trench or 2947 in the ' +
+      'Himalayan foothills. Optionally query "sub_ice_topo" to get bedrock topography beneath ' +
+      'Antarctic/Greenland ice sheets instead of the ice surface. Data: GEBCO WMS, public domain, ' +
+      'no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'gebco.elevation_profile',
+    mcpName: 'gebco.elevation.profile',
+    title: 'Get GEBCO Elevation Profile',
+    description:
+      'Get seafloor depth or land elevation for up to 15 latitude/longitude points in one call ' +
+      'from the GEBCO global bathymetric grid — useful for building a depth/elevation profile ' +
+      'along a route or transect (e.g. a shipping lane or hiking trail). Returns elevation in ' +
+      'meters relative to sea level for each point, in the same order as the input. Optionally ' +
+      'query "sub_ice_topo" to get bedrock topography beneath ice sheets instead of the ice ' +
+      'surface. Data: GEBCO WMS, public domain, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

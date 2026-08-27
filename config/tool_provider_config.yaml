@@ -7269,6 +7269,44 @@ tools:
     price_usd: "0.001"
     cache_ttl: 604800
 
+  # --- UC-622: OpenAIRE ---
+  - tool_id: openaire.search
+    name: Search OpenAIRE Research Products
+    provider: openaire
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: openaire.product_details
+    name: Get OpenAIRE Research Product Details
+    provider: openaire
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: openaire.project_search
+    name: Search OpenAIRE Research Projects
+    provider: openaire
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: openaire.organization_search
+    name: Search OpenAIRE Research Organizations
+    provider: openaire
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  # --- UC-623: GEBCO ---
+  - tool_id: gebco.elevation_point
+    name: Get GEBCO Point Elevation
+    provider: gebco
+    price_usd: "0.001"
+    cache_ttl: 2592000
+
+  - tool_id: gebco.elevation_profile
+    name: Get GEBCO Elevation Profile
+    provider: gebco
+    price_usd: "0.002"
+    cache_ttl: 2592000
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform
