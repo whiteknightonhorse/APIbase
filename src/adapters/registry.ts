@@ -344,6 +344,7 @@ import { GebcoAdapter } from './gebco';
 import { EbiMetagenomicsAdapter } from './ebi-metagenomics';
 import { ImfAdapter } from './imf';
 import { EcdcSurveillanceAdapter } from './ecdc-surveillance';
+import { TransportRestAdapter } from './transport-rest';
 import { config } from '../config';
 
 /**
@@ -1838,6 +1839,10 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'ecdc-surveillance':
       // ECDC COVID-19 Surveillance (UC-625) — historical cases/deaths, testing, hospital/ICU rates; no auth, CC BY 4.0
       return getOrCreate('ecdc-surveillance', () => new EcdcSurveillanceAdapter());
+    case 'transport-rest':
+      // transport.rest / v6.bvg.transport.rest (UC-626) — Berlin/Brandenburg transit: location search,
+      // nearby stops, departures, journey planning; no auth
+      return getOrCreate('transport-rest', () => new TransportRestAdapter());
     default:
       return undefined;
   }

@@ -3086,5 +3086,14 @@
     "reset_period": "none",
     "docs_url": "https://www.ecdc.europa.eu/en/ecdc-intellectual-property-notices",
     "limit_proof": "No documented rate limit or API key requirement; no X-RateLimit-* headers observed on live responses. CC BY 4.0 licence explicitly permits commercial reuse/resale with attribution. Note: datasets are frozen (Last-Modified 2023-12-01) — ECDC discontinued routine COVID-19 surveillance reporting in December 2023."
+  },
+  "transport-rest": {
+    "display_name": "transport.rest (BVG Berlin Transit)",
+    "health_url": "https://v6.bvg.transport.rest/locations?query=Alexanderplatz&results=1",
+    "limit_type": "hourly",
+    "free_limit": 6000,
+    "reset_period": "hourly",
+    "docs_url": "https://v6.bvg.transport.rest/",
+    "limit_proof": "Docs state: 'You can just use the API without authentication. There's a rate limit of 100 requests/minute set up.' (100/min == 6000/hour). Community-run, publicly available, no API key."
   }
 }

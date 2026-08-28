@@ -2,8 +2,8 @@
   "platform": "APIbase",
   "version": "2.0",
   "updated_at": "2026-04-01T00:00:00Z",
-  "tools_count": 1100,
-  "providers_count": 305,
+  "tools_count": 1202,
+  "providers_count": 340,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
@@ -31,8 +31,8 @@
   "categories": [
     {
       "name": "travel",
-      "tools": 35,
-      "providers": "Amadeus, Aviasales, Sabre, IRCTC Indian Railways, OpenSky ADS-B",
+      "tools": 39,
+      "providers": "Amadeus, Aviasales, Sabre, IRCTC Indian Railways, OpenSky ADS-B, transport.rest",
       "examples": "flight search, pricing, airport lookup, Indian train schedules, live train status, live aircraft tracking, ADS-B states"
     },
     {
@@ -80,7 +80,7 @@
     {
       "name": "entertainment",
       "tools": 74,
-      "providers": "TMDB, Ticketmaster, RAWG, IGDB, Jikan, Lichess, Chess.com, MusicBrainz, PodcastIndex, API-Sports, Met Museum, Rijksmuseum, Cleveland Museum, OpenDota, Pok\u00e9API",
+      "providers": "TMDB, Ticketmaster, RAWG, IGDB, Jikan, Lichess, Chess.com, MusicBrainz, PodcastIndex, API-Sports, Met Museum, Rijksmuseum, Cleveland Museum, OpenDota, PokéAPI",
       "examples": "movies, events, games, anime, chess/esports, music, podcasts, sports, art collections, Dota 2 stats, Pokemon data"
     },
     {

@@ -7376,6 +7376,31 @@ tools:
     price_usd: "0.002"
     cache_ttl: 2592000
 
+  # --- UC-626: transport.rest (Berlin/Brandenburg transit) ---
+  - tool_id: transport-rest.location_search
+    name: Search Transit Stops & Addresses
+    provider: transport-rest
+    price_usd: "0.001"
+    cache_ttl: 604800
+
+  - tool_id: transport-rest.nearby_stops
+    name: Find Nearby Transit Stops
+    provider: transport-rest
+    price_usd: "0.001"
+    cache_ttl: 604800
+
+  - tool_id: transport-rest.stop_departures
+    name: Get Real-Time Stop Departures
+    provider: transport-rest
+    price_usd: "0.002"
+    cache_ttl: 60
+
+  - tool_id: transport-rest.journey_search
+    name: Plan Transit Journey
+    provider: transport-rest
+    price_usd: "0.002"
+    cache_ttl: 60
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

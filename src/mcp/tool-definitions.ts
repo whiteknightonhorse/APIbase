@@ -14582,4 +14582,54 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'health',
     annotations: READ_ONLY,
   },
+  // ---------------------------------------------------------------------------
+  // transport.rest — Berlin/Brandenburg Public Transit (UC-626, 4 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'transport-rest.location_search',
+    mcpName: 'transport-rest.transit.search_locations',
+    title: 'Search Transit Stops & Addresses',
+    description:
+      'Search for public transit stops/stations, addresses, or points of interest in Berlin/' +
+      'Brandenburg by name (e.g. "Alexanderplatz"). Returns location IDs and coordinates to use with ' +
+      'departures, journey planning, and nearby-stop lookups. Data: v6.bvg.transport.rest (community ' +
+      'HAFAS wrapper for BVG), no auth required, 100 req/min.',
+    category: 'travel',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'transport-rest.nearby_stops',
+    mcpName: 'transport-rest.transit.nearby_stops',
+    title: 'Find Nearby Transit Stops',
+    description:
+      'Find public transit stops/stations near a latitude/longitude coordinate in Berlin/Brandenburg, ' +
+      'sorted by walking distance. Useful for "what transit is near this address" queries. Data: ' +
+      'v6.bvg.transport.rest (community HAFAS wrapper for BVG), no auth required, 100 req/min.',
+    category: 'travel',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'transport-rest.stop_departures',
+    mcpName: 'transport-rest.transit.departures',
+    title: 'Get Real-Time Stop Departures',
+    description:
+      'Get real-time upcoming departures (line, direction, platform, delay) for a Berlin/Brandenburg ' +
+      'transit stop within a time window. Stop ID comes from transport-rest.transit.search_locations ' +
+      'or transport-rest.transit.nearby_stops. Data: v6.bvg.transport.rest (community HAFAS wrapper ' +
+      'for BVG), no auth required, 100 req/min.',
+    category: 'travel',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'transport-rest.journey_search',
+    mcpName: 'transport-rest.transit.plan_journey',
+    title: 'Plan Transit Journey',
+    description:
+      'Plan a public transit journey between two Berlin/Brandenburg stops, with leg-by-leg routing ' +
+      '(lines, transfers, real-time delays, duration). Stop IDs come from ' +
+      'transport-rest.transit.search_locations or transport-rest.transit.nearby_stops. Data: ' +
+      'v6.bvg.transport.rest (community HAFAS wrapper for BVG), no auth required, 100 req/min.',
+    category: 'travel',
+    annotations: READ_ONLY,
+  },
 ];
