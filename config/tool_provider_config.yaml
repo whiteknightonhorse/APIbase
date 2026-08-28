@@ -7307,6 +7307,31 @@ tools:
     price_usd: "0.002"
     cache_ttl: 2592000
 
+  # --- UC-624: EBI Metagenomics / MGnify ---
+  - tool_id: ebi-metagenomics.study_search
+    name: Search MGnify Metagenomic Studies
+    provider: ebi-metagenomics
+    price_usd: "0.001"
+    cache_ttl: 900
+
+  - tool_id: ebi-metagenomics.study_detail
+    name: Get MGnify Study Detail
+    provider: ebi-metagenomics
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: ebi-metagenomics.sample_list
+    name: List Samples for a MGnify Study
+    provider: ebi-metagenomics
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: ebi-metagenomics.biome_browse
+    name: Browse MGnify Biome Classification Tree
+    provider: ebi-metagenomics
+    price_usd: "0.001"
+    cache_ttl: 604800
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

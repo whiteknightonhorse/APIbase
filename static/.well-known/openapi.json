@@ -108969,6 +108969,351 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/ebi-metagenomics.study_search/call": {
+      "post": {
+        "operationId": "ebi-metagenomics_study_search",
+        "summary": "Search MGnify Metagenomic Studies",
+        "description": "Search EBI's MGnify metagenomics archive for studies by free-text query (name/abstract/bioproject) and/or biome lineage (e.g. \"root:Host-associated:Human\"). Returns each study's accession, name, abstract, bioproject, sequencing centre, sample count, last-update date, and associated biome lineages. Data: EMBL-EBI MGnify (www.ebi.ac.uk/metagenomics), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ebi-metagenomics.study_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Free-text search across study name, abstract, and bioproject, e.g. \"gut microbiome\"."
+                  },
+                  "biome_lineage": {
+                    "type": "string",
+                    "description": "Filter to studies classified under this biome lineage, e.g. \"root:Host-associated:Human\" or \"root:Environmental:Aquatic:Marine\". Get valid lineages from ebi-metagenomics.biome_browse."
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Page number, 1-indexed (default 1)."
+                  },
+                  "page_size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 25,
+                    "description": "Number of studies to return per page, 1-25 (default 10)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ebi-metagenomics.study_detail/call": {
+      "post": {
+        "operationId": "ebi-metagenomics_study_detail",
+        "summary": "Get MGnify Study Detail",
+        "description": "Get full detail for one MGnify study by its accession (e.g. \"MGYS00006862\") from ebi-metagenomics.study_search: study name, abstract, bioproject, secondary accession, sequencing centre, sample count, privacy/release status, data origination, and biome lineages. Data: EMBL-EBI MGnify (www.ebi.ac.uk/metagenomics), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ebi-metagenomics.study_detail"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "accession": {
+                    "type": "string",
+                    "description": "MGnify study accession, e.g. \"MGYS00006862\", from ebi-metagenomics.study_search.",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "accession"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ebi-metagenomics.sample_list/call": {
+      "post": {
+        "operationId": "ebi-metagenomics_sample_list",
+        "summary": "List Samples for a MGnify Study",
+        "description": "List the biological samples belonging to a MGnify study (study_accession from ebi-metagenomics.study_search or ebi-metagenomics.study_detail). Returns each sample's accession, name, description, BioSample ID, latitude/longitude, geographic location, collection date, environment biome/feature/material, host taxon ID, species, and metadata key/value pairs. Data: EMBL-EBI MGnify (www.ebi.ac.uk/metagenomics), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ebi-metagenomics.sample_list"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "study_accession": {
+                    "type": "string",
+                    "description": "MGnify study accession, e.g. \"MGYS00006862\", from ebi-metagenomics.study_search.",
+                    "minLength": 1
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Page number, 1-indexed (default 1)."
+                  },
+                  "page_size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Number of samples to return per page, 1-50 (default 10)."
+                  }
+                },
+                "required": [
+                  "study_accession"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ebi-metagenomics.biome_browse/call": {
+      "post": {
+        "operationId": "ebi-metagenomics_biome_browse",
+        "summary": "Browse MGnify Biome Classification Tree",
+        "description": "Browse MGnify's environment classification tree starting at a given lineage — returns the queried biome plus every descendant beneath it (not just immediate children), e.g. lineage \"root\" for the entire tree or \"root:Host-associated\" for just that subtree. Returns each biome's lineage, name, and sample count — use the returned lineage as the biome_lineage filter in ebi-metagenomics.study_search. Data: EMBL-EBI MGnify (www.ebi.ac.uk/metagenomics), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ebi-metagenomics.biome_browse"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "lineage": {
+                    "type": "string",
+                    "description": "Biome lineage to browse the descendant subtree of, e.g. \"root\" (entire tree), \"root:Host-associated\", or \"root:Environmental:Aquatic:Marine\". Defaults to \"root\". Returns the queried biome plus every descendant beneath it, not just immediate children."
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Page number, 1-indexed (default 1)."
+                  },
+                  "page_size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Number of biomes to return per page, 1-50 (default 20)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

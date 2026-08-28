@@ -3059,5 +3059,14 @@
     "reset_period": "none",
     "docs_url": "https://www.gebco.net/data-products/gebco-web-services",
     "limit_proof": "No documented rate limit found on the GEBCO Web Services pages or previous-WMS docs; the public WMS at wms.gebco.net is IHO/IOC/Seabed 2030 open-access infrastructure with no auth/registration required."
+  },
+  "ebi-metagenomics": {
+    "display_name": "EBI Metagenomics",
+    "health_url": "https://www.ebi.ac.uk/metagenomics/api/v1/studies?page_size=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.ebi.ac.uk/metagenomics/api/v1/docs/",
+    "limit_proof": "No documented rate limit found in the MGnify API docs; no X-RateLimit-* headers observed on live responses. Public EMBL-EBI research infrastructure, no auth/registration required."
   }
 }

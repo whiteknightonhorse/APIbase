@@ -341,6 +341,7 @@ import { InaturalistAdapter } from './inaturalist';
 import { FigshareAdapter } from './figshare';
 import { OpenaireAdapter } from './openaire';
 import { GebcoAdapter } from './gebco';
+import { EbiMetagenomicsAdapter } from './ebi-metagenomics';
 import { config } from '../config';
 
 /**
@@ -1826,6 +1827,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'gebco':
       // GEBCO WMS (UC-623) — global bathymetry/topography point + profile elevation lookup; no auth
       return getOrCreate('gebco', () => new GebcoAdapter());
+    case 'ebi-metagenomics':
+      // EBI Metagenomics / MGnify API (UC-624) — study/sample search + biome classification browse; no auth
+      return getOrCreate('ebi-metagenomics', () => new EbiMetagenomicsAdapter());
     default:
       return undefined;
   }

@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1187 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1191 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -56776,6 +56776,183 @@
         "required": [
           "points"
         ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ebi-metagenomics.studies.search",
+      "description": "Search EBI's MGnify metagenomics archive for studies by free-text query (name/abstract/bioproject) and/or biome lineage (e.g. \"root:Host-associated:Human\"). Returns each study's accession, name, abstract, bioproject, sequencing centre, sample count, last-update date, and associated biome lineages. Data: EMBL-EBI MGnify (www.ebi.ac.uk/metagenomics), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Free-text search across study name, abstract, and bioproject, e.g. \"gut microbiome\"."
+          },
+          "biome_lineage": {
+            "type": "string",
+            "description": "Filter to studies classified under this biome lineage, e.g. \"root:Host-associated:Human\" or \"root:Environmental:Aquatic:Marine\". Get valid lineages from ebi-metagenomics.biome_browse."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number, 1-indexed (default 1)."
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 25,
+            "description": "Number of studies to return per page, 1-25 (default 10)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ebi-metagenomics.studies.detail",
+      "description": "Get full detail for one MGnify study by its accession (e.g. \"MGYS00006862\") from ebi-metagenomics.study_search: study name, abstract, bioproject, secondary accession, sequencing centre, sample count, privacy/release status, data origination, and biome lineages. Data: EMBL-EBI MGnify (www.ebi.ac.uk/metagenomics), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "accession": {
+            "type": "string",
+            "description": "MGnify study accession, e.g. \"MGYS00006862\", from ebi-metagenomics.study_search.",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "accession"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ebi-metagenomics.samples.list",
+      "description": "List the biological samples belonging to a MGnify study (study_accession from ebi-metagenomics.study_search or ebi-metagenomics.study_detail). Returns each sample's accession, name, description, BioSample ID, latitude/longitude, geographic location, collection date, environment biome/feature/material, host taxon ID, species, and metadata key/value pairs. Data: EMBL-EBI MGnify (www.ebi.ac.uk/metagenomics), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "study_accession": {
+            "type": "string",
+            "description": "MGnify study accession, e.g. \"MGYS00006862\", from ebi-metagenomics.study_search.",
+            "minLength": 1
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number, 1-indexed (default 1)."
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of samples to return per page, 1-50 (default 10)."
+          }
+        },
+        "required": [
+          "study_accession"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ebi-metagenomics.biomes.browse",
+      "description": "Browse MGnify's environment classification tree starting at a given lineage — returns the queried biome plus every descendant beneath it (not just immediate children), e.g. lineage \"root\" for the entire tree or \"root:Host-associated\" for just that subtree. Returns each biome's lineage, name, and sample count — use the returned lineage as the biome_lineage filter in ebi-metagenomics.study_search. Data: EMBL-EBI MGnify (www.ebi.ac.uk/metagenomics), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "lineage": {
+            "type": "string",
+            "description": "Biome lineage to browse the descendant subtree of, e.g. \"root\" (entire tree), \"root:Host-associated\", or \"root:Environmental:Aquatic:Marine\". Defaults to \"root\". Returns the queried biome plus every descendant beneath it, not just immediate children."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number, 1-indexed (default 1)."
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of biomes to return per page, 1-50 (default 20)."
+          }
+        }
       },
       "outputSchema": {
         "type": "object",

@@ -14432,4 +14432,58 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+  // ---------------------------------------------------------------------------
+  // EBI Metagenomics / MGnify API (UC-624, 4 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'ebi-metagenomics.study_search',
+    mcpName: 'ebi-metagenomics.studies.search',
+    title: 'Search MGnify Metagenomic Studies',
+    description:
+      "Search EBI's MGnify metagenomics archive for studies by free-text query (name/abstract/" +
+      'bioproject) and/or biome lineage (e.g. "root:Host-associated:Human"). Returns each study\'s ' +
+      'accession, name, abstract, bioproject, sequencing centre, sample count, last-update date, and ' +
+      'associated biome lineages. Data: EMBL-EBI MGnify (www.ebi.ac.uk/metagenomics), no auth required.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ebi-metagenomics.study_detail',
+    mcpName: 'ebi-metagenomics.studies.detail',
+    title: 'Get MGnify Study Detail',
+    description:
+      'Get full detail for one MGnify study by its accession (e.g. "MGYS00006862") from ' +
+      'ebi-metagenomics.study_search: study name, abstract, bioproject, secondary accession, ' +
+      'sequencing centre, sample count, privacy/release status, data origination, and biome ' +
+      'lineages. Data: EMBL-EBI MGnify (www.ebi.ac.uk/metagenomics), no auth required.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ebi-metagenomics.sample_list',
+    mcpName: 'ebi-metagenomics.samples.list',
+    title: 'List Samples for a MGnify Study',
+    description:
+      'List the biological samples belonging to a MGnify study (study_accession from ' +
+      "ebi-metagenomics.study_search or ebi-metagenomics.study_detail). Returns each sample's " +
+      'accession, name, description, BioSample ID, latitude/longitude, geographic location, ' +
+      'collection date, environment biome/feature/material, host taxon ID, species, and metadata ' +
+      'key/value pairs. Data: EMBL-EBI MGnify (www.ebi.ac.uk/metagenomics), no auth required.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ebi-metagenomics.biome_browse',
+    mcpName: 'ebi-metagenomics.biomes.browse',
+    title: 'Browse MGnify Biome Classification Tree',
+    description:
+      "Browse MGnify's environment classification tree starting at a given lineage — returns the " +
+      'queried biome plus every descendant beneath it (not just immediate children), e.g. lineage ' +
+      '"root" for the entire tree or "root:Host-associated" for just that subtree. Returns each ' +
+      "biome's lineage, name, and sample count — use the returned lineage as the biome_lineage " +
+      'filter in ebi-metagenomics.study_search. Data: EMBL-EBI MGnify (www.ebi.ac.uk/metagenomics), ' +
+      'no auth required.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
 ];

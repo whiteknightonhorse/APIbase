@@ -315,6 +315,7 @@ Use these examples as reference patterns when:
 | UC-620 | iNaturalist (api.inaturalist.org) | Global citizen-science wildlife database — taxon/species search, observation search by species/place/radius/date/quality, per-place most-observed species summary, place name lookup; no auth | LIVE | No auth, 4 tools | `usecases/UC-620-inaturalist.md` |
 | UC-621 | Figshare (api.figshare.com) | Open research repository — article search by query/DOI/item-type, full article detail (authors, license, downloadable files, citation), 2,180-entry subject-category taxonomy browse/search; CC-licensed outputs, no auth | LIVE | No auth, 3 tools | `usecases/UC-621-figshare.md` |
 | UC-623 | GEBCO Bathymetry (wms.gebco.net) | Global seafloor depth / land elevation from the GEBCO grid — single-point lookup and 2-15 point profile, standard surface or sub-ice bedrock topography; IHO/IOC Seabed 2030, public domain, no auth | LIVE | No auth, 2 tools | `usecases/UC-623-gebco.md` |
+| UC-624 | EBI Metagenomics / MGnify (www.ebi.ac.uk/metagenomics) | Metagenomic study/sample archive — study search by text/biome lineage, full study detail, per-study sample listing (geo-coords, environment metadata), biome classification tree browse; public EMBL-EBI infrastructure, no auth | LIVE | No auth, 4 tools | `usecases/UC-624-ebi-metagenomics.md` |
 
 ## How to Use
 
