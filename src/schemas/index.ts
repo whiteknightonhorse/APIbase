@@ -345,6 +345,7 @@ import { ebiMetagenomicsSchemas } from './ebi-metagenomics.schema';
 import { imfSchemas } from './imf.schema';
 import { ecdcSurveillanceSchemas } from './ecdc-surveillance.schema';
 import { transportRestSchemas } from './transport-rest.schema';
+import { meteostatSchemas } from './meteostat.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -693,4 +694,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...imfSchemas,
   ...ecdcSurveillanceSchemas,
   ...transportRestSchemas,
+  ...meteostatSchemas,
 };

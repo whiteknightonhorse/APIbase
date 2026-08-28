@@ -14632,4 +14632,65 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'travel',
     annotations: READ_ONLY,
   },
+  // ---------------------------------------------------------------------------
+  // Meteostat — Weather Station Observations (UC-627, 5 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'meteostat.stations_nearby',
+    mcpName: 'meteostat.stations.nearby',
+    title: 'Find Nearby Weather Stations',
+    description:
+      'Find Meteostat weather stations near a latitude/longitude coordinate, sorted by distance. ' +
+      'Returns station IDs to use with station_info and the daily/monthly/hourly observation ' +
+      'tools. Data: Meteostat open station directory (CC BY 4.0), no auth required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'meteostat.station_info',
+    mcpName: 'meteostat.stations.info',
+    title: 'Get Weather Station Metadata',
+    description:
+      'Get metadata for a Meteostat weather station by ID: name, country/region, coordinates, ' +
+      'timezone, and the date ranges of available hourly/daily/monthly data. Station ID comes ' +
+      'from meteostat.stations_nearby. Data: Meteostat (CC BY 4.0), no auth required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'meteostat.daily_data',
+    mcpName: 'meteostat.observations.daily',
+    title: 'Get Daily Weather Observations',
+    description:
+      'Get a full calendar year of daily weather observations (temperature, precipitation, ' +
+      'wind, pressure, sunshine, cloud cover) for a Meteostat weather station. Station ID comes ' +
+      'from meteostat.stations_nearby. Data: Meteostat, aggregated from national weather ' +
+      'services (CC BY 4.0), no auth required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'meteostat.monthly_data',
+    mcpName: 'meteostat.observations.monthly',
+    title: 'Get Monthly Weather History',
+    description:
+      'Get the full monthly weather history (mean/min/max temperature, precipitation, pressure, ' +
+      'sunshine) for a Meteostat weather station — can span many decades for long-running ' +
+      'stations. Station ID comes from meteostat.stations_nearby. Data: Meteostat (CC BY 4.0), ' +
+      'no auth required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'meteostat.hourly_data',
+    mcpName: 'meteostat.observations.hourly',
+    title: 'Get Hourly Weather Observations',
+    description:
+      'Get hourly weather observations (temperature, humidity, precipitation, wind, pressure, ' +
+      'cloud cover, weather condition code) for a Meteostat weather station over a date range of ' +
+      'up to 7 days within a single calendar year. Station ID comes from meteostat.stations_nearby. ' +
+      'Use meteostat.daily_data for longer time spans. Data: Meteostat (CC BY 4.0), no auth required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
 ];

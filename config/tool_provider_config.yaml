@@ -7401,6 +7401,37 @@ tools:
     price_usd: "0.002"
     cache_ttl: 60
 
+  # --- UC-627: Meteostat (weather station observations) ---
+  - tool_id: meteostat.stations_nearby
+    name: Find Nearby Weather Stations
+    provider: meteostat
+    price_usd: "0.002"
+    cache_ttl: 604800
+
+  - tool_id: meteostat.station_info
+    name: Get Weather Station Metadata
+    provider: meteostat
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: meteostat.daily_data
+    name: Get Daily Weather Observations
+    provider: meteostat
+    price_usd: "0.002"
+    cache_ttl: 21600
+
+  - tool_id: meteostat.monthly_data
+    name: Get Monthly Weather History
+    provider: meteostat
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: meteostat.hourly_data
+    name: Get Hourly Weather Observations
+    provider: meteostat
+    price_usd: "0.002"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

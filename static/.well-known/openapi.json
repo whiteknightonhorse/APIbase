@@ -110384,6 +110384,441 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/meteostat.stations_nearby/call": {
+      "post": {
+        "operationId": "meteostat_stations_nearby",
+        "summary": "Find Nearby Weather Stations",
+        "description": "Find Meteostat weather stations near a latitude/longitude coordinate, sorted by distance. Returns station IDs to use with station_info and the daily/monthly/hourly observation tools. Data: Meteostat open station directory (CC BY 4.0), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "meteostat.stations_nearby"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "lat": {
+                    "type": "number",
+                    "description": "Latitude of the search point (WGS84 decimal degrees).",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "lon": {
+                    "type": "number",
+                    "description": "Longitude of the search point (WGS84 decimal degrees).",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  "radius_km": {
+                    "type": "number",
+                    "minimum": 1,
+                    "maximum": 500,
+                    "description": "Search radius in kilometers (default 100, max 500)."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of stations to return, nearest first (default 10, max 50)."
+                  }
+                },
+                "required": [
+                  "lat",
+                  "lon"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/meteostat.station_info/call": {
+      "post": {
+        "operationId": "meteostat_station_info",
+        "summary": "Get Weather Station Metadata",
+        "description": "Get metadata for a Meteostat weather station by ID: name, country/region, coordinates, timezone, and the date ranges of available hourly/daily/monthly data. Station ID comes from meteostat.stations_nearby. Data: Meteostat (CC BY 4.0), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "meteostat.station_info"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "station_id": {
+                    "type": "string",
+                    "description": "Meteostat weather station ID (e.g. \"10637\" for Frankfurt Airport), obtained from meteostat.stations_nearby.",
+                    "minLength": 1,
+                    "maxLength": 20
+                  }
+                },
+                "required": [
+                  "station_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/meteostat.daily_data/call": {
+      "post": {
+        "operationId": "meteostat_daily_data",
+        "summary": "Get Daily Weather Observations",
+        "description": "Get a full calendar year of daily weather observations (temperature, precipitation, wind, pressure, sunshine, cloud cover) for a Meteostat weather station. Station ID comes from meteostat.stations_nearby. Data: Meteostat, aggregated from national weather services (CC BY 4.0), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "meteostat.daily_data"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "station_id": {
+                    "type": "string",
+                    "description": "Meteostat weather station ID, obtained from meteostat.stations_nearby.",
+                    "minLength": 1,
+                    "maxLength": 20
+                  },
+                  "year": {
+                    "type": "integer",
+                    "description": "Calendar year to fetch daily observations for (e.g. 2024).",
+                    "minimum": 1900
+                  }
+                },
+                "required": [
+                  "station_id",
+                  "year"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/meteostat.monthly_data/call": {
+      "post": {
+        "operationId": "meteostat_monthly_data",
+        "summary": "Get Monthly Weather History",
+        "description": "Get the full monthly weather history (mean/min/max temperature, precipitation, pressure, sunshine) for a Meteostat weather station — can span many decades for long-running stations. Station ID comes from meteostat.stations_nearby. Data: Meteostat (CC BY 4.0), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "meteostat.monthly_data"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "station_id": {
+                    "type": "string",
+                    "description": "Meteostat weather station ID, obtained from meteostat.stations_nearby. Returns the full monthly history available for the station (may span decades).",
+                    "minLength": 1,
+                    "maxLength": 20
+                  }
+                },
+                "required": [
+                  "station_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/meteostat.hourly_data/call": {
+      "post": {
+        "operationId": "meteostat_hourly_data",
+        "summary": "Get Hourly Weather Observations",
+        "description": "Get hourly weather observations (temperature, humidity, precipitation, wind, pressure, cloud cover, weather condition code) for a Meteostat weather station over a date range of up to 7 days within a single calendar year. Station ID comes from meteostat.stations_nearby. Use meteostat.daily_data for longer time spans. Data: Meteostat (CC BY 4.0), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "meteostat.hourly_data"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "station_id": {
+                    "type": "string",
+                    "description": "Meteostat weather station ID, obtained from meteostat.stations_nearby.",
+                    "minLength": 1,
+                    "maxLength": 20
+                  },
+                  "start_date": {
+                    "type": "string",
+                    "description": "Start of the date range in YYYY-MM-DD format (inclusive)."
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "End of the date range in YYYY-MM-DD format (inclusive). Must be within 7 days of start_date and in the same calendar year — use meteostat.daily_data for longer spans."
+                  }
+                },
+                "required": [
+                  "station_id",
+                  "start_date",
+                  "end_date"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

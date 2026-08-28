@@ -3095,5 +3095,14 @@
     "reset_period": "hourly",
     "docs_url": "https://v6.bvg.transport.rest/",
     "limit_proof": "Docs state: 'You can just use the API without authentication. There's a rate limit of 100 requests/minute set up.' (100/min == 6000/hour). Community-run, publicly available, no API key."
+  },
+  "meteostat": {
+    "display_name": "Meteostat Weather Data",
+    "health_url": "https://data.meteostat.net/stations/10637.json",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://dev.meteostat.net/data/timeseries",
+    "limit_proof": "Docs state: 'This interface does not require an API key.' No rate-limit headers observed on live responses; docs only ask callers to cache data and avoid malicious call volume. Note: the separate official JSON API (meteostat.p.rapidapi.com) requires a paid RapidAPI key and is NOT used by this adapter — only the free Data Access CSV/JSON dumps."
   }
 }

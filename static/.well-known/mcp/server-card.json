@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1202 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1207 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -57560,6 +57560,231 @@
         "required": [
           "from_stop_id",
           "to_stop_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "meteostat.stations.nearby",
+      "description": "Find Meteostat weather stations near a latitude/longitude coordinate, sorted by distance. Returns station IDs to use with station_info and the daily/monthly/hourly observation tools. Data: Meteostat open station directory (CC BY 4.0), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number",
+            "description": "Latitude of the search point (WGS84 decimal degrees).",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "lon": {
+            "type": "number",
+            "description": "Longitude of the search point (WGS84 decimal degrees).",
+            "minimum": -180,
+            "maximum": 180
+          },
+          "radius_km": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 500,
+            "description": "Search radius in kilometers (default 100, max 500)."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Maximum number of stations to return, nearest first (default 10, max 50)."
+          }
+        },
+        "required": [
+          "lat",
+          "lon"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "meteostat.stations.info",
+      "description": "Get metadata for a Meteostat weather station by ID: name, country/region, coordinates, timezone, and the date ranges of available hourly/daily/monthly data. Station ID comes from meteostat.stations_nearby. Data: Meteostat (CC BY 4.0), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "station_id": {
+            "type": "string",
+            "description": "Meteostat weather station ID (e.g. \"10637\" for Frankfurt Airport), obtained from meteostat.stations_nearby.",
+            "minLength": 1,
+            "maxLength": 20
+          }
+        },
+        "required": [
+          "station_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "meteostat.observations.daily",
+      "description": "Get a full calendar year of daily weather observations (temperature, precipitation, wind, pressure, sunshine, cloud cover) for a Meteostat weather station. Station ID comes from meteostat.stations_nearby. Data: Meteostat, aggregated from national weather services (CC BY 4.0), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "station_id": {
+            "type": "string",
+            "description": "Meteostat weather station ID, obtained from meteostat.stations_nearby.",
+            "minLength": 1,
+            "maxLength": 20
+          },
+          "year": {
+            "type": "integer",
+            "description": "Calendar year to fetch daily observations for (e.g. 2024).",
+            "minimum": 1900
+          }
+        },
+        "required": [
+          "station_id",
+          "year"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "meteostat.observations.monthly",
+      "description": "Get the full monthly weather history (mean/min/max temperature, precipitation, pressure, sunshine) for a Meteostat weather station — can span many decades for long-running stations. Station ID comes from meteostat.stations_nearby. Data: Meteostat (CC BY 4.0), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "station_id": {
+            "type": "string",
+            "description": "Meteostat weather station ID, obtained from meteostat.stations_nearby. Returns the full monthly history available for the station (may span decades).",
+            "minLength": 1,
+            "maxLength": 20
+          }
+        },
+        "required": [
+          "station_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "meteostat.observations.hourly",
+      "description": "Get hourly weather observations (temperature, humidity, precipitation, wind, pressure, cloud cover, weather condition code) for a Meteostat weather station over a date range of up to 7 days within a single calendar year. Station ID comes from meteostat.stations_nearby. Use meteostat.daily_data for longer time spans. Data: Meteostat (CC BY 4.0), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "station_id": {
+            "type": "string",
+            "description": "Meteostat weather station ID, obtained from meteostat.stations_nearby.",
+            "minLength": 1,
+            "maxLength": 20
+          },
+          "start_date": {
+            "type": "string",
+            "description": "Start of the date range in YYYY-MM-DD format (inclusive)."
+          },
+          "end_date": {
+            "type": "string",
+            "description": "End of the date range in YYYY-MM-DD format (inclusive). Must be within 7 days of start_date and in the same calendar year — use meteostat.daily_data for longer spans."
+          }
+        },
+        "required": [
+          "station_id",
+          "start_date",
+          "end_date"
         ]
       },
       "outputSchema": {

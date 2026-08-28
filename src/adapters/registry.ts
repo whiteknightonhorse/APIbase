@@ -345,6 +345,7 @@ import { EbiMetagenomicsAdapter } from './ebi-metagenomics';
 import { ImfAdapter } from './imf';
 import { EcdcSurveillanceAdapter } from './ecdc-surveillance';
 import { TransportRestAdapter } from './transport-rest';
+import { MeteostatAdapter } from './meteostat';
 import { config } from '../config';
 
 /**
@@ -1843,6 +1844,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // transport.rest / v6.bvg.transport.rest (UC-626) — Berlin/Brandenburg transit: location search,
       // nearby stops, departures, journey planning; no auth
       return getOrCreate('transport-rest', () => new TransportRestAdapter());
+    case 'meteostat':
+      // Meteostat Data Access interface (UC-627) — no-auth CSV/JSON dumps: nearby stations,
+      // station metadata, daily/monthly/hourly observations. Official RapidAPI JSON API is
+      // paid/gated and out of scope.
+      return getOrCreate('meteostat', () => new MeteostatAdapter());
     default:
       return undefined;
   }
