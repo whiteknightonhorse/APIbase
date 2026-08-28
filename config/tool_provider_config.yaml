@@ -7357,6 +7357,25 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-625: ECDC COVID-19 Surveillance ---
+  - tool_id: ecdc-surveillance.cases_deaths
+    name: Get ECDC COVID-19 Cases & Deaths
+    provider: ecdc-surveillance
+    price_usd: "0.002"
+    cache_ttl: 2592000
+
+  - tool_id: ecdc-surveillance.testing_rate
+    name: Get ECDC COVID-19 Testing Rate
+    provider: ecdc-surveillance
+    price_usd: "0.002"
+    cache_ttl: 2592000
+
+  - tool_id: ecdc-surveillance.hospital_icu
+    name: Get ECDC COVID-19 Hospital & ICU Rates
+    provider: ecdc-surveillance
+    price_usd: "0.002"
+    cache_ttl: 2592000
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

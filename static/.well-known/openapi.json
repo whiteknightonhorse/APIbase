@@ -109710,6 +109710,290 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/ecdc-surveillance.cases_deaths/call": {
+      "post": {
+        "operationId": "ecdc-surveillance_cases_deaths",
+        "summary": "Get ECDC COVID-19 Cases & Deaths",
+        "description": "Get historical weekly COVID-19 case and death counts by country from ECDC (European Centre for Disease Prevention and Control) TESSy surveillance data. Filter by country name or ISO3 code, optionally by indicator (cases/deaths) and ISO week. Covers 2020-W01 through 2023-W47 only — ECDC discontinued routine COVID-19 reporting in December 2023, so this reflects the final frozen historical dataset, not live surveillance. Data: ECDC opendata, CC BY 4.0, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ecdc-surveillance.cases_deaths"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "country": {
+                    "type": "string",
+                    "description": "Country name or ISO3 country code to filter by (e.g. \"Austria\" or \"AUT\"). Required — the upstream dataset has no server-side query, so this narrows the full historical dump.",
+                    "minLength": 2,
+                    "maxLength": 60
+                  },
+                  "indicator": {
+                    "type": "string",
+                    "enum": [
+                      "cases",
+                      "deaths"
+                    ],
+                    "description": "Filter to only \"cases\" or only \"deaths\" rows. Omit to return both."
+                  },
+                  "year_week": {
+                    "type": "string",
+                    "description": "Filter to a single ISO week, format \"YYYY-WW\" (e.g. \"2022-15\"). Omit to return all weeks."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 500,
+                    "description": "Maximum number of records to return (default 100, max 500)."
+                  }
+                },
+                "required": [
+                  "country"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ecdc-surveillance.testing_rate/call": {
+      "post": {
+        "operationId": "ecdc-surveillance_testing_rate",
+        "summary": "Get ECDC COVID-19 Testing Rate",
+        "description": "Get historical weekly COVID-19 testing volume and positivity rate by country from ECDC TESSy surveillance data. Filter by country name or ISO2 code, optionally by ISO week. Covers 2020-W01 through 2023-W47 only — ECDC discontinued routine COVID-19 reporting in December 2023, so this reflects the final frozen historical dataset, not live surveillance. Data: ECDC opendata, CC BY 4.0, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ecdc-surveillance.testing_rate"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "country": {
+                    "type": "string",
+                    "description": "Country name or ISO2 country code to filter by (e.g. \"Austria\" or \"AT\"). Required — the upstream dataset has no server-side query, so this narrows the full historical dump.",
+                    "minLength": 2,
+                    "maxLength": 60
+                  },
+                  "year_week": {
+                    "type": "string",
+                    "description": "Filter to a single ISO week, format \"YYYY-Www\" (e.g. \"2021-W48\"). Omit to return all weeks."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 500,
+                    "description": "Maximum number of records to return (default 100, max 500)."
+                  }
+                },
+                "required": [
+                  "country"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ecdc-surveillance.hospital_icu/call": {
+      "post": {
+        "operationId": "ecdc-surveillance_hospital_icu",
+        "summary": "Get ECDC COVID-19 Hospital & ICU Rates",
+        "description": "Get historical daily hospital/ICU occupancy and weekly new admission rates per 100k for COVID-19 by country from ECDC surveillance data. Filter by country name, optionally by one of four indicators (daily hospital occupancy, daily ICU occupancy, weekly hospital admissions per 100k, weekly ICU admissions per 100k). Covers 2020-W01 through 2023-W47 only — ECDC discontinued routine COVID-19 reporting in December 2023, so this reflects the final frozen historical dataset, not live surveillance. Data: ECDC opendata, CC BY 4.0, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ecdc-surveillance.hospital_icu"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "country": {
+                    "type": "string",
+                    "description": "Country name to filter by (e.g. \"Germany\"). Required — the upstream dataset has no server-side query, so this narrows the full historical dump.",
+                    "minLength": 2,
+                    "maxLength": 60
+                  },
+                  "indicator": {
+                    "type": "string",
+                    "enum": [
+                      "Daily hospital occupancy",
+                      "Daily ICU occupancy",
+                      "Weekly new hospital admissions per 100k",
+                      "Weekly new ICU admissions per 100k"
+                    ],
+                    "description": "Filter to a single indicator series. Omit to return all four indicators."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 500,
+                    "description": "Maximum number of records to return (default 100, max 500)."
+                  }
+                },
+                "required": [
+                  "country"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

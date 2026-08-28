@@ -343,6 +343,7 @@ import { OpenaireAdapter } from './openaire';
 import { GebcoAdapter } from './gebco';
 import { EbiMetagenomicsAdapter } from './ebi-metagenomics';
 import { ImfAdapter } from './imf';
+import { EcdcSurveillanceAdapter } from './ecdc-surveillance';
 import { config } from '../config';
 
 /**
@@ -1834,6 +1835,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'imf':
       // IMF DataMapper API (UC-434) — WEO macro indicators (GDP growth, inflation, fiscal balance, current account); no auth
       return getOrCreate('imf', () => new ImfAdapter());
+    case 'ecdc-surveillance':
+      // ECDC COVID-19 Surveillance (UC-625) — historical cases/deaths, testing, hospital/ICU rates; no auth, CC BY 4.0
+      return getOrCreate('ecdc-surveillance', () => new EcdcSurveillanceAdapter());
     default:
       return undefined;
   }

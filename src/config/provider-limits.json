@@ -3077,5 +3077,14 @@
     "reset_period": "none",
     "docs_url": "https://www.imf.org/external/datamapper/api/v1",
     "limit_proof": "No documented rate limit or API key requirement found on the IMF DataMapper API pages; no X-RateLimit-* headers observed on live responses. IMF open data policy (CC BY 4.0), no auth/registration required."
+  },
+  "ecdc-surveillance": {
+    "display_name": "ECDC COVID-19 Surveillance",
+    "health_url": "https://opendata.ecdc.europa.eu/covid19/testing/json/",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.ecdc.europa.eu/en/ecdc-intellectual-property-notices",
+    "limit_proof": "No documented rate limit or API key requirement; no X-RateLimit-* headers observed on live responses. CC BY 4.0 licence explicitly permits commercial reuse/resale with attribution. Note: datasets are frozen (Last-Modified 2023-12-01) — ECDC discontinued routine COVID-19 surveillance reporting in December 2023."
   }
 }

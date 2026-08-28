@@ -14539,4 +14539,47 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+  // ---------------------------------------------------------------------------
+  // ECDC COVID-19 Surveillance (UC-625, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'ecdc-surveillance.cases_deaths',
+    mcpName: 'ecdc-surveillance.covid.cases_deaths',
+    title: 'Get ECDC COVID-19 Cases & Deaths',
+    description:
+      'Get historical weekly COVID-19 case and death counts by country from ECDC (European Centre ' +
+      'for Disease Prevention and Control) TESSy surveillance data. Filter by country name or ISO3 ' +
+      'code, optionally by indicator (cases/deaths) and ISO week. Covers 2020-W01 through 2023-W47 ' +
+      'only — ECDC discontinued routine COVID-19 reporting in December 2023, so this reflects the ' +
+      'final frozen historical dataset, not live surveillance. Data: ECDC opendata, CC BY 4.0, no auth required.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ecdc-surveillance.testing_rate',
+    mcpName: 'ecdc-surveillance.covid.testing_rate',
+    title: 'Get ECDC COVID-19 Testing Rate',
+    description:
+      'Get historical weekly COVID-19 testing volume and positivity rate by country from ECDC TESSy ' +
+      'surveillance data. Filter by country name or ISO2 code, optionally by ISO week. Covers ' +
+      '2020-W01 through 2023-W47 only — ECDC discontinued routine COVID-19 reporting in December ' +
+      '2023, so this reflects the final frozen historical dataset, not live surveillance. Data: ECDC ' +
+      'opendata, CC BY 4.0, no auth required.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ecdc-surveillance.hospital_icu',
+    mcpName: 'ecdc-surveillance.covid.hospital_icu',
+    title: 'Get ECDC COVID-19 Hospital & ICU Rates',
+    description:
+      'Get historical daily hospital/ICU occupancy and weekly new admission rates per 100k for ' +
+      'COVID-19 by country from ECDC surveillance data. Filter by country name, optionally by one of ' +
+      'four indicators (daily hospital occupancy, daily ICU occupancy, weekly hospital admissions per ' +
+      '100k, weekly ICU admissions per 100k). Covers 2020-W01 through 2023-W47 only — ECDC ' +
+      'discontinued routine COVID-19 reporting in December 2023, so this reflects the final frozen ' +
+      'historical dataset, not live surveillance. Data: ECDC opendata, CC BY 4.0, no auth required.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
 ];
