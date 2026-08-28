@@ -7332,6 +7332,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 604800
 
+  # --- UC-434: IMF DataMapper API ---
+  - tool_id: imf.gdp_growth
+    name: Get IMF Real GDP Growth
+    provider: imf
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: imf.inflation
+    name: Get IMF Inflation Rate
+    provider: imf
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: imf.fiscal_balance
+    name: Get IMF Government Fiscal Balance
+    provider: imf
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: imf.current_account
+    name: Get IMF Current Account Balance
+    provider: imf
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

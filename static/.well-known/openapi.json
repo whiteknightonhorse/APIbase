@@ -109314,6 +109314,402 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/imf.gdp_growth/call": {
+      "post": {
+        "operationId": "imf_gdp_growth",
+        "summary": "Get IMF Real GDP Growth",
+        "description": "Get real GDP growth rate (annual percent change) from the IMF World Economic Outlook (WEO) for one or more countries, including IMF forward projections. Filter by ISO 3166-1 alpha-3 country code(s) and/or a year range; omit filters to get all 190+ countries plus regional/income-group aggregates. Data: IMF DataMapper (www.imf.org), CC BY 4.0, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "imf.gdp_growth"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "country": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 3,
+                    "description": "ISO 3166-1 alpha-3 country code to filter (e.g. \"USA\", \"DEU\", \"JPN\", \"CHN\"). Omit to return all 190+ countries plus IMF regional/income-group aggregates."
+                  },
+                  "countries": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 3,
+                      "maxLength": 3
+                    },
+                    "maxItems": 20,
+                    "description": "List of ISO 3166-1 alpha-3 country codes to filter (e.g. [\"USA\",\"DEU\",\"JPN\"]), max 20. Use instead of \"country\" to fetch multiple countries in one call."
+                  },
+                  "start_year": {
+                    "type": "integer",
+                    "minimum": 1980,
+                    "maximum": 2035,
+                    "description": "Earliest year to include in the returned time series (e.g. 2015). Omit for full history."
+                  },
+                  "end_year": {
+                    "type": "integer",
+                    "minimum": 1980,
+                    "maximum": 2035,
+                    "description": "Latest year to include, including IMF WEO forward projections (e.g. 2029). Omit for full history."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/imf.inflation/call": {
+      "post": {
+        "operationId": "imf_inflation",
+        "summary": "Get IMF Inflation Rate",
+        "description": "Get inflation rate (average consumer prices, annual percent change) from the IMF World Economic Outlook (WEO) for one or more countries, including IMF forward projections. Filter by ISO 3166-1 alpha-3 country code(s) and/or a year range; omit filters to get all 190+ countries plus regional/income-group aggregates. Data: IMF DataMapper (www.imf.org), CC BY 4.0, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "imf.inflation"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "country": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 3,
+                    "description": "ISO 3166-1 alpha-3 country code to filter (e.g. \"USA\", \"DEU\", \"JPN\", \"CHN\"). Omit to return all 190+ countries plus IMF regional/income-group aggregates."
+                  },
+                  "countries": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 3,
+                      "maxLength": 3
+                    },
+                    "maxItems": 20,
+                    "description": "List of ISO 3166-1 alpha-3 country codes to filter (e.g. [\"USA\",\"DEU\",\"JPN\"]), max 20. Use instead of \"country\" to fetch multiple countries in one call."
+                  },
+                  "start_year": {
+                    "type": "integer",
+                    "minimum": 1980,
+                    "maximum": 2035,
+                    "description": "Earliest year to include in the returned time series (e.g. 2015). Omit for full history."
+                  },
+                  "end_year": {
+                    "type": "integer",
+                    "minimum": 1980,
+                    "maximum": 2035,
+                    "description": "Latest year to include, including IMF WEO forward projections (e.g. 2029). Omit for full history."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/imf.fiscal_balance/call": {
+      "post": {
+        "operationId": "imf_fiscal_balance",
+        "summary": "Get IMF Government Fiscal Balance",
+        "description": "Get general government net lending/borrowing (fiscal balance, percent of GDP) from the IMF World Economic Outlook (WEO) for one or more countries, including IMF forward projections. Filter by ISO 3166-1 alpha-3 country code(s) and/or a year range; omit filters to get all 190+ countries plus regional/income-group aggregates. Data: IMF DataMapper (www.imf.org), CC BY 4.0, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "imf.fiscal_balance"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "country": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 3,
+                    "description": "ISO 3166-1 alpha-3 country code to filter (e.g. \"USA\", \"DEU\", \"JPN\", \"CHN\"). Omit to return all 190+ countries plus IMF regional/income-group aggregates."
+                  },
+                  "countries": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 3,
+                      "maxLength": 3
+                    },
+                    "maxItems": 20,
+                    "description": "List of ISO 3166-1 alpha-3 country codes to filter (e.g. [\"USA\",\"DEU\",\"JPN\"]), max 20. Use instead of \"country\" to fetch multiple countries in one call."
+                  },
+                  "start_year": {
+                    "type": "integer",
+                    "minimum": 1980,
+                    "maximum": 2035,
+                    "description": "Earliest year to include in the returned time series (e.g. 2015). Omit for full history."
+                  },
+                  "end_year": {
+                    "type": "integer",
+                    "minimum": 1980,
+                    "maximum": 2035,
+                    "description": "Latest year to include, including IMF WEO forward projections (e.g. 2029). Omit for full history."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/imf.current_account/call": {
+      "post": {
+        "operationId": "imf_current_account",
+        "summary": "Get IMF Current Account Balance",
+        "description": "Get current account balance (percent of GDP) from the IMF World Economic Outlook (WEO) for one or more countries, including IMF forward projections. Filter by ISO 3166-1 alpha-3 country code(s) and/or a year range; omit filters to get all 190+ countries plus regional/income-group aggregates. Data: IMF DataMapper (www.imf.org), CC BY 4.0, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "imf.current_account"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "country": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 3,
+                    "description": "ISO 3166-1 alpha-3 country code to filter (e.g. \"USA\", \"DEU\", \"JPN\", \"CHN\"). Omit to return all 190+ countries plus IMF regional/income-group aggregates."
+                  },
+                  "countries": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 3,
+                      "maxLength": 3
+                    },
+                    "maxItems": 20,
+                    "description": "List of ISO 3166-1 alpha-3 country codes to filter (e.g. [\"USA\",\"DEU\",\"JPN\"]), max 20. Use instead of \"country\" to fetch multiple countries in one call."
+                  },
+                  "start_year": {
+                    "type": "integer",
+                    "minimum": 1980,
+                    "maximum": 2035,
+                    "description": "Earliest year to include in the returned time series (e.g. 2015). Omit for full history."
+                  },
+                  "end_year": {
+                    "type": "integer",
+                    "minimum": 1980,
+                    "maximum": 2035,
+                    "description": "Latest year to include, including IMF WEO forward projections (e.g. 2029). Omit for full history."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

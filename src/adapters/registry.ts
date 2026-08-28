@@ -342,6 +342,7 @@ import { FigshareAdapter } from './figshare';
 import { OpenaireAdapter } from './openaire';
 import { GebcoAdapter } from './gebco';
 import { EbiMetagenomicsAdapter } from './ebi-metagenomics';
+import { ImfAdapter } from './imf';
 import { config } from '../config';
 
 /**
@@ -1830,6 +1831,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'ebi-metagenomics':
       // EBI Metagenomics / MGnify API (UC-624) — study/sample search + biome classification browse; no auth
       return getOrCreate('ebi-metagenomics', () => new EbiMetagenomicsAdapter());
+    case 'imf':
+      // IMF DataMapper API (UC-434) — WEO macro indicators (GDP growth, inflation, fiscal balance, current account); no auth
+      return getOrCreate('imf', () => new ImfAdapter());
     default:
       return undefined;
   }

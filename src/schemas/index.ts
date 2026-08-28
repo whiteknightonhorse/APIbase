@@ -342,6 +342,7 @@ import { figshareSchemas } from './figshare.schema';
 import { openaireSchemas } from './openaire.schema';
 import { gebcoSchemas } from './gebco.schema';
 import { ebiMetagenomicsSchemas } from './ebi-metagenomics.schema';
+import { imfSchemas } from './imf.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -687,4 +688,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...openaireSchemas,
   ...gebcoSchemas,
   ...ebiMetagenomicsSchemas,
+  ...imfSchemas,
 };

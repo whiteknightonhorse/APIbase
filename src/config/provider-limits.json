@@ -3068,5 +3068,14 @@
     "reset_period": "none",
     "docs_url": "https://www.ebi.ac.uk/metagenomics/api/v1/docs/",
     "limit_proof": "No documented rate limit found in the MGnify API docs; no X-RateLimit-* headers observed on live responses. Public EMBL-EBI research infrastructure, no auth/registration required."
+  },
+  "imf": {
+    "display_name": "IMF DataMapper",
+    "health_url": "https://www.imf.org/external/datamapper/api/v1/indicators",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.imf.org/external/datamapper/api/v1",
+    "limit_proof": "No documented rate limit or API key requirement found on the IMF DataMapper API pages; no X-RateLimit-* headers observed on live responses. IMF open data policy (CC BY 4.0), no auth/registration required."
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1191 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1195 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -56951,6 +56951,234 @@
             "minimum": 1,
             "maximum": 50,
             "description": "Number of biomes to return per page, 1-50 (default 20)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "imf.macro.gdp_growth",
+      "description": "Get real GDP growth rate (annual percent change) from the IMF World Economic Outlook (WEO) for one or more countries, including IMF forward projections. Filter by ISO 3166-1 alpha-3 country code(s) and/or a year range; omit filters to get all 190+ countries plus regional/income-group aggregates. Data: IMF DataMapper (www.imf.org), CC BY 4.0, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "country": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "ISO 3166-1 alpha-3 country code to filter (e.g. \"USA\", \"DEU\", \"JPN\", \"CHN\"). Omit to return all 190+ countries plus IMF regional/income-group aggregates."
+          },
+          "countries": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 3
+            },
+            "maxItems": 20,
+            "description": "List of ISO 3166-1 alpha-3 country codes to filter (e.g. [\"USA\",\"DEU\",\"JPN\"]), max 20. Use instead of \"country\" to fetch multiple countries in one call."
+          },
+          "start_year": {
+            "type": "integer",
+            "minimum": 1980,
+            "maximum": 2035,
+            "description": "Earliest year to include in the returned time series (e.g. 2015). Omit for full history."
+          },
+          "end_year": {
+            "type": "integer",
+            "minimum": 1980,
+            "maximum": 2035,
+            "description": "Latest year to include, including IMF WEO forward projections (e.g. 2029). Omit for full history."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "imf.macro.inflation",
+      "description": "Get inflation rate (average consumer prices, annual percent change) from the IMF World Economic Outlook (WEO) for one or more countries, including IMF forward projections. Filter by ISO 3166-1 alpha-3 country code(s) and/or a year range; omit filters to get all 190+ countries plus regional/income-group aggregates. Data: IMF DataMapper (www.imf.org), CC BY 4.0, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "country": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "ISO 3166-1 alpha-3 country code to filter (e.g. \"USA\", \"DEU\", \"JPN\", \"CHN\"). Omit to return all 190+ countries plus IMF regional/income-group aggregates."
+          },
+          "countries": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 3
+            },
+            "maxItems": 20,
+            "description": "List of ISO 3166-1 alpha-3 country codes to filter (e.g. [\"USA\",\"DEU\",\"JPN\"]), max 20. Use instead of \"country\" to fetch multiple countries in one call."
+          },
+          "start_year": {
+            "type": "integer",
+            "minimum": 1980,
+            "maximum": 2035,
+            "description": "Earliest year to include in the returned time series (e.g. 2015). Omit for full history."
+          },
+          "end_year": {
+            "type": "integer",
+            "minimum": 1980,
+            "maximum": 2035,
+            "description": "Latest year to include, including IMF WEO forward projections (e.g. 2029). Omit for full history."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "imf.macro.fiscal_balance",
+      "description": "Get general government net lending/borrowing (fiscal balance, percent of GDP) from the IMF World Economic Outlook (WEO) for one or more countries, including IMF forward projections. Filter by ISO 3166-1 alpha-3 country code(s) and/or a year range; omit filters to get all 190+ countries plus regional/income-group aggregates. Data: IMF DataMapper (www.imf.org), CC BY 4.0, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "country": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "ISO 3166-1 alpha-3 country code to filter (e.g. \"USA\", \"DEU\", \"JPN\", \"CHN\"). Omit to return all 190+ countries plus IMF regional/income-group aggregates."
+          },
+          "countries": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 3
+            },
+            "maxItems": 20,
+            "description": "List of ISO 3166-1 alpha-3 country codes to filter (e.g. [\"USA\",\"DEU\",\"JPN\"]), max 20. Use instead of \"country\" to fetch multiple countries in one call."
+          },
+          "start_year": {
+            "type": "integer",
+            "minimum": 1980,
+            "maximum": 2035,
+            "description": "Earliest year to include in the returned time series (e.g. 2015). Omit for full history."
+          },
+          "end_year": {
+            "type": "integer",
+            "minimum": 1980,
+            "maximum": 2035,
+            "description": "Latest year to include, including IMF WEO forward projections (e.g. 2029). Omit for full history."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "imf.macro.current_account",
+      "description": "Get current account balance (percent of GDP) from the IMF World Economic Outlook (WEO) for one or more countries, including IMF forward projections. Filter by ISO 3166-1 alpha-3 country code(s) and/or a year range; omit filters to get all 190+ countries plus regional/income-group aggregates. Data: IMF DataMapper (www.imf.org), CC BY 4.0, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "country": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "ISO 3166-1 alpha-3 country code to filter (e.g. \"USA\", \"DEU\", \"JPN\", \"CHN\"). Omit to return all 190+ countries plus IMF regional/income-group aggregates."
+          },
+          "countries": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 3
+            },
+            "maxItems": 20,
+            "description": "List of ISO 3166-1 alpha-3 country codes to filter (e.g. [\"USA\",\"DEU\",\"JPN\"]), max 20. Use instead of \"country\" to fetch multiple countries in one call."
+          },
+          "start_year": {
+            "type": "integer",
+            "minimum": 1980,
+            "maximum": 2035,
+            "description": "Earliest year to include in the returned time series (e.g. 2015). Omit for full history."
+          },
+          "end_year": {
+            "type": "integer",
+            "minimum": 1980,
+            "maximum": 2035,
+            "description": "Latest year to include, including IMF WEO forward projections (e.g. 2029). Omit for full history."
           }
         }
       },

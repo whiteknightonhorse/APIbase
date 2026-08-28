@@ -14486,4 +14486,57 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'health',
     annotations: READ_ONLY,
   },
+  // ---------------------------------------------------------------------------
+  // IMF DataMapper API (UC-434, 4 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'imf.gdp_growth',
+    mcpName: 'imf.macro.gdp_growth',
+    title: 'Get IMF Real GDP Growth',
+    description:
+      'Get real GDP growth rate (annual percent change) from the IMF World Economic Outlook (WEO) ' +
+      'for one or more countries, including IMF forward projections. Filter by ISO 3166-1 alpha-3 ' +
+      'country code(s) and/or a year range; omit filters to get all 190+ countries plus regional/' +
+      'income-group aggregates. Data: IMF DataMapper (www.imf.org), CC BY 4.0, no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'imf.inflation',
+    mcpName: 'imf.macro.inflation',
+    title: 'Get IMF Inflation Rate',
+    description:
+      'Get inflation rate (average consumer prices, annual percent change) from the IMF World ' +
+      'Economic Outlook (WEO) for one or more countries, including IMF forward projections. Filter ' +
+      'by ISO 3166-1 alpha-3 country code(s) and/or a year range; omit filters to get all 190+ ' +
+      'countries plus regional/income-group aggregates. Data: IMF DataMapper (www.imf.org), CC BY ' +
+      '4.0, no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'imf.fiscal_balance',
+    mcpName: 'imf.macro.fiscal_balance',
+    title: 'Get IMF Government Fiscal Balance',
+    description:
+      'Get general government net lending/borrowing (fiscal balance, percent of GDP) from the IMF ' +
+      'World Economic Outlook (WEO) for one or more countries, including IMF forward projections. ' +
+      'Filter by ISO 3166-1 alpha-3 country code(s) and/or a year range; omit filters to get all ' +
+      '190+ countries plus regional/income-group aggregates. Data: IMF DataMapper (www.imf.org), ' +
+      'CC BY 4.0, no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'imf.current_account',
+    mcpName: 'imf.macro.current_account',
+    title: 'Get IMF Current Account Balance',
+    description:
+      'Get current account balance (percent of GDP) from the IMF World Economic Outlook (WEO) for ' +
+      'one or more countries, including IMF forward projections. Filter by ISO 3166-1 alpha-3 ' +
+      'country code(s) and/or a year range; omit filters to get all 190+ countries plus regional/' +
+      'income-group aggregates. Data: IMF DataMapper (www.imf.org), CC BY 4.0, no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
 ];

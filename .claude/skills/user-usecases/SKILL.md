@@ -128,7 +128,7 @@ Use these examples as reference patterns when:
 | UC-431 | SCB Statistics Sweden | EU/SE — National Stats | Candidate | Unlimited (30/min) | `usecases/UC-431-scb-sweden.md` |
 | UC-432 | CBS Netherlands | EU/NL — National Stats | Candidate | Unlimited, CC0 | `usecases/UC-432-cbs-netherlands.md` |
 | UC-433 | OECD Data Explorer SDMX | Economics / Macro | Candidate | Unlimited, no key, CC BY 4.0 | `usecases/UC-433-oecd.md` |
-| UC-434 | IMF DataMapper API | Economics / Finance | Candidate | Unlimited, no key, CC BY 4.0 | `usecases/UC-434-imf.md` |
+| UC-434 | IMF DataMapper API | Economics / Finance | LIVE | No auth, 4 tools | `usecases/UC-434-imf.md` |
 | UC-435 | BIS Statistics API | Finance / Central Banking | Candidate | Unlimited, no key, attribution | `usecases/UC-435-bis.md` |
 | UC-436 | ILO ILOSTAT SDMX | Labour Statistics | Candidate | Unlimited, no key, CC BY 4.0 | `usecases/UC-436-ilostat.md` |
 | UC-437 | eCFR US Federal Regulations | Legal / Government | Candidate | Unlimited, no key, public domain | `usecases/UC-437-ecfr.md` |
