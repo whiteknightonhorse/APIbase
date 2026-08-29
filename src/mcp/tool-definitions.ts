@@ -14910,4 +14910,54 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+
+  // Bank of England Statistical Interactive Database (4)
+  {
+    toolId: 'bank-of-england.bank_rate',
+    mcpName: 'bank-of-england.rates.bank_rate',
+    title: 'BoE Official Bank Rate',
+    description:
+      'Daily history of the Bank of England Official Bank Rate (the UK base interest rate ' +
+      'set by the Monetary Policy Committee), series IUDBEDR. Returns the most recent N days ' +
+      '(default 90, max 1825). Data: Bank of England Statistical Interactive Database ' +
+      '(bankofengland.co.uk/boeapps/database), no auth required, UK Open Government Licence v3.0.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bank-of-england.sonia_rate',
+    mcpName: 'bank-of-england.rates.sonia',
+    title: 'BoE SONIA Overnight Rate',
+    description:
+      'Daily history of SONIA (Sterling Overnight Index Average), the Bank of England-administered ' +
+      'reference rate for unsecured overnight sterling lending, series IUDSOIA. Returns the most ' +
+      'recent N days (default 90, max 1825). Data: Bank of England Statistical Interactive Database ' +
+      '(bankofengland.co.uk/boeapps/database), no auth required, UK Open Government Licence v3.0.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bank-of-england.money_supply_m4',
+    mcpName: 'bank-of-england.money.m4_growth',
+    title: 'BoE M4 Money Supply Growth',
+    description:
+      "Monthly 12-month growth rate of UK M4 money supply (monetary financial institutions' " +
+      'sterling M4 liabilities to the private sector), seasonally adjusted, series LPMVQJW. Returns ' +
+      'the most recent N months (default 24, max 120). Data: Bank of England Statistical Interactive ' +
+      'Database (bankofengland.co.uk/boeapps/database), no auth required, UK Open Government Licence v3.0.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bank-of-england.mortgage_rate_2y_fixed',
+    mcpName: 'bank-of-england.rates.mortgage_2y_fixed',
+    title: 'BoE 2-Year Fixed Mortgage Rate',
+    description:
+      'Monthly average quoted UK household interest rate for a 2-year fixed-rate mortgage at 75% ' +
+      'loan-to-value, series IUMBV34. Returns the most recent N months (default 24, max 120). Data: ' +
+      'Bank of England Statistical Interactive Database (bankofengland.co.uk/boeapps/database), no ' +
+      'auth required, UK Open Government Licence v3.0.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
 ];

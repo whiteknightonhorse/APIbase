@@ -351,6 +351,7 @@ import { CopernicusSentinelAdapter } from './copernicus-sentinel';
 import { OecdDataAdapter } from './oecd-data';
 import { WorldBankCckpAdapter } from './world-bank-cckp';
 import { GeoBoundariesAdapter } from './geoboundaries';
+import { BankOfEnglandAdapter } from './bank-of-england';
 import { config } from '../config';
 
 /**
@@ -1874,6 +1875,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // Wikimedia Analytics REST API (UC-632) — pageview aggregates, top articles,
       // per-article pageview history, edit counts across all Wikimedia projects; no auth
       return getOrCreate('wikimedia-analytics', () => new WikimediaAnalyticsAdapter());
+    case 'bank-of-england':
+      // Bank of England Statistical Interactive Database "IADB" (UC-633) — Official Bank
+      // Rate, SONIA overnight rate, M4 money supply growth, 2yr fixed mortgage rate; no
+      // auth, UK Open Government Licence v3.0 (exchange-rate series deliberately excluded,
+      // they are licensed from third parties, not covered by the OGL)
+      return getOrCreate('bank-of-england', () => new BankOfEnglandAdapter());
     default:
       return undefined;
   }

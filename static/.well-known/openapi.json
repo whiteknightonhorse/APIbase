@@ -112451,6 +112451,314 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/bank-of-england.bank_rate/call": {
+      "post": {
+        "operationId": "bank-of-england_bank_rate",
+        "summary": "BoE Official Bank Rate",
+        "description": "Daily history of the Bank of England Official Bank Rate (the UK base interest rate set by the Monetary Policy Committee), series IUDBEDR. Returns the most recent N days (default 90, max 1825). Data: Bank of England Statistical Interactive Database (bankofengland.co.uk/boeapps/database), no auth required, UK Open Government Licence v3.0.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bank-of-england.bank_rate"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "last_n": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 1825,
+                    "description": "Number of most recent calendar days to return, counting back from today (default 90, max 1825 = 5 years). This is a daily series."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/bank-of-england.sonia_rate/call": {
+      "post": {
+        "operationId": "bank-of-england_sonia_rate",
+        "summary": "BoE SONIA Overnight Rate",
+        "description": "Daily history of SONIA (Sterling Overnight Index Average), the Bank of England-administered reference rate for unsecured overnight sterling lending, series IUDSOIA. Returns the most recent N days (default 90, max 1825). Data: Bank of England Statistical Interactive Database (bankofengland.co.uk/boeapps/database), no auth required, UK Open Government Licence v3.0.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bank-of-england.sonia_rate"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "last_n": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 1825,
+                    "description": "Number of most recent calendar days to return, counting back from today (default 90, max 1825 = 5 years). This is a daily series."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/bank-of-england.money_supply_m4/call": {
+      "post": {
+        "operationId": "bank-of-england_money_supply_m4",
+        "summary": "BoE M4 Money Supply Growth",
+        "description": "Monthly 12-month growth rate of UK M4 money supply (monetary financial institutions' sterling M4 liabilities to the private sector), seasonally adjusted, series LPMVQJW. Returns the most recent N months (default 24, max 120). Data: Bank of England Statistical Interactive Database (bankofengland.co.uk/boeapps/database), no auth required, UK Open Government Licence v3.0.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bank-of-england.money_supply_m4"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "last_n": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 120,
+                    "description": "Number of most recent months to return, counting back from the current month (default 24, max 120 = 10 years). This is a monthly series."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/bank-of-england.mortgage_rate_2y_fixed/call": {
+      "post": {
+        "operationId": "bank-of-england_mortgage_rate_2y_fixed",
+        "summary": "BoE 2-Year Fixed Mortgage Rate",
+        "description": "Monthly average quoted UK household interest rate for a 2-year fixed-rate mortgage at 75% loan-to-value, series IUMBV34. Returns the most recent N months (default 24, max 120). Data: Bank of England Statistical Interactive Database (bankofengland.co.uk/boeapps/database), no auth required, UK Open Government Licence v3.0.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bank-of-england.mortgage_rate_2y_fixed"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "last_n": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 120,
+                    "description": "Number of most recent months to return, counting back from the current month (default 24, max 120 = 10 years). This is a monthly series."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

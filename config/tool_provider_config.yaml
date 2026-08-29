@@ -7533,6 +7533,31 @@ tools:
     price_usd: "0.002"
     cache_ttl: 86400
 
+  # --- UC-633: Bank of England IADB ---
+  - tool_id: bank-of-england.bank_rate
+    name: BoE Official Bank Rate
+    provider: bank-of-england
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: bank-of-england.sonia_rate
+    name: BoE SONIA Overnight Rate
+    provider: bank-of-england
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: bank-of-england.money_supply_m4
+    name: BoE M4 Money Supply Growth
+    provider: bank-of-england
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: bank-of-england.mortgage_rate_2y_fixed
+    name: BoE 2-Year Fixed Mortgage Rate
+    provider: bank-of-england
+    price_usd: "0.002"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

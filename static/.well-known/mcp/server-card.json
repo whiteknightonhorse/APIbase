@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1223 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1227 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -58746,6 +58746,146 @@
           "start",
           "end"
         ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "bank-of-england.rates.bank_rate",
+      "description": "Daily history of the Bank of England Official Bank Rate (the UK base interest rate set by the Monetary Policy Committee), series IUDBEDR. Returns the most recent N days (default 90, max 1825). Data: Bank of England Statistical Interactive Database (bankofengland.co.uk/boeapps/database), no auth required, UK Open Government Licence v3.0.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "last_n": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1825,
+            "description": "Number of most recent calendar days to return, counting back from today (default 90, max 1825 = 5 years). This is a daily series."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "bank-of-england.rates.sonia",
+      "description": "Daily history of SONIA (Sterling Overnight Index Average), the Bank of England-administered reference rate for unsecured overnight sterling lending, series IUDSOIA. Returns the most recent N days (default 90, max 1825). Data: Bank of England Statistical Interactive Database (bankofengland.co.uk/boeapps/database), no auth required, UK Open Government Licence v3.0.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "last_n": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1825,
+            "description": "Number of most recent calendar days to return, counting back from today (default 90, max 1825 = 5 years). This is a daily series."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "bank-of-england.money.m4_growth",
+      "description": "Monthly 12-month growth rate of UK M4 money supply (monetary financial institutions' sterling M4 liabilities to the private sector), seasonally adjusted, series LPMVQJW. Returns the most recent N months (default 24, max 120). Data: Bank of England Statistical Interactive Database (bankofengland.co.uk/boeapps/database), no auth required, UK Open Government Licence v3.0.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "last_n": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 120,
+            "description": "Number of most recent months to return, counting back from the current month (default 24, max 120 = 10 years). This is a monthly series."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "bank-of-england.rates.mortgage_2y_fixed",
+      "description": "Monthly average quoted UK household interest rate for a 2-year fixed-rate mortgage at 75% loan-to-value, series IUMBV34. Returns the most recent N months (default 24, max 120). Data: Bank of England Statistical Interactive Database (bankofengland.co.uk/boeapps/database), no auth required, UK Open Government Licence v3.0.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "last_n": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 120,
+            "description": "Number of most recent months to return, counting back from the current month (default 24, max 120 = 10 years). This is a monthly series."
+          }
+        }
       },
       "outputSchema": {
         "type": "object",

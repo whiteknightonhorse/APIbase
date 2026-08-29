@@ -2,8 +2,8 @@
   "platform": "APIbase",
   "version": "2.0",
   "updated_at": "2026-04-01T00:00:00Z",
-  "tools_count": 1202,
-  "providers_count": 340,
+  "tools_count": 1227,
+  "providers_count": 347,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
@@ -43,9 +43,9 @@
     },
     {
       "name": "finance",
-      "tools": 67,
-      "providers": "Finnhub, FRED, FDIC, ECB, RateAPI, IBAN, World Bank, Razorpay IFSC, Bank of Canada, MFAPI, BLS, Frankfurter.dev",
-      "examples": "stock quotes, FX rates, economic data, CPI inflation, unemployment rate, nonfarm payrolls, global indicators, India mutual fund NAV"
+      "tools": 71,
+      "providers": "Finnhub, FRED, FDIC, ECB, RateAPI, IBAN, World Bank, Razorpay IFSC, Bank of Canada, MFAPI, BLS, Frankfurter.dev, Bank of England",
+      "examples": "stock quotes, FX rates, economic data, CPI inflation, unemployment rate, nonfarm payrolls, global indicators, India mutual fund NAV, UK Bank Rate, SONIA, M4 money supply, UK mortgage rates"
     },
     {
       "name": "crypto",
