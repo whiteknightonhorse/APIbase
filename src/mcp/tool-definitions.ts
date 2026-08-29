@@ -14778,4 +14778,43 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+  {
+    toolId: 'world-bank-cckp.climate_normal',
+    mcpName: 'world-bank-cckp.climate.normal',
+    title: 'Climate Historical Normal',
+    description:
+      'Get the observed historical baseline climatology (1995-2014 average) for a country: mean ' +
+      'temperature (tas), max/min temperature (tasmax/tasmin), or precipitation (pr). Choose ' +
+      'annual, monthly, or seasonal aggregation. Use "all_countries" or "region_XXX" as country ' +
+      'to fetch every country/sub-region in one call. Data: World Bank Climate Change Knowledge ' +
+      'Portal (CMIP6 model ensemble), no auth required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'world-bank-cckp.climate_projection',
+    mcpName: 'world-bank-cckp.climate.projection',
+    title: 'Climate Future Projection',
+    description:
+      'Get a CMIP6 future climate projection for a country: mean temperature (tas), max/min ' +
+      'temperature (tasmax/tasmin), or precipitation (pr), under an SSP emission scenario ' +
+      '(ssp126 low / ssp245 intermediate / ssp370 high / ssp585 very high) and a future 20-year ' +
+      'window (2020-2039 through 2080-2099). Choose annual, monthly, or seasonal aggregation. ' +
+      'Data: World Bank Climate Change Knowledge Portal (CMIP6 model ensemble), no auth required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'world-bank-cckp.extreme_indices',
+    mcpName: 'world-bank-cckp.climate.extremes',
+    title: 'Climate Extreme Indices',
+    description:
+      'Get a derived extreme-climate index for a country: hot days over 35C/40C (hd35/hd40), ' +
+      'frost days (fd), max consecutive dry/wet days (cdd/cwd), heavy precipitation days over ' +
+      '20mm (r20mm), or tropical nights (tr23). Defaults to the 1995-2014 observed baseline ' +
+      '(scenario "historical"), or pass an SSP scenario + future period for a projection. ' +
+      'Data: World Bank Climate Change Knowledge Portal (CMIP6 model ensemble), no auth required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
 ];

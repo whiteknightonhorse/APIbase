@@ -348,6 +348,7 @@ import { TransportRestAdapter } from './transport-rest';
 import { MeteostatAdapter } from './meteostat';
 import { CopernicusSentinelAdapter } from './copernicus-sentinel';
 import { OecdDataAdapter } from './oecd-data';
+import { WorldBankCckpAdapter } from './world-bank-cckp';
 import { config } from '../config';
 
 /**
@@ -1859,6 +1860,10 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // OECD SDMX public REST API (UC-629) — dataflow search, dimension/codelist structure,
       // observation data across ~1500 OECD statistical dataflows; no auth
       return getOrCreate('oecd-data', () => new OecdDataAdapter());
+    case 'world-bank-cckp':
+      // World Bank Climate Change Knowledge Portal (UC-630) — historical baseline climatology,
+      // CMIP6 SSP future projections, derived extreme-climate indices; no auth
+      return getOrCreate('world-bank-cckp', () => new WorldBankCckpAdapter());
     default:
       return undefined;
   }

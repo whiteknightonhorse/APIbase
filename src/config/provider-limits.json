@@ -3122,5 +3122,14 @@
     "reset_period": "none",
     "docs_url": "https://sdmx.oecd.org/public/rest",
     "limit_proof": "OECD's public SDMX 2.1 REST API; no authentication or API key required for any endpoint, no rate-limit headers returned, no documented request quota found on the public API docs page."
+  },
+  "world-bank-cckp": {
+    "display_name": "World Bank Climate Change Knowledge Portal",
+    "health_url": "https://cckpapi.worldbank.org/cckp/v1/cmip6-x0.25_climatology_tas_climatology_annual_1995-2014_median_historical_ensemble_all_mean/BRA?_format=json",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://climateknowledgeportal.worldbank.org/guidance-note",
+    "limit_proof": "World Bank public open-data API; no authentication or API key required, no rate-limit headers returned, no documented request quota found on the public guidance/documentation pages."
   }
 }

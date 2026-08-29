@@ -348,6 +348,7 @@ import { transportRestSchemas } from './transport-rest.schema';
 import { meteostatSchemas } from './meteostat.schema';
 import { copernicusSentinelSchemas } from './copernicus-sentinel.schema';
 import { oecdDataSchemas } from './oecd-data.schema';
+import { worldBankCckpSchemas } from './world-bank-cckp.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -699,4 +700,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...meteostatSchemas,
   ...copernicusSentinelSchemas,
   ...oecdDataSchemas,
+  ...worldBankCckpSchemas,
 };

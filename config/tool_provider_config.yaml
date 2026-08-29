@@ -7470,6 +7470,25 @@ tools:
     price_usd: "0.002"
     cache_ttl: 3600
 
+  # --- UC-630: World Bank Climate Change Knowledge Portal (CCKP) ---
+  - tool_id: world-bank-cckp.climate_normal
+    name: Climate Historical Normal
+    provider: world-bank-cckp
+    price_usd: "0.001"
+    cache_ttl: 604800
+
+  - tool_id: world-bank-cckp.climate_projection
+    name: Climate Future Projection
+    provider: world-bank-cckp
+    price_usd: "0.001"
+    cache_ttl: 604800
+
+  - tool_id: world-bank-cckp.extreme_indices
+    name: Climate Extreme Indices
+    provider: world-bank-cckp
+    price_usd: "0.002"
+    cache_ttl: 604800
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

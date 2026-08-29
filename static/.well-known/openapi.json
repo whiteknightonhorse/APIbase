@@ -111393,6 +111393,348 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/world-bank-cckp.climate_normal/call": {
+      "post": {
+        "operationId": "world-bank-cckp_climate_normal",
+        "summary": "Climate Historical Normal",
+        "description": "Get the observed historical baseline climatology (1995-2014 average) for a country: mean temperature (tas), max/min temperature (tasmax/tasmin), or precipitation (pr). Choose annual, monthly, or seasonal aggregation. Use \"all_countries\" or \"region_XXX\" as country to fetch every country/sub-region in one call. Data: World Bank Climate Change Knowledge Portal (CMIP6 model ensemble), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "world-bank-cckp.climate_normal"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "variable": {
+                    "type": "string",
+                    "enum": [
+                      "tas",
+                      "tasmax",
+                      "tasmin",
+                      "pr"
+                    ],
+                    "description": "Climate variable: \"tas\" (mean near-surface air temperature, °C), \"tasmax\" (mean daily maximum temperature, °C), \"tasmin\" (mean daily minimum temperature, °C), \"pr\" (precipitation, mm)."
+                  },
+                  "country": {
+                    "type": "string",
+                    "description": "Geography code: ISO3166 alpha-3 country code (e.g. \"BRA\", \"USA\", \"IND\"), or a special aggregate code such as \"all_countries\" (every country in one call) or \"region_SAS\" (South Asia region, admin1-level breakdown included — replace SAS with any World Bank region code).",
+                    "minLength": 1
+                  },
+                  "aggregation": {
+                    "type": "string",
+                    "enum": [
+                      "annual",
+                      "monthly",
+                      "seasonal"
+                    ],
+                    "description": "Time aggregation of the returned values. \"annual\" returns one value per year, \"monthly\" returns 12 values per year, \"seasonal\" returns 4 values per year (DJF/MAM/JJA/SON). Defaults to \"annual\"."
+                  }
+                },
+                "required": [
+                  "variable",
+                  "country"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/world-bank-cckp.climate_projection/call": {
+      "post": {
+        "operationId": "world-bank-cckp_climate_projection",
+        "summary": "Climate Future Projection",
+        "description": "Get a CMIP6 future climate projection for a country: mean temperature (tas), max/min temperature (tasmax/tasmin), or precipitation (pr), under an SSP emission scenario (ssp126 low / ssp245 intermediate / ssp370 high / ssp585 very high) and a future 20-year window (2020-2039 through 2080-2099). Choose annual, monthly, or seasonal aggregation. Data: World Bank Climate Change Knowledge Portal (CMIP6 model ensemble), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "world-bank-cckp.climate_projection"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "variable": {
+                    "type": "string",
+                    "enum": [
+                      "tas",
+                      "tasmax",
+                      "tasmin",
+                      "pr"
+                    ],
+                    "description": "Climate variable: \"tas\" (mean near-surface air temperature, °C), \"tasmax\" (mean daily maximum temperature, °C), \"tasmin\" (mean daily minimum temperature, °C), \"pr\" (precipitation, mm)."
+                  },
+                  "country": {
+                    "type": "string",
+                    "description": "Geography code: ISO3166 alpha-3 country code (e.g. \"BRA\", \"USA\", \"IND\"), or a special aggregate code such as \"all_countries\" (every country in one call) or \"region_SAS\" (South Asia region, admin1-level breakdown included — replace SAS with any World Bank region code).",
+                    "minLength": 1
+                  },
+                  "scenario": {
+                    "type": "string",
+                    "enum": [
+                      "ssp126",
+                      "ssp245",
+                      "ssp370",
+                      "ssp585"
+                    ],
+                    "description": "CMIP6 Shared Socioeconomic Pathway emission scenario: \"ssp126\" (low emissions, strong mitigation), \"ssp245\" (intermediate emissions), \"ssp370\" (high emissions), \"ssp585\" (very high emissions, fossil-fuel-intensive)."
+                  },
+                  "period": {
+                    "type": "string",
+                    "enum": [
+                      "2020-2039",
+                      "2040-2059",
+                      "2060-2079",
+                      "2080-2099"
+                    ],
+                    "description": "Future 20-year projection window. Defaults to \"2040-2059\"."
+                  },
+                  "aggregation": {
+                    "type": "string",
+                    "enum": [
+                      "annual",
+                      "monthly",
+                      "seasonal"
+                    ],
+                    "description": "Time aggregation of the returned values. \"annual\" returns one value per year, \"monthly\" returns 12 values per year, \"seasonal\" returns 4 values per year (DJF/MAM/JJA/SON). Defaults to \"annual\"."
+                  }
+                },
+                "required": [
+                  "variable",
+                  "country",
+                  "scenario"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/world-bank-cckp.extreme_indices/call": {
+      "post": {
+        "operationId": "world-bank-cckp_extreme_indices",
+        "summary": "Climate Extreme Indices",
+        "description": "Get a derived extreme-climate index for a country: hot days over 35C/40C (hd35/hd40), frost days (fd), max consecutive dry/wet days (cdd/cwd), heavy precipitation days over 20mm (r20mm), or tropical nights (tr23). Defaults to the 1995-2014 observed baseline (scenario \"historical\"), or pass an SSP scenario + future period for a projection. Data: World Bank Climate Change Knowledge Portal (CMIP6 model ensemble), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "world-bank-cckp.extreme_indices"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "index": {
+                    "type": "string",
+                    "enum": [
+                      "hd35",
+                      "hd40",
+                      "fd",
+                      "cdd",
+                      "cwd",
+                      "r20mm",
+                      "tr23"
+                    ],
+                    "description": "Extreme-climate index: \"hd35\"/\"hd40\" (annual count of days with max temp > 35°C/40°C), \"fd\" (frost days, min temp < 0°C), \"cdd\" (max consecutive dry days, precip < 1mm), \"cwd\" (max consecutive wet days, precip >= 1mm), \"r20mm\" (days with precip > 20mm), \"tr23\" (tropical nights, min temp > 23°C)."
+                  },
+                  "country": {
+                    "type": "string",
+                    "description": "Geography code: ISO3166 alpha-3 country code (e.g. \"BRA\", \"USA\", \"IND\"), or a special aggregate code such as \"all_countries\" (every country in one call) or \"region_SAS\" (South Asia region, admin1-level breakdown included — replace SAS with any World Bank region code).",
+                    "minLength": 1
+                  },
+                  "scenario": {
+                    "type": "string",
+                    "enum": [
+                      "historical",
+                      "ssp126",
+                      "ssp245",
+                      "ssp370",
+                      "ssp585"
+                    ],
+                    "description": "\"historical\" (default) returns the 1995-2014 observed baseline. A CMIP6 SSP scenario (\"ssp126\"/\"ssp245\"/\"ssp370\"/\"ssp585\") returns a future projection for the period below."
+                  },
+                  "period": {
+                    "type": "string",
+                    "enum": [
+                      "2020-2039",
+                      "2040-2059",
+                      "2060-2079",
+                      "2080-2099"
+                    ],
+                    "description": "Future 20-year projection window, only used when scenario is not \"historical\". Defaults to \"2040-2059\"."
+                  },
+                  "aggregation": {
+                    "type": "string",
+                    "enum": [
+                      "annual",
+                      "monthly",
+                      "seasonal"
+                    ],
+                    "description": "Time aggregation of the returned values. \"annual\" returns one value per year, \"monthly\" returns 12 values per year, \"seasonal\" returns 4 values per year (DJF/MAM/JJA/SON). Defaults to \"annual\"."
+                  }
+                },
+                "required": [
+                  "index",
+                  "country"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {
