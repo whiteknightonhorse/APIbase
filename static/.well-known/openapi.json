@@ -111118,6 +111118,281 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/oecd-data.dataflows/call": {
+      "post": {
+        "operationId": "oecd-data_dataflows",
+        "summary": "OECD Dataflows",
+        "description": "Search or list OECD statistical dataflows — ~1500 official series across every OECD directorate (national accounts, employment, education, environment, tax, trade, health, social indicators, and more). Filter by name/id with query and/or by directorate with agency_id (e.g. \"OECD.SDD.STES\"), or omit both to list all (capped to 200 results). Use the returned agency_id + dataflow_id with oecd-data.structure and oecd-data.data. Data: sdmx.oecd.org (OECD SDMX public REST API), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "oecd-data.dataflows"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Filter dataflows by name or id substring, case-insensitive (e.g. \"unemployment\", \"gdp\"). Omit to list all ~1500 available dataflows (capped to 200 results)."
+                  },
+                  "agency_id": {
+                    "type": "string",
+                    "description": "Filter by OECD directorate agency id substring (e.g. \"OECD.SDD.STES\" for short-term economic statistics, \"OECD.ELS.SAE\" for social/employment). Omit to search across all directorates."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/oecd-data.structure/call": {
+      "post": {
+        "operationId": "oecd-data_structure",
+        "summary": "OECD Dataflow Structure",
+        "description": "Get the dimensions and valid codes for an OECD dataflow (agency_id + dataflow_id from oecd-data.dataflows, e.g. \"OECD.SDD.STES\" + \"DSD_STES@DF_CLI\" for composite leading indicators) — reference area, frequency, measure, and breakdown dimensions each with their code list. Use this to interpret the dimension labels returned by oecd-data.data, or to build a narrower key filter. Data: sdmx.oecd.org (OECD SDMX public REST API), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "oecd-data.structure"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "agency_id": {
+                    "type": "string",
+                    "description": "OECD directorate agency id, from oecd-data.dataflows (e.g. \"OECD.SDD.STES\").",
+                    "minLength": 1
+                  },
+                  "dataflow_id": {
+                    "type": "string",
+                    "description": "OECD dataflow id, from oecd-data.dataflows (e.g. \"DSD_STES@DF_CLI\" for composite leading indicators). Returns the dimension list (e.g. REF_AREA, FREQ, MEASURE) with each dimension's valid codes — needed to interpret oecd-data.data results.",
+                    "minLength": 1
+                  },
+                  "version": {
+                    "type": "string",
+                    "description": "Dataflow version, from oecd-data.dataflows (e.g. \"4.1\"). Omit to use the latest version."
+                  }
+                },
+                "required": [
+                  "agency_id",
+                  "dataflow_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/oecd-data.data/call": {
+      "post": {
+        "operationId": "oecd-data_data",
+        "summary": "OECD Dataflow Data",
+        "description": "Get observation values for an OECD dataflow (agency_id + dataflow_id from oecd-data.dataflows). Optionally narrow with a dot-separated SDMX key (from oecd-data.structure) or fetch all series with the default key \"all\". Filter by last_n_observations (most recent N per series, default 10, max 100) or a start_period/end_period range (e.g. \"2020\", \"2020-01\"). Each series is labeled with its dimension values (country, measure, etc.) and a list of period/value pairs. Data: sdmx.oecd.org (OECD SDMX public REST API), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "oecd-data.data"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "agency_id": {
+                    "type": "string",
+                    "description": "OECD directorate agency id, from oecd-data.dataflows (e.g. \"OECD.SDD.STES\").",
+                    "minLength": 1
+                  },
+                  "dataflow_id": {
+                    "type": "string",
+                    "description": "OECD dataflow id, from oecd-data.dataflows (e.g. \"DSD_STES@DF_CLI\").",
+                    "minLength": 1
+                  },
+                  "version": {
+                    "type": "string",
+                    "description": "Dataflow version, from oecd-data.dataflows (e.g. \"4.1\"). Omit to use the latest version."
+                  },
+                  "key": {
+                    "type": "string",
+                    "description": "SDMX dot-separated dimension filter key in dimension position order (e.g. \"USA.M.LI.....\" for a specific country+frequency+measure). Use \"all\" (default) to fetch every series unfiltered — combine with oecd-data.structure to build a narrower key."
+                  },
+                  "start_period": {
+                    "type": "string",
+                    "description": "Start of period range, e.g. \"2020\" (annual) or \"2020-01\" (monthly). Takes precedence over last_n_observations when set."
+                  },
+                  "end_period": {
+                    "type": "string",
+                    "description": "End of period range, e.g. \"2024\" (annual) or \"2024-12\" (monthly). Takes precedence over last_n_observations when set."
+                  },
+                  "last_n_observations": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Return only the most recent N observations per series (max 100, default 10). Ignored if start_period or end_period is set."
+                  }
+                },
+                "required": [
+                  "agency_id",
+                  "dataflow_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

@@ -7451,6 +7451,25 @@ tools:
     price_usd: "0.001"
     cache_ttl: 604800
 
+  # --- UC-629: OECD SDMX public REST API (3 tools) ---
+  - tool_id: oecd-data.dataflows
+    name: OECD Dataflows
+    provider: oecd-data
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: oecd-data.structure
+    name: OECD Dataflow Structure
+    provider: oecd-data
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: oecd-data.data
+    name: OECD Dataflow Data
+    provider: oecd-data
+    price_usd: "0.002"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

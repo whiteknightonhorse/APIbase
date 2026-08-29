@@ -347,6 +347,7 @@ import { EcdcSurveillanceAdapter } from './ecdc-surveillance';
 import { TransportRestAdapter } from './transport-rest';
 import { MeteostatAdapter } from './meteostat';
 import { CopernicusSentinelAdapter } from './copernicus-sentinel';
+import { OecdDataAdapter } from './oecd-data';
 import { config } from '../config';
 
 /**
@@ -1854,6 +1855,10 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // Copernicus Data Space Ecosystem STAC catalog (UC-628) — Sentinel satellite imagery
       // scene search, full scene metadata, collection browse; no auth
       return getOrCreate('copernicus-sentinel', () => new CopernicusSentinelAdapter());
+    case 'oecd-data':
+      // OECD SDMX public REST API (UC-629) — dataflow search, dimension/codelist structure,
+      // observation data across ~1500 OECD statistical dataflows; no auth
+      return getOrCreate('oecd-data', () => new OecdDataAdapter());
     default:
       return undefined;
   }

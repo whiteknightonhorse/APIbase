@@ -347,6 +347,7 @@ import { ecdcSurveillanceSchemas } from './ecdc-surveillance.schema';
 import { transportRestSchemas } from './transport-rest.schema';
 import { meteostatSchemas } from './meteostat.schema';
 import { copernicusSentinelSchemas } from './copernicus-sentinel.schema';
+import { oecdDataSchemas } from './oecd-data.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -697,4 +698,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...transportRestSchemas,
   ...meteostatSchemas,
   ...copernicusSentinelSchemas,
+  ...oecdDataSchemas,
 };

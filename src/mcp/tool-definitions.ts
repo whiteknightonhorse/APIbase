@@ -14736,4 +14736,46 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'space',
     annotations: READ_ONLY,
   },
+  {
+    toolId: 'oecd-data.dataflows',
+    mcpName: 'oecd-data.reference.dataflows',
+    title: 'OECD Dataflows',
+    description:
+      'Search or list OECD statistical dataflows — ~1500 official series across every OECD ' +
+      'directorate (national accounts, employment, education, environment, tax, trade, health, ' +
+      'social indicators, and more). Filter by name/id with query and/or by directorate with ' +
+      'agency_id (e.g. "OECD.SDD.STES"), or omit both to list all (capped to 200 results). Use ' +
+      'the returned agency_id + dataflow_id with oecd-data.structure and oecd-data.data. ' +
+      'Data: sdmx.oecd.org (OECD SDMX public REST API), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'oecd-data.structure',
+    mcpName: 'oecd-data.reference.structure',
+    title: 'OECD Dataflow Structure',
+    description:
+      'Get the dimensions and valid codes for an OECD dataflow (agency_id + dataflow_id from ' +
+      'oecd-data.dataflows, e.g. "OECD.SDD.STES" + "DSD_STES@DF_CLI" for composite leading ' +
+      'indicators) — reference area, frequency, measure, and breakdown dimensions each with their ' +
+      'code list. Use this to interpret the dimension labels returned by oecd-data.data, or to ' +
+      'build a narrower key filter. Data: sdmx.oecd.org (OECD SDMX public REST API), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'oecd-data.data',
+    mcpName: 'oecd-data.series.data',
+    title: 'OECD Dataflow Data',
+    description:
+      'Get observation values for an OECD dataflow (agency_id + dataflow_id from ' +
+      'oecd-data.dataflows). Optionally narrow with a dot-separated SDMX key (from ' +
+      'oecd-data.structure) or fetch all series with the default key "all". Filter by ' +
+      'last_n_observations (most recent N per series, default 10, max 100) or a ' +
+      'start_period/end_period range (e.g. "2020", "2020-01"). Each series is labeled with its ' +
+      'dimension values (country, measure, etc.) and a list of period/value pairs. ' +
+      'Data: sdmx.oecd.org (OECD SDMX public REST API), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
 ];

@@ -3113,5 +3113,14 @@
     "reset_period": "monthly",
     "docs_url": "https://documentation.dataspace.copernicus.eu/Quotas.html",
     "limit_proof": "Docs: OData/STAC/S3 quota is 50,000 requests/month (IAD data), 4 concurrent connections, resetting on the 1st of each month. No authentication required for STAC catalog search/browse endpoints — verified live with unauthenticated GET/POST requests."
+  },
+  "oecd-data": {
+    "display_name": "OECD SDMX Public REST API",
+    "health_url": "https://sdmx.oecd.org/public/rest/dataflow/OECD.SDD.STES/DSD_STES@DF_CLI/latest?references=none",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://sdmx.oecd.org/public/rest",
+    "limit_proof": "OECD's public SDMX 2.1 REST API; no authentication or API key required for any endpoint, no rate-limit headers returned, no documented request quota found on the public API docs page."
   }
 }
