@@ -320,6 +320,7 @@ import { IneChileAdapter } from './ine-chile';
 import { CrossrefAdapter } from './crossref';
 import { UnpaywallAdapter } from './unpaywall';
 import { WikimediaCommonsAdapter } from './wikimedia-commons';
+import { WikimediaAnalyticsAdapter } from './wikimedia-analytics';
 import { StandardEbooksAdapter } from './standard-ebooks';
 import { IndecGeorefAdapter } from './indec-georef';
 import { EnviroatlasAdapter } from './enviroatlas';
@@ -349,6 +350,7 @@ import { MeteostatAdapter } from './meteostat';
 import { CopernicusSentinelAdapter } from './copernicus-sentinel';
 import { OecdDataAdapter } from './oecd-data';
 import { WorldBankCckpAdapter } from './world-bank-cckp';
+import { GeoBoundariesAdapter } from './geoboundaries';
 import { config } from '../config';
 
 /**
@@ -1864,6 +1866,14 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // World Bank Climate Change Knowledge Portal (UC-630) — historical baseline climatology,
       // CMIP6 SSP future projections, derived extreme-climate indices; no auth
       return getOrCreate('world-bank-cckp', () => new WorldBankCckpAdapter());
+    case 'geoboundaries':
+      // geoBoundaries Open Database of Global Administrative Boundaries (UC-631) — country/
+      // state/county boundary metadata + GeoJSON/TopoJSON download URLs; no auth
+      return getOrCreate('geoboundaries', () => new GeoBoundariesAdapter());
+    case 'wikimedia-analytics':
+      // Wikimedia Analytics REST API (UC-632) — pageview aggregates, top articles,
+      // per-article pageview history, edit counts across all Wikimedia projects; no auth
+      return getOrCreate('wikimedia-analytics', () => new WikimediaAnalyticsAdapter());
     default:
       return undefined;
   }

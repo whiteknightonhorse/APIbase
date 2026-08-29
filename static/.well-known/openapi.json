@@ -111735,6 +111735,722 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/geoboundaries.boundary.detail/call": {
+      "post": {
+        "operationId": "geoboundaries_boundary_detail",
+        "summary": "Administrative Boundary Detail",
+        "description": "Get metadata for one country's administrative boundary at a given level: official name, admin unit count, area/perimeter stats, source, license, and download URLs for the full GeoJSON, simplified GeoJSON, TopoJSON, and a preview PNG. Levels: ADM0 (country outline), ADM1 (state/province), ADM2 (county/district), ADM3-ADM5 (finer, country-dependent). Geometry is NOT embedded in the response (files can exceed 10MB) — fetch the returned URL directly for the shapes. Data: geoBoundaries (William & Mary geoLab), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "geoboundaries.boundary.detail"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "country": {
+                    "type": "string",
+                    "description": "ISO 3166-1 alpha-3 country code, uppercase (e.g. \"USA\", \"KEN\", \"FRA\"). ISO2 codes and country names are not accepted by the upstream API.",
+                    "minLength": 3,
+                    "maxLength": 3
+                  },
+                  "adm_level": {
+                    "type": "string",
+                    "enum": [
+                      "ADM0",
+                      "ADM1",
+                      "ADM2",
+                      "ADM3",
+                      "ADM4",
+                      "ADM5"
+                    ],
+                    "description": "Administrative boundary level: \"ADM0\" (country outline), \"ADM1\" (state/province/region), \"ADM2\" (county/district), \"ADM3\"-\"ADM5\" (finer subdivisions, only available for some countries). Defaults to \"ADM0\"."
+                  }
+                },
+                "required": [
+                  "country"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/geoboundaries.boundary.list_countries/call": {
+      "post": {
+        "operationId": "geoboundaries_boundary_list_countries",
+        "summary": "List Countries At Boundary Level",
+        "description": "List every country's administrative boundary metadata at one level (ADM0 country outline by default, or ADM1-ADM5 for finer subdivisions where available): ISO3 code, name, admin unit count, continent/region, and geometry download URLs. Useful for discovering coverage before requesting a single country with geoboundaries.boundary.detail. Data: geoBoundaries (William & Mary geoLab), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "geoboundaries.boundary.list_countries"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "adm_level": {
+                    "type": "string",
+                    "enum": [
+                      "ADM0",
+                      "ADM1",
+                      "ADM2",
+                      "ADM3",
+                      "ADM4",
+                      "ADM5"
+                    ],
+                    "description": "Administrative boundary level: \"ADM0\" (country outline), \"ADM1\" (state/province/region), \"ADM2\" (county/district), \"ADM3\"-\"ADM5\" (finer subdivisions, only available for some countries). Defaults to \"ADM0\"."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/geoboundaries.boundary.available_levels/call": {
+      "post": {
+        "operationId": "geoboundaries_boundary_available_levels",
+        "summary": "Available Boundary Levels For Country",
+        "description": "Check which administrative levels (ADM0 through ADM5) exist for a given country, with the local admin name and unit count at each available level (e.g. Kenya has ADM0-ADM2 only; France has ADM0-ADM4). Call this before geoboundaries.boundary.detail to avoid requesting a level that does not exist for that country. Data: geoBoundaries (William & Mary geoLab), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "geoboundaries.boundary.available_levels"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "country": {
+                    "type": "string",
+                    "description": "ISO 3166-1 alpha-3 country code, uppercase (e.g. \"USA\", \"KEN\", \"FRA\"). ISO2 codes and country names are not accepted by the upstream API.",
+                    "minLength": 3,
+                    "maxLength": 3
+                  }
+                },
+                "required": [
+                  "country"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/wikimedia-analytics.pageviews_aggregate/call": {
+      "post": {
+        "operationId": "wikimedia-analytics_pageviews_aggregate",
+        "summary": "Wikipedia Pageviews Aggregate",
+        "description": "Get total pageview counts for a Wikimedia project (e.g. en.wikipedia, de.wikipedia, commons.wikimedia) over a date range, bucketed daily or monthly. Filter by access method (desktop, mobile-web, mobile-app, or all-access) and traffic agent (user, spider, automated, or all-agents). Data: Wikimedia Analytics REST API (wikimedia.org/api/rest_v1), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "wikimedia-analytics.pageviews_aggregate"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "project": {
+                    "type": "string",
+                    "description": "Wikimedia project domain (e.g. en.wikipedia, de.wikipedia, commons.wikimedia)",
+                    "minLength": 1
+                  },
+                  "access": {
+                    "type": "string",
+                    "enum": [
+                      "all-access",
+                      "desktop",
+                      "mobile-app",
+                      "mobile-web"
+                    ],
+                    "description": "Access method filter (default all-access)"
+                  },
+                  "agent": {
+                    "type": "string",
+                    "enum": [
+                      "all-agents",
+                      "user",
+                      "spider",
+                      "automated"
+                    ],
+                    "description": "Traffic agent filter (default all-agents)"
+                  },
+                  "granularity": {
+                    "type": "string",
+                    "enum": [
+                      "daily",
+                      "monthly"
+                    ],
+                    "description": "Time bucket granularity (default daily)"
+                  },
+                  "start": {
+                    "type": "string",
+                    "description": "Start date in YYYYMMDD format (e.g. 20260801)"
+                  },
+                  "end": {
+                    "type": "string",
+                    "description": "End date in YYYYMMDD format (e.g. 20260801)"
+                  }
+                },
+                "required": [
+                  "project",
+                  "start",
+                  "end"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/wikimedia-analytics.pageviews_top/call": {
+      "post": {
+        "operationId": "wikimedia-analytics_pageviews_top",
+        "summary": "Wikipedia Top Viewed Articles",
+        "description": "List the most-viewed articles on a Wikimedia project for a single day, or for a full month with day=\"all-days\". Returns each article title, view count, and rank. Filter by access method (desktop, mobile-web, mobile-app, or all-access). Data: Wikimedia Analytics REST API (wikimedia.org/api/rest_v1), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "wikimedia-analytics.pageviews_top"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "project": {
+                    "type": "string",
+                    "description": "Wikimedia project domain (e.g. en.wikipedia, de.wikipedia, commons.wikimedia)",
+                    "minLength": 1
+                  },
+                  "access": {
+                    "type": "string",
+                    "enum": [
+                      "all-access",
+                      "desktop",
+                      "mobile-app",
+                      "mobile-web"
+                    ],
+                    "description": "Access method filter (default all-access)"
+                  },
+                  "year": {
+                    "type": "string",
+                    "description": "4-digit year (e.g. 2026)"
+                  },
+                  "month": {
+                    "type": "string",
+                    "description": "2-digit month (e.g. 08)"
+                  },
+                  "day": {
+                    "type": "string",
+                    "description": "2-digit day (e.g. 01), or \"all-days\" for the monthly top list"
+                  }
+                },
+                "required": [
+                  "project",
+                  "year",
+                  "month",
+                  "day"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/wikimedia-analytics.pageviews_per_article/call": {
+      "post": {
+        "operationId": "wikimedia-analytics_pageviews_per_article",
+        "summary": "Wikipedia Article Pageview History",
+        "description": "Get pageview history for one specific article on a Wikimedia project over a date range, bucketed daily or monthly. Filter by access method and traffic agent. Use after wikimedia-analytics.pageviews_top to track trend history for a discovered article. Data: Wikimedia Analytics REST API (wikimedia.org/api/rest_v1), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "wikimedia-analytics.pageviews_per_article"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "project": {
+                    "type": "string",
+                    "description": "Wikimedia project domain (e.g. en.wikipedia, de.wikipedia, commons.wikimedia)",
+                    "minLength": 1
+                  },
+                  "article": {
+                    "type": "string",
+                    "description": "Article title, spaces or underscores accepted (e.g. Albert_Einstein)",
+                    "minLength": 1
+                  },
+                  "access": {
+                    "type": "string",
+                    "enum": [
+                      "all-access",
+                      "desktop",
+                      "mobile-app",
+                      "mobile-web"
+                    ],
+                    "description": "Access method filter (default all-access)"
+                  },
+                  "agent": {
+                    "type": "string",
+                    "enum": [
+                      "all-agents",
+                      "user",
+                      "spider",
+                      "automated"
+                    ],
+                    "description": "Traffic agent filter (default all-agents)"
+                  },
+                  "granularity": {
+                    "type": "string",
+                    "enum": [
+                      "daily",
+                      "monthly"
+                    ],
+                    "description": "Time bucket granularity (default daily)"
+                  },
+                  "start": {
+                    "type": "string",
+                    "description": "Start date in YYYYMMDD format (e.g. 20260801)"
+                  },
+                  "end": {
+                    "type": "string",
+                    "description": "End date in YYYYMMDD format (e.g. 20260801)"
+                  }
+                },
+                "required": [
+                  "project",
+                  "article",
+                  "start",
+                  "end"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/wikimedia-analytics.edits_aggregate/call": {
+      "post": {
+        "operationId": "wikimedia-analytics_edits_aggregate",
+        "summary": "Wikipedia Edit Count Aggregate",
+        "description": "Get total edit counts for a Wikimedia project over a date range, bucketed daily or monthly. Filter by editor type (anonymous, group-bot, name-bot, user, or all-editor-types) and page type (content, non-content, or all-page-types). Data: Wikimedia Analytics REST API (wikimedia.org/api/rest_v1), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "wikimedia-analytics.edits_aggregate"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "project": {
+                    "type": "string",
+                    "description": "Wikimedia project domain (e.g. en.wikipedia, de.wikipedia, commons.wikimedia)",
+                    "minLength": 1
+                  },
+                  "editor_type": {
+                    "type": "string",
+                    "enum": [
+                      "all-editor-types",
+                      "anonymous",
+                      "group-bot",
+                      "name-bot",
+                      "user"
+                    ],
+                    "description": "Editor type filter (default all-editor-types)"
+                  },
+                  "page_type": {
+                    "type": "string",
+                    "enum": [
+                      "all-page-types",
+                      "content",
+                      "non-content"
+                    ],
+                    "description": "Page namespace type filter (default all-page-types)"
+                  },
+                  "granularity": {
+                    "type": "string",
+                    "enum": [
+                      "daily",
+                      "monthly"
+                    ],
+                    "description": "Time bucket granularity (default monthly)"
+                  },
+                  "start": {
+                    "type": "string",
+                    "description": "Start date in YYYYMMDD format (e.g. 20260801)"
+                  },
+                  "end": {
+                    "type": "string",
+                    "description": "End date in YYYYMMDD format (e.g. 20260801)"
+                  }
+                },
+                "required": [
+                  "project",
+                  "start",
+                  "end"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

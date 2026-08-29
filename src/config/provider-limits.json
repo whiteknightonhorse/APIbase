@@ -3131,5 +3131,23 @@
     "reset_period": "none",
     "docs_url": "https://climateknowledgeportal.worldbank.org/guidance-note",
     "limit_proof": "World Bank public open-data API; no authentication or API key required, no rate-limit headers returned, no documented request quota found on the public guidance/documentation pages."
+  },
+  "geoboundaries": {
+    "display_name": "geoBoundaries",
+    "health_url": "https://www.geoboundaries.org/api/current/gbOpen/USA/ADM0/",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.geoboundaries.org/api.html",
+    "limit_proof": "William & Mary geoLab open-data API; no authentication or API key required, no rate-limit headers returned, no documented request quota on the public API docs page."
+  },
+  "wikimedia-analytics": {
+    "display_name": "Wikimedia Analytics",
+    "health_url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/aggregate/en.wikipedia/all-access/all-agents/daily/20260801/20260807",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://wikitech.wikimedia.org/wiki/Analytics/AQS/Pageviews",
+    "limit_proof": "Public, Cloudflare-cached Wikimedia REST API (wikimedia.org/api/rest_v1); no authentication or API key required, no rate-limit headers returned, no documented request quota on the public API docs page (same open-access pattern as the existing wikimedia-commons entry above)."
   }
 }

@@ -7489,6 +7489,50 @@ tools:
     price_usd: "0.002"
     cache_ttl: 604800
 
+  # --- UC-631: geoBoundaries ---
+  - tool_id: geoboundaries.boundary.detail
+    name: Administrative Boundary Detail
+    provider: geoboundaries
+    price_usd: "0.001"
+    cache_ttl: 604800
+
+  - tool_id: geoboundaries.boundary.list_countries
+    name: List Countries At Boundary Level
+    provider: geoboundaries
+    price_usd: "0.002"
+    cache_ttl: 604800
+
+  - tool_id: geoboundaries.boundary.available_levels
+    name: Available Boundary Levels For Country
+    provider: geoboundaries
+    price_usd: "0.001"
+    cache_ttl: 604800
+
+  # --- UC-632: Wikimedia Analytics ---
+  - tool_id: wikimedia-analytics.pageviews_aggregate
+    name: Wikipedia Pageviews Aggregate
+    provider: wikimedia-analytics
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: wikimedia-analytics.pageviews_top
+    name: Wikipedia Top Viewed Articles
+    provider: wikimedia-analytics
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: wikimedia-analytics.pageviews_per_article
+    name: Wikipedia Article Pageview History
+    provider: wikimedia-analytics
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: wikimedia-analytics.edits_aggregate
+    name: Wikipedia Edit Count Aggregate
+    provider: wikimedia-analytics
+    price_usd: "0.002"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

@@ -14817,4 +14817,97 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'weather',
     annotations: READ_ONLY,
   },
+
+  // geoBoundaries (3)
+  {
+    toolId: 'geoboundaries.boundary.detail',
+    mcpName: 'geoboundaries.boundary.detail',
+    title: 'Administrative Boundary Detail',
+    description:
+      "Get metadata for one country's administrative boundary at a given level: official name, " +
+      'admin unit count, area/perimeter stats, source, license, and download URLs for the full ' +
+      'GeoJSON, simplified GeoJSON, TopoJSON, and a preview PNG. Levels: ADM0 (country outline), ' +
+      'ADM1 (state/province), ADM2 (county/district), ADM3-ADM5 (finer, country-dependent). ' +
+      'Geometry is NOT embedded in the response (files can exceed 10MB) — fetch the returned URL ' +
+      'directly for the shapes. Data: geoBoundaries (William & Mary geoLab), no auth required.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'geoboundaries.boundary.list_countries',
+    mcpName: 'geoboundaries.boundary.list_countries',
+    title: 'List Countries At Boundary Level',
+    description:
+      "List every country's administrative boundary metadata at one level (ADM0 country outline " +
+      'by default, or ADM1-ADM5 for finer subdivisions where available): ISO3 code, name, admin ' +
+      'unit count, continent/region, and geometry download URLs. Useful for discovering coverage ' +
+      'before requesting a single country with geoboundaries.boundary.detail. Data: geoBoundaries ' +
+      '(William & Mary geoLab), no auth required.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'geoboundaries.boundary.available_levels',
+    mcpName: 'geoboundaries.boundary.available_levels',
+    title: 'Available Boundary Levels For Country',
+    description:
+      'Check which administrative levels (ADM0 through ADM5) exist for a given country, with the ' +
+      'local admin name and unit count at each available level (e.g. Kenya has ADM0-ADM2 only; ' +
+      'France has ADM0-ADM4). Call this before geoboundaries.boundary.detail to avoid requesting ' +
+      'a level that does not exist for that country. Data: geoBoundaries (William & Mary geoLab), ' +
+      'no auth required.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
+
+  // Wikimedia Analytics (4)
+  {
+    toolId: 'wikimedia-analytics.pageviews_aggregate',
+    mcpName: 'wikimedia-analytics.pageviews.aggregate',
+    title: 'Wikipedia Pageviews Aggregate',
+    description:
+      'Get total pageview counts for a Wikimedia project (e.g. en.wikipedia, de.wikipedia, ' +
+      'commons.wikimedia) over a date range, bucketed daily or monthly. Filter by access method ' +
+      '(desktop, mobile-web, mobile-app, or all-access) and traffic agent (user, spider, ' +
+      'automated, or all-agents). Data: Wikimedia Analytics REST API (wikimedia.org/api/rest_v1), ' +
+      'no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'wikimedia-analytics.pageviews_top',
+    mcpName: 'wikimedia-analytics.pageviews.top',
+    title: 'Wikipedia Top Viewed Articles',
+    description:
+      'List the most-viewed articles on a Wikimedia project for a single day, or for a full month ' +
+      'with day="all-days". Returns each article title, view count, and rank. Filter by access ' +
+      'method (desktop, mobile-web, mobile-app, or all-access). Data: Wikimedia Analytics REST API ' +
+      '(wikimedia.org/api/rest_v1), no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'wikimedia-analytics.pageviews_per_article',
+    mcpName: 'wikimedia-analytics.pageviews.per_article',
+    title: 'Wikipedia Article Pageview History',
+    description:
+      'Get pageview history for one specific article on a Wikimedia project over a date range, ' +
+      'bucketed daily or monthly. Filter by access method and traffic agent. Use after ' +
+      'wikimedia-analytics.pageviews_top to track trend history for a discovered article. Data: ' +
+      'Wikimedia Analytics REST API (wikimedia.org/api/rest_v1), no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'wikimedia-analytics.edits_aggregate',
+    mcpName: 'wikimedia-analytics.edits.aggregate',
+    title: 'Wikipedia Edit Count Aggregate',
+    description:
+      'Get total edit counts for a Wikimedia project over a date range, bucketed daily or ' +
+      'monthly. Filter by editor type (anonymous, group-bot, name-bot, user, or ' +
+      'all-editor-types) and page type (content, non-content, or all-page-types). Data: Wikimedia ' +
+      'Analytics REST API (wikimedia.org/api/rest_v1), no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

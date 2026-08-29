@@ -349,6 +349,8 @@ import { meteostatSchemas } from './meteostat.schema';
 import { copernicusSentinelSchemas } from './copernicus-sentinel.schema';
 import { oecdDataSchemas } from './oecd-data.schema';
 import { worldBankCckpSchemas } from './world-bank-cckp.schema';
+import { geoboundariesSchemas } from './geoboundaries.schema';
+import { wikimediaAnalyticsSchemas } from './wikimedia-analytics.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -701,4 +703,6 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...copernicusSentinelSchemas,
   ...oecdDataSchemas,
   ...worldBankCckpSchemas,
+  ...geoboundariesSchemas,
+  ...wikimediaAnalyticsSchemas,
 };
