@@ -352,6 +352,7 @@ import { worldBankCckpSchemas } from './world-bank-cckp.schema';
 import { geoboundariesSchemas } from './geoboundaries.schema';
 import { wikimediaAnalyticsSchemas } from './wikimedia-analytics.schema';
 import { bankOfEnglandSchemas } from './bank-of-england.schema';
+import { crossrefDataCitationsSchemas } from './crossref-datacitations.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -707,4 +708,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...geoboundariesSchemas,
   ...wikimediaAnalyticsSchemas,
   ...bankOfEnglandSchemas,
+  ...crossrefDataCitationsSchemas,
 };

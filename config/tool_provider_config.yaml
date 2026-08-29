@@ -7558,6 +7558,25 @@ tools:
     price_usd: "0.002"
     cache_ttl: 86400
 
+  # --- UC-634: CrossRef Data Citations (Article<->Dataset Citation Links, 3 tools) ---
+  - tool_id: crossref-datacitations.dataset_citations
+    name: CrossRef Papers Citing a Dataset
+    provider: crossref-datacitations
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: crossref-datacitations.article_datasets
+    name: CrossRef Datasets Cited by an Article
+    provider: crossref-datacitations
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: crossref-datacitations.recent_citations
+    name: CrossRef Recent Data Citation Events
+    provider: crossref-datacitations
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

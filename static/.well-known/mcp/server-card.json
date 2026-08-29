@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1227 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1230 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -58884,6 +58884,139 @@
             "minimum": 1,
             "maximum": 120,
             "description": "Number of most recent months to return, counting back from the current month (default 24, max 120 = 10 years). This is a monthly series."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "crossref-datacitations.citations.to_dataset",
+      "description": "Find scholarly works (journal articles, preprints) that cite a given dataset DOI. Returns each citing work's DOI, work type, publisher member ID, and the citation timestamp. Useful for measuring dataset reuse/impact or tracing which papers relied on a specific dataset. Data: api.crossref.org/beta/datacitations (CrossRef Data Citations API), no auth required, CC0 metadata, ~5-day delay between deposit and API appearance.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "dataset_doi": {
+            "type": "string",
+            "description": "DOI of the dataset to find citing works for (e.g. \"10.1037/t00742-000\")",
+            "minLength": 1
+          },
+          "rows": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 500,
+            "description": "Number of citation events to return (1-500, default 20)"
+          }
+        },
+        "required": [
+          "dataset_doi"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "crossref-datacitations.citations.from_article",
+      "description": "Find datasets (Crossref-DOI or DataCite-DOI) cited by a given scholarly work DOI. Returns each cited dataset's DOI, registration agency (Crossref/DataCite), and the citation timestamp. Useful for surfacing the underlying data behind a paper for reproducibility or follow-up analysis. Data: api.crossref.org/beta/datacitations (CrossRef Data Citations API), no auth required, CC0 metadata.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "article_doi": {
+            "type": "string",
+            "description": "DOI of the scholarly work to find cited datasets for (e.g. \"10.1016/j.jpeds.2026.114997\")",
+            "minLength": 1
+          },
+          "rows": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 500,
+            "description": "Number of citation events to return (1-500, default 20)"
+          }
+        },
+        "required": [
+          "article_doi"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "crossref-datacitations.citations.browse",
+      "description": "Browse article-to-dataset citation events by creation-date range and/or publisher member ID, without needing a known DOI. Useful for monitoring newly-deposited data citations from a specific publisher or time window. Data: api.crossref.org/beta/datacitations (CrossRef Data Citations API), no auth required, CC0 metadata, ~5-day delay between deposit and API appearance.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "from_date": {
+            "type": "string",
+            "description": "Only citation events created on/after this date, YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS (e.g. \"2026-01-20\")"
+          },
+          "until_date": {
+            "type": "string",
+            "description": "Only citation events created on/before this date, YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS (e.g. \"2026-01-21\")"
+          },
+          "member_id": {
+            "type": "string",
+            "description": "Filter to citing works from a specific CrossRef member/publisher ID (e.g. \"78\")"
+          },
+          "rows": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 500,
+            "description": "Number of citation events to return (1-500, default 20)"
           }
         }
       },

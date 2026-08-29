@@ -14960,4 +14960,48 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+
+  // --- UC-634: CrossRef Data Citations — 3 tools ---
+  // Article<->dataset citation-link API (api.crossref.org/beta/datacitations), no auth. Replaced
+  // the sunset (2026-04-23) Event Data API. Complements crossref.works_search (bibliographic
+  // metadata) with the citation RELATIONSHIP graph between papers and the datasets they cite.
+  {
+    toolId: 'crossref-datacitations.dataset_citations',
+    mcpName: 'crossref-datacitations.citations.to_dataset',
+    title: 'CrossRef Papers Citing a Dataset',
+    description:
+      'Find scholarly works (journal articles, preprints) that cite a given dataset DOI. Returns ' +
+      "each citing work's DOI, work type, publisher member ID, and the citation timestamp. Useful " +
+      'for measuring dataset reuse/impact or tracing which papers relied on a specific dataset. ' +
+      'Data: api.crossref.org/beta/datacitations (CrossRef Data Citations API), no auth required, ' +
+      'CC0 metadata, ~5-day delay between deposit and API appearance.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'crossref-datacitations.article_datasets',
+    mcpName: 'crossref-datacitations.citations.from_article',
+    title: 'CrossRef Datasets Cited by an Article',
+    description:
+      'Find datasets (Crossref-DOI or DataCite-DOI) cited by a given scholarly work DOI. Returns ' +
+      "each cited dataset's DOI, registration agency (Crossref/DataCite), and the citation " +
+      'timestamp. Useful for surfacing the underlying data behind a paper for reproducibility or ' +
+      'follow-up analysis. Data: api.crossref.org/beta/datacitations (CrossRef Data Citations API), ' +
+      'no auth required, CC0 metadata.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'crossref-datacitations.recent_citations',
+    mcpName: 'crossref-datacitations.citations.browse',
+    title: 'CrossRef Recent Data Citation Events',
+    description:
+      'Browse article-to-dataset citation events by creation-date range and/or publisher member ID, ' +
+      'without needing a known DOI. Useful for monitoring newly-deposited data citations from a ' +
+      'specific publisher or time window. Data: api.crossref.org/beta/datacitations (CrossRef Data ' +
+      'Citations API), no auth required, CC0 metadata, ~5-day delay between deposit and API ' +
+      'appearance.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
 ];

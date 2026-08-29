@@ -112759,6 +112759,265 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/crossref-datacitations.dataset_citations/call": {
+      "post": {
+        "operationId": "crossref-datacitations_dataset_citations",
+        "summary": "CrossRef Papers Citing a Dataset",
+        "description": "Find scholarly works (journal articles, preprints) that cite a given dataset DOI. Returns each citing work's DOI, work type, publisher member ID, and the citation timestamp. Useful for measuring dataset reuse/impact or tracing which papers relied on a specific dataset. Data: api.crossref.org/beta/datacitations (CrossRef Data Citations API), no auth required, CC0 metadata, ~5-day delay between deposit and API appearance.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "crossref-datacitations.dataset_citations"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "dataset_doi": {
+                    "type": "string",
+                    "description": "DOI of the dataset to find citing works for (e.g. \"10.1037/t00742-000\")",
+                    "minLength": 1
+                  },
+                  "rows": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 500,
+                    "description": "Number of citation events to return (1-500, default 20)"
+                  }
+                },
+                "required": [
+                  "dataset_doi"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/crossref-datacitations.article_datasets/call": {
+      "post": {
+        "operationId": "crossref-datacitations_article_datasets",
+        "summary": "CrossRef Datasets Cited by an Article",
+        "description": "Find datasets (Crossref-DOI or DataCite-DOI) cited by a given scholarly work DOI. Returns each cited dataset's DOI, registration agency (Crossref/DataCite), and the citation timestamp. Useful for surfacing the underlying data behind a paper for reproducibility or follow-up analysis. Data: api.crossref.org/beta/datacitations (CrossRef Data Citations API), no auth required, CC0 metadata.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "crossref-datacitations.article_datasets"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "article_doi": {
+                    "type": "string",
+                    "description": "DOI of the scholarly work to find cited datasets for (e.g. \"10.1016/j.jpeds.2026.114997\")",
+                    "minLength": 1
+                  },
+                  "rows": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 500,
+                    "description": "Number of citation events to return (1-500, default 20)"
+                  }
+                },
+                "required": [
+                  "article_doi"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/crossref-datacitations.recent_citations/call": {
+      "post": {
+        "operationId": "crossref-datacitations_recent_citations",
+        "summary": "CrossRef Recent Data Citation Events",
+        "description": "Browse article-to-dataset citation events by creation-date range and/or publisher member ID, without needing a known DOI. Useful for monitoring newly-deposited data citations from a specific publisher or time window. Data: api.crossref.org/beta/datacitations (CrossRef Data Citations API), no auth required, CC0 metadata, ~5-day delay between deposit and API appearance.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "crossref-datacitations.recent_citations"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "from_date": {
+                    "type": "string",
+                    "description": "Only citation events created on/after this date, YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS (e.g. \"2026-01-20\")"
+                  },
+                  "until_date": {
+                    "type": "string",
+                    "description": "Only citation events created on/before this date, YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS (e.g. \"2026-01-21\")"
+                  },
+                  "member_id": {
+                    "type": "string",
+                    "description": "Filter to citing works from a specific CrossRef member/publisher ID (e.g. \"78\")"
+                  },
+                  "rows": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 500,
+                    "description": "Number of citation events to return (1-500, default 20)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

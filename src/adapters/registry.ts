@@ -352,6 +352,7 @@ import { OecdDataAdapter } from './oecd-data';
 import { WorldBankCckpAdapter } from './world-bank-cckp';
 import { GeoBoundariesAdapter } from './geoboundaries';
 import { BankOfEnglandAdapter } from './bank-of-england';
+import { CrossrefDataCitationsAdapter } from './crossref-datacitations';
 import { config } from '../config';
 
 /**
@@ -1768,6 +1769,10 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'crossref':
       // CrossRef REST API (UC-597) — scholarly works/journal/funder/member search; no auth
       return getOrCreate('crossref', () => new CrossrefAdapter());
+    case 'crossref-datacitations':
+      // CrossRef Data Citations API (UC-634) — article<->dataset citation links; replaced Event
+      // Data (sunset 2026-04-23); no auth
+      return getOrCreate('crossref-datacitations', () => new CrossrefDataCitationsAdapter());
     case 'unpaywall':
       // Unpaywall API (UC-598) — open-access status + free full-text location by DOI; no auth
       return getOrCreate('unpaywall', () => new UnpaywallAdapter());
