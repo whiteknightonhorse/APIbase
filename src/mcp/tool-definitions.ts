@@ -14693,4 +14693,47 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'weather',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // Copernicus Data Space Ecosystem — Sentinel Satellite Imagery (UC-628, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'copernicus-sentinel.search_scenes',
+    mcpName: 'copernicus-sentinel.imagery.search',
+    title: 'Search Sentinel Satellite Scenes',
+    description:
+      'Search the Copernicus Data Space Ecosystem STAC catalog for Sentinel satellite scenes ' +
+      'covering an area and date range, with optional maximum cloud cover filter and sort by ' +
+      'date or cloudiness. Returns scene IDs, acquisition time, cloud cover, and a quicklook ' +
+      'thumbnail URL for each match. Data: ESA/EU Copernicus Sentinel program, public STAC ' +
+      'catalog, no auth required.',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'copernicus-sentinel.scene_detail',
+    mcpName: 'copernicus-sentinel.imagery.detail',
+    title: 'Get Sentinel Scene Metadata',
+    description:
+      'Get full metadata for one Sentinel satellite scene: acquisition time, footprint, platform, ' +
+      'instrument, product type, cloud/snow cover, orbit state, and the list of available spectral ' +
+      'band assets plus a public quicklook thumbnail URL. Collection and item_id come from ' +
+      'copernicus-sentinel.search_scenes. Data: ESA/EU Copernicus, public STAC catalog, no auth ' +
+      'required.',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'copernicus-sentinel.list_collections',
+    mcpName: 'copernicus-sentinel.imagery.collections',
+    title: 'List Sentinel Imagery Collections',
+    description:
+      'Browse the Copernicus Data Space Ecosystem STAC catalog of satellite/product collections ' +
+      '(Sentinel-1 radar, Sentinel-2 optical, Sentinel-3 ocean/land, Sentinel-5P atmosphere, ' +
+      'Sentinel-6 altimetry, plus Copernicus contributing missions and derived land/emergency ' +
+      'products), filterable by keyword. Use the returned collection IDs with search_scenes and ' +
+      'scene_detail. Data: ESA/EU Copernicus, public STAC catalog, no auth required.',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
 ];

@@ -7432,6 +7432,25 @@ tools:
     price_usd: "0.002"
     cache_ttl: 3600
 
+  # --- UC-628: Copernicus Data Space Ecosystem (Sentinel satellite imagery) ---
+  - tool_id: copernicus-sentinel.search_scenes
+    name: Search Sentinel Satellite Scenes
+    provider: copernicus-sentinel
+    price_usd: "0.002"
+    cache_ttl: 1800
+
+  - tool_id: copernicus-sentinel.scene_detail
+    name: Get Sentinel Scene Metadata
+    provider: copernicus-sentinel
+    price_usd: "0.001"
+    cache_ttl: 604800
+
+  - tool_id: copernicus-sentinel.list_collections
+    name: List Sentinel Imagery Collections
+    provider: copernicus-sentinel
+    price_usd: "0.001"
+    cache_ttl: 604800
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

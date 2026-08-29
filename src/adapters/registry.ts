@@ -346,6 +346,7 @@ import { ImfAdapter } from './imf';
 import { EcdcSurveillanceAdapter } from './ecdc-surveillance';
 import { TransportRestAdapter } from './transport-rest';
 import { MeteostatAdapter } from './meteostat';
+import { CopernicusSentinelAdapter } from './copernicus-sentinel';
 import { config } from '../config';
 
 /**
@@ -1849,6 +1850,10 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // station metadata, daily/monthly/hourly observations. Official RapidAPI JSON API is
       // paid/gated and out of scope.
       return getOrCreate('meteostat', () => new MeteostatAdapter());
+    case 'copernicus-sentinel':
+      // Copernicus Data Space Ecosystem STAC catalog (UC-628) — Sentinel satellite imagery
+      // scene search, full scene metadata, collection browse; no auth
+      return getOrCreate('copernicus-sentinel', () => new CopernicusSentinelAdapter());
     default:
       return undefined;
   }

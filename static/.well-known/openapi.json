@@ -110819,6 +110819,305 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/copernicus-sentinel.search_scenes/call": {
+      "post": {
+        "operationId": "copernicus-sentinel_search_scenes",
+        "summary": "Search Sentinel Satellite Scenes",
+        "description": "Search the Copernicus Data Space Ecosystem STAC catalog for Sentinel satellite scenes covering an area and date range, with optional maximum cloud cover filter and sort by date or cloudiness. Returns scene IDs, acquisition time, cloud cover, and a quicklook thumbnail URL for each match. Data: ESA/EU Copernicus Sentinel program, public STAC catalog, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "copernicus-sentinel.search_scenes"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "collection": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "STAC collection ID to search (default \"sentinel-2-l2a\"). Other common values: \"sentinel-1-grd\" (radar), \"sentinel-2-l1c\" (top-of-atmosphere optical), \"sentinel-3-olci-2-wfr-nrt\" (ocean color). See copernicus-sentinel.list_collections for the full list."
+                  },
+                  "bbox": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "description": "Bounding box [min_lon, min_lat, max_lon, max_lat] in WGS84 decimal degrees. Provide this OR lat + lon."
+                  },
+                  "lat": {
+                    "type": "number",
+                    "minimum": -90,
+                    "maximum": 90,
+                    "description": "Latitude of a point of interest. Use with \"lon\" (and optional \"radius_km\") instead of bbox."
+                  },
+                  "lon": {
+                    "type": "number",
+                    "minimum": -180,
+                    "maximum": 180,
+                    "description": "Longitude of a point of interest. Use with \"lat\" (and optional \"radius_km\") instead of bbox."
+                  },
+                  "radius_km": {
+                    "type": "number",
+                    "minimum": 1,
+                    "maximum": 500,
+                    "description": "Search radius in kilometers around lat/lon (default 20, max 500). Ignored if bbox is given."
+                  },
+                  "start_date": {
+                    "type": "string",
+                    "description": "Start of the acquisition date range, format YYYY-MM-DD."
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "End of the acquisition date range, format YYYY-MM-DD."
+                  },
+                  "max_cloud_cover": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100,
+                    "description": "Maximum acceptable cloud cover percentage (0-100). Applies to optical collections like Sentinel-2; omit for radar collections such as Sentinel-1."
+                  },
+                  "sort": {
+                    "type": "string",
+                    "enum": [
+                      "date_desc",
+                      "cloud_asc"
+                    ],
+                    "description": "Sort order: \"date_desc\" (newest first, default) or \"cloud_asc\" (least cloudy first)."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of scenes to return (default 10, max 50)."
+                  }
+                },
+                "required": [
+                  "start_date",
+                  "end_date"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/copernicus-sentinel.scene_detail/call": {
+      "post": {
+        "operationId": "copernicus-sentinel_scene_detail",
+        "summary": "Get Sentinel Scene Metadata",
+        "description": "Get full metadata for one Sentinel satellite scene: acquisition time, footprint, platform, instrument, product type, cloud/snow cover, orbit state, and the list of available spectral band assets plus a public quicklook thumbnail URL. Collection and item_id come from copernicus-sentinel.search_scenes. Data: ESA/EU Copernicus, public STAC catalog, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "copernicus-sentinel.scene_detail"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "collection": {
+                    "type": "string",
+                    "description": "STAC collection ID the scene belongs to (from a search_scenes result), e.g. \"sentinel-2-l2a\".",
+                    "minLength": 1
+                  },
+                  "item_id": {
+                    "type": "string",
+                    "description": "STAC item (scene) ID from a search_scenes result, e.g. \"S2B_MSIL2A_20260829T053639_N0512_R005_T50XNK_20260829T072754\".",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "collection",
+                  "item_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/copernicus-sentinel.list_collections/call": {
+      "post": {
+        "operationId": "copernicus-sentinel_list_collections",
+        "summary": "List Sentinel Imagery Collections",
+        "description": "Browse the Copernicus Data Space Ecosystem STAC catalog of satellite/product collections (Sentinel-1 radar, Sentinel-2 optical, Sentinel-3 ocean/land, Sentinel-5P atmosphere, Sentinel-6 altimetry, plus Copernicus contributing missions and derived land/emergency products), filterable by keyword. Use the returned collection IDs with search_scenes and scene_detail. Data: ESA/EU Copernicus, public STAC catalog, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "copernicus-sentinel.list_collections"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "keyword": {
+                    "type": "string",
+                    "description": "Filter collections by keyword matched against collection ID and title (case-insensitive substring), e.g. \"sentinel-1\" or \"dem\". Omit to list only the Sentinel mission collections."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of collections to return (default 20, max 100)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {
