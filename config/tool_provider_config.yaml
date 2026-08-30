@@ -7577,6 +7577,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-635: Wikimedia REST Content API (4 tools) ---
+  - tool_id: wikimedia-rest.page_summary
+    name: Wikipedia Page Summary
+    provider: wikimedia-rest
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: wikimedia-rest.search_page
+    name: Wikipedia Full-Text Search
+    provider: wikimedia-rest
+    price_usd: "0.001"
+    cache_ttl: 1800
+
+  - tool_id: wikimedia-rest.on_this_day
+    name: Wikipedia On This Day
+    provider: wikimedia-rest
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: wikimedia-rest.media_list
+    name: Wikipedia Page Media List
+    provider: wikimedia-rest
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

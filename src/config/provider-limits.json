@@ -2862,6 +2862,15 @@
     "docs_url": "https://www.crossref.org/documentation/retrieve-metadata/data-citations/",
     "limit_proof": "Public beta REST API, no authentication required. Observed response headers x-rate-limit: 3, x-concurrency-limit: 3 (3 req/s, 3 concurrent); replaced the sunset (2026-04-23) Event Data API"
   },
+  "wikimedia-rest": {
+    "display_name": "Wikimedia REST Content API",
+    "health_url": "https://en.wikipedia.org/api/rest_v1/page/summary/Wikipedia",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://en.wikipedia.org/api/rest_v1/",
+    "limit_proof": "Public per-language-edition Wikipedia REST API, no authentication or API key required, no documented rate limit on the public docs page beyond the general Wikimedia User-Agent policy (same open-access pattern as the existing wikimedia-analytics and wikimedia-commons entries)."
+  },
   "unpaywall": {
     "display_name": "Unpaywall",
     "health_url": "https://api.unpaywall.org/v2/10.1038/nature12373?email=contact@apibase.pro",

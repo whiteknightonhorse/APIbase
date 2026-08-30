@@ -321,6 +321,7 @@ import { CrossrefAdapter } from './crossref';
 import { UnpaywallAdapter } from './unpaywall';
 import { WikimediaCommonsAdapter } from './wikimedia-commons';
 import { WikimediaAnalyticsAdapter } from './wikimedia-analytics';
+import { WikimediaRestAdapter } from './wikimedia-rest';
 import { StandardEbooksAdapter } from './standard-ebooks';
 import { IndecGeorefAdapter } from './indec-georef';
 import { EnviroatlasAdapter } from './enviroatlas';
@@ -1886,6 +1887,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // auth, UK Open Government Licence v3.0 (exchange-rate series deliberately excluded,
       // they are licensed from third parties, not covered by the OGL)
       return getOrCreate('bank-of-england', () => new BankOfEnglandAdapter());
+    case 'wikimedia-rest':
+      // Wikimedia REST Content API (UC-635) — page summary/extract, full-text search,
+      // "on this day" historical events feed, media list per article; no auth. Distinct
+      // from wikimedia-analytics (traffic/edit metrics) and wikimedia-commons (media
+      // search via Action API) — this adapter serves live page content.
+      return getOrCreate('wikimedia-rest', () => new WikimediaRestAdapter());
     default:
       return undefined;
   }

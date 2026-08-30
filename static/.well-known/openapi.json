@@ -113018,6 +113018,360 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/wikimedia-rest.page_summary/call": {
+      "post": {
+        "operationId": "wikimedia-rest_page_summary",
+        "summary": "Wikipedia Page Summary",
+        "description": "Get the intro extract, short description, thumbnail, and canonical article URL for a Wikipedia article by title. Select the language edition with lang (default en, e.g. de, fr, ja). Data: Wikipedia REST API (wikipedia.org/api/rest_v1), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "wikimedia-rest.page_summary"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "description": "Article title, spaces or underscores accepted (e.g. Albert_Einstein)",
+                    "minLength": 1
+                  },
+                  "lang": {
+                    "type": "string",
+                    "description": "Wikipedia language edition subdomain code (default en, e.g. de, fr, ja, zh-yue)"
+                  }
+                },
+                "required": [
+                  "title"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/wikimedia-rest.search_page/call": {
+      "post": {
+        "operationId": "wikimedia-rest_search_page",
+        "summary": "Wikipedia Full-Text Search",
+        "description": "Full-text search across Wikipedia article titles and content. Returns matching page titles, highlighted excerpts, short descriptions, and thumbnails, ranked by relevance. Select the language edition with lang (default en). Data: MediaWiki REST API (wikipedia.org/w/rest.php/v1), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "wikimedia-rest.search_page"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Full-text search query (e.g. \"einstein relativity\")",
+                    "minLength": 1
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of results to return, 1-50 (default 10)"
+                  },
+                  "lang": {
+                    "type": "string",
+                    "description": "Wikipedia language edition subdomain code (default en, e.g. de, fr, ja, zh-yue)"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/wikimedia-rest.on_this_day/call": {
+      "post": {
+        "operationId": "wikimedia-rest_on_this_day",
+        "summary": "Wikipedia On This Day",
+        "description": "Get historical events, births, deaths, holidays, or editor-selected highlights that occurred on a given month/day across history, as curated by Wikipedia. Select category with type (births, deaths, events, holidays, selected) and the language edition with lang (default en). Data: Wikipedia REST API (wikipedia.org/api/rest_v1/feed/onthisday), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "wikimedia-rest.on_this_day"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "births",
+                      "deaths",
+                      "events",
+                      "holidays",
+                      "selected"
+                    ],
+                    "description": "Category of historical events to return"
+                  },
+                  "month": {
+                    "type": "string",
+                    "description": "2-digit month (e.g. 08 for August)"
+                  },
+                  "day": {
+                    "type": "string",
+                    "description": "2-digit day of month (e.g. 30)"
+                  },
+                  "lang": {
+                    "type": "string",
+                    "description": "Wikipedia language edition subdomain code (default en, e.g. de, fr, ja, zh-yue)"
+                  }
+                },
+                "required": [
+                  "type",
+                  "month",
+                  "day"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/wikimedia-rest.media_list/call": {
+      "post": {
+        "operationId": "wikimedia-rest_media_list",
+        "summary": "Wikipedia Page Media List",
+        "description": "List all images, audio, and video files referenced in a Wikipedia article, with source URLs and gallery/lead-image flags. Select the language edition with lang (default en). Data: Wikipedia REST API (wikipedia.org/api/rest_v1/page/media-list), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "wikimedia-rest.media_list"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "description": "Article title, spaces or underscores accepted (e.g. Albert_Einstein)",
+                    "minLength": 1
+                  },
+                  "lang": {
+                    "type": "string",
+                    "description": "Wikipedia language edition subdomain code (default en, e.g. de, fr, ja, zh-yue)"
+                  }
+                },
+                "required": [
+                  "title"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

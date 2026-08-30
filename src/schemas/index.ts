@@ -353,6 +353,7 @@ import { geoboundariesSchemas } from './geoboundaries.schema';
 import { wikimediaAnalyticsSchemas } from './wikimedia-analytics.schema';
 import { bankOfEnglandSchemas } from './bank-of-england.schema';
 import { crossrefDataCitationsSchemas } from './crossref-datacitations.schema';
+import { wikimediaRestSchemas } from './wikimedia-rest.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -709,4 +710,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...wikimediaAnalyticsSchemas,
   ...bankOfEnglandSchemas,
   ...crossrefDataCitationsSchemas,
+  ...wikimediaRestSchemas,
 };

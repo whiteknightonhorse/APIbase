@@ -15004,4 +15004,53 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'education',
     annotations: READ_ONLY,
   },
+
+  // Wikimedia REST Content API (4)
+  {
+    toolId: 'wikimedia-rest.page_summary',
+    mcpName: 'wikimedia-rest.pages.summary',
+    title: 'Wikipedia Page Summary',
+    description:
+      'Get the intro extract, short description, thumbnail, and canonical article URL for a ' +
+      'Wikipedia article by title. Select the language edition with lang (default en, e.g. de, ' +
+      'fr, ja). Data: Wikipedia REST API (wikipedia.org/api/rest_v1), no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'wikimedia-rest.search_page',
+    mcpName: 'wikimedia-rest.pages.search',
+    title: 'Wikipedia Full-Text Search',
+    description:
+      'Full-text search across Wikipedia article titles and content. Returns matching page ' +
+      'titles, highlighted excerpts, short descriptions, and thumbnails, ranked by relevance. ' +
+      'Select the language edition with lang (default en). Data: MediaWiki REST API ' +
+      '(wikipedia.org/w/rest.php/v1), no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'wikimedia-rest.on_this_day',
+    mcpName: 'wikimedia-rest.feed.on_this_day',
+    title: 'Wikipedia On This Day',
+    description:
+      'Get historical events, births, deaths, holidays, or editor-selected highlights that ' +
+      'occurred on a given month/day across history, as curated by Wikipedia. Select category ' +
+      'with type (births, deaths, events, holidays, selected) and the language edition with ' +
+      'lang (default en). Data: Wikipedia REST API (wikipedia.org/api/rest_v1/feed/onthisday), ' +
+      'no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'wikimedia-rest.media_list',
+    mcpName: 'wikimedia-rest.pages.media_list',
+    title: 'Wikipedia Page Media List',
+    description:
+      'List all images, audio, and video files referenced in a Wikipedia article, with source ' +
+      'URLs and gallery/lead-image flags. Select the language edition with lang (default en). ' +
+      'Data: Wikipedia REST API (wikipedia.org/api/rest_v1/page/media-list), no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];
