@@ -3176,5 +3176,14 @@
     "reset_period": "none",
     "docs_url": "https://www.bankofengland.co.uk/legal",
     "limit_proof": "Bank of England Statistical Interactive Database (boeapps/database); no authentication or API key required, no rate-limit headers returned, no documented request quota. Reproduction of data in the Database is licensed under the UK Open Government Licence v3.0 (bankofengland.co.uk/legal, 'Bank of England Database' section), which permits free and flexible commercial reuse."
+  },
+  "freetogame": {
+    "display_name": "FreeToGame",
+    "health_url": "https://www.freetogame.com/api/games?platform=pc",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.freetogame.com/api-doc",
+    "limit_proof": "Public REST API (freetogame.com/api); no authentication or API key required, no rate-limit headers returned in observed responses, no documented request quota. The api-doc page itself is behind a Cloudflare JS challenge, but the API endpoints (/api/games, /api/game, /api/filter) respond directly with no challenge."
   }
 }

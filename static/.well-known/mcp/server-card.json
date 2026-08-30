@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 1234 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 1237 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -59239,6 +59239,277 @@
         "required": [
           "query"
         ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "freetogame.games.filter_by_tag",
+      "title": "FreeToGame Filter By Tag",
+      "description": "Filter free-to-play games by a single gameplay/genre tag (e.g. mmorpg, pvp, anime, battle-royale), combined with optional platform and sort order filters. Distinct from game_list category filtering \u2014 same tag vocabulary but a dedicated advanced-filter endpoint. Data: FreeToGame API (freetogame.com/api), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "tag": {
+            "type": "string",
+            "enum": [
+              "mmorpg",
+              "shooter",
+              "strategy",
+              "moba",
+              "racing",
+              "sports",
+              "social",
+              "sandbox",
+              "open-world",
+              "survival",
+              "pvp",
+              "pve",
+              "pixel",
+              "voxel",
+              "zombie",
+              "turn-based",
+              "first-person",
+              "third-person",
+              "top-down",
+              "tank",
+              "space",
+              "sailing",
+              "side-scroller",
+              "superhero",
+              "permadeath",
+              "card",
+              "battle-royale",
+              "mmo",
+              "mmofps",
+              "mmotps",
+              "3d",
+              "2d",
+              "anime",
+              "fantasy",
+              "sci-fi",
+              "fighting",
+              "action-rpg",
+              "action",
+              "military",
+              "martial-arts",
+              "flight",
+              "low-spec",
+              "tower-defense",
+              "horror",
+              "mmorts"
+            ],
+            "description": "Genre/gameplay tag to filter by (e.g. mmorpg, pvp, anime, battle-royale)"
+          },
+          "platform": {
+            "type": "string",
+            "enum": [
+              "pc",
+              "browser",
+              "all"
+            ],
+            "description": "Platform filter: pc (Windows client), browser (web games), or all (default all)"
+          },
+          "sort_by": {
+            "type": "string",
+            "enum": [
+              "release-date",
+              "popularity",
+              "alphabetical",
+              "relevance"
+            ],
+            "description": "Sort order for results (default relevance)"
+          }
+        },
+        "required": [
+          "tag"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "freetogame.games.detail",
+      "title": "FreeToGame Game Detail",
+      "description": "Get full details for a single free-to-play game by ID: status, full description, minimum system requirements, and screenshots. Data: FreeToGame API (freetogame.com/api), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "FreeToGame game ID (e.g. 540 for Overwatch)",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "freetogame.games.list",
+      "title": "FreeToGame Game List",
+      "description": "Browse the free-to-play PC and browser game catalog. Filter by platform (pc, browser, all), category/genre (mmorpg, shooter, battle-royale, etc.), and sort order (release-date, popularity, alphabetical, relevance). Returns title, genre, platform, publisher, developer, release date, and profile URL for each game. Data: FreeToGame API (freetogame.com/api), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "platform": {
+            "type": "string",
+            "enum": [
+              "pc",
+              "browser",
+              "all"
+            ],
+            "description": "Platform filter: pc (Windows client), browser (web games), or all (default all)"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "mmorpg",
+              "shooter",
+              "strategy",
+              "moba",
+              "racing",
+              "sports",
+              "social",
+              "sandbox",
+              "open-world",
+              "survival",
+              "pvp",
+              "pve",
+              "pixel",
+              "voxel",
+              "zombie",
+              "turn-based",
+              "first-person",
+              "third-person",
+              "top-down",
+              "tank",
+              "space",
+              "sailing",
+              "side-scroller",
+              "superhero",
+              "permadeath",
+              "card",
+              "battle-royale",
+              "mmo",
+              "mmofps",
+              "mmotps",
+              "3d",
+              "2d",
+              "anime",
+              "fantasy",
+              "sci-fi",
+              "fighting",
+              "action-rpg",
+              "action",
+              "military",
+              "martial-arts",
+              "flight",
+              "low-spec",
+              "tower-defense",
+              "horror",
+              "mmorts"
+            ],
+            "description": "Genre/category filter (e.g. mmorpg, shooter, battle-royale)"
+          },
+          "sort_by": {
+            "type": "string",
+            "enum": [
+              "release-date",
+              "popularity",
+              "alphabetical",
+              "relevance"
+            ],
+            "description": "Sort order for results (default relevance)"
+          }
+        }
       },
       "outputSchema": {
         "type": "object",

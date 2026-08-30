@@ -7602,6 +7602,25 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-636: FreeToGame (3 tools) ---
+  - tool_id: freetogame.game_list
+    name: FreeToGame Game List
+    provider: freetogame
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: freetogame.game_detail
+    name: FreeToGame Game Detail
+    provider: freetogame
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: freetogame.filter_by_tag
+    name: FreeToGame Filter By Tag
+    provider: freetogame
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

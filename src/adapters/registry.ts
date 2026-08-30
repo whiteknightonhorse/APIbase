@@ -322,6 +322,7 @@ import { UnpaywallAdapter } from './unpaywall';
 import { WikimediaCommonsAdapter } from './wikimedia-commons';
 import { WikimediaAnalyticsAdapter } from './wikimedia-analytics';
 import { WikimediaRestAdapter } from './wikimedia-rest';
+import { FreetogameAdapter } from './freetogame';
 import { StandardEbooksAdapter } from './standard-ebooks';
 import { IndecGeorefAdapter } from './indec-georef';
 import { EnviroatlasAdapter } from './enviroatlas';
@@ -1893,6 +1894,10 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // from wikimedia-analytics (traffic/edit metrics) and wikimedia-commons (media
       // search via Action API) — this adapter serves live page content.
       return getOrCreate('wikimedia-rest', () => new WikimediaRestAdapter());
+    case 'freetogame':
+      // FreeToGame (UC-636) — free-to-play PC/browser game catalog: list/filter, single
+      // game detail (system requirements, screenshots), tag-based advanced filter; no auth
+      return getOrCreate('freetogame', () => new FreetogameAdapter());
     default:
       return undefined;
   }

@@ -15053,4 +15053,40 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+  {
+    toolId: 'freetogame.game_list',
+    mcpName: 'freetogame.games.list',
+    title: 'FreeToGame Game List',
+    description:
+      'Browse the free-to-play PC and browser game catalog. Filter by platform (pc, browser, ' +
+      'all), category/genre (mmorpg, shooter, battle-royale, etc.), and sort order ' +
+      '(release-date, popularity, alphabetical, relevance). Returns title, genre, platform, ' +
+      'publisher, developer, release date, and profile URL for each game. Data: FreeToGame API ' +
+      '(freetogame.com/api), no auth required.',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'freetogame.game_detail',
+    mcpName: 'freetogame.games.detail',
+    title: 'FreeToGame Game Detail',
+    description:
+      'Get full details for a single free-to-play game by ID: status, full description, ' +
+      'minimum system requirements, and screenshots. Data: FreeToGame API ' +
+      '(freetogame.com/api), no auth required.',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'freetogame.filter_by_tag',
+    mcpName: 'freetogame.games.filter_by_tag',
+    title: 'FreeToGame Filter By Tag',
+    description:
+      'Filter free-to-play games by a single gameplay/genre tag (e.g. mmorpg, pvp, anime, ' +
+      'battle-royale), combined with optional platform and sort order filters. Distinct from ' +
+      'game_list category filtering — same tag vocabulary but a dedicated advanced-filter ' +
+      'endpoint. Data: FreeToGame API (freetogame.com/api), no auth required.',
+    category: 'entertainment',
+    annotations: READ_ONLY,
+  },
 ];
