@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 1237 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 1239 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -59510,6 +59510,104 @@
             "description": "Sort order for results (default relevance)"
           }
         }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "duckduckgo.search.instant_answer",
+      "title": "DuckDuckGo Instant Answer",
+      "description": "Get a DuckDuckGo Instant Answer digest for a query: Wikipedia-sourced abstract, direct answer (for calculations/conversions/facts), dictionary definition, entity type, and infobox key-value facts when available. Best for quick factual lookups on well-known topics, people, places, and things. Data: DuckDuckGo Instant Answer API (api.duckduckgo.com), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query or topic to look up (e.g. \"Python programming language\", \"coffee\")",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "duckduckgo.search.related_topics",
+      "title": "DuckDuckGo Related Topics",
+      "description": "Get DuckDuckGo related/disambiguation topics for a query \u2014 a flattened list of related concepts, categories, or alternate meanings, each with a title and DuckDuckGo link. Useful for exploring ambiguous or broad queries (e.g. a name that maps to multiple people, or a category like \"coffee\"). Data: DuckDuckGo Instant Answer API (api.duckduckgo.com), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query or topic to look up (e.g. \"Python programming language\", \"coffee\")",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "query"
+        ]
       },
       "outputSchema": {
         "type": "object",

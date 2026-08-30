@@ -323,6 +323,7 @@ import { WikimediaCommonsAdapter } from './wikimedia-commons';
 import { WikimediaAnalyticsAdapter } from './wikimedia-analytics';
 import { WikimediaRestAdapter } from './wikimedia-rest';
 import { FreetogameAdapter } from './freetogame';
+import { DuckDuckGoAdapter } from './duckduckgo';
 import { StandardEbooksAdapter } from './standard-ebooks';
 import { IndecGeorefAdapter } from './indec-georef';
 import { EnviroatlasAdapter } from './enviroatlas';
@@ -1898,6 +1899,10 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // FreeToGame (UC-636) — free-to-play PC/browser game catalog: list/filter, single
       // game detail (system requirements, screenshots), tag-based advanced filter; no auth
       return getOrCreate('freetogame', () => new FreetogameAdapter());
+    case 'duckduckgo':
+      // DuckDuckGo Instant Answer API (UC-637) — abstract/definition/infobox digest for a
+      // query plus a flattened related-topics/disambiguation list; no auth
+      return getOrCreate('duckduckgo', () => new DuckDuckGoAdapter());
     default:
       return undefined;
   }

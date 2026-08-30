@@ -113736,6 +113736,166 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/duckduckgo.instant_answer/call": {
+      "post": {
+        "operationId": "duckduckgo_instant_answer",
+        "summary": "DuckDuckGo Instant Answer",
+        "description": "Get a DuckDuckGo Instant Answer digest for a query: Wikipedia-sourced abstract, direct answer (for calculations/conversions/facts), dictionary definition, entity type, and infobox key-value facts when available. Best for quick factual lookups on well-known topics, people, places, and things. Data: DuckDuckGo Instant Answer API (api.duckduckgo.com), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "duckduckgo.instant_answer"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search query or topic to look up (e.g. \"Python programming language\", \"coffee\")",
+                    "minLength": 1,
+                    "maxLength": 500
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/duckduckgo.related_topics/call": {
+      "post": {
+        "operationId": "duckduckgo_related_topics",
+        "summary": "DuckDuckGo Related Topics",
+        "description": "Get DuckDuckGo related/disambiguation topics for a query — a flattened list of related concepts, categories, or alternate meanings, each with a title and DuckDuckGo link. Useful for exploring ambiguous or broad queries (e.g. a name that maps to multiple people, or a category like \"coffee\"). Data: DuckDuckGo Instant Answer API (api.duckduckgo.com), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "duckduckgo.related_topics"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search query or topic to look up (e.g. \"Python programming language\", \"coffee\")",
+                    "minLength": 1,
+                    "maxLength": 500
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

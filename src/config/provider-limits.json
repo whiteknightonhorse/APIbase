@@ -3185,5 +3185,14 @@
     "reset_period": "none",
     "docs_url": "https://www.freetogame.com/api-doc",
     "limit_proof": "Public REST API (freetogame.com/api); no authentication or API key required, no rate-limit headers returned in observed responses, no documented request quota. The api-doc page itself is behind a Cloudflare JS challenge, but the API endpoints (/api/games, /api/game, /api/filter) respond directly with no challenge."
+  },
+  "duckduckgo": {
+    "display_name": "DuckDuckGo Instant Answer",
+    "health_url": "https://api.duckduckgo.com/?q=test&format=json",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://duckduckgo.com/api",
+    "limit_proof": "Public Instant Answer API (api.duckduckgo.com); no authentication or API key required, no rate-limit headers returned in observed responses, no documented request quota. Every response is HTTP 202 Accepted (not 200) with a JSON body — normal upstream behavior, not an error."
   }
 }

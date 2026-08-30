@@ -7621,6 +7621,19 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-637: DuckDuckGo Instant Answer (2 tools) ---
+  - tool_id: duckduckgo.instant_answer
+    name: DuckDuckGo Instant Answer
+    provider: duckduckgo
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: duckduckgo.related_topics
+    name: DuckDuckGo Related Topics
+    provider: duckduckgo
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

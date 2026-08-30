@@ -15089,4 +15089,30 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'entertainment',
     annotations: READ_ONLY,
   },
+  {
+    toolId: 'duckduckgo.instant_answer',
+    mcpName: 'duckduckgo.search.instant_answer',
+    title: 'DuckDuckGo Instant Answer',
+    description:
+      'Get a DuckDuckGo Instant Answer digest for a query: Wikipedia-sourced abstract, direct ' +
+      'answer (for calculations/conversions/facts), dictionary definition, entity type, and ' +
+      'infobox key-value facts when available. Best for quick factual lookups on well-known ' +
+      'topics, people, places, and things. Data: DuckDuckGo Instant Answer API ' +
+      '(api.duckduckgo.com), no auth required.',
+    category: 'search',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'duckduckgo.related_topics',
+    mcpName: 'duckduckgo.search.related_topics',
+    title: 'DuckDuckGo Related Topics',
+    description:
+      'Get DuckDuckGo related/disambiguation topics for a query — a flattened list of related ' +
+      'concepts, categories, or alternate meanings, each with a title and DuckDuckGo link. ' +
+      'Useful for exploring ambiguous or broad queries (e.g. a name that maps to multiple ' +
+      'people, or a category like "coffee"). Data: DuckDuckGo Instant Answer API ' +
+      '(api.duckduckgo.com), no auth required.',
+    category: 'search',
+    annotations: READ_ONLY,
+  },
 ];

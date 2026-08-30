@@ -355,6 +355,7 @@ import { bankOfEnglandSchemas } from './bank-of-england.schema';
 import { crossrefDataCitationsSchemas } from './crossref-datacitations.schema';
 import { wikimediaRestSchemas } from './wikimedia-rest.schema';
 import { freetogameSchemas } from './freetogame.schema';
+import { duckduckgoSchemas } from './duckduckgo.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -713,4 +714,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...crossrefDataCitationsSchemas,
   ...wikimediaRestSchemas,
   ...freetogameSchemas,
+  ...duckduckgoSchemas,
 };
