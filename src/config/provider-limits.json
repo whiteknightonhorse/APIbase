@@ -2815,7 +2815,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://www.destatis.de/EN/Service/OpenData/api-webservice.html",
-    "limit_proof": "German Federal Statistical Office open data API; free account, no documented rate limit or quota — 'All users have access to the same range of data'"
+    "limit_proof": "German Federal Statistical Office open data API; free account, no documented rate limit or quota \u2014 'All users have access to the same range of data'"
   },
   "ecb-rates": {
     "display_name": "ECB Data Portal",
@@ -2827,7 +2827,7 @@
     "limit_proof": "ECB Statistical Data Warehouse public REST API; no authentication, no documented rate limits (official EU institution open data)"
   },
   "ine": {
-    "display_name": "INE (Instituto Nacional de Estadística)",
+    "display_name": "INE (Instituto Nacional de Estad\u00edstica)",
     "health_url": "https://servicios.ine.es/wstempus/js/ES/OPERACIONES_DISPONIBLES",
     "limit_type": "unlimited",
     "free_limit": 0,
@@ -2878,7 +2878,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://unpaywall.org/products/api",
-    "limit_proof": "Free public API, no API key. Docs state: 'be reasonable' — no documented hard rate limit for the single-DOI lookup endpoint; recommends batching via the (paid) data feed for bulk use, not applicable here."
+    "limit_proof": "Free public API, no API key. Docs state: 'be reasonable' \u2014 no documented hard rate limit for the single-DOI lookup endpoint; recommends batching via the (paid) data feed for bulk use, not applicable here."
   },
   "wikimedia-commons": {
     "display_name": "Wikimedia Commons",
@@ -2941,7 +2941,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://cveproject.github.io/cve-schema/schema/docs/",
-    "limit_proof": "No API key or registration required (US Government sponsored, CVE Program / MITRE Corporation). Live response headers confirm ratelimit-policy: 25000;w=60 (25,000 requests per 60s rolling window) — no documented lower per-caller cap."
+    "limit_proof": "No API key or registration required (US Government sponsored, CVE Program / MITRE Corporation). Live response headers confirm ratelimit-policy: 25000;w=60 (25,000 requests per 60s rolling window) \u2014 no documented lower per-caller cap."
   },
   "usgs-mrds": {
     "display_name": "USGS Mineral Resources Data System",
@@ -2950,7 +2950,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://mrdata.usgs.gov/mrds/",
-    "limit_proof": "No API key or registration required (US Government open data, USGS Mineral Resources Program). WFS 2.0.0 service — no rate-limit headers or documented per-caller cap found."
+    "limit_proof": "No API key or registration required (US Government open data, USGS Mineral Resources Program). WFS 2.0.0 service \u2014 no rate-limit headers or documented per-caller cap found."
   },
   "paleoclimate": {
     "display_name": "NOAA NCEI Paleoclimatology",
@@ -3022,7 +3022,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://www.seismicportal.eu/fdsn-wsevent.html",
-    "limit_proof": "Public FDSN event service, no auth, no documented rate limit — EMSC operational real-time network (CC BY 4.0 open data)."
+    "limit_proof": "Public FDSN event service, no auth, no documented rate limit \u2014 EMSC operational real-time network (CC BY 4.0 open data)."
   },
   "currentuvindex": {
     "display_name": "Current UV Index",
@@ -3040,7 +3040,7 @@
     "free_limit": 80,
     "reset_period": "hourly",
     "docs_url": "https://api.stat.gov.pl/Home/BdlApi",
-    "limit_proof": "Anonymous (no X-ClientId) tier observed live: per-endpoint errorResult quota messages of \"1000 per 12h\" and \"100 per 15 min\" — the tighter bucket binds to roughly 80-100 calls/hour; no signup required for this tier."
+    "limit_proof": "Anonymous (no X-ClientId) tier observed live: per-endpoint errorResult quota messages of \"1000 per 12h\" and \"100 per 15 min\" \u2014 the tighter bucket binds to roughly 80-100 calls/hour; no signup required for this tier."
   },
   "inaturalist": {
     "display_name": "iNaturalist",
@@ -3103,7 +3103,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://www.ecdc.europa.eu/en/ecdc-intellectual-property-notices",
-    "limit_proof": "No documented rate limit or API key requirement; no X-RateLimit-* headers observed on live responses. CC BY 4.0 licence explicitly permits commercial reuse/resale with attribution. Note: datasets are frozen (Last-Modified 2023-12-01) — ECDC discontinued routine COVID-19 surveillance reporting in December 2023."
+    "limit_proof": "No documented rate limit or API key requirement; no X-RateLimit-* headers observed on live responses. CC BY 4.0 licence explicitly permits commercial reuse/resale with attribution. Note: datasets are frozen (Last-Modified 2023-12-01) \u2014 ECDC discontinued routine COVID-19 surveillance reporting in December 2023."
   },
   "transport-rest": {
     "display_name": "transport.rest (BVG Berlin Transit)",
@@ -3121,7 +3121,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://dev.meteostat.net/data/timeseries",
-    "limit_proof": "Docs state: 'This interface does not require an API key.' No rate-limit headers observed on live responses; docs only ask callers to cache data and avoid malicious call volume. Note: the separate official JSON API (meteostat.p.rapidapi.com) requires a paid RapidAPI key and is NOT used by this adapter — only the free Data Access CSV/JSON dumps."
+    "limit_proof": "Docs state: 'This interface does not require an API key.' No rate-limit headers observed on live responses; docs only ask callers to cache data and avoid malicious call volume. Note: the separate official JSON API (meteostat.p.rapidapi.com) requires a paid RapidAPI key and is NOT used by this adapter \u2014 only the free Data Access CSV/JSON dumps."
   },
   "copernicus-sentinel": {
     "display_name": "Copernicus Data Space Ecosystem",
@@ -3130,7 +3130,7 @@
     "free_limit": 50000,
     "reset_period": "monthly",
     "docs_url": "https://documentation.dataspace.copernicus.eu/Quotas.html",
-    "limit_proof": "Docs: OData/STAC/S3 quota is 50,000 requests/month (IAD data), 4 concurrent connections, resetting on the 1st of each month. No authentication required for STAC catalog search/browse endpoints — verified live with unauthenticated GET/POST requests."
+    "limit_proof": "Docs: OData/STAC/S3 quota is 50,000 requests/month (IAD data), 4 concurrent connections, resetting on the 1st of each month. No authentication required for STAC catalog search/browse endpoints \u2014 verified live with unauthenticated GET/POST requests."
   },
   "oecd-data": {
     "display_name": "OECD SDMX Public REST API",
@@ -3193,7 +3193,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://duckduckgo.com/api",
-    "limit_proof": "Public Instant Answer API (api.duckduckgo.com); no authentication or API key required, no rate-limit headers returned in observed responses, no documented request quota. Every response is HTTP 202 Accepted (not 200) with a JSON body — normal upstream behavior, not an error."
+    "limit_proof": "Public Instant Answer API (api.duckduckgo.com); no authentication or API key required, no rate-limit headers returned in observed responses, no documented request quota. Every response is HTTP 202 Accepted (not 200) with a JSON body \u2014 normal upstream behavior, not an error."
   },
   "hdx": {
     "display_name": "Humanitarian Data Exchange",
@@ -3203,5 +3203,23 @@
     "reset_period": "none",
     "docs_url": "https://hdx-hapi.readthedocs.io/en/latest/",
     "limit_proof": "Public CKAN Action API (data.humdata.org/api/3/action) run by UN OCHA; no authentication or API key required, no rate-limit headers returned in observed responses, no documented request quota."
+  },
+  "global-health-covid": {
+    "display_name": "Google COVID-19 Open Data",
+    "health_url": "https://storage.googleapis.com/covid19-open-data/v3/index.csv",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://github.com/GoogleCloudPlatform/covid-19-open-data",
+    "limit_proof": "Public Google Cloud Storage bucket, static historical CSV dumps, no documented rate limit"
+  },
+  "malaria-atlas": {
+    "display_name": "Malaria Atlas Project",
+    "health_url": "https://data.malariaatlas.org/geoserver/ows?service=WFS&version=2.0.0&request=GetCapabilities",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://malariaatlas.org/about-us/",
+    "limit_proof": "Public OGC WFS GeoServer (data.malariaatlas.org) run by University of Oxford Malaria Atlas Project; no authentication or API key required, no rate-limit headers returned in observed responses, no documented request quota."
   }
 }

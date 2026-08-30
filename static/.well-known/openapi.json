@@ -114226,6 +114226,644 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/global-health-covid.location_search/call": {
+      "post": {
+        "operationId": "global-health-covid_location_search",
+        "summary": "COVID-19 Location Search",
+        "description": "Search/list COVID-19 tracked locations (countries, states/provinces, counties, localities) by free-text name, ISO country code, and/or administrative aggregation level. Returns each location's key, names, and level — use the returned location_key with global-health-covid.latest_snapshot or global-health-covid.location_history. Data: Google \"COVID-19 Open Data\" (storage.googleapis.com/covid19-open-data), no auth required. HISTORICAL DATA ONLY — frozen since 2022-09-15.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "global-health-covid.location_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80,
+                    "description": "Free-text match against country, subregion, or locality name (e.g. \"California\", \"Germany\"). Case-insensitive substring match. Omit to browse by country_code/aggregation_level only."
+                  },
+                  "country_code": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2,
+                    "description": "Filter to a single 2-letter ISO country code (e.g. \"US\", \"DE\")."
+                  },
+                  "aggregation_level": {
+                    "type": "string",
+                    "enum": [
+                      "0",
+                      "1",
+                      "2",
+                      "3"
+                    ],
+                    "description": "Filter by administrative level: \"0\"=country, \"1\"=state/province, \"2\"=county, \"3\"=locality/city."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/global-health-covid.latest_snapshot/call": {
+      "post": {
+        "operationId": "global-health-covid_latest_snapshot",
+        "summary": "COVID-19 Latest Snapshot",
+        "description": "Get the latest known COVID-19 statistics for one location from one dataset: epidemiology (cases/deaths/tests), hospitalizations (hospital/ICU/ventilator patient counts), or vaccinations (vaccination totals). Use global-health-covid.location_search first to find a valid location_key. Returns found=false with no error if the location has no row in that dataset. Data: Google \"COVID-19 Open Data\" (storage.googleapis.com/covid19-open-data), no auth required. HISTORICAL DATA ONLY — frozen since 2022-09-15, \"latest\" means latest available before the freeze, not real-time.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "global-health-covid.latest_snapshot"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "location_key": {
+                    "type": "string",
+                    "description": "Location key from the dataset, e.g. \"US\" (country), \"US_CA\" (state), or a deeper key discovered via global-health-covid.location_search.",
+                    "minLength": 2,
+                    "maxLength": 20
+                  },
+                  "dataset": {
+                    "type": "string",
+                    "enum": [
+                      "epidemiology",
+                      "hospitalizations",
+                      "vaccinations"
+                    ],
+                    "description": "Which dataset to fetch the latest known snapshot from: \"epidemiology\" (cases/deaths/tests), \"hospitalizations\" (hospital/ICU/ventilator patient counts), or \"vaccinations\" (vaccination totals)."
+                  }
+                },
+                "required": [
+                  "location_key",
+                  "dataset"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/global-health-covid.location_history/call": {
+      "post": {
+        "operationId": "global-health-covid_location_history",
+        "summary": "COVID-19 Location History",
+        "description": "Get the full daily historical COVID-19 time series for one location, optionally windowed by start_date/end_date. Returns a curated subset of core fields per day: cases, deaths, hospitalizations, and vaccination totals (both new and cumulative), plus population. Does NOT return the raw upstream dataset which includes 700+ demographic/policy/search-trend columns. Use global-health-covid.location_search first to find a valid location_key. Data: Google \"COVID-19 Open Data\" (storage.googleapis.com/covid19-open-data), no auth required. HISTORICAL DATA ONLY — coverage ends ~2022-09, frozen dataset.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "global-health-covid.location_history"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "location_key": {
+                    "type": "string",
+                    "description": "Location key from the dataset, e.g. \"US\" (country), \"US_CA\" (state), or a deeper key discovered via global-health-covid.location_search.",
+                    "minLength": 2,
+                    "maxLength": 20
+                  },
+                  "start_date": {
+                    "type": "string",
+                    "description": "Filter history to dates on/after this ISO date, format \"YYYY-MM-DD\". Omit for full history."
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "Filter history to dates on/before this ISO date, format \"YYYY-MM-DD\". Omit for full history."
+                  }
+                },
+                "required": [
+                  "location_key"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/malaria-atlas.parasite_rate_survey/call": {
+      "post": {
+        "operationId": "malaria-atlas_parasite_rate_survey",
+        "summary": "Malaria Parasite Rate Survey",
+        "description": "Search point-level malaria parasite-rate survey records for P. falciparum (pf) or P. vivax (pv): site location, survey period, number examined, positive count, and parasite rate (pr), optionally filtered by country. Data: Malaria Atlas Project GeoServer WFS (data.malariaatlas.org), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "malaria-atlas.parasite_rate_survey"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "species": {
+                    "type": "string",
+                    "enum": [
+                      "pf",
+                      "pv"
+                    ],
+                    "description": "Malaria parasite species: \"pf\" (Plasmodium falciparum) or \"pv\" (Plasmodium vivax)."
+                  },
+                  "country": {
+                    "type": "string",
+                    "description": "ISO3166 alpha-3 country code (e.g. \"KEN\", \"IDN\", \"BRA\").",
+                    "minLength": 3,
+                    "maxLength": 3
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 200,
+                    "description": "Maximum number of survey records to return (1-200). Defaults to 50."
+                  }
+                },
+                "required": [
+                  "species"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/malaria-atlas.case_estimates/call": {
+      "post": {
+        "operationId": "malaria-atlas_case_estimates",
+        "summary": "Malaria Case Estimates by Region",
+        "description": "Get modeled confirmed malaria case counts (P. falciparum or P. vivax) per admin1 region (state/province) and year for a country, covering 1980-2017, alongside total population for that region/year. Use malaria-atlas.country_list first to find a valid ISO3 country code. Data: Malaria Atlas Project GeoServer WFS (data.malariaatlas.org), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "malaria-atlas.case_estimates"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "species": {
+                    "type": "string",
+                    "enum": [
+                      "pf",
+                      "pv"
+                    ],
+                    "description": "Malaria parasite species: \"pf\" (Plasmodium falciparum) or \"pv\" (Plasmodium vivax)."
+                  },
+                  "country": {
+                    "type": "string",
+                    "description": "ISO3166 alpha-3 country code to get confirmed case estimates for (e.g. \"IDN\").",
+                    "minLength": 3,
+                    "maxLength": 3
+                  },
+                  "year": {
+                    "type": "integer",
+                    "minimum": 1980,
+                    "maximum": 2017,
+                    "description": "Filter to a single calendar year (1980-2017). Omit to return all available years."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 500,
+                    "description": "Maximum number of admin1-region/year rows to return (1-500). Defaults to 50."
+                  }
+                },
+                "required": [
+                  "species",
+                  "country"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/malaria-atlas.vector_occurrence/call": {
+      "post": {
+        "operationId": "malaria-atlas_vector_occurrence",
+        "summary": "Anopheles Vector Occurrence",
+        "description": "Search Anopheles mosquito vector-occurrence records: collection site, survey period, species identification, and sampling method, optionally filtered by country and/or a species-name substring (e.g. \"gambiae\"). Data: Malaria Atlas Project GeoServer WFS (data.malariaatlas.org), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "malaria-atlas.vector_occurrence"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "country": {
+                    "type": "string",
+                    "description": "ISO3166 alpha-3 country code (e.g. \"KEN\", \"IDN\", \"BRA\").",
+                    "minLength": 3,
+                    "maxLength": 3
+                  },
+                  "species": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 60,
+                    "description": "Case-insensitive substring match on the Anopheles species name (e.g. \"gambiae\", \"arabiensis\")."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 200,
+                    "description": "Maximum number of vector occurrence records to return (1-200). Defaults to 50."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/malaria-atlas.country_list/call": {
+      "post": {
+        "operationId": "malaria-atlas_country_list",
+        "summary": "Malaria Atlas Country List",
+        "description": "List countries covered by Malaria Atlas Project admin boundaries with their ISO3/ISO2 codes and name, optionally filtered by a name substring. Use the returned iso code as the `country` filter for the other malaria-atlas tools. Data: Malaria Atlas Project GeoServer WFS (data.malariaatlas.org), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "malaria-atlas.country_list"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 60,
+                    "description": "Case-insensitive substring filter on the country name (e.g. \"kenya\")."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 250,
+                    "description": "Maximum number of countries to return (1-250). Defaults to 50."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

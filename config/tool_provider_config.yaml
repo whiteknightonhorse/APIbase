@@ -7659,6 +7659,50 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-639: Google "COVID-19 Open Data" (3 tools) ---
+  - tool_id: global-health-covid.location_search
+    name: COVID-19 Location Search
+    provider: global-health-covid
+    price_usd: "0.001"
+    cache_ttl: 604800
+
+  - tool_id: global-health-covid.latest_snapshot
+    name: COVID-19 Latest Snapshot
+    provider: global-health-covid
+    price_usd: "0.002"
+    cache_ttl: 2592000
+
+  - tool_id: global-health-covid.location_history
+    name: COVID-19 Location History
+    provider: global-health-covid
+    price_usd: "0.003"
+    cache_ttl: 2592000
+
+  # --- UC-640: Malaria Atlas Project (MAP) (4 tools) ---
+  - tool_id: malaria-atlas.parasite_rate_survey
+    name: Malaria Parasite Rate Survey
+    provider: malaria-atlas
+    price_usd: "0.002"
+    cache_ttl: 604800
+
+  - tool_id: malaria-atlas.case_estimates
+    name: Malaria Case Estimates by Region
+    provider: malaria-atlas
+    price_usd: "0.002"
+    cache_ttl: 604800
+
+  - tool_id: malaria-atlas.vector_occurrence
+    name: Anopheles Vector Occurrence
+    provider: malaria-atlas
+    price_usd: "0.002"
+    cache_ttl: 604800
+
+  - tool_id: malaria-atlas.country_list
+    name: Malaria Atlas Country List
+    provider: malaria-atlas
+    price_usd: "0.001"
+    cache_ttl: 604800
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

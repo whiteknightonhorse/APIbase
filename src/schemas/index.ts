@@ -357,6 +357,8 @@ import { wikimediaRestSchemas } from './wikimedia-rest.schema';
 import { freetogameSchemas } from './freetogame.schema';
 import { duckduckgoSchemas } from './duckduckgo.schema';
 import { hdxSchemas } from './hdx.schema';
+import { globalHealthCovidSchemas } from './global-health-covid.schema';
+import { malariaAtlasSchemas } from './malaria-atlas.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -717,4 +719,6 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...freetogameSchemas,
   ...duckduckgoSchemas,
   ...hdxSchemas,
+  ...globalHealthCovidSchemas,
+  ...malariaAtlasSchemas,
 };

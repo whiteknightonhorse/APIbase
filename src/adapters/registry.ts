@@ -324,6 +324,8 @@ import { WikimediaAnalyticsAdapter } from './wikimedia-analytics';
 import { WikimediaRestAdapter } from './wikimedia-rest';
 import { FreetogameAdapter } from './freetogame';
 import { DuckDuckGoAdapter } from './duckduckgo';
+import { GlobalHealthCovidAdapter } from './global-health-covid';
+import { MalariaAtlasAdapter } from './malaria-atlas';
 import { StandardEbooksAdapter } from './standard-ebooks';
 import { IndecGeorefAdapter } from './indec-georef';
 import { EnviroatlasAdapter } from './enviroatlas';
@@ -1907,6 +1909,16 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // DuckDuckGo Instant Answer API (UC-637) — abstract/definition/infobox digest for a
       // query plus a flattened related-topics/disambiguation list; no auth
       return getOrCreate('duckduckgo', () => new DuckDuckGoAdapter());
+    case 'global-health-covid':
+      // Google "COVID-19 Open Data" static CSV bucket (UC-639) — location search, latest
+      // epidemiology/hospitalization/vaccination snapshot per location, curated daily
+      // history; no auth, CC BY. FROZEN dataset (no updates since 2022-09-15).
+      return getOrCreate('global-health-covid', () => new GlobalHealthCovidAdapter());
+    case 'malaria-atlas':
+      // Malaria Atlas Project GeoServer WFS API (UC-640) — Pf/Pv parasite-rate point surveys,
+      // admin1 confirmed-case estimates by year, Anopheles vector occurrence, country reference
+      // list; no auth
+      return getOrCreate('malaria-atlas', () => new MalariaAtlasAdapter());
     default:
       return undefined;
   }

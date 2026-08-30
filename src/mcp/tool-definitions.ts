@@ -15170,4 +15170,109 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+
+  // --- UC-639: Google "COVID-19 Open Data" — 3 tools ---
+  // Public Google Cloud Storage bucket (storage.googleapis.com/covid19-open-data) with static
+  // CSV dumps, no auth. FROZEN dataset — Google discontinued real-time updates on 2022-09-15;
+  // data remains available but will not receive further updates (same pattern as ecdc-surveillance
+  // UC-625). location_history projects the raw 700+ column joined CSV down to ~12 curated core
+  // fields — demographic/policy/search-trends covariates are never exposed.
+  {
+    toolId: 'global-health-covid.location_search',
+    mcpName: 'global-health-covid.epidemiology.location_search',
+    title: 'COVID-19 Location Search',
+    description:
+      'Search/list COVID-19 tracked locations (countries, states/provinces, counties, localities) ' +
+      'by free-text name, ISO country code, and/or administrative aggregation level. Returns each ' +
+      "location's key, names, and level — use the returned location_key with " +
+      'global-health-covid.latest_snapshot or global-health-covid.location_history. Data: Google ' +
+      '"COVID-19 Open Data" (storage.googleapis.com/covid19-open-data), no auth required. ' +
+      'HISTORICAL DATA ONLY — frozen since 2022-09-15.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'global-health-covid.latest_snapshot',
+    mcpName: 'global-health-covid.epidemiology.latest_snapshot',
+    title: 'COVID-19 Latest Snapshot',
+    description:
+      'Get the latest known COVID-19 statistics for one location from one dataset: epidemiology ' +
+      '(cases/deaths/tests), hospitalizations (hospital/ICU/ventilator patient counts), or ' +
+      'vaccinations (vaccination totals). Use global-health-covid.location_search first to find a ' +
+      'valid location_key. Returns found=false with no error if the location has no row in that ' +
+      'dataset. Data: Google "COVID-19 Open Data" (storage.googleapis.com/covid19-open-data), no ' +
+      'auth required. HISTORICAL DATA ONLY — frozen since 2022-09-15, "latest" means latest ' +
+      'available before the freeze, not real-time.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'global-health-covid.location_history',
+    mcpName: 'global-health-covid.epidemiology.location_history',
+    title: 'COVID-19 Location History',
+    description:
+      'Get the full daily historical COVID-19 time series for one location, optionally windowed ' +
+      'by start_date/end_date. Returns a curated subset of core fields per day: cases, deaths, ' +
+      'hospitalizations, and vaccination totals (both new and cumulative), plus population. Does ' +
+      'NOT return the raw upstream dataset which includes 700+ demographic/policy/search-trend ' +
+      'columns. Use global-health-covid.location_search first to find a valid location_key. Data: ' +
+      'Google "COVID-19 Open Data" (storage.googleapis.com/covid19-open-data), no auth required. ' +
+      'HISTORICAL DATA ONLY — coverage ends ~2022-09, frozen dataset.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+
+  // --- UC-640: Malaria Atlas Project (MAP) — 4 tools ---
+  // Public GeoServer WFS 2.0 API (data.malariaatlas.org/geoserver/ows) run by the University of
+  // Oxford Malaria Atlas Project, no auth. Point-level parasite-rate surveys, admin1 confirmed-case
+  // estimates (1980-2017), Anopheles mosquito vector-occurrence records, and a country reference
+  // list. Full admin-boundary polygon geometry is never returned — only curated non-geometry fields.
+  {
+    toolId: 'malaria-atlas.parasite_rate_survey',
+    mcpName: 'malaria-atlas.epidemiology.parasite_rate_survey',
+    title: 'Malaria Parasite Rate Survey',
+    description:
+      'Search point-level malaria parasite-rate survey records for P. falciparum (pf) or P. vivax ' +
+      '(pv): site location, survey period, number examined, positive count, and parasite rate (pr), ' +
+      'optionally filtered by country. Data: Malaria Atlas Project GeoServer WFS ' +
+      '(data.malariaatlas.org), no auth required.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'malaria-atlas.case_estimates',
+    mcpName: 'malaria-atlas.epidemiology.case_estimates',
+    title: 'Malaria Case Estimates by Region',
+    description:
+      'Get modeled confirmed malaria case counts (P. falciparum or P. vivax) per admin1 region ' +
+      '(state/province) and year for a country, covering 1980-2017, alongside total population for ' +
+      'that region/year. Use malaria-atlas.country_list first to find a valid ISO3 country code. ' +
+      'Data: Malaria Atlas Project GeoServer WFS (data.malariaatlas.org), no auth required.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'malaria-atlas.vector_occurrence',
+    mcpName: 'malaria-atlas.entomology.vector_occurrence',
+    title: 'Anopheles Vector Occurrence',
+    description:
+      'Search Anopheles mosquito vector-occurrence records: collection site, survey period, ' +
+      'species identification, and sampling method, optionally filtered by country and/or a ' +
+      'species-name substring (e.g. "gambiae"). Data: Malaria Atlas Project GeoServer WFS ' +
+      '(data.malariaatlas.org), no auth required.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'malaria-atlas.country_list',
+    mcpName: 'malaria-atlas.reference.country_list',
+    title: 'Malaria Atlas Country List',
+    description:
+      'List countries covered by Malaria Atlas Project admin boundaries with their ISO3/ISO2 codes ' +
+      'and name, optionally filtered by a name substring. Use the returned iso code as the ' +
+      '`country` filter for the other malaria-atlas tools. Data: Malaria Atlas Project GeoServer ' +
+      'WFS (data.malariaatlas.org), no auth required.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
 ];
