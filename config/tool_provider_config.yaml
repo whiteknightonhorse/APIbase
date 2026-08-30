@@ -7634,6 +7634,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-638: Humanitarian Data Exchange (HDX) (4 tools) ---
+  - tool_id: hdx.dataset_search
+    name: HDX Dataset Search
+    provider: hdx
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: hdx.dataset_detail
+    name: HDX Dataset Detail
+    provider: hdx
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: hdx.location_list
+    name: HDX Location List
+    provider: hdx
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: hdx.organization_list
+    name: HDX Organization List
+    provider: hdx
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

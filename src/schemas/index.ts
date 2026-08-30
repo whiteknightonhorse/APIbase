@@ -356,6 +356,7 @@ import { crossrefDataCitationsSchemas } from './crossref-datacitations.schema';
 import { wikimediaRestSchemas } from './wikimedia-rest.schema';
 import { freetogameSchemas } from './freetogame.schema';
 import { duckduckgoSchemas } from './duckduckgo.schema';
+import { hdxSchemas } from './hdx.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -715,4 +716,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...wikimediaRestSchemas,
   ...freetogameSchemas,
   ...duckduckgoSchemas,
+  ...hdxSchemas,
 };

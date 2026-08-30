@@ -356,6 +356,7 @@ import { WorldBankCckpAdapter } from './world-bank-cckp';
 import { GeoBoundariesAdapter } from './geoboundaries';
 import { BankOfEnglandAdapter } from './bank-of-england';
 import { CrossrefDataCitationsAdapter } from './crossref-datacitations';
+import { HdxAdapter } from './hdx';
 import { config } from '../config';
 
 /**
@@ -1779,6 +1780,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'unpaywall':
       // Unpaywall API (UC-598) — open-access status + free full-text location by DOI; no auth
       return getOrCreate('unpaywall', () => new UnpaywallAdapter());
+    case 'hdx':
+      // HDX CKAN Action API (UC-638) — humanitarian dataset/organization/location catalog search; no auth
+      return getOrCreate('hdx', () => new HdxAdapter());
     case 'wikimedia-commons':
       // Wikimedia Commons API (UC-599) — media search/info/category/random; no auth
       return getOrCreate('wikimedia-commons', () => new WikimediaCommonsAdapter());

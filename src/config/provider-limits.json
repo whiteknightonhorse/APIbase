@@ -3194,5 +3194,14 @@
     "reset_period": "none",
     "docs_url": "https://duckduckgo.com/api",
     "limit_proof": "Public Instant Answer API (api.duckduckgo.com); no authentication or API key required, no rate-limit headers returned in observed responses, no documented request quota. Every response is HTTP 202 Accepted (not 200) with a JSON body — normal upstream behavior, not an error."
+  },
+  "hdx": {
+    "display_name": "Humanitarian Data Exchange",
+    "health_url": "https://data.humdata.org/api/3/action/package_search?rows=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://hdx-hapi.readthedocs.io/en/latest/",
+    "limit_proof": "Public CKAN Action API (data.humdata.org/api/3/action) run by UN OCHA; no authentication or API key required, no rate-limit headers returned in observed responses, no documented request quota."
   }
 }

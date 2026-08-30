@@ -15115,4 +15115,59 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'search',
     annotations: READ_ONLY,
   },
+
+  // --- UC-638: Humanitarian Data Exchange (HDX) — 4 tools ---
+  // Public CKAN Action API (data.humdata.org/api/3/action) run by UN OCHA, no auth. Catalog
+  // metadata for 27,000+ humanitarian datasets (population, displacement, food security, health,
+  // conflict) contributed by UN agencies, NGOs, and governments. Only HDX's own catalog metadata
+  // (titles, descriptions, resource pointers) is exposed here — individual resource file content
+  // carries per-contributor licensing, checked via license_title/license_url in dataset_detail.
+  {
+    toolId: 'hdx.dataset_search',
+    mcpName: 'hdx.datasets.search',
+    title: 'HDX Dataset Search',
+    description:
+      'Search the Humanitarian Data Exchange catalog for datasets by free-text query, country, ' +
+      "and/or publishing organization. Returns each dataset's id, title, notes, organization, " +
+      'resource count, dataset date range, license, and tags. Covers population, displacement, ' +
+      'food security, health, conflict, and climate data for humanitarian response. Data: HDX ' +
+      'CKAN Action API (data.humdata.org), no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'hdx.dataset_detail',
+    mcpName: 'hdx.datasets.detail',
+    title: 'HDX Dataset Detail',
+    description:
+      'Get full metadata for a single HDX dataset by id or URL slug: description, publishing ' +
+      'organization, covered locations, tags, update frequency, license, source, and the full ' +
+      'list of downloadable resources (name, format, download URL, size). Use hdx.dataset_search ' +
+      'first to find a dataset id. Data: HDX CKAN Action API (data.humdata.org), no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'hdx.location_list',
+    mcpName: 'hdx.reference.locations',
+    title: 'HDX Location List',
+    description:
+      'List countries/regions tracked on HDX with their published dataset count, optionally ' +
+      'filtered by a name substring. Use the returned location id as the `country` filter for ' +
+      'hdx.dataset_search. Data: HDX CKAN Action API (data.humdata.org), no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'hdx.organization_list',
+    mcpName: 'hdx.reference.organizations',
+    title: 'HDX Organization List',
+    description:
+      'List humanitarian organizations publishing data on HDX (UN agencies, NGOs, governments, ' +
+      'clusters) with their published dataset count, optionally filtered by a name substring. Use ' +
+      'the returned slug as the `organization` filter for hdx.dataset_search. Data: HDX CKAN ' +
+      'Action API (data.humdata.org), no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];
