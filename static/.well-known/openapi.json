@@ -117099,6 +117099,478 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/hdx-hapi.operational_presence/call": {
+      "post": {
+        "operationId": "hdx-hapi_operational_presence",
+        "summary": "HDX HAPI Operational Presence (3W)",
+        "description": "Get \"who's doing what, where\" (3W) humanitarian response data — which organizations are active in which sector (Health, Nutrition, WASH, etc.) and location. Filter by location_code (ISO3), sector_name, org_name, admin1_name, and admin_level. Data: HDX Humanitarian API (hapi.humdata.org), run by UN OCHA Centre for Humanitarian Data, CC BY 4.0, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hdx-hapi.operational_presence"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "location_code": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 3,
+                    "description": "ISO3 country code to filter results, e.g. \"MLI\", \"AFG\", \"SOM\""
+                  },
+                  "location_name": {
+                    "type": "string",
+                    "description": "Country name to filter results (alternative to location_code), e.g. \"Mali\""
+                  },
+                  "admin1_name": {
+                    "type": "string",
+                    "description": "1st-level subnational admin area name to filter results, e.g. \"Kayes\""
+                  },
+                  "admin_level": {
+                    "type": "string",
+                    "enum": [
+                      "0",
+                      "1",
+                      "2"
+                    ],
+                    "description": "Admin granularity of returned rows: 0=national, 1=admin1, 2=admin2"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 1000,
+                    "description": "Maximum rows to return (1-1000, default 100)"
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Number of rows to skip, for pagination (default 0)"
+                  },
+                  "sector_name": {
+                    "type": "string",
+                    "description": "Humanitarian sector name to filter results, e.g. \"Health\", \"Nutrition\""
+                  },
+                  "org_name": {
+                    "type": "string",
+                    "description": "Responding organization name to filter results, e.g. \"UNICEF\""
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/hdx-hapi.humanitarian_needs/call": {
+      "post": {
+        "operationId": "hdx-hapi_humanitarian_needs",
+        "summary": "HDX HAPI Humanitarian Needs (PIN)",
+        "description": "Get People-in-Need (PIN) figures broken down by sector, category (age/gender/disability), and population_status (affected/in-need/targeted/reached). Filter by location_code (ISO3), sector_name, population_status, admin1_name, and admin_level. Data: HDX Humanitarian API (hapi.humdata.org), run by UN OCHA Centre for Humanitarian Data, CC BY 4.0, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hdx-hapi.humanitarian_needs"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "location_code": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 3,
+                    "description": "ISO3 country code to filter results, e.g. \"MLI\", \"AFG\", \"SOM\""
+                  },
+                  "location_name": {
+                    "type": "string",
+                    "description": "Country name to filter results (alternative to location_code), e.g. \"Mali\""
+                  },
+                  "admin1_name": {
+                    "type": "string",
+                    "description": "1st-level subnational admin area name to filter results, e.g. \"Kayes\""
+                  },
+                  "admin_level": {
+                    "type": "string",
+                    "enum": [
+                      "0",
+                      "1",
+                      "2"
+                    ],
+                    "description": "Admin granularity of returned rows: 0=national, 1=admin1, 2=admin2"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 1000,
+                    "description": "Maximum rows to return (1-1000, default 100)"
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Number of rows to skip, for pagination (default 0)"
+                  },
+                  "sector_name": {
+                    "type": "string",
+                    "description": "Humanitarian sector name to filter results, e.g. \"Health\", \"Food Security\""
+                  },
+                  "population_status": {
+                    "type": "string",
+                    "enum": [
+                      "AFF",
+                      "INN",
+                      "TGT",
+                      "REA",
+                      "all"
+                    ],
+                    "description": "Population status: AFF=affected, INN=in need, TGT=targeted, REA=reached, all=all statuses"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/hdx-hapi.baseline_population/call": {
+      "post": {
+        "operationId": "hdx-hapi_baseline_population",
+        "summary": "HDX HAPI Baseline Population",
+        "description": "Get baseline population demographics broken down by gender and age range for a country or subnational admin area. Filter by location_code (ISO3), gender, age_range, admin1_name, and admin_level. Data: HDX Humanitarian API (hapi.humdata.org), run by UN OCHA Centre for Humanitarian Data, CC BY 4.0, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hdx-hapi.baseline_population"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "location_code": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 3,
+                    "description": "ISO3 country code to filter results, e.g. \"MLI\", \"AFG\", \"SOM\""
+                  },
+                  "location_name": {
+                    "type": "string",
+                    "description": "Country name to filter results (alternative to location_code), e.g. \"Mali\""
+                  },
+                  "admin1_name": {
+                    "type": "string",
+                    "description": "1st-level subnational admin area name to filter results, e.g. \"Kayes\""
+                  },
+                  "admin_level": {
+                    "type": "string",
+                    "enum": [
+                      "0",
+                      "1",
+                      "2"
+                    ],
+                    "description": "Admin granularity of returned rows: 0=national, 1=admin1, 2=admin2"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 1000,
+                    "description": "Maximum rows to return (1-1000, default 100)"
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Number of rows to skip, for pagination (default 0)"
+                  },
+                  "gender": {
+                    "type": "string",
+                    "enum": [
+                      "f",
+                      "m",
+                      "x",
+                      "u",
+                      "o",
+                      "all"
+                    ],
+                    "description": "Gender code: f=female, m=male, x=non-binary, u=unknown, o=other, all=all"
+                  },
+                  "age_range": {
+                    "type": "string",
+                    "description": "Age range as \"[start]-[end]\" (e.g. \"0-4\", \"18-59\"), or \"all\" for all ages"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/hdx-hapi.food_security/call": {
+      "post": {
+        "operationId": "hdx-hapi_food_security",
+        "summary": "HDX HAPI Food Security (IPC)",
+        "description": "Get IPC (Integrated Food Security Phase Classification) data — population counts by food-insecurity phase (1=minimal to 5=catastrophe), current and projected. Filter by location_code (ISO3), ipc_phase, admin1_name, and admin_level. Data: HDX Humanitarian API (hapi.humdata.org), run by UN OCHA Centre for Humanitarian Data, CC BY 4.0, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hdx-hapi.food_security"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "location_code": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 3,
+                    "description": "ISO3 country code to filter results, e.g. \"MLI\", \"AFG\", \"SOM\""
+                  },
+                  "location_name": {
+                    "type": "string",
+                    "description": "Country name to filter results (alternative to location_code), e.g. \"Mali\""
+                  },
+                  "admin1_name": {
+                    "type": "string",
+                    "description": "1st-level subnational admin area name to filter results, e.g. \"Kayes\""
+                  },
+                  "admin_level": {
+                    "type": "string",
+                    "enum": [
+                      "0",
+                      "1",
+                      "2"
+                    ],
+                    "description": "Admin granularity of returned rows: 0=national, 1=admin1, 2=admin2"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 1000,
+                    "description": "Maximum rows to return (1-1000, default 100)"
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Number of rows to skip, for pagination (default 0)"
+                  },
+                  "ipc_phase": {
+                    "type": "string",
+                    "enum": [
+                      "1",
+                      "2",
+                      "3",
+                      "4",
+                      "5",
+                      "3+",
+                      "all"
+                    ],
+                    "description": "IPC phase classification: 1=minimal, 2=stressed, 3=crisis, 4=emergency, 5=catastrophe, 3+=crisis or worse, all=all phases"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

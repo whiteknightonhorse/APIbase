@@ -366,6 +366,7 @@ import { HdxAdapter } from './hdx';
 import { LaunchLibrary2Adapter } from './launch-library-2';
 import { SocrataAdapter } from './socrata';
 import { NcbiEutilsAdapter } from './ncbi-eutils';
+import { HdxHapiAdapter } from './hdx-hapi';
 import { config } from '../config';
 
 /**
@@ -1959,6 +1960,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       const eutilsKey = ((config as Record<string, unknown>).PROVIDER_KEY_NCBI as string) || '';
       return getOrCreate('ncbi-eutils', () => new NcbiEutilsAdapter(eutilsKey));
     }
+    case 'hdx-hapi':
+      // HDX Humanitarian API v2 (UC-648) — operational presence (3W), people-in-need figures,
+      // baseline population demographics, and IPC food-security classification; no auth (only
+      // a self-declared non-secret app_identifier), run by UN OCHA, CC BY 4.0
+      return getOrCreate('hdx-hapi', () => new HdxHapiAdapter());
     default:
       return undefined;
   }

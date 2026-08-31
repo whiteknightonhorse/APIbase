@@ -15605,4 +15605,55 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+
+  // HDX Humanitarian API v2 (4)
+  {
+    toolId: 'hdx-hapi.operational_presence',
+    mcpName: 'hdx-hapi.coordination.operational_presence',
+    title: 'HDX HAPI Operational Presence (3W)',
+    description:
+      'Get "who\'s doing what, where" (3W) humanitarian response data — which organizations ' +
+      'are active in which sector (Health, Nutrition, WASH, etc.) and location. Filter by ' +
+      'location_code (ISO3), sector_name, org_name, admin1_name, and admin_level. Data: ' +
+      'HDX Humanitarian API (hapi.humdata.org), run by UN OCHA Centre for Humanitarian Data, ' +
+      'CC BY 4.0, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'hdx-hapi.humanitarian_needs',
+    mcpName: 'hdx-hapi.coordination.humanitarian_needs',
+    title: 'HDX HAPI Humanitarian Needs (PIN)',
+    description:
+      'Get People-in-Need (PIN) figures broken down by sector, category (age/gender/disability), ' +
+      'and population_status (affected/in-need/targeted/reached). Filter by location_code (ISO3), ' +
+      'sector_name, population_status, admin1_name, and admin_level. Data: HDX Humanitarian API ' +
+      '(hapi.humdata.org), run by UN OCHA Centre for Humanitarian Data, CC BY 4.0, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'hdx-hapi.baseline_population',
+    mcpName: 'hdx-hapi.geography.baseline_population',
+    title: 'HDX HAPI Baseline Population',
+    description:
+      'Get baseline population demographics broken down by gender and age range for a country ' +
+      'or subnational admin area. Filter by location_code (ISO3), gender, age_range, admin1_name, ' +
+      'and admin_level. Data: HDX Humanitarian API (hapi.humdata.org), run by UN OCHA Centre for ' +
+      'Humanitarian Data, CC BY 4.0, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'hdx-hapi.food_security',
+    mcpName: 'hdx-hapi.food.security_ipc',
+    title: 'HDX HAPI Food Security (IPC)',
+    description:
+      'Get IPC (Integrated Food Security Phase Classification) data — population counts by ' +
+      'food-insecurity phase (1=minimal to 5=catastrophe), current and projected. Filter by ' +
+      'location_code (ISO3), ipc_phase, admin1_name, and admin_level. Data: HDX Humanitarian API ' +
+      '(hapi.humdata.org), run by UN OCHA Centre for Humanitarian Data, CC BY 4.0, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

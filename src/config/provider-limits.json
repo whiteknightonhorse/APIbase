@@ -3284,5 +3284,14 @@
     "reset_period": "none",
     "docs_url": "https://www.ncbi.nlm.nih.gov/books/NBK25497/",
     "limit_proof": "US Government open data (NIH/NLM). No auth required. NCBI E-utilities usage guidelines (NBK25497, 'Usage Guidelines and Requirements') cap unauthenticated requests at 3/sec, 10/sec with an API key; this adapter reuses PROVIDER_KEY_NCBI (same shared key as the pubchem adapter) when present."
+  },
+  "hdx-hapi": {
+    "display_name": "HDX Humanitarian API (HAPI)",
+    "health_url": "https://hapi.humdata.org/api/v2/coordination-context/operational-presence?location_code=MLI&limit=1&app_identifier=QVBJYmFzZTpjb250YWN0QGFwaWJhc2UucHJv",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://data.humdata.org/hapi/terms",
+    "limit_proof": "HAPI Terms of Service (data.humdata.org/hapi/terms): 'the API imposes a restriction on the maximum number of entries retrievable per API call, capped at 10,000 entries' and 'users are kindly requested to moderate their rate of requests to 1 per second'. No signup or API key — only a self-declared, non-secret app_identifier is required on every request."
   }
 }

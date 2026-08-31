@@ -7860,6 +7860,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 604800
 
+  # --- UC-648: HDX Humanitarian API v2 (4 tools) ---
+  - tool_id: hdx-hapi.operational_presence
+    name: HDX HAPI Operational Presence (3W)
+    provider: hdx-hapi
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: hdx-hapi.humanitarian_needs
+    name: HDX HAPI Humanitarian Needs (PIN)
+    provider: hdx-hapi
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: hdx-hapi.baseline_population
+    name: HDX HAPI Baseline Population
+    provider: hdx-hapi
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: hdx-hapi.food_security
+    name: HDX HAPI Food Security (IPC)
+    provider: hdx-hapi
+    price_usd: "0.002"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform
