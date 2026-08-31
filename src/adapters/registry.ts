@@ -326,6 +326,7 @@ import { FreetogameAdapter } from './freetogame';
 import { DuckDuckGoAdapter } from './duckduckgo';
 import { GlobalHealthCovidAdapter } from './global-health-covid';
 import { MalariaAtlasAdapter } from './malaria-atlas';
+import { OpenCanadaAdapter } from './open-canada';
 import { StandardEbooksAdapter } from './standard-ebooks';
 import { IndecGeorefAdapter } from './indec-georef';
 import { EnviroatlasAdapter } from './enviroatlas';
@@ -1919,6 +1920,10 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // admin1 confirmed-case estimates by year, Anopheles vector occurrence, country reference
       // list; no auth
       return getOrCreate('malaria-atlas', () => new MalariaAtlasAdapter());
+    case 'open-canada':
+      // Government of Canada Open Data CKAN Action API (UC-641) — federal dataset search/detail,
+      // subject-taxonomy browse, publishing department/agency list; no auth, Open Government Licence
+      return getOrCreate('open-canada', () => new OpenCanadaAdapter());
     default:
       return undefined;
   }

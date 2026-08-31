@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1250 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1254 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -60023,6 +60023,162 @@
             "minimum": 1,
             "maximum": 250,
             "description": "Maximum number of countries to return (1-250). Defaults to 50."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "open-canada.datasets.search",
+      "description": "Search the Government of Canada open data catalog by free text, topic subject, and/or publishing department, returning dataset id, title, notes, organization, subjects, and release/modified dates. Use open-canada.subject_list or open-canada.organization_list to find valid filter slugs. Data: open.canada.ca CKAN Action API, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Free-text search across dataset title/description (e.g. \"climate normals\")"
+          },
+          "subject": {
+            "type": "string",
+            "description": "Topic slug to filter by (e.g. \"health_and_safety\", \"nature_and_environment\") — see open-canada.subject_list"
+          },
+          "organization": {
+            "type": "string",
+            "description": "Federal department/agency slug to filter by (e.g. \"nrcan-rncan\") — see open-canada.organization_list"
+          },
+          "rows": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "Number of datasets to return (1-20, default 10)"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "open-canada.datasets.detail",
+      "description": "Get full metadata for one Government of Canada open dataset by id: title, notes, organization, subjects, keywords, license, jurisdiction, and the full resource list (name, format, download URL, size) for that dataset. Data: open.canada.ca CKAN Action API, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Open Canada dataset UUID or URL slug (e.g. from dataset_search results)",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "open-canada.reference.subject_list",
+      "description": "List the Government of Canada open data subject taxonomy (e.g. \"health_and_safety\", \"nature_and_environment\") with the current dataset count per subject, optionally filtered by a substring. Use the returned subject slug as the `subject` filter for open-canada.dataset_search. Data: open.canada.ca CKAN Action API, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Substring filter on subject slug (e.g. \"health\")"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "open-canada.reference.organization_list",
+      "description": "List federal/provincial departments and agencies publishing on the Government of Canada open data portal, with dataset counts, optionally filtered by a name substring. Use the returned org slug as the `organization` filter for open-canada.dataset_search. Data: open.canada.ca CKAN Action API, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Substring filter on organization title (e.g. \"natural resources\")"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Max organizations to return (1-50, default 20)"
           }
         }
       },

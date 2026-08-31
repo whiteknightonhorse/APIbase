@@ -3221,5 +3221,14 @@
     "reset_period": "none",
     "docs_url": "https://malariaatlas.org/about-us/",
     "limit_proof": "Public OGC WFS GeoServer (data.malariaatlas.org) run by University of Oxford Malaria Atlas Project; no authentication or API key required, no rate-limit headers returned in observed responses, no documented request quota."
+  },
+  "open-canada": {
+    "display_name": "Government of Canada Open Data",
+    "health_url": "https://open.canada.ca/data/api/3/action/package_search?rows=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://open.canada.ca/data/api/3/action/help_show?name=package_search",
+    "limit_proof": "Public CKAN Action API (open.canada.ca/data/api/3/action) run by the Government of Canada; no authentication or API key required, no rate-limit headers returned in observed responses, no documented request quota."
   }
 }

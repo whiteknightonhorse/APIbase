@@ -15275,4 +15275,57 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'health',
     annotations: READ_ONLY,
   },
+
+  // --- UC-641: Government of Canada Open Data (open-canada) — 4 tools ---
+  // Public CKAN Action API (open.canada.ca/data/api/3/action) run by the Government of Canada, no
+  // auth. Federal/provincial dataset search + detail, subject-topic taxonomy (19 fixed categories,
+  // since this portal doesn't use CKAN groups), and publishing department/agency list. All content
+  // licensed under the Open Government Licence - Canada (commercial reuse permitted).
+  {
+    toolId: 'open-canada.dataset_search',
+    mcpName: 'open-canada.datasets.search',
+    title: 'Canada Open Data Search',
+    description:
+      'Search the Government of Canada open data catalog by free text, topic subject, and/or ' +
+      'publishing department, returning dataset id, title, notes, organization, subjects, and ' +
+      'release/modified dates. Use open-canada.subject_list or open-canada.organization_list to find ' +
+      'valid filter slugs. Data: open.canada.ca CKAN Action API, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'open-canada.dataset_detail',
+    mcpName: 'open-canada.datasets.detail',
+    title: 'Canada Open Data Dataset Detail',
+    description:
+      'Get full metadata for one Government of Canada open dataset by id: title, notes, organization, ' +
+      'subjects, keywords, license, jurisdiction, and the full resource list (name, format, download ' +
+      'URL, size) for that dataset. Data: open.canada.ca CKAN Action API, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'open-canada.subject_list',
+    mcpName: 'open-canada.reference.subject_list',
+    title: 'Canada Open Data Subject List',
+    description:
+      'List the Government of Canada open data subject taxonomy (e.g. "health_and_safety", ' +
+      '"nature_and_environment") with the current dataset count per subject, optionally filtered by a ' +
+      'substring. Use the returned subject slug as the `subject` filter for ' +
+      'open-canada.dataset_search. Data: open.canada.ca CKAN Action API, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'open-canada.organization_list',
+    mcpName: 'open-canada.reference.organization_list',
+    title: 'Canada Open Data Organization List',
+    description:
+      'List federal/provincial departments and agencies publishing on the Government of Canada open ' +
+      'data portal, with dataset counts, optionally filtered by a name substring. Use the returned ' +
+      'org slug as the `organization` filter for open-canada.dataset_search. Data: open.canada.ca ' +
+      'CKAN Action API, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

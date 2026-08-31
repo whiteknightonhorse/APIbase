@@ -7703,6 +7703,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 604800
 
+  # --- UC-641: Government of Canada Open Data (open-canada) (4 tools) ---
+  - tool_id: open-canada.dataset_search
+    name: Canada Open Data Search
+    provider: open-canada
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: open-canada.dataset_detail
+    name: Canada Open Data Dataset Detail
+    provider: open-canada
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: open-canada.subject_list
+    name: Canada Open Data Subject List
+    provider: open-canada
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: open-canada.organization_list
+    name: Canada Open Data Organization List
+    provider: open-canada
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

@@ -359,6 +359,7 @@ import { duckduckgoSchemas } from './duckduckgo.schema';
 import { hdxSchemas } from './hdx.schema';
 import { globalHealthCovidSchemas } from './global-health-covid.schema';
 import { malariaAtlasSchemas } from './malaria-atlas.schema';
+import { openCanadaSchemas } from './open-canada.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -721,4 +722,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...hdxSchemas,
   ...globalHealthCovidSchemas,
   ...malariaAtlasSchemas,
+  ...openCanadaSchemas,
 };
