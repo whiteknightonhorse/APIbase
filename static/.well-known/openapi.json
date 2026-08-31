@@ -116858,6 +116858,247 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/ncbi-eutils.taxonomy_search/call": {
+      "post": {
+        "operationId": "ncbi-eutils_taxonomy_search",
+        "summary": "NCBI Taxonomy Search",
+        "description": "Search the NCBI Taxonomy database by organism scientific or common name (e.g. \"Panthera leo\" or \"African elephant\"). Returns matching NCBI TaxIDs plus the query translation NCBI actually ran. Use a returned tax_id with ncbi-eutils.taxonomy_summary or ncbi-eutils.taxonomy_lineage. Data: eutils.ncbi.nlm.nih.gov (US National Library of Medicine, public domain), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ncbi-eutils.taxonomy_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Organism name to search NCBI Taxonomy for — scientific (e.g. \"Panthera leo\") or common name (e.g. \"African elephant\")",
+                    "minLength": 1
+                  },
+                  "retmax": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of matching TaxIDs to return (1-50, default 20)"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ncbi-eutils.taxonomy_summary/call": {
+      "post": {
+        "operationId": "ncbi-eutils_taxonomy_summary",
+        "summary": "NCBI Taxonomy Summary",
+        "description": "Get the scientific name, common name, taxonomic rank, and division for one NCBI TaxID. Use ncbi-eutils.taxonomy_search first to find a tax_id. For the full kingdom-to-species classification tree, use ncbi-eutils.taxonomy_lineage instead. Data: eutils.ncbi.nlm.nih.gov, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ncbi-eutils.taxonomy_summary"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tax_id": {
+                    "type": "string",
+                    "description": "NCBI Taxonomy ID (e.g. \"9689\" for Panthera leo), from ncbi-eutils.taxonomy_search results"
+                  }
+                },
+                "required": [
+                  "tax_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ncbi-eutils.taxonomy_lineage/call": {
+      "post": {
+        "operationId": "ncbi-eutils_taxonomy_lineage",
+        "summary": "NCBI Taxonomy Lineage",
+        "description": "Get the full taxonomic classification tree for one NCBI TaxID — every ancestor rank from domain/kingdom down to the organism itself (e.g. Eukaryota > Metazoa > Chordata > Mammalia > Carnivora > Felidae > Panthera > Panthera leo), plus scientific name, common name, and parent TaxID. Use ncbi-eutils.taxonomy_search first to find a tax_id. Data: eutils.ncbi.nlm.nih.gov, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ncbi-eutils.taxonomy_lineage"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tax_id": {
+                    "type": "string",
+                    "description": "NCBI Taxonomy ID (e.g. \"9689\" for Panthera leo), from ncbi-eutils.taxonomy_search results"
+                  }
+                },
+                "required": [
+                  "tax_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

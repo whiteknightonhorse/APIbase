@@ -7841,6 +7841,25 @@ tools:
     price_usd: "0.002"
     cache_ttl: 300
 
+  # --- UC-647: NCBI E-utilities Taxonomy (3 tools) ---
+  - tool_id: ncbi-eutils.taxonomy_search
+    name: NCBI Taxonomy Search
+    provider: ncbi-eutils
+    price_usd: "0.001"
+    cache_ttl: 604800
+
+  - tool_id: ncbi-eutils.taxonomy_summary
+    name: NCBI Taxonomy Summary
+    provider: ncbi-eutils
+    price_usd: "0.001"
+    cache_ttl: 604800
+
+  - tool_id: ncbi-eutils.taxonomy_lineage
+    name: NCBI Taxonomy Lineage
+    provider: ncbi-eutils
+    price_usd: "0.001"
+    cache_ttl: 604800
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

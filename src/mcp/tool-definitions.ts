@@ -15565,4 +15565,44 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+
+  // NCBI E-utilities Taxonomy (3)
+  {
+    toolId: 'ncbi-eutils.taxonomy_search',
+    mcpName: 'ncbi-eutils.taxonomy.search',
+    title: 'NCBI Taxonomy Search',
+    description:
+      'Search the NCBI Taxonomy database by organism scientific or common name (e.g. ' +
+      '"Panthera leo" or "African elephant"). Returns matching NCBI TaxIDs plus the query ' +
+      'translation NCBI actually ran. Use a returned tax_id with ncbi-eutils.taxonomy_summary ' +
+      'or ncbi-eutils.taxonomy_lineage. Data: eutils.ncbi.nlm.nih.gov (US National Library of ' +
+      'Medicine, public domain), no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ncbi-eutils.taxonomy_summary',
+    mcpName: 'ncbi-eutils.taxonomy.summary',
+    title: 'NCBI Taxonomy Summary',
+    description:
+      'Get the scientific name, common name, taxonomic rank, and division for one NCBI ' +
+      'TaxID. Use ncbi-eutils.taxonomy_search first to find a tax_id. For the full ' +
+      'kingdom-to-species classification tree, use ncbi-eutils.taxonomy_lineage instead. ' +
+      'Data: eutils.ncbi.nlm.nih.gov, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ncbi-eutils.taxonomy_lineage',
+    mcpName: 'ncbi-eutils.taxonomy.lineage',
+    title: 'NCBI Taxonomy Lineage',
+    description:
+      'Get the full taxonomic classification tree for one NCBI TaxID — every ancestor rank ' +
+      'from domain/kingdom down to the organism itself (e.g. Eukaryota > Metazoa > Chordata > ' +
+      'Mammalia > Carnivora > Felidae > Panthera > Panthera leo), plus scientific name, common ' +
+      'name, and parent TaxID. Use ncbi-eutils.taxonomy_search first to find a tax_id. Data: ' +
+      'eutils.ncbi.nlm.nih.gov, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

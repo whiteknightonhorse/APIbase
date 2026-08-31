@@ -365,6 +365,7 @@ import { macrostratSchemas } from './macrostrat.schema';
 import { geodivaSchemas } from './geodiva.schema';
 import { launchLibrary2Schemas } from './launch-library-2.schema';
 import { socrataSchemas } from './socrata.schema';
+import { ncbiEutilsSchemas } from './ncbi-eutils.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -733,4 +734,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...geodivaSchemas,
   ...launchLibrary2Schemas,
   ...socrataSchemas,
+  ...ncbiEutilsSchemas,
 };

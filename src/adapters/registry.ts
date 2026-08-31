@@ -365,6 +365,7 @@ import { CrossrefDataCitationsAdapter } from './crossref-datacitations';
 import { HdxAdapter } from './hdx';
 import { LaunchLibrary2Adapter } from './launch-library-2';
 import { SocrataAdapter } from './socrata';
+import { NcbiEutilsAdapter } from './ncbi-eutils';
 import { config } from '../config';
 
 /**
@@ -1951,6 +1952,13 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // (api.us.socrata.com) plus per-portal dataset metadata/SoQL data query on the
       // caller-supplied domain; no auth, thousands of government/civic open-data portals
       return getOrCreate('socrata', () => new SocrataAdapter());
+    case 'ncbi-eutils': {
+      // NCBI E-utilities Taxonomy API (UC-647) — organism classification (kingdom..species)
+      // via eutils.ncbi.nlm.nih.gov; no auth required, reuses the same PROVIDER_KEY_NCBI as
+      // the pubchem adapter to raise the shared rate limit from 3 to 10 req/sec
+      const eutilsKey = ((config as Record<string, unknown>).PROVIDER_KEY_NCBI as string) || '';
+      return getOrCreate('ncbi-eutils', () => new NcbiEutilsAdapter(eutilsKey));
+    }
     default:
       return undefined;
   }

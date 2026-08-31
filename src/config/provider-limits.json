@@ -3275,5 +3275,14 @@
     "reset_period": "none",
     "docs_url": "https://dev.socrata.com/docs/app-tokens",
     "limit_proof": "No numeric throttle limit is published. dev.socrata.com/docs/app-tokens confirms unauthenticated (no app-token) requests are throttled per source IP into a shared pool with 'a much lower throttling limit' than app-token holders, but gives no exact request count; this integration uses no app token (no signup, per REC #4/no-auth batch mode)."
+  },
+  "ncbi-eutils": {
+    "display_name": "NCBI E-utilities Taxonomy",
+    "health_url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=taxonomy&term=Panthera+leo&retmode=json",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.ncbi.nlm.nih.gov/books/NBK25497/",
+    "limit_proof": "US Government open data (NIH/NLM). No auth required. NCBI E-utilities usage guidelines (NBK25497, 'Usage Guidelines and Requirements') cap unauthenticated requests at 3/sec, 10/sec with an API key; this adapter reuses PROVIDER_KEY_NCBI (same shared key as the pubchem adapter) when present."
   }
 }
