@@ -15433,4 +15433,41 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+  // GeoDIVA / Alaska Volcano Observatory (3)
+  {
+    toolId: 'geodiva.volcano_list',
+    mcpName: 'geodiva.geology.volcano_list',
+    title: 'GeoDIVA Alaska Volcano List',
+    description:
+      "Browse Alaska's 356 volcanoes from the AVO GeoDIVA database, optionally filtered by " +
+      'NVEWS threat level, geologic age class, monitored-network status, or a name substring. ' +
+      'Returns volcano ID, VNUM, name, type, composition, and threat rating for each match. ' +
+      'Data: geodiva.avo.alaska.edu, no auth required, US Government public domain.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'geodiva.volcano_detail',
+    mcpName: 'geodiva.geology.volcano_detail',
+    title: 'GeoDIVA Volcano Detail',
+    description:
+      'Get full detail for a single Alaska volcano — geology, composition, age, threat rating, ' +
+      'and a narrative description — looked up by volcano ID (e.g. "ak52"), VNUM, or name. ' +
+      'Data: geodiva.avo.alaska.edu, no auth required, US Government public domain.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'geodiva.eruption_search',
+    mcpName: 'geodiva.geology.eruption_search',
+    title: 'GeoDIVA Eruption History Search',
+    description:
+      'Search documented eruptions for an Alaska volcano by volcano_id (from ' +
+      'geodiva.volcano_list), a specific eruption_id, or a start/end date range (years or ' +
+      'ISO dates, including negative/BCE years for prehistoric eruptions). Returns eruption ' +
+      'name, narrative description, and start/end date fields. Data: geodiva.avo.alaska.edu, ' +
+      'no auth required, US Government public domain.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

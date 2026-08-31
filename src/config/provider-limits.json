@@ -3248,5 +3248,14 @@
     "reset_period": "none",
     "docs_url": "https://macrostrat.org/api",
     "limit_proof": "Public REST API (macrostrat.org/api/v2) run by University of Wisconsin-Madison / NSF Grant EAR-1150082; no authentication or API key required, no rate-limit headers returned in observed responses, no documented request quota."
+  },
+  "geodiva": {
+    "display_name": "GeoDIVA (Alaska Volcano Observatory)",
+    "health_url": "https://geodiva.avo.alaska.edu/volcanoes?id=ak52",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://geodiva.avo.alaska.edu/api",
+    "limit_proof": "Public REST API (geodiva.avo.alaska.edu) run by the Alaska Volcano Observatory (USGS/UAF/Alaska DGGS); no authentication or API key required, no rate-limit headers returned in observed responses, no documented request quota."
   }
 }

@@ -115924,6 +115924,284 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/geodiva.volcano_list/call": {
+      "post": {
+        "operationId": "geodiva_volcano_list",
+        "summary": "GeoDIVA Alaska Volcano List",
+        "description": "Browse Alaska's 356 volcanoes from the AVO GeoDIVA database, optionally filtered by NVEWS threat level, geologic age class, monitored-network status, or a name substring. Returns volcano ID, VNUM, name, type, composition, and threat rating for each match. Data: geodiva.avo.alaska.edu, no auth required, US Government public domain.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "geodiva.volcano_list"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "threat_level": {
+                    "type": "string",
+                    "enum": [
+                      "Very Low Threat",
+                      "Low Threat",
+                      "Moderate Threat",
+                      "High Threat",
+                      "Very High Threat"
+                    ],
+                    "description": "Filter by NVEWS eruption-hazard threat rating (client-side filter)"
+                  },
+                  "age_class": {
+                    "type": "string",
+                    "enum": [
+                      "Historical",
+                      "Holocene",
+                      "Pleistocene",
+                      "SuspHist",
+                      "SuspHolo",
+                      "SuspPleist"
+                    ],
+                    "description": "Filter by geologic age class — Historical/Holocene/Pleistocene, or Susp* (suspected) variants (client-side filter)"
+                  },
+                  "monitored_only": {
+                    "type": "boolean",
+                    "description": "If true, only return volcanoes actively monitored by AVO seismic/infrasound networks"
+                  },
+                  "name_contains": {
+                    "type": "string",
+                    "description": "Case-insensitive substring match against volcano name or official name, e.g. \"cleveland\""
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/geodiva.volcano_detail/call": {
+      "post": {
+        "operationId": "geodiva_volcano_detail",
+        "summary": "GeoDIVA Volcano Detail",
+        "description": "Get full detail for a single Alaska volcano — geology, composition, age, threat rating, and a narrative description — looked up by volcano ID (e.g. \"ak52\"), VNUM, or name. Data: geodiva.avo.alaska.edu, no auth required, US Government public domain.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "geodiva.volcano_detail"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Volcano ID (e.g. \"ak52\"), VNUM (e.g. \"311240\"), or volcano name (e.g. \"Cleveland\")",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/geodiva.eruption_search/call": {
+      "post": {
+        "operationId": "geodiva_eruption_search",
+        "summary": "GeoDIVA Eruption History Search",
+        "description": "Search documented eruptions for an Alaska volcano by volcano_id (from geodiva.volcano_list), a specific eruption_id, or a start/end date range (years or ISO dates, including negative/BCE years for prehistoric eruptions). Returns eruption name, narrative description, and start/end date fields. Data: geodiva.avo.alaska.edu, no auth required, US Government public domain.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "geodiva.eruption_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "volcano_id": {
+                    "type": "string",
+                    "description": "GeoDIVA volcano ID to list eruptions for, e.g. \"ak52\" (from geodiva.volcano_list)"
+                  },
+                  "eruption_id": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Specific eruption record ID to retrieve, e.g. 4111"
+                  },
+                  "sdate_start": {
+                    "type": "string",
+                    "description": "Eruption start-date range lower bound — must be paired with sdate_end, e.g. \"2000-01-01\""
+                  },
+                  "sdate_end": {
+                    "type": "string",
+                    "description": "Eruption start-date range upper bound — must be paired with sdate_start, e.g. \"2020-12-31\""
+                  },
+                  "edate_start": {
+                    "type": "string",
+                    "description": "Eruption end-date range lower bound — must be paired with edate_end"
+                  },
+                  "edate_end": {
+                    "type": "string",
+                    "description": "Eruption end-date range upper bound — must be paired with edate_start"
+                  }
+                },
+                "description": "Requires volcano_id, eruption_id, or a paired date range (sdate_start+sdate_end / edate_start+edate_end, max 20-year span unless volcano_id or eruption_id is also given)"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

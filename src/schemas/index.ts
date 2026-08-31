@@ -362,6 +362,7 @@ import { malariaAtlasSchemas } from './malaria-atlas.schema';
 import { openCanadaSchemas } from './open-canada.schema';
 import { dataEuropaSchemas } from './data-europa.schema';
 import { macrostratSchemas } from './macrostrat.schema';
+import { geodivaSchemas } from './geodiva.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -727,4 +728,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...openCanadaSchemas,
   ...dataEuropaSchemas,
   ...macrostratSchemas,
+  ...geodivaSchemas,
 };

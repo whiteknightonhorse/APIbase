@@ -7778,6 +7778,25 @@ tools:
     price_usd: "0.002"
     cache_ttl: 604800
 
+  # --- UC-644: GeoDIVA / Alaska Volcano Observatory (3 tools) ---
+  - tool_id: geodiva.volcano_list
+    name: GeoDIVA Alaska Volcano List
+    provider: geodiva
+    price_usd: "0.001"
+    cache_ttl: 604800
+
+  - tool_id: geodiva.volcano_detail
+    name: GeoDIVA Volcano Detail
+    provider: geodiva
+    price_usd: "0.001"
+    cache_ttl: 604800
+
+  - tool_id: geodiva.eruption_search
+    name: GeoDIVA Eruption History Search
+    provider: geodiva
+    price_usd: "0.002"
+    cache_ttl: 604800
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

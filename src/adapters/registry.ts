@@ -329,6 +329,7 @@ import { MalariaAtlasAdapter } from './malaria-atlas';
 import { OpenCanadaAdapter } from './open-canada';
 import { DataEuropaAdapter } from './data-europa';
 import { MacrostratAdapter } from './macrostrat';
+import { GeoDivaAdapter } from './geodiva';
 import { StandardEbooksAdapter } from './standard-ebooks';
 import { IndecGeorefAdapter } from './indec-georef';
 import { EnviroatlasAdapter } from './enviroatlas';
@@ -1935,6 +1936,10 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // Macrostrat geologic database API (UC-643) — worldwide stratigraphic columns, rock units,
       // bedrock geologic map units, and PBDB fossil collections tied to them; no auth, CC BY 4.0
       return getOrCreate('macrostrat', () => new MacrostratAdapter());
+    case 'geodiva':
+      // GeoDIVA / Alaska Volcano Observatory API (UC-644) — Alaska volcano catalog and
+      // documented eruption history; no auth, public domain (USGS/UAF/AVO)
+      return getOrCreate('geodiva', () => new GeoDivaAdapter());
     default:
       return undefined;
   }
