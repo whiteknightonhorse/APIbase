@@ -327,6 +327,7 @@ import { DuckDuckGoAdapter } from './duckduckgo';
 import { GlobalHealthCovidAdapter } from './global-health-covid';
 import { MalariaAtlasAdapter } from './malaria-atlas';
 import { OpenCanadaAdapter } from './open-canada';
+import { DataEuropaAdapter } from './data-europa';
 import { StandardEbooksAdapter } from './standard-ebooks';
 import { IndecGeorefAdapter } from './indec-georef';
 import { EnviroatlasAdapter } from './enviroatlas';
@@ -1924,6 +1925,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // Government of Canada Open Data CKAN Action API (UC-641) — federal dataset search/detail,
       // subject-taxonomy browse, publishing department/agency list; no auth, Open Government Licence
       return getOrCreate('open-canada', () => new OpenCanadaAdapter());
+    case 'data-europa':
+      // EU Open Data Portal Hub-Search API (UC-642) — dataset search/detail across 1M+ datasets
+      // from national/regional EU portals, DCAT-AP theme taxonomy, national/EU catalogue list;
+      // no auth
+      return getOrCreate('data-europa', () => new DataEuropaAdapter());
     default:
       return undefined;
   }

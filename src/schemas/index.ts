@@ -360,6 +360,7 @@ import { hdxSchemas } from './hdx.schema';
 import { globalHealthCovidSchemas } from './global-health-covid.schema';
 import { malariaAtlasSchemas } from './malaria-atlas.schema';
 import { openCanadaSchemas } from './open-canada.schema';
+import { dataEuropaSchemas } from './data-europa.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -723,4 +724,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...globalHealthCovidSchemas,
   ...malariaAtlasSchemas,
   ...openCanadaSchemas,
+  ...dataEuropaSchemas,
 };

@@ -3230,5 +3230,14 @@
     "reset_period": "none",
     "docs_url": "https://open.canada.ca/data/api/3/action/help_show?name=package_search",
     "limit_proof": "Public CKAN Action API (open.canada.ca/data/api/3/action) run by the Government of Canada; no authentication or API key required, no rate-limit headers returned in observed responses, no documented request quota."
+  },
+  "data-europa": {
+    "display_name": "EU Open Data Portal",
+    "health_url": "https://data.europa.eu/api/hub/search/search?q=test&limit=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://data.europa.eu/en/developer-corner/open-data-api-portal",
+    "limit_proof": "Public Hub-Search API (data.europa.eu/api/hub/search) operated by the Publications Office of the EU; no authentication or API key required, no rate-limit headers returned in observed responses, no documented request quota."
   }
 }

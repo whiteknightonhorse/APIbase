@@ -115188,6 +115188,362 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/data-europa.dataset_search/call": {
+      "post": {
+        "operationId": "data-europa_dataset_search",
+        "summary": "EU Open Data Search",
+        "description": "Search the EU Open Data Portal catalog (1M+ datasets aggregated from national and regional EU/EEA open-data portals plus EU institutions) by free text, country, and/or DCAT-AP theme, returning dataset id, localized title/description, source catalogue, country, categories, and available distribution formats. Use data-europa.theme_list for valid theme codes. Data: data.europa.eu Hub-Search API, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "data-europa.dataset_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Free-text search across dataset title/description (e.g. \"air quality\")"
+                  },
+                  "country": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2,
+                    "description": "2-letter lowercase ISO country code to filter by (e.g. \"de\", \"fr\", \"it\", \"es\")"
+                  },
+                  "theme": {
+                    "type": "string",
+                    "enum": [
+                      "AGRI",
+                      "ECON",
+                      "EDUC",
+                      "ENER",
+                      "ENVI",
+                      "GOVE",
+                      "HEAL",
+                      "INTR",
+                      "JUST",
+                      "OP_DATPRO",
+                      "REGI",
+                      "SOCI",
+                      "TECH",
+                      "TRAN"
+                    ],
+                    "description": "DCAT-AP data theme code to filter by (e.g. \"ENVI\" for Environment, \"HEAL\" for Health) — see data-europa.theme_list for the full list"
+                  },
+                  "locale": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2,
+                    "description": "2-letter language code for localized fields (default \"en\")"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20,
+                    "description": "Number of datasets to return (1-20, default 10)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/data-europa.dataset_detail/call": {
+      "post": {
+        "operationId": "data-europa_dataset_detail",
+        "summary": "EU Open Data Dataset Detail",
+        "description": "Get full metadata for one EU Open Data Portal dataset by id: localized title/description, source catalogue, tags, license, and the full distribution list (format, download URL, license, release/update dates). Data: data.europa.eu Hub-Search API (CKAN-compatible shim), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "data-europa.dataset_detail"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "data.europa.eu dataset id (from dataset_search results, e.g. \"f431cf05-276e-4741-ab6e-96ce8b8c5f66\")",
+                    "minLength": 1
+                  },
+                  "locale": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2,
+                    "description": "2-letter language code for localized fields where available (default \"en\")"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/data-europa.theme_list/call": {
+      "post": {
+        "operationId": "data-europa_theme_list",
+        "summary": "EU Open Data Theme List",
+        "description": "List the 14 fixed DCAT-AP data themes used by the EU Open Data Portal (e.g. \"ENVI\" for Environment, \"HEAL\" for Health, \"ECON\" for Economy and finance) with localized labels. Use the returned theme code as the `theme` filter for data-europa.dataset_search. Data: data.europa.eu Hub-Search API, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "data-europa.theme_list"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "locale": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 2,
+                    "description": "2-letter language code for theme labels (default \"en\")"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/data-europa.catalogue_list/call": {
+      "post": {
+        "operationId": "data-europa_catalogue_list",
+        "summary": "EU Open Data Catalogue List",
+        "description": "List the ~211 national, regional, and EU-institution data catalogues (portal source ids, e.g. \"gdi-de\", \"govdata\", \"geocat-li\") that feed the EU Open Data Portal, optionally filtered by an id substring. Data: data.europa.eu Hub-Search API, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "data-europa.catalogue_list"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Substring filter on catalogue id (e.g. \"geo\" matches \"geocat-li\", \"gdi-de\")"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 211,
+                    "description": "Max catalogues to return (1-211, default 50)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

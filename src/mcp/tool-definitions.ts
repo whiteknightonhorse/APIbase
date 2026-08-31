@@ -15328,4 +15328,58 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+
+  // --- UC-642: EU Open Data Portal (data-europa) — 4 tools ---
+  // Public Hub-Search API (data.europa.eu/api/hub/search) run by the Publications Office of the
+  // EU, no auth. Aggregates 1M+ datasets from national/regional open-data portals across the
+  // EU/EEA plus EU institutions. Most metadata fields are multilingual (~25 languages per field)
+  // — normalized output flattens every field to a single locale (default English).
+  {
+    toolId: 'data-europa.dataset_search',
+    mcpName: 'data-europa.datasets.search',
+    title: 'EU Open Data Search',
+    description:
+      'Search the EU Open Data Portal catalog (1M+ datasets aggregated from national and regional ' +
+      'EU/EEA open-data portals plus EU institutions) by free text, country, and/or DCAT-AP theme, ' +
+      'returning dataset id, localized title/description, source catalogue, country, categories, ' +
+      'and available distribution formats. Use data-europa.theme_list for valid theme codes. Data: ' +
+      'data.europa.eu Hub-Search API, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'data-europa.dataset_detail',
+    mcpName: 'data-europa.datasets.detail',
+    title: 'EU Open Data Dataset Detail',
+    description:
+      'Get full metadata for one EU Open Data Portal dataset by id: localized title/description, ' +
+      'source catalogue, tags, license, and the full distribution list (format, download URL, ' +
+      'license, release/update dates). Data: data.europa.eu Hub-Search API (CKAN-compatible shim), ' +
+      'no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'data-europa.theme_list',
+    mcpName: 'data-europa.reference.theme_list',
+    title: 'EU Open Data Theme List',
+    description:
+      'List the 14 fixed DCAT-AP data themes used by the EU Open Data Portal (e.g. "ENVI" for ' +
+      'Environment, "HEAL" for Health, "ECON" for Economy and finance) with localized labels. Use ' +
+      'the returned theme code as the `theme` filter for data-europa.dataset_search. Data: ' +
+      'data.europa.eu Hub-Search API, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'data-europa.catalogue_list',
+    mcpName: 'data-europa.reference.catalogue_list',
+    title: 'EU Open Data Catalogue List',
+    description:
+      'List the ~211 national, regional, and EU-institution data catalogues (portal source ids, ' +
+      'e.g. "gdi-de", "govdata", "geocat-li") that feed the EU Open Data Portal, optionally ' +
+      'filtered by an id substring. Data: data.europa.eu Hub-Search API, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

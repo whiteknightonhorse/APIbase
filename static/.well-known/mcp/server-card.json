@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1254 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1258 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -60179,6 +60179,194 @@
             "minimum": 1,
             "maximum": 50,
             "description": "Max organizations to return (1-50, default 20)"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "data-europa.datasets.search",
+      "description": "Search the EU Open Data Portal catalog (1M+ datasets aggregated from national and regional EU/EEA open-data portals plus EU institutions) by free text, country, and/or DCAT-AP theme, returning dataset id, localized title/description, source catalogue, country, categories, and available distribution formats. Use data-europa.theme_list for valid theme codes. Data: data.europa.eu Hub-Search API, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Free-text search across dataset title/description (e.g. \"air quality\")"
+          },
+          "country": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "2-letter lowercase ISO country code to filter by (e.g. \"de\", \"fr\", \"it\", \"es\")"
+          },
+          "theme": {
+            "type": "string",
+            "enum": [
+              "AGRI",
+              "ECON",
+              "EDUC",
+              "ENER",
+              "ENVI",
+              "GOVE",
+              "HEAL",
+              "INTR",
+              "JUST",
+              "OP_DATPRO",
+              "REGI",
+              "SOCI",
+              "TECH",
+              "TRAN"
+            ],
+            "description": "DCAT-AP data theme code to filter by (e.g. \"ENVI\" for Environment, \"HEAL\" for Health) — see data-europa.theme_list for the full list"
+          },
+          "locale": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "2-letter language code for localized fields (default \"en\")"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "Number of datasets to return (1-20, default 10)"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "data-europa.datasets.detail",
+      "description": "Get full metadata for one EU Open Data Portal dataset by id: localized title/description, source catalogue, tags, license, and the full distribution list (format, download URL, license, release/update dates). Data: data.europa.eu Hub-Search API (CKAN-compatible shim), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "data.europa.eu dataset id (from dataset_search results, e.g. \"f431cf05-276e-4741-ab6e-96ce8b8c5f66\")",
+            "minLength": 1
+          },
+          "locale": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "2-letter language code for localized fields where available (default \"en\")"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "data-europa.reference.theme_list",
+      "description": "List the 14 fixed DCAT-AP data themes used by the EU Open Data Portal (e.g. \"ENVI\" for Environment, \"HEAL\" for Health, \"ECON\" for Economy and finance) with localized labels. Use the returned theme code as the `theme` filter for data-europa.dataset_search. Data: data.europa.eu Hub-Search API, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locale": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "description": "2-letter language code for theme labels (default \"en\")"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "data-europa.reference.catalogue_list",
+      "description": "List the ~211 national, regional, and EU-institution data catalogues (portal source ids, e.g. \"gdi-de\", \"govdata\", \"geocat-li\") that feed the EU Open Data Portal, optionally filtered by an id substring. Data: data.europa.eu Hub-Search API, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Substring filter on catalogue id (e.g. \"geo\" matches \"geocat-li\", \"gdi-de\")"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 211,
+            "description": "Max catalogues to return (1-211, default 50)"
           }
         }
       },
