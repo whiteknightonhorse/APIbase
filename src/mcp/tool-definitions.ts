@@ -15470,4 +15470,57 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+
+  // Launch Library 2 / The Space Devs (4)
+  {
+    toolId: 'launch-library-2.upcoming_launches',
+    mcpName: 'launch-library-2.launches.upcoming',
+    title: 'Launch Library 2 Upcoming Launches',
+    description:
+      'List upcoming global orbital launches — mission name, launch service provider, rocket ' +
+      'configuration, launch window, pad/location, and status — optionally filtered by a free-text ' +
+      'search across mission/rocket/agency names. Data: ll.thespacedevs.com (The Space Devs), no ' +
+      'auth required; free tier is throttled to 15 requests/hour shared across all APIbase agents, ' +
+      'so results are cached for 30 minutes.',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'launch-library-2.launch_detail',
+    mcpName: 'launch-library-2.launches.detail',
+    title: 'Launch Library 2 Launch Detail',
+    description:
+      'Get full detail for a single launch by its UUID (from ' +
+      'launch-library-2.upcoming_launches results) — mission description, orbit, rocket and pad ' +
+      'detail, launch provider, imagery, and probability/weather notes. Data: ll.thespacedevs.com ' +
+      '(The Space Devs), no auth required; free tier is throttled to 15 requests/hour shared ' +
+      'across all APIbase agents, so results are cached for 1 hour.',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'launch-library-2.astronaut_search',
+    mcpName: 'launch-library-2.astronauts.search',
+    title: 'Launch Library 2 Astronaut Search',
+    description:
+      'Search the global astronaut roster by name — returns astronaut name, active/retired ' +
+      'status, and sponsoring space agency, optionally filtered by a free-text search. Data: ' +
+      'll.thespacedevs.com (The Space Devs), no auth required; free tier is throttled to 15 ' +
+      'requests/hour shared across all APIbase agents, so results are cached for 24 hours.',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'launch-library-2.agency_search',
+    mcpName: 'launch-library-2.agencies.search',
+    title: 'Launch Library 2 Agency Search',
+    description:
+      'Search space agencies and commercial launch operators by name — returns agency type ' +
+      '(government/commercial/multinational), country, founding year, and description, ' +
+      'optionally filtered by a free-text search. Data: ll.thespacedevs.com (The Space Devs), no ' +
+      'auth required; free tier is throttled to 15 requests/hour shared across all APIbase ' +
+      'agents, so results are cached for 24 hours.',
+    category: 'space',
+    annotations: READ_ONLY,
+  },
 ];

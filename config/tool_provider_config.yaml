@@ -7797,6 +7797,31 @@ tools:
     price_usd: "0.002"
     cache_ttl: 604800
 
+  # --- UC-645: Launch Library 2 / The Space Devs (4 tools) ---
+  - tool_id: launch-library-2.upcoming_launches
+    name: Launch Library 2 Upcoming Launches
+    provider: launch-library-2
+    price_usd: "0.002"
+    cache_ttl: 1800
+
+  - tool_id: launch-library-2.launch_detail
+    name: Launch Library 2 Launch Detail
+    provider: launch-library-2
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: launch-library-2.astronaut_search
+    name: Launch Library 2 Astronaut Search
+    provider: launch-library-2
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: launch-library-2.agency_search
+    name: Launch Library 2 Agency Search
+    provider: launch-library-2
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

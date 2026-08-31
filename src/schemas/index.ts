@@ -363,6 +363,7 @@ import { openCanadaSchemas } from './open-canada.schema';
 import { dataEuropaSchemas } from './data-europa.schema';
 import { macrostratSchemas } from './macrostrat.schema';
 import { geodivaSchemas } from './geodiva.schema';
+import { launchLibrary2Schemas } from './launch-library-2.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -729,4 +730,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...dataEuropaSchemas,
   ...macrostratSchemas,
   ...geodivaSchemas,
+  ...launchLibrary2Schemas,
 };

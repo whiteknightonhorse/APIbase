@@ -3257,5 +3257,14 @@
     "reset_period": "none",
     "docs_url": "https://geodiva.avo.alaska.edu/api",
     "limit_proof": "Public REST API (geodiva.avo.alaska.edu) run by the Alaska Volcano Observatory (USGS/UAF/Alaska DGGS); no authentication or API key required, no rate-limit headers returned in observed responses, no documented request quota."
+  },
+  "launch-library-2": {
+    "display_name": "Launch Library 2 (The Space Devs)",
+    "health_url": "https://ll.thespacedevs.com/2.3.0/agencies/?limit=1",
+    "limit_type": "hourly",
+    "free_limit": 15,
+    "reset_period": "hourly",
+    "docs_url": "https://thespacedevs.com/llapi",
+    "limit_proof": "Free anonymous tier self-reports live via GET https://ll.thespacedevs.com/2.3.0/api-throttle/: {\"your_request_limit\":15,\"limit_frequency_secs\":3600}. Shared per source IP across all APIbase agents; tool cache TTLs (30min-24h) are set long specifically to stay within this budget."
   }
 }

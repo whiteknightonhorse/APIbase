@@ -363,6 +363,7 @@ import { GeoBoundariesAdapter } from './geoboundaries';
 import { BankOfEnglandAdapter } from './bank-of-england';
 import { CrossrefDataCitationsAdapter } from './crossref-datacitations';
 import { HdxAdapter } from './hdx';
+import { LaunchLibrary2Adapter } from './launch-library-2';
 import { config } from '../config';
 
 /**
@@ -1940,6 +1941,10 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // GeoDIVA / Alaska Volcano Observatory API (UC-644) — Alaska volcano catalog and
       // documented eruption history; no auth, public domain (USGS/UAF/AVO)
       return getOrCreate('geodiva', () => new GeoDivaAdapter());
+    case 'launch-library-2':
+      // Launch Library 2 / The Space Devs API (UC-645) — global orbital launch schedule,
+      // astronauts, and space agencies; no auth, free tier throttled to 15 req/hour/IP
+      return getOrCreate('launch-library-2', () => new LaunchLibrary2Adapter());
     default:
       return undefined;
   }

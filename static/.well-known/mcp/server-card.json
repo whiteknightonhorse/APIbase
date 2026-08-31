@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1265 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1269 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -60733,6 +60733,168 @@
           }
         },
         "description": "Requires volcano_id, eruption_id, or a paired date range (sdate_start+sdate_end / edate_start+edate_end, max 20-year span unless volcano_id or eruption_id is also given)"
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "launch-library-2.launches.upcoming",
+      "description": "List upcoming global orbital launches — mission name, launch service provider, rocket configuration, launch window, pad/location, and status — optionally filtered by a free-text search across mission/rocket/agency names. Data: ll.thespacedevs.com (The Space Devs), no auth required; free tier is throttled to 15 requests/hour shared across all APIbase agents, so results are cached for 30 minutes.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "search": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "description": "Free-text search across name/mission/agency fields, e.g. \"falcon\" or \"artemis\""
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "Max results to return, 1-20 (default 10)"
+          }
+        },
+        "description": "List upcoming orbital launches, optionally filtered by a text search"
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "launch-library-2.launches.detail",
+      "description": "Get full detail for a single launch by its UUID (from launch-library-2.upcoming_launches results) — mission description, orbit, rocket and pad detail, launch provider, imagery, and probability/weather notes. Data: ll.thespacedevs.com (The Space Devs), no auth required; free tier is throttled to 15 requests/hour shared across all APIbase agents, so results are cached for 1 hour.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Launch UUID from launch-library-2.upcoming_launches results, e.g. \"521f3a1c-f977-4306-9b7f-495858719adf\""
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "launch-library-2.astronauts.search",
+      "description": "Search the global astronaut roster by name — returns astronaut name, active/retired status, and sponsoring space agency, optionally filtered by a free-text search. Data: ll.thespacedevs.com (The Space Devs), no auth required; free tier is throttled to 15 requests/hour shared across all APIbase agents, so results are cached for 24 hours.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "search": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "description": "Free-text search across name/mission/agency fields, e.g. \"falcon\" or \"artemis\""
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "Max results to return, 1-20 (default 10)"
+          }
+        },
+        "description": "Search the astronaut roster by name, optionally filtered by a text search"
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "launch-library-2.agencies.search",
+      "description": "Search space agencies and commercial launch operators by name — returns agency type (government/commercial/multinational), country, founding year, and description, optionally filtered by a free-text search. Data: ll.thespacedevs.com (The Space Devs), no auth required; free tier is throttled to 15 requests/hour shared across all APIbase agents, so results are cached for 24 hours.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "search": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "description": "Free-text search across name/mission/agency fields, e.g. \"falcon\" or \"artemis\""
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "Max results to return, 1-20 (default 10)"
+          }
+        },
+        "description": "Search space agencies and launch operators by name, optionally filtered by a text search"
       },
       "outputSchema": {
         "type": "object",
