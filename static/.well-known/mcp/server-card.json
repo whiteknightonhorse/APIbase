@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1258 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1262 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -60369,6 +60369,218 @@
             "description": "Max catalogues to return (1-211, default 50)"
           }
         }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "macrostrat.geology.columns_search",
+      "description": "Search worldwide stratigraphic columns (a summary of the rock units at one location) by point location (lat/lng), stratigraphic name, chronostratigraphic time interval, lithology, or geologic age (Ma). Returns column IDs, names, coordinates, area, and thickness — use the returned col_id with macrostrat.units_search or macrostrat.fossils_search. Data: macrostrat.org/api/v2, no auth required, CC BY 4.0.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90,
+            "description": "Decimal degree latitude (WGS84) — must be supplied together with lng"
+          },
+          "lng": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180,
+            "description": "Decimal degree longitude (WGS84) — must be supplied together with lat"
+          },
+          "adjacents": {
+            "type": "boolean",
+            "description": "If lat+lng given, also return columns touching the same polygon (default false)"
+          },
+          "strat_name": {
+            "type": "string",
+            "description": "Fuzzy stratigraphic name to match, e.g. \"mancos\" or \"jordan\""
+          },
+          "interval_name": {
+            "type": "string",
+            "description": "Chronostratigraphic time interval name, e.g. \"Permian\" or \"Cretaceous\""
+          },
+          "lith": {
+            "type": "string",
+            "description": "Lithology name to filter by, e.g. \"sandstone\" or \"shale\""
+          },
+          "age": {
+            "type": "number",
+            "description": "Numerical age in millions of years before present (Ma)"
+          },
+          "age_top": {
+            "type": "number",
+            "description": "Younger bound of an age range in Ma — must be used with age_bottom"
+          },
+          "age_bottom": {
+            "type": "number",
+            "description": "Older bound of an age range in Ma — must be used with age_top"
+          }
+        },
+        "description": "At least one filter required: lat+lng, strat_name, interval_name, lith, age, or age_top+age_bottom"
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "macrostrat.geology.units_search",
+      "description": "Get the rock units (formation/member/group names, top/bottom age in millions of years, thickness, lithology, and depositional environment) that make up a stratigraphic column, looked up by col_id (from macrostrat.columns_search) or by a lat/lng point. Data: macrostrat.org/api/v2, no auth required, CC BY 4.0.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "col_id": {
+            "type": "integer",
+            "description": "Macrostrat column ID (from macrostrat.columns_search) to list rock units for"
+          },
+          "lat": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90,
+            "description": "Decimal degree latitude (WGS84) — must be supplied together with lng"
+          },
+          "lng": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180,
+            "description": "Decimal degree longitude (WGS84) — must be supplied together with lat"
+          }
+        },
+        "description": "Requires either col_id, or lat+lng together"
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "macrostrat.geology.map_units",
+      "description": "Get the bedrock geologic map unit(s) at a specific point location (surface geology): formation/unit name, dominant lithology, description, age range, and recommended map color, sourced from compiled state/national geologic maps. Data: macrostrat.org/api/v2 /geologic_units/map, no auth required, CC BY 4.0.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number",
+            "description": "Decimal degree latitude (WGS84)",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "lng": {
+            "type": "number",
+            "description": "Decimal degree longitude (WGS84)",
+            "minimum": -180,
+            "maximum": 180
+          },
+          "scale": {
+            "type": "string",
+            "enum": [
+              "small",
+              "medium",
+              "large"
+            ],
+            "description": "Geologic map source scale (default returns the best-available match)"
+          }
+        },
+        "required": [
+          "lat",
+          "lng"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "macrostrat.geology.fossils_search",
+      "description": "Get Paleobiology Database (PBDB) fossil collections matched to a Macrostrat stratigraphic column or rock unit, looked up by col_id or unit_id (from macrostrat.columns_search / macrostrat.units_search), optionally narrowed by chronostratigraphic interval name. Returns collection names, ages, and PBDB occurrence counts. Data: macrostrat.org/api/v2, no auth required, CC BY 4.0.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "col_id": {
+            "type": "integer",
+            "description": "Macrostrat column ID (from macrostrat.columns_search) to find fossil collections in"
+          },
+          "unit_id": {
+            "type": "integer",
+            "description": "Macrostrat unit ID (from macrostrat.units_search) to find fossil collections in"
+          },
+          "interval_name": {
+            "type": "string",
+            "description": "Optional chronostratigraphic interval name to further narrow results within col_id/unit_id"
+          }
+        },
+        "description": "Requires either col_id or unit_id"
       },
       "outputSchema": {
         "type": "object",

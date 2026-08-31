@@ -3239,5 +3239,14 @@
     "reset_period": "none",
     "docs_url": "https://data.europa.eu/en/developer-corner/open-data-api-portal",
     "limit_proof": "Public Hub-Search API (data.europa.eu/api/hub/search) operated by the Publications Office of the EU; no authentication or API key required, no rate-limit headers returned in observed responses, no documented request quota."
+  },
+  "macrostrat": {
+    "display_name": "Macrostrat Geologic Database",
+    "health_url": "https://macrostrat.org/api/v2/columns?lat=43&lng=-89",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://macrostrat.org/api",
+    "limit_proof": "Public REST API (macrostrat.org/api/v2) run by University of Wisconsin-Madison / NSF Grant EAR-1150082; no authentication or API key required, no rate-limit headers returned in observed responses, no documented request quota."
   }
 }

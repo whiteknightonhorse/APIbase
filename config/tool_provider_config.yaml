@@ -7753,6 +7753,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-643: Macrostrat Geologic Database (4 tools) ---
+  - tool_id: macrostrat.columns_search
+    name: Macrostrat Stratigraphic Column Search
+    provider: macrostrat
+    price_usd: "0.002"
+    cache_ttl: 604800
+
+  - tool_id: macrostrat.units_search
+    name: Macrostrat Geologic Unit Search
+    provider: macrostrat
+    price_usd: "0.002"
+    cache_ttl: 604800
+
+  - tool_id: macrostrat.geologic_map_units
+    name: Macrostrat Bedrock Geologic Map Units
+    provider: macrostrat
+    price_usd: "0.001"
+    cache_ttl: 604800
+
+  - tool_id: macrostrat.fossils_search
+    name: Macrostrat Fossil Collection Search
+    provider: macrostrat
+    price_usd: "0.002"
+    cache_ttl: 604800
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

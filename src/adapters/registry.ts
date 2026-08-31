@@ -328,6 +328,7 @@ import { GlobalHealthCovidAdapter } from './global-health-covid';
 import { MalariaAtlasAdapter } from './malaria-atlas';
 import { OpenCanadaAdapter } from './open-canada';
 import { DataEuropaAdapter } from './data-europa';
+import { MacrostratAdapter } from './macrostrat';
 import { StandardEbooksAdapter } from './standard-ebooks';
 import { IndecGeorefAdapter } from './indec-georef';
 import { EnviroatlasAdapter } from './enviroatlas';
@@ -1930,6 +1931,10 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // from national/regional EU portals, DCAT-AP theme taxonomy, national/EU catalogue list;
       // no auth
       return getOrCreate('data-europa', () => new DataEuropaAdapter());
+    case 'macrostrat':
+      // Macrostrat geologic database API (UC-643) — worldwide stratigraphic columns, rock units,
+      // bedrock geologic map units, and PBDB fossil collections tied to them; no auth, CC BY 4.0
+      return getOrCreate('macrostrat', () => new MacrostratAdapter());
     default:
       return undefined;
   }

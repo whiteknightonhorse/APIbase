@@ -15382,4 +15382,55 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+  // Macrostrat (4)
+  {
+    toolId: 'macrostrat.columns_search',
+    mcpName: 'macrostrat.geology.columns_search',
+    title: 'Macrostrat Stratigraphic Column Search',
+    description:
+      'Search worldwide stratigraphic columns (a summary of the rock units at one location) by ' +
+      'point location (lat/lng), stratigraphic name, chronostratigraphic time interval, ' +
+      'lithology, or geologic age (Ma). Returns column IDs, names, coordinates, area, and ' +
+      'thickness — use the returned col_id with macrostrat.units_search or ' +
+      'macrostrat.fossils_search. Data: macrostrat.org/api/v2, no auth required, CC BY 4.0.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'macrostrat.units_search',
+    mcpName: 'macrostrat.geology.units_search',
+    title: 'Macrostrat Geologic Unit Search',
+    description:
+      'Get the rock units (formation/member/group names, top/bottom age in millions of years, ' +
+      'thickness, lithology, and depositional environment) that make up a stratigraphic column, ' +
+      'looked up by col_id (from macrostrat.columns_search) or by a lat/lng point. Data: ' +
+      'macrostrat.org/api/v2, no auth required, CC BY 4.0.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'macrostrat.geologic_map_units',
+    mcpName: 'macrostrat.geology.map_units',
+    title: 'Macrostrat Bedrock Geologic Map Units',
+    description:
+      'Get the bedrock geologic map unit(s) at a specific point location (surface geology): ' +
+      'formation/unit name, dominant lithology, description, age range, and recommended map ' +
+      'color, sourced from compiled state/national geologic maps. Data: macrostrat.org/api/v2 ' +
+      '/geologic_units/map, no auth required, CC BY 4.0.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'macrostrat.fossils_search',
+    mcpName: 'macrostrat.geology.fossils_search',
+    title: 'Macrostrat Fossil Collection Search',
+    description:
+      'Get Paleobiology Database (PBDB) fossil collections matched to a Macrostrat stratigraphic ' +
+      'column or rock unit, looked up by col_id or unit_id (from macrostrat.columns_search / ' +
+      'macrostrat.units_search), optionally narrowed by chronostratigraphic interval name. ' +
+      'Returns collection names, ages, and PBDB occurrence counts. Data: macrostrat.org/api/v2, ' +
+      'no auth required, CC BY 4.0.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];
