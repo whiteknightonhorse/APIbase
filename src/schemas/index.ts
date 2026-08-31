@@ -364,6 +364,7 @@ import { dataEuropaSchemas } from './data-europa.schema';
 import { macrostratSchemas } from './macrostrat.schema';
 import { geodivaSchemas } from './geodiva.schema';
 import { launchLibrary2Schemas } from './launch-library-2.schema';
+import { socrataSchemas } from './socrata.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -731,4 +732,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...macrostratSchemas,
   ...geodivaSchemas,
   ...launchLibrary2Schemas,
+  ...socrataSchemas,
 };

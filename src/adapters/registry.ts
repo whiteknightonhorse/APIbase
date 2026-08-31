@@ -364,6 +364,7 @@ import { BankOfEnglandAdapter } from './bank-of-england';
 import { CrossrefDataCitationsAdapter } from './crossref-datacitations';
 import { HdxAdapter } from './hdx';
 import { LaunchLibrary2Adapter } from './launch-library-2';
+import { SocrataAdapter } from './socrata';
 import { config } from '../config';
 
 /**
@@ -1945,6 +1946,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // Launch Library 2 / The Space Devs API (UC-645) — global orbital launch schedule,
       // astronauts, and space agencies; no auth, free tier throttled to 15 req/hour/IP
       return getOrCreate('launch-library-2', () => new LaunchLibrary2Adapter());
+    case 'socrata':
+      // Socrata Open Data (SODA) API (UC-646) — cross-portal catalog search
+      // (api.us.socrata.com) plus per-portal dataset metadata/SoQL data query on the
+      // caller-supplied domain; no auth, thousands of government/civic open-data portals
+      return getOrCreate('socrata', () => new SocrataAdapter());
     default:
       return undefined;
   }

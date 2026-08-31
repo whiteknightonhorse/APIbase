@@ -15523,4 +15523,46 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'space',
     annotations: READ_ONLY,
   },
+
+  // Socrata Open Data (SODA) (3)
+  {
+    toolId: 'socrata.dataset_search',
+    mcpName: 'socrata.datasets.search',
+    title: 'Socrata Dataset Search',
+    description:
+      'Search the Socrata Discovery API — a single cross-portal catalog covering thousands of ' +
+      'independently-hosted government/civic open-data portals worldwide (NYC, HHS, states, ' +
+      'counties, and more) — by free-text query, portal domain, category, and/or tags. Returns ' +
+      "each dataset's id, name, description, hosting domain, category, tags, license, and URL. " +
+      'Use the returned domain + id with socrata.dataset_metadata or socrata.query_dataset. ' +
+      'Data: api.us.socrata.com, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'socrata.dataset_metadata',
+    mcpName: 'socrata.datasets.detail',
+    title: 'Socrata Dataset Metadata',
+    description:
+      'Get full metadata and column schema for one dataset on a specific Socrata portal — ' +
+      'description, attribution, tags, view/download counts, last data update time, and the ' +
+      'full column list (name, field name, data type, description). Use ' +
+      'socrata.dataset_search first to find a domain + dataset_id. Data: per-portal Socrata ' +
+      'views API (e.g. data.cityofnewyork.us), no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'socrata.query_dataset',
+    mcpName: 'socrata.datasets.query',
+    title: 'Socrata Dataset Query',
+    description:
+      "Run a SoQL query against a specific dataset's actual data rows on a Socrata portal — " +
+      'supports $select, $where, $order, $group, $limit, and $offset clauses (see ' +
+      'socrata.dataset_metadata for column names). Returns the matching rows as JSON. Use ' +
+      'socrata.dataset_search first to find a domain + dataset_id. Data: per-portal Socrata ' +
+      'resource API (e.g. data.cityofnewyork.us), no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

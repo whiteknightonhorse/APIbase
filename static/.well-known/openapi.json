@@ -116532,6 +116532,332 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/socrata.dataset_search/call": {
+      "post": {
+        "operationId": "socrata_dataset_search",
+        "summary": "Socrata Dataset Search",
+        "description": "Search the Socrata Discovery API — a single cross-portal catalog covering thousands of independently-hosted government/civic open-data portals worldwide (NYC, HHS, states, counties, and more) — by free-text query, portal domain, category, and/or tags. Returns each dataset's id, name, description, hosting domain, category, tags, license, and URL. Use the returned domain + id with socrata.dataset_metadata or socrata.query_dataset. Data: api.us.socrata.com, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "socrata.dataset_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200,
+                    "description": "Free-text search across dataset name/description/tags, e.g. \"covid\" or \"budget\""
+                  },
+                  "domains": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500,
+                    "description": "Comma-separated Socrata portal hostname(s) to scope the search to, e.g. \"data.cityofnewyork.us\""
+                  },
+                  "category": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Filter by Socrata domain category, e.g. \"Health\", \"Transportation\", \"Public Safety\""
+                  },
+                  "tags": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200,
+                    "description": "Comma-separated tag filter, e.g. \"budget,finance\""
+                  },
+                  "only": {
+                    "type": "string",
+                    "enum": [
+                      "dataset",
+                      "chart",
+                      "map",
+                      "file",
+                      "story",
+                      "href"
+                    ],
+                    "description": "Asset type to return (default \"dataset\")"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Max results to return, 1-50 (default 10)"
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Pagination offset (default 0)"
+                  }
+                },
+                "description": "Search the Socrata Discovery API — a cross-portal catalog covering thousands of government/civic open-data portals worldwide"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/socrata.dataset_metadata/call": {
+      "post": {
+        "operationId": "socrata_dataset_metadata",
+        "summary": "Socrata Dataset Metadata",
+        "description": "Get full metadata and column schema for one dataset on a specific Socrata portal — description, attribution, tags, view/download counts, last data update time, and the full column list (name, field name, data type, description). Use socrata.dataset_search first to find a domain + dataset_id. Data: per-portal Socrata views API (e.g. data.cityofnewyork.us), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "socrata.dataset_metadata"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "domain": {
+                    "type": "string",
+                    "description": "Socrata portal hostname, e.g. \"data.cityofnewyork.us\" (from socrata.dataset_search results)",
+                    "minLength": 3,
+                    "maxLength": 253
+                  },
+                  "dataset_id": {
+                    "type": "string",
+                    "description": "Socrata dataset 4x4 identifier, e.g. \"erm2-nwe9\" (from socrata.dataset_search results)"
+                  }
+                },
+                "required": [
+                  "domain",
+                  "dataset_id"
+                ],
+                "description": "Get full metadata and column schema for one dataset on a specific Socrata portal"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/socrata.query_dataset/call": {
+      "post": {
+        "operationId": "socrata_query_dataset",
+        "summary": "Socrata Dataset Query",
+        "description": "Run a SoQL query against a specific dataset's actual data rows on a Socrata portal — supports $select, $where, $order, $group, $limit, and $offset clauses (see socrata.dataset_metadata for column names). Returns the matching rows as JSON. Use socrata.dataset_search first to find a domain + dataset_id. Data: per-portal Socrata resource API (e.g. data.cityofnewyork.us), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "socrata.query_dataset"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "domain": {
+                    "type": "string",
+                    "description": "Socrata portal hostname, e.g. \"data.cityofnewyork.us\" (from socrata.dataset_search results)",
+                    "minLength": 3,
+                    "maxLength": 253
+                  },
+                  "dataset_id": {
+                    "type": "string",
+                    "description": "Socrata dataset 4x4 identifier, e.g. \"erm2-nwe9\" (from socrata.dataset_search results)"
+                  },
+                  "select": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500,
+                    "description": "SoQL $select clause, e.g. \"complaint_type,count(*)\" (see socrata.dataset_metadata for column names)"
+                  },
+                  "where": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500,
+                    "description": "SoQL $where clause, e.g. \"borough='BROOKLYN'\" or \"created_date>'2026-01-01'\""
+                  },
+                  "order": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200,
+                    "description": "SoQL $order clause, e.g. \"created_date DESC\""
+                  },
+                  "group": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200,
+                    "description": "SoQL $group clause, e.g. \"complaint_type\""
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 1000,
+                    "description": "Max rows to return, 1-1000 (default 50)"
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Pagination offset (default 0)"
+                  }
+                },
+                "required": [
+                  "domain",
+                  "dataset_id"
+                ],
+                "description": "Run a SoQL data query against a specific dataset's actual rows on a Socrata portal"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

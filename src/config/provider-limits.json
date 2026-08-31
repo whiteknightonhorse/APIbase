@@ -3266,5 +3266,14 @@
     "reset_period": "hourly",
     "docs_url": "https://thespacedevs.com/llapi",
     "limit_proof": "Free anonymous tier self-reports live via GET https://ll.thespacedevs.com/2.3.0/api-throttle/: {\"your_request_limit\":15,\"limit_frequency_secs\":3600}. Shared per source IP across all APIbase agents; tool cache TTLs (30min-24h) are set long specifically to stay within this budget."
+  },
+  "socrata": {
+    "display_name": "Socrata Open Data (SODA)",
+    "health_url": "https://api.us.socrata.com/api/catalog/v1?limit=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://dev.socrata.com/docs/app-tokens",
+    "limit_proof": "No numeric throttle limit is published. dev.socrata.com/docs/app-tokens confirms unauthenticated (no app-token) requests are throttled per source IP into a shared pool with 'a much lower throttling limit' than app-token holders, but gives no exact request count; this integration uses no app token (no signup, per REC #4/no-auth batch mode)."
   }
 }

@@ -7822,6 +7822,25 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-646: Socrata Open Data (SODA) (3 tools) ---
+  - tool_id: socrata.dataset_search
+    name: Socrata Dataset Search
+    provider: socrata
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: socrata.dataset_metadata
+    name: Socrata Dataset Metadata
+    provider: socrata
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: socrata.query_dataset
+    name: Socrata Dataset Query
+    provider: socrata
+    price_usd: "0.002"
+    cache_ttl: 300
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform
