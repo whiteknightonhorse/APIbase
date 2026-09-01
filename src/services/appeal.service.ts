@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { getPrisma } from './prisma.service';
 import { ensureRedisConnected } from './redis.service';
 import { logger } from '../config/logger';
@@ -33,7 +34,17 @@ export interface AppealView {
   message: string | null;
 }
 
+// appeal_id is @db.Uuid — Prisma's UUID cast THROWS (uncaught) on a
+// malformed string instead of returning null like a normal missed lookup
+// ("Inconsistent column data: Error creating UUID, invalid character...").
+// Checked here, once, so every current and future caller of getAppeal()
+// is protected regardless of whether the route layer remembers to check.
+export function isValidAppealId(id: string): boolean {
+  return z.string().uuid().safeParse(id).success;
+}
+
 export async function getAppeal(appealId: string): Promise<AppealView | null> {
+  if (!isValidAppealId(appealId)) return null;
   const row = await getPrisma().moderationAppeal.findUnique({ where: { appeal_id: appealId } });
   if (!row) return null;
   return row;

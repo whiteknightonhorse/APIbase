@@ -2,7 +2,12 @@ import { Router, type Request, type Response } from 'express';
 import { z } from 'zod';
 import { logger } from '../config/logger';
 import { X_REQUEST_ID } from '../config/http-headers';
-import { getAppeal, submitAppeal, checkAppealSubmitRateLimit } from '../services/appeal.service';
+import {
+  getAppeal,
+  submitAppeal,
+  checkAppealSubmitRateLimit,
+  isValidAppealId,
+} from '../services/appeal.service';
 
 /**
  * Moderation appeal endpoint + page (F2/C-3, §12.43 MODERATION step 4).
@@ -100,36 +105,74 @@ ${formBlock}
 
 export const appealsRouter = Router();
 
+/** 400 for a malformed appeal_id (not a UUID at all) -- distinct from 404
+ *  (well-formed id, no such row), same content-negotiation as the 404
+ *  branch below. Live bug this fixes: an invalid id used to fall through to
+ *  Prisma's UUID cast, which throws uncaught -> 502 at the edge. */
+function sendInvalidAppealId(req: Request, res: Response): void {
+  res.status(400);
+  const accept = req.headers.accept || '';
+  if (accept.includes('text/html')) {
+    res
+      .type('html')
+      .send('<!DOCTYPE html><title>Invalid appeal id</title><p>Malformed appeal id.</p>');
+  } else {
+    res.json({ error: 'invalid_id', message: 'appealId must be a UUID' });
+  }
+}
+
 /** GET /appeals/:appealId — HTML page (or JSON if Accept asks for it). */
 appealsRouter.get('/appeals/:appealId', async (req: Request, res: Response) => {
-  const appeal = await getAppeal(req.params.appealId as string);
-  if (!appeal) {
-    res.status(404);
-    const accept = req.headers.accept || '';
-    if (accept.includes('text/html')) {
-      res.type('html').send('<!DOCTYPE html><title>Not found</title><p>No such appeal.</p>');
-    } else {
-      res.json({ error: 'not_found', message: 'No appeal with that id' });
-    }
+  const appealId = req.params.appealId as string;
+  if (!isValidAppealId(appealId)) {
+    sendInvalidAppealId(req, res);
     return;
   }
 
-  const accept = req.headers.accept || '';
-  if (accept.includes('text/html')) {
-    res.type('html').send(renderPage(appeal));
-  } else {
-    res.json(appeal);
+  try {
+    const appeal = await getAppeal(appealId);
+    if (!appeal) {
+      res.status(404);
+      const accept = req.headers.accept || '';
+      if (accept.includes('text/html')) {
+        res.type('html').send('<!DOCTYPE html><title>Not found</title><p>No such appeal.</p>');
+      } else {
+        res.json({ error: 'not_found', message: 'No appeal with that id' });
+      }
+      return;
+    }
+
+    const accept = req.headers.accept || '';
+    if (accept.includes('text/html')) {
+      res.type('html').send(renderPage(appeal));
+    } else {
+      res.json(appeal);
+    }
+  } catch (err) {
+    logger.error({ err, appealId }, 'Failed to load appeal');
+    res.status(500).json({ error: 'internal_error', message: 'Please try again later.' });
   }
 });
 
 /** GET /api/v1/appeals/:appealId — JSON status (for agent-automated callers). */
 appealsRouter.get('/api/v1/appeals/:appealId', async (req: Request, res: Response) => {
-  const appeal = await getAppeal(req.params.appealId as string);
-  if (!appeal) {
-    res.status(404).json({ error: 'not_found', message: 'No appeal with that id' });
+  const appealId = req.params.appealId as string;
+  if (!isValidAppealId(appealId)) {
+    sendInvalidAppealId(req, res);
     return;
   }
-  res.json(appeal);
+
+  try {
+    const appeal = await getAppeal(appealId);
+    if (!appeal) {
+      res.status(404).json({ error: 'not_found', message: 'No appeal with that id' });
+      return;
+    }
+    res.json(appeal);
+  } catch (err) {
+    logger.error({ err, appealId }, 'Failed to load appeal');
+    res.status(500).json({ error: 'internal_error', message: 'Please try again later.' });
+  }
 });
 
 /** POST /appeals/:appealId AND /api/v1/appeals/:appealId — attach contact
@@ -138,6 +181,11 @@ appealsRouter.get('/api/v1/appeals/:appealId', async (req: Request, res: Respons
 async function handleSubmit(req: Request, res: Response): Promise<void> {
   const requestId = req.headers[X_REQUEST_ID] as string | undefined;
   const appealId = req.params.appealId as string;
+
+  if (!isValidAppealId(appealId)) {
+    sendInvalidAppealId(req, res);
+    return;
+  }
 
   const rateCheck = await checkAppealSubmitRateLimit(appealId);
   if (!rateCheck.allowed) {
