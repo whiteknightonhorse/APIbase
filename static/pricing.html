@@ -115,7 +115,7 @@ td code,p code{background:#111;border:1px solid #1a3a1a;border-radius:3px;paddin
 <table>
 <thead><tr><th>Rail</th><th>Network / asset</th><th>How it works</th><th>Best for</th></tr></thead>
 <tbody>
-<tr><td><strong>x402</strong></td><td>USDC on Base mainnet</td><td>Server replies HTTP 402 with a payment challenge; your wallet signs an EIP-3009 <code>transferWithAuthorization</code>; our self-hosted facilitator settles on-chain.</td><td>Base Account / Base MCP users, on-chain-native agents</td></tr>
+<tr><td><strong>x402</strong></td><td>USDC on Base mainnet</td><td>Server replies HTTP 402 with a payment challenge; your wallet signs an EIP-3009 <code>transferWithAuthorization</code>; our self-hosted facilitator settles on-chain. A payment alone can bootstrap a brand-new agent identity too, same as MPP &mdash; no prior signup needed.</td><td>Base Account / Base MCP users, on-chain-native agents</td></tr>
 <tr><td><strong>MPP</strong></td><td>USDC on Tempo (chain 4217)</td><td>The <code>mppx</code> SDK signs a lightweight off-chain-style payment against your Tempo wallet. A payment alone can bootstrap a brand-new agent identity &mdash; no prior signup at all.</td><td>Agents that want to pay from a fresh wallet with zero prior registration</td></tr>
 <tr><td><strong>Balance</strong></td><td>Prepaid, debited per call</td><td>Top up once, then every call (including cache hits) debits your balance instantly &mdash; no per-call signature.</td><td>High-frequency callers who don't want to sign every request</td></tr>
 </tbody>

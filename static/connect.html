@@ -127,7 +127,7 @@ const res = await pay("https://apibase.pro/api/v1/tools/coingecko.get_price/call
   params: { id: "bitcoin" },
 });</pre>
 <p>No prior call ever touched apibase.pro from this wallet &mdash; the first payment IS the signup.</p>
-<p class="note">x402 on Base works the same way for payment settlement, but today it rides on top of an existing <code>ak_live_...</code> key (Path 2) rather than bootstrapping identity from the wallet alone the way MPP does &mdash; that parity gap is tracked internally, not yet closed.</p>
+<p class="note">x402 on Base now bootstraps identity from the wallet alone too (as of 2026-09-02) &mdash; a signed x402 payment with no prior API key auto-registers your agent exactly like MPP, deterministically keyed to your wallet address. The example above uses MPP because <code>mppx</code> handles the signing for you; the same &ldquo;first payment is the signup&rdquo; guarantee now holds for x402/Base too.</p>
 </div>
 
 <h2>Which path should I pick?</h2>
