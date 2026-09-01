@@ -1,3 +1,13 @@
+// F1/C-6: BaseAdapter caps retries to 0 for any provider not confirmed free
+// in provider-limits.json (see base.adapter.ts isConfirmedFreeUpstream()).
+// The retry-MECHANISM tests below (backoff, attempt counts) are about that
+// mechanism, not the C-6 policy, so \"test_provider\" is mocked in as
+// confirmed-free here; the policy itself gets its own describe block further
+// down using a provider deliberately absent from this mock.
+jest.mock('../../../src/config/provider-limits.json', () => ({
+  test_provider: { limit_type: 'unlimited' },
+}));
+
 import { BaseAdapter } from '../../../src/adapters/base.adapter';
 import {
   type ProviderRequest,
@@ -277,6 +287,55 @@ describe('BaseAdapter', () => {
       const pe = error as ProviderError;
       expect(pe.provider).toBe('test_provider');
       expect(pe.toolId).toBe('weather.get_current');
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// F1/C-6 — retries capped to 0 for any provider not confirmed free
+// ---------------------------------------------------------------------------
+
+describe('BaseAdapter retry cap (F1/C-6)', () => {
+  const freeAdapter = new TestAdapter({
+    provider: 'test_provider', // mocked as unlimited at the top of this file
+    baseUrl: 'https://api.test.com',
+    timeoutMs: 500,
+    maxRetries: 2,
+  });
+
+  it('does NOT retry a paid/unclassified provider even if configured with maxRetries > 0', async () => {
+    // 'test_provider_paid' is deliberately absent from the jest.mock above —
+    // isConfirmedFreeUpstream() must treat \"missing from provider-limits.json\"
+    // as paid, the conservative direction (assuming free is what costs money
+    // if wrong).
+    const paidAdapter = new TestAdapter({
+      provider: 'test_provider_paid',
+      baseUrl: 'https://api.test.com',
+      timeoutMs: 500,
+      maxRetries: 2,
+    });
+    globalThis.fetch = jest.fn().mockRejectedValue(new Error('connection reset'));
+
+    try {
+      await paidAdapter.call(makeRequest());
+      fail('Expected ProviderError');
+    } catch (error) {
+      const pe = error as ProviderError;
+      expect(pe.code).toBe(ProviderErrorCode.UNAVAILABLE);
+      // One attempt only — a retry here would be a second billed call to a
+      // paid upstream while the client paid us exactly once.
+      expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+    }
+  });
+
+  it('still retries a confirmed-free provider (regression check against the mock above)', async () => {
+    globalThis.fetch = jest.fn().mockRejectedValue(new Error('connection reset'));
+
+    try {
+      await freeAdapter.call(makeRequest());
+      fail('Expected ProviderError');
+    } catch (error) {
+      expect(globalThis.fetch).toHaveBeenCalledTimes(3); // 1 + 2 configured retries
     }
   });
 });

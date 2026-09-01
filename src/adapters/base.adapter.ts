@@ -10,6 +10,25 @@ import {
   PROVIDER_BACKOFF_BASE_MS,
   PROVIDER_MAX_RESPONSE_BYTES,
 } from '../types/provider';
+import providerLimitsConfig from '../config/provider-limits.json';
+
+/**
+ * F1/C-6 (2026-09-01): retries cost real money against a PAID upstream — each
+ * retry is another billed call while the client paid us exactly once. Cap
+ * retries to 0 (one attempt, honest fail-fast) for any provider that is not
+ * confirmed free. Unlike dashboard.service.ts (which defaults an unlisted
+ * provider to \"unlimited\" for a permissive health view), this defaults the
+ * OTHER way on purpose: a provider missing from provider-limits.json is
+ * treated as paid, because assuming \"free\" here is the direction that costs
+ * money if wrong. Per-adapter maxRetries in AdapterConfig still sets the
+ * ceiling for confirmed-free providers; it can only be capped down here,
+ * never raised.
+ */
+const limitsConfig = providerLimitsConfig as Record<string, { limit_type?: string }>;
+
+function isConfirmedFreeUpstream(provider: string): boolean {
+  return limitsConfig[provider]?.limit_type === 'unlimited';
+}
 
 /**
  * Abstract base adapter for upstream provider calls (§10.2 Level 1, §12.40).
@@ -62,7 +81,12 @@ export abstract class BaseAdapter {
     const built = this.buildRequest(req);
     let lastError: ProviderError | undefined;
 
-    for (let attempt = 0; attempt <= this.maxRetries; attempt++) {
+    // F1/C-6: never retry a confirmed-paid (or unclassified) upstream — cap
+    // to a single attempt regardless of what this adapter configured. See
+    // isConfirmedFreeUpstream() doc above.
+    const effectiveMaxRetries = isConfirmedFreeUpstream(this.provider) ? this.maxRetries : 0;
+
+    for (let attempt = 0; attempt <= effectiveMaxRetries; attempt++) {
       if (attempt > 0) {
         const delayMs = PROVIDER_BACKOFF_BASE_MS * Math.pow(2, attempt - 1);
         await sleep(delayMs);
