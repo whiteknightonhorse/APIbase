@@ -64,6 +64,15 @@ jobs:
       - name: TypeScript strict check
         run: npx tsc --noEmit --skipLibCheck
 
+  adapter-boundary:
+    name: Adapter Import Boundary
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: No adapter imported outside pipeline/tests
+        run: python3 scripts/check-adapter-import-boundary.py
+
   lint:
     name: Code Quality
     runs-on: ubuntu-latest
