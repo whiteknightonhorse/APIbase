@@ -106,36 +106,42 @@ tools:
     name: Polymarket Search
     provider: polymarket
     price_usd: "0.0005"
+    upstream_cost_usd: "0"
     cache_ttl: 30
 
   - tool_id: polymarket.market_detail
     name: Polymarket Market Detail
     provider: polymarket
     price_usd: "0.0005"
+    upstream_cost_usd: "0"
     cache_ttl: 10
 
   - tool_id: polymarket.prices
     name: Polymarket Midpoint Price
     provider: polymarket
     price_usd: "0.0005"
+    upstream_cost_usd: "0"
     cache_ttl: 5
 
   - tool_id: polymarket.price_history
     name: Polymarket Price History
     provider: polymarket
     price_usd: "0.0005"
+    upstream_cost_usd: "0"
     cache_ttl: 30
 
   - tool_id: polymarket.get_orderbook
     name: Polymarket Orderbook
     provider: polymarket
     price_usd: "0.0005"
+    upstream_cost_usd: "0"
     cache_ttl: 0
 
   - tool_id: polymarket.trending
     name: Polymarket Trending
     provider: polymarket
     price_usd: "0.0005"
+    upstream_cost_usd: "0"
     cache_ttl: 30
 
   # Polymarket Phase 2 — Trading (UC-001 §3-§8)
@@ -143,30 +149,35 @@ tools:
     name: Polymarket Place Order
     provider: polymarket
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 0
 
   - tool_id: polymarket.cancel_order
     name: Polymarket Cancel Order
     provider: polymarket
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 0
 
   - tool_id: polymarket.open_orders
     name: Polymarket Open Orders
     provider: polymarket
     price_usd: "0.0005"
+    upstream_cost_usd: "0"
     cache_ttl: 0
 
   - tool_id: polymarket.trade_history
     name: Polymarket Trade History
     provider: polymarket
     price_usd: "0.0005"
+    upstream_cost_usd: "0"
     cache_ttl: 5
 
   - tool_id: polymarket.balance
     name: Polymarket Balance
     provider: polymarket
     price_usd: "0.0005"
+    upstream_cost_usd: "0"
     cache_ttl: 5
 
   # polymarket.leaderboard — removed (Data API endpoint discontinued 2025+)
@@ -213,24 +224,28 @@ tools:
     name: Sabre Flight Search
     provider: sabre
     price_usd: "0.010"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: sabre.destination_finder
     name: Sabre Destination Finder
     provider: sabre
     price_usd: "0.005"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: sabre.airline_lookup
     name: Sabre Airline Lookup
     provider: sabre
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: sabre.travel_themes
     name: Sabre Travel Themes
     provider: sabre
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-022: Amadeus Travel APIs ---
@@ -281,36 +296,42 @@ tools:
     name: Hyperliquid Market Data
     provider: hyperliquid
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 5
 
   - tool_id: hyperliquid.order_book
     name: Hyperliquid Order Book
     provider: hyperliquid
     price_usd: "0.003"
+    upstream_cost_usd: "0"
     cache_ttl: 3
 
   - tool_id: hyperliquid.klines
     name: Hyperliquid Klines
     provider: hyperliquid
     price_usd: "0.003"
+    upstream_cost_usd: "0"
     cache_ttl: 15
 
   - tool_id: hyperliquid.positions
     name: Hyperliquid Positions
     provider: hyperliquid
     price_usd: "0.005"
+    upstream_cost_usd: "0"
     cache_ttl: 5
 
   - tool_id: hyperliquid.account
     name: Hyperliquid Account
     provider: hyperliquid
     price_usd: "0.005"
+    upstream_cost_usd: "0"
     cache_ttl: 10
 
   - tool_id: hyperliquid.vault
     name: Hyperliquid Vault
     provider: hyperliquid
     price_usd: "0.005"
+    upstream_cost_usd: "0"
     cache_ttl: 60
 
   # --- UC-003: Foursquare Places ---
@@ -318,30 +339,35 @@ tools:
     name: Foursquare Place Search
     provider: foursquare
     price_usd: "0.025"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: foursquare.place_details
     name: Foursquare Place Details
     provider: foursquare
     price_usd: "0.025"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: foursquare.place_tips
     name: Foursquare Place Tips
     provider: foursquare
     price_usd: "0.030"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: foursquare.place_photos
     name: Foursquare Place Photos
     provider: foursquare
     price_usd: "0.030"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: foursquare.autocomplete
     name: Foursquare Autocomplete
     provider: foursquare
     price_usd: "0.020"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   # --- UC-008: Ticketmaster Discovery API ---
@@ -392,42 +418,49 @@ tools:
     name: TMDB Movie Search
     provider: tmdb
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 21600
 
   - tool_id: tmdb.movie_details
     name: TMDB Movie Details
     provider: tmdb
     price_usd: "0.005"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: tmdb.movie_discover
     name: TMDB Discover
     provider: tmdb
     price_usd: "0.005"
+    upstream_cost_usd: "0"
     cache_ttl: 21600
 
   - tool_id: tmdb.movie_trending
     name: TMDB Trending
     provider: tmdb
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: tmdb.movie_similar
     name: TMDB Similar Movies
     provider: tmdb
     price_usd: "0.003"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: tmdb.movie_person
     name: TMDB Person Search
     provider: tmdb
     price_usd: "0.003"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: tmdb.movie_where_to_watch
     name: TMDB Where to Watch
     provider: tmdb
     price_usd: "0.003"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-011: Health & Nutrition (USDA + OpenFDA + NIH DSLD) ---
@@ -478,36 +511,42 @@ tools:
     name: Currency Exchange Rates
     provider: finance
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: finance.ecb_rates
     name: ECB Official Rates
     provider: finance
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: finance.economic_indicator
     name: FRED Economic Indicator
     provider: finance
     price_usd: "0.005"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: finance.country_data
     name: World Bank Country Data
     provider: finance
     price_usd: "0.005"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: finance.treasury_data
     name: US Treasury Fiscal Data
     provider: finance
     price_usd: "0.003"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: finance.validate_iban
     name: IBAN Validation
     provider: finance
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 2592000
 
   # --- UC-018: Music / Audio Discovery (MusicBrainz + ListenBrainz + RadioBrowser) ---
@@ -515,42 +554,49 @@ tools:
     name: Music Artist Search
     provider: music
     price_usd: "0.003"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: music.artist_details
     name: Music Artist Details
     provider: music
     price_usd: "0.003"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: music.release_search
     name: Music Release Search
     provider: music
     price_usd: "0.003"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: music.release_details
     name: Music Release Details
     provider: music
     price_usd: "0.003"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: music.recording_search
     name: Music Recording Search
     provider: music
     price_usd: "0.003"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: music.fresh_releases
     name: Fresh Music Releases
     provider: music
     price_usd: "0.003"
+    upstream_cost_usd: "0"
     cache_ttl: 21600
 
   - tool_id: music.radio_search
     name: Radio Station Search
     provider: music
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 21600
 
   # --- UC-020: AsterDEX ---
@@ -558,24 +604,28 @@ tools:
     name: AsterDEX Exchange Info
     provider: asterdex
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: aster.market_data
     name: AsterDEX Market Data
     provider: asterdex
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 10
 
   - tool_id: aster.order_book
     name: AsterDEX Order Book
     provider: asterdex
     price_usd: "0.003"
+    upstream_cost_usd: "0"
     cache_ttl: 5
 
   - tool_id: aster.klines
     name: AsterDEX Klines
     provider: asterdex
     price_usd: "0.003"
+    upstream_cost_usd: "0"
     cache_ttl: 30
 
   # --- UC-015: Jobs / Career Intelligence ---
@@ -620,42 +670,49 @@ tools:
     name: Paper Search (OpenAlex)
     provider: education
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 43200
 
   - tool_id: education.paper_details
     name: Paper Details (OpenAlex)
     provider: education
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: education.college_search
     name: College Search (Scorecard)
     provider: education
     price_usd: "0.003"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: education.college_details
     name: College Details (Scorecard)
     provider: education
     price_usd: "0.003"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: education.pubmed_search
     name: PubMed Search (NCBI)
     provider: education
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: education.arxiv_search
     name: arXiv Search
     provider: education
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: education.doi_lookup
     name: DOI Lookup (CrossRef)
     provider: education
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 2592000
 
   # --- UC-012: Maps / Geolocation (Geoapify) ---
@@ -706,53 +763,62 @@ tools:
     name: Setup Website (AIPush)
     provider: aipush
     price_usd: "1.000"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: aipush.website_status
     name: Website Status (AIPush)
     provider: aipush
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 30
 
   - tool_id: aipush.generate_page
     name: Generate AI Page (AIPush)
     provider: aipush
     price_usd: "0.050"
+    upstream_cost_usd: "0"
     cache_ttl: 0
 
   - tool_id: aipush.list_pages
     name: List Pages (AIPush)
     provider: aipush
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 60
 
   - tool_id: aipush.page_content
     name: Page Content (AIPush)
     provider: aipush
     price_usd: "0.003"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: aipush.website_profile
     name: Website Profile (AIPush)
     provider: aipush
     price_usd: "0.010"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: aipush.check_visibility
     name: AI Visibility Score (AIPush)
     provider: aipush
     price_usd: "0.100"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: aipush.market_report
     name: Market Intelligence Report (AIPush MIP)
     provider: aipush
     price_usd: "29.990"
+    upstream_cost_usd: "0"
     cache_ttl: 0
   - tool_id: aipush.market_report_status
     name: Market Report Status (AIPush MIP)
     provider: aipush
     price_usd: "0"
+    upstream_cost_usd: "0"
     cache_ttl: 0
 
   # --- UC-026: Diffbot AI Extraction ---
@@ -872,24 +938,28 @@ tools:
     name: JPL Asteroid Close Approaches
     provider: jpl
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: jpl.fireballs
     name: JPL Fireball Events
     provider: jpl
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: jpl.small_body
     name: JPL Small Body Lookup
     provider: jpl
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: jpl.impact_risk
     name: JPL Asteroid Impact Risk (Sentry)
     provider: jpl
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-037: RAWG Video Games Database ---
@@ -897,30 +967,35 @@ tools:
     name: RAWG Game Search
     provider: rawg
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: rawg.game_details
     name: RAWG Game Details
     provider: rawg
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: rawg.screenshots
     name: RAWG Game Screenshots
     provider: rawg
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: rawg.store_links
     name: RAWG Game Store Links
     provider: rawg
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: rawg.game_series
     name: RAWG Game Series
     provider: rawg
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   # --- UC-039: IGDB Video Games Database (by Twitch) ---
@@ -928,30 +1003,35 @@ tools:
     name: IGDB Game Search
     provider: igdb
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: igdb.game_details
     name: IGDB Game Details
     provider: igdb
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: igdb.company_info
     name: IGDB Company Info
     provider: igdb
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: igdb.platform_info
     name: IGDB Platform Info
     provider: igdb
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: igdb.game_media
     name: IGDB Game Media
     provider: igdb
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   # --- UC-040: QRServer (QR Code Generator & Reader) ---
@@ -959,12 +1039,14 @@ tools:
     name: QR Code Generate
     provider: qrserver
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: qrserver.read
     name: QR Code Read
     provider: qrserver
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-041: UPCitemdb (Barcode / Product Lookup) ---
@@ -998,18 +1080,21 @@ tools:
     name: Earthquake Search
     provider: usgs-earthquake
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 60
 
   - tool_id: earthquake.feed
     name: Earthquake Real-Time Feed
     provider: usgs-earthquake
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 60
 
   - tool_id: earthquake.count
     name: Earthquake Count
     provider: usgs-earthquake
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 60
 
   # --- UC-051: Jikan (MyAnimeList) Anime / Manga ---
@@ -1017,30 +1102,35 @@ tools:
     name: Anime Search
     provider: jikan
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: anime.details
     name: Anime Details
     provider: jikan
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: manga.details
     name: Manga Details
     provider: jikan
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: anime.characters
     name: Anime Characters
     provider: jikan
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: anime.top
     name: Top Anime Rankings
     provider: jikan
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-054: Open Library (Books / ISBN Lookup) ---
@@ -1048,24 +1138,28 @@ tools:
     name: ISBN Book Lookup
     provider: openlibrary
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 2592000
 
   - tool_id: books.search
     name: Book Search
     provider: openlibrary
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: books.work_details
     name: Book Work Details
     provider: openlibrary
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 2592000
 
   - tool_id: books.author
     name: Author Details
     provider: openlibrary
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 2592000
 
   # --- UC-055: ZeroBounce Email Validation ---
@@ -1113,12 +1207,14 @@ tools:
     name: Active US Weather Alerts
     provider: nws
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 60
 
   - tool_id: weather_alerts.by_area
     name: Weather Alerts by State
     provider: nws
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 60
 
   # --- UC-110: Nager.Date Public Holidays ---
@@ -1126,12 +1222,14 @@ tools:
     name: Public Holidays by Country
     provider: nagerdate
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: holidays.next
     name: Next Public Holidays
     provider: nagerdate
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-121: NHTSA VIN Decoder ---
@@ -1139,12 +1237,14 @@ tools:
     name: Decode VIN Number
     provider: nhtsa
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: vin.models
     name: Vehicle Models by Make
     provider: nhtsa
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-122: REST Countries ---
@@ -1152,12 +1252,14 @@ tools:
     name: Search Country
     provider: restcountries
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: country.by_code
     name: Country by Code
     provider: restcountries
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-123: Open Food Facts ---
@@ -1165,12 +1267,14 @@ tools:
     name: Food Product by Barcode
     provider: openfoodfacts
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: food.search
     name: Search Food Products
     provider: openfoodfacts
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-601: Open Beauty Facts ---
@@ -1178,12 +1282,14 @@ tools:
     name: Cosmetics Product by Barcode
     provider: openbeautyfacts
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: openbeautyfacts.search
     name: Search Cosmetics Products
     provider: openbeautyfacts
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-124: RandomUser.me ---
@@ -1191,6 +1297,7 @@ tools:
     name: Generate Random User
     provider: randomuser
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 0
 
   # --- UC-119: ssl-checker.io ---
@@ -1198,6 +1305,7 @@ tools:
     name: SSL Certificate Check
     provider: sslchecker
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-107: GDELT (Global Events & News) ---
@@ -1205,12 +1313,14 @@ tools:
     name: Search Global News
     provider: gdelt
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: gdelt.timeline
     name: News Mention Timeline
     provider: gdelt
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-108: NASA FIRMS (Fire Detection) ---
@@ -1225,18 +1335,21 @@ tools:
     name: Current Time by Timezone
     provider: timeapi
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 1
 
   - tool_id: worldclock.convert
     name: Convert Time Between Timezones
     provider: timeapi
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 1
 
   - tool_id: worldclock.zones
     name: List All Timezones
     provider: timeapi
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   # --- UC-093: ApiFlash (Website Screenshot) ---
@@ -1333,24 +1446,28 @@ tools:
     name: Geomagnetic K-index (NOAA SWPC)
     provider: swpc
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 60
 
   - tool_id: swpc.aurora
     name: Aurora Forecast (NOAA SWPC)
     provider: swpc
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: swpc.solar_wind
     name: Solar Wind Real-time (NOAA SWPC)
     provider: swpc
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 60
 
   - tool_id: swpc.solar_regions
     name: Active Solar Regions (NOAA SWPC)
     provider: swpc
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: telnyx.message_status
@@ -1377,21 +1494,25 @@ tools:
     name: List Bible Translations
     provider: bible
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: bible.books
     name: List Books in Bible Translation
     provider: bible
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: bible.passage
     name: Get Bible Chapter Text
     provider: bible
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: bible.commentaries
     name: List Bible Commentaries
     provider: bible
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-400: Gutendex (Project Gutenberg, 4 tools) ---
@@ -1399,21 +1520,25 @@ tools:
     name: Search Project Gutenberg
     provider: gutendex
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
   - tool_id: gutendex.book
     name: Project Gutenberg Book Detail
     provider: gutendex
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: gutendex.by_author
     name: Books by Author (Gutendex)
     provider: gutendex
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
   - tool_id: gutendex.popular
     name: Popular Public-Domain Books
     provider: gutendex
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-401: LibriVox (2 tools) ---
@@ -1421,11 +1546,13 @@ tools:
     name: Search LibriVox Audiobooks
     provider: librivox
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: librivox.book
     name: LibriVox Audiobook Detail
     provider: librivox
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-402: Tatoeba (3 tools) ---
@@ -1433,16 +1560,19 @@ tools:
     name: Search Tatoeba Sentences
     provider: tatoeba
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
   - tool_id: tatoeba.sentence
     name: Tatoeba Sentence Detail
     provider: tatoeba
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: tatoeba.languages
     name: Tatoeba Supported Languages
     provider: tatoeba
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-409: US Library of Congress (3 tools) ---
@@ -1450,16 +1580,19 @@ tools:
     name: Search Library of Congress
     provider: loc
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
   - tool_id: loc.item
     name: LOC Item Detail
     provider: loc
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: loc.collections
     name: List LOC Collections
     provider: loc
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-411: UK Police (3 tools) ---
@@ -1467,16 +1600,19 @@ tools:
     name: UK Crimes Near Coordinate
     provider: ukpolice
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: ukpolice.forces
     name: UK Police Forces
     provider: ukpolice
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: ukpolice.outcomes_at_location
     name: UK Crime Outcomes at Location
     provider: ukpolice
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-403: BrasilAPI (6 tools) ---
@@ -1484,31 +1620,37 @@ tools:
     name: Brazilian CNPJ Lookup
     provider: brasilapi
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: brasilapi.cep
     name: Brazilian CEP Lookup
     provider: brasilapi
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
   - tool_id: brasilapi.banks
     name: Brazilian Banks
     provider: brasilapi
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
   - tool_id: brasilapi.rates
     name: Brazilian Interest Rates
     provider: brasilapi
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
   - tool_id: brasilapi.holidays
     name: Brazilian Holidays
     provider: brasilapi
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: brasilapi.ddd
     name: Brazilian DDD Area Code
     provider: brasilapi
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   # --- UC-404: IBGE (5 tools) ---
@@ -1516,26 +1658,31 @@ tools:
     name: Brazilian States
     provider: ibge
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
   - tool_id: ibge.municipalities
     name: Brazilian Municipalities
     provider: ibge
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
   - tool_id: ibge.name_frequency
     name: Brazilian Name Frequency
     provider: ibge
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: ibge.cnae
     name: CNAE Economic Activity Classes
     provider: ibge
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
   - tool_id: ibge.regions
     name: Brazilian Regions
     provider: ibge
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   # --- UC-405: Banco Central do Brasil SGS (6 tools) ---
@@ -1543,31 +1690,37 @@ tools:
     name: SELIC Daily Rate (BCB)
     provider: bcb
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
   - tool_id: bcb.cdi
     name: CDI Daily Rate (BCB)
     provider: bcb
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
   - tool_id: bcb.ipca
     name: IPCA Monthly Inflation (BCB)
     provider: bcb
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
   - tool_id: bcb.usd_brl
     name: USD/BRL Daily FX (BCB)
     provider: bcb
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
   - tool_id: bcb.eur_brl
     name: EUR/BRL Daily FX (BCB)
     provider: bcb
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
   - tool_id: bcb.selic_target
     name: SELIC Target Rate (COPOM)
     provider: bcb
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-410: Eurostat (4 tools) ---
@@ -1575,21 +1728,25 @@ tools:
     name: EU Monthly Unemployment
     provider: eurostat
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: eurostat.inflation
     name: EU Monthly Inflation (HICP)
     provider: eurostat
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: eurostat.gdp_growth
     name: EU Annual GDP Growth
     provider: eurostat
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
   - tool_id: eurostat.population
     name: EU Annual Population
     provider: eurostat
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   # --- UC-412: Singapore data.gov.sg (4 tools) ---
@@ -1597,21 +1754,25 @@ tools:
     name: SG 2-Hour Weather Forecast
     provider: datagovsg
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
   - tool_id: sg.air_quality
     name: SG PM2.5 Air Quality
     provider: datagovsg
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 300
   - tool_id: sg.rainfall
     name: SG Rainfall Stations
     provider: datagovsg
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
   - tool_id: sg.taxi_availability
     name: SG Live Taxi Density
     provider: datagovsg
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 60
 
 
@@ -1642,21 +1803,25 @@ tools:
     name: US National Parks
     provider: nps
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: nps.alerts
     name: NPS Park Alerts
     provider: nps
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
   - tool_id: nps.campgrounds
     name: NPS Campgrounds
     provider: nps
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: nps.things_to_do
     name: NPS Things To Do
     provider: nps
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-407: US EIA Energy (4 tools) ---
@@ -1728,12 +1893,14 @@ tools:
     name: Trending Mastodon Posts
     provider: mastodon
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: mastodon.trending_tags
     name: Trending Mastodon Hashtags
     provider: mastodon
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   # --- UC-082: Regulations.gov (US Federal Regulatory) ---
@@ -1754,18 +1921,21 @@ tools:
     name: Search Federal Register
     provider: fedregister
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: fedregister.document
     name: Federal Register Document
     provider: fedregister
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: fedregister.recent
     name: Recent Federal Register
     provider: fedregister
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   # --- UC-084: CourtListener (US Case Law) ---
@@ -1799,30 +1969,35 @@ tools:
     name: Real-Time Stock Quote
     provider: finnhub
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 5
 
   - tool_id: finnhub.company_profile
     name: Company Profile
     provider: finnhub
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: finnhub.company_news
     name: Company News
     provider: finnhub
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: finnhub.candles
     name: Stock Price Candles
     provider: finnhub
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 60
 
   - tool_id: finnhub.market_news
     name: Market News
     provider: finnhub
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 60
 
   # --- UC-070: NewsData.io (Global News) ---
@@ -1995,26 +2170,31 @@ tools:
     name: Send Telegram Message
     provider: telegram
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 0
   - tool_id: telegram.send_photo
     name: Send Telegram Photo
     provider: telegram
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 0
   - tool_id: telegram.send_document
     name: Send Telegram Document
     provider: telegram
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 0
   - tool_id: telegram.get_updates
     name: Get Telegram Updates
     provider: telegram
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 0
   - tool_id: telegram.get_chat
     name: Get Telegram Chat Info
     provider: telegram
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   # --- UC-203: ClinicalTrials.gov (Clinical Research) — EXCLUSIVE ---
@@ -2022,16 +2202,19 @@ tools:
     name: Search Clinical Trials
     provider: clinicaltrials
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
   - tool_id: clinical.study
     name: Clinical Trial Details
     provider: clinicaltrials
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: clinical.stats
     name: Clinical Trials Stats
     provider: clinicaltrials
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-202: NameSilo (Domain Registration) — EXCLUSIVE ---
@@ -2066,31 +2249,37 @@ tools:
     name: List Cloudflare Zones
     provider: cloudflare
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
   - tool_id: cloudflare.dns_list
     name: List DNS Records
     provider: cloudflare
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 60
   - tool_id: cloudflare.dns_create
     name: Create DNS Record
     provider: cloudflare
     price_usd: "0.005"
+    upstream_cost_usd: "0"
     cache_ttl: 0
   - tool_id: cloudflare.dns_delete
     name: Delete DNS Record
     provider: cloudflare
     price_usd: "0.005"
+    upstream_cost_usd: "0"
     cache_ttl: 0
   - tool_id: cloudflare.zone_analytics
     name: Zone Traffic Analytics
     provider: cloudflare
     price_usd: "0.003"
+    upstream_cost_usd: "0"
     cache_ttl: 300
   - tool_id: cloudflare.purge_cache
     name: Purge CDN Cache
     provider: cloudflare
     price_usd: "0.005"
+    upstream_cost_usd: "0"
     cache_ttl: 0
 
   # --- UC-185: VATcomply (EU VAT + ECB Rates) ---
@@ -2098,16 +2287,19 @@ tools:
     name: Validate EU VAT Number
     provider: vatcomply
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: vatcomply.rates
     name: EU VAT Rates
     provider: vatcomply
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: vatcomply.currencies
     name: ECB Exchange Rates
     provider: vatcomply
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-179: AssemblyAI (Speech-to-Text) ---
@@ -2132,16 +2324,19 @@ tools:
     name: Search Global Legal Entities
     provider: gleif
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: lei.lookup
     name: LEI Entity Details
     provider: gleif
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: lei.relationships
     name: LEI Parent Company
     provider: gleif
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-174: Companies House (UK Company Registry) ---
@@ -2149,11 +2344,13 @@ tools:
     name: Search UK Companies
     provider: companieshouse
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: ukcompany.details
     name: UK Company Details
     provider: companieshouse
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-173: SEC EDGAR (US Company Filings) ---
@@ -2161,26 +2358,31 @@ tools:
     name: Search SEC Companies
     provider: edgar
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
   - tool_id: edgar.filings
     name: SEC Company Filings
     provider: edgar
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
   - tool_id: edgar.company_facts
     name: SEC Financial Facts (XBRL)
     provider: edgar
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
   - tool_id: edgar.xbrl_concept
     name: SEC Company Financial History
     provider: edgar
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: edgar.xbrl_frames
     name: SEC Cross-Company Financial Comparison
     provider: edgar
     price_usd: "0.003"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-171: Bluesky AT Protocol (Decentralized Social) ---
@@ -5206,24 +5408,28 @@ tools:
     name: ClinicalTrials Search
     provider: clinicaltrials
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: clinicaltrials.study
     name: ClinicalTrials Study Detail
     provider: clinicaltrials
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: clinicaltrials.recruiting
     name: ClinicalTrials Active Recruiting
     provider: clinicaltrials
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 1800
 
   - tool_id: clinicaltrials.stats
     name: ClinicalTrials Database Stats
     provider: clinicaltrials
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-532: Australian Bureau of Statistics (ABS) ---

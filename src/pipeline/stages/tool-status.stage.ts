@@ -8,7 +8,21 @@ import { logger } from '../../config/logger';
  *
  * In-memory cache: all 122 tools loaded at startup, refreshed every 60s.
  * Tool data only changes via manual re-seed — 60s staleness is acceptable.
+ *
+ * F1/C-4 (2026-09-01): also enforces the runtime margin gate — no confirmed
+ * payment >= upstream cost + margin, no call to the provider. This is the
+ * code-level version of the invariant; nothing about it lives in a role
+ * prompt. `upstream_cost_usd` is nullable (NULL = not yet migrated, see
+ * config/tool_provider_config.yaml + scripts/migrate-upstream-cost.py); the
+ * gate only fires for rows where it has been explicitly set, so populating
+ * it is a safe incremental rollout rather than a flag day. A tool that
+ * fails the gate is served nowhere near the provider — a separate hourly
+ * cron (scripts/margin-gate-alerts.py, same pattern as
+ * provider-limit-alerts.py) re-derives the same violation from the DB and
+ * files/updates a deduped GitHub issue; the hot path never calls out.
  */
+
+const MARGIN_MULTIPLIER = 1.3;
 
 // ---------------------------------------------------------------------------
 // In-memory tool cache
@@ -19,6 +33,7 @@ interface ToolCacheEntry {
   status: string;
   price_usd: number;
   cache_ttl: number;
+  upstream_cost_usd: number | null;
 }
 
 const toolCache = new Map<string, ToolCacheEntry>();
@@ -26,7 +41,13 @@ let refreshTimer: ReturnType<typeof setInterval> | null = null;
 
 async function loadToolCache(): Promise<void> {
   const tools = await getPrisma().tool.findMany({
-    select: { tool_id: true, status: true, price_usd: true, cache_ttl: true },
+    select: {
+      tool_id: true,
+      status: true,
+      price_usd: true,
+      cache_ttl: true,
+      upstream_cost_usd: true,
+    },
   });
 
   toolCache.clear();
@@ -36,6 +57,7 @@ async function loadToolCache(): Promise<void> {
       status: t.status,
       price_usd: Number(t.price_usd),
       cache_ttl: t.cache_ttl,
+      upstream_cost_usd: t.upstream_cost_usd === null ? null : Number(t.upstream_cost_usd),
     });
   }
 
@@ -78,12 +100,35 @@ export function getToolPriceUsd(toolId: string): number | undefined {
   return toolCache.get(toolId)?.price_usd;
 }
 
+/**
+ * True if the tool fails the margin gate (price_usd < upstream_cost_usd * 1.3).
+ * A tool with no upstream_cost_usd on record (not yet migrated) never fails —
+ * see module doc. Exported for the adversarial test suite and for reuse by
+ * anything that needs to pre-check margin without running the full pipeline.
+ */
+export function failsMarginGate(
+  entry: Pick<ToolCacheEntry, 'price_usd' | 'upstream_cost_usd'>,
+): boolean {
+  if (entry.upstream_cost_usd === null) return false;
+  return entry.price_usd < entry.upstream_cost_usd * MARGIN_MULTIPLIER;
+}
+
 /** Stop the refresh timer (graceful shutdown). */
 export function stopToolCacheRefresh(): void {
   if (refreshTimer) {
     clearInterval(refreshTimer);
     refreshTimer = null;
   }
+}
+
+/** Test-only: seed/override a cache entry without touching the DB. */
+export function __setToolCacheEntryForTest(entry: ToolCacheEntry): void {
+  toolCache.set(entry.tool_id, entry);
+}
+
+/** Test-only: remove a cache entry. */
+export function __deleteToolCacheEntryForTest(toolId: string): void {
+  toolCache.delete(toolId);
 }
 
 // ---------------------------------------------------------------------------
@@ -115,6 +160,29 @@ export const toolStatusStage: Stage = {
 
     if (tool.status === 'unavailable') {
       return err<PipelineError>({
+        code: 503,
+        error: 'provider_unavailable',
+        message: `Tool ${ctx.toolId} is currently unavailable`,
+        retryAfter: 30,
+      });
+    }
+
+    if (failsMarginGate(tool)) {
+      logger.error(
+        {
+          tool_id: tool.tool_id,
+          price_usd: tool.price_usd,
+          upstream_cost_usd: tool.upstream_cost_usd,
+          required_min:
+            tool.upstream_cost_usd !== null ? tool.upstream_cost_usd * MARGIN_MULTIPLIER : null,
+        },
+        `Margin gate: refusing to serve ${tool.tool_id} — price below cost + margin`,
+      );
+      return err<PipelineError>({
+        // Client-visible code deliberately reuses 'provider_unavailable' — the
+        // client-facing surface must not leak that a margin gate exists or
+        // which SKU tripped it. 'margin_gate' only appears in the server log
+        // line above (and in the DB state scripts/margin-gate-alerts.py reads).
         code: 503,
         error: 'provider_unavailable',
         message: `Tool ${ctx.toolId} is currently unavailable`,

@@ -120,6 +120,10 @@ model Tool {
   status    String  @default("healthy") // healthy | degraded | unavailable
   price_usd Decimal @default(0) @db.Decimal(18, 8)
   cache_ttl Int     @default(300)
+  // F1/C-4 (2026-09-01): real upstream cost. NULL = not yet migrated (see
+  // config/tool_provider_config.yaml + scripts/migrate-upstream-cost.py) — the TOOL_STATUS
+  // margin gate only enforces price_usd >= upstream_cost_usd * 1.3 where this is set.
+  upstream_cost_usd Decimal? @db.Decimal(18, 8)
 
   executions ExecutionLedger[]
 

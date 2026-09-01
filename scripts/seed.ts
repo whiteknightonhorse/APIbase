@@ -45,12 +45,22 @@ interface ToolConfig {
   provider: string;
   price_usd: string;
   cache_ttl: number;
+  // F1/C-4: optional — absent means "not yet migrated", NOT "free". See
+  // config/tool_provider_config.yaml header + scripts/migrate-upstream-cost.py.
+  upstream_cost_usd?: string;
 }
 
 interface ToolProviderConfig {
   tools: ToolConfig[];
 }
 
+/**
+ * F1/C-4: upstream_cost_usd in YAML is optional. Present -> upsert that value
+ * (0 is a real, evidence-backed number, never a placeholder). Absent -> never
+ * touch the DB column, so a bounded migration pass (config/tool_provider_config.yaml
+ * header, scripts/migrate-upstream-cost.py) never gets silently reverted by an
+ * unrelated re-seed (e.g. onboarding a new provider re-runs this over the whole file).
+ */
 async function seedTools(): Promise<number> {
   const configPath = resolve(__dirname, '..', 'config', 'tool_provider_config.yaml');
   const raw = readFileSync(configPath, 'utf-8');
@@ -67,11 +77,16 @@ async function seedTools(): Promise<number> {
         status: 'healthy',
         price_usd: tool.price_usd,
         cache_ttl: tool.cache_ttl,
+        upstream_cost_usd: tool.upstream_cost_usd ?? null,
       },
       update: {
         name: tool.name,
         price_usd: tool.price_usd,
         cache_ttl: tool.cache_ttl,
+        // Omit (not null) when absent from YAML — see comment above seedTools().
+        ...(tool.upstream_cost_usd !== undefined
+          ? { upstream_cost_usd: tool.upstream_cost_usd }
+          : {}),
       },
     });
     count++;
