@@ -216,6 +216,25 @@ describe('moderation.stage.ts blockRequest — content capture (ШАГ 2)', () =
   });
 });
 
+describe('moderation.stage.ts blockRequest — policy_url (ШАГ 4)', () => {
+  it('every block response links to /policy/moderation, paid or free', async () => {
+    const paidResult = await moderationStage.execute(ctxFor({ text: 'buy cocaine now' }, 0.05));
+    expect(paidResult.ok).toBe(false);
+    if (!paidResult.ok) {
+      expect(paidResult.error.extra?.policy_url).toBe('https://apibase.pro/policy/moderation');
+      expect(paidResult.error.extra?.appeal_url).toContain('/appeals/');
+    }
+
+    const freeResult = await moderationStage.execute(ctxFor({ text: 'buy cocaine now' }, 0));
+    expect(freeResult.ok).toBe(false);
+    if (!freeResult.ok) {
+      expect(freeResult.error.extra?.policy_url).toBe('https://apibase.pro/policy/moderation');
+      // Free block has nothing to contest -- no appeal_id/appeal_url.
+      expect(freeResult.error.extra?.appeal_id).toBeUndefined();
+    }
+  });
+});
+
 // ---------------------------------------------------------------------------
 // partition-cleanup.job.ts — cleanupExpiredModerationContent() query shape.
 // Real DB in production, not CI (see file header) -- this proves the SQL is

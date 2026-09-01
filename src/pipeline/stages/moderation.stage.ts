@@ -194,6 +194,11 @@ async function blockRequest(
       rule_id: ruleId,
       category,
       settle_on_block: isPaid,
+      // ШАГ 4 (2026-09-02): every block response links to the policy page
+      // explaining how moderation works, appeals, and content retention --
+      // present regardless of whether this block has an appeal (a free
+      // block has nothing to contest, but the "why" is still worth linking).
+      policy_url: 'https://apibase.pro/policy/moderation',
       ...(appealId
         ? {
             appeal_id: appealId,
