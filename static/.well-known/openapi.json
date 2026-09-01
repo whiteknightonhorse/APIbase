@@ -118300,6 +118300,261 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/ilostat.dataflows/call": {
+      "post": {
+        "operationId": "ilostat_dataflows",
+        "summary": "ILOSTAT Dataflows",
+        "description": "Search or list ILOSTAT labor-statistics dataflows — ~1200 official series from the International Labour Organization covering employment, unemployment, wages, working time, labour force participation, informality, and child labour. Filter by name/id with query, or omit to list all (capped to 200 results). Use the returned dataflow_id with ilostat.structure and ilostat.data. Data: sdmx.ilo.org (ILOSTAT SDMX public REST API), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ilostat.dataflows"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Filter dataflows by name or id substring, case-insensitive (e.g. \"unemployment\", \"wages\", \"child labour\"). Omit to list all ~1200 available dataflows (capped to 200 results)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ilostat.structure/call": {
+      "post": {
+        "operationId": "ilostat_structure",
+        "summary": "ILOSTAT Dataflow Structure",
+        "description": "Get the dimensions and valid codes for an ILOSTAT dataflow (dataflow_id from ilostat.dataflows, e.g. \"DF_EMP_TEMP_SEX_AGE_NB\" for employment by sex and age) — reference area, frequency, measure, sex, and age dimensions each with their code list. Use this to interpret the dimension labels returned by ilostat.data, or to build a narrower key filter. Data: sdmx.ilo.org (ILOSTAT SDMX public REST API), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ilostat.structure"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "dataflow_id": {
+                    "type": "string",
+                    "description": "ILOSTAT dataflow id, from ilostat.dataflows (e.g. \"DF_EMP_TEMP_SEX_AGE_NB\" for employment by sex and age). Returns the dimension list (e.g. REF_AREA, FREQ, MEASURE, SEX, AGE) with each dimension's valid codes — needed to interpret ilostat.data results and build a key filter.",
+                    "minLength": 1
+                  },
+                  "version": {
+                    "type": "string",
+                    "description": "Dataflow version, from ilostat.dataflows (e.g. \"1.0\"). Omit to use the latest version."
+                  }
+                },
+                "required": [
+                  "dataflow_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ilostat.data/call": {
+      "post": {
+        "operationId": "ilostat_data",
+        "summary": "ILOSTAT Dataflow Data",
+        "description": "Get observation values for an ILOSTAT dataflow (dataflow_id from ilostat.dataflows). Use key (from ilostat.structure) to filter by country/frequency/measure/sex/age, e.g. \"USA.A.....\" for United States annual data, all other dimensions unfiltered. Control the time range with start_period/end_period or last_n_observations. Data: sdmx.ilo.org (ILOSTAT SDMX public REST API), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ilostat.data"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "dataflow_id": {
+                    "type": "string",
+                    "description": "ILOSTAT dataflow id, from ilostat.dataflows (e.g. \"DF_EMP_TEMP_SEX_AGE_NB\" for employment by sex and age).",
+                    "minLength": 1
+                  },
+                  "key": {
+                    "type": "string",
+                    "description": "SDMX dot-separated dimension filter key in dimension position order (e.g. \"USA.A.....\" for a country restricted to United States, all other dimensions unfiltered). Use \"all\" (default) to fetch every series unfiltered — combine with ilostat.structure to build a narrower key and avoid oversized responses."
+                  },
+                  "start_period": {
+                    "type": "string",
+                    "description": "Start of period range, e.g. \"2020\" (annual) or \"2020-01\" (monthly). Takes precedence over last_n_observations when set."
+                  },
+                  "end_period": {
+                    "type": "string",
+                    "description": "End of period range, e.g. \"2024\" (annual) or \"2024-12\" (monthly). Takes precedence over last_n_observations when set."
+                  },
+                  "last_n_observations": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Return only the most recent N observations per series (max 100, default 10). Ignored if start_period or end_period is set."
+                  }
+                },
+                "required": [
+                  "dataflow_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

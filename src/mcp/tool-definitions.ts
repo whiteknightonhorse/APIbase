@@ -15756,4 +15756,46 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+  // --- UC-651: ILOSTAT SDMX public REST API (3 tools) ---
+  {
+    toolId: 'ilostat.dataflows',
+    mcpName: 'ilostat.reference.dataflows',
+    title: 'ILOSTAT Dataflows',
+    description:
+      'Search or list ILOSTAT labor-statistics dataflows — ~1200 official series from the ' +
+      'International Labour Organization covering employment, unemployment, wages, working ' +
+      'time, labour force participation, informality, and child labour. Filter by name/id with ' +
+      'query, or omit to list all (capped to 200 results). Use the returned dataflow_id with ' +
+      'ilostat.structure and ilostat.data. Data: sdmx.ilo.org (ILOSTAT SDMX public REST API), ' +
+      'no auth required.',
+    category: 'jobs',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ilostat.structure',
+    mcpName: 'ilostat.reference.structure',
+    title: 'ILOSTAT Dataflow Structure',
+    description:
+      'Get the dimensions and valid codes for an ILOSTAT dataflow (dataflow_id from ' +
+      'ilostat.dataflows, e.g. "DF_EMP_TEMP_SEX_AGE_NB" for employment by sex and age) — ' +
+      'reference area, frequency, measure, sex, and age dimensions each with their code list. ' +
+      'Use this to interpret the dimension labels returned by ilostat.data, or to build a ' +
+      'narrower key filter. Data: sdmx.ilo.org (ILOSTAT SDMX public REST API), no auth ' +
+      'required.',
+    category: 'jobs',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ilostat.data',
+    mcpName: 'ilostat.series.data',
+    title: 'ILOSTAT Dataflow Data',
+    description:
+      'Get observation values for an ILOSTAT dataflow (dataflow_id from ilostat.dataflows). ' +
+      'Use key (from ilostat.structure) to filter by country/frequency/measure/sex/age, e.g. ' +
+      '"USA.A....." for United States annual data, all other dimensions unfiltered. Control ' +
+      'the time range with start_period/end_period or last_n_observations. Data: sdmx.ilo.org ' +
+      '(ILOSTAT SDMX public REST API), no auth required.',
+    category: 'jobs',
+    annotations: READ_ONLY,
+  },
 ];

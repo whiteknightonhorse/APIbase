@@ -3311,5 +3311,14 @@
     "reset_period": "none",
     "docs_url": "https://ogcapi.bgs.ac.uk/",
     "limit_proof": "No signup, API key, or rate limit documented on the service landing page (ogcapi.bgs.ac.uk) — a public BETA pygeoapi service published by the British Geological Survey under Open Government Licence."
+  },
+  "ilostat": {
+    "display_name": "ILOSTAT SDMX Public REST API",
+    "health_url": "https://sdmx.ilo.org/rest/dataflow/ILO/DF_EMP_TEMP_SEX_AGE_NB/latest?references=none",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://ilostat.ilo.org/resources/sdmx-tools/",
+    "limit_proof": "ILO's public SDMX 2.1 REST API (sdmx.ilo.org); no authentication or API key required for any endpoint, no rate-limit headers returned, no documented request quota found on the ILOSTAT SDMX tools documentation page."
   }
 }

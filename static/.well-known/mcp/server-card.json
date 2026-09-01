@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1287 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1290 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -61921,6 +61921,168 @@
         "required": [
           "result"
         ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ilostat.series.data",
+      "title": "ILOSTAT Dataflow Data",
+      "description": "Get observation values for an ILOSTAT dataflow (dataflow_id from ilostat.dataflows). Use key (from ilostat.structure) to filter by country/frequency/measure/sex/age, e.g. \"USA.A.....\" for United States annual data, all other dimensions unfiltered. Control the time range with start_period/end_period or last_n_observations. Data: sdmx.ilo.org (ILOSTAT SDMX public REST API), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "dataflow_id": {
+            "type": "string",
+            "description": "ILOSTAT dataflow id, from ilostat.dataflows (e.g. \"DF_EMP_TEMP_SEX_AGE_NB\" for employment by sex and age).",
+            "minLength": 1
+          },
+          "key": {
+            "type": "string",
+            "description": "SDMX dot-separated dimension filter key in dimension position order (e.g. \"USA.A.....\" for a country restricted to United States, all other dimensions unfiltered). Use \"all\" (default) to fetch every series unfiltered — combine with ilostat.structure to build a narrower key and avoid oversized responses."
+          },
+          "start_period": {
+            "type": "string",
+            "description": "Start of period range, e.g. \"2020\" (annual) or \"2020-01\" (monthly). Takes precedence over last_n_observations when set."
+          },
+          "end_period": {
+            "type": "string",
+            "description": "End of period range, e.g. \"2024\" (annual) or \"2024-12\" (monthly). Takes precedence over last_n_observations when set."
+          },
+          "last_n_observations": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Return only the most recent N observations per series (max 100, default 10). Ignored if start_period or end_period is set."
+          }
+        },
+        "required": [
+          "dataflow_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ilostat.reference.dataflows",
+      "title": "ILOSTAT Dataflows",
+      "description": "Search or list ILOSTAT labor-statistics dataflows — ~1200 official series from the International Labour Organization covering employment, unemployment, wages, working time, labour force participation, informality, and child labour. Filter by name/id with query, or omit to list all (capped to 200 results). Use the returned dataflow_id with ilostat.structure and ilostat.data. Data: sdmx.ilo.org (ILOSTAT SDMX public REST API), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Filter dataflows by name or id substring, case-insensitive (e.g. \"unemployment\", \"wages\", \"child labour\"). Omit to list all ~1200 available dataflows (capped to 200 results)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ilostat.reference.structure",
+      "title": "ILOSTAT Dataflow Structure",
+      "description": "Get the dimensions and valid codes for an ILOSTAT dataflow (dataflow_id from ilostat.dataflows, e.g. \"DF_EMP_TEMP_SEX_AGE_NB\" for employment by sex and age) — reference area, frequency, measure, sex, and age dimensions each with their code list. Use this to interpret the dimension labels returned by ilostat.data, or to build a narrower key filter. Data: sdmx.ilo.org (ILOSTAT SDMX public REST API), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "dataflow_id": {
+            "type": "string",
+            "description": "ILOSTAT dataflow id, from ilostat.dataflows (e.g. \"DF_EMP_TEMP_SEX_AGE_NB\" for employment by sex and age). Returns the dimension list (e.g. REF_AREA, FREQ, MEASURE, SEX, AGE) with each dimension's valid codes — needed to interpret ilostat.data results and build a key filter.",
+            "minLength": 1
+          },
+          "version": {
+            "type": "string",
+            "description": "Dataflow version, from ilostat.dataflows (e.g. \"1.0\"). Omit to use the latest version."
+          }
+        },
+        "required": [
+          "dataflow_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
       },
       "annotations": {
         "readOnlyHint": true,

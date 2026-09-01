@@ -369,6 +369,7 @@ import { NcbiEutilsAdapter } from './ncbi-eutils';
 import { HdxHapiAdapter } from './hdx-hapi';
 import { GeonetNzAdapter } from './geonet-nz';
 import { BgsOgcApiAdapter } from './bgs-ogcapi';
+import { IlostatAdapter } from './ilostat';
 import { config } from '../config';
 
 /**
@@ -1977,6 +1978,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // UK earthquake search (modern + historical), Single Onshore Borehole Index (SOBI), and
       // National Landslide Database, all by lat/lng + radius; no auth, Open Government Licence
       return getOrCreate('bgs-ogcapi', () => new BgsOgcApiAdapter());
+    case 'ilostat':
+      // ILOSTAT SDMX public REST API (UC-651) — International Labour Organization official
+      // labor statistics: employment, unemployment, wages, working time, labour force,
+      // informality; 1200+ dataflows, single ILO agency; no auth, public SDMX 2.1 REST API
+      return getOrCreate('ilostat', () => new IlostatAdapter());
     default:
       return undefined;
   }
