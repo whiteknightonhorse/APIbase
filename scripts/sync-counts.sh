@@ -30,11 +30,24 @@ if [ "$CHECK" = "1" ]; then
   echo "sync-counts: --check mode — read-only, no file will be written"
 else
   for f in static/index.html static/terms.html static/frameworks.html static/contact.html \
-           static/privacy.html static/dashboard.html static/llms.txt static/ai.txt README.md; do
+           static/privacy.html static/dashboard.html static/pricing.html static/connect.html \
+           static/llms.txt static/ai.txt README.md; do
     [ -f "$f" ] || continue
     b=$(md5sum "$f" | cut -d" " -f1)
     sed -i -E "s/[0-9]{3,}\+?( [A-Za-z]+)? tools/${TOOLS} tools/g; s/[0-9]{3,}\+?( [A-Za-z]+)? providers/${PROV} providers/g; s/Tools: [0-9]{3,} across/Tools: ${TOOLS} across/g" "$f"
     [ "$(md5sum "$f" | cut -d" " -f1)" != "$b" ] && { echo "  updated $f"; CHANGED=$((CHANGED+1)); }
+  done
+
+  # F3.1 (2026-09-01): the header sys-monitor bar on contact.html/privacy.html writes the
+  # count as a bare number in its own <strong> tag ("PRV:</span><strong>46</strong>"), with no
+  # "tools"/"providers" word adjacent for the loop above to match — found stale at 46/203 while
+  # DB truth was already 373/1316 (in this loop's OWN file list the whole time, silently never
+  # touched by it). One extra targeted pattern, scoped to exactly this markup shape.
+  for f in static/contact.html static/privacy.html; do
+    [ -f "$f" ] || continue
+    b=$(md5sum "$f" | cut -d" " -f1)
+    sed -i -E "s/PRV:<\/span><strong>[0-9]+<\/strong>/PRV:<\/span><strong>${PROV}<\/strong>/; s/TOOLS:<\/span><strong>[0-9]+<\/strong>/TOOLS:<\/span><strong>${TOOLS}<\/strong>/" "$f"
+    [ "$(md5sum "$f" | cut -d" " -f1)" != "$b" ] && { echo "  updated $f (sys-monitor bar)"; CHANGED=$((CHANGED+1)); }
   done
 
   # api-catalog (RFC 9727 linkset, no file extension so not caught by the glob above) has two
@@ -55,6 +68,15 @@ else
       npx tsx scripts/gen-card.ts > /tmp/gen-card.out 2>&1 \
       || { echo "sync-counts: gen-card.ts FAILED"; cat /tmp/gen-card.out; exit 1; }
     [ "$(md5sum static/.well-known/mcp/server-card.json | cut -d" " -f1)" != "$b" ] && { echo "  updated static/.well-known/mcp/server-card.json"; CHANGED=$((CHANGED+1)); }
+
+    # static/catalog.html (F3.1, 2026-09-01) — same reasoning as server-card.json: a hand-typed
+    # provider list would drift the moment onboarding changes the roster. Regenerated wholesale
+    # from the same DB truth, not sed-patched.
+    b=$(md5sum static/catalog.html 2>/dev/null | cut -d" " -f1 || echo "")
+    DATABASE_URL="postgresql://apibase:$(grep -m1 '^POSTGRES_PASSWORD=' .env | cut -d= -f2-)@${PG_IP}:5432/apibase?schema=public" \
+      npx tsx scripts/gen-catalog-page.ts > /tmp/gen-catalog-page.out 2>&1 \
+      || { echo "sync-counts: gen-catalog-page.ts FAILED"; cat /tmp/gen-catalog-page.out; exit 1; }
+    [ "$(md5sum static/catalog.html | cut -d" " -f1)" != "$b" ] && { echo "  updated static/catalog.html"; CHANGED=$((CHANGED+1)); }
   else
     echo "sync-counts: could not resolve postgres container IP"; exit 1
   fi

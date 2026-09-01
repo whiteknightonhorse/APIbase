@@ -364,6 +364,9 @@ code{
 
 <nav>
 <a class="brand" href="/">APIbase.pro</a>
+<a href="/pricing">Pricing</a>
+<a href="/catalog">Catalog</a>
+<a href="/connect">Connect</a>
 <a href="/dashboard">Dashboard</a>
 <a href="/contact">Contact</a>
 <a href="/privacy">Privacy</a>
@@ -468,7 +471,7 @@ code{
 <p>MPP (Machine Payments Protocol) is an IETF standard (draft-ryan-httpauth-payment) developed by Stripe and Tempo. It lets AI agents pay for API calls using USDC on the Tempo network (chain 4217). Agents set up a wallet once at <a href="https://wallet.tempo.xyz">wallet.tempo.xyz</a> and can then pay any MPP-compatible service, including APIbase. The <code>mppx</code> npm SDK handles the payment flow automatically. APIbase is listed at <a href="https://mpp.dev/services">mpp.dev/services</a> alongside 100+ other services including OpenAI and Anthropic.</p>
 
 <h3>How do I connect?</h3>
-<p>Point your MCP-compatible client at <code>https://apibase.pro/mcp</code>. The system auto-registers your software on first request and returns an <code>api_key</code>. Use that key for all subsequent calls. No forms, no approval process.</p>
+<p>Point your MCP-compatible client at <code>https://apibase.pro/mcp</code>. The system auto-registers your software on first request and returns an <code>api_key</code>. Use that key for all subsequent calls. No forms, no approval process. Three concrete ways in (MCP address, REST + key, or a bare wallet with zero registration): <a href="/connect">/connect</a>.</p>
 
 <h3>What API categories are available?</h3>
 <p>Travel (flights, hotels), finance (exchange rates, market data), weather, entertainment (movies, events, games), e-commerce (product search), maps and geolocation, health and nutrition, chemistry and structural biology, education and research, music discovery, jobs and career data, space and astronomy, legal and regulatory, social media, and more — 30+ categories total.</p>
@@ -479,7 +482,7 @@ code{
 <h2>Recommended next step</h2>
 <ul class="step-wizard">
 <li><span class="step-num">[STEP 1/4]</span> <span class="step-ready">Connect your MCP client to <code>https://apibase.pro/mcp</code></span> <span class="step-dots">........</span> <span class="step-tag tag-ready">[READY]</span></li>
-<li><span class="step-num">[STEP 2/4]</span> Browse the <a href="https://apibase.pro/api/v1/tools">tool catalog</a> — 1316 tools available <span class="step-dots">............</span> <span class="step-tag tag-pending">[ ]</span></li>
+<li><span class="step-num">[STEP 2/4]</span> Browse the <a href="https://apibase.pro/catalog">tool catalog</a> — 1316 tools available <span class="step-dots">............</span> <span class="step-tag tag-pending">[ ]</span></li>
 <li><span class="step-num">[STEP 3/4]</span> Fund your wallet — USDC on Base (x402) or <a href="https://wallet.tempo.xyz">wallet.tempo.xyz</a> (MPP) <span class="step-dots">.....</span> <span class="step-tag tag-pending">[ ]</span></li>
 <li><span class="step-num">[STEP 4/4]</span> Read the <a href="https://apibase.pro/llms.txt">documentation</a> for full protocol details <span class="step-dots">........</span> <span class="step-tag tag-pending">[ ]</span></li>
 </ul>

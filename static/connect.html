@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Connect in 60 Seconds — APIbase.pro</title>
+<meta name="description" content="Three ways to connect to APIbase: MCP address, API key, or a bare x402/MPP wallet with zero registration. Pick one and make your first call in under a minute.">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="shortcut icon" href="/favicon.png">
+<link rel="canonical" href="https://apibase.pro/connect">
+<meta property="og:title" content="Connect in 60 Seconds — APIbase.pro">
+<meta property="og:description" content="MCP address, API key, or a bare wallet with zero registration — three real ways in.">
+<meta property="og:url" content="https://apibase.pro/connect">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'JetBrains Mono','Fira Code','Cascadia Code','Courier New',monospace;background:#1a1a2e;color:#b0ffb0;line-height:1.7;padding:1.5rem;min-height:100vh;display:flex;justify-content:center;align-items:flex-start}
+.window{max-width:880px;width:100%;background:#0c0c0c;border-radius:10px 10px 8px 8px;border:1px solid #444;box-shadow:0 20px 60px rgba(0,0,0,0.6),0 0 80px rgba(0,255,65,0.04),inset 0 0 80px rgba(0,255,65,0.01);overflow:hidden;position:relative}
+.window::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,0.06) 0px,rgba(0,0,0,0.06) 1px,transparent 1px,transparent 3px);pointer-events:none;z-index:2}
+.window::before{content:'';position:absolute;top:-100%;left:0;right:0;height:60px;background:linear-gradient(180deg,transparent 0%,rgba(0,255,65,0.03) 50%,transparent 100%);pointer-events:none;z-index:3;animation:scanline 8s linear infinite}
+@keyframes scanline{0%{top:-60px}100%{top:100%}}
+.titlebar{background:linear-gradient(180deg,#3d3d3d 0%,#2a2a2a 100%);padding:10px 14px;display:flex;align-items:center;border-bottom:1px solid #1a1a1a;position:relative;z-index:4}
+.dots{display:flex;gap:7px;flex-shrink:0}
+.dot{width:13px;height:13px;border-radius:50%;border:1px solid rgba(0,0,0,0.2)}
+.dot-red{background:#ff5f56;border-color:#e0443e}
+.dot-yellow{background:#ffbd2e;border-color:#dea123}
+.dot-green{background:#27c93f;border-color:#1aab29}
+.titlebar-text{flex:1;text-align:center;color:#999;font-size:0.78rem;font-family:inherit;letter-spacing:0.5px}
+.container{padding:1.8rem 2rem 2rem;position:relative;z-index:1}
+nav{display:flex;flex-wrap:wrap;gap:0.3rem;margin-bottom:1rem;padding:0.5rem 0;border-bottom:1px solid #1a3a1a}
+nav::before{content:'[';color:#555}nav::after{content:']';color:#555}
+nav .brand{color:#00ff41;font-weight:700;font-size:0.9rem;text-decoration:none;text-shadow:0 0 8px rgba(0,255,65,0.4)}
+nav a{color:#00cc33;text-decoration:none;font-size:0.85rem}
+nav a::before{content:' | ';color:#340}nav .brand::before{content:''}
+nav a:hover{color:#00ff41;text-shadow:0 0 6px rgba(0,255,65,0.5)}
+h1{color:#00ff41;font-size:1.3rem;margin-bottom:0.5rem;line-height:1.5;text-shadow:0 0 10px #00ff41,0 0 20px #00ff41,0 0 40px rgba(0,255,65,0.3)}
+h1::before{content:'> ';color:#00aa30}
+h2{color:#00ff41;font-size:1.05rem;margin:2rem 0 0.8rem;padding-left:1rem;border-left:2px solid #00aa30;text-shadow:0 0 6px rgba(0,255,65,0.2)}
+h2::before{content:'## ';color:#006620}
+h3{color:#33ff66;font-size:0.92rem;margin:1.1rem 0 0.5rem}
+p{margin-bottom:0.8rem;font-size:0.9rem;color:#a0d8a0}
+strong{color:#33ff66}
+.updated{color:#2a6a2a;font-size:0.82rem;margin-bottom:1.8rem}
+ul{padding-left:1.5rem;margin-bottom:1rem}
+li{margin-bottom:0.4rem;font-size:0.9rem;color:#a0d8a0}
+li::marker{color:#00aa30}
+a{color:#00ccff;text-decoration:none}
+a:hover{color:#66ddff;text-shadow:0 0 6px rgba(0,204,255,0.4)}
+pre{background:#111;border:1px solid #1a3a1a;border-radius:6px;padding:0.9rem;overflow-x:auto;font-size:0.8rem;margin:0.6rem 0 1rem;color:#a0d8a0;line-height:1.5}
+code{background:#111;border:1px solid #1a3a1a;border-radius:3px;padding:0.05rem 0.35rem;color:#33ff66;font-size:0.85em}
+pre code{background:none;border:none;padding:0;color:inherit}
+.badge{display:inline-block;background:#0f3a1f;color:#33ff66;font-size:0.68rem;padding:0.15rem 0.5rem;border-radius:10px;margin-left:0.5rem;border:1px solid #1a5a1a;vertical-align:middle}
+.path{border:1px solid #1a3a1a;border-radius:8px;padding:1rem 1.2rem;margin:1rem 0 1.6rem;background:rgba(0,255,65,0.02)}
+.note{color:#5a9a5a;font-size:0.82rem;font-style:italic}
+.footer{margin-top:2rem;padding:0.6rem 0;border-top:1px solid #1a3a1a;color:#2a6a2a;font-size:0.72rem;display:flex;flex-direction:column;gap:0.2rem}
+.footer-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.5rem}
+.footer .online{color:#00aa30}
+*::-webkit-scrollbar{width:8px;height:8px}
+*::-webkit-scrollbar-track{background:#0c0c0c;border:1px solid #1a3a1a}
+*::-webkit-scrollbar-thumb{background:#1a5a1a;border-radius:4px;border:1px solid #0c0c0c}
+*::-webkit-scrollbar-thumb:hover{background:#00ff41}
+*{scrollbar-width:thin;scrollbar-color:#1a5a1a #0c0c0c}
+@media(max-width:600px){body{padding:0.5rem}.container{padding:1rem}h1{font-size:1.05rem}h1::before{content:''}nav::before,nav::after{display:none}.footer{font-size:0.65rem}}
+</style>
+</head>
+<body>
+<div class="window">
+<div class="titlebar">
+<div class="dots"><div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div></div>
+<span class="titlebar-text">apibase@prod ~ /srv/apibase/connect</span>
+</div>
+
+<div class="container" id="main-content">
+
+<nav>
+<a class="brand" href="/">APIbase.pro</a>
+<a href="/pricing">Pricing</a>
+<a href="/catalog">Catalog</a>
+<a href="/connect">Connect</a>
+<a href="/dashboard">Dashboard</a>
+<a href="/contact">Contact</a>
+<a href="/privacy">Privacy</a>
+<a href="/terms">Terms</a>
+<a href="/frameworks">Frameworks</a>
+<a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a>
+</nav>
+
+<h1>Connect in 60 seconds</h1>
+<p class="updated">Three real ways in. Pick the one that matches how your agent already talks to the world.</p>
+
+<div class="path">
+<h2 style="margin-top:0">Path 1 &mdash; MCP address <span class="badge">no form, ever</span></h2>
+<p>Point any MCP-compatible client at one URL. The first tool call auto-issues an <code>ak_live_...</code> key behind the scenes &mdash; there is no dashboard signup, no email, no approval queue.</p>
+<pre>{
+  "mcpServers": {
+    "apibase": {
+      "url": "https://apibase.pro/mcp",
+      "transport": "streamable-http"
+    }
+  }
+}</pre>
+<p class="note">Works in Claude Desktop, Claude Code, Cursor, Windsurf, ChatGPT, OpenAI Agents SDK, LangChain, Google ADK, CrewAI &mdash; full per-framework config on <a href="/frameworks">/frameworks</a>.</p>
+</div>
+
+<div class="path">
+<h2 style="margin-top:0">Path 2 &mdash; REST + API key <span class="badge">one throwaway POST</span></h2>
+<p>Get a key with a single unauthenticated request &mdash; no name, no email, no plan selection:</p>
+<pre>curl -X POST https://apibase.pro/api/v1/agents/auto
+&rarr; {"agent_id":"...", "api_key":"ak_live_...", "tier":"free"}</pre>
+<p>Use it on any call:</p>
+<pre>curl https://apibase.pro/api/v1/tools/coingecko.get_price/call \
+  -H "Authorization: Bearer ak_live_..." \
+  -H "Content-Type: application/json" \
+  -d '{"params": {"id": "bitcoin"}}'</pre>
+<p class="note">Free tools respond immediately. A priced tool without a payment header replies HTTP 402 with a challenge &mdash; sign it with either rail below and retry.</p>
+</div>
+
+<div class="path">
+<h2 style="margin-top:0">Path 3 &mdash; bare wallet, zero registration <span class="badge">MPP / Tempo</span></h2>
+<p>No key, no <code>/agents/auto</code> call, no prior request of any kind. Sign an MPP payment against a Tempo wallet (set up once at <a href="https://wallet.tempo.xyz">wallet.tempo.xyz</a>, via the <code>mppx</code> SDK) and send it as your very first request &mdash; the payment itself creates your agent identity, deterministically, from the wallet address:</p>
+<pre>npm i mppx</pre>
+<pre>import { pay } from "mppx";
+
+const res = await pay("https://apibase.pro/api/v1/tools/coingecko.get_price/call", {
+  network: "tempo",
+  params: { id: "bitcoin" },
+});</pre>
+<p>No prior call ever touched apibase.pro from this wallet &mdash; the first payment IS the signup.</p>
+<p class="note">x402 on Base works the same way for payment settlement, but today it rides on top of an existing <code>ak_live_...</code> key (Path 2) rather than bootstrapping identity from the wallet alone the way MPP does &mdash; that parity gap is tracked internally, not yet closed.</p>
+</div>
+
+<h2>Which path should I pick?</h2>
+<ul>
+<li><strong>Building an MCP-native agent?</strong> Path 1. Zero config beyond the URL.</li>
+<li><strong>Calling from a plain HTTP client or existing backend?</strong> Path 2.</li>
+<li><strong>An autonomous agent that should never touch a human onboarding flow, ever?</strong> Path 3 &mdash; the wallet is the entire identity.</li>
+</ul>
+<p>Full pricing: <a href="/pricing">/pricing</a>. Full catalog: <a href="/catalog">/catalog</a>.</p>
+
+<div class="footer">
+<div class="footer-row">
+<span><span class="online">STATUS: ONLINE</span>  |  PID: 1337  |  TTY: pts/0  |  USER: apibase</span>
+</div>
+<div class="footer-row">
+<span>1316 tools  |  373 providers  |  x402 USDC on Base + MPP USDC on Tempo</span>
+<span>BUILD: v1.0.0</span>
+</div>
+</div>
+
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catalog — APIbase.pro</title>
+<meta name="description" content="Every live provider behind APIbase's MCP gateway — 1316 tools across 373 providers, generated straight from the production database.">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="shortcut icon" href="/favicon.png">
+<link rel="canonical" href="https://apibase.pro/catalog">
+<meta property="og:title" content="Catalog — APIbase.pro">
+<meta property="og:description" content="1316 tools across 373 providers, live — the full list, generated from the production database.">
+<meta property="og:url" content="https://apibase.pro/catalog">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'JetBrains Mono','Fira Code','Cascadia Code','Courier New',monospace;background:#1a1a2e;color:#b0ffb0;line-height:1.7;padding:1.5rem;min-height:100vh;display:flex;justify-content:center;align-items:flex-start}
+.window{max-width:880px;width:100%;background:#0c0c0c;border-radius:10px 10px 8px 8px;border:1px solid #444;box-shadow:0 20px 60px rgba(0,0,0,0.6),0 0 80px rgba(0,255,65,0.04),inset 0 0 80px rgba(0,255,65,0.01);overflow:hidden;position:relative}
+.window::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,0.06) 0px,rgba(0,0,0,0.06) 1px,transparent 1px,transparent 3px);pointer-events:none;z-index:2}
+.titlebar{background:linear-gradient(180deg,#3d3d3d 0%,#2a2a2a 100%);padding:10px 14px;display:flex;align-items:center;border-bottom:1px solid #1a1a1a;position:relative;z-index:4}
+.dots{display:flex;gap:7px;flex-shrink:0}
+.dot{width:13px;height:13px;border-radius:50%;border:1px solid rgba(0,0,0,0.2)}
+.dot-red{background:#ff5f56;border-color:#e0443e}
+.dot-yellow{background:#ffbd2e;border-color:#dea123}
+.dot-green{background:#27c93f;border-color:#1aab29}
+.titlebar-text{flex:1;text-align:center;color:#999;font-size:0.78rem;font-family:inherit;letter-spacing:0.5px}
+.container{padding:1.8rem 2rem 2rem;position:relative;z-index:1}
+nav{display:flex;flex-wrap:wrap;gap:0.3rem;margin-bottom:1rem;padding:0.5rem 0;border-bottom:1px solid #1a3a1a}
+nav::before{content:'[';color:#555}nav::after{content:']';color:#555}
+nav .brand{color:#00ff41;font-weight:700;font-size:0.9rem;text-decoration:none;text-shadow:0 0 8px rgba(0,255,65,0.4)}
+nav a{color:#00cc33;text-decoration:none;font-size:0.85rem}
+nav a::before{content:' | ';color:#340}nav .brand::before{content:''}
+nav a:hover{color:#00ff41;text-shadow:0 0 6px rgba(0,255,65,0.5)}
+h1{color:#00ff41;font-size:1.3rem;margin-bottom:0.5rem;line-height:1.5;text-shadow:0 0 10px #00ff41,0 0 20px #00ff41,0 0 40px rgba(0,255,65,0.3)}
+h1::before{content:'> ';color:#00aa30}
+h2{color:#00ff41;font-size:1.05rem;margin:2rem 0 0.8rem;padding-left:1rem;border-left:2px solid #00aa30;text-shadow:0 0 6px rgba(0,255,65,0.2)}
+h2::before{content:'## ';color:#006620}
+p{margin-bottom:0.8rem;font-size:0.9rem;color:#a0d8a0}
+strong{color:#33ff66}
+.updated{color:#2a6a2a;font-size:0.82rem;margin-bottom:1.8rem}
+a{color:#00ccff;text-decoration:none}
+a:hover{color:#66ddff;text-shadow:0 0 6px rgba(0,204,255,0.4)}
+table{width:100%;border-collapse:collapse;margin:0.8rem 0 1.4rem;font-size:0.83rem}
+th,td{text-align:left;padding:0.4rem 0.7rem;border-bottom:1px solid #1a3a1a}
+th{color:#00ff41;font-weight:700;border-bottom:1px solid #00aa30;position:sticky;top:0;background:#0c0c0c}
+td{color:#a0d8a0}
+td:last-child,th:last-child{text-align:right}
+.scroll{max-height:60vh;overflow-y:auto;border:1px solid #1a3a1a;border-radius:6px}
+.note{color:#5a9a5a;font-size:0.82rem;font-style:italic}
+.footer{margin-top:2rem;padding:0.6rem 0;border-top:1px solid #1a3a1a;color:#2a6a2a;font-size:0.72rem;display:flex;flex-direction:column;gap:0.2rem}
+.footer-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.5rem}
+.footer .online{color:#00aa30}
+*::-webkit-scrollbar{width:8px;height:8px}
+*::-webkit-scrollbar-track{background:#0c0c0c;border:1px solid #1a3a1a}
+*::-webkit-scrollbar-thumb{background:#1a5a1a;border-radius:4px;border:1px solid #0c0c0c}
+*{scrollbar-width:thin;scrollbar-color:#1a5a1a #0c0c0c}
+@media(max-width:600px){body{padding:0.5rem}.container{padding:1rem}h1{font-size:1.05rem}h1::before{content:''}nav::before,nav::after{display:none}.footer{font-size:0.65rem}}
+</style>
+</head>
+<body>
+<div class="window">
+<div class="titlebar">
+<div class="dots"><div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div></div>
+<span class="titlebar-text">apibase@prod ~ /srv/apibase/catalog</span>
+</div>
+
+<div class="container" id="main-content">
+
+<nav>
+<a class="brand" href="/">APIbase.pro</a>
+<a href="/pricing">Pricing</a>
+<a href="/catalog">Catalog</a>
+<a href="/connect">Connect</a>
+<a href="/dashboard">Dashboard</a>
+<a href="/contact">Contact</a>
+<a href="/privacy">Privacy</a>
+<a href="/terms">Terms</a>
+<a href="/frameworks">Frameworks</a>
+<a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a>
+</nav>
+
+<h1>Catalog</h1>
+<p class="updated">Generated straight from the production database — never hand-edited, never rounded.</p>
+
+<h2>Every live provider</h2>
+<p><strong>1316 tools</strong> across <strong>373 providers</strong>, sorted by tool count. This is not a marketing figure &mdash; it is what <a href="/api/v1/tools">/api/v1/tools</a> and the MCP <code>tools/list</code> call actually serve right now.</p>
+<div class="scroll">
+<table>
+<thead><tr><th>Provider</th><th>Tools</th></tr></thead>
+<tbody>
+<tr><td>polymarket</td><td>11</td></tr>
+<tr><td>aipush</td><td>9</td></tr>
+<tr><td>coingecko</td><td>9</td></tr>
+<tr><td>amadeus</td><td>7</td></tr>
+<tr><td>clinicaltrials</td><td>7</td></tr>
+<tr><td>education</td><td>7</td></tr>
+<tr><td>geo</td><td>7</td></tr>
+<tr><td>health</td><td>7</td></tr>
+<tr><td>music</td><td>7</td></tr>
+<tr><td>openweathermap</td><td>7</td></tr>
+<tr><td>telnyx</td><td>7</td></tr>
+<tr><td>ticketmaster</td><td>7</td></tr>
+<tr><td>tmdb</td><td>7</td></tr>
+<tr><td>aviasales</td><td>6</td></tr>
+<tr><td>bcb</td><td>6</td></tr>
+<tr><td>brasilapi</td><td>6</td></tr>
+<tr><td>cloudflare</td><td>6</td></tr>
+<tr><td>finance</td><td>6</td></tr>
+<tr><td>hyperliquid</td><td>6</td></tr>
+<tr><td>jobs</td><td>6</td></tr>
+<tr><td>pubchem</td><td>6</td></tr>
+<tr><td>usgs-hans-volcano</td><td>6</td></tr>
+<tr><td>abs</td><td>5</td></tr>
+<tr><td>africa</td><td>5</td></tr>
+<tr><td>banxico</td><td>5</td></tr>
+<tr><td>bea</td><td>5</td></tr>
+<tr><td>climate</td><td>5</td></tr>
+<tr><td>edgar</td><td>5</td></tr>
+<tr><td>eurostat2</td><td>5</td></tr>
+<tr><td>faostat</td><td>5</td></tr>
+<tr><td>hackernews</td><td>5</td></tr>
+<tr><td>hf_inference</td><td>5</td></tr>
+<tr><td>hnalgolia</td><td>5</td></tr>
+<tr><td>ibge</td><td>5</td></tr>
+<tr><td>igdb</td><td>5</td></tr>
+<tr><td>indec-georef</td><td>5</td></tr>
+<tr><td>irail</td><td>5</td></tr>
+<tr><td>jikan</td><td>5</td></tr>
+<tr><td>jma-bosai</td><td>5</td></tr>
+<tr><td>lmpr</td><td>5</td></tr>
+<tr><td>meteostat</td><td>5</td></tr>
+<tr><td>namesilo</td><td>5</td></tr>
+<tr><td>nasa</td><td>5</td></tr>
+<tr><td>oecd-stats</td><td>5</td></tr>
+<tr><td>ons-uk-stats</td><td>5</td></tr>
+<tr><td>rawg</td><td>5</td></tr>
+<tr><td>spoonacular</td><td>5</td></tr>
+<tr><td>statcan</td><td>5</td></tr>
+<tr><td>telegram</td><td>5</td></tr>
+<tr><td>tvmaze</td><td>5</td></tr>
+<tr><td>unsdg</td><td>5</td></tr>
+<tr><td>wikipedia</td><td>5</td></tr>
+<tr><td>adbkidb</td><td>4</td></tr>
+<tr><td>airnow</td><td>4</td></tr>
+<tr><td>apisports</td><td>4</td></tr>
+<tr><td>asterdex</td><td>4</td></tr>
+<tr><td>au-data-gov</td><td>4</td></tr>
+<tr><td>aviationweather</td><td>4</td></tr>
+<tr><td>bank-of-england</td><td>4</td></tr>
+<tr><td>bankofcanada</td><td>4</td></tr>
+<tr><td>bgs-ogcapi</td><td>4</td></tr>
+<tr><td>bhl</td><td>4</td></tr>
+<tr><td>bible</td><td>4</td></tr>
+<tr><td>biomodels</td><td>4</td></tr>
+<tr><td>bls-macro</td><td>4</td></tr>
+<tr><td>brightsky</td><td>4</td></tr>
+<tr><td>browserbase</td><td>4</td></tr>
+<tr><td>brreg</td><td>4</td></tr>
+<tr><td>bts-transport</td><td>4</td></tr>
+<tr><td>canopy</td><td>4</td></tr>
+<tr><td>carbon-intensity-uk</td><td>4</td></tr>
+<tr><td>cbs</td><td>4</td></tr>
+<tr><td>cdc-chronic</td><td>4</td></tr>
+<tr><td>celestrak</td><td>4</td></tr>
+<tr><td>census</td><td>4</td></tr>
+<tr><td>cernopendata</td><td>4</td></tr>
+<tr><td>chembl</td><td>4</td></tr>
+<tr><td>cma</td><td>4</td></tr>
+<tr><td>cms</td><td>4</td></tr>
+<tr><td>col</td><td>4</td></tr>
+<tr><td>comtrade</td><td>4</td></tr>
+<tr><td>coops</td><td>4</td></tr>
+<tr><td>cordis</td><td>4</td></tr>
+<tr><td>cpsc</td><td>4</td></tr>
+<tr><td>crossref</td><td>4</td></tr>
+<tr><td>data-europa</td><td>4</td></tr>
+<tr><td>datacite</td><td>4</td></tr>
+<tr><td>datagovsg</td><td>4</td></tr>
+<tr><td>dbnomics</td><td>4</td></tr>
+<tr><td>delphi</td><td>4</td></tr>
+<tr><td>diffbot</td><td>4</td></tr>
+<tr><td>disease</td><td>4</td></tr>
+<tr><td>doaj</td><td>4</td></tr>
+<tr><td>dpla</td><td>4</td></tr>
+<tr><td>drought-monitor</td><td>4</td></tr>
+<tr><td>ea-hydrology</td><td>4</td></tr>
+<tr><td>ebi-metagenomics</td><td>4</td></tr>
+<tr><td>ecb-rates</td><td>4</td></tr>
+<tr><td>echo</td><td>4</td></tr>
+<tr><td>eia</td><td>4</td></tr>
+<tr><td>eonet</td><td>4</td></tr>
+<tr><td>eu_parliament</td><td>4</td></tr>
+<tr><td>eurlex</td><td>4</td></tr>
+<tr><td>europepmc</td><td>4</td></tr>
+<tr><td>eurostat</td><td>4</td></tr>
+<tr><td>f1</td><td>4</td></tr>
+<tr><td>fbi</td><td>4</td></tr>
+<tr><td>fcc</td><td>4</td></tr>
+<tr><td>fdic</td><td>4</td></tr>
+<tr><td>fec</td><td>4</td></tr>
+<tr><td>federalregister</td><td>4</td></tr>
+<tr><td>finnhub</td><td>4</td></tr>
+<tr><td>frankfurter</td><td>4</td></tr>
+<tr><td>gbif</td><td>4</td></tr>
+<tr><td>geonames</td><td>4</td></tr>
+<tr><td>geonet-nz</td><td>4</td></tr>
+<tr><td>gfw</td><td>4</td></tr>
+<tr><td>gutendex</td><td>4</td></tr>
+<tr><td>hdx</td><td>4</td></tr>
+<tr><td>hdx-hapi</td><td>4</td></tr>
+<tr><td>imf</td><td>4</td></tr>
+<tr><td>inaturalist</td><td>4</td></tr>
+<tr><td>ine</td><td>4</td></tr>
+<tr><td>insee</td><td>4</td></tr>
+<tr><td>ipqs</td><td>4</td></tr>
+<tr><td>irena</td><td>4</td></tr>
+<tr><td>jpl</td><td>4</td></tr>
+<tr><td>launch-library-2</td><td>4</td></tr>
+<tr><td>macrostrat</td><td>4</td></tr>
+<tr><td>malaria-atlas</td><td>4</td></tr>
+<tr><td>marine</td><td>4</td></tr>
+<tr><td>mbta-transit</td><td>4</td></tr>
+<tr><td>medlineplus</td><td>4</td></tr>
+<tr><td>met-museum</td><td>4</td></tr>
+<tr><td>met-norway</td><td>4</td></tr>
+<tr><td>mfapi</td><td>4</td></tr>
+<tr><td>msc-geomet</td><td>4</td></tr>
+<tr><td>mychem</td><td>4</td></tr>
+<tr><td>mygene</td><td>4</td></tr>
+<tr><td>myvariant</td><td>4</td></tr>
+<tr><td>nasa-cmr</td><td>4</td></tr>
+<tr><td>nasaexoplanet</td><td>4</td></tr>
+<tr><td>nasantrs</td><td>4</td></tr>
+<tr><td>nbi</td><td>4</td></tr>
+<tr><td>nhtsa-safety</td><td>4</td></tr>
+<tr><td>nihreporter</td><td>4</td></tr>
+<tr><td>nlm-icd11</td><td>4</td></tr>
+<tr><td>norgesbank</td><td>4</td></tr>
+<tr><td>npm</td><td>4</td></tr>
+<tr><td>nps</td><td>4</td></tr>
+<tr><td>nrc</td><td>4</td></tr>
+<tr><td>nrel</td><td>4</td></tr>
+<tr><td>obis</td><td>4</td></tr>
+<tr><td>ofac</td><td>4</td></tr>
+<tr><td>open-canada</td><td>4</td></tr>
+<tr><td>openaire</td><td>4</td></tr>
+<tr><td>opencontext</td><td>4</td></tr>
+<tr><td>opendota</td><td>4</td></tr>
+<tr><td>openfda_devices</td><td>4</td></tr>
+<tr><td>openlibrary</td><td>4</td></tr>
+<tr><td>openmeteoaq</td><td>4</td></tr>
+<tr><td>opensensemap</td><td>4</td></tr>
+<tr><td>opensky</td><td>4</td></tr>
+<tr><td>openstates</td><td>4</td></tr>
+<tr><td>opentdb</td><td>4</td></tr>
+<tr><td>opentopodata</td><td>4</td></tr>
+<tr><td>opentopography</td><td>4</td></tr>
+<tr><td>orphadata</td><td>4</td></tr>
+<tr><td>overpass</td><td>4</td></tr>
+<tr><td>pharmgkb</td><td>4</td></tr>
+<tr><td>podcastindex</td><td>4</td></tr>
+<tr><td>pokeapi</td><td>4</td></tr>
+<tr><td>rateapi</td><td>4</td></tr>
+<tr><td>rcsb</td><td>4</td></tr>
+<tr><td>ror</td><td>4</td></tr>
+<tr><td>rxnorm</td><td>4</td></tr>
+<tr><td>sabre</td><td>4</td></tr>
+<tr><td>samuni</td><td>4</td></tr>
+<tr><td>sdwis</td><td>4</td></tr>
+<tr><td>serper</td><td>4</td></tr>
+<tr><td>smhi</td><td>4</td></tr>
+<tr><td>ssbnorway</td><td>4</td></tr>
+<tr><td>statbel</td><td>4</td></tr>
+<tr><td>statfin</td><td>4</td></tr>
+<tr><td>statistics-denmark</td><td>4</td></tr>
+<tr><td>sunrisesunset</td><td>4</td></tr>
+<tr><td>swissfso</td><td>4</td></tr>
+<tr><td>swissnbm</td><td>4</td></tr>
+<tr><td>swpc</td><td>4</td></tr>
+<tr><td>tfl</td><td>4</td></tr>
+<tr><td>thesportsdb</td><td>4</td></tr>
+<tr><td>transport-rest</td><td>4</td></tr>
+<tr><td>treasurydirect</td><td>4</td></tr>
+<tr><td>treasuryfiscal</td><td>4</td></tr>
+<tr><td>twitterapi</td><td>4</td></tr>
+<tr><td>ukleg</td><td>4</td></tr>
+<tr><td>unhabitat</td><td>4</td></tr>
+<tr><td>unhcr</td><td>4</td></tr>
+<tr><td>uniprot</td><td>4</td></tr>
+<tr><td>usdamars</td><td>4</td></tr>
+<tr><td>usgs-nwis</td><td>4</td></tr>
+<tr><td>vam</td><td>4</td></tr>
+<tr><td>weatherapi</td><td>4</td></tr>
+<tr><td>who-gho</td><td>4</td></tr>
+<tr><td>whoisxml</td><td>4</td></tr>
+<tr><td>wikimedia-analytics</td><td>4</td></tr>
+<tr><td>wikimedia-commons</td><td>4</td></tr>
+<tr><td>wikimedia-rest</td><td>4</td></tr>
+<tr><td>worms</td><td>4</td></tr>
+<tr><td>wto</td><td>4</td></tr>
+<tr><td>zenodo</td><td>4</td></tr>
+<tr><td>17track</td><td>3</td></tr>
+<tr><td>abr</td><td>3</td></tr>
+<tr><td>account</td><td>3</td></tr>
+<tr><td>adsbdb</td><td>3</td></tr>
+<tr><td>adzuna</td><td>3</td></tr>
+<tr><td>artic</td><td>3</td></tr>
+<tr><td>assemblyai</td><td>3</td></tr>
+<tr><td>avwx</td><td>3</td></tr>
+<tr><td>awc</td><td>3</td></tr>
+<tr><td>balldontlie</td><td>3</td></tr>
+<tr><td>bluesky</td><td>3</td></tr>
+<tr><td>bundesbank-timeseries</td><td>3</td></tr>
+<tr><td>cactus</td><td>3</td></tr>
+<tr><td>cfpb-complaints</td><td>3</td></tr>
+<tr><td>checkwx</td><td>3</td></tr>
+<tr><td>chesscom</td><td>3</td></tr>
+<tr><td>congress</td><td>3</td></tr>
+<tr><td>convertapi</td><td>3</td></tr>
+<tr><td>copernicus-sentinel</td><td>3</td></tr>
+<tr><td>courtlistener</td><td>3</td></tr>
+<tr><td>crossref-datacitations</td><td>3</td></tr>
+<tr><td>currents</td><td>3</td></tr>
+<tr><td>depsdev</td><td>3</td></tr>
+<tr><td>ecdc-surveillance</td><td>3</td></tr>
+<tr><td>enviroatlas</td><td>3</td></tr>
+<tr><td>exa</td><td>3</td></tr>
+<tr><td>fedregister</td><td>3</td></tr>
+<tr><td>fema</td><td>3</td></tr>
+<tr><td>figi</td><td>3</td></tr>
+<tr><td>figshare</td><td>3</td></tr>
+<tr><td>freetogame</td><td>3</td></tr>
+<tr><td>gdacs</td><td>3</td></tr>
+<tr><td>geoboundaries</td><td>3</td></tr>
+<tr><td>geodiva</td><td>3</td></tr>
+<tr><td>github-api</td><td>3</td></tr>
+<tr><td>gleif</td><td>3</td></tr>
+<tr><td>global-health-covid</td><td>3</td></tr>
+<tr><td>govuk</td><td>3</td></tr>
+<tr><td>gus-poland</td><td>3</td></tr>
+<tr><td>hf</td><td>3</td></tr>
+<tr><td>ilostat</td><td>3</td></tr>
+<tr><td>ine-chile</td><td>3</td></tr>
+<tr><td>irctc</td><td>3</td></tr>
+<tr><td>istat</td><td>3</td></tr>
+<tr><td>langbly</td><td>3</td></tr>
+<tr><td>lichess</td><td>3</td></tr>
+<tr><td>listennotes</td><td>3</td></tr>
+<tr><td>loc</td><td>3</td></tr>
+<tr><td>materials-project</td><td>3</td></tr>
+<tr><td>ncbi-eutils</td><td>3</td></tr>
+<tr><td>newsdata</td><td>3</td></tr>
+<tr><td>noaa</td><td>3</td></tr>
+<tr><td>nvd</td><td>3</td></tr>
+<tr><td>oecd-data</td><td>3</td></tr>
+<tr><td>openchargemap</td><td>3</td></tr>
+<tr><td>osv</td><td>3</td></tr>
+<tr><td>p2pquake</td><td>3</td></tr>
+<tr><td>pexels</td><td>3</td></tr>
+<tr><td>platform</td><td>3</td></tr>
+<tr><td>postcode-japan</td><td>3</td></tr>
+<tr><td>postcodes-io</td><td>3</td></tr>
+<tr><td>scb</td><td>3</td></tr>
+<tr><td>sec-edgar</td><td>3</td></tr>
+<tr><td>shipengine</td><td>3</td></tr>
+<tr><td>socrata</td><td>3</td></tr>
+<tr><td>spending</td><td>3</td></tr>
+<tr><td>tatoeba</td><td>3</td></tr>
+<tr><td>timeapi</td><td>3</td></tr>
+<tr><td>ukfsa</td><td>3</td></tr>
+<tr><td>ukpolice</td><td>3</td></tr>
+<tr><td>usajobs</td><td>3</td></tr>
+<tr><td>usgs-earthquake</td><td>3</td></tr>
+<tr><td>usno</td><td>3</td></tr>
+<tr><td>usrealestate</td><td>3</td></tr>
+<tr><td>vatcomply</td><td>3</td></tr>
+<tr><td>wger</td><td>3</td></tr>
+<tr><td>who</td><td>3</td></tr>
+<tr><td>world-bank-cckp</td><td>3</td></tr>
+<tr><td>audd</td><td>2</td></tr>
+<tr><td>cdc</td><td>2</td></tr>
+<tr><td>cocktaildb</td><td>2</td></tr>
+<tr><td>companieshouse</td><td>2</td></tr>
+<tr><td>cve-mitre</td><td>2</td></tr>
+<tr><td>dblp</td><td>2</td></tr>
+<tr><td>dictionary</td><td>2</td></tr>
+<tr><td>duckduckgo</td><td>2</td></tr>
+<tr><td>emsc</td><td>2</td></tr>
+<tr><td>ensembl</td><td>2</td></tr>
+<tr><td>epa</td><td>2</td></tr>
+<tr><td>europeana</td><td>2</td></tr>
+<tr><td>exchangerate</td><td>2</td></tr>
+<tr><td>fatsecret</td><td>2</td></tr>
+<tr><td>gdelt</td><td>2</td></tr>
+<tr><td>gebco</td><td>2</td></tr>
+<tr><td>geocodio</td><td>2</td></tr>
+<tr><td>ibanapi</td><td>2</td></tr>
+<tr><td>imgflip</td><td>2</td></tr>
+<tr><td>ine-portugal</td><td>2</td></tr>
+<tr><td>ipapi</td><td>2</td></tr>
+<tr><td>iqair</td><td>2</td></tr>
+<tr><td>iss</td><td>2</td></tr>
+<tr><td>judge0</td><td>2</td></tr>
+<tr><td>librivox</td><td>2</td></tr>
+<tr><td>marketcheck</td><td>2</td></tr>
+<tr><td>mastodon</td><td>2</td></tr>
+<tr><td>nagerdate</td><td>2</td></tr>
+<tr><td>ncei</td><td>2</td></tr>
+<tr><td>nhtsa</td><td>2</td></tr>
+<tr><td>noaa-tides</td><td>2</td></tr>
+<tr><td>nsf-awards</td><td>2</td></tr>
+<tr><td>nws</td><td>2</td></tr>
+<tr><td>openbeautyfacts</td><td>2</td></tr>
+<tr><td>openfoodfacts</td><td>2</td></tr>
+<tr><td>paleoclimate</td><td>2</td></tr>
+<tr><td>plos-search</td><td>2</td></tr>
+<tr><td>pypi</td><td>2</td></tr>
+<tr><td>qrserver</td><td>2</td></tr>
+<tr><td>reed</td><td>2</td></tr>
+<tr><td>regulations</td><td>2</td></tr>
+<tr><td>resend</td><td>2</td></tr>
+<tr><td>restcountries</td><td>2</td></tr>
+<tr><td>rijksmuseum</td><td>2</td></tr>
+<tr><td>sam</td><td>2</td></tr>
+<tr><td>shortio</td><td>2</td></tr>
+<tr><td>smithsonian</td><td>2</td></tr>
+<tr><td>solar</td><td>2</td></tr>
+<tr><td>spider</td><td>2</td></tr>
+<tr><td>standard-ebooks</td><td>2</td></tr>
+<tr><td>tavily</td><td>2</td></tr>
+<tr><td>theirstack</td><td>2</td></tr>
+<tr><td>twilio</td><td>2</td></tr>
+<tr><td>ukhsa-dashboard</td><td>2</td></tr>
+<tr><td>upcitemdb</td><td>2</td></tr>
+<tr><td>usgs-nationalmap</td><td>2</td></tr>
+<tr><td>usgs-water</td><td>2</td></tr>
+<tr><td>whoisjson</td><td>2</td></tr>
+<tr><td>wikidata</td><td>2</td></tr>
+<tr><td>apiflash</td><td>1</td></tr>
+<tr><td>arbeitnow</td><td>1</td></tr>
+<tr><td>autodev</td><td>1</td></tr>
+<tr><td>calendarific</td><td>1</td></tr>
+<tr><td>chart</td><td>1</td></tr>
+<tr><td>currentuvindex</td><td>1</td></tr>
+<tr><td>dhl</td><td>1</td></tr>
+<tr><td>email_verify</td><td>1</td></tr>
+<tr><td>firms</td><td>1</td></tr>
+<tr><td>hunter</td><td>1</td></tr>
+<tr><td>jooble</td><td>1</td></tr>
+<tr><td>ocrspace</td><td>1</td></tr>
+<tr><td>randomuser</td><td>1</td></tr>
+<tr><td>razorpayifsc</td><td>1</td></tr>
+<tr><td>remotive</td><td>1</td></tr>
+<tr><td>soil</td><td>1</td></tr>
+<tr><td>sslchecker</td><td>1</td></tr>
+<tr><td>stability</td><td>1</td></tr>
+<tr><td>unpaywall</td><td>1</td></tr>
+<tr><td>usgs-epqs</td><td>1</td></tr>
+<tr><td>usgs-mrds</td><td>1</td></tr>
+<tr><td>walkscore</td><td>1</td></tr>
+<tr><td>worldbank</td><td>1</td></tr>
+<tr><td>zerobounce</td><td>1</td></tr>
+<tr><td>zippopotamus</td><td>1</td></tr>
+</tbody>
+</table>
+</div>
+<p class="note">Machine-readable: <a href="/api/tools">/api/tools</a> (public, no auth, cached 1h) or the full paginated <a href="/api/v1/tools">/api/v1/tools</a> (filter by <code>?tier=</code> or <code>?max_price=</code>). Per-tool schemas and pricing: <a href="/pricing">/pricing</a>.</p>
+
+<div class="footer">
+<div class="footer-row">
+<span><span class="online">STATUS: ONLINE</span>  |  PID: 1337  |  TTY: pts/0  |  USER: apibase</span>
+</div>
+<div class="footer-row">
+<span>1316 tools  |  373 providers  |  x402 USDC on Base + MPP USDC on Tempo</span>
+<span>BUILD: v1.0.0</span>
+</div>
+</div>
+
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pricing — APIbase.pro</title>
+<meta name="description" content="APIbase.pro pricing: pay-per-call from $0.001, no subscription, no monthly minimum. Compare x402 (Base), MPP (Tempo), and prepaid balance.">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="shortcut icon" href="/favicon.png">
+<link rel="canonical" href="https://apibase.pro/pricing">
+<meta property="og:title" content="Pricing — APIbase.pro">
+<meta property="og:description" content="Pay-per-call from $0.001. No subscription, no monthly minimum, no seat fees.">
+<meta property="og:url" content="https://apibase.pro/pricing">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'JetBrains Mono','Fira Code','Cascadia Code','Courier New',monospace;background:#1a1a2e;color:#b0ffb0;line-height:1.7;padding:1.5rem;min-height:100vh;display:flex;justify-content:center;align-items:flex-start}
+.window{max-width:880px;width:100%;background:#0c0c0c;border-radius:10px 10px 8px 8px;border:1px solid #444;box-shadow:0 20px 60px rgba(0,0,0,0.6),0 0 80px rgba(0,255,65,0.04),inset 0 0 80px rgba(0,255,65,0.01);overflow:hidden;position:relative}
+.window::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,0.06) 0px,rgba(0,0,0,0.06) 1px,transparent 1px,transparent 3px);pointer-events:none;z-index:2}
+.window::before{content:'';position:absolute;top:-100%;left:0;right:0;height:60px;background:linear-gradient(180deg,transparent 0%,rgba(0,255,65,0.03) 50%,transparent 100%);pointer-events:none;z-index:3;animation:scanline 8s linear infinite}
+@keyframes scanline{0%{top:-60px}100%{top:100%}}
+.titlebar{background:linear-gradient(180deg,#3d3d3d 0%,#2a2a2a 100%);padding:10px 14px;display:flex;align-items:center;border-bottom:1px solid #1a1a1a;position:relative;z-index:4}
+.dots{display:flex;gap:7px;flex-shrink:0}
+.dot{width:13px;height:13px;border-radius:50%;border:1px solid rgba(0,0,0,0.2)}
+.dot-red{background:#ff5f56;border-color:#e0443e}
+.dot-yellow{background:#ffbd2e;border-color:#dea123}
+.dot-green{background:#27c93f;border-color:#1aab29}
+.titlebar-text{flex:1;text-align:center;color:#999;font-size:0.78rem;font-family:inherit;letter-spacing:0.5px}
+.container{padding:1.8rem 2rem 2rem;position:relative;z-index:1}
+nav{display:flex;flex-wrap:wrap;gap:0.3rem;margin-bottom:1rem;padding:0.5rem 0;border-bottom:1px solid #1a3a1a}
+nav::before{content:'[';color:#555}nav::after{content:']';color:#555}
+nav .brand{color:#00ff41;font-weight:700;font-size:0.9rem;text-decoration:none;text-shadow:0 0 8px rgba(0,255,65,0.4)}
+nav a{color:#00cc33;text-decoration:none;font-size:0.85rem}
+nav a::before{content:' | ';color:#340}nav .brand::before{content:''}
+nav a:hover{color:#00ff41;text-shadow:0 0 6px rgba(0,255,65,0.5)}
+.sys-monitor{margin-bottom:1.5rem;font-size:0.82rem;color:#00ff41;letter-spacing:0.5px;padding:0.3rem 0}
+.sys-monitor .prompt{color:#00aa30}
+.sys-monitor .label{color:#2a6a2a}
+.sys-monitor strong{color:#00ff41}
+h1{color:#00ff41;font-size:1.3rem;margin-bottom:0.5rem;line-height:1.5;text-shadow:0 0 10px #00ff41,0 0 20px #00ff41,0 0 40px rgba(0,255,65,0.3)}
+h1::before{content:'> ';color:#00aa30}
+h2{color:#00ff41;font-size:1.05rem;margin:2rem 0 0.8rem;padding-left:1rem;border-left:2px solid #00aa30;text-shadow:0 0 6px rgba(0,255,65,0.2)}
+h2::before{content:'## ';color:#006620}
+p{margin-bottom:0.8rem;font-size:0.9rem;color:#a0d8a0}
+strong{color:#33ff66}
+.updated{color:#2a6a2a;font-size:0.82rem;margin-bottom:1.8rem}
+ul{padding-left:1.5rem;margin-bottom:1rem}
+li{margin-bottom:0.4rem;font-size:0.9rem;color:#a0d8a0}
+li::marker{color:#00aa30}
+a{color:#00ccff;text-decoration:none}
+a:hover{color:#66ddff;text-shadow:0 0 6px rgba(0,204,255,0.4)}
+table{width:100%;border-collapse:collapse;margin:0.8rem 0 1.4rem;font-size:0.85rem}
+th,td{text-align:left;padding:0.5rem 0.7rem;border-bottom:1px solid #1a3a1a;vertical-align:top}
+th{color:#00ff41;font-weight:700;border-bottom:1px solid #00aa30}
+td{color:#a0d8a0}
+td code,p code{background:#111;border:1px solid #1a3a1a;border-radius:3px;padding:0.05rem 0.35rem;color:#33ff66;font-size:0.85em}
+.note{color:#5a9a5a;font-size:0.82rem;font-style:italic}
+.footer{margin-top:2rem;padding:0.6rem 0;border-top:1px solid #1a3a1a;color:#2a6a2a;font-size:0.72rem;display:flex;flex-direction:column;gap:0.2rem}
+.footer-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.5rem}
+.footer .online{color:#00aa30}
+*::-webkit-scrollbar{width:8px;height:8px}
+*::-webkit-scrollbar-track{background:#0c0c0c;border:1px solid #1a3a1a}
+*::-webkit-scrollbar-thumb{background:#1a5a1a;border-radius:4px;border:1px solid #0c0c0c}
+*::-webkit-scrollbar-thumb:hover{background:#00ff41}
+*{scrollbar-width:thin;scrollbar-color:#1a5a1a #0c0c0c}
+@media(max-width:600px){body{padding:0.5rem}.container{padding:1rem}h1{font-size:1.05rem}h1::before{content:''}nav::before,nav::after{display:none}.footer{font-size:0.65rem}table{font-size:0.78rem}th,td{padding:0.4rem 0.4rem}}
+</style>
+</head>
+<body>
+<div class="window">
+<div class="titlebar">
+<div class="dots"><div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div></div>
+<span class="titlebar-text">apibase@prod ~ /srv/apibase/pricing</span>
+</div>
+
+<div class="container" id="main-content">
+
+<nav>
+<a class="brand" href="/">APIbase.pro</a>
+<a href="/pricing">Pricing</a>
+<a href="/catalog">Catalog</a>
+<a href="/connect">Connect</a>
+<a href="/dashboard">Dashboard</a>
+<a href="/contact">Contact</a>
+<a href="/privacy">Privacy</a>
+<a href="/terms">Terms</a>
+<a href="/frameworks">Frameworks</a>
+<a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a>
+</nav>
+
+<div class="sys-monitor">
+<span class="prompt">&gt;</span> <span class="label">PRICE:</span><strong>$0.001&ndash;$1.00</strong>&nbsp;&nbsp;<span class="label">RAILS:</span><strong>x402 / MPP / balance</strong>&nbsp;&nbsp;<span class="label">MINIMUM:</span><strong>$0</strong>
+</div>
+
+<h1>Pricing</h1>
+<p class="updated">Pay per call. No subscription, no seat fees, no monthly minimum.</p>
+
+<h2>Per-call price ranges</h2>
+<p>Every tool has a fixed, published USD price, set from the real upstream cost plus margin. There is no plan, no included quota, no overage fee &mdash; every call, at any volume, costs exactly its listed price.</p>
+<table>
+<thead><tr><th>Tier</th><th>Price</th><th>Typical tools</th></tr></thead>
+<tbody>
+<tr><td><strong>Micro</strong></td><td>&lt; $0.01</td><td>Free-upstream data &mdash; public government datasets, open-source lookups, simple reference data</td></tr>
+<tr><td><strong>Standard</strong></td><td>$0.01 &ndash; $1.00</td><td>Most tools &mdash; weather, finance, geocoding, entertainment, e-commerce lookups</td></tr>
+<tr><td><strong>Premium</strong></td><td>&ge; $1.00</td><td>Data-rich or rate-limited upstreams &mdash; flight search, structured e-commerce product data</td></tr>
+</tbody>
+</table>
+<p class="note">Exact per-tool prices: <a href="/api/v1/tools">full JSON catalog</a> (filter with <code>?tier=micro|standard|premium</code> or <code>?max_price=N</code>) or the human-readable <a href="/catalog">catalog page</a>.</p>
+
+<h2>Cache discount</h2>
+<p>A tool response is cached per its own TTL (5 seconds for volatile data like crypto prices, up to 7 days for near-static data). A cache hit within that window costs <strong>10% of the listed price</strong> &mdash; billed via balance debit, no on-chain settlement needed for a hit.</p>
+
+<h2>How you pay &mdash; three rails, pick per request</h2>
+<table>
+<thead><tr><th>Rail</th><th>Network / asset</th><th>How it works</th><th>Best for</th></tr></thead>
+<tbody>
+<tr><td><strong>x402</strong></td><td>USDC on Base mainnet</td><td>Server replies HTTP 402 with a payment challenge; your wallet signs an EIP-3009 <code>transferWithAuthorization</code>; our self-hosted facilitator settles on-chain.</td><td>Base Account / Base MCP users, on-chain-native agents</td></tr>
+<tr><td><strong>MPP</strong></td><td>USDC on Tempo (chain 4217)</td><td>The <code>mppx</code> SDK signs a lightweight off-chain-style payment against your Tempo wallet. A payment alone can bootstrap a brand-new agent identity &mdash; no prior signup at all.</td><td>Agents that want to pay from a fresh wallet with zero prior registration</td></tr>
+<tr><td><strong>Balance</strong></td><td>Prepaid, debited per call</td><td>Top up once, then every call (including cache hits) debits your balance instantly &mdash; no per-call signature.</td><td>High-frequency callers who don't want to sign every request</td></tr>
+</tbody>
+</table>
+<p class="note">Free tools (price $0) need no payment on any rail. Paid tools enforce payment server-side and fail closed &mdash; there is no unpaid fallback.</p>
+
+<h2>What "no hidden costs" actually means</h2>
+<ul>
+<li>No subscription tier, no seat count, no annual contract.</li>
+<li>No overage fee &mdash; the price per call is the price per call at any volume.</li>
+<li>No markup surprise at settlement &mdash; the price is locked at the moment of the HTTP 402 challenge, not renegotiated after the call runs.</li>
+<li>A failed provider call is never billed &mdash; only a delivered response is charged.</li>
+</ul>
+
+<h2>Why we publish this page</h2>
+<p>Most aggregators in this space either hide pricing behind a "contact sales" form or don't publish a pricing page at all &mdash; we checked, and as of this writing the closest direct competitor's <code>/pricing</code> URL returns a live 404. A platform whose entire pitch is machine-native, pay-per-call payments should be able to show its prices on a page. This is that page.</p>
+
+<div class="footer">
+<div class="footer-row">
+<span><span class="online">STATUS: ONLINE</span>  |  PID: 1337  |  TTY: pts/0  |  USER: apibase</span>
+</div>
+<div class="footer-row">
+<span>1316 tools  |  373 providers  |  x402 USDC on Base + MPP USDC on Tempo</span>
+<span>BUILD: v1.0.0</span>
+</div>
+</div>
+
+</div>
+</div>
+</body>
+</html>
