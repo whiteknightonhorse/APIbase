@@ -39,7 +39,7 @@ def psql(sql):
         ["docker", "exec", "apibase-postgres-1", "psql", "-U", "apibase", "-d", "apibase", "-tAF", "\x1f", "-c", sql],
         capture_output=True, text=True,
     )
-    return out.stdout.strip(), out.returncode
+    return out.stdout.rstrip(chr(10)), out.returncode
 
 
 row, rc = psql(

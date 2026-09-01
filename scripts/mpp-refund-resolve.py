@@ -16,11 +16,18 @@ Usage:
 """
 import subprocess
 import sys
-import json
 import os
 
 ROOT = "/home/apibase/apibase"
 STATE = f"{ROOT}/scripts/night-orchestra/state"
+
+
+def sql_literal(value: str) -> str:
+    """Quote a Python string as a SQL string literal (single quotes, doubled
+    internally) — NOT json.dumps(), which produces double-quoted JSON syntax
+    that Postgres parses as an IDENTIFIER, not a string, and silently breaks
+    the statement."""
+    return "'" + value.replace("'", "''") + "'"
 
 
 def load_tg_env():
@@ -49,6 +56,19 @@ def usage():
     print(__doc__)
     raise SystemExit(2)
 
+
+def selftest():
+    """Smallest possible check on the one non-trivial piece here: SQL string
+    quoting. Run with --selftest, no DB/Telegram needed."""
+    assert sql_literal("plain") == "'plain'"
+    assert sql_literal("it's") == "'it''s'"
+    assert sql_literal("multi 'quote' test") == "'multi ''quote'' test'"
+    print("mpp-refund-resolve --selftest: OK")
+    raise SystemExit(0)
+
+
+if len(sys.argv) >= 2 and sys.argv[1] == "--selftest":
+    selftest()
 
 if len(sys.argv) < 4 or sys.argv[2] not in ("--sent", "--cancel"):
     usage()
@@ -85,14 +105,14 @@ if already_raw.strip() == "t":
 update_sql = (
     f"UPDATE outbox SET processed = true, "
     f"payload = payload || jsonb_build_object("
-    f"'resolution', {json.dumps(resolution)}, "
-    f"'resolution_detail', {json.dumps(detail)}, "
+    f"'resolution', {sql_literal(resolution)}, "
+    f"'resolution_detail', {sql_literal(detail)}, "
     f"'resolved_at', now()::text) "
     f"WHERE id = {int(outbox_id)} AND event_type = 'mpp_refund_owed'"
 )
-_, rc3 = psql(update_sql)
-if rc3 != 0:
-    print("mpp-refund-resolve: UPDATE failed — refund is still tracked as open")
+result, rc3 = psql(update_sql)
+if rc3 != 0 or result != "UPDATE 1":
+    print(f"mpp-refund-resolve: UPDATE failed ({result!r}) — refund is still tracked as open")
     raise SystemExit(1)
 
 print(f"mpp-refund-resolve: outbox id {outbox_id} marked {resolution} ({detail})")
