@@ -49,7 +49,9 @@ li{margin-bottom:0.4rem;font-size:0.9rem;color:#a0d8a0}
 li::marker{color:#00aa30}
 a{color:#00ccff;text-decoration:none}
 a:hover{color:#66ddff;text-shadow:0 0 6px rgba(0,204,255,0.4)}
-table{width:100%;border-collapse:collapse;margin:0.8rem 0 1.4rem;font-size:0.85rem}
+table{width:100%;border-collapse:collapse;margin:0;font-size:0.85rem}
+.table-wrap{overflow-x:auto;margin:0.8rem 0 1.4rem}
+.table-wrap table{min-width:560px}
 th,td{text-align:left;padding:0.5rem 0.7rem;border-bottom:1px solid #1a3a1a;vertical-align:top}
 th{color:#00ff41;font-weight:700;border-bottom:1px solid #00aa30}
 td{color:#a0d8a0}
@@ -98,6 +100,7 @@ td code,p code{background:#111;border:1px solid #1a3a1a;border-radius:3px;paddin
 
 <h2>Per-call price ranges</h2>
 <p>Every tool has a fixed, published USD price, set from the real upstream cost plus margin. There is no plan, no included quota, no overage fee &mdash; every call, at any volume, costs exactly its listed price.</p>
+<div class="table-wrap">
 <table>
 <thead><tr><th>Tier</th><th>Price</th><th>Typical tools</th></tr></thead>
 <tbody>
@@ -106,12 +109,14 @@ td code,p code{background:#111;border:1px solid #1a3a1a;border-radius:3px;paddin
 <tr><td><strong>Premium</strong></td><td>&ge; $1.00</td><td>Data-rich or rate-limited upstreams &mdash; flight search, structured e-commerce product data</td></tr>
 </tbody>
 </table>
+</div>
 <p class="note">Exact per-tool prices: <a href="/api/v1/tools">full JSON catalog</a> (filter with <code>?tier=micro|standard|premium</code> or <code>?max_price=N</code>) or the human-readable <a href="/catalog">catalog page</a>.</p>
 
 <h2>Cache discount</h2>
 <p>A tool response is cached per its own TTL (5 seconds for volatile data like crypto prices, up to 7 days for near-static data). A cache hit within that window costs <strong>10% of the listed price</strong> &mdash; billed via balance debit, no on-chain settlement needed for a hit.</p>
 
 <h2>How you pay &mdash; three rails, pick per request</h2>
+<div class="table-wrap">
 <table>
 <thead><tr><th>Rail</th><th>Network / asset</th><th>How it works</th><th>Best for</th></tr></thead>
 <tbody>
@@ -120,6 +125,7 @@ td code,p code{background:#111;border:1px solid #1a3a1a;border-radius:3px;paddin
 <tr><td><strong>Balance</strong></td><td>Prepaid, debited per call</td><td>Top up once, then every call (including cache hits) debits your balance instantly &mdash; no per-call signature.</td><td>High-frequency callers who don't want to sign every request</td></tr>
 </tbody>
 </table>
+</div>
 <p class="note">Free tools (price $0) need no payment on any rail. Paid tools enforce payment server-side and fail closed &mdash; there is no unpaid fallback.</p>
 
 <h2>What "no hidden costs" actually means</h2>

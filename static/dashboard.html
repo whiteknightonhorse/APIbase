@@ -520,7 +520,7 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
   }
   function latencyClass(ms) { if (ms === null || ms === undefined) return ''; if (ms < 500) return 'lat-green'; if (ms <= 2000) return 'lat-orange'; return 'lat-red'; }
   function latencyBorderClass(ms) { if (ms === null || ms === undefined) return 'lat-border-unknown'; if (ms < 500) return 'lat-border-green'; if (ms <= 2000) return 'lat-border-orange'; return 'lat-border-red'; }
-  function formatNum(n) { if (n === null || n === undefined) return '--'; return n.toLocaleString(); }
+  function formatNum(n) { if (n === null || n === undefined) return '--'; return n.toLocaleString('en-US'); }
   function networkLabel(network) { if (network === 'eip155:8453') return 'Base'; if (network === 'eip155:84532') return 'Base Sepolia'; return network || '--'; }
   function escHtml(s) { var d = document.createElement('div'); d.appendChild(document.createTextNode(s)); return d.innerHTML; }
 
@@ -571,7 +571,7 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
   function renderTable(data) {
     lastData = data;
     document.getElementById('t-providers').textContent = data.totals.providers;
-    document.getElementById('t-tools').textContent = formatNum(data.totals.tools);
+    document.getElementById('t-tools').textContent = data.totals.tools;
     document.getElementById('t-calls').textContent = formatNum(data.totals.calls_24h);
     var genDate = new Date(data.generated_at); document.getElementById('gen-time').textContent = 'Updated: ' + genDate.toLocaleTimeString() + ' ' + genDate.toLocaleDateString() + ' UTC';
     renderPaymentStatus(data);
