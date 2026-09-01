@@ -148,7 +148,7 @@ function extractPaymentFromReq(req: express.Request): PaymentContext {
     | { verified?: boolean; payer?: string }
     | undefined;
   const mpp = (req as unknown as Record<string, unknown>).mppPayment as
-    | { verified?: boolean; payer?: string; method?: string }
+    | { verified?: boolean; payer?: string; method?: string; txHash?: string }
     | undefined;
   return {
     x402Paid: !!x402?.verified,
@@ -158,6 +158,7 @@ function extractPaymentFromReq(req: express.Request): PaymentContext {
     mppPayer: mpp?.payer ?? null,
     mppMethod: mpp?.method ?? null,
     mppPaymentHeader: (req.headers['authorization'] as string) ?? null,
+    mppTxHash: mpp?.txHash ?? null,
   };
 }
 

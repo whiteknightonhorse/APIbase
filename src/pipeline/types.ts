@@ -112,6 +112,11 @@ export interface PipelineContext {
   mppPayer?: string;
   mppMethod?: string;
   mppPaymentHeader?: string;
+  /** On-chain tx hash of the MPP charge (resolved by mpp.middleware.ts via
+   *  Payment-Receipt + read-only RPC lookup). Needed so a refund-owed record
+   *  (escrow-finalize.stage.ts) can name the original transaction — without
+   *  it, a human resolving the refund has to re-derive it from logs. */
+  mppTxHash?: string;
 
   // PROVIDER_CALL stage
   providerResponse?: NormalizedResponse;

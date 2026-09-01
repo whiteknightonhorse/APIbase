@@ -49,13 +49,14 @@ function ctx() {
   c.toolPrice = 0.002;
   c.mppPaid = true;
   c.mppPayer = '0xrealpayeraddress';
+  c.mppTxHash = '0xdeadbeef-fake-tx-hash-for-test';
   return c;
 }
 
 describe('recordMppRefundOwed (F1/C-5)', () => {
   beforeEach(() => mockOutboxCreate.mockReset());
 
-  it('writes an mpp_refund_owed outbox event with payer/amount/reason', async () => {
+  it('writes an mpp_refund_owed outbox event that is action-ready: payer, amount, network, original tx hash, call id, reason', async () => {
     mockOutboxCreate.mockResolvedValue({ id: 1n });
     await recordMppRefundOwed(ctx(), 'provider_call_failed_or_not_made');
 
@@ -67,9 +68,23 @@ describe('recordMppRefundOwed (F1/C-5)', () => {
         request_id: 'req-mpp-1',
         tool_id: 'weather.get_current',
         payer: '0xrealpayeraddress',
+        refund_to: '0xrealpayeraddress',
         amount_usd: 0.002,
+        network: 'tempo',
+        tx_hash: '0xdeadbeef-fake-tx-hash-for-test',
         reason: 'provider_call_failed_or_not_made',
       }),
+    );
+  });
+
+  it('falls back to an explicit "unknown" tx_hash rather than omitting the field when the middleware could not resolve one', async () => {
+    mockOutboxCreate.mockResolvedValue({ id: 1n });
+    const c = ctx();
+    c.mppTxHash = undefined;
+    await recordMppRefundOwed(c, 'x');
+
+    expect(mockOutboxCreate.mock.calls[0][0].data.payload).toEqual(
+      expect.objectContaining({ tx_hash: 'unknown' }),
     );
   });
 

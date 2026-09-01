@@ -12,11 +12,28 @@ import { getPrisma } from '../../services/prisma.service';
  * branch below to the \"no escrow reserved\" early-return (MPP requests never
  * have ctx.escrowId) and left with billingStatus/finalCost simply unset —
  * the client's money was gone and nothing recorded it, let alone refunded
- * it. This does NOT execute an on-chain refund transfer — this operator's
- * standing rule (and mine) is that sending cryptocurrency is never done by
- * unsupervised code; it durably records exactly what is owed, to whom, and
- * why, and scripts/mpp-refund-owed-alerts.py pages the operator immediately
- * so a human executes the actual transfer.
+ * it.
+ *
+ * ⛔ STANDING OPERATOR DECISION (2026-09-01, confirmed after this was built):
+ * MPP refunds are executed MANUALLY by the operator after this alert, never
+ * by autonomous code — MPP/mppx has no reverse-payment primitive, so a real
+ * refund would be a brand-new outbound on-chain transfer signed with the
+ * live operator key. Sending cryptocurrency unsupervised is a line this
+ * codebase does not cross, regardless of future autonomy grants, without a
+ * new explicit decision. This function's only job is to durably record
+ * exactly what is owed, to whom, and why, with everything a human needs to
+ * act on it without investigating further (amount, recipient, network, the
+ * original tx hash, the call id, the timestamp) — see
+ * scripts/mpp-refund-owed-alerts.py (5-min page),
+ * scripts/mpp-refund-resolve.py (operator marks it handled), and
+ * scripts/mpp-refund-weekly-summary.py (nothing left to silently age out).
+ *
+ * The row's `processed` column IS the "still owed" flag — it starts false
+ * and stays false until mpp-refund-resolve.py flips it, which also protects
+ * the row from partition-cleanup.job.ts's 7-day outbox retention (that job
+ * already refuses to drop a partition containing any `processed=false` row).
+ * A forgotten refund must not be able to silently expire; it can only be
+ * closed by a human explicitly saying so.
  */
 export async function recordMppRefundOwed(
   ctx: import('../types').PipelineContext,
@@ -30,7 +47,10 @@ export async function recordMppRefundOwed(
           request_id: ctx.requestId,
           tool_id: ctx.toolId,
           payer: ctx.mppPayer,
+          refund_to: ctx.mppPayer,
           amount_usd: ctx.toolPrice,
+          network: 'tempo',
+          tx_hash: ctx.mppTxHash ?? 'unknown',
           reason,
         },
       },

@@ -49,6 +49,10 @@ executeRouter.post(
         ctx.mppPayer = req.mppPayment.payer;
         ctx.mppMethod = req.mppPayment.method;
         ctx.mppPaymentHeader = req.mppPayment.header;
+        // Needed by escrow-finalize's refund-owed record (F1/C-5 follow-up) —
+        // without the original tx hash a human resolving the refund has to
+        // re-derive it from logs before they can act.
+        ctx.mppTxHash = req.mppPayment.txHash;
       }
 
       const result = await runPipeline(ctx);
