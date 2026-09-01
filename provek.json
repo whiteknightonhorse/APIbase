@@ -1,0 +1,20 @@
+{
+  "provek_declaration": "1.0.0",
+  "accountability": {
+    "claims_addressee": {
+      "type": "legal_entity",
+      "contact": "api@apibase.pro"
+    },
+    "emergency_stop": {
+      "exists": true,
+      "holder": "operator",
+      "mechanism": "ssh + service stop halts all paid calls"
+    },
+    "insurance": {
+      "exists": false
+    },
+    "dispute_path": {
+      "type": "contact"
+    }
+  }
+}
