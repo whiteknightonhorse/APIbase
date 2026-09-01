@@ -1,6 +1,7 @@
 import { type Stage, type PipelineContext, ok, err, type PipelineError } from '../types';
 import { checkIdempotency, setPending } from '../../services/idempotency.service';
 import { randomUUID } from 'node:crypto';
+import { X_IDEMPOTENCY_KEY } from '../../config/http-headers';
 
 /**
  * IDEMPOTENCY stage (§12.43 stage 2, §12.171).
@@ -20,7 +21,7 @@ export const idempotencyStage: Stage = {
   name: 'IDEMPOTENCY',
 
   async execute(ctx: PipelineContext) {
-    const keyHeader = ctx.headers['x-idempotency-key'];
+    const keyHeader = ctx.headers[X_IDEMPOTENCY_KEY];
     const key = Array.isArray(keyHeader) ? keyHeader[0] : keyHeader;
 
     const executionId = randomUUID();

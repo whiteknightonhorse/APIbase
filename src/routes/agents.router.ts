@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { registerAgent, autoRegisterAnonymous } from '../services/agent.service';
 import { AppError, ErrorCode } from '../types/errors';
 import { logger } from '../config/logger';
+import { X_AGENT_NAME } from '../config/http-headers';
 
 /**
  * Agent registration routes (§9.3).
@@ -75,7 +76,7 @@ agentsRouter.post(
     try {
       const ip = req.ip ?? req.socket.remoteAddress ?? 'unknown';
       const userAgent =
-        (req.headers['x-agent-name'] as string) ?? req.headers['user-agent'] ?? 'unknown';
+        (req.headers[X_AGENT_NAME] as string) ?? req.headers['user-agent'] ?? 'unknown';
 
       const result = await autoRegisterAnonymous(ip, userAgent);
 

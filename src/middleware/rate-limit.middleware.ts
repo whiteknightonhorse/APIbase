@@ -2,6 +2,11 @@ import type { Request, Response, NextFunction } from 'express';
 import { checkRateLimit } from '../services/rate-limit.service';
 import { AppError, ErrorCode } from '../types/errors';
 import '../types/request';
+import {
+  X_RATELIMIT_LIMIT,
+  X_RATELIMIT_REMAINING,
+  X_RATELIMIT_RESET,
+} from '../config/http-headers';
 
 /**
  * Rate limit middleware — dual token bucket (§12.172, §12.43 RATE_LIMIT stage).
@@ -34,10 +39,10 @@ export function createRateLimitMiddleware() {
       const result = await checkRateLimit(req.agent.agent_id, toolId, req.agent.tier);
 
       // Set rate limit headers on ALL responses (§12.66)
-      res.setHeader('X-RateLimit-Limit', String(result.limit));
-      res.setHeader('X-RateLimit-Remaining', String(result.remaining));
+      res.setHeader(X_RATELIMIT_LIMIT, String(result.limit));
+      res.setHeader(X_RATELIMIT_REMAINING, String(result.remaining));
       res.setHeader(
-        'X-RateLimit-Reset',
+        X_RATELIMIT_RESET,
         String(Math.ceil(Date.now() / 1000) + (result.retryAfterSecs || 1)),
       );
 

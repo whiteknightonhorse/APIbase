@@ -15,6 +15,7 @@
  */
 
 import express from 'express';
+import { X_REQUEST_ID, X_PAYMENT } from '../config/http-headers';
 import { randomUUID } from 'node:crypto';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
@@ -153,7 +154,7 @@ function extractPaymentFromReq(req: express.Request): PaymentContext {
   return {
     x402Paid: !!x402?.verified,
     x402Payer: x402?.payer ?? null,
-    x402PaymentHeader: (req.headers['x-payment'] as string) ?? null,
+    x402PaymentHeader: (req.headers[X_PAYMENT] as string) ?? null,
     mppPaid: !!mpp?.verified,
     mppPayer: mpp?.payer ?? null,
     mppMethod: mpp?.method ?? null,
@@ -267,7 +268,7 @@ export function createMcpRouter(): express.Router {
         return;
       }
 
-      const requestId = (req.headers['x-request-id'] as string) || randomUUID();
+      const requestId = (req.headers[X_REQUEST_ID] as string) || randomUUID();
 
       // Create mutable payment context ref — updated per-request, read by tool callbacks
       const paymentCtxRef: PaymentContext = extractPaymentFromReq(req);
@@ -397,7 +398,7 @@ export function createMcpRouter(): express.Router {
       return;
     }
 
-    const requestId = (req.headers['x-request-id'] as string) || randomUUID();
+    const requestId = (req.headers[X_REQUEST_ID] as string) || randomUUID();
 
     const transport = new SSEServerTransport('/messages', res);
     const sessionId = transport.sessionId;

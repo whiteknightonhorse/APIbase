@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { runBatch } from '../services/batch.service';
 import { logger } from '../config/logger';
 import type { BatchCallInput } from '../adapters/platform/types';
+import { X_REQUEST_ID, X_API_KEY } from '../config/http-headers';
 
 /**
  * Batch execution REST endpoint (F1: Batch API).
@@ -20,7 +21,7 @@ export const batchRouter = Router();
 batchRouter.post(
   '/api/v1/tools/call_batch',
   async (req: Request, res: Response, next: NextFunction) => {
-    const requestId = (req.headers['x-request-id'] as string) || randomUUID();
+    const requestId = (req.headers[X_REQUEST_ID] as string) || randomUUID();
 
     try {
       const { calls, max_parallel } = req.body as {
@@ -64,7 +65,7 @@ batchRouter.post(
 
       // Auth is forwarded to sub-pipelines — each runs full AUTH stage
       const authHeader = req.headers.authorization as string | undefined;
-      const apiKeyHeader = req.headers['x-api-key'] as string | undefined;
+      const apiKeyHeader = req.headers[X_API_KEY] as string | undefined;
 
       if (!authHeader && !apiKeyHeader) {
         res.status(401).json({
@@ -77,11 +78,14 @@ batchRouter.post(
 
       const maxParallel = Math.min(Math.max(Number(max_parallel) || 10, 1), 10);
 
-      logger.info({
-        request_id: requestId,
-        call_count: calls.length,
-        max_parallel: maxParallel,
-      }, 'Batch REST request received');
+      logger.info(
+        {
+          request_id: requestId,
+          call_count: calls.length,
+          max_parallel: maxParallel,
+        },
+        'Batch REST request received',
+      );
 
       const result = await runBatch({
         authHeader: authHeader || (apiKeyHeader ? `Bearer ${apiKeyHeader}` : undefined),

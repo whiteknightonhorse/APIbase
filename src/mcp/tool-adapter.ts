@@ -16,6 +16,7 @@ import { runPipeline } from '../pipeline/pipeline';
 import { logger } from '../config/logger';
 import { TOOL_DEFINITIONS } from './tool-definitions';
 import { getActiveToolIds } from '../pipeline/stages/tool-status.stage';
+import { X_PAYMENT } from '../config/http-headers';
 
 // Re-export for backward compatibility
 export { TOOL_DEFINITIONS } from './tool-definitions';
@@ -114,7 +115,7 @@ export function registerTools(
         };
         // Forward payment headers so pipeline recognizes them
         if (paymentCtx?.x402PaymentHeader) {
-          headers['x-payment'] = paymentCtx.x402PaymentHeader;
+          headers[X_PAYMENT] = paymentCtx.x402PaymentHeader;
         }
         const ctx = createPipelineContext(requestId, 'POST', '/mcp', args, headers);
         ctx.toolId = toolId;

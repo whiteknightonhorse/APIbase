@@ -4,6 +4,7 @@ import { runPipeline } from '../pipeline/pipeline';
 import { logger } from '../config/logger';
 import { PREFETCH_RULES } from '../config/prefetch-rules';
 import { config } from '../config';
+import { X_REQUEST_ID } from '../config/http-headers';
 
 /**
  * Predictive Pre-fetching Service (F8).
@@ -54,16 +55,10 @@ async function executePrefetch(
 ): Promise<void> {
   const requestId = `prefetch-${parentRequestId}-${randomUUID().slice(0, 8)}`;
 
-  const ctx = createPipelineContext(
-    requestId,
-    'POST',
-    `/api/v1/tools/${toolId}/call`,
-    params,
-    {
-      'content-type': 'application/json',
-      'x-request-id': requestId,
-    },
-  );
+  const ctx = createPipelineContext(requestId, 'POST', `/api/v1/tools/${toolId}/call`, params, {
+    'content-type': 'application/json',
+    [X_REQUEST_ID]: requestId,
+  });
   ctx.toolId = toolId;
   ctx.agentId = PLATFORM_AGENT_ID;
 
@@ -71,7 +66,11 @@ async function executePrefetch(
 
   if (result.ok) {
     logger.info(
-      { prefetch_tool: toolId, parent_request_id: parentRequestId, cache_set: result.value.cacheSet },
+      {
+        prefetch_tool: toolId,
+        parent_request_id: parentRequestId,
+        cache_set: result.value.cacheSet,
+      },
       'Prefetch completed',
     );
   } else {

@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import { resolveRequestId, createRequestLogger } from '../config/logger';
+import { X_REQUEST_ID } from '../config/http-headers';
 // Global Express Request type extensions are in src/types/request.ts
 
 /**
@@ -11,7 +12,7 @@ import { resolveRequestId, createRequestLogger } from '../config/logger';
  * 4. Attach `req.requestId` and `req.log` (child Pino logger) for downstream.
  */
 export function requestIdMiddleware(req: Request, res: Response, next: NextFunction): void {
-  const clientHeader = req.headers['x-request-id'];
+  const clientHeader = req.headers[X_REQUEST_ID];
   const clientValue = Array.isArray(clientHeader) ? clientHeader[0] : clientHeader;
 
   const requestId = resolveRequestId(clientValue);
@@ -19,7 +20,7 @@ export function requestIdMiddleware(req: Request, res: Response, next: NextFunct
   req.requestId = requestId;
   req.log = createRequestLogger(requestId);
 
-  res.setHeader('X-Request-ID', requestId);
+  res.setHeader(X_REQUEST_ID, requestId);
 
   next();
 }

@@ -4,10 +4,11 @@ import { parsePaymentPayload } from '@x402/core/schemas';
 import { getX402Config, toMicroUsdc } from '../config/x402.config';
 import { logger } from '../config/logger';
 import { AppError, ErrorCode } from '../types/errors';
+import { X_PAYMENT } from '../config/http-headers';
 
 export function x402Middleware(req: Request, _res: Response, next: NextFunction): void {
   const paymentHeader =
-    (req.headers['x-payment'] as string | undefined) ??
+    (req.headers[X_PAYMENT] as string | undefined) ??
     (req.headers['payment-signature'] as string | undefined);
 
   if (paymentHeader === undefined) {

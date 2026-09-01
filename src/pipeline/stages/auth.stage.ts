@@ -4,6 +4,7 @@ import { hashApiKey, isValidApiKeyFormat } from '../../services/api-key.service'
 import { getPrisma } from '../../services/prisma.service';
 import { ensureRedisConnected } from '../../services/redis.service';
 import { logger } from '../../config/logger';
+import { X_API_KEY } from '../../config/http-headers';
 
 /**
  * AUTH stage (§12.43 stage 1, §12.60).
@@ -75,7 +76,9 @@ async function ensureMppAgent(walletAddress: string): Promise<CachedAgent> {
     const r = await ensureRedisConnected();
     const raw = await r.get(cacheKey);
     if (raw) return JSON.parse(raw) as CachedAgent;
-  } catch { /* fall through to PG */ }
+  } catch {
+    /* fall through to PG */
+  }
 
   const db = getPrisma();
 
@@ -86,7 +89,11 @@ async function ensureMppAgent(walletAddress: string): Promise<CachedAgent> {
   });
 
   if (existing) {
-    const cached: CachedAgent = { agent_id: existing.agent_id, tier: existing.tier, status: existing.status };
+    const cached: CachedAgent = {
+      agent_id: existing.agent_id,
+      tier: existing.tier,
+      status: existing.status,
+    };
     ensureRedisConnected()
       .then((r) => r.set(cacheKey, JSON.stringify(cached), 'EX', AUTH_CACHE_TTL_SECONDS))
       .catch(() => {});
@@ -103,9 +110,16 @@ async function ensureMppAgent(walletAddress: string): Promise<CachedAgent> {
     select: { agent_id: true, tier: true, status: true },
   });
 
-  logger.info({ agent_id: newAgent.agent_id, wallet: walletAddress }, 'Auto-registered MPP agent by Tempo wallet');
+  logger.info(
+    { agent_id: newAgent.agent_id, wallet: walletAddress },
+    'Auto-registered MPP agent by Tempo wallet',
+  );
 
-  const cached: CachedAgent = { agent_id: newAgent.agent_id, tier: newAgent.tier, status: newAgent.status };
+  const cached: CachedAgent = {
+    agent_id: newAgent.agent_id,
+    tier: newAgent.tier,
+    status: newAgent.status,
+  };
   ensureRedisConnected()
     .then((r) => r.set(cacheKey, JSON.stringify(cached), 'EX', AUTH_CACHE_TTL_SECONDS))
     .catch(() => {});
@@ -129,7 +143,7 @@ export const authStage: Stage = {
 
     // Fallback: if no Authorization header, check X-API-Key (MPP agents use this)
     if (!headerValue) {
-      const xApiKey = ctx.headers['x-api-key'];
+      const xApiKey = ctx.headers[X_API_KEY];
       const apiKeyFallback = Array.isArray(xApiKey) ? xApiKey[0] : xApiKey;
 
       if (apiKeyFallback && isValidApiKeyFormat(apiKeyFallback)) {
@@ -147,7 +161,8 @@ export const authStage: Stage = {
       return err<PipelineError>({
         code: 401,
         error: 'unauthorized',
-        message: 'Missing Authorization header. Send Authorization: Bearer <api_key> or X-API-Key: <api_key>',
+        message:
+          'Missing Authorization header. Send Authorization: Bearer <api_key> or X-API-Key: <api_key>',
       });
     }
 
@@ -157,7 +172,7 @@ export const authStage: Stage = {
     // Agent identified via X-API-Key header or auto-registered by Tempo wallet address.
     if (parts[0] === 'Payment') {
       // Try X-API-Key header as alternative auth (agent sends both API key + MPP payment)
-      const xApiKey = ctx.headers['x-api-key'];
+      const xApiKey = ctx.headers[X_API_KEY];
       const apiKeyAlt = Array.isArray(xApiKey) ? xApiKey[0] : xApiKey;
 
       if (apiKeyAlt && isValidApiKeyFormat(apiKeyAlt)) {

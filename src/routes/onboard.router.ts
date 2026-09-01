@@ -2,21 +2,24 @@ import { Router, type Request, type Response } from 'express';
 import { z } from 'zod';
 import { logger } from '../config/logger';
 import { checkIpRateLimit, createSubmission } from '../services/onboard.service';
+import { X_REQUEST_ID } from '../config/http-headers';
 
 // ---------------------------------------------------------------------------
 // Zod schema (§6.12)
 // ---------------------------------------------------------------------------
 
-const onboardSchema = z.object({
-  company_name: z.string().min(1).max(256),
-  api_url: z.string().url().max(2048),
-  contact_email: z.string().email().max(256),
-  category: z.enum(['travel', 'food', 'finance', 'e-commerce', 'other']),
-  description: z.string().min(1).max(500),
-  affiliate_program: z.string().url().max(2048).optional().or(z.literal('')),
-  monthly_volume: z.string().max(64).optional().or(z.literal('')),
-  _honeypot: z.string().optional(),
-}).strip();
+const onboardSchema = z
+  .object({
+    company_name: z.string().min(1).max(256),
+    api_url: z.string().url().max(2048),
+    contact_email: z.string().email().max(256),
+    category: z.enum(['travel', 'food', 'finance', 'e-commerce', 'other']),
+    description: z.string().min(1).max(500),
+    affiliate_program: z.string().url().max(2048).optional().or(z.literal('')),
+    monthly_volume: z.string().max(64).optional().or(z.literal('')),
+    _honeypot: z.string().optional(),
+  })
+  .strip();
 
 // ---------------------------------------------------------------------------
 // HTML form (inline, minimal — §AP-10)
@@ -98,7 +101,11 @@ const JSON_SCHEMA_RESPONSE = {
     company_name: { type: 'string', required: true, max: 256 },
     api_url: { type: 'string', format: 'url', required: true, max: 2048 },
     contact_email: { type: 'string', format: 'email', required: true, max: 256 },
-    category: { type: 'enum', values: ['travel', 'food', 'finance', 'e-commerce', 'other'], required: true },
+    category: {
+      type: 'enum',
+      values: ['travel', 'food', 'finance', 'e-commerce', 'other'],
+      required: true,
+    },
     description: { type: 'string', required: true, max: 500 },
     affiliate_program: { type: 'string', format: 'url', required: false, max: 2048 },
     monthly_volume: { type: 'string', required: false, max: 64 },
@@ -128,7 +135,7 @@ onboardRouter.get('/onboard', (req: Request, res: Response) => {
  * POST /onboard — Receive onboarding submission (§6.12)
  */
 onboardRouter.post('/onboard', async (req: Request, res: Response) => {
-  const requestId = req.headers['x-request-id'] as string | undefined;
+  const requestId = req.headers[X_REQUEST_ID] as string | undefined;
   const ip = req.ip || '0.0.0.0';
 
   // 1. IP rate limit

@@ -1,4 +1,5 @@
 import express from 'express';
+import { X_POWERED_BY } from '../config/http-headers';
 import { requestIdMiddleware } from '../middleware/request-id.middleware';
 import { metricsMiddleware } from '../middleware/metrics.middleware';
 import { contentTypeMiddleware } from '../middleware/content-type.middleware';
@@ -35,7 +36,7 @@ export function createApp(): express.Express {
   const app = express();
 
   // Disable X-Powered-By header (security)
-  app.disable('x-powered-by');
+  app.disable(X_POWERED_BY);
 
   // Trust proxy (behind nginx)
   app.set('trust proxy', 1);
