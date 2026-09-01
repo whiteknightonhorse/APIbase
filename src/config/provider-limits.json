@@ -3302,5 +3302,14 @@
     "reset_period": "none",
     "docs_url": "https://api.geonet.org.nz/",
     "limit_proof": "GeoNet API documentation (api.geonet.org.nz) and Data Policy state all GeoNet data and images are freely available; no signup, API key, or rate limit is documented for the public REST API."
+  },
+  "bgs-ogcapi": {
+    "display_name": "BGS OGC API",
+    "health_url": "https://ogcapi.bgs.ac.uk/collections/recentearthquakes/items?limit=1&f=json",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://ogcapi.bgs.ac.uk/",
+    "limit_proof": "No signup, API key, or rate limit documented on the service landing page (ogcapi.bgs.ac.uk) — a public BETA pygeoapi service published by the British Geological Survey under Open Government Licence."
   }
 }

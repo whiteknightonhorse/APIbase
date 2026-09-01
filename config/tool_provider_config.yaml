@@ -7910,6 +7910,31 @@ tools:
     price_usd: "0.001"
     cache_ttl: 300
 
+  # --- UC-650: BGS OGC API (4 tools) ---
+  - tool_id: bgs-ogcapi.geology_bedrock
+    name: BGS Bedrock Geology Lookup
+    provider: bgs-ogcapi
+    price_usd: "0.002"
+    cache_ttl: 604800
+
+  - tool_id: bgs-ogcapi.earthquake_search
+    name: BGS UK Earthquake Search
+    provider: bgs-ogcapi
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: bgs-ogcapi.borehole_search
+    name: BGS Borehole Index Search
+    provider: bgs-ogcapi
+    price_usd: "0.002"
+    cache_ttl: 604800
+
+  - tool_id: bgs-ogcapi.landslide_search
+    name: BGS National Landslide Database Search
+    provider: bgs-ogcapi
+    price_usd: "0.002"
+    cache_ttl: 604800
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

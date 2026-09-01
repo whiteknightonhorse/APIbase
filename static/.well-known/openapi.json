@@ -117900,6 +117900,406 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/bgs-ogcapi.geology_bedrock/call": {
+      "post": {
+        "operationId": "bgs-ogcapi_geology_bedrock",
+        "summary": "BGS Bedrock Geology Lookup",
+        "description": "Look up bedrock geology (lithology, rock unit name, and geological age range) near a point in Great Britain, from the BGS 1:625,000 generalised digital geological map. Returns each matching bedrock unit's lexicon name, rock composition, and time period (e.g. Eocene, Cretaceous). Data: British Geological Survey (ogcapi.bgs.ac.uk), Open Government Licence, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bgs-ogcapi.geology_bedrock"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "lat": {
+                    "type": "number",
+                    "minimum": -90,
+                    "maximum": 90,
+                    "description": "Decimal degree latitude (WGS84) — must be supplied together with lng. Omit both for full Great Britain coverage."
+                  },
+                  "lng": {
+                    "type": "number",
+                    "minimum": -180,
+                    "maximum": 180,
+                    "description": "Decimal degree longitude (WGS84) — must be supplied together with lat."
+                  },
+                  "radius_km": {
+                    "type": "number",
+                    "minimum": 0.5,
+                    "maximum": 50,
+                    "description": "Search radius in kilometres around lat/lng (default 5, max 50)"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum bedrock geology units to return (default 20, max 50)"
+                  }
+                },
+                "description": "Bedrock geology (lithology + age) for a point in Great Britain, from the BGS 1:625,000 map"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/bgs-ogcapi.earthquake_search/call": {
+      "post": {
+        "operationId": "bgs-ogcapi_earthquake_search",
+        "summary": "BGS UK Earthquake Search",
+        "description": "Search UK earthquakes by area (lat/lng + radius), year, and minimum magnitude. Set period to \"modern\" (default, instrument-recorded since 1970) or \"historical\" (pre-1970 UK Historical Earthquakes catalogue). Returns event date/time, depth, local magnitude (ML), and intensity. Data: British Geological Survey (ogcapi.bgs.ac.uk), Open Government Licence, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bgs-ogcapi.earthquake_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "lat": {
+                    "type": "number",
+                    "minimum": -90,
+                    "maximum": 90,
+                    "description": "Decimal degree latitude (WGS84) — must be supplied together with lng. Omit both for full Great Britain coverage."
+                  },
+                  "lng": {
+                    "type": "number",
+                    "minimum": -180,
+                    "maximum": 180,
+                    "description": "Decimal degree longitude (WGS84) — must be supplied together with lat."
+                  },
+                  "radius_km": {
+                    "type": "number",
+                    "minimum": 0.5,
+                    "maximum": 500,
+                    "description": "Search radius in kilometres around lat/lng (default 50, max 500)"
+                  },
+                  "period": {
+                    "type": "string",
+                    "enum": [
+                      "modern",
+                      "historical"
+                    ],
+                    "description": "\"modern\" = instrument-recorded earthquakes since 1970 (default), \"historical\" = UK earthquakes before 1970"
+                  },
+                  "year": {
+                    "type": "string",
+                    "description": "Filter to a single 4-digit year, e.g. \"2020\""
+                  },
+                  "min_magnitude": {
+                    "type": "number",
+                    "description": "Minimum local magnitude (ML) to include"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum earthquakes to return (default 20, max 100)"
+                  }
+                },
+                "description": "UK earthquake search by area, year, and magnitude (BGS seismic monitoring)"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/bgs-ogcapi.borehole_search/call": {
+      "post": {
+        "operationId": "bgs-ogcapi_borehole_search",
+        "summary": "BGS Borehole Index Search",
+        "description": "Search the Single Onshore Borehole Index (SOBI) — over 1 million UK borehole, shaft, and well site-investigation records — near a point. Returns reference number, site name, grid reference, depth, and a scan URL where available. Data: British Geological Survey (ogcapi.bgs.ac.uk), Open Government Licence, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bgs-ogcapi.borehole_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "lat": {
+                    "type": "number",
+                    "minimum": -90,
+                    "maximum": 90,
+                    "description": "Decimal degree latitude (WGS84) — must be supplied together with lng. Omit both for full Great Britain coverage."
+                  },
+                  "lng": {
+                    "type": "number",
+                    "minimum": -180,
+                    "maximum": 180,
+                    "description": "Decimal degree longitude (WGS84) — must be supplied together with lat."
+                  },
+                  "radius_km": {
+                    "type": "number",
+                    "minimum": 0.5,
+                    "maximum": 50,
+                    "description": "Search radius in kilometres around lat/lng (default 5, max 50)"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum borehole records to return (default 20, max 100)"
+                  }
+                },
+                "description": "Single Onshore Borehole Index (SOBI) — over 1 million UK borehole/shaft/well site-investigation records"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/bgs-ogcapi.landslide_search/call": {
+      "post": {
+        "operationId": "bgs-ogcapi_landslide_search",
+        "summary": "BGS National Landslide Database Search",
+        "description": "Search the National Landslide Database for recorded UK landslide events near a point. Returns landslide name, locality details, and known-date range where recorded. Data: British Geological Survey (ogcapi.bgs.ac.uk), Open Government Licence, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bgs-ogcapi.landslide_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "lat": {
+                    "type": "number",
+                    "minimum": -90,
+                    "maximum": 90,
+                    "description": "Decimal degree latitude (WGS84) — must be supplied together with lng. Omit both for full Great Britain coverage."
+                  },
+                  "lng": {
+                    "type": "number",
+                    "minimum": -180,
+                    "maximum": 180,
+                    "description": "Decimal degree longitude (WGS84) — must be supplied together with lat."
+                  },
+                  "radius_km": {
+                    "type": "number",
+                    "minimum": 0.5,
+                    "maximum": 200,
+                    "description": "Search radius in kilometres around lat/lng (default 20, max 200)"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum landslide records to return (default 20, max 100)"
+                  }
+                },
+                "description": "National Landslide Database — recorded UK landslide events and locations"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

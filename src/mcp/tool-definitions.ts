@@ -15705,4 +15705,55 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+  // BGS OGC API (4)
+  {
+    toolId: 'bgs-ogcapi.geology_bedrock',
+    mcpName: 'bgs-ogcapi.geology.bedrock',
+    title: 'BGS Bedrock Geology Lookup',
+    description:
+      'Look up bedrock geology (lithology, rock unit name, and geological age range) near a ' +
+      'point in Great Britain, from the BGS 1:625,000 generalised digital geological map. ' +
+      "Returns each matching bedrock unit's lexicon name, rock composition, and time period " +
+      '(e.g. Eocene, Cretaceous). Data: British Geological Survey (ogcapi.bgs.ac.uk), Open ' +
+      'Government Licence, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bgs-ogcapi.earthquake_search',
+    mcpName: 'bgs-ogcapi.hazards.earthquake_search',
+    title: 'BGS UK Earthquake Search',
+    description:
+      'Search UK earthquakes by area (lat/lng + radius), year, and minimum magnitude. Set ' +
+      'period to "modern" (default, instrument-recorded since 1970) or "historical" (pre-1970 ' +
+      'UK Historical Earthquakes catalogue). Returns event date/time, depth, local magnitude ' +
+      '(ML), and intensity. Data: British Geological Survey (ogcapi.bgs.ac.uk), Open ' +
+      'Government Licence, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bgs-ogcapi.borehole_search',
+    mcpName: 'bgs-ogcapi.geology.borehole_search',
+    title: 'BGS Borehole Index Search',
+    description:
+      'Search the Single Onshore Borehole Index (SOBI) — over 1 million UK borehole, shaft, ' +
+      'and well site-investigation records — near a point. Returns reference number, site ' +
+      'name, grid reference, depth, and a scan URL where available. Data: British Geological ' +
+      'Survey (ogcapi.bgs.ac.uk), Open Government Licence, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bgs-ogcapi.landslide_search',
+    mcpName: 'bgs-ogcapi.hazards.landslide_search',
+    title: 'BGS National Landslide Database Search',
+    description:
+      'Search the National Landslide Database for recorded UK landslide events near a point. ' +
+      'Returns landslide name, locality details, and known-date range where recorded. Data: ' +
+      'British Geological Survey (ogcapi.bgs.ac.uk), Open Government Licence, no auth ' +
+      'required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

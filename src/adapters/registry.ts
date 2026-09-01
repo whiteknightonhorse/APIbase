@@ -368,6 +368,7 @@ import { SocrataAdapter } from './socrata';
 import { NcbiEutilsAdapter } from './ncbi-eutils';
 import { HdxHapiAdapter } from './hdx-hapi';
 import { GeonetNzAdapter } from './geonet-nz';
+import { BgsOgcApiAdapter } from './bgs-ogcapi';
 import { config } from '../config';
 
 /**
@@ -1971,6 +1972,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // search by MMI, single-quake detail, earthquake-rate statistics, and current Volcanic
       // Alert Level for all 12 monitored NZ volcanoes; no auth, public GeoNet Data Policy
       return getOrCreate('geonet-nz', () => new GeonetNzAdapter());
+    case 'bgs-ogcapi':
+      // British Geological Survey OGC API Features (UC-650) — bedrock geology lithology/age,
+      // UK earthquake search (modern + historical), Single Onshore Borehole Index (SOBI), and
+      // National Landslide Database, all by lat/lng + radius; no auth, Open Government Licence
+      return getOrCreate('bgs-ogcapi', () => new BgsOgcApiAdapter());
     default:
       return undefined;
   }

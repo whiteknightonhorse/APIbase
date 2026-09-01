@@ -368,6 +368,7 @@ import { socrataSchemas } from './socrata.schema';
 import { ncbiEutilsSchemas } from './ncbi-eutils.schema';
 import { hdxHapiSchemas } from './hdx-hapi.schema';
 import { geonetNzSchemas } from './geonet-nz.schema';
+import { bgsOgcApiSchemas } from './bgs-ogcapi.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -739,4 +740,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...ncbiEutilsSchemas,
   ...hdxHapiSchemas,
   ...geonetNzSchemas,
+  ...bgsOgcApiSchemas,
 };
