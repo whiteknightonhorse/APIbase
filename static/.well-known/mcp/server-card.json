@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1290 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1294 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -62036,6 +62036,158 @@
         "required": [
           "dataflow_id"
         ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "au-data-gov.datasets.search",
+      "description": "Search the Australian Government open data catalog (data.gov.au) by free text and/or publishing agency, returning dataset id, title, notes, organization, and modified date. Use au-data-gov.organization_search to find valid agency filter slugs. Data: data.gov.au CKAN Action API, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Free-text search across dataset title/description (e.g. \"rainfall\")"
+          },
+          "organization": {
+            "type": "string",
+            "description": "Publishing agency slug to filter by (e.g. \"aihw\") — see au-data-gov.organization_search"
+          },
+          "rows": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "description": "Number of datasets to return (1-20, default 10)"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "au-data-gov.datasets.detail",
+      "description": "Get full metadata for one Australian Government open dataset by id: title, notes, organization, tags, license, and the full resource list (name, format, download URL, size) for that dataset. Data: data.gov.au CKAN Action API, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "au-data-gov dataset UUID or URL slug (e.g. from dataset_search results)",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "au-data-gov.reference.subject_list",
+      "description": "List the Australian Government open data AGIFT subject taxonomy (e.g. \"health_and_safety\", \"nature_and_environment\") with the current dataset count per subject, optionally filtered by a substring. Browse-only reference (not usable as a dataset_search filter on this portal). Data: data.gov.au CKAN Action API, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Substring filter on subject slug (e.g. \"health\")"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "au-data-gov.reference.organization_search",
+      "description": "Look up Australian federal/state/territory agencies and organizations publishing on the open data portal by name, returning id, slug, and title. Use the returned slug as the `organization` filter for au-data-gov.dataset_search. Data: data.gov.au CKAN Action API, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Free-text search on organization name/title (e.g. \"health\")"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Max organizations to return (1-50, default 20)"
+          }
+        }
       },
       "outputSchema": {
         "type": "object",
