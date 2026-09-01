@@ -146,6 +146,12 @@ beforeEach(() => {
   mockAppealCreate.mockResolvedValue({ appeal_id: 'appeal-test-1' });
 });
 
+let corpusReqCounter = 0;
+function nextReqId(prefix: string): string {
+  corpusReqCounter += 1;
+  return `${prefix}-${corpusReqCounter}`;
+}
+
 function ctxFor(toolId: string, body: Record<string, unknown>, requestId: string) {
   const ctx = createPipelineContext(requestId, 'POST', `/api/v1/tools/${toolId}/call`, body, {});
   ctx.toolId = toolId;
@@ -215,17 +221,17 @@ if (MALICIOUS.length !== 20 || LEGITIMATE.length !== 20) {
 // ---------------------------------------------------------------------------
 
 describe('MODERATION stage corpus — telegram.send_message', () => {
-  it.each(MALICIOUS)('BLOCKS: [$category] "$text"', async ({ text }, idx) => {
+  it.each(MALICIOUS)('BLOCKS: [$category] "$text"', async ({ text }) => {
     const result = await moderationStage.execute(
-      ctxFor(TELEGRAM_TOOL, { chat_id: 1, text }, `corpus-tg-bad-${idx}`),
+      ctxFor(TELEGRAM_TOOL, { chat_id: 1, text }, nextReqId('corpus-tg-bad')),
     );
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error.code).toBe(403);
   });
 
-  it.each(LEGITIMATE)('PASSES: "%s"', async (text, idx) => {
+  it.each(LEGITIMATE)('PASSES: "%s"', async (text) => {
     const result = await moderationStage.execute(
-      ctxFor(TELEGRAM_TOOL, { chat_id: 1, text }, `corpus-tg-good-${idx}`),
+      ctxFor(TELEGRAM_TOOL, { chat_id: 1, text }, nextReqId('corpus-tg-good')),
     );
     expect(result.ok).toBe(true);
   });
@@ -237,34 +243,34 @@ describe('MODERATION stage corpus — telegram.send_message', () => {
 // ---------------------------------------------------------------------------
 
 describe('MODERATION stage corpus — twilio.send_sms (the pre-F2 hole)', () => {
-  it.each(MALICIOUS)('BLOCKS: [$category] "$text"', async ({ text }, idx) => {
+  it.each(MALICIOUS)('BLOCKS: [$category] "$text"', async ({ text }) => {
     const result = await moderationStage.execute(
-      ctxFor(TWILIO_TOOL, { to: '+15551234567', from: '+15557654321', body: text }, `corpus-twilio-bad-${idx}`),
+      ctxFor(TWILIO_TOOL, { to: '+15551234567', from: '+15557654321', body: text }, nextReqId('corpus-twilio-bad')),
     );
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error.code).toBe(403);
   });
 
-  it.each(LEGITIMATE)('PASSES: "%s"', async (text, idx) => {
+  it.each(LEGITIMATE)('PASSES: "%s"', async (text) => {
     const result = await moderationStage.execute(
-      ctxFor(TWILIO_TOOL, { to: '+15551234567', from: '+15557654321', body: text }, `corpus-twilio-good-${idx}`),
+      ctxFor(TWILIO_TOOL, { to: '+15551234567', from: '+15557654321', body: text }, nextReqId('corpus-twilio-good')),
     );
     expect(result.ok).toBe(true);
   });
 });
 
 describe('MODERATION stage corpus — resend.send_email (the pre-F2 hole)', () => {
-  it.each(MALICIOUS)('BLOCKS: [$category] "$text"', async ({ text }, idx) => {
+  it.each(MALICIOUS)('BLOCKS: [$category] "$text"', async ({ text }) => {
     const result = await moderationStage.execute(
-      ctxFor(RESEND_TOOL, { to: 'someone@example.com', subject: 'Hello', text }, `corpus-resend-bad-${idx}`),
+      ctxFor(RESEND_TOOL, { to: 'someone@example.com', subject: 'Hello', text }, nextReqId('corpus-resend-bad')),
     );
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error.code).toBe(403);
   });
 
-  it.each(LEGITIMATE)('PASSES: "%s"', async (text, idx) => {
+  it.each(LEGITIMATE)('PASSES: "%s"', async (text) => {
     const result = await moderationStage.execute(
-      ctxFor(RESEND_TOOL, { to: 'someone@example.com', subject: 'Hello', text }, `corpus-resend-good-${idx}`),
+      ctxFor(RESEND_TOOL, { to: 'someone@example.com', subject: 'Hello', text }, nextReqId('corpus-resend-good')),
     );
     expect(result.ok).toBe(true);
   });
