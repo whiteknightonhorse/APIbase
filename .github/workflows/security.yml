@@ -73,6 +73,15 @@ jobs:
       - name: No adapter imported outside pipeline/tests
         run: python3 scripts/check-adapter-import-boundary.py
 
+  mount-nginx-parity:
+    name: Mount-Nginx Parity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Every declared route has an nginx location proxying to it
+        run: python3 scripts/check-mount-nginx-parity.py
+
   lint:
     name: Code Quality
     runs-on: ubuntu-latest
