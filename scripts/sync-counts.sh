@@ -100,7 +100,7 @@ else
 
   # numeric/structured fields: mcp.json tools_count/providers + index.html JSON-LD offerCount
   python3 - "$TOOLS" "$PROV" <<'PY'
-import json,sys,re
+import json,sys,re,datetime
 t,p=int(sys.argv[1]),int(sys.argv[2])
 fp="static/.well-known/mcp.json"
 try:
@@ -108,7 +108,16 @@ try:
     if d.get("tools_count")!=t: d["tools_count"]=t; ch=True
     for k in ("providers_count","providers"):
         if k in d and d[k]!=p: d[k]=p; ch=True
-    if ch: json.dump(d,open(fp,"w"),ensure_ascii=False,indent=2); print("  updated",fp)
+    # F6 (2026-09-02): "description" is free prose the fields above never touched -- found
+    # live at "1227+ API tools from 347 providers" while tools_count/providers_count on the
+    # very next lines of the SAME file already said 1316/373. An agent reading this file for
+    # discovery (its own "documentation" field points AI agents here) saw two different tool
+    # counts three lines apart. Rewritten from the live numbers on every run, not hand-typed.
+    desc=re.sub(r"[0-9]+\+? API tools from [0-9]+\+? providers", "%d API tools from %d providers" % (t, p), d.get("description",""))
+    if desc != d.get("description"): d["description"]=desc; ch=True
+    if ch:
+        d["updated_at"]=datetime.date.today().isoformat()
+        json.dump(d,open(fp,"w"),ensure_ascii=False,indent=2); print("  updated",fp)
 except FileNotFoundError: pass
 ih="static/index.html"
 try:
@@ -143,6 +152,12 @@ STALE_SYSMON=$(grep -hoE "PRV:</span><strong>[0-9]+</strong>|TOOLS:</span><stron
   | grep -vE "^PRV:</span><strong>${PROV}</strong>$|^TOOLS:</span><strong>${TOOLS}</strong>$" | sort -u || true)
 STALE_FOOTER_TOOLS=$(grep -hoE "TOOLS: [0-9]+<" static/index.html static/contact.html static/privacy.html static/dashboard.html 2>/dev/null \
   | grep -v "^TOOLS: ${TOOLS}<$" | sort -u || true)
+STALE_MCP_DESC=$(python3 -c "
+import json,re
+d=json.load(open('static/.well-known/mcp.json'))
+m=re.search(r'([0-9]+\+? API tools from [0-9]+\+? providers)', d.get('description',''))
+print(m.group(1) if m and m.group(1)!='${TOOLS} API tools from ${PROV} providers' else '')
+" 2>/dev/null || true)
 
 FAIL=0
 [ -n "$STALE" ] && { echo "sync-counts: STALE text surfaces remain:"; echo "$STALE"; FAIL=1; }
@@ -151,6 +166,7 @@ FAIL=0
 [ "$SERVER_CARD_LEN" != "$TOOLS" ] && { echo "sync-counts: server-card.json has $SERVER_CARD_LEN tools, DB says $TOOLS"; FAIL=1; }
 [ -n "$STALE_SYSMON" ] && { echo "sync-counts: STALE sys-monitor bar(s) remain:"; echo "$STALE_SYSMON"; FAIL=1; }
 [ -n "$STALE_FOOTER_TOOLS" ] && { echo "sync-counts: STALE footer 'TOOLS: N' remain:"; echo "$STALE_FOOTER_TOOLS"; FAIL=1; }
+[ -n "$STALE_MCP_DESC" ] && { echo "sync-counts: STALE mcp.json description remains: $STALE_MCP_DESC"; FAIL=1; }
 
 if [ "$FAIL" = "0" ]; then
   if [ "$CHECK" = "1" ]; then
