@@ -13,7 +13,44 @@ import { getCdpConfig } from '../../config/cdp.config';
 import { getSharedResourceServer } from '../../services/x402-server.service';
 import { TOOL_DEFINITIONS } from '../../mcp/tool-definitions';
 import { logger } from '../../config/logger';
+import { getPrisma } from '../../services/prisma.service';
 import type { PipelineContext } from '../types';
+
+/**
+ * F1/C-7 (2026-09-01): a failed settle here means the client already has the
+ * data (this only runs after a successful provider call + response) but we
+ * never collected on-chain payment for it — a real revenue leak, not a log
+ * line. Durable signal only: write to the outbox table (same table/pattern
+ * as onboard.service.ts's form_submission event) rather than calling out to
+ * Telegram from this process directly — this app has no TG_BOT_TOKEN in its
+ * own .env, and the night-orchestra's hourly cron alert scripts
+ * (provider-limit-alerts.py, margin-gate-alerts.py) already own that
+ * credential and pattern; scripts/x402-settle-leak-alerts.py reads this
+ * event type the same way. Never throw from here — settle is best-effort by
+ * design (§8.9), and a broken alert write must not turn into a user-facing
+ * pipeline failure on top of an already-successful response.
+ */
+export async function recordSettleFailure(ctx: PipelineContext, reason: string): Promise<void> {
+  try {
+    await getPrisma().outbox.create({
+      data: {
+        event_type: 'x402_settle_failed',
+        payload: {
+          request_id: ctx.requestId,
+          tool_id: ctx.toolId,
+          payer: ctx.x402Payer,
+          amount_usd: ctx.toolPrice,
+          reason,
+        },
+      },
+    });
+  } catch (e) {
+    logger.error(
+      { requestId: ctx.requestId, err: e },
+      'x402 settle: FAILED TO RECORD settle-failure outbox event — revenue-leak alert will miss this one',
+    );
+  }
+}
 
 /**
  * Look up human description for a toolId, fall back to generic label.
@@ -44,6 +81,7 @@ export async function settleX402(ctx: PipelineContext): Promise<void> {
 
     if (!parsed.success) {
       logger.warn({ requestId: ctx.requestId }, 'x402 settle: failed to re-parse payment payload');
+      await recordSettleFailure(ctx, 'payload_reparse_failed');
       return;
     }
 
@@ -141,11 +179,16 @@ export async function settleX402(ctx: PipelineContext): Promise<void> {
         { requestId: ctx.requestId, payer: ctx.x402Payer, error: result.errorMessage },
         'x402 settle: settlement returned failure',
       );
+      await recordSettleFailure(
+        ctx,
+        `settle_returned_failure: ${result.errorMessage ?? 'unknown'}`,
+      );
     }
   } catch (error) {
     logger.warn(
       { requestId: ctx.requestId, error: (error as Error).message },
       'x402 settle: settlement call failed (best-effort)',
     );
+    await recordSettleFailure(ctx, `settle_threw: ${(error as Error).message}`);
   }
 }
