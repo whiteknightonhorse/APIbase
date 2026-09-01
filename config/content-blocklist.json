@@ -1,37 +1,72 @@
 {
-  "version": "1.0",
-  "updated": "2026-03-24",
-  "description": "Content moderation blocklist for outbound messaging (Telegram, Google Ads, etc.). Matches are case-insensitive.",
+  "version": "2.0",
+  "updated": "2026-09-01",
+  "description": "Content moderation ruleset (F2/C-2). Restructured from v1.0's four flat string arrays into ID+category-tagged rules so a block can name a stable rule_id and category for the ledger/appeal record (§12.43 MODERATION). No content changed in this pass — same 28 exact phrases, 7 patterns, 4 URL markers, 12 warning keywords as v1.0, just tagged. `absolute` marks the ONE class of rule that also applies to data/read tools (search, news, lookups): content that is never legitimate to retrieve regardless of the caller's intent (CSAM). Everything else (drug/weapon/hitman/terrorism/trafficking/fraud marketplace language) blocks an action/outbound tool from DOING the thing, but is ordinary, legitimate vocabulary for a data/read tool ANSWERING A QUESTION about it (e.g. 'news about isis recruitment tactics') -- so `absolute: false` rules apply only to action/outbound tools. New categories (not just new patterns inside an existing one) are an operator/Fable decision, not mine to add unilaterally. Matches are case-insensitive.",
 
-  "prohibited_exact": [
-    "child porn", "child pornography", "cp links", "csam",
-    "buy cocaine", "buy heroin", "buy meth", "buy fentanyl", "buy mdma", "buy lsd",
-    "sell drugs", "drug dealer", "drug supplier",
-    "buy gun", "buy weapon", "buy firearm", "buy ammo", "buy explosives",
-    "hire hitman", "hire assassin",
-    "isis recruitment", "join isis", "join al qaeda", "jihad recruitment",
-    "human trafficking", "buy slaves", "sell organs", "organ trafficking",
-    "fake passport", "fake id card", "fake diploma", "buy fake documents",
-    "credit card dumps", "stolen credit cards", "carding forum",
-    "ransomware for sale", "buy malware", "ddos for hire", "ddos service",
-    "suicide method", "how to kill yourself", "suicide instructions"
-  ],
+  "rules": [
+    { "id": "csam_exact_child_porn", "category": "csam", "type": "exact", "value": "child porn", "absolute": true },
+    { "id": "csam_exact_child_pornography", "category": "csam", "type": "exact", "value": "child pornography", "absolute": true },
+    { "id": "csam_exact_cp_links", "category": "csam", "type": "exact", "value": "cp links", "absolute": true },
+    { "id": "csam_exact_csam", "category": "csam", "type": "exact", "value": "csam", "absolute": true },
 
-  "prohibited_patterns": [
-    "(?:child|minor|underage|kid)\\s*(?:sex|nude|naked|porn|exploit)",
-    "(?:buy|sell|selling|order|ship|shipping|deliver|delivering)\\s*(?:cocaine|heroin|fentanyl|methamphetamine|ketamine|ghb|rohypnol)",
-    "(?:buy|sell|order)\\s*(?:ak-?47|ar-?15|glock|pistol|rifle|shotgun|grenade|c4|semtex|detonator)",
-    "(?:isis|isil|al.?qaeda|boko.?haram|taliban)\\s*(?:join|recruit|support|donate|fight)",
-    "(?:sex|nude|naked)\\s*(?:child|minor|underage|teen|boy|girl)\\s*(?:pic|video|photo|cam)",
-    "(?:kill|murder|assassinate|bomb|attack)\\s*(?:president|politician|school|church|mosque|synagogue)",
-    "(?:buy|sell|forge|fake)\\s*(?:passport|identity|license|diploma|certificate|document)"
-  ],
+    { "id": "drugs_exact_buy_cocaine", "category": "drugs", "type": "exact", "value": "buy cocaine", "absolute": false },
+    { "id": "drugs_exact_buy_heroin", "category": "drugs", "type": "exact", "value": "buy heroin", "absolute": false },
+    { "id": "drugs_exact_buy_meth", "category": "drugs", "type": "exact", "value": "buy meth", "absolute": false },
+    { "id": "drugs_exact_buy_fentanyl", "category": "drugs", "type": "exact", "value": "buy fentanyl", "absolute": false },
+    { "id": "drugs_exact_buy_mdma", "category": "drugs", "type": "exact", "value": "buy mdma", "absolute": false },
+    { "id": "drugs_exact_buy_lsd", "category": "drugs", "type": "exact", "value": "buy lsd", "absolute": false },
+    { "id": "drugs_exact_sell_drugs", "category": "drugs", "type": "exact", "value": "sell drugs", "absolute": false },
+    { "id": "drugs_exact_drug_dealer", "category": "drugs", "type": "exact", "value": "drug dealer", "absolute": false },
+    { "id": "drugs_exact_drug_supplier", "category": "drugs", "type": "exact", "value": "drug supplier", "absolute": false },
 
-  "prohibited_urls": [
-    ".onion",
-    "bit.ly",
-    "tinyurl.com",
-    "t.co"
+    { "id": "weapons_exact_buy_gun", "category": "weapons", "type": "exact", "value": "buy gun", "absolute": false },
+    { "id": "weapons_exact_buy_weapon", "category": "weapons", "type": "exact", "value": "buy weapon", "absolute": false },
+    { "id": "weapons_exact_buy_firearm", "category": "weapons", "type": "exact", "value": "buy firearm", "absolute": false },
+    { "id": "weapons_exact_buy_ammo", "category": "weapons", "type": "exact", "value": "buy ammo", "absolute": false },
+    { "id": "weapons_exact_buy_explosives", "category": "weapons", "type": "exact", "value": "buy explosives", "absolute": false },
+
+    { "id": "violence_exact_hire_hitman", "category": "violence", "type": "exact", "value": "hire hitman", "absolute": false },
+    { "id": "violence_exact_hire_assassin", "category": "violence", "type": "exact", "value": "hire assassin", "absolute": false },
+
+    { "id": "terrorism_exact_isis_recruitment", "category": "terrorism", "type": "exact", "value": "isis recruitment", "absolute": false },
+    { "id": "terrorism_exact_join_isis", "category": "terrorism", "type": "exact", "value": "join isis", "absolute": false },
+    { "id": "terrorism_exact_join_al_qaeda", "category": "terrorism", "type": "exact", "value": "join al qaeda", "absolute": false },
+    { "id": "terrorism_exact_jihad_recruitment", "category": "terrorism", "type": "exact", "value": "jihad recruitment", "absolute": false },
+
+    { "id": "trafficking_exact_human_trafficking", "category": "trafficking", "type": "exact", "value": "human trafficking", "absolute": false },
+    { "id": "trafficking_exact_buy_slaves", "category": "trafficking", "type": "exact", "value": "buy slaves", "absolute": false },
+    { "id": "trafficking_exact_sell_organs", "category": "trafficking", "type": "exact", "value": "sell organs", "absolute": false },
+    { "id": "trafficking_exact_organ_trafficking", "category": "trafficking", "type": "exact", "value": "organ trafficking", "absolute": false },
+
+    { "id": "fraud_exact_fake_passport", "category": "fake_documents", "type": "exact", "value": "fake passport", "absolute": false },
+    { "id": "fraud_exact_fake_id_card", "category": "fake_documents", "type": "exact", "value": "fake id card", "absolute": false },
+    { "id": "fraud_exact_fake_diploma", "category": "fake_documents", "type": "exact", "value": "fake diploma", "absolute": false },
+    { "id": "fraud_exact_buy_fake_documents", "category": "fake_documents", "type": "exact", "value": "buy fake documents", "absolute": false },
+
+    { "id": "cybercrime_exact_credit_card_dumps", "category": "cybercrime", "type": "exact", "value": "credit card dumps", "absolute": false },
+    { "id": "cybercrime_exact_stolen_credit_cards", "category": "cybercrime", "type": "exact", "value": "stolen credit cards", "absolute": false },
+    { "id": "cybercrime_exact_carding_forum", "category": "cybercrime", "type": "exact", "value": "carding forum", "absolute": false },
+    { "id": "cybercrime_exact_ransomware_for_sale", "category": "cybercrime", "type": "exact", "value": "ransomware for sale", "absolute": false },
+    { "id": "cybercrime_exact_buy_malware", "category": "cybercrime", "type": "exact", "value": "buy malware", "absolute": false },
+    { "id": "cybercrime_exact_ddos_for_hire", "category": "cybercrime", "type": "exact", "value": "ddos for hire", "absolute": false },
+    { "id": "cybercrime_exact_ddos_service", "category": "cybercrime", "type": "exact", "value": "ddos service", "absolute": false },
+
+    { "id": "self_harm_exact_suicide_method", "category": "self_harm", "type": "exact", "value": "suicide method", "absolute": false },
+    { "id": "self_harm_exact_how_to_kill_yourself", "category": "self_harm", "type": "exact", "value": "how to kill yourself", "absolute": false },
+    { "id": "self_harm_exact_suicide_instructions", "category": "self_harm", "type": "exact", "value": "suicide instructions", "absolute": false },
+
+    { "id": "csam_pattern_minor_sexual", "category": "csam", "type": "pattern", "value": "(?:child|minor|underage|kid)\\s*(?:sex|nude|naked|porn|exploit)", "absolute": true },
+    { "id": "csam_pattern_sexual_minor_media", "category": "csam", "type": "pattern", "value": "(?:sex|nude|naked)\\s*(?:child|minor|underage|teen|boy|girl)\\s*(?:pic|video|photo|cam)", "absolute": true },
+    { "id": "drugs_pattern_transact_narcotics", "category": "drugs", "type": "pattern", "value": "(?:buy|sell|selling|order|ship|shipping|deliver|delivering)\\s*(?:cocaine|heroin|fentanyl|methamphetamine|ketamine|ghb|rohypnol)", "absolute": false },
+    { "id": "weapons_pattern_transact_firearms", "category": "weapons", "type": "pattern", "value": "(?:buy|sell|order)\\s*(?:ak-?47|ar-?15|glock|pistol|rifle|shotgun|grenade|c4|semtex|detonator)", "absolute": false },
+    { "id": "terrorism_pattern_group_recruitment", "category": "terrorism", "type": "pattern", "value": "(?:isis|isil|al.?qaeda|boko.?haram|taliban)\\s*(?:join|recruit|support|donate|fight)", "absolute": false },
+    { "id": "violence_pattern_targeted_attack", "category": "violence", "type": "pattern", "value": "(?:kill|murder|assassinate|bomb|attack)\\s*(?:president|politician|school|church|mosque|synagogue)", "absolute": false },
+    { "id": "fraud_pattern_forge_document", "category": "fake_documents", "type": "pattern", "value": "(?:buy|sell|forge|fake)\\s*(?:passport|identity|license|diploma|certificate|document)", "absolute": false },
+
+    { "id": "url_obfuscation_onion", "category": "url_obfuscation", "type": "url", "value": ".onion", "absolute": false },
+    { "id": "url_obfuscation_bitly", "category": "url_obfuscation", "type": "url", "value": "bit.ly", "absolute": false },
+    { "id": "url_obfuscation_tinyurl", "category": "url_obfuscation", "type": "url", "value": "tinyurl.com", "absolute": false },
+    { "id": "url_obfuscation_tco", "category": "url_obfuscation", "type": "url", "value": "t.co", "absolute": false }
   ],
 
   "warning_keywords": [

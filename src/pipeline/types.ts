@@ -54,6 +54,7 @@ export const STAGE_NAMES = [
   'CACHE_OR_SINGLE_FLIGHT',
   'RATE_LIMIT',
   'ESCROW',
+  'MODERATION',
   'PROVIDER_CALL',
   'ESCROW_FINALIZE',
   'LEDGER_WRITE',
@@ -117,6 +118,19 @@ export interface PipelineContext {
    *  (escrow-finalize.stage.ts) can name the original transaction — without
    *  it, a human resolving the refund has to re-derive it from logs. */
   mppTxHash?: string;
+
+  // MODERATION stage (F2/C-2/C-3, 2026-09-01)
+  /** Set when MODERATION blocked this request. Read by ESCROW_FINALIZE
+   *  (settle-on-block for a paid request) and LEDGER_WRITE (records the
+   *  block on the ledger row) — both invoked directly by pipeline.ts's
+   *  settle-on-block exception even though MODERATION itself returned an
+   *  error and would otherwise have stopped the pipeline there. */
+  moderationBlocked?: boolean;
+  moderationRuleId?: string;
+  moderationCategory?: string;
+  /** Only set for a PAID block — an appeal exists only where something was
+   *  charged to contest. */
+  moderationAppealId?: string;
 
   // PROVIDER_CALL stage
   providerResponse?: NormalizedResponse;

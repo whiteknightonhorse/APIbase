@@ -34,6 +34,10 @@ interface ToolCacheEntry {
   price_usd: number;
   cache_ttl: number;
   upstream_cost_usd: number | null;
+  // Optional (not required) so existing test helpers seeding a synthetic
+  // cache entry without it (margin-gate.test.ts) keep compiling; real
+  // DB-loaded rows always set it.
+  provider?: string;
 }
 
 const toolCache = new Map<string, ToolCacheEntry>();
@@ -47,6 +51,7 @@ async function loadToolCache(): Promise<void> {
       price_usd: true,
       cache_ttl: true,
       upstream_cost_usd: true,
+      provider: true,
     },
   });
 
@@ -58,6 +63,7 @@ async function loadToolCache(): Promise<void> {
       price_usd: Number(t.price_usd),
       cache_ttl: t.cache_ttl,
       upstream_cost_usd: t.upstream_cost_usd === null ? null : Number(t.upstream_cost_usd),
+      provider: t.provider,
     });
   }
 
@@ -98,6 +104,15 @@ export function getActiveToolIds(): Set<string> {
  */
 export function getToolPriceUsd(toolId: string): number | undefined {
   return toolCache.get(toolId)?.price_usd;
+}
+
+/**
+ * Returns the tool's provider id (e.g. 'telegram'), or undefined if the
+ * tool is not in the cache. Used by MODERATION (F2/C-2) to classify a
+ * request as action/outbound vs data/read before running the content check.
+ */
+export function getToolProvider(toolId: string): string | undefined {
+  return toolCache.get(toolId)?.provider;
 }
 
 /**

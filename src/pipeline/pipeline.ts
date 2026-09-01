@@ -19,6 +19,7 @@ import { toolStatusStage } from './stages/tool-status.stage';
 import { cacheStage } from './stages/cache.stage';
 import { rateLimitStage } from './stages/rate-limit.stage';
 import { escrowStage } from './stages/escrow.stage';
+import { moderationStage } from './stages/moderation.stage';
 import { providerCallStage } from './stages/provider-call.stage';
 import { escrowFinalizeStage } from './stages/escrow-finalize.stage';
 import { ledgerWriteStage } from './stages/ledger-write.stage';
@@ -26,7 +27,7 @@ import { cacheSetStage } from './stages/cache-set.stage';
 import { responseStage } from './stages/response.stage';
 
 /**
- * 13-stage pipeline (§12.43, §12.157).
+ * 14-stage pipeline (§12.43, §12.157, F2/C-2 MODERATION insertion 2026-09-01).
  *
  * Order is NEVER changed. Programmatically enforced at module load.
  * Each stage has typed I/O (Result<T,E> pattern).
@@ -41,6 +42,7 @@ export const PIPELINE_STAGES: Stage[] = [
   cacheStage,
   rateLimitStage,
   escrowStage,
+  moderationStage,
   providerCallStage,
   escrowFinalizeStage,
   ledgerWriteStage,
@@ -108,6 +110,34 @@ export async function runPipeline(
           },
           `Pipeline stopped at ${stage.name}: ${result.error.message}`,
         );
+
+        // Settle-on-block (F2/C-3): MODERATION blocking an already-PAID
+        // request is a deliberate exception to "stop on first error" — the
+        // charge must post and a ledger row with rule_id/category/appeal_id
+        // must exist even though the client receives the block, not a
+        // success. Scoped by MODERATION's own marker on its error (never
+        // triggered by any other stage's failure), so this cannot silently
+        // start charging for unrelated errors later.
+        if (stage.name === 'MODERATION' && result.error.extra?.settle_on_block) {
+          try {
+            const finalizeResult = await escrowFinalizeStage.execute(ctx);
+            if (finalizeResult.ok) {
+              ctx = finalizeResult.value;
+              await ledgerWriteStage.execute(ctx);
+            } else {
+              logger.error(
+                { request_id: ctx.requestId, error: finalizeResult.error },
+                'Settle-on-block: ESCROW_FINALIZE failed — block still returned, charge may be missing',
+              );
+            }
+          } catch (settleErr) {
+            logger.error(
+              { request_id: ctx.requestId, err: settleErr },
+              'Settle-on-block: unexpected error finalizing/recording a moderation-blocked charge',
+            );
+          }
+        }
+
         // Release single-flight lock if owned (prevents 30s hang on stages 7-12 errors)
         if (ctx.isLockOwner && ctx.cacheKey) {
           await releaseLock(ctx.cacheKey).catch(() => {});

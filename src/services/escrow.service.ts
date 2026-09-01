@@ -114,20 +114,37 @@ export async function reserve(
  * Combined ESCROW_FINALIZE + LEDGER_WRITE in one PG transaction.
  * Guard billing_status != 'PAID' prevents double-charge (idempotent).
  */
+export interface ModerationBlockInfo {
+  ruleId: string;
+  category: string;
+  appealId?: string;
+}
+
 export async function finalize(
   executionId: string,
   createdAt: Date,
   providerLatencyMs?: number,
+  moderation?: ModerationBlockInfo,
 ): Promise<number> {
   const db = getPrisma();
 
+  // F2/C-3: a moderation-blocked PAID request still charges (settle-on-
+  // block), but status/payload_status must say what actually happened —
+  // 'blocked'/'BLOCKED', not 'success'/'OK' — and the ledger row carries
+  // the rule_id/category/appeal_id a human (or the appeal endpoint) needs.
+  const status = moderation ? 'blocked' : 'success';
+  const payloadStatus = moderation ? 'BLOCKED' : 'OK';
+
   const updatedCount = await db.$executeRawUnsafe(
     `UPDATE execution_ledger
-     SET status = 'success',
+     SET status = $4,
          billing_status = 'PAID',
          provider_called = true,
          provider_latency_ms = $3,
-         payload_status = 'OK',
+         payload_status = $5,
+         moderation_rule_id = $6,
+         moderation_category = $7,
+         moderation_appeal_id = $8::uuid,
          updated_at = NOW()
      WHERE execution_id = $1::uuid
        AND created_at = $2
@@ -135,10 +152,22 @@ export async function finalize(
     executionId,
     createdAt,
     providerLatencyMs ?? null,
+    status,
+    payloadStatus,
+    moderation?.ruleId ?? null,
+    moderation?.category ?? null,
+    moderation?.appealId ?? null,
   );
 
   if (updatedCount > 0) {
-    logger.info({ executionId, providerLatencyMs }, 'Escrow finalized (PAID)');
+    if (moderation) {
+      logger.warn(
+        { executionId, ...moderation },
+        'Escrow finalized (PAID, settle-on-block — content moderation)',
+      );
+    } else {
+      logger.info({ executionId, providerLatencyMs }, 'Escrow finalized (PAID)');
+    }
   }
 
   return updatedCount;

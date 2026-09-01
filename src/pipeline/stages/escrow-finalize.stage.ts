@@ -73,9 +73,14 @@ export const escrowFinalizeStage: Stage = {
   name: 'ESCROW_FINALIZE',
 
   async execute(ctx) {
-    // Something to serve: a successful provider call OR a cache hit being replayed.
-    // Both are "agent got their data" — payment should settle in either case.
-    const hasResponseToServe = (ctx.providerCalled && ctx.providerResponse) || ctx.cacheHit;
+    // Something to serve: a successful provider call, a cache hit being
+    // replayed, OR a moderation block on an already-paid request
+    // (F2/C-3 settle-on-block — the client gets a block response instead of
+    // data, but the payment still settles; see moderation.stage.ts and
+    // pipeline.ts's MODERATION exception for why this stage runs at all on
+    // a request that otherwise stopped at MODERATION).
+    const hasResponseToServe =
+      (ctx.providerCalled && ctx.providerResponse) || ctx.cacheHit || ctx.moderationBlocked;
 
     // x402 on-chain payment — settle with facilitator (§8.9).
     // Cache-hit path added 2026-04-22: anonymous x402 agents with balance=0 need
@@ -117,9 +122,21 @@ export const escrowFinalizeStage: Stage = {
       return ok(ctx);
     }
 
-    // Provider succeeded → finalize (charge)
-    if (ctx.providerCalled && ctx.providerResponse) {
-      const updated = await finalize(ctx.escrowId, ctx.escrowCreatedAt, ctx.providerDurationMs);
+    // Provider succeeded, OR MODERATION blocked this paid request (settle
+    // anyway — F2/C-3) → finalize (charge).
+    if ((ctx.providerCalled && ctx.providerResponse) || ctx.moderationBlocked) {
+      const updated = await finalize(
+        ctx.escrowId,
+        ctx.escrowCreatedAt,
+        ctx.providerDurationMs,
+        ctx.moderationBlocked
+          ? {
+              ruleId: ctx.moderationRuleId ?? 'unknown',
+              category: ctx.moderationCategory ?? 'unknown',
+              appealId: ctx.moderationAppealId,
+            }
+          : undefined,
+      );
 
       ctx.billingStatus = 'PAID';
       ctx.finalCost = ctx.escrowAmount ?? 0;

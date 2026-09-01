@@ -66,6 +66,9 @@ export interface X402Entry extends LedgerEntryBase {
    * Added 2026-04-22 to close Q#1 cache-hit 402 loop for anonymous payment-rail agents.
    */
   cacheHit?: boolean;
+  /** F2/C-3 settle-on-block: set when this x402/MPP-paid call was blocked
+   *  by content moderation rather than actually reaching the provider. */
+  moderation?: { ruleId: string; category: string; appealId?: string };
 }
 
 // ---------------------------------------------------------------------------
@@ -222,22 +225,27 @@ export async function writeSharedEntry(entry: SharedEntry): Promise<void> {
 export async function writeX402Entry(entry: X402Entry): Promise<void> {
   const db = getPrisma();
   const isCacheHit = entry.cacheHit === true;
+  const blocked = entry.moderation;
 
   await db.executionLedger.create({
     data: {
       execution_id: entry.executionId,
       agent_id: entry.agentId,
       tool_id: entry.toolId,
-      status: 'success',
+      status: blocked ? 'blocked' : 'success',
       billing_status: 'PAID',
       cost_usd: entry.cost,
       payer: entry.payer,
       // Cache-hit path: provider was NOT called, served from cache.
       // Cache-miss path: provider was called, filled cache for future hits.
-      provider_called: !isCacheHit,
+      // Moderation-blocked path: provider was never called either.
+      provider_called: !isCacheHit && !blocked,
       cache_status: isCacheHit ? 'HIT' : 'MISS',
-      provider_latency_ms: isCacheHit ? null : (entry.providerLatencyMs ?? null),
+      provider_latency_ms: isCacheHit || blocked ? null : (entry.providerLatencyMs ?? null),
       idempotency_key: entry.idempotencyKey ?? null,
+      moderation_rule_id: blocked?.ruleId ?? null,
+      moderation_category: blocked?.category ?? null,
+      moderation_appeal_id: blocked?.appealId ?? null,
     },
   });
 
@@ -248,7 +256,10 @@ export async function writeX402Entry(entry: X402Entry): Promise<void> {
       toolId: entry.toolId,
       cost: entry.cost,
       payer: entry.payer,
+      moderation: blocked,
     },
-    'x402 on-chain payment ledger entry recorded',
+    blocked
+      ? 'x402/MPP settle-on-block ledger entry recorded'
+      : 'x402 on-chain payment ledger entry recorded',
   );
 }

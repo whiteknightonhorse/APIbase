@@ -45,6 +45,13 @@ export const ledgerWriteStage: Stage = {
           payer: ctx.mppPaid ? (ctx.mppPayer ?? 'tempo-agent') : (ctx.x402Payer ?? 'unknown'),
           providerLatencyMs: ctx.providerDurationMs,
           cacheHit: ctx.cacheHit === true,
+          moderation: ctx.moderationBlocked
+            ? {
+                ruleId: ctx.moderationRuleId ?? 'unknown',
+                category: ctx.moderationCategory ?? 'unknown',
+                appealId: ctx.moderationAppealId,
+              }
+            : undefined,
         });
       }
       ctx.ledgerWritten = true;

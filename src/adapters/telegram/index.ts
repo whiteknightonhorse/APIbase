@@ -1,6 +1,5 @@
 import { BaseAdapter } from '../base.adapter';
 import type { ProviderRequest, ProviderRawResponse } from '../../types/provider';
-import { checkContent } from '../content-filter';
 
 export class TelegramAdapter extends BaseAdapter {
   private readonly token: string;
@@ -31,14 +30,8 @@ export class TelegramAdapter extends BaseAdapter {
 
     switch (req.toolId) {
       case 'telegram.send_message': {
-        // Content moderation — block prohibited content before sending
-        const textToCheck = String(params.text ?? '');
-        const filter = checkContent(textToCheck);
-        if (!filter.allowed) {
-          throw new Error(
-            `CONTENT_BLOCKED: ${filter.reason} (matched: "${filter.matched}"). Message not sent.`,
-          );
-        }
+        // Content moderation runs in the pipeline's MODERATION stage now
+        // (F2/C-2, 2026-09-01) -- before this adapter is ever called.
         const payload: Record<string, unknown> = {
           chat_id: params.chat_id,
           text: params.text,
@@ -54,15 +47,8 @@ export class TelegramAdapter extends BaseAdapter {
       }
 
       case 'telegram.send_photo': {
-        // Content moderation on caption
-        if (params.caption) {
-          const filter = checkContent(String(params.caption));
-          if (!filter.allowed) {
-            throw new Error(
-              `CONTENT_BLOCKED: ${filter.reason} (matched: "${filter.matched}"). Photo not sent.`,
-            );
-          }
-        }
+        // Content moderation runs in the pipeline's MODERATION stage now
+        // (F2/C-2, 2026-09-01) -- before this adapter is ever called.
         const payload: Record<string, unknown> = {
           chat_id: params.chat_id,
           photo: params.photo,
@@ -77,15 +63,8 @@ export class TelegramAdapter extends BaseAdapter {
       }
 
       case 'telegram.send_document': {
-        // Content moderation on caption
-        if (params.caption) {
-          const filter = checkContent(String(params.caption));
-          if (!filter.allowed) {
-            throw new Error(
-              `CONTENT_BLOCKED: ${filter.reason} (matched: "${filter.matched}"). Document not sent.`,
-            );
-          }
-        }
+        // Content moderation runs in the pipeline's MODERATION stage now
+        // (F2/C-2, 2026-09-01) -- before this adapter is ever called.
         const payload: Record<string, unknown> = {
           chat_id: params.chat_id,
           document: params.document,

@@ -64,6 +64,14 @@ model ExecutionLedger {
   idempotency_key    String?
   payload_url        String?
   payload_status     String?   // OK|FAILED|TIMEOUT
+  // F2/C-3 (2026-09-01): set only when MODERATION blocked this request.
+  // status='blocked' in that case (see moderation.stage.ts + escrow-finalize.stage.ts).
+  // A blocked PAID request still settles (billing_status stays PAID) -- deliberate
+  // departure from "reject as early as possible": financial consequence requires the
+  // payment to have already happened (Fable decision, not to be re-litigated here).
+  moderation_rule_id     String?
+  moderation_category    String?
+  moderation_appeal_id   String?   @db.Uuid
   created_at         DateTime  @default(now()) @db.Timestamptz()
   updated_at         DateTime? @db.Timestamptz()
 
@@ -75,6 +83,31 @@ model ExecutionLedger {
   @@index([status, created_at])
   @@index([idempotency_key, created_at])
   @@map("execution_ledger")
+}
+
+// ---------------------------------------------------------------------------
+// moderation_appeals — Content-moderation block appeals (F2/C-3, §12.43 MODERATION)
+// Not partitioned: low volume, needs indefinite retention for audit + SLA tracking.
+// ---------------------------------------------------------------------------
+model ModerationAppeal {
+  appeal_id       String    @id @default(uuid()) @db.Uuid
+  execution_id    String?   @db.Uuid
+  agent_id        String?   @db.Uuid
+  tool_id         String
+  rule_id         String
+  category        String
+  // OPEN -> UPHELD (block stands) | OVERTURNED (refund/unblock owed, operator-executed)
+  status          String    @default("OPEN")
+  contact_email   String?
+  message         String?
+  resolution_note String?
+  created_at      DateTime  @default(now()) @db.Timestamptz()
+  // Fable/operator commitment: 72h response SLA (§12.43 MODERATION step 4).
+  response_due_at DateTime  @db.Timestamptz()
+  resolved_at     DateTime? @db.Timestamptz()
+
+  @@index([status, response_due_at])
+  @@map("moderation_appeals")
 }
 
 // ---------------------------------------------------------------------------

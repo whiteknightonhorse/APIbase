@@ -1,0 +1,11 @@
+{
+  "version": "1.0",
+  "updated": "2026-09-01",
+  "description": "Per-provider content-moderation classification (F2/C-2, §12.43 MODERATION). 'action' = an outbound/side-effecting channel that acts on the real world on the agent's behalf (sends a message, places a call, posts content) -- checked against the FULL blocklist ruleset. Any provider NOT listed here defaults to 'data' (read-only lookup: search, news, weather, finance, etc.) -- checked against ONLY the rules marked absolute:true in content-blocklist.json (currently: CSAM). This default direction is deliberate: a wrongly-narrow filter on a legitimate action-class provider is a one-line addition to this list once noticed; defaulting every unclassified provider to the FULL ruleset instead would risk false-positive-blocking (and, post F2/C-3, PAYING and settling against) legitimate data queries across the whole 372-adapter catalog with zero review -- e.g. a news API call for 'isis recruitment tactics' must not be treated the same as telegram actually sending that phrase to a channel. A provider whose data/action nature is genuinely unclear is an operator/Fable decision (see SKILL.md), not to be guessed into either list here.",
+  "action": [
+    "telegram",
+    "twilio",
+    "telnyx",
+    "resend"
+  ]
+}
