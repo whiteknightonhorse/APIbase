@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1296 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1300 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -62346,6 +62346,202 @@
           "geography_type",
           "geography",
           "metric"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ea-hydrology.stations.search",
+      "description": "Search the UK Environment Agency hydrology monitoring network for river, groundwater, and rainfall stations, filterable by river name, freetext label search, or what the station measures (waterFlow, waterLevel, rainfall, temperature, groundwaterLevel). Returns station_id, name, river/catchment, coordinates, and measure count — use the station_id with ea-hydrology.station_measures to see its available data series. Data: environment.data.gov.uk/hydrology, UK Open Government Licence v3.0, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "river_name": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "Filter stations by river name, partial match (e.g. \"River Thames\")."
+          },
+          "search": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "Freetext search matching the station label/name (e.g. \"Farmoor\")."
+          },
+          "observed_property": {
+            "type": "string",
+            "enum": [
+              "waterFlow",
+              "waterLevel",
+              "rainfall",
+              "temperature",
+              "groundwaterLevel"
+            ],
+            "description": "Filter stations by what they measure: waterFlow (river flow m3/s), waterLevel (river level), rainfall, temperature, or groundwaterLevel (borehole)."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "description": "Max stations to return (default 20, max 200)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ea-hydrology.stations.measures",
+      "description": "List the data series (measures) recorded at one EA hydrology station — e.g. 15-minute instantaneous flow, daily mean/min/max level, daily total rainfall — identified by the station_id from ea-hydrology.station_search. Optional parameter filter (flow, level, rainfall, TEMPERATURE — note TEMPERATURE is uppercase upstream). Returns measure_id, period, value type, and unit for each series — use measure_id with ea-hydrology.readings_latest or ea-hydrology.readings_range. Data: environment.data.gov.uk/hydrology, UK Open Government Licence v3.0, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "station_id": {
+            "type": "string",
+            "description": "Station identifier — the `station_id` (notation/GUID) returned by ea-hydrology.station_search, e.g. \"052d0819-2a32-47df-9b99-c243c9c8235b\".",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "parameter": {
+            "type": "string",
+            "enum": [
+              "flow",
+              "level",
+              "rainfall",
+              "TEMPERATURE"
+            ],
+            "description": "Filter measures by parameter type. Note: TEMPERATURE must be uppercase, the others lowercase — confirmed upstream data quirk, not a typo."
+          }
+        },
+        "required": [
+          "station_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ea-hydrology.readings.latest",
+      "description": "Get the most recent reading (date, value, quality flag) for one EA hydrology data series, identified by the measure_id from ea-hydrology.station_measures. Data: environment.data.gov.uk/hydrology, UK Open Government Licence v3.0, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "measure_id": {
+            "type": "string",
+            "description": "Measure identifier — the `measure_id` (notation) returned by ea-hydrology.station_measures, e.g. \"052d0819-2a32-47df-9b99-c243c9c8235b-flow-i-900-m3s-qualified\".",
+            "minLength": 1,
+            "maxLength": 300
+          }
+        },
+        "required": [
+          "measure_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ea-hydrology.readings.range",
+      "description": "Get a date-ranged time series of readings (date, value, quality, completeness) for one EA hydrology data series, identified by the measure_id from ea-hydrology.station_measures. Requires min_date and max_date (YYYY-MM-DD, inclusive). Data: environment.data.gov.uk/hydrology, UK Open Government Licence v3.0, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "measure_id": {
+            "type": "string",
+            "description": "Measure identifier returned by ea-hydrology.station_measures.",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "min_date": {
+            "type": "string",
+            "description": "Start date (inclusive), format YYYY-MM-DD."
+          },
+          "max_date": {
+            "type": "string",
+            "description": "End date (inclusive), format YYYY-MM-DD."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2000,
+            "description": "Max readings to return (default 500, max 2000)."
+          }
+        },
+        "required": [
+          "measure_id",
+          "min_date",
+          "max_date"
         ]
       },
       "outputSchema": {

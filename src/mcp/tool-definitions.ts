@@ -15877,4 +15877,59 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'health',
     annotations: READ_ONLY,
   },
+
+  // Environment Agency Hydrology (4) — UC-654
+  {
+    toolId: 'ea-hydrology.station_search',
+    mcpName: 'ea-hydrology.stations.search',
+    title: 'EA Hydrology Station Search',
+    description:
+      'Search the UK Environment Agency hydrology monitoring network for river, groundwater, ' +
+      'and rainfall stations, filterable by river name, freetext label search, or what the ' +
+      'station measures (waterFlow, waterLevel, rainfall, temperature, groundwaterLevel). ' +
+      'Returns station_id, name, river/catchment, coordinates, and measure count — use the ' +
+      'station_id with ea-hydrology.station_measures to see its available data series. Data: ' +
+      'environment.data.gov.uk/hydrology, UK Open Government Licence v3.0, no auth required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ea-hydrology.station_measures',
+    mcpName: 'ea-hydrology.stations.measures',
+    title: 'EA Hydrology Station Measures',
+    description:
+      'List the data series (measures) recorded at one EA hydrology station — e.g. 15-minute ' +
+      'instantaneous flow, daily mean/min/max level, daily total rainfall — identified by the ' +
+      'station_id from ea-hydrology.station_search. Optional parameter filter (flow, level, ' +
+      'rainfall, TEMPERATURE — note TEMPERATURE is uppercase upstream). Returns measure_id, ' +
+      'period, value type, and unit for each series — use measure_id with ' +
+      'ea-hydrology.readings_latest or ea-hydrology.readings_range. Data: ' +
+      'environment.data.gov.uk/hydrology, UK Open Government Licence v3.0, no auth required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ea-hydrology.readings_latest',
+    mcpName: 'ea-hydrology.readings.latest',
+    title: 'EA Hydrology Latest Reading',
+    description:
+      'Get the most recent reading (date, value, quality flag) for one EA hydrology data ' +
+      'series, identified by the measure_id from ea-hydrology.station_measures. Data: ' +
+      'environment.data.gov.uk/hydrology, UK Open Government Licence v3.0, no auth required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ea-hydrology.readings_range',
+    mcpName: 'ea-hydrology.readings.range',
+    title: 'EA Hydrology Readings Range',
+    description:
+      'Get a date-ranged time series of readings (date, value, quality, completeness) for one ' +
+      'EA hydrology data series, identified by the measure_id from ' +
+      'ea-hydrology.station_measures. Requires min_date and max_date (YYYY-MM-DD, inclusive). ' +
+      'Data: environment.data.gov.uk/hydrology, UK Open Government Licence v3.0, no auth ' +
+      'required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
 ];

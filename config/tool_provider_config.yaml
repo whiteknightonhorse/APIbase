@@ -8198,6 +8198,31 @@ tools:
     price_usd: "0.002"
     cache_ttl: 3600
 
+  # --- UC-654: Environment Agency Hydrology (ea-hydrology) (4 tools) ---
+  - tool_id: ea-hydrology.station_search
+    name: EA Hydrology Station Search
+    provider: ea-hydrology
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: ea-hydrology.station_measures
+    name: EA Hydrology Station Measures
+    provider: ea-hydrology
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: ea-hydrology.readings_latest
+    name: EA Hydrology Latest Reading
+    provider: ea-hydrology
+    price_usd: "0.001"
+    cache_ttl: 300
+
+  - tool_id: ea-hydrology.readings_range
+    name: EA Hydrology Readings Range
+    provider: ea-hydrology
+    price_usd: "0.002"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

@@ -372,6 +372,7 @@ import { bgsOgcApiSchemas } from './bgs-ogcapi.schema';
 import { ilostatSchemas } from './ilostat.schema';
 import { auDataGovSchemas } from './au-data-gov.schema';
 import { ukhsaDashboardSchemas } from './ukhsa-dashboard.schema';
+import { eaHydrologySchemas } from './ea-hydrology.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -747,4 +748,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...ilostatSchemas,
   ...auDataGovSchemas,
   ...ukhsaDashboardSchemas,
+  ...eaHydrologySchemas,
 };

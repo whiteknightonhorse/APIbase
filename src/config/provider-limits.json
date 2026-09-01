@@ -3338,5 +3338,14 @@
     "reset_period": "none",
     "docs_url": "https://api.ukhsa-dashboard.data.gov.uk/api/redoc/",
     "limit_proof": "Public UK Health Security Agency REST API (api.ukhsa-dashboard.data.gov.uk); no authentication or API key required for any endpoint, no rate-limit headers returned in observed responses, no documented request quota on the API docs page."
+  },
+  "ea-hydrology": {
+    "display_name": "EA Hydrology",
+    "health_url": "https://environment.data.gov.uk/hydrology/id/stations.json?_limit=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://environment.data.gov.uk/hydrology/doc/reference",
+    "limit_proof": "Public UK Environment Agency hydrology REST API (environment.data.gov.uk/hydrology); no authentication or API key required for any endpoint, no rate-limit headers returned in observed responses, no documented request quota on the API reference page."
   }
 }

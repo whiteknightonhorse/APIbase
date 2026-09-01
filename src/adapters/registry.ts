@@ -372,6 +372,7 @@ import { BgsOgcApiAdapter } from './bgs-ogcapi';
 import { IlostatAdapter } from './ilostat';
 import { AuDataGovAdapter } from './au-data-gov';
 import { UkhsaDashboardAdapter } from './ukhsa-dashboard';
+import { EaHydrologyAdapter } from './ea-hydrology';
 import { config } from '../config';
 
 /**
@@ -1994,6 +1995,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // UKHSA Data Dashboard public REST API (UC-653) — hierarchical theme/sub_theme/topic/
       // geography/metric browse plus paginated metric timeseries data; no auth, OGL v3.0
       return getOrCreate('ukhsa-dashboard', () => new UkhsaDashboardAdapter());
+    case 'ea-hydrology':
+      // Environment Agency Hydrology API (UC-654) — UK river/groundwater/rainfall monitoring
+      // network: station search, per-station measure list, latest reading, and date-ranged
+      // readings time series; no auth, Open Government Licence v3.0
+      return getOrCreate('ea-hydrology', () => new EaHydrologyAdapter());
     default:
       return undefined;
   }
