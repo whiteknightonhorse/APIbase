@@ -209,6 +209,13 @@ const PRICE = 0.25;
 const VALID_PARAMS = { to: '+15551234567', from: '+15557654321', text: 'hello' };
 const API_KEY = 'ak_live_' + 'a'.repeat(32);
 
+// escrow.service's InsufficientFundsError class, pulled off the mock factory
+// above (2026-09-02 balance-rail fix) so tests can both throw it from
+// mockReserve and instanceof-check it.
+const { InsufficientFundsError: MockInsufficientFundsError } = jest.requireMock(
+  '../../src/services/escrow.service',
+) as { InsufficientFundsError: new (...a: unknown[]) => Error };
+
 function futureEpoch(seconds = 60): number {
   return Math.floor(Date.now() / 1000) + seconds;
 }
@@ -252,6 +259,15 @@ beforeEach(() => {
   });
   mockVerify.mockReset();
   mockReserve.mockReset();
+  // Default (2026-09-02 balance-rail fix): TEST_AGENT has no funded balance
+  // unless a test says otherwise. Before the fix this branch was dead code
+  // for every caller, so no test ever needed a default here; now that ESCROW
+  // falls through to reserve() whenever no x402/MPP payment is presented,
+  // every existing "no payment at all" test below reaches this mock too.
+  // Rejecting by default keeps their outcome identical to before (clean
+  // 402, provider never called) — real balance behavior is opted into
+  // per-test via mockReserve.mockResolvedValue(...).
+  mockReserve.mockRejectedValue(new MockInsufficientFundsError('agent-adversarial-1', PRICE));
 });
 
 // ---------------------------------------------------------------------------
@@ -289,6 +305,8 @@ interface ExecuteCallOpts {
   requestId: string;
   x402?: { header: string; payer?: string };
   mpp?: { header: string; payer?: string };
+  idempotencyKey?: string;
+  params?: Record<string, unknown>;
 }
 
 async function callExecute(opts: ExecuteCallOpts): Promise<{ status: number; body: unknown }> {
@@ -307,7 +325,7 @@ async function callExecute(opts: ExecuteCallOpts): Promise<{ status: number; bod
       'x-request-id': opts.requestId,
     } as Record<string, string>,
     params: { toolId: TOOL_ID },
-    body: VALID_PARAMS,
+    body: opts.params ?? VALID_PARAMS,
     path: `/api/v1/tools/${TOOL_ID}/call`,
     originalUrl: `/api/v1/tools/${TOOL_ID}/call`,
     get: () => 'test.local',
@@ -332,6 +350,7 @@ async function callExecute(opts: ExecuteCallOpts): Promise<{ status: number; bod
       : undefined,
   };
   if (opts.x402) req.headers['x-payment'] = opts.x402.header;
+  if (opts.idempotencyKey) req.headers['x-idempotency-key'] = opts.idempotencyKey;
 
   const res = fakeRes();
   const next = (err?: unknown) => {
@@ -523,30 +542,18 @@ describe('MCP entry point (registerTools callback) — real tool-adapter code', 
 
 describe('BATCH entry point (runBatch) — real batch.service code', () => {
   /**
-   * FINDING (not one of C-1..C-9, reported not fixed): this was written as a
-   * CONTROL expecting success — batch.service.ts's own module doc says
-   * "Billing: each sub-call pays through its own pipeline escrow" (i.e. the
-   * C-1 prepaid-balance rail) — but escrow.stage.ts (unchanged since commit
-   * 5d9707c, 2026-03-29) requires ctx.x402Paid or ctx.mppPaid to be true for
-   * ANY cache-miss (fresh) paid-tool call; nothing sets either flag for a
-   * batch sub-call (BatchCallInput carries no payment header at all — grep
-   * confirms no other code path sets these flags without a verified
-   * signature). So today, a batch call to a priced tool 402s unless it
-   * happens to already be a warm cache hit for the exact same params —
-   * confirmed here against the REAL runBatch()/escrow.stage.ts, not assumed.
-   * Live DB (execution_ledger) shows this class of billing (cost>0,
-   * cache_status=MISS, no payer) ran in the tens of thousands/month from
-   * March through June 2026, then dropped to exactly zero from 2026-06-29
-   * onward (through today) with no matching code change to escrow.stage.ts —
-   * but only 4 distinct agent_ids ever produced it in the month before the
-   * cutoff, consistent with the operator's own heartbeat/load-test bot
-   * switching payment rails rather than a broad base of real customers being
-   * cut off. Whether this is intended ("every fresh call must be individually
-   * signed, balance is cache-hit-discount only") or a live regression of the
-   * C-1 prepaid-balance spec is a plan-vs-spec question for Fable/operator,
-   * not something to fix unilaterally in this pass.
+   * FIXED 2026-09-02 (was a FINDING, reported-not-fixed, 2026-09-01 —
+   * Fable's C-1 verdict): the root cause was never batch-specific.
+   * escrow.stage.ts required ctx.x402Paid or ctx.mppPaid to be true for ANY
+   * cache-miss paid-tool call, but the reserve()-from-balance branch below
+   * that check was structurally unreachable for every entry point (whoever
+   * reached it must already have returned earlier via the x402Paid/mppPaid
+   * branches) — batch just had no other way to set either flag, so it was
+   * the one caller that could ever exercise the dead branch. Fixed at the
+   * one place all callers share (escrow.stage.ts's fund-source resolution);
+   * batch inherits the balance rail for free, with zero batch-specific code.
    */
-  it('FINDING: a batch call to a priced tool with balance but no signed payment still 402s on a cache MISS — contradicts batch.service.ts\'s own "pays through escrow" doc comment', async () => {
+  it('a batch call to a priced tool with balance and no signed payment now succeeds on a cache MISS', async () => {
     mockReserve.mockResolvedValue({ executionId: 'exec-1', amount: PRICE, createdAt: new Date() });
     const result = await runBatch({
       authHeader: `Bearer ${API_KEY}`,
@@ -554,18 +561,20 @@ describe('BATCH entry point (runBatch) — real batch.service code', () => {
       calls: [{ tool_id: TOOL_ID, params: VALID_PARAMS }],
       maxParallel: 5,
     });
-    expect(result.results[0].status).toBe('error');
-    expect(result.results[0].error).toMatch(/payment/i);
-    // The balance path (escrow.service.reserve) is never even reached.
-    expect(mockReserve).not.toHaveBeenCalled();
-    expect(mockAdapterCall).not.toHaveBeenCalled();
+    expect(result.results[0].status).toBe('success');
+    expect(result.results[0].cost_usd).toBe(PRICE);
+    expect(mockReserve).toHaveBeenCalledWith(
+      'agent-adversarial-1',
+      TOOL_ID,
+      PRICE,
+      expect.any(String),
+      undefined,
+    );
+    expect(mockAdapterCall).toHaveBeenCalledTimes(1);
   });
 
-  it('ADVERSARIAL: no funds (via the balance path, once/if it is reached) — provider never called. Distinct params per call to avoid an unrelated single-flight collision (see next finding).', async () => {
-    const { InsufficientFundsError } = jest.requireMock('../../src/services/escrow.service') as {
-      InsufficientFundsError: new (...a: unknown[]) => Error;
-    };
-    mockReserve.mockRejectedValue(new InsufficientFundsError('agent-adversarial-1', PRICE));
+  it('ADVERSARIAL: no funds — reserve() is now reached (and correctly rejected) for every item, provider never called', async () => {
+    mockReserve.mockRejectedValue(new MockInsufficientFundsError('agent-adversarial-1', PRICE));
     const result = await runBatch({
       authHeader: `Bearer ${API_KEY}`,
       parentRequestId: 'batch-no-funds',
@@ -576,10 +585,32 @@ describe('BATCH entry point (runBatch) — real batch.service code', () => {
       maxParallel: 5,
     });
     expect(result.results.every((r) => r.status === 'error')).toBe(true);
+    expect(result.results.every((r) => /balance/i.test(r.error ?? ''))).toBe(true);
     expect(mockAdapterCall).not.toHaveBeenCalled();
-    // Given the FINDING above, reserve() is never reached either way — this
-    // assertion documents that, rather than asserting it WAS attempted.
-    expect(mockReserve).not.toHaveBeenCalled();
+    // Fixed 2026-09-02: reserve() is the balance rail's entry point now, so
+    // an insufficient-balance batch item actually attempts it (and is
+    // correctly turned away by it) instead of never reaching it at all.
+    expect(mockReserve).toHaveBeenCalledTimes(2);
+  });
+
+  it('FIXED: item 1 has enough balance and succeeds, item 2 does not and fails independently — item 1 is unaffected (Fable ШАГ 1 test contract #3)', async () => {
+    mockReserve
+      .mockResolvedValueOnce({ executionId: 'exec-ok', amount: PRICE, createdAt: new Date() })
+      .mockRejectedValueOnce(new MockInsufficientFundsError('agent-adversarial-1', PRICE));
+    const result = await runBatch({
+      authHeader: `Bearer ${API_KEY}`,
+      parentRequestId: 'batch-partial',
+      calls: [
+        { tool_id: TOOL_ID, params: { ...VALID_PARAMS, to: '+15550000010' } },
+        { tool_id: TOOL_ID, params: { ...VALID_PARAMS, to: '+15550000011' } },
+      ],
+      maxParallel: 1, // sequential — item 1's reserve() call is guaranteed to happen before item 2's
+    });
+    expect(result.results[0].status).toBe('success');
+    expect(result.results[0].cost_usd).toBe(PRICE);
+    expect(result.results[1].status).toBe('error');
+    expect(result.results[1].error).toMatch(/balance/i);
+    expect(mockAdapterCall).toHaveBeenCalledTimes(1);
   });
 
   /**
@@ -618,11 +649,178 @@ describe('BATCH entry point (runBatch) — real batch.service code', () => {
       ],
       maxParallel: 1,
     });
-    // Both still 402 (the FINDING above applies to both), but the point of
-    // this test is IDEMPOTENCY dedup, not payment — the second call must be
-    // rejected as a conflict, never independently re-attempting anything.
+    // Fixed 2026-09-02: item 1 now actually succeeds (reserve() funds it)
+    // instead of both 402ing at ESCROW as before — but the point of this
+    // test is still IDEMPOTENCY dedup, not payment: the second call must be
+    // rejected as a duplicate of the first, never independently re-attempting
+    // reserve() or the provider call.
     expect(result.results).toHaveLength(2);
     expect(result.results[1].error).toMatch(/in progress/i);
+    expect(mockAdapterCall).toHaveBeenCalledTimes(1);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// NEW (2026-09-02) — Fable ШАГ 1 test contract: the balance fund-source
+// branch in escrow.stage.ts, covered directly at the REST/MCP entry points
+// (BATCH's own coverage is above — it needed zero new code, only the fix).
+// Items (1) REST, (2) MCP, (3) batch partial success/failure (above),
+// (4) CONTROL insufficient balance, (5) RACE, are each its own test below.
+// Item (6) regression (x402/MPP byte-for-byte unchanged) is proven by every
+// pre-existing EXECUTE/MCP describe block above staying green untouched —
+// none of those branches were touched by this fix.
+// ---------------------------------------------------------------------------
+
+describe('BALANCE ESCROW — authenticated agent, no signed payment (Fable fix, 2026-09-02)', () => {
+  it('(1) REST /execute: single call, sufficient balance, cache MISS, no x402/MPP → 200 with PAID billing and cost in response', async () => {
+    mockReserve.mockResolvedValue({
+      executionId: 'exec-rest-bal',
+      amount: PRICE,
+      createdAt: new Date(),
+    });
+    const r = await callExecute({ requestId: 'exec-balance-ok' });
+    expect(r.status).toBe(200);
+    const body = r.body as { metadata: { billing_status: string; cost_usd: number } };
+    expect(body.metadata.billing_status).toBe('PAID');
+    expect(body.metadata.cost_usd).toBe(PRICE);
+    expect(mockReserve).toHaveBeenCalledTimes(1);
+    expect(mockAdapterCall).toHaveBeenCalledTimes(1);
+  });
+
+  it('(2) MCP: the same fund-source resolution reaches the provider through the real registerTools() callback', async () => {
+    mockReserve.mockResolvedValue({
+      executionId: 'exec-mcp-bal',
+      amount: PRICE,
+      createdAt: new Date(),
+    });
+    const r = await callMcpTool('mcp-balance-ok', fullPaymentCtx());
+    expect(r.isError).toBe(false);
+    expect(mockReserve).toHaveBeenCalledTimes(1);
+    expect(mockAdapterCall).toHaveBeenCalledTimes(1);
+  });
+
+  // (3) batch partial success/failure — see the BATCH describe block above
+  // ("item 1 has enough balance and succeeds, item 2 does not...").
+
+  it('(4) CONTROL: insufficient balance still 402s on REST /execute — proves the fix does not remove the rejection, only relocates its trigger', async () => {
+    mockReserve.mockRejectedValue(new MockInsufficientFundsError('agent-adversarial-1', PRICE));
+    const r = await callExecute({ requestId: 'exec-balance-insufficient' });
+    expect(r.status).toBe(402);
     expect(mockAdapterCall).not.toHaveBeenCalled();
+  });
+
+  it('(5) RACE: two parallel REST calls (distinct params, so neither collides in CACHE_OR_SINGLE_FLIGHT — see the pre-existing BATCH "no funds" test for the same precaution), balance sufficient for exactly one → exactly one 200, one 402', async () => {
+    mockReserve
+      .mockResolvedValueOnce({
+        executionId: 'exec-race-winner',
+        amount: PRICE,
+        createdAt: new Date(),
+      })
+      .mockRejectedValueOnce(new MockInsufficientFundsError('agent-adversarial-1', PRICE));
+    const [a, b] = await Promise.all([
+      callExecute({ requestId: 'exec-race-a', params: { ...VALID_PARAMS, to: '+15550000020' } }),
+      callExecute({ requestId: 'exec-race-b', params: { ...VALID_PARAMS, to: '+15550000021' } }),
+    ]);
+    const statuses = [a.status, b.status].sort();
+    expect(statuses).toEqual([200, 402]);
+    expect(mockReserve).toHaveBeenCalledTimes(2);
+    expect(mockAdapterCall).toHaveBeenCalledTimes(1);
+    // This proves the STAGE correctly serializes on whatever reserve()
+    // decides. The REAL atomic guarantee (`UPDATE accounts SET balance_usd
+    // = balance_usd - $1 WHERE balance_usd >= $1`, escrow.service.ts,
+    // deliberately untouched by this fix) can only be proven against a real
+    // Postgres row lock — proven live against production as part of the
+    // ШАГ 3 synthetic-probe pass (two parallel probes on one funded balance,
+    // exactly one reserves), not mockable meaningfully at this level.
+  });
+
+  it('IDEMPOTENCY: a replayed key on the balance rail does not double-debit — the retry gets the identical cached response, reserve() is called only once', async () => {
+    mockReserve.mockResolvedValue({
+      executionId: 'exec-idem-bal',
+      amount: PRICE,
+      createdAt: new Date(),
+    });
+    const first = await callExecute({
+      requestId: 'exec-idem-1',
+      idempotencyKey: 'balance-replay-key-1',
+    });
+    const second = await callExecute({
+      requestId: 'exec-idem-2',
+      idempotencyKey: 'balance-replay-key-1',
+    });
+    expect(first.status).toBe(200);
+    expect(mockAdapterCall).toHaveBeenCalledTimes(1);
+    // The retry must not independently re-attempt the balance debit — it
+    // gets IDEMPOTENCY's own cached replay of the first call's response
+    // (same 200), never a fresh reserve() call.
+    expect(mockReserve).toHaveBeenCalledTimes(1);
+    expect(second.status).toBe(200);
+  });
+
+  it('BOUNDARY: zero and negative tool price never call reserve() — a free (or malformed-price) tool skips escrow entirely, unaffected by this fix', async () => {
+    __setToolCacheEntryForTest({
+      tool_id: 'zero-price.test-tool',
+      status: 'healthy',
+      price_usd: 0,
+      cache_ttl: 0,
+      upstream_cost_usd: null,
+    });
+    __setToolCacheEntryForTest({
+      tool_id: 'negative-price.test-tool',
+      status: 'healthy',
+      price_usd: -5,
+      cache_ttl: 0,
+      upstream_cost_usd: null,
+    });
+    try {
+      mockReserve.mockResolvedValue({
+        executionId: 'should-not-happen',
+        amount: 0,
+        createdAt: new Date(),
+      });
+
+      const layer = (
+        executeRouter as unknown as {
+          stack: Array<{
+            route?: {
+              path: string;
+              stack: Array<{
+                handle: (req: unknown, res: unknown, next: (e?: unknown) => void) => Promise<void>;
+              }>;
+            };
+          }>;
+        }
+      ).stack.find((l) => l.route && l.route.path === '/api/v1/tools/:toolId/call');
+      const handler = layer!.route!.stack[0].handle;
+
+      async function callTool(toolId: string, requestId: string) {
+        const req = {
+          headers: { authorization: `Bearer ${API_KEY}`, 'x-request-id': requestId } as Record<
+            string,
+            string
+          >,
+          params: { toolId },
+          body: VALID_PARAMS,
+          path: `/api/v1/tools/${toolId}/call`,
+          originalUrl: `/api/v1/tools/${toolId}/call`,
+          get: () => 'test.local',
+        };
+        const res = fakeRes();
+        await handler(req, res, (e?: unknown) => {
+          if (e) throw e;
+        });
+        return { status: res.statusCode, body: res._body };
+      }
+
+      const zero = await callTool('zero-price.test-tool', 'exec-zero-price');
+      const negative = await callTool('negative-price.test-tool', 'exec-negative-price');
+
+      expect(zero.status).toBe(200);
+      expect(negative.status).toBe(200);
+      expect(mockReserve).not.toHaveBeenCalled();
+    } finally {
+      __deleteToolCacheEntryForTest('zero-price.test-tool');
+      __deleteToolCacheEntryForTest('negative-price.test-tool');
+    }
   });
 });

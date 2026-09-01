@@ -301,34 +301,21 @@ export const escrowStage: Stage = {
       return ok(ctx);
     }
 
-    // Paid tool with no verified payment — require x402 or MPP signature (§8.6)
-    // This enforces per-call payment on ALL channels (REST + MCP).
-    // Without this, agents could bypass payment by using MCP with pre-funded balance.
+    // No on-chain payment (x402/MPP) was presented for this call — fund it
+    // from the authenticated agent's prepaid balance instead (§12.154's
+    // reserve rail, Fable verdict 2026-09-02). This is now the ONLY entry
+    // point into the balance branch: reserve() below performs the atomic
+    // `UPDATE accounts SET balance_usd = balance_usd - $1 WHERE balance_usd
+    // >= $1` row-lock debit (escrow.service.ts, untouched) and a 402 is
+    // returned ONLY when that reserve itself fails — no account for this
+    // agent, or insufficient balance. Before this fix, this branch was an
+    // unconditional 402 dead end for every entry point (REST/MCP/batch
+    // alike, not just batch) — the reserve() call below was structurally
+    // unreachable, since either x402Paid or mppPaid had to be true to fall
+    // through the old guard, but both already return earlier in this
+    // function when true. This tautological guard is now the entry point
+    // into the balance branch instead of a rejection.
     const x402Cfg = getX402Config();
-    if (!ctx.x402Paid && !ctx.mppPaid) {
-      logger.info(
-        {
-          agentId: ctx.agentId,
-          toolId: ctx.toolId,
-          cost,
-          path: ctx.path,
-          requestId: ctx.requestId,
-        },
-        'Payment required — no x402 or MPP payment verified',
-      );
-      return err<PipelineError>({
-        code: 402,
-        error: 'payment_required',
-        message: `This tool costs $${cost}. Provide x402 (X-Payment header) or MPP (Authorization: Payment) payment.`,
-        extra: {
-          price_usd: cost,
-          payment_address: x402Cfg.paymentAddress,
-          price_version: 1,
-        },
-      });
-    }
-
-    // On-chain payment verified — record escrow for ledger tracking
     try {
       const result = await reserve(
         ctx.agentId,

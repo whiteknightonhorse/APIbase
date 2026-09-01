@@ -17,15 +17,21 @@ import { X_REQUEST_ID, X_IDEMPOTENCY_KEY } from '../config/http-headers';
  *  - MCP path: agentId pre-set from parent pipeline (already authenticated)
  *  - REST path: authHeader forwarded so each sub-call authenticates via AUTH stage
  *
- * Billing (2026-09-01, corrected — was previously mis-described as "pays
- * through its own pipeline escrow"): BatchCallInput carries NO payment-header
- * field, so a sub-call can only be billed two ways — a cache HIT (10% direct
- * charge, §12.173) or a genuinely free tool. A cache-MISS on a paid tool hits
- * ESCROW's normal "no x402/MPP payment verified" rejection like any other
- * unauthenticated paid call; explainBatchError() below rewrites that into a
- * message that says plainly there is nowhere on a batch call to attach one,
- * instead of repeating an instruction ("provide x402/MPP header") the batch
- * caller has no field to act on. The batch wrapper itself is $0.
+ * Billing (2026-09-02, corrected again — Fable verdict on the C-1 batch
+ * regression): BatchCallInput carries NO payment-header field, so a sub-call
+ * can never attach a signed x402/MPP payment — but a cache-MISS on a paid
+ * tool is no longer a dead end. ESCROW's fund-source resolution
+ * (escrow.stage.ts) now falls through to the authenticated agent's prepaid
+ * balance (reserve()) whenever no x402/MPP payment is presented, and batch
+ * sub-calls authenticate the same way any REST/MCP call does (agentId
+ * pre-set on the MCP path, or authHeader forwarded through AUTH on the REST
+ * path). So a sub-call is billed one of three ways: a cache HIT (10% direct
+ * charge, §12.173), a genuinely free tool, or — the case this fix closes —
+ * a cache-MISS paid tool funded from the calling agent's balance. A 402 now
+ * means the reserve itself failed (no account, or insufficient balance),
+ * not "nowhere to attach a payment" — explainBatchError() below only
+ * rewrites the older "provide x402/MPP" message shape, which no live batch
+ * code path produces anymore now that the balance rail is reachable.
  */
 
 export interface BatchOptions {
