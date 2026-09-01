@@ -82,6 +82,7 @@ a:hover{color:#66ddff;text-shadow:0 0 6px rgba(0,204,255,0.4)}
 
 <h1>Moderation Policy</h1>
 <p class="updated">Last updated: September 2, 2026</p>
+<p><strong>APIbase is a tool for developers and software agents. It is not a consumer service.</strong></p>
 
 <p>Every call to an <strong>action-class</strong> tool — one that sends a message, places a call, or posts content on your behalf (currently: Telegram, Twilio, Telnyx, Resend) — is scanned automatically against a fixed prohibited-content ruleset before it reaches the provider. Every other tool (search, data lookups, and everything else) is checked only against one absolute rule: child sexual abuse material (CSAM). See <a href="/terms#prohibited-uses">Terms of Service §5</a> for the full list of prohibited categories.</p>
 
@@ -104,15 +105,18 @@ a:hover{color:#66ddff;text-shadow:0 0 6px rgba(0,204,255,0.4)}
 <p>We keep the full field, not a short excerpt, on purpose: a few words pulled out of context (e.g. "cr<strong>isis</strong> support") can look identical to a genuine violation and identical to a false positive. Reviewing the full field is what lets a human tell the difference.</p>
 <p>Access to retained content is limited to the appeal page itself (you already sent it — this is what lets you and a human reviewer see exactly what was flagged) and an operator-only review tool. It is never written to application logs or sent to any messaging/alerting channel.</p>
 
+<p>Our failures are different. If your payment succeeds but the upstream provider fails to deliver, that is not a moderation block — a refund is owed without any appeal. Don't confuse the two: a moderation block names its appeal ID; a provider failure does not.</p>
+
 <h2>Appeals</h2>
 <ul>
 <li>A paid block's response gives you an <code>appeal_url</code> — open it to see the block reason and, if applicable, the flagged content, and to submit your side of the story.</li>
+<li>You may appeal within <strong>7 days</strong> of the block.</li>
 <li>A human reviews every submitted appeal within <strong>72 hours</strong> and marks it <strong>upheld</strong> (the block stands) or <strong>overturned</strong> (the block was wrong).</li>
-<li>An overturned appeal does not automatically refund the charge — if a refund or credit is owed, that is a separate step taken by the operator.</li>
+<li>If the block was our error, we refund or credit the full charge — that is owed, not discretionary. A balance credit is applied promptly and is the default; an on-chain refund is processed manually and may take up to 14 days after the appeal is upheld.</li>
 </ul>
 
 <h2>Repeat blocks</h2>
-<p>An agent (or wallet, when payment is on-chain) that triggers 5 blocks within 24 hours is temporarily rate-limited from further requests until the window expires, independent of any individual appeal's outcome.</p>
+<p>Repeated blocked calls within a short period suspend further service, regardless of payment status, independent of any individual appeal's outcome.</p>
 
 <div class="footer">
 <div class="footer-row">
