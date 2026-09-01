@@ -7,27 +7,79 @@
 <meta name="description" content="Connect APIbase MCP server from Claude Desktop, Cursor, OpenAI Agents SDK, LangChain, Google ADK, CrewAI, Windsurf. One endpoint, 1316 tools.">
 <link rel="canonical" href="https://apibase.pro/frameworks">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="shortcut icon" href="/favicon.png">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0d1117;color:#c9d1d9;font-family:'JetBrains Mono','Courier New',monospace;padding:20px;max-width:900px;margin:0 auto;line-height:1.6}
-h1{color:#00ff41;font-size:24px;margin-bottom:8px}
-h2{color:#58a6ff;font-size:18px;margin:32px 0 12px;border-bottom:1px solid #30363d;padding-bottom:6px}
-h3{color:#d2a8ff;font-size:15px;margin:20px 0 8px}
-p,li{font-size:14px;color:#8b949e}
-a{color:#58a6ff;text-decoration:none}
-a:hover{text-decoration:underline}
-code{background:#161b22;padding:2px 6px;border-radius:4px;font-size:13px;color:#c9d1d9}
-pre{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:16px;overflow-x:auto;font-size:13px;margin:10px 0;color:#c9d1d9;line-height:1.5}
-.badge{display:inline-block;background:#238636;color:#fff;font-size:11px;padding:2px 8px;border-radius:10px;margin-left:8px}
-.badge-warn{background:#9e6a03}
-.card{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:16px;margin:12px 0}
-.endpoint{color:#00ff41;font-weight:bold}
-.note{color:#6e7681;font-size:12px;font-style:italic}
-.nav{display:flex;gap:16px;flex-wrap:wrap;margin:16px 0;font-size:13px}
-.back{color:#8b949e;font-size:13px;margin-bottom:16px;display:block}
+body{font-family:'JetBrains Mono','Fira Code','Cascadia Code','Courier New',monospace;background:#1a1a2e;color:#b0ffb0;line-height:1.7;padding:1.5rem;min-height:100vh;display:flex;justify-content:center;align-items:flex-start}
+.window{max-width:960px;width:100%;background:#0c0c0c;border-radius:10px 10px 8px 8px;border:1px solid #444;box-shadow:0 20px 60px rgba(0,0,0,0.6),0 0 80px rgba(0,255,65,0.04),inset 0 0 80px rgba(0,255,65,0.01);overflow:hidden;position:relative}
+.window::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,0.06) 0px,rgba(0,0,0,0.06) 1px,transparent 1px,transparent 3px);pointer-events:none;z-index:2}
+.window::before{content:'';position:absolute;top:-100%;left:0;right:0;height:60px;background:linear-gradient(180deg,transparent 0%,rgba(0,255,65,0.03) 50%,transparent 100%);pointer-events:none;z-index:3;animation:scanline 8s linear infinite}
+@keyframes scanline{0%{top:-60px}100%{top:100%}}
+.titlebar{background:linear-gradient(180deg,#3d3d3d 0%,#2a2a2a 100%);padding:10px 14px;display:flex;align-items:center;border-bottom:1px solid #1a1a1a;position:relative;z-index:4}
+.dots{display:flex;gap:7px;flex-shrink:0}
+.dot{width:13px;height:13px;border-radius:50%;border:1px solid rgba(0,0,0,0.2)}
+.dot-red{background:#ff5f56;border-color:#e0443e}
+.dot-yellow{background:#ffbd2e;border-color:#dea123}
+.dot-green{background:#27c93f;border-color:#1aab29}
+.titlebar-text{flex:1;text-align:center;color:#999;font-size:0.78rem;font-family:inherit;letter-spacing:0.5px}
+.container{padding:1.8rem 2rem 2rem;position:relative;z-index:1}
+nav{display:flex;flex-wrap:wrap;gap:0.3rem;margin-bottom:1rem;padding:0.5rem 0;border-bottom:1px solid #1a3a1a}
+nav::before{content:'[';color:#555}nav::after{content:']';color:#555}
+nav .brand{color:#00ff41;font-weight:700;font-size:0.9rem;text-decoration:none;text-shadow:0 0 8px rgba(0,255,65,0.4)}
+nav a{color:#00cc33;text-decoration:none;font-size:0.85rem}
+nav a::before{content:' | ';color:#340}nav .brand::before{content:''}
+nav a:hover{color:#00ff41;text-shadow:0 0 6px rgba(0,255,65,0.5)}
+.back{color:#5a9a5a;font-size:0.82rem;margin-bottom:1rem;display:block}
+.back:hover{color:#8fd88f}
+h1{color:#00ff41;font-size:1.3rem;margin-bottom:0.5rem;line-height:1.5;text-shadow:0 0 10px #00ff41,0 0 20px #00ff41,0 0 40px rgba(0,255,65,0.3)}
+h1::before{content:'> ';color:#00aa30}
+.lede{color:#a0d8a0;font-size:0.9rem;margin-bottom:0.4rem}
+.endpoint{color:#33ff66;font-weight:bold;font-size:0.95rem;margin:0.6rem 0 1.2rem;text-shadow:0 0 4px rgba(0,255,65,0.3)}
+h2{color:#00ff41;font-size:1.05rem;margin:2rem 0 0.8rem;padding-left:1rem;border-left:2px solid #00aa30;text-shadow:0 0 6px rgba(0,255,65,0.2)}
+h2::before{content:'## ';color:#006620}
+h3{color:#33ff66;font-size:0.92rem;margin:1.1rem 0 0.5rem}
+p{margin-bottom:0.8rem;font-size:0.9rem;color:#a0d8a0}
+li{margin-bottom:0.4rem;font-size:0.9rem;color:#a0d8a0}
+strong{color:#33ff66}
+a{color:#00ccff;text-decoration:none}
+a:hover{color:#66ddff;text-shadow:0 0 6px rgba(0,204,255,0.4)}
+code{background:#111;border:1px solid #1a3a1a;border-radius:3px;padding:0.05rem 0.35rem;color:#33ff66;font-size:0.85em}
+pre{background:#111;border:1px solid #1a3a1a;border-radius:6px;padding:0.9rem;overflow-x:auto;font-size:0.8rem;margin:0.6rem 0 1rem;color:#a0d8a0;line-height:1.5}
+pre code{background:none;border:none;padding:0;color:inherit}
+.badge{display:inline-block;background:#0f3a1f;color:#33ff66;font-size:0.68rem;padding:0.15rem 0.5rem;border-radius:10px;margin-left:0.5rem;border:1px solid #1a5a1a;vertical-align:middle}
+.badge-warn{background:#3a2a0f;color:#ffbd2e;border-color:#5a4a1a}
+.card{border:1px solid #1a3a1a;border-radius:8px;padding:1rem 1.2rem;margin:1rem 0;background:rgba(0,255,65,0.02)}
+.note{color:#5a9a5a;font-size:0.82rem;font-style:italic}
+.jump{display:flex;flex-wrap:wrap;gap:0.4rem 0.9rem;margin:1rem 0 0.5rem;padding:0.8rem 1rem;border:1px solid #1a3a1a;border-radius:8px;background:#080808;font-size:0.8rem}
+.jump a{color:#00cc33}
+.jump a:hover{color:#00ff41}
+.code-wrap{position:relative}
+.code-wrap pre{padding-right:4.6rem}
+.copy-btn{position:absolute;top:0.6rem;right:0.6rem;background:#0f3a1f;color:#33ff66;border:1px solid #1a5a1a;border-radius:4px;padding:0.35rem 0.7rem;font:inherit;font-size:0.72rem;cursor:pointer;line-height:1;z-index:5}
+.copy-btn:hover{background:#1a5a1a;color:#00ff41}
+.copy-btn:focus-visible{outline:2px solid #00ff41;outline-offset:2px}
+.copy-btn.copied{background:#00aa30;color:#0c0c0c;border-color:#00aa30}
+.footer{margin-top:2rem;padding:0.6rem 0;border-top:1px solid #1a3a1a;color:#2a6a2a;font-size:0.72rem;display:flex;flex-wrap:wrap;justify-content:space-between;gap:0.5rem}
+.footer a{color:#2a6a2a}
+.footer a:hover{color:#5a9a5a}
+*::-webkit-scrollbar{width:8px;height:8px}
+*::-webkit-scrollbar-track{background:#0c0c0c;border:1px solid #1a3a1a}
+*::-webkit-scrollbar-thumb{background:#1a5a1a;border-radius:4px;border:1px solid #0c0c0c}
+*::-webkit-scrollbar-thumb:hover{background:#00ff41}
+*{scrollbar-width:thin;scrollbar-color:#1a5a1a #0c0c0c}
+@media(max-width:600px){body{padding:0.5rem}.container{padding:1rem}h1{font-size:1.05rem}h1::before{content:''}nav::before,nav::after{display:none}.footer{font-size:0.65rem}.jump{font-size:0.75rem;gap:0.3rem 0.6rem}}
 </style>
 </head>
 <body>
+<div class="window">
+<div class="titlebar">
+<div class="dots"><div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div></div>
+<span class="titlebar-text">apibase@prod ~ /srv/apibase/frameworks</span>
+</div>
+
+<div class="container" id="main-content">
+
 <nav>
 <a class="brand" href="/">APIbase.pro</a>
 <a href="/pricing">Pricing</a>
@@ -42,21 +94,20 @@ pre{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:16px;o
 <a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a>
 </nav>
 
-<a href="/" class="back">&larr; apibase.pro</a>
-<h1>> Connect APIbase from Any Framework</h1>
-<p>One MCP endpoint. 1316 tools. Works with every major AI framework.</p>
-<p class="endpoint" style="margin:12px 0">https://apibase.pro/mcp</p>
+<h1>Connect from any AI framework</h1>
+<p class="lede">One MCP endpoint. 1316 tools. Works with every major AI framework.</p>
+<p class="endpoint">https://apibase.pro/mcp</p>
 
-<div class="nav">
-<a href="#claude">Claude Desktop</a> &middot;
-<a href="#cursor">Cursor IDE</a> &middot;
-<a href="#windsurf">Windsurf</a> &middot;
-<a href="#openai">OpenAI Agents SDK</a> &middot;
-<a href="#langchain">LangChain</a> &middot;
-<a href="#google-adk">Google ADK</a> &middot;
-<a href="#crewai">CrewAI</a> &middot;
-<a href="#copilot">Copilot Studio</a> &middot;
-<a href="#sunpeak">Sunpeak</a> &middot;
+<div class="jump">
+<a href="#claude">Claude Desktop</a>
+<a href="#cursor">Cursor IDE</a>
+<a href="#windsurf">Windsurf</a>
+<a href="#openai">OpenAI Agents SDK</a>
+<a href="#langchain">LangChain</a>
+<a href="#google-adk">Google ADK</a>
+<a href="#crewai">CrewAI</a>
+<a href="#copilot">Copilot Studio</a>
+<a href="#sunpeak">Sunpeak</a>
 <a href="#rest">REST / curl</a>
 </div>
 
@@ -71,7 +122,7 @@ pre{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:16px;o
     }
   }
 }</pre>
-<p class="note">No API key needed — auto-registration on first call. Optional: add "headers": {"Authorization": "Bearer ak_live_..."}</p>
+<p class="note">No API key needed &mdash; auto-registration on first call. Optional: add "headers": {"Authorization": "Bearer ak_live_..."}</p>
 
 <!-- Cursor IDE -->
 <h2 id="cursor">Cursor IDE <span class="badge">GA Jan 2026</span></h2>
@@ -84,7 +135,7 @@ pre{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:16px;o
     }
   }
 }</pre>
-<p class="note">Or install via Cursor Settings → MCP → Add Server → URL: https://apibase.pro/mcp</p>
+<p class="note">Or install via Cursor Settings &rarr; MCP &rarr; Add Server &rarr; URL: https://apibase.pro/mcp</p>
 
 <!-- Windsurf -->
 <h2 id="windsurf">Windsurf (Codeium) <span class="badge">Cascade Agent</span></h2>
@@ -97,7 +148,7 @@ pre{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:16px;o
     }
   }
 }</pre>
-<p class="note">Or: Windsurf → Cascade → MCP Tools → Add Server</p>
+<p class="note">Or: Windsurf &rarr; Cascade &rarr; MCP Tools &rarr; Add Server</p>
 
 <!-- OpenAI Agents SDK -->
 <h2 id="openai">OpenAI Agents SDK <span class="badge">Python + TS</span></h2>
@@ -116,7 +167,7 @@ async with MCPServerManager(
 ) as manager:
     agent = Agent(
         name="my-agent",
-        instructions="You have access to 500+ real-world API tools.",
+        instructions="You have access to 1316 tools.",
         mcp_servers=manager.servers
     )
     result = await Runner.run(agent, "Search flights from NYC to London")
@@ -178,17 +229,17 @@ agent = Agent(
 
 <!-- Copilot Studio -->
 <h2 id="copilot">Microsoft Copilot Studio <span class="badge badge-warn">Enterprise</span></h2>
-<p>In Copilot Studio → Actions → Add MCP Server:</p>
+<p>In Copilot Studio &rarr; Actions &rarr; Add MCP Server:</p>
 <div class="card">
 <p><strong>Server URL:</strong> <code>https://apibase.pro/mcp</code></p>
 <p><strong>Transport:</strong> Streamable HTTP</p>
-<p><strong>Authentication:</strong> Bearer token (optional — auto-registration supported)</p>
+<p><strong>Authentication:</strong> Bearer token (optional &mdash; auto-registration supported)</p>
 </div>
 <p class="note">Requires Microsoft 365 Copilot license. MCP support is GA as of 2026.</p>
 
 <!-- Sunpeak -->
 <h2 id="sunpeak">Sunpeak <span class="badge">MCP Apps</span></h2>
-<p><a href="https://sunpeak.ai">Sunpeak</a> is an open-source framework for building interactive MCP Apps that run inside ChatGPT and Claude. Connect APIbase as a backend to give your app access to 500 real-world API tools — flights, finance, weather, government data, museums, and more.</p>
+<p><a href="https://sunpeak.ai">Sunpeak</a> is an open-source framework for building interactive MCP Apps that run inside ChatGPT and Claude. Connect APIbase as a backend to give your app access to 1316 tools &mdash; flights, finance, weather, government data, museums, and more.</p>
 <pre>import { createApp } from "sunpeak";
 
 const app = createApp({
@@ -223,7 +274,7 @@ curl -X POST https://apibase.pro/api/v1/tools/crypto.trending/call \
   -H "Content-Type: application/json" \
   -d '{}'</pre>
 
-<h2>Progressive Disclosure</h2>
+<h2>Progressive disclosure</h2>
 <p>1316 tools is too many for any context window. Use <code>discover_tools</code> prompt to find relevant tools first:</p>
 <pre># MCP: call the discover_tools prompt
 {"method": "prompts/get", "params": {"name": "discover_tools", "arguments": {"task": "search flights from NYC to London"}}}
@@ -231,7 +282,7 @@ curl -X POST https://apibase.pro/api/v1/tools/crypto.trending/call \
 # REST: browse categories
 curl -s https://apibase.pro/api/v1/tools | jq '.data[] | select(.category == "travel")'</pre>
 
-<h2 id="multi-server">Multi-Server Setup (Recommended)</h2>
+<h2 id="multi-server">Multi-server setup (recommended)</h2>
 <p>Most agents need 3 types of tools: <strong>browser</strong> (Playwright), <strong>docs</strong> (Context7), and <strong>real-world data</strong> (APIbase). Configure all three together:</p>
 
 <h3>Claude Desktop / Cursor / Windsurf</h3>
@@ -251,7 +302,7 @@ curl -s https://apibase.pro/api/v1/tools | jq '.data[] | select(.category == "tr
     }
   }
 }</pre>
-<p class="note">Playwright = browser automation (2.3M npm/week). Context7 = up-to-date library docs (875K npm/week). APIbase = 500 real-world APIs (flights, stocks, weather, jobs, e-commerce). Each covers a different need — no overlap.</p>
+<p class="note">Playwright = browser automation (2.3M npm/week). Context7 = up-to-date library docs (875K npm/week). APIbase = 1316 tools (flights, stocks, weather, jobs, e-commerce). Each covers a different need &mdash; no overlap.</p>
 
 <h3>Why three servers?</h3>
 <div class="card">
@@ -259,7 +310,7 @@ curl -s https://apibase.pro/api/v1/tools | jq '.data[] | select(.category == "tr
 <p><strong>Playwright</strong> answers "what's on this webpage?" &mdash; screenshots, clicks, form fills</p>
 <p><strong>APIbase</strong> answers "what's happening in the real world?" &mdash; flight prices, stock quotes, job listings, weather, package tracking</p>
 </div>
-<p class="note">The agent decides which server to call based on the task. No routing logic needed — the LLM reads tool descriptions and picks the right one.</p>
+<p class="note">The agent decides which server to call based on the task. No routing logic needed &mdash; the LLM reads tool descriptions and picks the right one.</p>
 
 <h3>OpenAI Agents SDK (multi-server via MCPServerManager)</h3>
 <pre>from agents import Agent, Runner
@@ -274,12 +325,12 @@ async with MCPServerManager(
 ) as manager:
     agent = Agent(
         name="research-agent",
-        instructions="You have browser, docs, and 500 real-world API tools.",
+        instructions="You have browser, docs, and 1316 tools.",
         mcp_servers=manager.servers
     )
     result = await Runner.run(agent, "Get AAPL stock price")</pre>
 
-<h2 id="base-mcp">Base MCP Companion <span class="badge">Pay From Your Base Account</span></h2>
+<h2 id="base-mcp">Base MCP companion <span class="badge">Pay from your Base account</span></h2>
 <p>Base launched their official <a href="https://mcp.base.org" target="_blank" rel="noopener">Base MCP</a> server in May 2026 with native <strong>x402 payment support</strong>. APIbase is x402-native on Base mainnet via a self-hosted facilitator &mdash; the two pair cleanly. Base MCP signs payments from your Base Account; APIbase serves the 1316 tools your agent actually uses.</p>
 
 <h3>Combined config (Claude Desktop / Cursor / Windsurf)</h3>
@@ -298,7 +349,7 @@ async with MCPServerManager(
 <h3>What each one does</h3>
 <div class="card">
 <p><strong>Base MCP</strong> &mdash; wallet ops, on-chain swaps (Uniswap, Aerodrome), lending (Morpho, Moonwell), perps (Avantis), and <strong>x402 payment signing</strong>. Your Base Account handles user approval per transaction.</p>
-<p><strong>APIbase</strong> &mdash; 800+ external API tools (flights, stocks, weather, jobs, music, chess, EV charging, food safety, government docs, &hellip;). Pay per call via x402 USDC on Base &mdash; signed by your Base Account, settled on-chain by our facilitator.</p>
+<p><strong>APIbase</strong> &mdash; 1316 tools across 373 providers (flights, stocks, weather, jobs, music, chess, EV charging, food safety, government docs, &hellip;). Pay per call via x402 USDC on Base &mdash; signed by your Base Account, settled on-chain by our facilitator.</p>
 </div>
 <p class="note">For Base App users this is the cleanest path: zero API key management (Base Account handles auth), zero per-provider signup (APIbase aggregates 373 providers), one approval flow (Base App pops up for each paid call). Compatible because both sides speak EIP-3009 <code>transferWithAuthorization</code> on Base mainnet.</p>
 
@@ -320,15 +371,51 @@ Agent: "AAPL is trading at $187.42 (+0.34%) as of 14:23 ET."</pre>
     tools = client.get_tools()  # all tools from all 3 servers
     agent = create_react_agent(model, tools)</pre>
 
-<div style="margin:32px 0;padding:16px;border-top:1px solid #30363d;color:#6e7681;font-size:12px">
-<a href="/">Home</a> &middot; <a href="/dashboard">Dashboard</a> &middot; <a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a> &middot; <a href="https://smithery.ai/servers/apibase-pro/api-hub">Smithery</a>
-</div>
-<h2>&gt; Dual-rail payments: x402 (Base) + MPP (Tempo)</h2>
+<h2>Dual-rail payments: x402 (Base) + MPP (Tempo)</h2>
 <p>APIbase settles paid tool calls on <strong>two rails</strong> &mdash; pick either per request:</p>
 <ul>
 <li><strong>x402 &mdash; Base mainnet</strong>: USDC via EIP-3009 <code>transferWithAuthorization</code>, signed by your Base Account / wallet, settled by our facilitator.</li>
 <li><strong>MPP &mdash; Tempo (chain 4217)</strong>: USDC on Tempo via the <code>mppx</code> SDK (<code>npm i mppx</code>) &mdash; lightweight agent micropayments (Bearer + X-API-Key). RPC <code>https://rpc.tempo.xyz</code>.</li>
 </ul>
 <p class="note">Free tools (price 0) need no payment. Paid tools enforce payment server-side and fail closed &mdash; no free bypass.</p>
+
+<div class="footer">
+<span><a href="/">Home</a> &middot; <a href="/connect">Connect</a> &middot; <a href="/dashboard">Dashboard</a> &middot; <a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a> &middot; <a href="https://smithery.ai/servers/apibase-pro/api-hub">Smithery</a></span>
+<span>1316 tools &nbsp;|&nbsp; 373 providers</span>
+</div>
+
+</div>
+</div>
+<!-- Copy-to-clipboard on every code block (friendliness pass, redesign cycle 1) -->
+<script>
+(function(){
+  document.querySelectorAll('pre').forEach(function(pre){
+    if (pre.closest('.code-wrap')) return;
+    var wrap = document.createElement('div');
+    wrap.className = 'code-wrap';
+    pre.parentNode.insertBefore(wrap, pre);
+    wrap.appendChild(pre);
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.setAttribute('aria-label', 'Copy code to clipboard');
+    btn.addEventListener('click', function(){
+      var text = pre.innerText;
+      var done = function(ok){
+        btn.textContent = ok ? 'Copied' : 'Failed';
+        btn.classList.toggle('copied', ok);
+        setTimeout(function(){ btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function(){ done(true); }, function(){ done(false); });
+      } else {
+        done(false);
+      }
+    });
+    wrap.appendChild(btn);
+  });
+})();
+</script>
 </body>
 </html>

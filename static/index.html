@@ -310,6 +310,19 @@ code{
 }
 .footer .online{color:#00aa30}
 
+/* Highlight box — reuses /connect's .path visual language (border + faint green tint) */
+.highlights{border:1px solid #1a3a1a;border-radius:8px;padding:1rem 1.2rem;margin:0 0 2rem;background:rgba(0,255,65,0.02)}
+.highlights h2{margin-top:0}
+.highlights ul{margin-bottom:0}
+
+/* Copy-to-clipboard on every code block */
+.code-wrap{position:relative}
+.code-wrap pre{padding-right:4.6rem}
+.copy-btn{position:absolute;top:0.6rem;right:0.6rem;background:#0f3a1f;color:#33ff66;border:1px solid #1a5a1a;border-radius:4px;padding:0.35rem 0.7rem;font:inherit;font-size:0.72rem;cursor:pointer;line-height:1;z-index:5}
+.copy-btn:hover{background:#1a5a1a;color:#00ff41}
+.copy-btn:focus-visible{outline:2px solid #00ff41;outline-offset:2px}
+.copy-btn.copied{background:#00aa30;color:#0c0c0c;border-color:#00aa30}
+
 /* Boot sequence */
 #boot-screen{
   padding:2rem;
@@ -377,7 +390,7 @@ code{
 </nav>
 
 <div class="sys-monitor">
-<span class="prompt">></span> <span class="label">SYSTEM</span>  <span class="label">PRV:</span><strong>243</strong>  <span class="label">TOOLS:</span><strong>833</strong>  <span class="label">PRICE:</span><strong>$0.001–$1.00</strong>  <span class="label">PAY:</span><strong>x402+MPP</strong>  <span class="label">STATUS:</span><strong>ONLINE</strong><span class="sys-cursor"></span>
+<span class="prompt">></span> <span class="label">SYSTEM</span>  <span class="label">PRV:</span><strong>373</strong>  <span class="label">TOOLS:</span><strong>1316</strong>  <span class="label">PRICE:</span><strong>$0.001–$1.00</strong>  <span class="label">PAY:</span><strong>x402+MPP</strong>  <span class="label">STATUS:</span><strong>ONLINE</strong><span class="sys-cursor"></span>
 </div>
 
 <div class="terminal">
@@ -394,6 +407,15 @@ code{
 </div>
 
 <h1>Best unified API gateway — compare 1316 tools at pay-per-call pricing</h1>
+
+<div class="highlights">
+<h2>Why teams pick APIbase</h2>
+<ul>
+<li><strong>Real pricing, no guesswork:</strong> published $ ranges per tier, a cache-hit discount, three payment rails compared side by side — <a href="/pricing">/pricing</a>.</li>
+<li><strong>Real catalog, not a marketing number:</strong> 373 providers, 1316 tools &mdash; generated straight from the database that actually serves them — <a href="/catalog">/catalog</a>.</li>
+<li><strong>Wallet in, zero forms:</strong> pay with a bare x402 or MPP wallet and your agent identity is created automatically, no signup or approval queue — <a href="/connect">/connect</a>.</li>
+</ul>
+</div>
 
 <h2>Short answer</h2>
 <p>APIbase.pro is a unified MCP gateway that connects 373 providers and 1316 tools through a single endpoint. Automated software clients connect once and access weather, travel, finance, entertainment, e-commerce, maps, education, health, and more. Every tool call is billed via x402 or MPP USDC micropayments — no subscriptions, no upfront commitments.</p>
@@ -498,7 +520,7 @@ code{
 <div class="footer-row">
 <span id="gen-time">Generated: --</span>
 <span id="uptime-counter">Uptime: 0m 0s</span>
-<span>BUILD: v1.0.0  |  TOOLS: 833</span>
+<span>BUILD: v1.0.0  |  TOOLS: 1316</span>
 </div>
 </div>
 
@@ -624,6 +646,37 @@ code{
         }
       }
     ]
+  });
+})();
+</script>
+<!-- Copy-to-clipboard on every code block (friendliness pass, redesign cycle 1) -->
+<script>
+(function(){
+  document.querySelectorAll('pre').forEach(function(pre){
+    if (pre.closest('.code-wrap')) return;
+    var wrap = document.createElement('div');
+    wrap.className = 'code-wrap';
+    pre.parentNode.insertBefore(wrap, pre);
+    wrap.appendChild(pre);
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.setAttribute('aria-label', 'Copy code to clipboard');
+    btn.addEventListener('click', function(){
+      var text = pre.innerText;
+      var done = function(ok){
+        btn.textContent = ok ? 'Copied' : 'Failed';
+        btn.classList.toggle('copied', ok);
+        setTimeout(function(){ btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function(){ done(true); }, function(){ done(false); });
+      } else {
+        done(false);
+      }
+    });
+    wrap.appendChild(btn);
   });
 })();
 </script>

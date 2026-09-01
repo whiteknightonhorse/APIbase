@@ -43,11 +43,28 @@ else
   # "tools"/"providers" word adjacent for the loop above to match — found stale at 46/203 while
   # DB truth was already 373/1316 (in this loop's OWN file list the whole time, silently never
   # touched by it). One extra targeted pattern, scoped to exactly this markup shape.
-  for f in static/contact.html static/privacy.html; do
+  # F6 (2026-09-02): index.html has the IDENTICAL bare-<strong> markup shape and was found
+  # stale at 243/833 (live DB already 373/1316) while sitting in the FIRST loop's file list the
+  # whole time — same defect class, this file just wasn't added to THIS loop when it was fixed
+  # for contact/privacy. sync-counts.sh --check never caught it because its own generic STALE
+  # regex (line ~111) also requires an adjacent "tools"/"providers" word this markup lacks.
+  # Added here so it can never drift silently again.
+  for f in static/index.html static/contact.html static/privacy.html; do
     [ -f "$f" ] || continue
     b=$(md5sum "$f" | cut -d" " -f1)
     sed -i -E "s/PRV:<\/span><strong>[0-9]+<\/strong>/PRV:<\/span><strong>${PROV}<\/strong>/; s/TOOLS:<\/span><strong>[0-9]+<\/strong>/TOOLS:<\/span><strong>${TOOLS}<\/strong>/" "$f"
     [ "$(md5sum "$f" | cut -d" " -f1)" != "$b" ] && { echo "  updated $f (sys-monitor bar)"; CHANGED=$((CHANGED+1)); }
+  done
+
+  # F6 (2026-09-02): a THIRD stale shape, found live on index.html's own footer this same pass
+  # — 'TOOLS: N' (uppercase label, number AFTER a colon, no adjacent lowercase 'tools' word) —
+  # distinct from both patterns above. Scoped to the literal 'TOOLS: ' label so it can't touch
+  # unrelated 'PRICE:'/'PID:' fields on the same line.
+  for f in static/index.html static/contact.html static/privacy.html static/dashboard.html; do
+    [ -f "$f" ] || continue
+    b=$(md5sum "$f" | cut -d" " -f1)
+    sed -i -E "s/TOOLS: [0-9]+</TOOLS: ${TOOLS}</g" "$f"
+    [ "$(md5sum "$f" | cut -d" " -f1)" != "$b" ] && { echo "  updated $f (footer TOOLS: N)"; CHANGED=$((CHANGED+1)); }
   done
 
   # api-catalog (RFC 9727 linkset, no file extension so not caught by the glob above) has two
@@ -117,12 +134,23 @@ STALE_AI_TXT=$(grep -oE "Tools: [0-9]{3,} across" static/ai.txt 2>/dev/null | gr
 STALE_CATALOG=$(grep -hoE "[0-9]{3,} tool (endpoints|definitions)" "$CATALOG" 2>/dev/null \
   | grep -v "^${TOOLS} tool " | sort -u || true)
 SERVER_CARD_LEN=$(python3 -c "import json; print(len(json.load(open('static/.well-known/mcp/server-card.json'))['tools']))")
+# F6 (2026-09-02): the bare "PRV:</span><strong>N</strong>" sys-monitor shape (index/contact/
+# privacy) has no adjacent "tools"/"providers" word, so the generic STALE regex above is
+# structurally blind to it — this is exactly the shape that let index.html sit stale at 243/833
+# while this script's own --check reported 0 drift. Checked directly, every run, not just when
+# a fix pass happens to touch these files.
+STALE_SYSMON=$(grep -hoE "PRV:</span><strong>[0-9]+</strong>|TOOLS:</span><strong>[0-9]+</strong>" static/index.html static/contact.html static/privacy.html 2>/dev/null \
+  | grep -vE "^PRV:</span><strong>${PROV}</strong>$|^TOOLS:</span><strong>${TOOLS}</strong>$" | sort -u || true)
+STALE_FOOTER_TOOLS=$(grep -hoE "TOOLS: [0-9]+<" static/index.html static/contact.html static/privacy.html static/dashboard.html 2>/dev/null \
+  | grep -v "^TOOLS: ${TOOLS}<$" | sort -u || true)
 
 FAIL=0
 [ -n "$STALE" ] && { echo "sync-counts: STALE text surfaces remain:"; echo "$STALE"; FAIL=1; }
 [ -n "$STALE_AI_TXT" ] && { echo "sync-counts: STALE ai.txt 'Tools: N across' remains: $STALE_AI_TXT"; FAIL=1; }
 [ -n "$STALE_CATALOG" ] && { echo "sync-counts: STALE api-catalog remains:"; echo "$STALE_CATALOG"; FAIL=1; }
 [ "$SERVER_CARD_LEN" != "$TOOLS" ] && { echo "sync-counts: server-card.json has $SERVER_CARD_LEN tools, DB says $TOOLS"; FAIL=1; }
+[ -n "$STALE_SYSMON" ] && { echo "sync-counts: STALE sys-monitor bar(s) remain:"; echo "$STALE_SYSMON"; FAIL=1; }
+[ -n "$STALE_FOOTER_TOOLS" ] && { echo "sync-counts: STALE footer 'TOOLS: N' remain:"; echo "$STALE_FOOTER_TOOLS"; FAIL=1; }
 
 if [ "$FAIL" = "0" ]; then
   if [ "$CHECK" = "1" ]; then

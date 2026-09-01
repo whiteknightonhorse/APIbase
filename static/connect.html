@@ -55,6 +55,13 @@ pre code{background:none;border:none;padding:0;color:inherit}
 .footer{margin-top:2rem;padding:0.6rem 0;border-top:1px solid #1a3a1a;color:#2a6a2a;font-size:0.72rem;display:flex;flex-direction:column;gap:0.2rem}
 .footer-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.5rem}
 .footer .online{color:#00aa30}
+.code-wrap{position:relative}
+.code-wrap pre{padding-right:4.6rem}
+.copy-btn{position:absolute;top:0.6rem;right:0.6rem;background:#0f3a1f;color:#33ff66;border:1px solid #1a5a1a;border-radius:4px;padding:0.35rem 0.7rem;font:inherit;font-size:0.72rem;cursor:pointer;line-height:1;z-index:5}
+.copy-btn:hover{background:#1a5a1a;color:#00ff41}
+.copy-btn:focus-visible{outline:2px solid #00ff41;outline-offset:2px}
+.copy-btn.copied{background:#00aa30;color:#0c0c0c;border-color:#00aa30}
+.badge-go{background:#00aa30;color:#0c0c0c;border-color:#00aa30}
 *::-webkit-scrollbar{width:8px;height:8px}
 *::-webkit-scrollbar-track{background:#0c0c0c;border:1px solid #1a3a1a}
 *::-webkit-scrollbar-thumb{background:#1a5a1a;border-radius:4px;border:1px solid #0c0c0c}
@@ -90,7 +97,7 @@ pre code{background:none;border:none;padding:0;color:inherit}
 <p class="updated">Three real ways in. Pick the one that matches how your agent already talks to the world.</p>
 
 <div class="path">
-<h2 style="margin-top:0">Path 1 &mdash; MCP address <span class="badge">no form, ever</span></h2>
+<h2 style="margin-top:0">Path 1 &mdash; MCP address <span class="badge">no form, ever</span> <span class="badge badge-go">recommended</span></h2>
 <p>Point any MCP-compatible client at one URL. The first tool call auto-issues an <code>ak_live_...</code> key behind the scenes &mdash; there is no dashboard signup, no email, no approval queue.</p>
 <pre>{
   "mcpServers": {
@@ -150,5 +157,36 @@ const res = await pay("https://apibase.pro/api/v1/tools/coingecko.get_price/call
 
 </div>
 </div>
+<!-- Copy-to-clipboard on every code block (friendliness pass, redesign cycle 1) -->
+<script>
+(function(){
+  document.querySelectorAll('pre').forEach(function(pre){
+    if (pre.closest('.code-wrap')) return;
+    var wrap = document.createElement('div');
+    wrap.className = 'code-wrap';
+    pre.parentNode.insertBefore(wrap, pre);
+    wrap.appendChild(pre);
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.setAttribute('aria-label', 'Copy code to clipboard');
+    btn.addEventListener('click', function(){
+      var text = pre.innerText;
+      var done = function(ok){
+        btn.textContent = ok ? 'Copied' : 'Failed';
+        btn.classList.toggle('copied', ok);
+        setTimeout(function(){ btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function(){ done(true); }, function(){ done(false); });
+      } else {
+        done(false);
+      }
+    });
+    wrap.appendChild(btn);
+  });
+})();
+</script>
 </body>
 </html>
