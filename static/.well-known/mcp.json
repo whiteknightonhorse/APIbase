@@ -7,8 +7,8 @@
   "url": "https://apibase.pro/mcp",
   "version": "2.1.0",
   "tools_endpoint": "https://apibase.pro/api/v1/tools",
-  "tools_count": 1304,
-  "providers_count": 369,
+  "tools_count": 1316,
+  "providers_count": 373,
   "categories_count": 21,
   "authentication": {
     "type": "bearer",
