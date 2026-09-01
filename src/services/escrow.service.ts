@@ -132,6 +132,18 @@ export async function finalize(
   // block), but status/payload_status must say what actually happened —
   // 'blocked'/'BLOCKED', not 'success'/'OK' — and the ledger row carries
   // the rule_id/category/appeal_id a human (or the appeal endpoint) needs.
+  //
+  // ⛔ 'BLOCKED' must stay inside execution_ledger's payload_status CHECK
+  // constraint (prisma/migrations/0007_ledger_blocked_payload_status) or
+  // this UPDATE throws (Postgres 23514) and is swallowed by pipeline.ts's
+  // try/catch around the settle-on-block call — the client still hears
+  // "payment was charged" while the ledger row stays stuck at
+  // billing_status='RESERVED' forever. This exact silent failure shipped
+  // to production for the whole life of F2/C-3 (2026-09-01 through
+  // 2026-09-02, caught live by the ШАГ 3 synthetic-probe run) because
+  // every existing test mocks Prisma and never touches the real
+  // constraint. Any new payload_status value here needs a matching
+  // migration widening that CHECK, not just a code change.
   const status = moderation ? 'blocked' : 'success';
   const payloadStatus = moderation ? 'BLOCKED' : 'OK';
 
