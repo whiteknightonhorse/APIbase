@@ -5,6 +5,41 @@ import { logger } from '../config/logger';
 import { AppError, ErrorCode } from '../types/errors';
 
 /**
+ * F1/C-5 (2026-09-01): resolve the REAL on-chain payer address, not a stub.
+ * Before this, req.mppPayment.payer/txHash were hardcoded to the literal
+ * strings 'tempo-agent' / 'mpp-verified' — no refund-owed alert (see
+ * escrow-finalize.stage.ts) could ever say who to pay back. Reads the
+ * Payment-Receipt header mppx already returns on a successful charge (the tx
+ * hash), then looks up that transaction ON-CHAIN via a read-only RPC call to
+ * get its real `from` address — trusting on-chain truth, not anything the
+ * client could put in a header itself. Read-only: this never signs or sends
+ * anything; it only ever discovers whose money it already took.
+ */
+async function resolveRealPayer(
+  chargeResponse: globalThis.Response,
+): Promise<{ payer: string; txHash: string }> {
+  const FALLBACK = { payer: 'unknown-mpp-payer', txHash: 'unknown' };
+  try {
+    const { Receipt } = await import('mppx');
+    const receipt = Receipt.fromResponse(chargeResponse);
+    const txHash = receipt.reference;
+    if (!txHash || !txHash.startsWith('0x')) return FALLBACK;
+
+    const { createPublicClient, http } = await import('viem');
+    const cfg = getMppConfig();
+    const client = createPublicClient({ transport: http(cfg.rpcUrl) });
+    const tx = await client.getTransaction({ hash: txHash as `0x${string}` });
+    return { payer: tx.from, txHash };
+  } catch (err) {
+    logger.warn(
+      { err: err instanceof Error ? err.message : String(err) },
+      "mpp: could not resolve real payer address — refund-owed alerts for this charge will show 'unknown-mpp-payer' and need manual on-chain lookup",
+    );
+    return FALLBACK;
+  }
+}
+
+/**
  * Match REST tool-call URL: /api/v1/tools/{toolId}/call (with optional
  * trailing slash and ignoring any query string). Captures `toolId`. Returns
  * undefined for non-tool routes (e.g. /mcp, /agents/me, /onboard).
@@ -146,17 +181,18 @@ async function verifyMppPayment(req: Request): Promise<void> {
       throw new AppError(ErrorCode.BAD_REQUEST, 'MPP payment verification failed');
     }
 
-    // Payment verified
+    // Payment verified — resolve who actually paid (on-chain truth, not a stub).
+    const { payer, txHash } = await resolveRealPayer(result);
     req.mppPayment = {
       verified: true,
-      payer: 'tempo-agent',
-      amount: '0',
-      txHash: 'mpp-verified',
+      payer,
+      amount,
+      txHash,
       method: 'tempo',
       header: authHeader,
     };
 
-    log.info({ requestId: req.requestId, method: 'tempo' }, 'mpp: payment verified');
+    log.info({ requestId: req.requestId, method: 'tempo', payer, txHash }, 'mpp: payment verified');
   } catch (err) {
     if (err instanceof AppError) throw err;
     log.error(

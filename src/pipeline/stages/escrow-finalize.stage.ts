@@ -2,6 +2,46 @@ import { type Stage, ok } from '../types';
 import { finalize, refund } from '../../services/escrow.service';
 import { logger } from '../../config/logger';
 import { settleX402 } from './x402-settle';
+import { getPrisma } from '../../services/prisma.service';
+
+/**
+ * F1/C-5 (2026-09-01): MPP is charged by mppMiddleware BEFORE this pipeline
+ * even starts (tempo.charge() settles on-chain at verification time, no
+ * facilitator, no internal escrowId — see mpp.middleware.ts). Before this
+ * fix, a failed provider call on an MPP-paid request fell through every
+ * branch below to the \"no escrow reserved\" early-return (MPP requests never
+ * have ctx.escrowId) and left with billingStatus/finalCost simply unset —
+ * the client's money was gone and nothing recorded it, let alone refunded
+ * it. This does NOT execute an on-chain refund transfer — this operator's
+ * standing rule (and mine) is that sending cryptocurrency is never done by
+ * unsupervised code; it durably records exactly what is owed, to whom, and
+ * why, and scripts/mpp-refund-owed-alerts.py pages the operator immediately
+ * so a human executes the actual transfer.
+ */
+export async function recordMppRefundOwed(
+  ctx: import('../types').PipelineContext,
+  reason: string,
+): Promise<void> {
+  try {
+    await getPrisma().outbox.create({
+      data: {
+        event_type: 'mpp_refund_owed',
+        payload: {
+          request_id: ctx.requestId,
+          tool_id: ctx.toolId,
+          payer: ctx.mppPayer,
+          amount_usd: ctx.toolPrice,
+          reason,
+        },
+      },
+    });
+  } catch (e) {
+    logger.error(
+      { requestId: ctx.requestId, err: e },
+      'MPP refund-owed record FAILED to write — this refund will be missed unless caught manually',
+    );
+  }
+}
 
 /**
  * ESCROW_FINALIZE stage (§12.43 stage 10, §12.151).
@@ -32,6 +72,18 @@ export const escrowFinalizeStage: Stage = {
     if (ctx.mppPaid && hasResponseToServe) {
       ctx.billingStatus = 'PAID';
       ctx.finalCost = ctx.toolPrice ?? 0;
+      return ok(ctx);
+    }
+
+    // F1/C-5: MPP paid but the provider call failed (or never ran) — the money
+    // is gone (charged at verification time) and MPP has no escrowId for the
+    // generic refund() path below to find. billing_status stays 'PAID' — that
+    // honestly describes what happened to OUR ledger; the outbox record is
+    // the operational trail for the still-owed refund (see the module doc).
+    if (ctx.mppPaid && !hasResponseToServe) {
+      ctx.billingStatus = 'PAID';
+      ctx.finalCost = ctx.toolPrice ?? 0;
+      await recordMppRefundOwed(ctx, 'provider_call_failed_or_not_made');
       return ok(ctx);
     }
 
