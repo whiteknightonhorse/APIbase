@@ -3374,5 +3374,23 @@
     "reset_period": "none",
     "docs_url": "https://eccc-msc.github.io/open-data/msc-geomet/readme_en/",
     "limit_proof": "Public Environment and Climate Change Canada MSC GeoMet OGC API - Features (api.weather.gc.ca); no authentication or API key required for any endpoint, no rate-limit headers returned in observed responses, no documented request quota found on the official readme/usage docs."
+  },
+  "ine-portugal": {
+    "display_name": "Statistics Portugal (INE)",
+    "health_url": "https://www.ine.pt/ine/json_indicador/pindicaMeta.jsp?op=2&varcd=0008273&lang=EN",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.ine.pt/xportal/xmain?xpid=INE&xpgid=ine_api_v2",
+    "limit_proof": "Public Statistics Portugal (INE) JSON indicator API (www.ine.pt/ine/json_indicador); no authentication or API key required, described as free of charge and publicly available, no specific request-rate quota published on the official API documentation pages (ine_api_v2/ine_api_db)."
+  },
+  "bundesbank-timeseries": {
+    "display_name": "Deutsche Bundesbank SDMX",
+    "health_url": "https://api.statistiken.bundesbank.de/rest/metadata/dataflow/BBK/BBEX3",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://api.statistiken.bundesbank.de/v3/api-docs",
+    "limit_proof": "Public Deutsche Bundesbank SDMX 2.1 REST API (api.statistiken.bundesbank.de); no authentication or API key required for any endpoint, no rate-limit headers returned in observed responses, no documented request quota found."
   }
 }

@@ -16076,4 +16076,77 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'weather',
     annotations: READ_ONLY,
   },
+
+  // INE Portugal (2)
+  {
+    toolId: 'ine-portugal.indicator_data',
+    mcpName: 'ine-portugal.stats.indicator_data',
+    title: 'Portuguese Official Statistics Indicator Data',
+    description:
+      'Get observation data for a Statistics Portugal (INE) indicator by its 7-digit varcd ' +
+      'code (e.g. "0008273" for resident population by NUTS region, sex and age group). ' +
+      'Optionally filter by up to 6 generic dimensions (Dim1 is usually the reference period, ' +
+      'the rest are indicator-specific, e.g. geography/sex/age) — get valid codes first from ' +
+      'ine-portugal.indicator_metadata. There is no upstream search/catalog endpoint, so the ' +
+      'varcd must already be known. Data: www.ine.pt (Statistics Portugal open JSON indicator ' +
+      'API), no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ine-portugal.indicator_metadata',
+    mcpName: 'ine-portugal.stats.indicator_metadata',
+    title: 'Portuguese Official Statistics Indicator Metadata',
+    description:
+      'Get metadata for a Statistics Portugal (INE) indicator by its 7-digit varcd code: full ' +
+      'name, periodicity, unit, decimal precision, first/last available period, and every ' +
+      'dimension with its valid filter codes. Call this BEFORE ine-portugal.indicator_data to ' +
+      'discover which Dim1..Dim6 codes are valid for the indicator. Data: www.ine.pt ' +
+      '(Statistics Portugal open JSON indicator API), no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+
+  // Deutsche Bundesbank SDMX public REST API (3) — UC-659
+  {
+    toolId: 'bundesbank-timeseries.dataflows',
+    mcpName: 'bundesbank-timeseries.reference.dataflows',
+    title: 'Bundesbank Dataflows',
+    description:
+      'Search or list Deutsche Bundesbank economic time-series dataflows — ~94 official series ' +
+      'covering exchange rates, interest rates, money supply, prices, and balance of payments. ' +
+      'Filter by name/id with query, or omit to list all. Use the returned dataflow_id with ' +
+      'bundesbank-timeseries.structure and bundesbank-timeseries.data. Data: ' +
+      'api.statistiken.bundesbank.de (Bundesbank SDMX 2.1 REST API), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bundesbank-timeseries.structure',
+    mcpName: 'bundesbank-timeseries.reference.structure',
+    title: 'Bundesbank Dataflow Structure',
+    description:
+      'Get the dimensions and valid codes for a Bundesbank dataflow (dataflow_id from ' +
+      'bundesbank-timeseries.dataflows, e.g. "BBEX3" for exchange rates) in SDMX key position ' +
+      'order, each with its code list (capped to 200 codes per dimension, with a total_codes ' +
+      'count). Required to build the fully-specified "key" for bundesbank-timeseries.data. Data: ' +
+      'api.statistiken.bundesbank.de (Bundesbank SDMX 2.1 REST API), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bundesbank-timeseries.data',
+    mcpName: 'bundesbank-timeseries.series.data',
+    title: 'Bundesbank Dataflow Data',
+    description:
+      'Get observation values for a Bundesbank dataflow (dataflow_id from ' +
+      'bundesbank-timeseries.dataflows). key is REQUIRED and must be a fully dot-specified SDMX ' +
+      'series key with no empty segments (from bundesbank-timeseries.structure), e.g. ' +
+      '"D.USD.EUR.BB.AC.000" for the daily EUR/USD reference rate — an unscoped key would match ' +
+      'every series in the dataflow and is rejected. Control the time range with start_period/ ' +
+      'end_period or last_n_observations (max 100). Data: api.statistiken.bundesbank.de ' +
+      '(Bundesbank SDMX 2.1 REST API), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
 ];

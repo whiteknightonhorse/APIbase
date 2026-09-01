@@ -376,6 +376,8 @@ import { eaHydrologySchemas } from './ea-hydrology.schema';
 import { statbelSchemas } from './statbel.schema';
 import { istatSchemas } from './istat.schema';
 import { mscGeometSchemas } from './msc-geomet.schema';
+import { inePortugalSchemas } from './ine-portugal.schema';
+import { bundesbankTimeseriesSchemas } from './bundesbank-timeseries.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -755,4 +757,6 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...statbelSchemas,
   ...istatSchemas,
   ...mscGeometSchemas,
+  ...inePortugalSchemas,
+  ...bundesbankTimeseriesSchemas,
 };

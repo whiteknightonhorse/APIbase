@@ -376,6 +376,8 @@ import { EaHydrologyAdapter } from './ea-hydrology';
 import { StatbelAdapter } from './statbel';
 import { IstatAdapter } from './istat';
 import { MscGeometAdapter } from './msc-geomet';
+import { InePortugalAdapter } from './ine-portugal';
+import { BundesbankTimeseriesAdapter } from './bundesbank-timeseries';
 import { config } from '../config';
 
 /**
@@ -2018,6 +2020,17 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // climate station catalog, daily climate observations, real-time hydrometric (river/
       // lake) level and discharge, real-time Air Quality Health Index; no auth
       return getOrCreate('msc-geomet', () => new MscGeometAdapter());
+    case 'ine-portugal':
+      // Statistics Portugal (INE) JSON Indicator public REST API (UC-658) — flat indicator-code
+      // (varcd) data + metadata lookup for Portuguese official statistics; no auth, no upstream
+      // catalog/search endpoint (pindicaList.jsp 404s, xml_indic.jsp?opc=1 throws server error)
+      return getOrCreate('ine-portugal', () => new InePortugalAdapter());
+    case 'bundesbank-timeseries':
+      // Deutsche Bundesbank SDMX 2.1 public REST API (UC-659) — ~94 German economic dataflows
+      // (exchange rates, interest rates, money supply, prices); no auth. Metadata endpoints
+      // (dataflow list, datastructure) serve XML only, not JSON — verified live against the
+      // API's /v3/api-docs OpenAPI spec.
+      return getOrCreate('bundesbank-timeseries', () => new BundesbankTimeseriesAdapter());
     default:
       return undefined;
   }

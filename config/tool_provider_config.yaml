@@ -8431,6 +8431,38 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+  # --- UC-658: Statistics Portugal (INE) JSON Indicator API (2 tools) ---
+  - tool_id: ine-portugal.indicator_data
+    name: Portuguese Official Statistics Indicator Data
+    provider: ine-portugal
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: ine-portugal.indicator_metadata
+    name: Portuguese Official Statistics Indicator Metadata
+    provider: ine-portugal
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  # --- UC-659: Deutsche Bundesbank SDMX REST API (3 tools) ---
+  - tool_id: bundesbank-timeseries.dataflows
+    name: Bundesbank Dataflows
+    provider: bundesbank-timeseries
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: bundesbank-timeseries.structure
+    name: Bundesbank Dataflow Structure
+    provider: bundesbank-timeseries
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: bundesbank-timeseries.data
+    name: Bundesbank Dataflow Data
+    provider: bundesbank-timeseries
+    price_usd: "0.002"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

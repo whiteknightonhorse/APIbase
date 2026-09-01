@@ -120440,6 +120440,459 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/ine-portugal.indicator_data/call": {
+      "post": {
+        "operationId": "ine-portugal_indicator_data",
+        "summary": "Portuguese Official Statistics Indicator Data",
+        "description": "Get observation data for a Statistics Portugal (INE) indicator by its 7-digit varcd code (e.g. \"0008273\" for resident population by NUTS region, sex and age group). Optionally filter by up to 6 generic dimensions (Dim1 is usually the reference period, the rest are indicator-specific, e.g. geography/sex/age) — get valid codes first from ine-portugal.indicator_metadata. There is no upstream search/catalog endpoint, so the varcd must already be known. Data: www.ine.pt (Statistics Portugal open JSON indicator API), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ine-portugal.indicator_data"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "varcd": {
+                    "type": "string",
+                    "description": "INE (Statistics Portugal) 7-digit indicator code, zero-padded (e.g. \"0008273\" for resident population by NUTS/sex/age group). There is no upstream search/catalog endpoint — find valid codes via the official INE indicator database (www.ine.pt/xportal) or ine-portugal.indicator_metadata once you have a code.",
+                    "minLength": 1,
+                    "maxLength": 7
+                  },
+                  "dim1": {
+                    "type": "string",
+                    "description": "Filter code for Dimension 1 (usually the reference period, e.g. \"S7A2023\" for year 2023 or \"2023\" depending on the indicator). Get valid codes from ine-portugal.indicator_metadata before calling. Omit to fetch data across all periods."
+                  },
+                  "dim2": {
+                    "type": "string",
+                    "description": "Filter code for Dimension 2 (indicator-specific, e.g. a NUTS geography code). Get valid codes from ine-portugal.indicator_metadata. Omit to include all values of this dimension."
+                  },
+                  "dim3": {
+                    "type": "string",
+                    "description": "Filter code for Dimension 3 (indicator-specific, e.g. sex). Get valid codes from ine-portugal.indicator_metadata. Omit to include all values of this dimension."
+                  },
+                  "dim4": {
+                    "type": "string",
+                    "description": "Filter code for Dimension 4 (indicator-specific, e.g. age group). Get valid codes from ine-portugal.indicator_metadata. Omit to include all values of this dimension."
+                  },
+                  "dim5": {
+                    "type": "string",
+                    "description": "Filter code for Dimension 5, if the indicator has one. Get valid codes from ine-portugal.indicator_metadata. Omit to include all values of this dimension."
+                  },
+                  "dim6": {
+                    "type": "string",
+                    "description": "Filter code for Dimension 6, if the indicator has one. Get valid codes from ine-portugal.indicator_metadata. Omit to include all values of this dimension."
+                  },
+                  "lang": {
+                    "type": "string",
+                    "enum": [
+                      "EN",
+                      "PT"
+                    ],
+                    "description": "Response language for labels: \"EN\" (English, default) or \"PT\" (Portuguese)."
+                  }
+                },
+                "required": [
+                  "varcd"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ine-portugal.indicator_metadata/call": {
+      "post": {
+        "operationId": "ine-portugal_indicator_metadata",
+        "summary": "Portuguese Official Statistics Indicator Metadata",
+        "description": "Get metadata for a Statistics Portugal (INE) indicator by its 7-digit varcd code: full name, periodicity, unit, decimal precision, first/last available period, and every dimension with its valid filter codes. Call this BEFORE ine-portugal.indicator_data to discover which Dim1..Dim6 codes are valid for the indicator. Data: www.ine.pt (Statistics Portugal open JSON indicator API), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ine-portugal.indicator_metadata"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "varcd": {
+                    "type": "string",
+                    "description": "INE (Statistics Portugal) 7-digit indicator code, zero-padded (e.g. \"0008273\"). Returns the indicator name, periodicity, unit, first/last available period, and every dimension with its valid filter codes — call this BEFORE ine-portugal.indicator_data to discover valid Dim1..Dim6 values.",
+                    "minLength": 1,
+                    "maxLength": 7
+                  },
+                  "lang": {
+                    "type": "string",
+                    "enum": [
+                      "EN",
+                      "PT"
+                    ],
+                    "description": "Response language for labels: \"EN\" (English, default) or \"PT\" (Portuguese)."
+                  }
+                },
+                "required": [
+                  "varcd"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/bundesbank-timeseries.dataflows/call": {
+      "post": {
+        "operationId": "bundesbank-timeseries_dataflows",
+        "summary": "Bundesbank Dataflows",
+        "description": "Search or list Deutsche Bundesbank economic time-series dataflows — ~94 official series covering exchange rates, interest rates, money supply, prices, and balance of payments. Filter by name/id with query, or omit to list all. Use the returned dataflow_id with bundesbank-timeseries.structure and bundesbank-timeseries.data. Data: api.statistiken.bundesbank.de (Bundesbank SDMX 2.1 REST API), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bundesbank-timeseries.dataflows"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Filter dataflows by name or id substring, case-insensitive (e.g. \"exchange rate\", \"interest\", \"BBEX3\"). Omit to list all ~94 available dataflows."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/bundesbank-timeseries.structure/call": {
+      "post": {
+        "operationId": "bundesbank-timeseries_structure",
+        "summary": "Bundesbank Dataflow Structure",
+        "description": "Get the dimensions and valid codes for a Bundesbank dataflow (dataflow_id from bundesbank-timeseries.dataflows, e.g. \"BBEX3\" for exchange rates) in SDMX key position order, each with its code list (capped to 200 codes per dimension, with a total_codes count). Required to build the fully-specified \"key\" for bundesbank-timeseries.data. Data: api.statistiken.bundesbank.de (Bundesbank SDMX 2.1 REST API), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bundesbank-timeseries.structure"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "dataflow_id": {
+                    "type": "string",
+                    "description": "Bundesbank dataflow id, from bundesbank-timeseries.dataflows (e.g. \"BBEX3\" for exchange rates, \"BBIN1\" for central bank rates). Returns the dimension list (e.g. FREQ, CURRENCY) in SDMX key position order, with each dimension's valid codes (capped to 200 per dimension, with a total_codes count) — needed to build the \"key\" for bundesbank-timeseries.data.",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "dataflow_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/bundesbank-timeseries.data/call": {
+      "post": {
+        "operationId": "bundesbank-timeseries_data",
+        "summary": "Bundesbank Dataflow Data",
+        "description": "Get observation values for a Bundesbank dataflow (dataflow_id from bundesbank-timeseries.dataflows). key is REQUIRED and must be a fully dot-specified SDMX series key with no empty segments (from bundesbank-timeseries.structure), e.g. \"D.USD.EUR.BB.AC.000\" for the daily EUR/USD reference rate — an unscoped key would match every series in the dataflow and is rejected. Control the time range with start_period/ end_period or last_n_observations (max 100). Data: api.statistiken.bundesbank.de (Bundesbank SDMX 2.1 REST API), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bundesbank-timeseries.data"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "dataflow_id": {
+                    "type": "string",
+                    "description": "Bundesbank dataflow id, from bundesbank-timeseries.dataflows (e.g. \"BBEX3\" for exchange rates).",
+                    "minLength": 1
+                  },
+                  "key": {
+                    "type": "string",
+                    "description": "REQUIRED fully dot-specified SDMX series key in dimension position order, from bundesbank-timeseries.structure (e.g. \"D.USD.EUR.BB.AC.000\" for the daily EUR/USD reference rate on the BBEX3 dataflow: FREQ=D, CURRENCY=USD, PARTNER_CURRENCY=EUR, SERIES_TYPE=BB, RATE_TYPE=AC, SUFFIX=000). Every position must be filled — an unscoped/wildcard key would match every series in the dataflow and is rejected.",
+                    "minLength": 1
+                  },
+                  "start_period": {
+                    "type": "string",
+                    "description": "Start of period range, e.g. \"2020\" (annual) or \"2020-01-01\" (daily). Takes precedence over last_n_observations when set."
+                  },
+                  "end_period": {
+                    "type": "string",
+                    "description": "End of period range, e.g. \"2024\" (annual) or \"2024-12-31\" (daily). Takes precedence over last_n_observations when set."
+                  },
+                  "last_n_observations": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Return only the most recent N observations (max 100, default 30). Ignored if start_period or end_period is set."
+                  }
+                },
+                "required": [
+                  "dataflow_id",
+                  "key"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {
