@@ -10,6 +10,19 @@
  * UPDATE must actually run and carry the moderation columns).
  */
 
+jest.mock('../../src/config/index', () => ({
+  config: {
+    X402_NETWORK: 'base',
+    X402_PAYMENT_ADDRESS: '0x50EbDa9dA5dC19c302Ca059d7B9E06e264936480',
+    X402_FACILITATOR_URL: 'https://facilitator.example',
+    X402_FACILITATOR_MODE: 'local',
+    X402_OPERATOR_PRIVATE_KEY: '0x00',
+    X402_BASE_RPC_URL: 'https://base.example',
+    X402_BASE_SEPOLIA_RPC_URL: 'https://sepolia.example',
+    X402_OPERATOR_MIN_ETH_BALANCE: 0.01,
+  },
+}));
+
 const mockOutboxCreate = jest.fn();
 jest.mock('../../src/services/prisma.service', () => ({
   getPrisma: () => ({ outbox: { create: mockOutboxCreate } }),

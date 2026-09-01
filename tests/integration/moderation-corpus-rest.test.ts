@@ -2,24 +2,25 @@
  * F2/C-2/C-3 required control: a two-sided corpus that DISTINGUISHES.
  *
  * 20 prohibited probes (one per major blocklist category) that must be
- * BLOCKED on all three real entry points (REST /execute, MCP, /batch) and
- * specifically on twilio + resend (F0 measured these as having ZERO
- * filtering before this pass — telegram was the only adapter that checked
- * its own params). 20 legitimate look-alikes that must PASS, unchanged by
- * this stage. A data/read-class tool (news.latest) gets its own narrow-
- * filter proof: the exact phrase "isis recruitment" — which correctly
- * blocks an action/outbound tool from DOING the thing — must NOT block a
- * news search ABOUT the topic; CSAM must still block everywhere, data
- * included, because it is the one absolute category.
+ * BLOCKED, and 20 legitimate look-alikes that must PASS, unchanged, run
+ * against the REST entry point for telegram (the classification corpus
+ * itself) AND specifically twilio + resend (F0 measured these as having
+ * ZERO filtering before this pass — telegram was the only adapter that
+ * checked its own params). Entry-point coverage beyond REST (MCP, batch)
+ * and the data/action classification proof live in
+ * moderation-corpus-entrypoints.test.ts — split out so each jest worker's
+ * memory footprint stays small enough to run on a resource-constrained host
+ * (this repo's dev box hit the OOM killer running all of it as one file
+ * pulling in MCP's full tool-definitions.ts alongside 120+ REST tests).
  *
  * This file proves the fix WORKS (all assertions below pass against the
- * current tree). The historical "before" gap — the same 20 malicious
- * probes sailing straight through to the twilio/resend provider on
- * pre-F2 code — was demonstrated once, live, by temporarily stashing the
- * F2 source changes and re-running this file (see the F2 SKILL.md closure
- * entry for the actual command + output); it is not re-run automatically
- * on every CI pass since it requires reverting real source files.
+ * current tree). The historical "before" gap is already an established,
+ * cited measurement (F0: content-filter.ts imported by exactly ONE adapter,
+ * telegram, out of 372 — `grep -rn checkContent src/adapters` on the
+ * pre-F2 tree) rather than something this file re-demonstrates at runtime.
  */
+
+jest.setTimeout(60000);
 
 jest.mock('../../src/config/index', () => ({
   config: {
@@ -157,11 +158,9 @@ jest.mock('../../src/adapters/registry', () => ({
 }));
 
 // ---------------------------------------------------------------------------
-// Real production code under test.
+// Real production code under test — REST entry point only in this file.
 // ---------------------------------------------------------------------------
 import { executeRouter } from '../../src/routes/execute.router';
-import { runBatch } from '../../src/services/batch.service';
-import { registerTools, type PaymentContext } from '../../src/mcp/tool-adapter';
 import {
   __setToolCacheEntryForTest,
   __deleteToolCacheEntryForTest,
@@ -170,15 +169,11 @@ import {
 const API_KEY = 'ak_live_' + 'b'.repeat(32);
 
 const TELEGRAM_TOOL = 'telegram.send_message';
-const TELEGRAM_MCP = 'messaging.telegram.send_message';
 const TWILIO_TOOL = 'twilio.send_sms';
 const RESEND_TOOL = 'resend.send_email';
 const NEWS_TOOL = 'news.latest';
 
 beforeAll(() => {
-  // Priced at 0 throughout this corpus — MODERATION classification is what's
-  // under test, not payment (see escrow-settle-on-block.test.ts for the
-  // paid/settle-on-block money path).
   __setToolCacheEntryForTest({
     tool_id: TELEGRAM_TOOL,
     status: 'healthy',
@@ -289,7 +284,7 @@ if (MALICIOUS.length !== 20 || LEGITIMATE.length !== 20) {
 }
 
 // ---------------------------------------------------------------------------
-// Entry-point helpers
+// Entry-point helper
 // ---------------------------------------------------------------------------
 
 function fakeRes() {
@@ -341,94 +336,20 @@ async function callExecute(
   return { status: res.statusCode, body: res._body };
 }
 
-function makeFakeMcpServer() {
-  const callbacks = new Map<string, (args: Record<string, unknown>) => Promise<unknown>>();
-  const server = {
-    registerTool: (
-      mcpName: string,
-      _cfg: unknown,
-      cb: (args: Record<string, unknown>) => Promise<unknown>,
-    ) => {
-      callbacks.set(mcpName, cb);
-    },
-  };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return { server: server as any, callbacks };
-}
-
-async function callMcp(
-  mcpName: string,
-  args: Record<string, unknown>,
-  requestId: string,
-): Promise<{ isError: boolean; text: string }> {
-  const { server, callbacks } = makeFakeMcpServer();
-  const paymentCtx: PaymentContext = {
-    x402Paid: false,
-    x402Payer: null,
-    x402PaymentHeader: null,
-    mppPaid: false,
-    mppPayer: null,
-    mppMethod: null,
-    mppPaymentHeader: null,
-    mppTxHash: null,
-  };
-  registerTools(server, API_KEY, requestId, paymentCtx);
-  const cb = callbacks.get(mcpName);
-  if (!cb) throw new Error(`MCP tool ${mcpName} was not registered`);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const result = (await cb(args)) as any;
-  return { isError: !!result.isError, text: result.content?.[0]?.text ?? '' };
-}
-
 // ---------------------------------------------------------------------------
-// Part A — all three entry points, one representative action-class tool
-// (telegram). Proves MODERATION fires pipeline-wide, not per-router.
+// Part A — telegram.send_message (the classification corpus itself)
 // ---------------------------------------------------------------------------
 
-describe('MODERATION corpus — all 3 entry points (telegram.send_message)', () => {
-  it.each(MALICIOUS)('BLOCKS via REST: [$category] "$text"', async ({ text }, idx) => {
-    const r = await callExecute(TELEGRAM_TOOL, { chat_id: 1, text }, `corpus-rest-bad-${idx}`);
+describe('MODERATION corpus — REST — telegram.send_message', () => {
+  it.each(MALICIOUS)('BLOCKS: [$category] "$text"', async ({ text }, idx) => {
+    const r = await callExecute(TELEGRAM_TOOL, { chat_id: 1, text }, `corpus-tg-bad-${idx}`);
     expect(r.status).toBe(403);
     expect(mockAdapterCall).not.toHaveBeenCalled();
   });
 
-  it.each(LEGITIMATE)('PASSES via REST: "%s"', async (text, idx) => {
-    const r = await callExecute(TELEGRAM_TOOL, { chat_id: 1, text }, `corpus-rest-good-${idx}`);
+  it.each(LEGITIMATE)('PASSES: "%s"', async (text, idx) => {
+    const r = await callExecute(TELEGRAM_TOOL, { chat_id: 1, text }, `corpus-tg-good-${idx}`);
     expect(r.status).toBe(200);
-    expect(mockAdapterCall).toHaveBeenCalledTimes(1);
-  });
-
-  it.each(MALICIOUS)('BLOCKS via MCP: [$category] "$text"', async ({ text }, idx) => {
-    const r = await callMcp(TELEGRAM_MCP, { chat_id: 1, text }, `corpus-mcp-bad-${idx}`);
-    expect(r.isError).toBe(true);
-    expect(mockAdapterCall).not.toHaveBeenCalled();
-  });
-
-  it.each(LEGITIMATE)('PASSES via MCP: "%s"', async (text, idx) => {
-    const r = await callMcp(TELEGRAM_MCP, { chat_id: 1, text }, `corpus-mcp-good-${idx}`);
-    expect(r.isError).toBe(false);
-    expect(mockAdapterCall).toHaveBeenCalledTimes(1);
-  });
-
-  it.each(MALICIOUS)('BLOCKS via BATCH: [$category] "$text"', async ({ text }, idx) => {
-    const result = await runBatch({
-      authHeader: `Bearer ${API_KEY}`,
-      parentRequestId: `corpus-batch-bad-${idx}`,
-      calls: [{ tool_id: TELEGRAM_TOOL, params: { chat_id: 1, text } }],
-      maxParallel: 1,
-    });
-    expect(result.results[0].status).toBe('error');
-    expect(mockAdapterCall).not.toHaveBeenCalled();
-  });
-
-  it.each(LEGITIMATE)('PASSES via BATCH: "%s"', async (text, idx) => {
-    const result = await runBatch({
-      authHeader: `Bearer ${API_KEY}`,
-      parentRequestId: `corpus-batch-good-${idx}`,
-      calls: [{ tool_id: TELEGRAM_TOOL, params: { chat_id: 1, text } }],
-      maxParallel: 1,
-    });
-    expect(result.results[0].status).toBe('success');
     expect(mockAdapterCall).toHaveBeenCalledTimes(1);
   });
 });
@@ -438,7 +359,7 @@ describe('MODERATION corpus — all 3 entry points (telegram.send_message)', () 
 // content filtering before F2 (only telegram checked its own params).
 // ---------------------------------------------------------------------------
 
-describe('MODERATION corpus — twilio.send_sms (the pre-F2 hole)', () => {
+describe('MODERATION corpus — REST — twilio.send_sms (the pre-F2 hole)', () => {
   it.each(MALICIOUS)('BLOCKS: [$category] "$text"', async ({ text }, idx) => {
     const r = await callExecute(
       TWILIO_TOOL,
@@ -460,7 +381,7 @@ describe('MODERATION corpus — twilio.send_sms (the pre-F2 hole)', () => {
   });
 });
 
-describe('MODERATION corpus — resend.send_email (the pre-F2 hole)', () => {
+describe('MODERATION corpus — REST — resend.send_email (the pre-F2 hole)', () => {
   it.each(MALICIOUS)('BLOCKS: [$category] "$text"', async ({ text }, idx) => {
     const r = await callExecute(
       RESEND_TOOL,
@@ -483,10 +404,7 @@ describe('MODERATION corpus — resend.send_email (the pre-F2 hole)', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Part C — the classification the whole design hinges on: a data/read tool
-// must NOT be false-positive-blocked (and, post F2/C-3, PAID-AND-CHARGED)
-// for a legitimate query about a banned topic — but CSAM (the one absolute
-// category) still blocks everywhere.
+// Part C — the classification the whole design hinges on.
 // ---------------------------------------------------------------------------
 
 describe('MODERATION data/action classification (news.latest, a data-class tool)', () => {
