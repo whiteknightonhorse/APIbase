@@ -15847,4 +15847,34 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+
+  // UKHSA Data Dashboard (2) — UC-653
+  {
+    toolId: 'ukhsa-dashboard.browse',
+    mcpName: 'ukhsa-dashboard.catalog.browse',
+    title: 'UKHSA Dashboard Browse',
+    description:
+      'Browse the UK Health Security Agency data dashboard drill-down catalog: themes -> ' +
+      'sub_themes -> topics -> geography_types -> geographies -> metrics. Call with no params ' +
+      'to list themes, then pass increasingly specific params (theme, sub_theme, topic, ' +
+      'geography_type, geography) to drill down one level at a time until you reach a metric ' +
+      'name usable with ukhsa-dashboard.metric_data. Data: api.ukhsa-dashboard.data.gov.uk, ' +
+      'UK Open Government Licence v3.0, no auth required.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ukhsa-dashboard.metric_data',
+    mcpName: 'ukhsa-dashboard.metrics.data',
+    title: 'UKHSA Dashboard Metric Data',
+    description:
+      'Get paginated timeseries data points for one UK health surveillance metric (cases, ' +
+      'deaths, healthcare admissions, testing, vaccinations, etc.) at a specific geography, ' +
+      'identified by the full theme/sub_theme/topic/geography_type/geography/metric path from ' +
+      'ukhsa-dashboard.browse. Optional filters: year, epiweek, exact date, age band, sex, ' +
+      'stratum, and reporting-delay-period flag. Data: api.ukhsa-dashboard.data.gov.uk, UK Open ' +
+      'Government Licence v3.0, no auth required.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
 ];

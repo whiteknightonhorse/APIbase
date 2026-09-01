@@ -118875,6 +118875,249 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/ukhsa-dashboard.browse/call": {
+      "post": {
+        "operationId": "ukhsa-dashboard_browse",
+        "summary": "UKHSA Dashboard Browse",
+        "description": "Browse the UK Health Security Agency data dashboard drill-down catalog: themes -> sub_themes -> topics -> geography_types -> geographies -> metrics. Call with no params to list themes, then pass increasingly specific params (theme, sub_theme, topic, geography_type, geography) to drill down one level at a time until you reach a metric name usable with ukhsa-dashboard.metric_data. Data: api.ukhsa-dashboard.data.gov.uk, UK Open Government Licence v3.0, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ukhsa-dashboard.browse"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "theme": {
+                    "type": "string",
+                    "description": "Top-level theme slug (e.g. \"infectious_disease\", \"immunisation\", \"medicines\", \"climate_and_environment\"). Omit to list all themes."
+                  },
+                  "sub_theme": {
+                    "type": "string",
+                    "description": "Sub-theme slug within the given theme (e.g. \"respiratory\", \"vaccine_preventable\"). Requires theme. Omit (with theme set) to list sub-themes."
+                  },
+                  "topic": {
+                    "type": "string",
+                    "description": "Disease/topic slug within the given sub_theme (e.g. \"COVID-19\", \"Influenza\"). Requires theme and sub_theme. Omit to list topics."
+                  },
+                  "geography_type": {
+                    "type": "string",
+                    "description": "Geography type within the given topic (e.g. \"Nation\", \"UKHSA Region\", \"Upper Tier Local Authority\"). Requires theme, sub_theme, and topic. Omit to list geography types."
+                  },
+                  "geography": {
+                    "type": "string",
+                    "description": "Specific geography name within the given geography_type (e.g. \"England\", \"London\"). Requires theme, sub_theme, topic, and geography_type. Omit to list geographies."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ukhsa-dashboard.metric_data/call": {
+      "post": {
+        "operationId": "ukhsa-dashboard_metric_data",
+        "summary": "UKHSA Dashboard Metric Data",
+        "description": "Get paginated timeseries data points for one UK health surveillance metric (cases, deaths, healthcare admissions, testing, vaccinations, etc.) at a specific geography, identified by the full theme/sub_theme/topic/geography_type/geography/metric path from ukhsa-dashboard.browse. Optional filters: year, epiweek, exact date, age band, sex, stratum, and reporting-delay-period flag. Data: api.ukhsa-dashboard.data.gov.uk, UK Open Government Licence v3.0, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ukhsa-dashboard.metric_data"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "theme": {
+                    "type": "string",
+                    "description": "Top-level theme slug (e.g. \"infectious_disease\")",
+                    "minLength": 1
+                  },
+                  "sub_theme": {
+                    "type": "string",
+                    "description": "Sub-theme slug (e.g. \"respiratory\")",
+                    "minLength": 1
+                  },
+                  "topic": {
+                    "type": "string",
+                    "description": "Disease/topic slug (e.g. \"COVID-19\")",
+                    "minLength": 1
+                  },
+                  "geography_type": {
+                    "type": "string",
+                    "description": "Geography type (e.g. \"Nation\", \"UKHSA Region\")",
+                    "minLength": 1
+                  },
+                  "geography": {
+                    "type": "string",
+                    "description": "Geography name (e.g. \"England\")",
+                    "minLength": 1
+                  },
+                  "metric": {
+                    "type": "string",
+                    "description": "Metric name from ukhsa-dashboard.browse at the metrics level (e.g. \"COVID-19_cases_casesByDay\")",
+                    "minLength": 1
+                  },
+                  "year": {
+                    "type": "integer",
+                    "minimum": 2000,
+                    "maximum": 2100,
+                    "description": "Filter to a single calendar year (e.g. 2023)"
+                  },
+                  "epiweek": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 53,
+                    "description": "Filter to a single epidemiological week number (1-53)"
+                  },
+                  "date": {
+                    "type": "string",
+                    "description": "Filter to a single exact date, YYYY-MM-DD (e.g. \"2023-06-15\")"
+                  },
+                  "age": {
+                    "type": "string",
+                    "description": "Filter by age band as published for this metric (e.g. \"all\", \"15-44\")"
+                  },
+                  "sex": {
+                    "type": "string",
+                    "description": "Filter by sex as published for this metric (e.g. \"all\", \"f\", \"m\")"
+                  },
+                  "stratum": {
+                    "type": "string",
+                    "description": "Filter by stratum/breakdown as published for this metric (e.g. \"default\")"
+                  },
+                  "in_reporting_delay_period": {
+                    "type": "boolean",
+                    "description": "Filter to rows still within the provisional reporting-delay window"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Page number of results (default 1)"
+                  },
+                  "page_size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 500,
+                    "description": "Number of data points per page (1-500, default 100)"
+                  }
+                },
+                "required": [
+                  "theme",
+                  "sub_theme",
+                  "topic",
+                  "geography_type",
+                  "geography",
+                  "metric"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

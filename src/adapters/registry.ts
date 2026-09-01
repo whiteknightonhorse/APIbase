@@ -371,6 +371,7 @@ import { GeonetNzAdapter } from './geonet-nz';
 import { BgsOgcApiAdapter } from './bgs-ogcapi';
 import { IlostatAdapter } from './ilostat';
 import { AuDataGovAdapter } from './au-data-gov';
+import { UkhsaDashboardAdapter } from './ukhsa-dashboard';
 import { config } from '../config';
 
 /**
@@ -1989,6 +1990,10 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // dataset search/detail, AGIFT subject-facet browse, publishing agency lookup; no auth,
       // per-dataset licensing (mostly CC BY 4.0)
       return getOrCreate('au-data-gov', () => new AuDataGovAdapter());
+    case 'ukhsa-dashboard':
+      // UKHSA Data Dashboard public REST API (UC-653) — hierarchical theme/sub_theme/topic/
+      // geography/metric browse plus paginated metric timeseries data; no auth, OGL v3.0
+      return getOrCreate('ukhsa-dashboard', () => new UkhsaDashboardAdapter());
     default:
       return undefined;
   }
