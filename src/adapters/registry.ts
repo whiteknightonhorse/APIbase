@@ -370,6 +370,7 @@ import { HdxHapiAdapter } from './hdx-hapi';
 import { GeonetNzAdapter } from './geonet-nz';
 import { BgsOgcApiAdapter } from './bgs-ogcapi';
 import { IlostatAdapter } from './ilostat';
+import { AuDataGovAdapter } from './au-data-gov';
 import { config } from '../config';
 
 /**
@@ -1983,6 +1984,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // labor statistics: employment, unemployment, wages, working time, labour force,
       // informality; 1200+ dataflows, single ILO agency; no auth, public SDMX 2.1 REST API
       return getOrCreate('ilostat', () => new IlostatAdapter());
+    case 'au-data-gov':
+      // Australian Government Open Data CKAN Action API (UC-652) — federal/state/territory
+      // dataset search/detail, AGIFT subject-facet browse, publishing agency lookup; no auth,
+      // per-dataset licensing (mostly CC BY 4.0)
+      return getOrCreate('au-data-gov', () => new AuDataGovAdapter());
     default:
       return undefined;
   }

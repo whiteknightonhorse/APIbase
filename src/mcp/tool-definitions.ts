@@ -15798,4 +15798,53 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'jobs',
     annotations: READ_ONLY,
   },
+
+  // Australian Government Open Data (4) — UC-652
+  {
+    toolId: 'au-data-gov.dataset_search',
+    mcpName: 'au-data-gov.datasets.search',
+    title: 'Australia Open Data Search',
+    description:
+      'Search the Australian Government open data catalog (data.gov.au) by free text and/or ' +
+      'publishing agency, returning dataset id, title, notes, organization, and modified date. ' +
+      'Use au-data-gov.organization_search to find valid agency filter slugs. Data: data.gov.au ' +
+      'CKAN Action API, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'au-data-gov.dataset_detail',
+    mcpName: 'au-data-gov.datasets.detail',
+    title: 'Australia Open Data Dataset Detail',
+    description:
+      'Get full metadata for one Australian Government open dataset by id: title, notes, ' +
+      'organization, tags, license, and the full resource list (name, format, download URL, ' +
+      'size) for that dataset. Data: data.gov.au CKAN Action API, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'au-data-gov.subject_list',
+    mcpName: 'au-data-gov.reference.subject_list',
+    title: 'Australia Open Data Subject List',
+    description:
+      'List the Australian Government open data AGIFT subject taxonomy (e.g. ' +
+      '"health_and_safety", "nature_and_environment") with the current dataset count per subject, ' +
+      'optionally filtered by a substring. Browse-only reference (not usable as a dataset_search ' +
+      'filter on this portal). Data: data.gov.au CKAN Action API, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'au-data-gov.organization_search',
+    mcpName: 'au-data-gov.reference.organization_search',
+    title: 'Australia Open Data Organization Search',
+    description:
+      'Look up Australian federal/state/territory agencies and organizations publishing on the ' +
+      'open data portal by name, returning id, slug, and title. Use the returned slug as the ' +
+      '`organization` filter for au-data-gov.dataset_search. Data: data.gov.au CKAN Action API, ' +
+      'no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

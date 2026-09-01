@@ -3320,5 +3320,14 @@
     "reset_period": "none",
     "docs_url": "https://ilostat.ilo.org/resources/sdmx-tools/",
     "limit_proof": "ILO's public SDMX 2.1 REST API (sdmx.ilo.org); no authentication or API key required for any endpoint, no rate-limit headers returned, no documented request quota found on the ILOSTAT SDMX tools documentation page."
+  },
+  "au-data-gov": {
+    "display_name": "Australian Government Open Data",
+    "health_url": "https://data.gov.au/data/api/3/action/package_search?rows=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://data.gov.au/data/api/3/action/help_show?name=package_search",
+    "limit_proof": "Public CKAN Action API (data.gov.au/data/api/3/action) run by the Australian Government; no authentication or API key required, no rate-limit headers returned in observed responses, no documented request quota."
   }
 }

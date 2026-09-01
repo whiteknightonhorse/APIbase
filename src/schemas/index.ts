@@ -370,6 +370,7 @@ import { hdxHapiSchemas } from './hdx-hapi.schema';
 import { geonetNzSchemas } from './geonet-nz.schema';
 import { bgsOgcApiSchemas } from './bgs-ogcapi.schema';
 import { ilostatSchemas } from './ilostat.schema';
+import { auDataGovSchemas } from './au-data-gov.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -743,4 +744,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...geonetNzSchemas,
   ...bgsOgcApiSchemas,
   ...ilostatSchemas,
+  ...auDataGovSchemas,
 };

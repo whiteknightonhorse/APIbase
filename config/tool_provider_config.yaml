@@ -7954,6 +7954,31 @@ tools:
     price_usd: "0.002"
     cache_ttl: 3600
 
+  # --- UC-652: Australian Government Open Data (au-data-gov) (4 tools) ---
+  - tool_id: au-data-gov.dataset_search
+    name: Australia Open Data Search
+    provider: au-data-gov
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: au-data-gov.dataset_detail
+    name: Australia Open Data Dataset Detail
+    provider: au-data-gov
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: au-data-gov.subject_list
+    name: Australia Open Data Subject List
+    provider: au-data-gov
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: au-data-gov.organization_search
+    name: Australia Open Data Organization Search
+    provider: au-data-gov
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform
