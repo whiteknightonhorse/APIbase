@@ -117571,6 +117571,335 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/geonet-nz.quake_search/call": {
+      "post": {
+        "operationId": "geonet-nz_quake_search",
+        "summary": "GeoNet NZ Quake Search",
+        "description": "Search recent New Zealand earthquakes by minimum shaking intensity. Returns quakes that may have caused shaking greater than or equal to the given MMI (Modified Mercalli Intensity, -1 to 8) in the NZ region during the last 365 days (max 100 results), with time, location, depth, magnitude, and locality. Data: GeoNet (api.geonet.org.nz), run by GNS Science, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "geonet-nz.quake_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "mmi": {
+                    "type": "integer",
+                    "description": "Minimum Modified Mercalli Intensity (MMI) threshold, -1 to 8. Returns quakes that may have caused shaking greater than or equal to this value in the New Zealand region during the last 365 days (max 100 results). -1 = quakes too small to calculate a stable MMI.",
+                    "minimum": -1,
+                    "maximum": 8
+                  }
+                },
+                "required": [
+                  "mmi"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/geonet-nz.quake_detail/call": {
+      "post": {
+        "operationId": "geonet-nz_quake_detail",
+        "summary": "GeoNet NZ Quake Detail",
+        "description": "Get full detail for a single New Zealand earthquake by its GeoNet publicID (e.g. \"2014p715167\") — origin time, depth, magnitude, locality, MMI shaking, and quality (best/preliminary/automatic/deleted). Data: GeoNet (api.geonet.org.nz), run by GNS Science, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "geonet-nz.quake_detail"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "public_id": {
+                    "type": "string",
+                    "description": "GeoNet quake publicID, e.g. \"2014p715167\" (year + auto-generated code).",
+                    "minLength": 1,
+                    "maxLength": 32
+                  }
+                },
+                "required": [
+                  "public_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/geonet-nz.quake_stats/call": {
+      "post": {
+        "operationId": "geonet-nz_quake_stats",
+        "summary": "GeoNet NZ Quake Statistics",
+        "description": "Get New Zealand earthquake-rate statistics — magnitude-count breakdown over the last 7, 28, and 365 days, plus a daily earthquake-count time series. Optionally filter the magnitude-count breakdown to one window with the days parameter. Data: GeoNet (api.geonet.org.nz), run by GNS Science, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "geonet-nz.quake_stats"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "days": {
+                    "type": "string",
+                    "enum": [
+                      "7",
+                      "28",
+                      "365"
+                    ],
+                    "description": "Limit the magnitude-count breakdown to this window (7, 28, or 365 days); returns all three windows if omitted (client-side filter)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/geonet-nz.volcano_alert_level/call": {
+      "post": {
+        "operationId": "geonet-nz_volcano_alert_level",
+        "summary": "GeoNet NZ Volcanic Alert Level",
+        "description": "Get the current Volcanic Alert Level and aviation colour code for New Zealand's 12 monitored volcanoes (e.g. Ruapehu, White Island/Whakaari, Taupo), including current activity summary and most-likely-hazards description. Optionally filter to a single volcano_id. Data: GeoNet (api.geonet.org.nz), run by GNS Science, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "geonet-nz.volcano_alert_level"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "volcano_id": {
+                    "type": "string",
+                    "enum": [
+                      "taupo",
+                      "tongariro",
+                      "aucklandvolcanicfield",
+                      "kermadecislands",
+                      "mayorisland",
+                      "ngauruhoe",
+                      "northland",
+                      "okataina",
+                      "rotorua",
+                      "whiteisland",
+                      "ruapehu",
+                      "taranakiegmont"
+                    ],
+                    "description": "Filter to a single volcano by ID (e.g. \"ruapehu\", \"whiteisland\"); returns all 12 New Zealand monitored volcanoes if omitted (client-side filter)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

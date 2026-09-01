@@ -7885,6 +7885,31 @@ tools:
     price_usd: "0.002"
     cache_ttl: 3600
 
+  # --- UC-649: GeoNet NZ (4 tools) ---
+  - tool_id: geonet-nz.quake_search
+    name: GeoNet NZ Quake Search
+    provider: geonet-nz
+    price_usd: "0.001"
+    cache_ttl: 60
+
+  - tool_id: geonet-nz.quake_detail
+    name: GeoNet NZ Quake Detail
+    provider: geonet-nz
+    price_usd: "0.001"
+    cache_ttl: 300
+
+  - tool_id: geonet-nz.quake_stats
+    name: GeoNet NZ Quake Statistics
+    provider: geonet-nz
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: geonet-nz.volcano_alert_level
+    name: GeoNet NZ Volcanic Alert Level
+    provider: geonet-nz
+    price_usd: "0.001"
+    cache_ttl: 300
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

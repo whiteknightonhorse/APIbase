@@ -367,6 +367,7 @@ import { LaunchLibrary2Adapter } from './launch-library-2';
 import { SocrataAdapter } from './socrata';
 import { NcbiEutilsAdapter } from './ncbi-eutils';
 import { HdxHapiAdapter } from './hdx-hapi';
+import { GeonetNzAdapter } from './geonet-nz';
 import { config } from '../config';
 
 /**
@@ -1965,6 +1966,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // baseline population demographics, and IPC food-security classification; no auth (only
       // a self-declared non-secret app_identifier), run by UN OCHA, CC BY 4.0
       return getOrCreate('hdx-hapi', () => new HdxHapiAdapter());
+    case 'geonet-nz':
+      // GeoNet API (UC-649) — GNS Science New Zealand geohazard monitoring: felt-earthquake
+      // search by MMI, single-quake detail, earthquake-rate statistics, and current Volcanic
+      // Alert Level for all 12 monitored NZ volcanoes; no auth, public GeoNet Data Policy
+      return getOrCreate('geonet-nz', () => new GeonetNzAdapter());
     default:
       return undefined;
   }

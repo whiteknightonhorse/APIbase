@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1279 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1283 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -61512,6 +61512,167 @@
               "all"
             ],
             "description": "IPC phase classification: 1=minimal, 2=stressed, 3=crisis, 4=emergency, 5=catastrophe, 3+=crisis or worse, all=all phases"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "geonet-nz.quakes.search",
+      "description": "Search recent New Zealand earthquakes by minimum shaking intensity. Returns quakes that may have caused shaking greater than or equal to the given MMI (Modified Mercalli Intensity, -1 to 8) in the NZ region during the last 365 days (max 100 results), with time, location, depth, magnitude, and locality. Data: GeoNet (api.geonet.org.nz), run by GNS Science, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "mmi": {
+            "type": "integer",
+            "description": "Minimum Modified Mercalli Intensity (MMI) threshold, -1 to 8. Returns quakes that may have caused shaking greater than or equal to this value in the New Zealand region during the last 365 days (max 100 results). -1 = quakes too small to calculate a stable MMI.",
+            "minimum": -1,
+            "maximum": 8
+          }
+        },
+        "required": [
+          "mmi"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "geonet-nz.quakes.detail",
+      "description": "Get full detail for a single New Zealand earthquake by its GeoNet publicID (e.g. \"2014p715167\") — origin time, depth, magnitude, locality, MMI shaking, and quality (best/preliminary/automatic/deleted). Data: GeoNet (api.geonet.org.nz), run by GNS Science, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "public_id": {
+            "type": "string",
+            "description": "GeoNet quake publicID, e.g. \"2014p715167\" (year + auto-generated code).",
+            "minLength": 1,
+            "maxLength": 32
+          }
+        },
+        "required": [
+          "public_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "geonet-nz.quakes.stats",
+      "description": "Get New Zealand earthquake-rate statistics — magnitude-count breakdown over the last 7, 28, and 365 days, plus a daily earthquake-count time series. Optionally filter the magnitude-count breakdown to one window with the days parameter. Data: GeoNet (api.geonet.org.nz), run by GNS Science, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "days": {
+            "type": "string",
+            "enum": [
+              "7",
+              "28",
+              "365"
+            ],
+            "description": "Limit the magnitude-count breakdown to this window (7, 28, or 365 days); returns all three windows if omitted (client-side filter)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "geonet-nz.volcano.alert_level",
+      "description": "Get the current Volcanic Alert Level and aviation colour code for New Zealand's 12 monitored volcanoes (e.g. Ruapehu, White Island/Whakaari, Taupo), including current activity summary and most-likely-hazards description. Optionally filter to a single volcano_id. Data: GeoNet (api.geonet.org.nz), run by GNS Science, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "volcano_id": {
+            "type": "string",
+            "enum": [
+              "taupo",
+              "tongariro",
+              "aucklandvolcanicfield",
+              "kermadecislands",
+              "mayorisland",
+              "ngauruhoe",
+              "northland",
+              "okataina",
+              "rotorua",
+              "whiteisland",
+              "ruapehu",
+              "taranakiegmont"
+            ],
+            "description": "Filter to a single volcano by ID (e.g. \"ruapehu\", \"whiteisland\"); returns all 12 New Zealand monitored volcanoes if omitted (client-side filter)."
           }
         }
       },

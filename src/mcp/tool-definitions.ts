@@ -15656,4 +15656,53 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+  {
+    toolId: 'geonet-nz.quake_search',
+    mcpName: 'geonet-nz.quakes.search',
+    title: 'GeoNet NZ Quake Search',
+    description:
+      'Search recent New Zealand earthquakes by minimum shaking intensity. Returns quakes that ' +
+      'may have caused shaking greater than or equal to the given MMI (Modified Mercalli ' +
+      'Intensity, -1 to 8) in the NZ region during the last 365 days (max 100 results), with ' +
+      'time, location, depth, magnitude, and locality. Data: GeoNet (api.geonet.org.nz), run by ' +
+      'GNS Science, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'geonet-nz.quake_detail',
+    mcpName: 'geonet-nz.quakes.detail',
+    title: 'GeoNet NZ Quake Detail',
+    description:
+      'Get full detail for a single New Zealand earthquake by its GeoNet publicID (e.g. ' +
+      '"2014p715167") — origin time, depth, magnitude, locality, MMI shaking, and quality ' +
+      '(best/preliminary/automatic/deleted). Data: GeoNet (api.geonet.org.nz), run by GNS ' +
+      'Science, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'geonet-nz.quake_stats',
+    mcpName: 'geonet-nz.quakes.stats',
+    title: 'GeoNet NZ Quake Statistics',
+    description:
+      'Get New Zealand earthquake-rate statistics — magnitude-count breakdown over the last 7, ' +
+      '28, and 365 days, plus a daily earthquake-count time series. Optionally filter the ' +
+      'magnitude-count breakdown to one window with the days parameter. Data: GeoNet ' +
+      '(api.geonet.org.nz), run by GNS Science, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'geonet-nz.volcano_alert_level',
+    mcpName: 'geonet-nz.volcano.alert_level',
+    title: 'GeoNet NZ Volcanic Alert Level',
+    description:
+      "Get the current Volcanic Alert Level and aviation colour code for New Zealand's 12 " +
+      'monitored volcanoes (e.g. Ruapehu, White Island/Whakaari, Taupo), including current ' +
+      'activity summary and most-likely-hazards description. Optionally filter to a single ' +
+      'volcano_id. Data: GeoNet (api.geonet.org.nz), run by GNS Science, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];
