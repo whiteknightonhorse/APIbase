@@ -32,6 +32,15 @@ export interface AppealView {
   resolution_note: string | null;
   contact_email: string | null;
   message: string | null;
+  // ШАГ 2 (2026-09-02): the matched content, if it hasn't expired (or was
+  // never stored -- CSAM, or an unpaid/free block, neither of which has a
+  // row at all). NULL means "nothing to show", not "nothing was ever there".
+  matched_field: string | null;
+  matched_content: string | null;
+  content_truncated: boolean;
+  match_start: number | null;
+  match_end: number | null;
+  content_expires_at: Date;
 }
 
 // appeal_id is @db.Uuid — Prisma's UUID cast THROWS (uncaught) on a
@@ -85,6 +94,14 @@ export type SubmitAppealResult =
   | { ok: false; reason: 'not_found' }
   | { ok: false; reason: 'already_resolved'; appeal: AppealView };
 
+// ШАГ 2 retention: once an appeal is actually filed, the 14-day
+// never-appealed deadline no longer applies -- the real target is
+// resolved_at+30d, but resolution time isn't known yet. Push
+// content_expires_at out to a generous interim so it can't fire while the
+// appeal is still open; scripts/moderation-appeal-resolve.py tightens it to
+// the concrete resolved_at+30d value once a human decides.
+const PENDING_RESOLUTION_INTERIM_MS = 400 * 24 * 60 * 60 * 1000;
+
 /** Attach contact info + the appellant's message to an existing OPEN appeal. */
 export async function submitAppeal(
   appealId: string,
@@ -101,6 +118,7 @@ export async function submitAppeal(
     data: {
       contact_email: input.contact_email ?? existing.contact_email,
       message: input.message ?? existing.message,
+      content_expires_at: new Date(Date.now() + PENDING_RESOLUTION_INTERIM_MS),
     },
   });
 

@@ -47,31 +47,71 @@ function classify(provider: string | undefined): ModerationClass {
 }
 
 /**
- * Top-level string values from the request body. Generic on purpose: a
- * per-tool field map (telegram.text, twilio.body, resend.subject/text/html,
- * ...) would need a new entry every time an action-class tool is added.
- * Scanning every string field costs nothing extra and cannot miss one.
+ * Top-level string fields from the request body, WITH their field names.
+ * Generic on purpose: a per-tool field map (telegram.text, twilio.body,
+ * resend.subject/text/html, ...) would need a new entry every time an
+ * action-class tool is added. Scanning every string field costs nothing
+ * extra and cannot miss one.
+ *
+ * The field name travels alongside its value (ШАГ 2, 2026-09-02) so a block
+ * can record WHICH field the rule matched in, not just that some field did --
+ * the appeal record stores the full field value the rule fired on (capped,
+ * see CONTENT_MAX_BYTES below), because a short "matched" excerpt alone
+ * (e.g. "cr**isis** support") strips exactly the surrounding context that
+ * would tell a reviewer the block was a false positive.
  */
-function collectStrings(body: unknown): string[] {
+function collectStrings(body: unknown): Array<{ field: string; value: string }> {
   if (!body || typeof body !== 'object') return [];
-  const out: string[] = [];
-  for (const v of Object.values(body as Record<string, unknown>)) {
-    if (typeof v === 'string') out.push(v);
+  const out: Array<{ field: string; value: string }> = [];
+  for (const [field, v] of Object.entries(body as Record<string, unknown>)) {
+    if (typeof v === 'string') out.push({ field, value: v });
   }
   return out;
 }
 
 const APPEAL_WINDOW_MS = 72 * 60 * 60 * 1000;
+// ШАГ 2 retention: unappealed content is wiped 14 days after the block.
+const CONTENT_RETENTION_MS = 14 * 24 * 60 * 60 * 1000;
+
+// ШАГ 2 (2026-09-02): what the appeal record keeps of the content that
+// tripped a rule -- and what it never does. See moderation-policy text /
+// policy/moderation for the operator-facing version of this same rule.
+const CONTENT_MAX_BYTES = 4096;
+// Absolute exception: CSAM content is NEVER stored, in any form, at any
+// length -- not the field name, not an excerpt, not offsets. A CSAM block's
+// appeal row carries only the skeleton (rule_id/category/appeal_id/status).
+// This is a hard line, not a default that a future rule could accidentally
+// relax; checked by category string, the only field a rule's identity is
+// keyed on, not by rule id (a new CSAM rule id must still hit this).
+const CSAM_CATEGORY = 'csam';
+
+/** Cap a matched field's value at CONTENT_MAX_BYTES (UTF-8), truncating on a
+ * whole-character boundary so a multi-byte character never gets split. */
+function capContent(value: string): { content: string; truncated: boolean } {
+  if (Buffer.byteLength(value, 'utf8') <= CONTENT_MAX_BYTES) {
+    return { content: value, truncated: false };
+  }
+  let content = Buffer.from(value, 'utf8').subarray(0, CONTENT_MAX_BYTES).toString('utf8');
+  // Buffer truncation can land mid-codepoint -- toString() replaces the
+  // broken tail with U+FFFD; strip trailing replacement characters instead
+  // of keeping a mangled boundary in what a human will read.
+  content = content.replace(/�+$/, '');
+  return { content, truncated: true };
+}
 
 interface BlockMatch {
   ruleId?: string;
   category?: string;
+  matchStart?: number;
+  matchEnd?: number;
 }
 
 async function blockRequest(
   ctx: PipelineContext,
   match: BlockMatch,
   identity: string | undefined,
+  matchedField: string | undefined,
+  matchedValue: string | undefined,
 ): Promise<Result<PipelineContext, PipelineError>> {
   const ruleId = match.ruleId ?? 'unknown';
   const category = match.category ?? 'unknown';
@@ -84,9 +124,12 @@ async function blockRequest(
   // MODERATION error branch runs ESCROW_FINALIZE + LEDGER_WRITE against
   // this same ctx before returning the block to the client). An unpaid
   // (free-tool) block has nothing to settle, so no appeal record either --
-  // there is no charge to contest.
+  // there is no charge to contest, and ШАГ 2's boundary ("only for BLOCKED
+  // PAID requests") is enforced automatically: no row, nothing stored.
   let appealId: string | undefined;
   if (isPaid) {
+    const isCsam = category === CSAM_CATEGORY;
+    const capped = !isCsam && matchedValue !== undefined ? capContent(matchedValue) : undefined;
     try {
       const appeal = await getPrisma().moderationAppeal.create({
         data: {
@@ -96,6 +139,18 @@ async function blockRequest(
           rule_id: ruleId,
           category,
           response_due_at: new Date(Date.now() + APPEAL_WINDOW_MS),
+          // CSAM: every one of these stays null -- absolute exception, no
+          // content in any form, ever. Non-CSAM: full (capped) field value
+          // + where in it the rule matched.
+          matched_field: !isCsam ? (matchedField ?? null) : null,
+          matched_content: capped?.content ?? null,
+          content_truncated: capped?.truncated ?? false,
+          match_start: !isCsam ? (match.matchStart ?? null) : null,
+          match_end: !isCsam ? (match.matchEnd ?? null) : null,
+          // 14 days from creation if never appealed (§ШАГ 2 retention);
+          // submitAppeal() pushes this out on submission, and the operator
+          // resolve script sets the final resolved_at+30d value.
+          content_expires_at: new Date(Date.now() + CONTENT_RETENTION_MS),
         },
       });
       appealId = appeal.appeal_id;
@@ -180,8 +235,8 @@ export const moderationStage: Stage = {
     const strings = collectStrings(ctx.body);
 
     if (moderationClass === 'action') {
-      for (const text of strings) {
-        for (const w of checkWarnings(text)) {
+      for (const { value } of strings) {
+        for (const w of checkWarnings(value)) {
           logger.warn(
             {
               requestId: ctx.requestId,
@@ -195,10 +250,10 @@ export const moderationStage: Stage = {
       }
     }
 
-    for (const text of strings) {
-      const result = checkContent(text, moderationClass);
+    for (const { field, value } of strings) {
+      const result = checkContent(value, moderationClass);
       if (!result.allowed) {
-        return blockRequest(ctx, result, identity);
+        return blockRequest(ctx, result, identity, field, value);
       }
     }
 

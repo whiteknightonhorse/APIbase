@@ -42,6 +42,9 @@ function renderPage(view: {
   response_due_at: Date;
   resolved_at: Date | null;
   resolution_note: string | null;
+  matched_field?: string | null;
+  matched_content?: string | null;
+  content_truncated?: boolean;
 }): string {
   const dueStr = view.response_due_at.toISOString();
   const isOpen = view.status === 'OPEN';
@@ -50,6 +53,19 @@ function renderPage(view: {
     : `<p class="status resolved">${escapeHtml(view.status)}${
         view.resolution_note ? ` — ${escapeHtml(view.resolution_note)}` : ''
       }</p>`;
+
+  // ШАГ 2 (2026-09-02): show the flagged content back to the appellant --
+  // they already sent it, and the surrounding context is what makes a
+  // reviewer's (or their own) judgment call possible. Absent for CSAM
+  // (never stored, see moderation.stage.ts) and once content_expires_at has
+  // wiped it -- both look identical here (matched_content is just null).
+  const contentBlock = view.matched_content
+    ? `<dl>
+<dt>Field</dt><dd>${escapeHtml(view.matched_field ?? 'unknown')}</dd>
+</dl>
+<label>Flagged content${view.content_truncated ? ' (truncated at 4KB)' : ''}</label>
+<textarea readonly>${escapeHtml(view.matched_content)}</textarea>`
+    : '';
 
   const formBlock = isOpen
     ? `<form method="POST" action="/appeals/${escapeHtml(view.appeal_id)}">
@@ -97,6 +113,7 @@ button:hover{background:#2563eb}
 <dt>Filed</dt><dd>${escapeHtml(view.created_at.toISOString())}</dd>
 </dl>
 ${statusBlock}
+${contentBlock}
 ${formBlock}
 </div>
 </body>

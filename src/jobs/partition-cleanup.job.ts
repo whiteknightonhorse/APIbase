@@ -11,6 +11,13 @@ import { logger } from '../config/logger';
  *   - request_metrics: > 90 days (§12.241 registry — canonical)
  *
  * Uses DROP TABLE (instant, metadata-only) instead of DELETE.
+ *
+ * Also runs the ШАГ 2 (2026-09-02) moderation-content retention sweep --
+ * moderation_appeals is explicitly NOT partitioned (schema.prisma: "low
+ * volume, needs indefinite retention for audit + SLA tracking"), so its
+ * expiry is a row-level UPDATE nulling the content columns, not a table
+ * drop. Reuses this job's existing schedule/registration rather than adding
+ * a second cron entry for one more retention rule.
  */
 
 interface RetentionConfig {
@@ -39,6 +46,42 @@ function formatDate(date: Date): string {
   const m = String(date.getUTCMonth() + 1).padStart(2, '0');
   const d = String(date.getUTCDate()).padStart(2, '0');
   return `${y}_${m}_${d}`;
+}
+
+/**
+ * Null out the content columns on any moderation_appeals row past its
+ * content_expires_at -- rule_id/category/appeal_id/status (the skeleton)
+ * are untouched and kept indefinitely. Idempotent: a row with nothing left
+ * to null (already wiped, or CSAM which never had content) just doesn't
+ * match the WHERE clause on a repeat run.
+ */
+export async function cleanupExpiredModerationContent(): Promise<number> {
+  const db = getPrisma();
+  try {
+    const updated: number = await db.$executeRawUnsafe(
+      `UPDATE moderation_appeals
+       SET matched_field = NULL,
+           matched_content = NULL,
+           content_truncated = false,
+           match_start = NULL,
+           match_end = NULL
+       WHERE content_expires_at < NOW()
+         AND (matched_content IS NOT NULL OR matched_field IS NOT NULL)`,
+    );
+    if (updated > 0) {
+      logger.info(
+        { job: 'partition-cleanup', rows: updated },
+        'Expired moderation-appeal content wiped',
+      );
+    }
+    return updated;
+  } catch (error) {
+    logger.error(
+      { err: error, job: 'partition-cleanup', table: 'moderation_appeals' },
+      'Failed to clean up expired moderation content',
+    );
+    throw error;
+  }
 }
 
 export async function run(): Promise<void> {
@@ -87,4 +130,6 @@ export async function run(): Promise<void> {
       throw error;
     }
   }
+
+  await cleanupExpiredModerationContent();
 }

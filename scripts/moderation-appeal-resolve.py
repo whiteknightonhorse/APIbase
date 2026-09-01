@@ -10,8 +10,16 @@ from OPEN. Until this runs, the row stays visible as open past its 72h
 response_due_at.
 
 Usage:
+  moderation-appeal-resolve.py <appeal_id> --show
   moderation-appeal-resolve.py <appeal_id> --uphold "<why the block stands>"
   moderation-appeal-resolve.py <appeal_id> --overturn "<why it was wrong; note any refund/credit issued manually>"
+
+--show prints the full record (rule/category/flagged field + content, if
+still retained) so the operator can actually review what was blocked before
+deciding -- one of the two access channels ШАГ 2 (2026-09-02) allows for the
+matched content (the other is the appeal page itself, seen by the appellant
+who already sent the content). Never logs, never posts to Telegram -- stdout
+only, read by whoever runs this interactively.
 """
 import re
 import subprocess
@@ -58,7 +66,7 @@ def selftest():
 if len(sys.argv) >= 2 and sys.argv[1] == "--selftest":
     selftest()
 
-if len(sys.argv) < 4 or sys.argv[2] not in ("--uphold", "--overturn"):
+if len(sys.argv) < 3 or sys.argv[2] not in ("--show", "--uphold", "--overturn"):
     usage()
 
 appeal_id = sys.argv[1]
@@ -67,6 +75,43 @@ if not UUID_RE.match(appeal_id):
     raise SystemExit(2)
 
 mode = sys.argv[2]
+
+if mode == "--show":
+    row, rc = psql(
+        "SELECT status, tool_id, rule_id, category, matched_field, matched_content, "
+        "content_truncated, match_start, match_end, content_expires_at, created_at "
+        f"FROM moderation_appeals WHERE appeal_id = '{appeal_id}'::uuid"
+    )
+    if rc != 0:
+        print("moderation-appeal-resolve: psql lookup failed")
+        raise SystemExit(1)
+    if not row:
+        print(f"moderation-appeal-resolve: no appeal with id {appeal_id}")
+        raise SystemExit(1)
+    (status, tool_id, rule_id, category, matched_field, matched_content,
+     content_truncated, match_start, match_end, content_expires_at, created_at) = row.split("\x1f")
+    print(f"appeal_id:       {appeal_id}")
+    print(f"status:          {status}")
+    print(f"tool_id:         {tool_id}")
+    print(f"rule_id:         {rule_id}")
+    print(f"category:        {category}")
+    print(f"created_at:      {created_at}")
+    print(f"content_expires_at: {content_expires_at}")
+    if category == "csam":
+        print("matched_content: [never stored -- CSAM absolute exception]")
+    elif not matched_content:
+        print("matched_content: [none -- expired and wiped, or never captured]")
+    else:
+        print(f"matched_field:   {matched_field}")
+        print(f"match offsets:   {match_start}-{match_end}"
+              + (" (content truncated at 4KB)" if content_truncated == "t" else ""))
+        print("matched_content:")
+        print(matched_content)
+    raise SystemExit(0)
+
+if len(sys.argv) < 4:
+    usage()
+
 note = sys.argv[3]
 new_status = "UPHELD" if mode == "--uphold" else "OVERTURNED"
 
@@ -83,10 +128,15 @@ if status != "OPEN":
     print(f"moderation-appeal-resolve: appeal {appeal_id} is already {status}, not touching it")
     raise SystemExit(1)
 
+# ШАГ 2 retention: resolution is the point the real target (resolved_at+30d)
+# becomes known -- set it here instead of leaving submitAppeal()'s generous
+# pending-resolution interim in place indefinitely.
 _, rc2 = psql(
     "UPDATE moderation_appeals SET status = " + sql_literal(new_status) +
     ", resolution_note = " + sql_literal(note) +
-    ", resolved_at = NOW() WHERE appeal_id = '" + appeal_id + "'::uuid"
+    ", resolved_at = NOW()"
+    ", content_expires_at = NOW() + INTERVAL '30 days'"
+    " WHERE appeal_id = '" + appeal_id + "'::uuid"
 )
 if rc2 != 0:
     print("moderation-appeal-resolve: UPDATE failed")

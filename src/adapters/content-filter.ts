@@ -72,6 +72,13 @@ export interface FilterResult {
   matched?: string;
   ruleId?: string;
   category?: string;
+  /** Offset of the match inside the ORIGINAL (not lowercased) text, so the
+   * appeal record (moderation.stage.ts) can store where in the full field
+   * value the rule fired -- see ШАГ 2 (2026-09-02). Assumes toLowerCase()
+   * preserves character offsets, true for the ASCII blocklist content this
+   * filter matches against; not re-derived per rule type beyond that. */
+  matchStart?: number;
+  matchEnd?: number;
 }
 
 /**
@@ -87,17 +94,20 @@ export function checkContent(text: string, moderationClass: ModerationClass): Fi
   for (const rule of rules) {
     if (rule.type === 'pattern') {
       const match = lower.match(rule.matcher as RegExp);
-      if (match) {
+      if (match && match.index !== undefined) {
         return {
           allowed: false,
           reason: `Content matches prohibited pattern (${rule.category})`,
           matched: match[0],
           ruleId: rule.id,
           category: rule.category,
+          matchStart: match.index,
+          matchEnd: match.index + match[0].length,
         };
       }
     } else {
-      if (lower.includes(rule.matcher as string)) {
+      const idx = lower.indexOf(rule.matcher as string);
+      if (idx !== -1) {
         return {
           allowed: false,
           reason:
@@ -107,6 +117,8 @@ export function checkContent(text: string, moderationClass: ModerationClass): Fi
           matched: rule.matcher as string,
           ruleId: rule.id,
           category: rule.category,
+          matchStart: idx,
+          matchEnd: idx + (rule.matcher as string).length,
         };
       }
     }

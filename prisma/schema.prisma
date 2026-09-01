@@ -106,7 +106,25 @@ model ModerationAppeal {
   response_due_at DateTime  @db.Timestamptz()
   resolved_at     DateTime? @db.Timestamptz()
 
+  // ШАГ 2 (2026-09-02): what tripped the rule -- full top-level field value
+  // (capped 4KB, content_truncated marks a cut), plus where in it the match
+  // landed. NULL always for CSAM (category = 'csam') -- absolute exception,
+  // never stored, see moderation.stage.ts's CSAM_CATEGORY guard. NULL also
+  // once content_expires_at passes and the cleanup job wipes it (skeleton --
+  // rule_id/category/appeal_id/status -- is kept indefinitely).
+  matched_field      String?
+  matched_content    String?
+  content_truncated  Boolean   @default(false)
+  match_start        Int?
+  match_end          Int?
+  // Column, not discipline: NOT NULL so a row can never silently skip
+  // expiry. Set to created_at+14d here; submitAppeal() pushes it out once an
+  // appeal is actually filed; the operator resolve script sets the final
+  // resolved_at+30d value once a verdict lands.
+  content_expires_at DateTime  @db.Timestamptz()
+
   @@index([status, response_due_at])
+  @@index([content_expires_at])
   @@map("moderation_appeals")
 }
 
