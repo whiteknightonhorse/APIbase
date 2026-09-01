@@ -3347,5 +3347,14 @@
     "reset_period": "none",
     "docs_url": "https://environment.data.gov.uk/hydrology/doc/reference",
     "limit_proof": "Public UK Environment Agency hydrology REST API (environment.data.gov.uk/hydrology); no authentication or API key required for any endpoint, no rate-limit headers returned in observed responses, no documented request quota on the API reference page."
+  },
+  "statbel": {
+    "display_name": "Statbel beSTAT",
+    "health_url": "https://bestat.statbel.fgov.be/bestat/api/datasources",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://statbel.fgov.be/en/statistics/bestat/faq",
+    "limit_proof": "Public Statbel (Belgian statistics office) beSTAT REST API (bestat.statbel.fgov.be/bestat/api); no authentication or API key required for any endpoint, no rate-limit headers returned in observed responses, no documented request quota found on the FAQ page."
   }
 }

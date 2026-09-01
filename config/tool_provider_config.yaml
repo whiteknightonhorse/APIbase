@@ -8362,6 +8362,31 @@ tools:
     price_usd: "0.002"
     cache_ttl: 3600
 
+  # --- UC-655: Statbel beSTAT (statbel) (4 tools) ---
+  - tool_id: statbel.list_views
+    name: Statbel List Views
+    provider: statbel
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: statbel.view_data
+    name: Statbel View Data
+    provider: statbel
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: statbel.list_datasources
+    name: Statbel List Datasources
+    provider: statbel
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: statbel.datasource_detail
+    name: Statbel Datasource Detail
+    provider: statbel
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

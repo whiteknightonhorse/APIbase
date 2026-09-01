@@ -373,6 +373,7 @@ import { IlostatAdapter } from './ilostat';
 import { AuDataGovAdapter } from './au-data-gov';
 import { UkhsaDashboardAdapter } from './ukhsa-dashboard';
 import { EaHydrologyAdapter } from './ea-hydrology';
+import { StatbelAdapter } from './statbel';
 import { config } from '../config';
 
 /**
@@ -2000,6 +2001,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // network: station search, per-station measure list, latest reading, and date-ranged
       // readings time series; no auth, Open Government Licence v3.0
       return getOrCreate('ea-hydrology', () => new EaHydrologyAdapter());
+    case 'statbel':
+      // Statbel beSTAT public REST API (UC-655) — Belgian statistics office: curated view
+      // catalog browse, view data fetch, raw datasource catalog browse, datasource metadata;
+      // no auth
+      return getOrCreate('statbel', () => new StatbelAdapter());
     default:
       return undefined;
   }

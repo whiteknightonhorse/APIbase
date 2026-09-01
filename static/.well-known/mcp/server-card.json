@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1300 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1304 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -62542,6 +62542,186 @@
           "measure_id",
           "min_date",
           "max_date"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "statbel.catalog.list_views",
+      "description": "Browse the Statbel beSTAT catalog of ~1300 curated, ready-to-query views (cross-tabs of Belgian official statistics), filterable by locale (fr/nl/de/en) and a case-insensitive name search. Each view exists as a separate record per language. Returns view_id, name, locale, and the backing data_source_id — use view_id with statbel.view_data to fetch the actual figures. Data: bestat.statbel.fgov.be, Belgian statistics office, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "locale": {
+            "type": "string",
+            "enum": [
+              "fr",
+              "nl",
+              "de",
+              "en"
+            ],
+            "description": "Language of the catalog to browse: \"fr\" (French, default), \"nl\" (Dutch), \"de\" (German), or \"en\" (English). Each view exists as a separate record per locale."
+          },
+          "search": {
+            "type": "string",
+            "description": "Case-insensitive substring filter on the view name (e.g. \"population density\")."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Max number of results to return (1-100). Defaults to 20."
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of results to skip, for pagination. Defaults to 0."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "statbel.catalog.view_data",
+      "description": "Fetch the full set of fact rows (flat cross-tab, columns vary per view) for one Statbel beSTAT view, identified by the view_id from statbel.list_views. Data: bestat.statbel.fgov.be, Belgian statistics office, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "view_id": {
+            "type": "string",
+            "description": "View UUID from statbel.list_views (e.g. \"1be9b77f-4005-4d58-a885-8281b5bbe617\"). Already encodes the language — no separate locale param needed."
+          }
+        },
+        "required": [
+          "view_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "statbel.catalog.list_datasources",
+      "description": "Browse the ~180 raw Statbel datasources that back the curated views, filterable by a case-insensitive name/description search and by supported language. Returns datasource_id, name, description, and supported locales — use datasource_id with statbel.datasource_detail for full metadata. Data: bestat.statbel.fgov.be, Belgian statistics office, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "search": {
+            "type": "string",
+            "description": "Case-insensitive substring filter on the datasource name or description."
+          },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "fr",
+              "nl",
+              "de",
+              "en"
+            ],
+            "description": "Only return datasources that support this language (checked against supportedLocales). Optional — omit to return datasources in any language."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Max number of results to return (1-100). Defaults to 20."
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of results to skip, for pagination. Defaults to 0."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "statbel.catalog.datasource_detail",
+      "description": "Get full metadata (multilingual descriptions, supported locales, category, last data and metadata update timestamps) for one Statbel datasource, identified by the datasource_id from statbel.list_datasources. An invalid or unpublished id returns an empty upstream response. Data: bestat.statbel.fgov.be, Belgian statistics office, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "datasource_id": {
+            "type": "string",
+            "description": "Datasource UUID from statbel.list_datasources (e.g. \"e957ac31-44a2-4718-8469-10470d3c41d9\"). An invalid or unpublished id returns an empty upstream response."
+          }
+        },
+        "required": [
+          "datasource_id"
         ]
       },
       "outputSchema": {

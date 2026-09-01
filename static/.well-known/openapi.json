@@ -119482,6 +119482,354 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/statbel.list_views/call": {
+      "post": {
+        "operationId": "statbel_list_views",
+        "summary": "Statbel List Views",
+        "description": "Browse the Statbel beSTAT catalog of ~1300 curated, ready-to-query views (cross-tabs of Belgian official statistics), filterable by locale (fr/nl/de/en) and a case-insensitive name search. Each view exists as a separate record per language. Returns view_id, name, locale, and the backing data_source_id — use view_id with statbel.view_data to fetch the actual figures. Data: bestat.statbel.fgov.be, Belgian statistics office, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "statbel.list_views"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "locale": {
+                    "type": "string",
+                    "enum": [
+                      "fr",
+                      "nl",
+                      "de",
+                      "en"
+                    ],
+                    "description": "Language of the catalog to browse: \"fr\" (French, default), \"nl\" (Dutch), \"de\" (German), or \"en\" (English). Each view exists as a separate record per locale."
+                  },
+                  "search": {
+                    "type": "string",
+                    "description": "Case-insensitive substring filter on the view name (e.g. \"population density\")."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Max number of results to return (1-100). Defaults to 20."
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Number of results to skip, for pagination. Defaults to 0."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/statbel.view_data/call": {
+      "post": {
+        "operationId": "statbel_view_data",
+        "summary": "Statbel View Data",
+        "description": "Fetch the full set of fact rows (flat cross-tab, columns vary per view) for one Statbel beSTAT view, identified by the view_id from statbel.list_views. Data: bestat.statbel.fgov.be, Belgian statistics office, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "statbel.view_data"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "view_id": {
+                    "type": "string",
+                    "description": "View UUID from statbel.list_views (e.g. \"1be9b77f-4005-4d58-a885-8281b5bbe617\"). Already encodes the language — no separate locale param needed."
+                  }
+                },
+                "required": [
+                  "view_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/statbel.list_datasources/call": {
+      "post": {
+        "operationId": "statbel_list_datasources",
+        "summary": "Statbel List Datasources",
+        "description": "Browse the ~180 raw Statbel datasources that back the curated views, filterable by a case-insensitive name/description search and by supported language. Returns datasource_id, name, description, and supported locales — use datasource_id with statbel.datasource_detail for full metadata. Data: bestat.statbel.fgov.be, Belgian statistics office, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "statbel.list_datasources"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "search": {
+                    "type": "string",
+                    "description": "Case-insensitive substring filter on the datasource name or description."
+                  },
+                  "locale": {
+                    "type": "string",
+                    "enum": [
+                      "fr",
+                      "nl",
+                      "de",
+                      "en"
+                    ],
+                    "description": "Only return datasources that support this language (checked against supportedLocales). Optional — omit to return datasources in any language."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Max number of results to return (1-100). Defaults to 20."
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Number of results to skip, for pagination. Defaults to 0."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/statbel.datasource_detail/call": {
+      "post": {
+        "operationId": "statbel_datasource_detail",
+        "summary": "Statbel Datasource Detail",
+        "description": "Get full metadata (multilingual descriptions, supported locales, category, last data and metadata update timestamps) for one Statbel datasource, identified by the datasource_id from statbel.list_datasources. An invalid or unpublished id returns an empty upstream response. Data: bestat.statbel.fgov.be, Belgian statistics office, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "statbel.datasource_detail"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "datasource_id": {
+                    "type": "string",
+                    "description": "Datasource UUID from statbel.list_datasources (e.g. \"e957ac31-44a2-4718-8469-10470d3c41d9\"). An invalid or unpublished id returns an empty upstream response."
+                  }
+                },
+                "required": [
+                  "datasource_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

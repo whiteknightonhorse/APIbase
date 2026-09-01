@@ -15932,4 +15932,56 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'weather',
     annotations: READ_ONLY,
   },
+
+  // Statbel beSTAT (4) — UC-655
+  {
+    toolId: 'statbel.list_views',
+    mcpName: 'statbel.catalog.list_views',
+    title: 'Statbel List Views',
+    description:
+      'Browse the Statbel beSTAT catalog of ~1300 curated, ready-to-query views (cross-tabs of ' +
+      'Belgian official statistics), filterable by locale (fr/nl/de/en) and a case-insensitive ' +
+      'name search. Each view exists as a separate record per language. Returns view_id, name, ' +
+      'locale, and the backing data_source_id — use view_id with statbel.view_data to fetch the ' +
+      'actual figures. Data: bestat.statbel.fgov.be, Belgian statistics office, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'statbel.view_data',
+    mcpName: 'statbel.catalog.view_data',
+    title: 'Statbel View Data',
+    description:
+      'Fetch the full set of fact rows (flat cross-tab, columns vary per view) for one Statbel ' +
+      'beSTAT view, identified by the view_id from statbel.list_views. Data: ' +
+      'bestat.statbel.fgov.be, Belgian statistics office, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'statbel.list_datasources',
+    mcpName: 'statbel.catalog.list_datasources',
+    title: 'Statbel List Datasources',
+    description:
+      'Browse the ~180 raw Statbel datasources that back the curated views, filterable by a ' +
+      'case-insensitive name/description search and by supported language. Returns ' +
+      'datasource_id, name, description, and supported locales — use datasource_id with ' +
+      'statbel.datasource_detail for full metadata. Data: bestat.statbel.fgov.be, Belgian ' +
+      'statistics office, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'statbel.datasource_detail',
+    mcpName: 'statbel.catalog.datasource_detail',
+    title: 'Statbel Datasource Detail',
+    description:
+      'Get full metadata (multilingual descriptions, supported locales, category, last data ' +
+      'and metadata update timestamps) for one Statbel datasource, identified by the ' +
+      'datasource_id from statbel.list_datasources. An invalid or unpublished id returns an ' +
+      'empty upstream response. Data: bestat.statbel.fgov.be, Belgian statistics office, no ' +
+      'auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];
