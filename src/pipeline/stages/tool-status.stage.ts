@@ -110,7 +110,13 @@ export function failsMarginGate(
   entry: Pick<ToolCacheEntry, 'price_usd' | 'upstream_cost_usd'>,
 ): boolean {
   if (entry.upstream_cost_usd === null) return false;
-  return entry.price_usd < entry.upstream_cost_usd * MARGIN_MULTIPLIER;
+  // Prices are USD to 8 decimal places (DB: Decimal(18,8)) but live in JS as
+  // IEEE754 doubles here — 0.001 * 1.3 === 0.0013000000000000002, so a naive
+  // "<" would reject a tool priced at EXACTLY the break-even point. Round the
+  // required minimum to 8dp before comparing; a 1e-9 tolerance is far below
+  // any real price granularity, so it can't be used to sneak under the gate.
+  const required = Math.round(entry.upstream_cost_usd * MARGIN_MULTIPLIER * 1e8) / 1e8;
+  return entry.price_usd < required - 1e-9;
 }
 
 /** Stop the refresh timer (graceful shutdown). */
