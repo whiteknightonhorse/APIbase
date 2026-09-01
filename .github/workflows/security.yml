@@ -93,3 +93,32 @@ jobs:
 
       - name: ESLint
         run: npm run lint
+
+  dead-exports:
+    # Report-only since 2026-09-01 (Fable-approved gate, F1 follow-up):
+    # finalizeIdempotency() sat unused for a real request cycle before anyone
+    # noticed — an exported function nothing calls is exactly the class of
+    # bug this catches. One week of report-only lets the existing 36-item
+    # baseline (see knip.json) get triaged without breaking unrelated PRs;
+    # after 2026-09-08 this step should drop "|| true" and start failing on
+    # NEW unused exports (a checked-in baseline count, or --include exports
+    # with a per-item allowlist, whichever is smaller at the time).
+    name: Dead Exports (knip, report-only)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts --legacy-peer-deps
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: knip — unused exports (report-only, see comment above)
+        run: npx knip --include exports || true

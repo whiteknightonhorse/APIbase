@@ -1,7 +1,7 @@
 {
   "name": "apibase",
   "version": "1.0.0",
-  "description": "APIbase.pro \u2014 The API Hub for AI Agents",
+  "description": "APIbase.pro — The API Hub for AI Agents",
   "private": true,
   "engines": {
     "node": ">=20.0.0"
@@ -13,6 +13,7 @@
     "test": "jest",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src/",
+    "knip": "knip --include exports",
     "format": "prettier --write src/",
     "migrate": "prisma migrate deploy",
     "generate": "prisma generate",
@@ -55,6 +56,7 @@
     "defu": "^6.1.6",
     "eslint": "^9.22.0",
     "jest": "^29.7.0",
+    "knip": "^6.34.0",
     "prettier": "^3.5.3",
     "prisma": "^6.5.0",
     "ts-jest": "^29.2.6",
