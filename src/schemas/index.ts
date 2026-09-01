@@ -374,6 +374,8 @@ import { auDataGovSchemas } from './au-data-gov.schema';
 import { ukhsaDashboardSchemas } from './ukhsa-dashboard.schema';
 import { eaHydrologySchemas } from './ea-hydrology.schema';
 import { statbelSchemas } from './statbel.schema';
+import { istatSchemas } from './istat.schema';
+import { mscGeometSchemas } from './msc-geomet.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -751,4 +753,6 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...ukhsaDashboardSchemas,
   ...eaHydrologySchemas,
   ...statbelSchemas,
+  ...istatSchemas,
+  ...mscGeometSchemas,
 };

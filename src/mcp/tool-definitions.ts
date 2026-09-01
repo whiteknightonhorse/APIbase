@@ -15984,4 +15984,96 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+
+  // ISTAT SDMX public REST API (3) — UC-656
+  {
+    toolId: 'istat.dataflows',
+    mcpName: 'istat.reference.dataflows',
+    title: 'ISTAT Dataflows',
+    description:
+      'Search or list ISTAT economic/social-statistics dataflows — ~4900 official series from ' +
+      'the Italian National Institute of Statistics covering population, prices, labour, ' +
+      'agriculture, trade, and national accounts. Filter by name/id with query, or omit to list ' +
+      'all (capped to 200 results). Use the returned dataflow_id with istat.structure and ' +
+      'istat.data. Data: esploradati.istat.it (ISTAT SDMX public REST API), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'istat.structure',
+    mcpName: 'istat.reference.structure',
+    title: 'ISTAT Dataflow Structure',
+    description:
+      'Get the dimensions and valid codes for an ISTAT dataflow (dataflow_id from ' +
+      'istat.dataflows, e.g. "101_1015_DF_DCSP_COLTIVAZIONI_1" for crop areas and production) — ' +
+      'frequency, territory, and measure dimensions each with their code list (capped to 200 ' +
+      'codes per dimension, with a total_codes count). Use this to interpret the dimension ' +
+      'labels returned by istat.data, or to build a narrower key filter. Data: ' +
+      'esploradati.istat.it (ISTAT SDMX public REST API), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'istat.data',
+    mcpName: 'istat.series.data',
+    title: 'ISTAT Dataflow Data',
+    description:
+      'Get observation values for an ISTAT dataflow (dataflow_id from istat.dataflows). Use key ' +
+      '(from istat.structure) to filter by frequency/territory/measure, e.g. "A.IT...." for ' +
+      'Italy annual data, all other dimensions unfiltered — an unscoped key can match thousands ' +
+      'of series. Control the time range with start_period/end_period or last_n_observations ' +
+      '(max 20). Data: esploradati.istat.it (ISTAT SDMX public REST API), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+
+  // MSC GeoMet (4)
+  {
+    toolId: 'msc-geomet.climate_stations',
+    mcpName: 'msc-geomet.climate.stations',
+    title: 'Canadian Climate Station Search',
+    description:
+      'Search the Environment and Climate Change Canada climate station catalog by province/ ' +
+      "territory or bounding box. Returns each station's CLIMATE_IDENTIFIER (needed for " +
+      'msc-geomet.climate_daily), coordinates, elevation, and its daily/hourly record date ' +
+      'ranges. Data: api.weather.gc.ca (MSC GeoMet OGC API - Features), no auth required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'msc-geomet.climate_daily',
+    mcpName: 'msc-geomet.climate.daily',
+    title: 'Canadian Daily Climate Observations',
+    description:
+      'Get daily climate observations (mean/min/max temperature, precipitation, rain, snow, ' +
+      'snow on ground, max wind gust, heating/cooling degree days) for a Canadian station by ' +
+      'CLIMATE_IDENTIFIER (from msc-geomet.climate_stations), optionally scoped to a start_date/ ' +
+      'end_date range. Data: api.weather.gc.ca (MSC GeoMet OGC API - Features), no auth required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'msc-geomet.hydrometric_realtime',
+    mcpName: 'msc-geomet.hydrometric.realtime',
+    title: 'Canadian Real-Time River and Lake Levels',
+    description:
+      'Get real-time water level (m) and discharge (m3/s) readings for a Canadian river or ' +
+      'lake by hydrometric station_number, sorted most-recent-first. Readings are typically ' +
+      'reported every 5 minutes for stations with real-time telemetry. Data: api.weather.gc.ca ' +
+      '(MSC GeoMet OGC API - Features, sourced from HYDAT/WSC), no auth required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'msc-geomet.aqhi_observations',
+    mcpName: 'msc-geomet.aqhi.observations',
+    title: 'Canadian Air Quality Health Index Observations',
+    description:
+      'Get real-time Air Quality Health Index (AQHI, 1-10+ scale) observations for a Canadian ' +
+      'monitoring location by location_id, or the latest reading from every monitored location ' +
+      'across Canada if location_id is omitted. Data: api.weather.gc.ca (MSC GeoMet OGC API - ' +
+      'Features), no auth required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
 ];

@@ -3356,5 +3356,23 @@
     "reset_period": "none",
     "docs_url": "https://statbel.fgov.be/en/statistics/bestat/faq",
     "limit_proof": "Public Statbel (Belgian statistics office) beSTAT REST API (bestat.statbel.fgov.be/bestat/api); no authentication or API key required for any endpoint, no rate-limit headers returned in observed responses, no documented request quota found on the FAQ page."
+  },
+  "istat": {
+    "display_name": "ISTAT SDMX",
+    "health_url": "https://esploradati.istat.it/SDMXWS/rest/dataflow/IT1/101_1015_DF_DCSP_COLTIVAZIONI_1/latest?references=none",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://esploradati.istat.it/SDMXWS/rest",
+    "limit_proof": "Public ISTAT (Italian National Institute of Statistics) SDMX 2.1 REST API (esploradati.istat.it/SDMXWS/rest); no authentication or API key required for any endpoint, no rate-limit headers returned in observed responses, no documented request quota found."
+  },
+  "msc-geomet": {
+    "display_name": "MSC GeoMet (Environment Canada)",
+    "health_url": "https://api.weather.gc.ca/collections/climate-stations/items?limit=1&f=json",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://eccc-msc.github.io/open-data/msc-geomet/readme_en/",
+    "limit_proof": "Public Environment and Climate Change Canada MSC GeoMet OGC API - Features (api.weather.gc.ca); no authentication or API key required for any endpoint, no rate-limit headers returned in observed responses, no documented request quota found on the official readme/usage docs."
   }
 }

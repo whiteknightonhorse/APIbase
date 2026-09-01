@@ -374,6 +374,8 @@ import { AuDataGovAdapter } from './au-data-gov';
 import { UkhsaDashboardAdapter } from './ukhsa-dashboard';
 import { EaHydrologyAdapter } from './ea-hydrology';
 import { StatbelAdapter } from './statbel';
+import { IstatAdapter } from './istat';
+import { MscGeometAdapter } from './msc-geomet';
 import { config } from '../config';
 
 /**
@@ -2006,6 +2008,16 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // catalog browse, view data fetch, raw datasource catalog browse, datasource metadata;
       // no auth
       return getOrCreate('statbel', () => new StatbelAdapter());
+    case 'istat':
+      // ISTAT SDMX public REST API (UC-656) — Italian National Institute of Statistics: ~4900
+      // economic/social-statistics dataflows (population, prices, labour, agriculture, trade,
+      // national accounts); no auth, public SDMX 2.1 REST API, single IT1 agency
+      return getOrCreate('istat', () => new IstatAdapter());
+    case 'msc-geomet':
+      // MSC GeoMet OGC API - Features (UC-657) — Environment and Climate Change Canada:
+      // climate station catalog, daily climate observations, real-time hydrometric (river/
+      // lake) level and discharge, real-time Air Quality Health Index; no auth
+      return getOrCreate('msc-geomet', () => new MscGeometAdapter());
     default:
       return undefined;
   }

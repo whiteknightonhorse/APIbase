@@ -8387,6 +8387,50 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-656: ISTAT SDMX public REST API (3 tools) ---
+  - tool_id: istat.dataflows
+    name: ISTAT Dataflows
+    provider: istat
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: istat.structure
+    name: ISTAT Dataflow Structure
+    provider: istat
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: istat.data
+    name: ISTAT Dataflow Data
+    provider: istat
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  # --- UC-657: MSC GeoMet OGC API - Features (4 tools) ---
+  - tool_id: msc-geomet.climate_stations
+    name: Canadian Climate Station Search
+    provider: msc-geomet
+    price_usd: "0.001"
+    cache_ttl: 604800
+
+  - tool_id: msc-geomet.climate_daily
+    name: Canadian Daily Climate Observations
+    provider: msc-geomet
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: msc-geomet.hydrometric_realtime
+    name: Canadian Real-Time River and Lake Levels
+    provider: msc-geomet
+    price_usd: "0.001"
+    cache_ttl: 300
+
+  - tool_id: msc-geomet.aqhi_observations
+    name: Canadian Air Quality Health Index Observations
+    provider: msc-geomet
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

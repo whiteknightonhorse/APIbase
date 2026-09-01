@@ -119830,6 +119830,616 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/istat.dataflows/call": {
+      "post": {
+        "operationId": "istat_dataflows",
+        "summary": "ISTAT Dataflows",
+        "description": "Search or list ISTAT economic/social-statistics dataflows — ~4900 official series from the Italian National Institute of Statistics covering population, prices, labour, agriculture, trade, and national accounts. Filter by name/id with query, or omit to list all (capped to 200 results). Use the returned dataflow_id with istat.structure and istat.data. Data: esploradati.istat.it (ISTAT SDMX public REST API), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "istat.dataflows"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Filter dataflows by name or id substring, case-insensitive (e.g. \"population\", \"inflation\", \"employment\", \"crops\"). Omit to list all ~4900 available dataflows (capped to 200 results)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/istat.structure/call": {
+      "post": {
+        "operationId": "istat_structure",
+        "summary": "ISTAT Dataflow Structure",
+        "description": "Get the dimensions and valid codes for an ISTAT dataflow (dataflow_id from istat.dataflows, e.g. \"101_1015_DF_DCSP_COLTIVAZIONI_1\" for crop areas and production) — frequency, territory, and measure dimensions each with their code list (capped to 200 codes per dimension, with a total_codes count). Use this to interpret the dimension labels returned by istat.data, or to build a narrower key filter. Data: esploradati.istat.it (ISTAT SDMX public REST API), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "istat.structure"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "dataflow_id": {
+                    "type": "string",
+                    "description": "ISTAT dataflow id, from istat.dataflows (e.g. \"101_1015_DF_DCSP_COLTIVAZIONI_1\" for crop areas and production). Returns the dimension list (e.g. FREQ, REF_AREA, DATA_TYPE) with each dimension's valid codes (capped to 200 per dimension, with a total_codes count) — needed to interpret istat.data results and build a key filter.",
+                    "minLength": 1
+                  },
+                  "version": {
+                    "type": "string",
+                    "description": "Dataflow version, from istat.dataflows (e.g. \"1.0\"). Omit to use the latest version."
+                  }
+                },
+                "required": [
+                  "dataflow_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/istat.data/call": {
+      "post": {
+        "operationId": "istat_data",
+        "summary": "ISTAT Dataflow Data",
+        "description": "Get observation values for an ISTAT dataflow (dataflow_id from istat.dataflows). Use key (from istat.structure) to filter by frequency/territory/measure, e.g. \"A.IT....\" for Italy annual data, all other dimensions unfiltered — an unscoped key can match thousands of series. Control the time range with start_period/end_period or last_n_observations (max 20). Data: esploradati.istat.it (ISTAT SDMX public REST API), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "istat.data"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "dataflow_id": {
+                    "type": "string",
+                    "description": "ISTAT dataflow id, from istat.dataflows (e.g. \"101_1015_DF_DCSP_COLTIVAZIONI_1\" for crop areas and production).",
+                    "minLength": 1
+                  },
+                  "key": {
+                    "type": "string",
+                    "description": "SDMX dot-separated dimension filter key in dimension position order (e.g. \"A.IT....\" for annual national-level data, all other dimensions unfiltered). Use istat.structure first to see each dimension's position and codes — an unscoped \"all\" key (default) can match thousands of series and return an oversized response."
+                  },
+                  "start_period": {
+                    "type": "string",
+                    "description": "Start of period range, e.g. \"2020\" (annual) or \"2020-01\" (monthly). Takes precedence over last_n_observations when set."
+                  },
+                  "end_period": {
+                    "type": "string",
+                    "description": "End of period range, e.g. \"2024\" (annual) or \"2024-12\" (monthly). Takes precedence over last_n_observations when set."
+                  },
+                  "last_n_observations": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20,
+                    "description": "Return only the most recent N observations per series (max 20, default 5). Ignored if start_period or end_period is set. Kept low because a wide key can already match hundreds of series."
+                  }
+                },
+                "required": [
+                  "dataflow_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/msc-geomet.climate_stations/call": {
+      "post": {
+        "operationId": "msc-geomet_climate_stations",
+        "summary": "Canadian Climate Station Search",
+        "description": "Search the Environment and Climate Change Canada climate station catalog by province/ territory or bounding box. Returns each station's CLIMATE_IDENTIFIER (needed for msc-geomet.climate_daily), coordinates, elevation, and its daily/hourly record date ranges. Data: api.weather.gc.ca (MSC GeoMet OGC API - Features), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "msc-geomet.climate_stations"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "province": {
+                    "type": "string",
+                    "enum": [
+                      "AB",
+                      "BC",
+                      "MB",
+                      "NB",
+                      "NL",
+                      "NS",
+                      "NT",
+                      "NU",
+                      "ON",
+                      "PE",
+                      "QC",
+                      "SK",
+                      "YT"
+                    ],
+                    "description": "Filter to a Canadian province/territory by 2-letter code (e.g. \"ON\" Ontario, \"BC\" British Columbia). Omit to search all provinces."
+                  },
+                  "bbox": {
+                    "type": "string",
+                    "description": "Bounding box filter as \"minLon,minLat,maxLon,maxLat\" in decimal degrees (e.g. \"-80,43,-79,44\" for the Toronto area)."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Max records to return (1-100). Defaults to 20."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/msc-geomet.climate_daily/call": {
+      "post": {
+        "operationId": "msc-geomet_climate_daily",
+        "summary": "Canadian Daily Climate Observations",
+        "description": "Get daily climate observations (mean/min/max temperature, precipitation, rain, snow, snow on ground, max wind gust, heating/cooling degree days) for a Canadian station by CLIMATE_IDENTIFIER (from msc-geomet.climate_stations), optionally scoped to a start_date/ end_date range. Data: api.weather.gc.ca (MSC GeoMet OGC API - Features), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "msc-geomet.climate_daily"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "climate_identifier": {
+                    "type": "string",
+                    "description": "Station CLIMATE_IDENTIFIER, e.g. \"6158731\" (Toronto Intl A). Get station IDs from msc-geomet.climate_stations.",
+                    "minLength": 1
+                  },
+                  "start_date": {
+                    "type": "string",
+                    "description": "Start of the date range, format YYYY-MM-DD. Must be paired with end_date."
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "End of the date range, format YYYY-MM-DD. Must be paired with start_date."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Max records to return (1-366). Defaults to 30."
+                  }
+                },
+                "required": [
+                  "climate_identifier"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/msc-geomet.hydrometric_realtime/call": {
+      "post": {
+        "operationId": "msc-geomet_hydrometric_realtime",
+        "summary": "Canadian Real-Time River and Lake Levels",
+        "description": "Get real-time water level (m) and discharge (m3/s) readings for a Canadian river or lake by hydrometric station_number, sorted most-recent-first. Readings are typically reported every 5 minutes for stations with real-time telemetry. Data: api.weather.gc.ca (MSC GeoMet OGC API - Features, sourced from HYDAT/WSC), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "msc-geomet.hydrometric_realtime"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "station_number": {
+                    "type": "string",
+                    "description": "Hydrometric station number, e.g. \"01AD003\" (St. Francis River, NB). Readings are reported roughly every 5 minutes for stations with real-time telemetry.",
+                    "minLength": 1
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Max records to return (1-288). Defaults to 20."
+                  }
+                },
+                "required": [
+                  "station_number"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/msc-geomet.aqhi_observations/call": {
+      "post": {
+        "operationId": "msc-geomet_aqhi_observations",
+        "summary": "Canadian Air Quality Health Index Observations",
+        "description": "Get real-time Air Quality Health Index (AQHI, 1-10+ scale) observations for a Canadian monitoring location by location_id, or the latest reading from every monitored location across Canada if location_id is omitted. Data: api.weather.gc.ca (MSC GeoMet OGC API - Features), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "msc-geomet.aqhi_observations"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "location_id": {
+                    "type": "string",
+                    "description": "AQHI monitoring location ID, e.g. \"CAPHL\" (Halifax Downtown). Omit to return the latest observation from every monitored location across Canada."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Max records to return (1-50). Defaults to 20."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {
