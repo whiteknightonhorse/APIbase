@@ -118,6 +118,46 @@ export async function finalizeIdempotency(
   }
 }
 
+/**
+ * Finalize the idempotency record for a completed pipeline execution, if this
+ * request actually opened one (2026-09-01 follow-up to the header-name fix).
+ *
+ * finalizeIdempotency() above was always the right primitive but nothing
+ * called it — every entry point ran the pipeline and returned, leaving the
+ * PENDING record from setPending() to sit until its 600s TTL expired. Any
+ * retry with the same key in that window got 'conflict' (409) forever,
+ * instead of the intended replay-with-cached-response semantics.
+ *
+ * Callers pass whatever they actually sent back to THEIR client — the
+ * cached replay must match what really happened on that entry point (REST
+ * error envelope vs. a batch sub-call's plain result), so this only decides
+ * WHETHER to finalize, not what to store.
+ *
+ * No-ops when:
+ *  - no idempotency key was presented (nothing was opened), or
+ *  - the pipeline stopped AT the IDEMPOTENCY stage itself (currentStage
+ *    still equals 'IDEMPOTENCY') — that outcome (conflict or a cached hit)
+ *    belongs to a PRIOR request's record, not this one; finalizing here
+ *    would overwrite that prior record with the wrong status.
+ */
+export async function finalizePipelineIdempotency(
+  ctx: { idempotencyKey?: string; agentId?: string; executionId?: string; currentStage?: string },
+  status: 'SUCCESS' | 'FAILED',
+  responseStatus: number,
+  responseBody: string,
+): Promise<void> {
+  if (!ctx.idempotencyKey || !ctx.agentId || !ctx.executionId) return;
+  if (ctx.currentStage === 'IDEMPOTENCY') return;
+  await finalizeIdempotency(
+    ctx.agentId,
+    ctx.idempotencyKey,
+    ctx.executionId,
+    status,
+    responseStatus,
+    responseBody,
+  );
+}
+
 /** No-op — shared Redis singleton shutdown handled by redis.service.ts. */
 export async function shutdownIdempotencyRedis(): Promise<void> {
   // no-op: shared singleton

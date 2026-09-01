@@ -69,6 +69,18 @@ export async function releaseLock(key: string): Promise<void> {
 }
 
 /**
+ * True if the single-flight lock is still held (owner still working).
+ * Used by waitForResult() to tell "owner still running" apart from "owner
+ * already finished (and failed, since a success would have left a cached
+ * value)" without waiting out the full poll timeout for the latter.
+ */
+export async function isLockHeld(key: string): Promise<boolean> {
+  const r = await ensureRedisConnected();
+  const exists = await r.exists(`lock:${key}`);
+  return exists === 1;
+}
+
+/**
  * Wait for cached result to appear (single-flight waiter §12.144).
  * Polls Redis GET every pollIntervalMs until value appears or timeout.
  * Returns cached value or null on timeout.
@@ -83,6 +95,23 @@ export async function waitForResult(
     const value = await getCache(key);
     if (value !== null) {
       return value;
+    }
+    // The owner releases lock:{key} on EVERY completion path, success
+    // (after writing the cache value — cache-set.stage.ts) and failure alike
+    // (pipeline.ts's error/exception handlers, and cache-set.stage.ts's own
+    // provider-failure branch). So by the time we observe the lock gone with
+    // still no cached value, the owner has already finished and failed —
+    // waiting out the rest of `timeoutMs` here only adds latency for a
+    // legitimate concurrent duplicate (e.g. a client's own retry) hitting a
+    // failing tool. Stop now; the caller re-attempts as a fresh owner.
+    //
+    // Narrow benign race: the owner could release the lock in the instant
+    // between our getCache() and isLockHeld() checks, just as it finishes
+    // successfully. Worst case we still return null here and the caller
+    // re-acquires the (now-free) lock and repeats the call once — the same
+    // outcome the existing full-timeout path already accepts below.
+    if (!(await isLockHeld(key))) {
+      return null;
     }
     await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
   }

@@ -5,6 +5,14 @@ import { runPipeline } from '../pipeline/pipeline';
 import { logger } from '../config/logger';
 import { buildPaymentRequiredResponse } from '../middleware/x402.middleware';
 import { buildMppChallengeHeader } from '../middleware/mpp.middleware';
+import { finalizePipelineIdempotency } from '../services/idempotency.service';
+import {
+  X_REQUEST_ID,
+  X_IDEMPOTENCY_KEY,
+  X_PAYMENT,
+  X_API_KEY,
+  X_CACHE,
+} from '../config/http-headers';
 
 /**
  * REST tool execution endpoint (thin wrapper around 13-stage pipeline).
@@ -19,7 +27,7 @@ export const executeRouter = Router();
 executeRouter.post(
   '/api/v1/tools/:toolId/call',
   async (req: Request, res: Response, next: NextFunction) => {
-    const requestId = (req.headers['x-request-id'] as string) || randomUUID();
+    const requestId = (req.headers[X_REQUEST_ID] as string) || randomUUID();
     const toolId = req.params.toolId as string;
 
     logger.info({ request_id: requestId, tool_id: toolId }, 'REST execute request');
@@ -28,10 +36,10 @@ executeRouter.post(
       const ctx = createPipelineContext(requestId, 'POST', req.path, req.body, {
         authorization: req.headers.authorization,
         'content-type': req.headers['content-type'],
-        'x-request-id': requestId,
-        'x-idempotency-key': req.headers['x-idempotency-key'] as string | undefined,
-        'x-payment': req.headers['x-payment'] as string | undefined,
-        'x-api-key': req.headers['x-api-key'] as string | undefined,
+        [X_REQUEST_ID]: requestId,
+        [X_IDEMPOTENCY_KEY]: req.headers[X_IDEMPOTENCY_KEY] as string | undefined,
+        [X_PAYMENT]: req.headers[X_PAYMENT] as string | undefined,
+        [X_API_KEY]: req.headers[X_API_KEY] as string | undefined,
       });
       ctx.toolId = toolId;
 
@@ -39,7 +47,7 @@ executeRouter.post(
         ctx.x402Paid = true;
         ctx.x402Payer = req.x402Payment.payer;
         ctx.x402PaymentHeader =
-          (req.headers['x-payment'] as string | undefined) ??
+          (req.headers[X_PAYMENT] as string | undefined) ??
           (req.headers['payment-signature'] as string | undefined) ??
           '';
       }
@@ -60,8 +68,15 @@ executeRouter.post(
       if (result.ok) {
         // X-Cache diagnostic (2026-06-29): lets the protocol-tester tell a legit cache-hit
         // replay (HIT, billed against the signed payment) from a real bypass (MISS).
-        res.setHeader('X-Cache', result.value.cacheHit ? 'HIT' : 'MISS');
-        res.status(result.value.responseStatus || 200).json(result.value.responseBody);
+        res.setHeader(X_CACHE, result.value.cacheHit ? 'HIT' : 'MISS');
+        const successStatus = result.value.responseStatus || 200;
+        await finalizePipelineIdempotency(
+          result.value,
+          'SUCCESS',
+          successStatus,
+          JSON.stringify(result.value.responseBody),
+        );
+        res.status(successStatus).json(result.value.responseBody);
         return;
       }
 
@@ -82,6 +97,7 @@ executeRouter.post(
           res.setHeader('WWW-Authenticate', mppHeader);
         }
 
+        await finalizePipelineIdempotency(ctx, 'FAILED', 402, JSON.stringify(body));
         res.status(402).json(body);
         return;
       }
@@ -97,7 +113,7 @@ executeRouter.post(
         502: 'retry_after_delay',
         503: 'retry_after_delay',
       };
-      res.status(status).json({
+      const errorBody = {
         error: result.error.error,
         error_code: (result.error.error || '').toUpperCase(),
         message: result.error.message,
@@ -106,7 +122,9 @@ executeRouter.post(
         documentation_url: 'https://apibase.pro/frameworks#rest',
         ...(result.error.retryAfter ? { retry_after: result.error.retryAfter } : {}),
         ...(result.error.extra ?? {}),
-      });
+      };
+      await finalizePipelineIdempotency(ctx, 'FAILED', status, JSON.stringify(errorBody));
+      res.status(status).json(errorBody);
     } catch (err) {
       next(err);
     }

@@ -93,6 +93,15 @@ function createFakeRedis() {
     async del(key: string): Promise<number> {
       return store.delete(key) ? 1 : 0;
     },
+    async exists(key: string): Promise<number> {
+      const e = store.get(key);
+      if (!e) return 0;
+      if (e.expiry !== Infinity && e.expiry < Date.now()) {
+        store.delete(key);
+        return 0;
+      }
+      return 1;
+    },
     __reset() {
       store.clear();
     },
