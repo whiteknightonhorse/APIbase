@@ -175,8 +175,28 @@ STALE_README_PROSE=$(grep -oE "[0-9]{2,4}\+? real-world API tools|[0-9]{2,4}\+? 
 # ("${TOOLS} tools" / "${PROV} providers"). This is what stops a THIRD hand-typed count
 # (a "490 tool schemas" or "21 categories") from ever sitting stale in README again --
 # instead of writing it as a fixed number, don't write it as a number at all.
-STALE_README_NUMBERS=$(grep -ohE '[0-9]{2,4}\+? ?(tool|provider|schema|categor|integration|registr)[a-zA-Z]*' README.md 2>/dev/null \
+# T-40 (2026-09-02, Fable rejection of the T-30 close): found live at "14-stage pipeline"
+# / "16-container Docker stack" (README.md:60) -- two gaps in the pattern above, both
+# fixed here so a third never repeats:
+#   1. the word list was missing "stage"/"container" entirely -- these two counts about
+#      our own infra can drift exactly like a tool/provider count (they already did once,
+#      13-stage -> 14-stage, per the MODERATION-stage insertion 2026-09-01) and nothing
+#      caught it because the regex never looked for those words at all.
+#   2. even for the words it DID cover, the separator was " ?" (space only) -- it could
+#      never have matched "14-stage" or "16-container" anyway, both hyphenated, not
+#      spaced. Widened to "[ -]?" so both spacing styles are covered for every word.
+# Fixed in README itself by removing the numbers ("multi-stage pipeline", "Docker stack",
+# exact counts pushed to docs/architecture.md instead) -- this check is the guardrail
+# against either number quietly coming back.
+STALE_README_NUMBERS=$(grep -ohE '[0-9]{2,4}\+?[ -]?(tool|provider|schema|categor|integration|registr|stage|container)[a-zA-Z]*' README.md 2>/dev/null \
   | grep -vE "^${TOOLS} tools$|^${PROV} providers$" | sort -u || true)
+# T-40: the MCP Registry badge hardcoded a version number ("MCP_Registry-v1.0.2-blue")
+# that no drift check ever read -- same class of defect as the two above, just inside a
+# shields.io badge URL instead of prose. Every OTHER badge in README (Security Audit,
+# Deploy, License, Smithery, MPPScan) already carries no digit in its label; this check
+# holds the MCP Registry badge to the same bar instead of adding a version-specific gate
+# that would just be a fourth hand-typed regex to rot.
+STALE_README_BADGE_NUM=$(grep -oE 'shields\.io/badge/[^)]*' README.md 2>/dev/null | grep -E '[0-9]' || true)
 # static/sitemap.xml must carry a <loc> for every static page + .well-known file we actually
 # serve -- this is what caught the sitemap sitting stale since 2026-04-22 missing /pricing,
 # /catalog, /connect, /policy/moderation (all shipped after that date). Read-only re-derivation
@@ -208,7 +228,8 @@ FAIL=0
 [ -n "$STALE_FOOTER_TOOLS" ] && { echo "sync-counts: STALE footer 'TOOLS: N' remain:"; echo "$STALE_FOOTER_TOOLS"; FAIL=1; }
 [ -n "$STALE_MCP_DESC" ] && { echo "sync-counts: STALE mcp.json description remains: $STALE_MCP_DESC"; FAIL=1; }
 [ -n "$STALE_README_PROSE" ] && { echo "sync-counts: STALE README prose remains:"; echo "$STALE_README_PROSE"; FAIL=1; }
-[ -n "$STALE_README_NUMBERS" ] && { echo "sync-counts: README.md has a number+tool/provider/schema/categor/integration/registr phrase that isn't the two covered forms:"; echo "$STALE_README_NUMBERS"; FAIL=1; }
+[ -n "$STALE_README_NUMBERS" ] && { echo "sync-counts: README.md has a number+tool/provider/schema/categor/integration/registr/stage/container phrase that isn't the two covered forms:"; echo "$STALE_README_NUMBERS"; FAIL=1; }
+[ -n "$STALE_README_BADGE_NUM" ] && { echo "sync-counts: README.md has a shields.io badge with a hand-typed number remaining:"; echo "$STALE_README_BADGE_NUM"; FAIL=1; }
 [ -n "$STALE_SITEMAP" ] && { echo "sync-counts: STALE static/sitemap.xml — differs from the generated URL set:"; echo "$STALE_SITEMAP"; FAIL=1; }
 
 if [ "$FAIL" = "0" ]; then

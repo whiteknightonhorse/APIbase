@@ -5,7 +5,7 @@ Production MCP server: one endpoint gives AI agents access to 1351 tools from 38
 [![Security Audit](https://github.com/whiteknightonhorse/APIbase/actions/workflows/security.yml/badge.svg)](https://github.com/whiteknightonhorse/APIbase/actions/workflows/security.yml)
 [![Deploy](https://github.com/whiteknightonhorse/APIbase/actions/workflows/deploy.yml/badge.svg)](https://github.com/whiteknightonhorse/APIbase/actions/workflows/deploy.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-[![MCP Registry](https://img.shields.io/badge/MCP_Registry-v1.0.2-blue)](https://registry.modelcontextprotocol.io)
+[![MCP Registry](https://img.shields.io/badge/MCP_Registry-Listed-blue)](https://registry.modelcontextprotocol.io)
 [![Smithery](https://img.shields.io/badge/Smithery-Live-brightgreen)](https://smithery.ai/servers/apibase-pro/api-hub)
 [![MPPScan](https://img.shields.io/badge/MPPScan-Listed-purple)](https://www.mppscan.com/server/2ce70c5f97be51cfcabe13aad9b5f4beae6dc77be586357e04db17644729303d)
 
@@ -57,7 +57,7 @@ Full prerequisites, verification steps, and config reference: [`docs/self-hostin
 
 ## Architecture
 
-Single Node.js/TypeScript API server, PostgreSQL as the append-only financial source of truth, Redis for cache/rate-limiting only, 16-container Docker stack on one Hetzner server. Every tool call runs the same 14-stage pipeline (escrow-first, idempotent, fail-closed, content-moderated) — dual-rail payments (self-hosted x402 facilitator + MPP), error-code contract, and full container/pipeline detail: [`docs/architecture.md`](docs/architecture.md).
+Single Node.js/TypeScript API server, PostgreSQL as the append-only financial source of truth, Redis for cache/rate-limiting only, multi-container Docker stack on one Hetzner server. Every tool call runs the same multi-stage pipeline (escrow-first, idempotent, fail-closed, content-moderated) — dual-rail payments (self-hosted x402 facilitator + MPP), error-code contract, and full container/pipeline detail (exact counts, live): [`docs/architecture.md`](docs/architecture.md).
 
 ## License
 
