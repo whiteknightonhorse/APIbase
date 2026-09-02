@@ -382,6 +382,7 @@ import { BundesbankTimeseriesAdapter } from './bundesbank-timeseries';
 import { IneSpainAdapter } from './ine-spain';
 import { CzsoAdapter } from './czso';
 import { StatistikAustriaAdapter } from './statistik-austria';
+import { HungaryKshAdapter } from './hungary-ksh';
 import { config } from '../config';
 
 /**
@@ -2061,6 +2062,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // 2.3 JSON for per-dataset metadata, semicolon-delimited CSV for data and
       // categorical code lookups; no auth, CC BY 4.0
       return getOrCreate('statistik-austria', () => new StatistikAustriaAdapter());
+    case 'hungary-ksh':
+      // Hungarian Central Statistical Office (KSH) "Nagy értékű adatkészletek" open-data
+      // API (UC-666) — exactly 13 EU High-Value Datasets, no catalog/search API beyond a
+      // flat datasets.json list, DCAT-AP RDF/XML metadata, distributions mix CSV and
+      // SDMX-ML "CompactData" XML (both hand-parsed, no auth, CC BY 4.0)
+      return getOrCreate('hungary-ksh', () => new HungaryKshAdapter());
     default:
       return undefined;
   }

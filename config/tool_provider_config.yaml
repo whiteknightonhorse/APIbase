@@ -8532,6 +8532,25 @@ tools:
     price_usd: "0.001"
     cache_ttl: 604800
 
+  # --- UC-666: Hungary KSH (Központi Statisztikai Hivatal) open-data portal ---
+  - tool_id: hungary-ksh.dataset_search
+    name: Hungary KSH Dataset Search
+    provider: hungary-ksh
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: hungary-ksh.dataset_metadata
+    name: Hungary KSH Dataset Metadata
+    provider: hungary-ksh
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: hungary-ksh.dataset_data
+    name: Hungary KSH Dataset Data
+    provider: hungary-ksh
+    price_usd: "0.002"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

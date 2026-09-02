@@ -3419,5 +3419,14 @@
     "reset_period": "none",
     "docs_url": "https://www.statistik.at/en/services/open-government-data-ogd",
     "limit_proof": "Public Statistik Austria open-data portal (data.statistik.gv.at); no authentication or API key required for any endpoint, no rate-limit headers returned in observed responses, no documented request quota found."
+  },
+  "hungary-ksh": {
+    "display_name": "Hungary KSH Open Data (High-Value Datasets)",
+    "health_url": "https://data.ksh.hu/datasets.json",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://data.ksh.hu/dokumentacio",
+    "limit_proof": "Public Hungarian Central Statistical Office (KSH) open-data API (data.ksh.hu); no authentication required per docs ('A hozzáférés nem igényel hitelesítést' — access requires no authentication), no rate-limit headers returned in observed responses, no documented request quota found."
   }
 }

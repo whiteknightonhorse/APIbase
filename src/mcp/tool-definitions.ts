@@ -16289,6 +16289,48 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+  // Hungary KSH — Központi Statisztikai Hivatal open-data portal (3) — UC-666
+  {
+    toolId: 'hungary-ksh.dataset_search',
+    mcpName: 'hungary-ksh.reference.dataset_search',
+    title: 'Hungary KSH Dataset Search',
+    description:
+      'Search/browse the 13 High-Value Datasets published by the Hungarian Central Statistical ' +
+      'Office (population, national accounts, prices, industrial production, tourism, etc. — the ' +
+      'full EU-mandated HVD category list, not a paginated catalog). Optional query substring ' +
+      'filters hu+en titles/keywords/themes. Returns dataset_id + title for use in ' +
+      'hungary-ksh.dataset_metadata and hungary-ksh.dataset_data. Data: data.ksh.hu (KSH), no ' +
+      'auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'hungary-ksh.dataset_metadata',
+    mcpName: 'hungary-ksh.reference.dataset_metadata',
+    title: 'Hungary KSH Dataset Metadata',
+    description:
+      'Get full metadata for one KSH dataset (dataset_id from hungary-ksh.dataset_search) — ' +
+      'title, description, and the distribution list (distribution_id, format CSV/XML, download ' +
+      'URL, temporal coverage, license) needed before calling hungary-ksh.dataset_data. Data: ' +
+      'data.ksh.hu (KSH), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'hungary-ksh.dataset_data',
+    mcpName: 'hungary-ksh.series.dataset_data',
+    title: 'Hungary KSH Dataset Data',
+    description:
+      'Fetch rows from one KSH dataset distribution (dataset_id + distribution_id from ' +
+      'hungary-ksh.dataset_metadata). Distributions are semicolon-delimited CSV or SDMX-ML XML — ' +
+      'both parsed into the same header + rows shape. Column names vary per distribution (e.g. ' +
+      '"GEO", "TIME", "SEX", "OBS_VALUE") — call once without filter_column to see the header, ' +
+      'then narrow with filter_column + filter_value (substring match). Rows capped 1-500 ' +
+      '(default 50). Distributions above 5MB are rejected with a pointer to the raw download URL. ' +
+      'Data: data.ksh.hu (KSH), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
   // ---------------------------------------------------------------------------
   // Ф5 physical-device MCP layer -- device.list/state/command (2026-09-02)
   // Generic vendor-agnostic projection; Tuya is the only connected vendor

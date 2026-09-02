@@ -121962,6 +121962,272 @@
         ]
       }
     },
+    "/api/v1/tools/hungary-ksh.dataset_search/call": {
+      "post": {
+        "operationId": "hungary-ksh_dataset_search",
+        "summary": "Hungary KSH Dataset Search",
+        "description": "Search/browse the 13 High-Value Datasets published by the Hungarian Central Statistical Office (population, national accounts, prices, industrial production, tourism, etc. — the full EU-mandated HVD category list, not a paginated catalog). Optional query substring filters hu+en titles/keywords/themes. Returns dataset_id + title for use in hungary-ksh.dataset_metadata and hungary-ksh.dataset_data. Data: data.ksh.hu (KSH), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hungary-ksh.dataset_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Substring to search across Hungarian + English titles, keywords, and themes, case-insensitive (e.g. \"population\", \"GDP\", \"tourism\"). Omit to list all 13 High-Value Datasets (KSH publishes exactly these 13, no more — this is the full EU-mandated HVD category list, not a paginated catalog)."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 13,
+                    "description": "Max datasets to return (1-13, default 13)."
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Number of matching datasets to skip (default 0)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/hungary-ksh.dataset_metadata/call": {
+      "post": {
+        "operationId": "hungary-ksh_dataset_metadata",
+        "summary": "Hungary KSH Dataset Metadata",
+        "description": "Get full metadata for one KSH dataset (dataset_id from hungary-ksh.dataset_search) — title, description, and the distribution list (distribution_id, format CSV/XML, download URL, temporal coverage, license) needed before calling hungary-ksh.dataset_data. Data: data.ksh.hu (KSH), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hungary-ksh.dataset_metadata"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "dataset_id": {
+                    "type": "string",
+                    "description": "KSH dataset UUID, from hungary-ksh.dataset_search (e.g. \"f44d314b-bc27-40a7-b34e-af01b3c4ab05\" for Population)."
+                  }
+                },
+                "required": [
+                  "dataset_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/hungary-ksh.dataset_data/call": {
+      "post": {
+        "operationId": "hungary-ksh_dataset_data",
+        "summary": "Hungary KSH Dataset Data",
+        "description": "Fetch rows from one KSH dataset distribution (dataset_id + distribution_id from hungary-ksh.dataset_metadata). Distributions are semicolon-delimited CSV or SDMX-ML XML — both parsed into the same header + rows shape. Column names vary per distribution (e.g. \"GEO\", \"TIME\", \"SEX\", \"OBS_VALUE\") — call once without filter_column to see the header, then narrow with filter_column + filter_value (substring match). Rows capped 1-500 (default 50). Distributions above 5MB are rejected with a pointer to the raw download URL. Data: data.ksh.hu (KSH), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hungary-ksh.dataset_data"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "dataset_id": {
+                    "type": "string",
+                    "description": "KSH dataset UUID, from hungary-ksh.dataset_search (e.g. \"f44d314b-bc27-40a7-b34e-af01b3c4ab05\" for Population)."
+                  },
+                  "distribution_id": {
+                    "type": "string",
+                    "description": "Distribution UUID, from hungary-ksh.dataset_metadata's distributions list (e.g. \"eb3e481e-6b5a-45d1-8076-18c4ece155c2\"). Each distribution is one CSV or SDMX-ML data file for a specific breakdown of the dataset (e.g. population by region vs. by citizenship) — call dataset_metadata first to see which one you need."
+                  },
+                  "filter_column": {
+                    "type": "string",
+                    "description": "Column name to filter on, must match a column in the header returned by this same tool (column names vary per distribution, e.g. \"GEO\" for region, \"TIME\" for year, \"SEX\" for sex code) — call once without a filter to see the header first. Requires filter_value."
+                  },
+                  "filter_value": {
+                    "type": "string",
+                    "description": "Substring to match (case-insensitive) against filter_column's value, e.g. \"HU11\" when filter_column is \"GEO\". Required when filter_column is set."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 500,
+                    "description": "Max rows to return after filtering (1-500, default 50)."
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Number of matching rows to skip, for paging through a large filtered result."
+                  }
+                },
+                "required": [
+                  "dataset_id",
+                  "distribution_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/device.list/call": {
       "post": {
         "operationId": "device_list",

@@ -381,6 +381,7 @@ import { bundesbankTimeseriesSchemas } from './bundesbank-timeseries.schema';
 import { ineSpainSchemas } from './ine-spain.schema';
 import { czsoSchemas } from './czso.schema';
 import { statistikAustriaSchemas } from './statistik-austria.schema';
+import { hungaryKshSchemas } from './hungary-ksh.schema';
 import { deviceSchemas } from './device.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
@@ -766,5 +767,6 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...ineSpainSchemas,
   ...czsoSchemas,
   ...statistikAustriaSchemas,
+  ...hungaryKshSchemas,
   ...deviceSchemas,
 };
