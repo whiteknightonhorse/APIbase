@@ -92,6 +92,24 @@ describe('device-safety.service (Ф5 confirm_required + numeric bounds gate)', (
     ).not.toThrow();
   });
 
+  // F11 (Fable/operator decision, 2026-09-02): classifyDevice() returning
+  // undefined (className itself undefined -- NOT a known-but-unmapped class
+  // string like 'made_up_class_xyz' above) used to fall through
+  // enforceDeviceSafety's first line with ZERO enforcement -- a write
+  // command to an unclassifiable device reached the vendor with no
+  // confirm_required check and no bounds check. Main variant applied
+  // (verb-allowlist explicitly rejected): unknown class now requires
+  // confirm:true, fail-closed, same as a known confirm_required class.
+  it('F11: rejects a command on an unclassified device (className undefined) with no confirm', () => {
+    expect(() => enforceDeviceSafety(undefined, 'unlock', undefined, undefined)).toThrow(
+      DeviceSafetyViolation,
+    );
+  });
+
+  it('F11: allows a command on an unclassified device once confirm:true is present', () => {
+    expect(() => enforceDeviceSafety(undefined, 'unlock', undefined, true)).not.toThrow();
+  });
+
   it('is a documented no-op for a command with no configured bound', () => {
     // thermostat_ac has no bound configured for a command named 'mode'
     expect(() => enforceDeviceSafety('thermostat_ac', 'mode', 'cool', undefined)).not.toThrow();

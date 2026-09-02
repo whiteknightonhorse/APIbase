@@ -73,7 +73,25 @@ export function enforceDeviceSafety(
   value: unknown,
   confirm: boolean | undefined,
 ): void {
-  if (!className) return; // unknown class: nothing to enforce against (disclosed gap, not silent)
+  if (!className) {
+    // F11 (Fable/operator decision, 2026-09-02): this function is reached ONLY from the
+    // write/command path (device-tuya/index.ts's doState/doList never call it) -- an
+    // unclassifiable device's command is, by construction, an action on hardware we know
+    // nothing about. Previously: zero enforcement (return here). Now: same treatment a
+    // KNOWN confirm_required class gets -- fail closed until the caller explicitly
+    // confirms. Bounds checking still cannot run (no class = no configured [min,max]);
+    // this closes the confirm-bypass, not the bounds gap, which has no safe default.
+    // Verb-allowlist explicitly REJECTED by Fable: `command` here is the raw vendor DP
+    // code (Tuya's own vocabulary, not ours) -- a "dangerous verb" string list would be
+    // guessing at a wordlist this repo doesn't control, the same gate-inversion class
+    // this operator has already been burned by once.
+    if (confirm !== true) {
+      throw new DeviceSafetyViolation(
+        `Unknown device class -- command '${command}' requires confirm:true (classification failed or category unmapped)`,
+      );
+    }
+    return;
+  }
   const desc = getDeviceClass(className);
   if (!desc) return;
 
