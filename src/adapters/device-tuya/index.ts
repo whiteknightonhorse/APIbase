@@ -126,7 +126,8 @@ export class DeviceAdapter extends BaseAdapter {
 
     try {
       if (action === 'list') {
-        return okResponse(await this.doList(agentId), start);
+        const vendorFilter = typeof params.vendor === 'string' ? params.vendor : undefined;
+        return okResponse(await this.doList(agentId, vendorFilter), start);
       }
       if (action === 'state') {
         const connectionId = String(params.connection_id ?? '');
@@ -183,10 +184,11 @@ export class DeviceAdapter extends BaseAdapter {
     return typeof e === 'object' && e !== null && 'provider' in e && 'httpStatus' in e;
   }
 
-  private async doList(agentId: string): Promise<unknown> {
+  private async doList(agentId: string, vendorFilter?: string): Promise<unknown> {
     const connections = await listActiveConnections(agentId);
     const out: unknown[] = [];
     for (const conn of connections) {
+      if (vendorFilter && conn.vendor !== vendorFilter) continue;
       const owned = await getOwnedConnection(agentId, conn.connection_id);
       if (!owned) continue;
       const devices = await this.callVendor(owned.vendor, 'list', owned);

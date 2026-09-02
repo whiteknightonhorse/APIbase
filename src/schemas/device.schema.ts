@@ -11,7 +11,14 @@ import { z, type ZodSchema } from 'zod';
  * schema only guards shape/type, not the class-specific safety policy.
  */
 
-const deviceList = z.object({}).strip();
+const deviceList = z
+  .object({
+    vendor: z
+      .string()
+      .optional()
+      .describe("Filter to one linked vendor's devices, e.g. 'tuya' (omit to list all)"),
+  })
+  .strip();
 
 const deviceState = z
   .object({
