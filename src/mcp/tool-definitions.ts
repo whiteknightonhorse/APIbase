@@ -16460,6 +16460,52 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+  // Estonia Statistics — Statistics Estonia (Statistikaamet) PXWeb API (3) — UC-670
+  {
+    toolId: 'estonia-statistics.catalog',
+    mcpName: 'estonia-statistics.reference.catalog',
+    title: 'Estonia Statistics Catalog Browse',
+    description:
+      "Browse Statistics Estonia's (Statistikaamet) statistics database tree by path. " +
+      'Top-level databases: keskkond (environment), majandus (economy), rahvastik (population: ' +
+      'migration, births/deaths, family), sotsiaalelu (social life: labour market, education, ' +
+      'health), eri-valdkondade-statistika (multidomain statistics), rahvaloendus (population ' +
+      'and housing census), Lepetatud_tabelid (discontinued datasets). Returns child nodes ' +
+      "(subcategories, type=l) or table descriptors at leaf nodes (type=t). Use empty path '' " +
+      'to get the top-level databases. Navigate hierarchically until type=t nodes appear, then ' +
+      'use estonia-statistics.table_metadata. Data: andmed.stat.ee (PXWeb API), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'estonia-statistics.table_metadata',
+    mcpName: 'estonia-statistics.reference.table_metadata',
+    title: 'Estonia Statistics Table Metadata',
+    description:
+      'Get metadata for a specific Estonia statistics table — title, dimensions (e.g. ' +
+      'Aasta/Year, Näitaja/Indicator), valid value codes for each dimension, and latest update ' +
+      'timestamp. Use this BEFORE estonia-statistics.table_query to discover accepted filter ' +
+      "values. Example path: 'rahvastik/rahvastikunaitajad-ja-koosseis/" +
+      "demograafilised-pehinaitajad/RV030.PX' (births, deaths and natural increase). " +
+      'Data: andmed.stat.ee, no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'estonia-statistics.table_query',
+    mcpName: 'estonia-statistics.series.table_query',
+    title: 'Estonia Statistics Table Query',
+    description:
+      'Run a statistical query against an Estonia statistics table — specify dimension filters ' +
+      'to slice data by year and indicator. Returns JSON-stat2 format with labeled dimensions ' +
+      'and numeric values. Always call estonia-statistics.table_metadata first to discover ' +
+      "valid dimension codes and value codes (often Estonian words, e.g. 'Aasta' for year). " +
+      "Example: births/deaths/natural increase (Näitaja='1','2','3'), most recent year (Aasta " +
+      "filter='top' values=['1']). Data: andmed.stat.ee, no auth required, CC BY-SA 4.0 " +
+      '(Statistics Estonia).',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
   // ---------------------------------------------------------------------------
   // Ф5 physical-device MCP layer -- device.list/state/command (2026-09-02)
   // Generic vendor-agnostic projection; Tuya is the only connected vendor

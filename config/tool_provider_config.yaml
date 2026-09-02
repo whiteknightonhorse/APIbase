@@ -8608,6 +8608,25 @@ tools:
     price_usd: "0.003"
     cache_ttl: 1800
 
+  # --- UC-670: Estonia Statistics (Statistikaamet, PXWeb API) ---
+  - tool_id: estonia-statistics.catalog
+    name: Estonia Statistics Catalog Browse
+    provider: estonia-statistics
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: estonia-statistics.table_metadata
+    name: Estonia Statistics Table Metadata
+    provider: estonia-statistics
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: estonia-statistics.table_query
+    name: Estonia Statistics Table Query
+    provider: estonia-statistics
+    price_usd: "0.003"
+    cache_ttl: 1800
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

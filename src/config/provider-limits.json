@@ -3455,5 +3455,14 @@
     "reset_period": "none",
     "docs_url": "https://statice.is/publications/open-data-access/",
     "limit_proof": "Official statistics portal of Statistics Iceland (px.hagstofa.is), a standard PXWeb API — no authentication or API key required ('The API can be used without registration'), published as open data under CC BY 4.0 with reuse for any purpose including commercial explicitly permitted (attribution required), no documented rate limits found."
+  },
+  "estonia-statistics": {
+    "display_name": "Estonia Statistics (Statistikaamet)",
+    "health_url": "https://andmed.stat.ee/api/v1/en/stat",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://stat.ee/en/statistics-estonia/about-us/strategy/principles-dissemination-official-statistics",
+    "limit_proof": "Official statistics portal of Statistics Estonia (andmed.stat.ee), a standard PXWeb API — no authentication or API key required, published as open data under CC BY-SA 4.0 with commercial and non-commercial reuse explicitly permitted (attribution + share-alike required), no documented rate limits found."
   }
 }

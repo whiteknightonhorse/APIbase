@@ -386,6 +386,7 @@ import { HungaryKshAdapter } from './hungary-ksh';
 import { SlovakiaStatisticsAdapter } from './slovakia-statistics';
 import { LatviaStatisticsAdapter } from './latvia-statistics';
 import { IcelandStatisticsAdapter } from './iceland-statistics';
+import { EstoniaStatisticsAdapter } from './estonia-statistics';
 import { config } from '../config';
 
 /**
@@ -2089,6 +2090,13 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // before writing. Catalog browse + leaf table metadata + JSON-stat2 query. No
       // auth, CC BY 4.0, reuse (incl. commercial) explicitly permitted with attribution.
       return getOrCreate('iceland-statistics', () => new IcelandStatisticsAdapter());
+    case 'estonia-statistics':
+      // Statistics Estonia / Statistikaamet PXWeb API (UC-670) — andmed.stat.ee:
+      // identical PXWeb v1 shape to Statistics Sweden, Latvia, and Iceland —
+      // verified live before writing. Catalog browse + leaf table metadata +
+      // JSON-stat2 query. No auth, CC BY-SA 4.0, reuse (incl. commercial)
+      // explicitly permitted with attribution and share-alike.
+      return getOrCreate('estonia-statistics', () => new EstoniaStatisticsAdapter());
     default:
       return undefined;
   }

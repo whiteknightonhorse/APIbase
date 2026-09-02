@@ -123033,6 +123033,278 @@
         ]
       }
     },
+    "/api/v1/tools/estonia-statistics.catalog/call": {
+      "post": {
+        "operationId": "estonia-statistics_catalog",
+        "summary": "Estonia Statistics Catalog Browse",
+        "description": "Browse Statistics Estonia's (Statistikaamet) statistics database tree by path. Top-level databases: keskkond (environment), majandus (economy), rahvastik (population: migration, births/deaths, family), sotsiaalelu (social life: labour market, education, health), eri-valdkondade-statistika (multidomain statistics), rahvaloendus (population and housing census), Lepetatud_tabelid (discontinued datasets). Returns child nodes (subcategories, type=l) or table descriptors at leaf nodes (type=t). Use empty path '' to get the top-level databases. Navigate hierarchically until type=t nodes appear, then use estonia-statistics.table_metadata. Data: andmed.stat.ee (PXWeb API), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "estonia-statistics.catalog"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "Hierarchical path through the Estonia statistics taxonomy. Empty '' gets the top-level databases: 'keskkond' (environment), 'majandus' (economy), 'rahvastik' (population), 'sotsiaalelu' (social life), 'eri-valdkondade-statistika' (multidomain statistics), 'rahvaloendus' (population and housing census), 'Lepetatud_tabelid' (discontinued datasets). Use estonia-statistics.catalog recursively to navigate until type=t (table leaf) nodes appear.",
+                    "default": ""
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/estonia-statistics.table_metadata/call": {
+      "post": {
+        "operationId": "estonia-statistics_table_metadata",
+        "summary": "Estonia Statistics Table Metadata",
+        "description": "Get metadata for a specific Estonia statistics table — title, dimensions (e.g. Aasta/Year, Näitaja/Indicator), valid value codes for each dimension, and latest update timestamp. Use this BEFORE estonia-statistics.table_query to discover accepted filter values. Example path: 'rahvastik/rahvastikunaitajad-ja-koosseis/demograafilised-pehinaitajad/RV030.PX' (births, deaths and natural increase). Data: andmed.stat.ee, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "estonia-statistics.table_metadata"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "table_path": {
+                    "type": "string",
+                    "description": "Full path to a leaf table (type='t' from estonia-statistics.catalog), e.g. 'rahvastik/rahvastikunaitajad-ja-koosseis/demograafilised-pehinaitajad/RV030.PX' (births, deaths and natural increase). Returns title, dimension codes, and valid values to use in estonia-statistics.table_query."
+                  }
+                },
+                "required": [
+                  "table_path"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/estonia-statistics.table_query/call": {
+      "post": {
+        "operationId": "estonia-statistics_table_query",
+        "summary": "Estonia Statistics Table Query",
+        "description": "Run a statistical query against an Estonia statistics table — specify dimension filters to slice data by year and indicator. Returns JSON-stat2 format with labeled dimensions and numeric values. Always call estonia-statistics.table_metadata first to discover valid dimension codes and value codes (often Estonian words, e.g. 'Aasta' for year). Example: births/deaths/natural increase (Näitaja='1','2','3'), most recent year (Aasta filter='top' values=['1']). Data: andmed.stat.ee, no auth required, CC BY-SA 4.0 (Statistics Estonia).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "estonia-statistics.table_query"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "table_path": {
+                    "type": "string",
+                    "description": "Full path to the leaf table to query — same as estonia-statistics.table_metadata table_path. Example: 'rahvastik/rahvastikunaitajad-ja-koosseis/demograafilised-pehinaitajad/RV030.PX'."
+                  },
+                  "query": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "description": "Dimension code from estonia-statistics.table_metadata variables[].code. Examples: 'Aasta' (year), 'Näitaja' (indicator). Dimension codes are frequently Estonian words with non-ASCII characters — copy them exactly as returned by table_metadata."
+                        },
+                        "selection": {
+                          "type": "object",
+                          "properties": {
+                            "filter": {
+                              "type": "string",
+                              "description": "Filter type. Common values: 'item' (select by exact code), 'top' (select N most recent — use with time dimensions like 'Aasta'), 'all' (all values). Use the valueSet codes from metadata."
+                            },
+                            "values": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              },
+                              "description": "Array of value codes to select. Get valid codes from estonia-statistics.table_metadata variables[].values. For filter='item': list codes like ['1']. For filter='top': list count like ['3'] (3 most recent years). For filter='all': use ['*']."
+                            }
+                          },
+                          "required": [
+                            "filter",
+                            "values"
+                          ],
+                          "description": "Selection criteria for this dimension."
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "selection"
+                      ],
+                      "description": "Filter for one dimension (variable) in the table."
+                    },
+                    "description": "Array of dimension filters. Each filter selects which values to include for one dimension. Example: [{code:'Aasta',selection:{filter:'top',values:['3']}}, {code:'Näitaja',selection:{filter:'item',values:['1','2','3']}}]. Response is JSON-stat2 format with dimension labels and numeric values array."
+                  }
+                },
+                "required": [
+                  "table_path",
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/device.list/call": {
       "post": {
         "operationId": "device_list",
