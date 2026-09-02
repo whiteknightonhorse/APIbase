@@ -1,8 +1,6 @@
 # APIbase.pro — The API Hub for AI Agents
 
-> One MCP endpoint. 1316 tools. 373 providers. Pay per call with x402 (USDC on Base) or MPP (USDC on Tempo).
-
-**[Live Platform](https://apibase.pro)** | **[Tool Catalog](https://apibase.pro/api/v1/tools)** | **[MCP Endpoint](https://apibase.pro/mcp)** | **[Frameworks](https://apibase.pro/frameworks)** | **[Dashboard](https://apibase.pro/dashboard)**
+Production MCP server: one endpoint gives AI agents access to 1316 tools from 373 providers, pay-per-call via x402 (USDC on Base) or MPP (USDC on Tempo).
 
 [![Security Audit](https://github.com/whiteknightonhorse/APIbase/actions/workflows/security.yml/badge.svg)](https://github.com/whiteknightonhorse/APIbase/actions/workflows/security.yml)
 [![Deploy](https://github.com/whiteknightonhorse/APIbase/actions/workflows/deploy.yml/badge.svg)](https://github.com/whiteknightonhorse/APIbase/actions/workflows/deploy.yml)
@@ -11,535 +9,55 @@
 [![Smithery](https://img.shields.io/badge/Smithery-Live-brightgreen)](https://smithery.ai/servers/apibase-pro/api-hub)
 [![MPPScan](https://img.shields.io/badge/MPPScan-Listed-purple)](https://www.mppscan.com/server/2ce70c5f97be51cfcabe13aad9b5f4beae6dc77be586357e04db17644729303d)
 
-<a href="https://glama.ai/mcp/servers/whiteknightonhorse/APIbase">
-  <img width="380" height="200" src="https://glama.ai/mcp/servers/whiteknightonhorse/APIbase/badge?v=2" alt="APIbase MCP server" />
-</a>
-
 ---
 
-## Product Demo
-
-https://github.com/user-attachments/assets/9e598d61-b2d0-486c-bd34-f0cb0354d09c
-
-> 12-slide walkthrough: connect → discover tools → 13-stage pipeline → dual-rail payments → analytics. [Full interactive version →](https://apibase.pro/video/)
-
----
-
-## What is APIbase?
-
-Production MCP server that gives AI agents access to 1316 real-world API tools through a single endpoint. Agents connect once to `https://apibase.pro/mcp` and can search flights, get stock quotes, check weather and tides, forecast ocean waves and swell, query US Census and CDC health data, search ML models on HuggingFace, look up World Bank indicators, query UN SDG development goals data, track streamflow from USGS stations, search 7M+ CS papers on DBLP, generate images, send emails, decode VINs, look up chemical compounds, scan npm/PyPI vulnerabilities, search NIST NVD CVE records, find EV chargers, estimate solar PV output, search art at the Met Museum, look up Dota 2 match stats, get decoded aviation METAR/TAF, look up parsed NOTAMs and PIREPs, search FDA medical device recalls and 510(k) clearances, batch multiple calls, track usage analytics — and 1316 tools across 30+ categories.
-
-**Built for AI agents, not humans.** Auto-registration, zero setup, pay-per-call via x402 USDC micropayments on Base or MPP (Machine Payments Protocol) on Tempo.
-
----
-
-## Quick Start (30 seconds)
-
-### Claude Desktop / Cursor / Windsurf
+## Quick Start
 
 ```json
 {
   "mcpServers": {
-    "apibase": {
-      "url": "https://apibase.pro/mcp"
-    }
+    "apibase": { "url": "https://apibase.pro/mcp" }
   }
 }
 ```
 
-### Multi-server setup (recommended)
+That's the Claude Desktop config. Cursor, Windsurf, OpenAI Agents SDK, LangChain, Google ADK, CrewAI, Microsoft Copilot Studio, and plain REST: **[apibase.pro/connect](https://apibase.pro/connect)**.
 
-Combine APIbase (real-world APIs) with Playwright (browser) and Context7 (docs):
+---
 
-```json
-{
-  "mcpServers": {
-    "apibase": { "url": "https://apibase.pro/mcp" },
-    "playwright": { "command": "npx", "args": ["-y", "@playwright/mcp"] },
-    "context7": { "command": "npx", "args": ["-y", "@upstash/context7-mcp"] }
-  }
-}
-```
+## For AI Agents
 
-### With Base MCP (pay from your Base Account)
+- **[llms.txt](https://apibase.pro/llms.txt)** — concise LLM context
+- **[ai.txt](https://apibase.pro/ai.txt)** — plain-text agent discovery
+- **[mcp.json](https://apibase.pro/.well-known/mcp.json)** — MCP server metadata
+- **[openapi.json](https://apibase.pro/.well-known/openapi.json)** — OpenAPI 3.1 spec
+- **[api-catalog](https://apibase.pro/.well-known/api-catalog)** — RFC 9727 discovery linkset
 
-[Base MCP](https://mcp.base.org) launched May 2026 with native x402 support. APIbase is x402-native on Base mainnet — the two pair cleanly. Base MCP signs payments from your Base Account; APIbase serves 1316 external API tools.
+---
 
-```json
-{
-  "mcpServers": {
-    "base-mcp": { "url": "https://mcp.base.org" },
-    "apibase":  { "url": "https://apibase.pro/mcp" }
-  }
-}
-```
+## Integrations & Registries
 
-Zero API-key management (Base Account handles auth + signing), zero per-provider signup (APIbase aggregates 373 providers). Full guide: [apibase.pro/frameworks#base-mcp](https://apibase.pro/frameworks#base-mcp).
+**[Full framework guides →](https://apibase.pro/frameworks)**
 
-### Via npm (stdio bridge)
+Registry listings: [Smithery](https://smithery.ai/servers/apibase-pro/api-hub) · [Glama](https://glama.ai/mcp/servers/whiteknightonhorse/APIbase) · [MCP Registry](https://registry.modelcontextprotocol.io) (`io.github.whiteknightonhorse/apibase`) · [PulseMCP](https://pulsemcp.com) · [MPPScan](https://www.mppscan.com)
 
-```json
-{
-  "mcpServers": {
-    "apibase": {
-      "command": "npx",
-      "args": ["-y", "apibase-mcp-client"]
-    }
-  }
-}
-```
+---
 
-### REST API
+## Self-Hosting
 
 ```bash
-# Register and get API key
-curl -X POST https://apibase.pro/api/v1/agents/register \
-  -H "Content-Type: application/json" \
-  -d '{"agent_name": "my-agent", "agent_version": "1.0.0"}'
-
-# Call any tool
-curl -X POST https://apibase.pro/api/v1/tools/finnhub.quote/call \
-  -H "Authorization: Bearer ak_live_..." \
-  -H "Content-Type: application/json" \
-  -d '{"symbol": "AAPL"}'
+git clone https://github.com/whiteknightonhorse/APIbase.git && cd APIbase
+cp .env.example .env   # set POSTGRES_PASSWORD, X402_PAYMENT_ADDRESS, provider keys
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
 
----
-
-## Tool Categories (1316 tools, 373 providers)
-
-| Category | Tools | Providers | Examples |
-|----------|-------|-----------|----------|
-| **Web Search** | 11 | Serper, Tavily, Exa, Spider.cloud | Google search, AI search, semantic search, web scraping |
-| **News & Events** | 10 | NewsData, GDELT, Mastodon, Currents API | Global news (65 langs), crypto news, trending |
-| **Social** | 7 | Bluesky, TwitterAPI.io | Search posts, profiles, feeds (AT Protocol, X/Twitter) |
-| **Travel & Flights** | 24 | Amadeus, Sabre, Aviasales, IRCTC Indian Railways, MBTA Transit | Flight search, pricing, status, airports, Indian train schedules/live status, Boston MBTA routes/stops/alerts/predictions |
-| **Finance & Stocks** | 37 | Finnhub, CoinGecko, ECB, FRED, World Bank, WTO, Bank of Canada, MFAPI, BLS, Frankfurter.dev | Stock quotes, OHLCV, FX rates, economic data, global indicators, WTO trade/tariff, BLS CPI/unemployment/payrolls, India mutual fund NAV data, ECB historical rates since 1999 |
-| **Banking Data** | 7 | FDIC BankFind, IBANAPI, Razorpay IFSC | US bank financials, branch locations, institution search, IBAN validation, Indian IFSC lookup |
-| **Company Data** | 12 | SEC EDGAR, Companies House, GLEIF, INSEE Sirene | US filings + UK registry + global LEI + French SIREN/SIRET registry |
-| **Currency Conversion** | 2 | ExchangeRate-API | 160+ currencies, real-time conversion |
-| **Tax & VAT** | 3 | VATcomply | EU VAT validation, rates, ECB exchange rates |
-| **Maps & Geo** | 15 | Geoapify, Overpass API (OpenStreetMap), GeoNames | Geocode, routing, POI search, isochrone, OSM amenity search, transit stops, place DB, postal codes, country info, timezone lookup |
-| **Address (US/CA)** | 2 | Geocodio | Geocode, reverse geocode, USPS-standard |
-| **Real Estate** | 4 | Walk Score, US Real Estate | Walkability, property listings, details |
-| **Entertainment** | 44 | TMDB, Ticketmaster, RAWG, IGDB, Jikan, Lichess, Chess.com, Met Museum, Rijksmuseum, CMA, OpenDota, PokéAPI | Movies, events, games, anime, chess/esports, art collections, Dota 2, Pokemon |
-| **Art & Culture** | 9 | Europeana, ARTIC, V&A Museum | 50M+ EU objects + 120K Chicago artworks + 1M+ V&A collection objects |
-| **Stock Media** | 3 | Pexels | Free stock photos & videos, commercial use |
-| **Music** | 9 | MusicBrainz, ListenBrainz, RadioBrowser, AudD | Artists, albums, radio, song recognition, lyrics |
-| **Podcasts** | 7 | PodcastIndex, Listen Notes | Search 4M+ podcasts, 186M+ episodes, best by genre |
-| **Health & Nutrition** | 36 | USDA, OpenFDA, NIH, CDC, UK FSA, NIH Reporter, RxNorm, Europe PMC, PharmGKB, OpenFDA Devices, EPA SDWIS | Food data, drug safety, supplements, public health datasets, UK food hygiene ratings, NIH grant search, drug nomenclature (RxNorm), pharmacogenomics, FDA device recalls/510k/MAUDE, US drinking water systems/violations |
-| **Chemistry & Biology** | 28 | PubChem, RCSB PDB, NCI CACTUS, Materials Project, MyGene, MyVariant, MyChem, WoRMS | 197M+ chemical compounds, 220K+ proteins, 150K+ materials, 450M+ annotated variants, gene annotation, 240K+ marine species |
-| **EV Charging & Energy** | 11 | Open Charge Map, NREL AFDC, NREL PVWatts, UK Carbon Intensity | 300K+ EV stations worldwide; US alt-fuel stations (EV/CNG/H2); solar PV output estimation; UK real-time carbon intensity gCO2/kWh, generation mix, 14-region breakdown, 24h forecast |
-| **Fraud Detection** | 4 | IPQualityScore | IP/email/URL/phone fraud scoring, VPN/proxy/bot detection |
-| **Disease Data** | 7 | disease.sh, WHO GHO | COVID/Influenza global disease statistics, WHO global health data |
-| **Clinical Trials** | 3 | ClinicalTrials.gov | 577K+ trials, drug research, recruiting |
-| **Nutrition Database** | 2 | FatSecret | 2.3M+ foods, calories, macros, vitamins |
-| **Education & Research** | 50 | OpenAlex, arXiv, PubMed, CrossRef, DBLP, Zenodo, DataCite, ROR, BHL | Papers, colleges, DOI lookup, CS bibliography, research datasets, research org registry, 60M-page biodiversity literature |
-| **Jobs & Career** | 23 | Adzuna, TheirStack, Jooble, Reed, Remotive, Arbeitnow, BLS, ESCO, USAJOBS | Global job search, UK/EU/remote, salary data, tech stack analysis, US federal civil-service |
-| **Legal & Regulatory** | 19 | Regulations.gov, Federal Register, CourtListener, GOV.UK Content API, FCC Open Data, OpenStates | US/UK regulations, court opinions, government publications, FCC proceedings, US state bills and legislators |
-| **Air Quality** | 2 | IQAir AirVisual | AQI, pollutants (PM2.5/O3), 30K+ stations |
-| **Weather** | 34 | WeatherAPI.com, NWS, NOAA, NASA FIRMS, NOAA AWC, CheckWX, AVWX, US Drought Monitor, OpenSenseMap, Open-Meteo Marine, World Bank CCKP | Current/forecast, hourly, observations, astronomy, alerts, fire detection, aviation METAR/TAF/SIGMET (raw + decoded JSON), parsed NOTAMs and PIREPs, drought severity statistics, crowdsourced IoT sensor data (PM2.5/temp/humidity/UV), ocean wave/swell/sea-surface-temperature forecast, CMIP6 historical/future climate normals and extreme-climate indices |
-| **Space & Astronomy** | 25 | NASA, JPL, NOAA SWPC, NTRS, CERN Open Data, SunriseSunset.io | APOD, asteroids, fireballs, solar flares, technical reports, particle physics datasets |
-| **Translation** | 3 | Langbly | 90+ languages, language detection |
-| **Sports** | 7 | API-Sports, BallDontLie | Football (2000+ leagues), NBA, NFL |
-| **Holidays & Calendar** | 3 | Nager.Date, Calendarific | 230+ countries, national/religious/observance |
-| **Image Generation** | 1 | Stability AI | Stable Diffusion, 16 style presets |
-| **OCR** | 1 | OCR.space | Text from images/PDFs, 20+ languages |
-| **Speech-to-Text** | 3 | AssemblyAI | Transcribe audio, 99 languages, diarization |
-| **PDF & Documents** | 6 | API2PDF, ConvertAPI | HTML/URL to PDF, DOCX↔PDF, 200+ formats |
-| **Email & SMS** | 11 | Resend, Twilio, Telnyx | Send emails, SMS (geo-tiered), voice, phone lookup |
-| **Messaging** | 5 | Telegram | Send messages, photos, documents via bot |
-| **URL Shortener** | 2 | Short.io | Custom branded short links + stats |
-| **SSL & Domain** | 10 | WhoisXML, ssl-checker.io, ThreatIntel | WHOIS, DNS, SSL, domain reputation, malware check |
-| **CVE Vulnerabilities** | 3 | NIST NVD | CVE search, CVSS v3 scores, CWE weakness, CPE product lookup |
-| **Barcode & QR** | 4 | QRServer, UPCitemdb | Generate/read QR, barcode lookup |
-| **Business Intel** | 5 | Hunter.io, Brreg | Company emails, enrichment, Norway registry 1M+ entities |
-| **E-commerce** | 12 | Zinc, Canopy API, Diffbot, Zyte | Product search, Amazon (12 marketplaces), web extraction |
-| **Memes & Fun** | 2 | Imgflip | 100K+ meme templates, generate captioned meme images |
-| **AI Marketing** | 7 | AIPush | AI-optimized pages, visibility scores |
-| **World Clock** | 3 | TimeAPI.io | Timezone conversion, 597 IANA zones |
-| **Screenshots** | 1 | ApiFlash | Chrome-based URL capture |
-| **Domain Registration** | 5 | NameSilo | Check, buy, manage domains (.com $21) |
-| **Infrastructure** | 6 | Cloudflare | DNS management, CDN cache, traffic analytics |
-| **Browser** | 4 | Browserbase | Managed browser sessions, screenshots, scraping |
-| **Earthquakes** | 3 | USGS | Global seismic data, real-time feeds |
-| **Water Data** | 2 | USGS Water Services | Streamflow gauge sites, real-time water level & discharge |
-| **Tides & Currents** | 2 | NOAA Tides & Currents | Water levels, tidal predictions, currents — 3,000+ US stations |
-| **Disasters** | 3 | GDACS | UN global disaster alerts (earthquakes, floods, hurricanes, volcanoes) |
-| **IP Intelligence** | 2 | ipapi.is | Geolocation, VPN/proxy detection |
-| **Vehicle Data** | 9 | NHTSA, Auto.dev, MarketCheck | VIN decoder, recalls, safety ratings, car listings, market data |
-| **Country Data** | 2 | REST Countries | Country search, ISO code lookup |
-| **Humanitarian** | 4 | UNHCR | Refugee/displacement statistics, asylum applications and decisions (1951–present) |
-| **Food Products** | 2 | Open Food Facts | Barcode lookup, product search (3M+ products) |
-| **Test Data** | 1 | RandomUser.me | Random user profiles for testing |
-| **Crypto & DeFi** | 26 | CoinGecko, Polymarket, Hyperliquid | Prices, prediction markets, perpetuals |
-| **Logistics** | 7 | 17TRACK, DHL, ShipEngine | Multi-carrier tracking, shipping rates, address validation |
-| **Postal Codes** | 4 | Zippopotam.us, Postcodes.io | Global postal lookup (60+ countries), UK postcodes |
-| **Public-Domain Books** | 13 | Free Use Bible API, Gutendex, LibriVox, Tatoeba | 78K Gutenberg books, 20K LibriVox audio, 1K Bible translations, 13M sentence pairs |
-| **Brazilian Gov Data** | 17 | BrasilAPI, IBGE, BCB SGS | CNPJ/CEP/banks/PIX, census/municipalities, SELIC/CDI/IPCA/USD-BRL |
-| **UN & Global Statistics** | 5 | UN SDG Statistics | All 17 SDG goals, 231 indicators, 460+ countries, time-series data since 1990 |
-| **EU & UK Gov Data** | 7 | Eurostat, UK Police | EU unemployment/inflation/GDP, UK street-level crime |
-| **SA Municipal Finance** | 4 | SA National Treasury | Municipality list, Auditor-General opinions, income/expenditure, officials directory (257 SA municipalities) |
-| **Ocean & Fisheries** | 4 | Global Fishing Watch | Vessel search, AIS fishing events, port visits, fishing effort by gear type |
-| **Nordic Statistics** | 7 | Statistics Sweden (SCB), Statistics Norway (SSB) | Sweden/Norway population, labour market, GDP, prices, energy — PXWeb API |
-| **Singapore Gov Data** | 4 | data.gov.sg | Live weather/PM2.5/rainfall/taxi |
-| **US Cultural Archives** | 3 | US Library of Congress | 415K digitized historical items |
-| **Platform** | 6 | APIbase (internal) | Usage analytics, tool quality index, batch calls |
-
-**Full tool catalog with schemas:** [`https://apibase.pro/api/v1/tools`](https://apibase.pro/api/v1/tools)
-
----
-
-## Platform Features
-
-### Usage Analytics (Free)
-
-Track your API usage — total calls, cost, cache hit rate, latency, and per-tool breakdown.
-
-```bash
-# Usage summary
-curl -X POST https://apibase.pro/api/v1/tools/account.usage/call \
-  -H "Authorization: Bearer ak_live_..." \
-  -d '{"period": "7d"}'
-
-# Per-tool breakdown
-curl -X POST https://apibase.pro/api/v1/tools/account.tools/call \
-  -H "Authorization: Bearer ak_live_..." \
-  -d '{"sort": "cost", "limit": 10}'
-
-# Time series (hourly/daily buckets)
-curl -X POST https://apibase.pro/api/v1/tools/account.timeseries/call \
-  -H "Authorization: Bearer ak_live_..." \
-  -d '{"period": "30d", "granularity": "day"}'
-```
-
-### Tool Quality Index (Free)
-
-Check tool reliability before calling — uptime, p50/p95 latency, error rate. Updated every 10 minutes.
-
-```bash
-# Quality metrics for a specific tool
-curl -X POST https://apibase.pro/api/v1/tools/platform.tool_quality/call \
-  -H "Authorization: Bearer ak_live_..." \
-  -d '{"tool_id": "crypto.get_price"}'
-
-# Rankings — find the most reliable tools
-curl -X POST https://apibase.pro/api/v1/tools/platform.tool_rankings/call \
-  -H "Authorization: Bearer ak_live_..." \
-  -d '{"sort": "uptime", "limit": 20}'
-```
-
-### Batch API (Free wrapper)
-
-Execute up to 20 tool calls in parallel with a single request. Each sub-call runs the full pipeline independently. You pay only for individual tool calls.
-
-```bash
-# Via MCP tool
-curl -X POST https://apibase.pro/api/v1/tools/platform.call_batch/call \
-  -H "Authorization: Bearer ak_live_..." \
-  -d '{"calls": [
-    {"tool_id": "crypto.get_price", "params": {"coin": "bitcoin"}},
-    {"tool_id": "finance.exchange_rates", "params": {"from": "USD", "to": "EUR"}},
-    {"tool_id": "country.by_code", "params": {"code": "US"}}
-  ]}'
-
-# Via REST endpoint
-curl -X POST https://apibase.pro/api/v1/tools/call_batch \
-  -H "Authorization: Bearer ak_live_..." \
-  -d '{"calls": [...], "max_parallel": 10}'
-```
-
-### Predictive Pre-fetching
-
-When an agent calls a tool, the platform can automatically pre-fetch related data into cache. For example, a flight search pre-fetches exchange rates for the destination currency — so when the agent asks for rates next, it's an instant cache hit.
-
-- Fire-and-forget: does not slow down the original response
-- Controlled by `PREFETCH_ENABLED` env var (disabled by default)
-- Rules: flight search → exchange rates, real estate → walk score, geocode → country data
-
----
-
-## How Payment Works
-
-APIbase supports **dual payment rails** — agents can pay using either protocol:
-
-### x402 (USDC on Base)
-
-| Field | Value |
-|-------|-------|
-| Protocol | **x402** (HTTP 402 Payment Required) |
-| Token | USDC on Base |
-| Wallet | `0x50EbDa9dA5dC19c302Ca059d7B9E06e264936480` |
-| Price range | $0.001 – $1.00 per call |
-| Settlement | **Self-hosted on-chain facilitator** — no third-party SaaS in the payment path. See [`docs/x402-facilitator.md`](docs/x402-facilitator.md). |
-
-#### Sovereign payment settlement
-
-APIbase runs its own x402 facilitator in-process: every successful payment is settled by submitting `transferWithAuthorization` directly on Base via [`viem`](https://viem.sh). There is no Coinbase CDP, no PayAI, no third-party intermediary in the critical path of a paid request.
-
-- **No vendor lock-in.** If any third-party facilitator changes pricing, ToS, or KYC requirements, our service is unaffected.
-- **Open architecture.** Built on the public [`@x402/core`](https://www.npmjs.com/package/@x402/core) + [`@x402/evm`](https://www.npmjs.com/package/@x402/evm) SDKs and `viem` — anyone can fork the pattern. Implementation in [`src/payments/local-facilitator.ts`](src/payments/local-facilitator.ts).
-- **Predictable cost.** Settlement = fixed Base gas (~$0.0005 per call) instead of opaque per-settle facilitator fees.
-- **Fallback retained.** PayAI HTTP facilitator stays wired as transparent in-client fallback — single-RPC blips don't drop revenue.
-
-### MPP (Machine Payments Protocol)
-
-| Field | Value |
-|-------|-------|
-| Protocol | **MPP** (IETF draft-ryan-httpauth-payment) |
-| Token | USDC on Tempo (chain 4217) |
-| Wallet | `0x183fFa1335EB66858EebCb86F651f70632821f8d` |
-| USDC contract | `0x20C000000000000000000000b9537d11c60E8b50` |
-| SDK | `mppx` (npm) |
-| Agent setup | [wallet.tempo.xyz](https://wallet.tempo.xyz) — one link, connected |
-| Discovery | [mpp.dev/services](https://mpp.dev/services) |
-| Price range | $0.001 – $1.00 per call |
-
-No subscriptions. No minimums. Agent pays only for successful calls. Failed provider calls are auto-refunded.
-
-### 13-Stage Pipeline
-
-Every tool call passes through:
-
-```
-AUTH → IDEMPOTENCY → CONTENT_NEG → SCHEMA_VALIDATION → TOOL_STATUS →
-CACHE → RATE_LIMIT → ESCROW → PROVIDER_CALL →
-ESCROW_FINALIZE → LEDGER_WRITE → CACHE_SET → RESPONSE
-```
-
-- **Escrow-first**: USDC locked before provider call, refunded on failure
-- **Idempotent**: same request + same key = same result, no double charges
-- **Cache**: per-tool TTL (5s for stock prices, 7 days for walkability scores)
-- **Fail-closed**: Redis down = reject all, no silent degradation
-
----
-
-## Authentication
-
-| Method | Header | Format |
-|--------|--------|--------|
-| API Key | `Authorization` | `Bearer ak_live_<32hex>` |
-| x402 Payment | `X-Payment` | Base64 payment receipt |
-| MPP Payment | `Authorization` | `Payment <credential>` (via `mppx` SDK) |
-
-Auto-registration: agents get API keys instantly on first request. No forms, no approval.
-
-### MPP Payment Flow (important for agent developers)
-
-MPP uses a **challenge–credential–receipt** cycle. You MUST follow the full flow:
-
-```
-1. Agent → POST /api/v1/tools/{tool}/call (with Authorization: Bearer <key>)
-2. Server → 402 + WWW-Authenticate: Payment id="...", method="tempo", request="..."
-3. Agent signs payment on Tempo → retries with Authorization: Payment <credential>
-4. Server verifies on-chain → 200 + Payment-Receipt header + tool result
-```
-
-**Critical:** Each 402 challenge is unique (HMAC-bound to the request URL, amount, and timestamp). You cannot reuse a credential from one challenge on a different endpoint or after expiry. The `mppx` SDK handles this automatically.
-
-**Using mppx SDK (recommended):**
-
-```typescript
-import { Mppx, tempo } from 'mppx/client'
-
-// mppx auto-handles the full 402 → pay → retry cycle
-const mppx = Mppx.create({
-  methods: [tempo({ account: myTempoWallet })],
-})
-
-// This single call handles: request → 402 → sign → pay → retry → 200
-const response = await fetch('https://apibase.pro/api/v1/tools/nasa.apod/call', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer ak_live_<your_key>',  // API key for agent identity
-    'X-API-Key': 'ak_live_<your_key>',             // Preserved when mppx replaces Authorization
-  },
-  body: JSON.stringify({}),
-})
-```
-
-**Using Tempo CLI:**
-
-```bash
-curl -fsSL https://tempo.xyz/install | bash
-tempo wallet login
-tempo request https://apibase.pro/api/v1/tools/nasa.apod/call -X POST --json '{}'
-```
-
-**Using AgentCash (one command):**
-
-```bash
-# Try any tool instantly
-npx agentcash try https://apibase.pro
-
-# Add all APIbase tools to your agent
-npx agentcash add https://apibase.pro
-```
-
-**Note:** When `mppx` retries with `Authorization: Payment`, it replaces the original `Bearer` header. To preserve agent identity, also send your API key via `X-API-Key` header — the server accepts both.
-
----
-
-## Error Codes (Agent-Friendly)
-
-Every error response includes machine-readable recovery hints:
-
-```json
-{
-  "error": "rate_limit_exceeded",
-  "error_code": "RATE_LIMIT_EXCEEDED",
-  "message": "Too many requests",
-  "request_id": "abc123",
-  "suggested_action": "retry_after_delay",
-  "documentation_url": "https://apibase.pro/frameworks#rest",
-  "retry_after": 15
-}
-```
-
-| HTTP | Code | `suggested_action` |
-|------|------|--------------------|
-| 400 | `bad_request` / `schema_validation_failed` | `fix_request` |
-| 401 | `unauthorized` | `fix_request` |
-| 402 | `payment_required` | `add_payment` |
-| 404 | `not_found` | `use_different_tool` |
-| 429 | `rate_limit_exceeded` | `retry_after_delay` |
-| 502 | `bad_gateway` | `retry_after_delay` |
-| 503 | `service_unavailable` | `retry_after_delay` |
-
-## Troubleshooting (Dual-Rail Payments)
-
-### "MPP payment verification failed" on x402 requests
-
-**Symptom:** Agent sends x402 payment (`X-Payment` header) but gets `400 MPP payment verification failed` instead of data.
-
-**Root cause:** If you use the `mppx` SDK with default settings, `Mppx.create()` installs a global `fetch()` polyfill that intercepts ALL HTTP requests — including x402 ones. When `mppx` sees a 402 response, it automatically signs an MPP credential and retries, even if the original request was x402. The MPP credential is invalid for x402 → server returns 400.
-
-**Fix:** Initialize mppx with `polyfill: false`:
-
-```typescript
-// WRONG — intercepts all fetch() calls including x402
-const mppx = await Mppx.create({ wallet });
-
-// CORRECT — only use mppx.fetch() explicitly for MPP payments
-const mppx = await Mppx.create({ wallet, polyfill: false });
-```
-
-Then use `mppx.fetch()` only for MPP payments, and regular `fetch()` for x402.
-
-### Using both payment protocols
-
-APIbase supports dual-rail payments. Each request should use ONE protocol:
-
-| Protocol | Header | When to use |
-|----------|--------|-------------|
-| **x402** | `X-Payment: <signed-payload>` | Default. Use with Coinbase CDP or PayAI facilitator |
-| **MPP** | `Authorization: Payment <credential>` | Use with Tempo wallet and `mppx` SDK |
-
-Do NOT send both headers in the same request — both middleware will activate and one will fail.
-
----
-
-## MCP Discovery
-
-```
-GET  /.well-known/mcp.json              → MCP server metadata (transport, capabilities, tools count)
-GET  /.well-known/mcp/server-card.json  → Full tool catalog with schemas (Smithery)
-GET  /.well-known/ai-capabilities.json  → AI capabilities manifest (21 categories)
-GET  /.well-known/agent.json            → A2A agent card (protocol, auth, payment)
-GET  /.well-known/x402-payment.json     → Payment config (network, facilitators, dual-rail)
-GET  /.well-known/openapi.json          → OpenAPI 3.1 spec (with x-payment-info)
-GET  /ai.txt                            → Plain text AI agent discovery
-GET  /llms.txt                          → Concise LLM context
-GET  /api/v1/tools                      → Live tool catalog (all 1316 tools, JSON schemas)
-GET  /health/ready                      → System health check
-POST /mcp  prompts/get discover_tools   → Browse tools by category or task (progressive disclosure)
-GET  /frameworks                        → Integration guides for 9 frameworks
-```
-
-**Progressive disclosure:** Instead of loading all 490 tool schemas into context, agents can call the `discover_tools` prompt to find relevant tools first:
-- `discover_tools` (no args) → 21 categories with tool counts
-- `discover_tools category="travel"` → 17 travel tools
-- `discover_tools task="check earthquake near Tokyo"` → matching tools ranked by relevance
-
-**Tool composition hints:** Task-based search results include related tool suggestions:
-```
-- amadeus.flights.search: Search for real-time flight offers...
-  → Related: amadeus.flight_price (Confirm exact pricing), finance.exchange_rates (Convert to local currency)
-```
-
----
-
-## Integrations
-
-Every framework connects to one endpoint: `https://apibase.pro/mcp`
-
-| Platform | Config | Docs |
-|----------|--------|------|
-| **Claude Desktop / Code** | `"url": "https://apibase.pro/mcp"` | 3 lines JSON |
-| **Cursor IDE** | `.cursor/mcp.json` → same URL | 3 lines JSON |
-| **Windsurf (Codeium)** | `"serverUrl": "https://apibase.pro/mcp"` | 3 lines JSON |
-| **OpenAI Agents SDK** | `MCPServerStreamableHTTP(url=...)` | Python + TS |
-| **LangChain / LangGraph** | `MultiServerMCPClient({"apibase": {...}})` | Python |
-| **Google ADK** | `McpToolset(StreamableHTTPConnectionParams(...))` | Python |
-| **CrewAI** | `mcp_servers=["https://apibase.pro/mcp"]` | 1 line |
-| **Microsoft Copilot Studio** | UI: Actions → Add MCP Server | Enterprise |
-
-**[Full framework guides with code examples →](https://apibase.pro/frameworks)**
-
-### Registry Listings
-
-| Registry | Link |
-|----------|------|
-| **Smithery** | [smithery.ai/servers/apibase-pro/api-hub](https://smithery.ai/servers/apibase-pro/api-hub) |
-| **Glama** | [glama.ai/mcp/servers/whiteknightonhorse/APIbase](https://glama.ai/mcp/servers/whiteknightonhorse/APIbase) |
-| **MCP Registry** | `io.github.whiteknightonhorse/apibase` |
-| **PulseMCP** | [pulsemcp.com](https://pulsemcp.com) (auto-synced) |
-| **MPPScan** | [mppscan.com](https://www.mppscan.com) |
+Full prerequisites, verification steps, and config reference: [`docs/self-hosting.md`](docs/self-hosting.md).
 
 ---
 
 ## Architecture
 
-- **16 Docker containers**: API, Worker, Outbox, PostgreSQL, Redis, Nginx, Prometheus, Grafana, Loki, Promtail, Alertmanager, exporters
-- **Single Hetzner server** with automated health checks, graceful shutdown, and 27+ Prometheus alert rules
-- **PostgreSQL** = source of truth for financial data (append-only ledger)
-- **Redis** = cache, rate limiting, single-flight deduplication
-- **Self-hosted x402 facilitator** = on-chain `transferWithAuthorization` settled by APIbase directly (no third-party HTTP facilitator in the critical path). [Details →](docs/x402-facilitator.md)
-- **Fail-closed**: any infrastructure failure = reject requests, never pass through
-
-## Self-Hosting
-
-### Prerequisites
-
-- Docker 24.0+ with Compose v2.0+
-- 8GB+ RAM (16 containers)
-- Ports: 8880 (Nginx), 3000 (API), 5432 (Postgres), 6379 (Redis) — all internal
-
-### Quick Start
-
-```bash
-git clone https://github.com/whiteknightonhorse/APIbase.git
-cd APIbase
-cp .env.example .env    # edit: set POSTGRES_PASSWORD, X402_PAYMENT_ADDRESS, provider keys
-docker compose build
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
-```
-
-### Verify
-
-```bash
-# Health check (Nginx on 8880)
-curl http://localhost:8880/health/ready
-
-# Check all 16 containers
-docker compose ps
-
-# View API logs
-docker compose logs api --tail 20
-```
-
-See `.env.example` for all configuration options. Never commit `.env` to git.
+Single Node.js/TypeScript API server, PostgreSQL as the append-only financial source of truth, Redis for cache/rate-limiting only, 16-container Docker stack on one Hetzner server. Every tool call runs the same 13-stage pipeline (escrow-first, idempotent, fail-closed) — dual-rail payments (self-hosted x402 facilitator + MPP), error-code contract, and full container/pipeline detail: [`docs/architecture.md`](docs/architecture.md).
 
 ## License
 

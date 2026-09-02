@@ -35,20 +35,25 @@ public API endpoint to set it. **This field is Smithery Settings-UI-only.**
 3. Find the **Description** field. It currently holds the stale "95 tools across
    travel, places, events, entertainment, music, health, finance, weather, and more..."
    text.
-4. Replace it with the current, correct text (copy verbatim, or paste this):
-   > Production MCP server providing 1316 real-world API tools across 30+ categories.
-   > One endpoint, pay-per-call via x402 USDC micropayments on Base + MPP USDC on Tempo.
+4. Replace it with text that carries **no tool-count number at all** (copy verbatim, or
+   paste this):
+   > Production MCP server providing all of APIbase's real-world API tools across 30+
+   > categories. Live catalog and current count: apibase.pro/llms.txt. Pay-per-call via
+   > x402 USDC micropayments on Base + MPP USDC on Tempo.
 5. Save.
 
 That is the entire fix — one field, one edit. No other Smithery setting is affected.
 
-## Note for whoever revisits this
+## Note for whoever revisits this — and why step 4 no longer has a number
 
-Because Smithery will not auto-refresh this field again, **the number written in step 4
-will itself go stale again** the next time the catalog grows meaningfully. There is now
-a standing gate for this exact drift — `scripts/check-external-listings.sh`, wired into
-CI as part of the "Static Counts Drift" job (`.github/workflows/security.yml`) — which
-will turn that CI job red again the next time the live tool count and the Smithery page
-text disagree. When it does, this is the same one-field fix, not a bug hunt: re-read
-this document, repeat steps 1–5 with the current number from
-`https://apibase.pro/.well-known/mcp/server-card.json`'s `description` field.
+Fable's ruling on this (T-30 dispute q-1, Q2.3, 2026-09-02) is explicit: **do not put a
+number back in this field.** Any number typed here will rot again the exact same way
+"95 tools" did — Smithery never auto-refreshes it. Point to the live catalog
+(`apibase.pro/llms.txt`) instead of restating a count.
+
+`scripts/check-external-listings.sh` already treats a description with NO number as
+"no drift, permanently" — so following step 4 above closes this out for good, not just
+until the catalog grows again. If a number ever gets typed back into this field by
+mistake, the check will flag it as drift again (and, per `docs/external-drift.json`,
+escalates to a blocking CI failure if it sits unfixed for more than 30 days) — same
+one-field fix, not a bug hunt: re-read this document, repeat steps 1–5.

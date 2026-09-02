@@ -1,0 +1,8 @@
+{
+  "smithery": {
+    "first_seen": "2026-09-02",
+    "listing_published": "2026-03-12",
+    "classification": "operator-only",
+    "note": "first_seen is the date THIS drift-tracking clock started (when check-external-listings.sh's classification scheme was built), not the date Smithery's listing was originally published (listing_published, Mar 12 — correct then, ~95 tools). Using the publish date as first_seen would make this ALREADY 30+ days old and wrongly block on day one. Description field is set once at first publish, Settings-UI-only edit, no CLI/API override. See docs/OPERATOR-ACTION-smithery-listing-description.md. Fable ruling 2026-09-02 (T-30 dispute q-1, Q2.3): once the description text carries no tool-count number, check-external-listings.sh treats it as no-drift permanently — this entry then stops mattering."
+  }
+}

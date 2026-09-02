@@ -132,23 +132,150 @@ jobs:
             ${{ secrets.DEPLOY_USER }}@${{ secrets.SERVER_HOST }} \
             "cd /home/apibase/apibase && bash scripts/sync-counts.sh --check"
 
-      # 2026-09-02: sync-counts.sh only ever compared OUR OWN surfaces against the DB --
-      # it has no way to see a third-party site's cached copy of our tool count, which is
-      # exactly how the Smithery listing sat at "95 tools" (live: 1316) with sync-counts
-      # reporting "0 drift" the whole time. This step is that missing half: it curls
-      # public external listing pages (no API key needed) and fails if one disagrees with
-      # live truth. Deliberately not folded into promote_staging.sh's required set (see
-      # the script's own header) -- a third party's page is not something any commit here
-      # can fix, so it must not be able to wedge every future promotion.
-      - name: External listings drift (Smithery, etc.) against the live server
+      - name: Cleanup SSH key
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
+
+  external-listings-advisory:
+    # 2026-09-02: split out of static-counts-drift per Fable's ruling on T-30 dispute q-1
+    # (Q2 — disputes/30-content-seo-and-github.ruling-1.md). sync-counts.sh only ever
+    # compared OUR OWN surfaces against the DB -- it has no way to see a third-party
+    # site's cached copy of our tool count, which is exactly how the Smithery listing sat
+    # at "95 tools" (live: 1316) with sync-counts reporting "0 drift" the whole time.
+    # This job is that missing half, with its own name so its failure class is visibly
+    # distinct from an internal-surface drift: a defect no commit here can fix must not
+    # look, in the Actions UI, like one that a commit here broke.
+    #
+    # "Advisory" does not mean "never red" -- check-external-listings.sh classifies each
+    # listing repo-fixable (always blocking) vs operator-only (blocking only once
+    # docs/external-drift.json's first_seen for it is >30 days old — see the script's own
+    # header for the full predicate). A ledger nobody reads because it never turns red
+    # again is the same failure mode as a check that's always red; this is the middle
+    # path: quiet while it's fresh and actionable, loud if it gets ignored.
+    name: External listings (advisory)
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup SSH key
         run: |
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: External listings drift (Smithery, etc.) against the live server
+        id: check
+        run: |
+          set +e
+          OUTPUT=$(ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
             ${{ secrets.DEPLOY_USER }}@${{ secrets.SERVER_HOST }} \
-            "cd /home/apibase/apibase && bash scripts/check-external-listings.sh"
+            "cd /home/apibase/apibase && bash scripts/check-external-listings.sh")
+          RC=$?
+          echo "$OUTPUT"
+          {
+            echo 'json<<DRIFT_EOF'
+            echo "$OUTPUT"
+            echo 'DRIFT_EOF'
+          } >> "$GITHUB_OUTPUT"
+          exit $RC
 
       - name: Cleanup SSH key
         if: always()
         run: rm -f ~/.ssh/deploy_key
+
+      # Runs on the Actions runner (not over SSH) because it needs gh/GITHUB_TOKEN,
+      # which belong here, not on the production box. Reads the JSON-per-line output
+      # from the check step above; the check step's own exit code is what actually
+      # fails this job (see `if: always()` + exit-code re-check at the end) -- this step
+      # ONLY handles visibility (warning annotation, job summary, tracking issue).
+      - name: Report drift (warning annotation, summary, tracking issue)
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DRIFT_JSON: ${{ steps.check.outputs.json }}
+        run: |
+          python3 - <<'PYEOF'
+          import json, os, subprocess
+
+          raw = os.environ.get("DRIFT_JSON", "")
+          summary_lines = ["## External listings drift\n", "| Listing | Status | Live | Listed | Blocking |", "|---|---|---|---|---|"]
+          any_drift = False
+          for line in raw.splitlines():
+              line = line.strip()
+              if not line.startswith("{"):
+                  continue
+              try:
+                  rec = json.loads(line)
+              except json.JSONDecodeError:
+                  continue
+              if "error" in rec:
+                  print(f"::error::{rec['error']}")
+                  continue
+              listing = rec.get("listing", "?")
+              status = rec.get("status", "?")
+              live = rec.get("live_tools", "-")
+              listed = rec.get("listing_value", "-")
+              blocking = rec.get("blocking", False)
+              summary_lines.append(f"| {listing} | {status} | {live} | {listed} | {blocking} |")
+
+              issue_title = f"external-drift: {listing}"
+              if status == "drift":
+                  any_drift = True
+                  age = rec.get("age_days", "?")
+                  cls = rec.get("classification", "?")
+                  msg = (f"{listing} listing says '{listed}', live truth is {live} tools "
+                         f"(classification={cls}, first_seen age={age}d, blocking={blocking})")
+                  print(f"::warning::{msg}")
+                  # find or create the open tracking issue
+                  found = subprocess.run(
+                      ["gh", "issue", "list", "--label", "external-drift", "--state", "open",
+                       "--search", issue_title, "--json", "number,title", "-q", ".[].number"],
+                      capture_output=True, text=True,
+                  )
+                  numbers = [n for n in found.stdout.split() if n.strip()]
+                  body = (f"Automated tracking issue (check-external-listings.sh). Do not edit "
+                          f"manually beyond adding notes — this reopens/updates itself.\n\n{msg}\n\n"
+                          f"Fix: see docs/OPERATOR-ACTION-smithery-listing-description.md "
+                          f"(or the equivalent doc for a non-Smithery listing).")
+                  if numbers:
+                      subprocess.run(["gh", "issue", "comment", numbers[0], "--body", body], check=False)
+                  else:
+                      subprocess.run(
+                          ["gh", "issue", "create", "--title", issue_title, "--body", body,
+                           "--label", "external-drift"],
+                          check=False,
+                      )
+              elif status in ("ok", "ok_no_number"):
+                  # zero drift -- close any open tracking issue for this listing.
+                  found = subprocess.run(
+                      ["gh", "issue", "list", "--label", "external-drift", "--state", "open",
+                       "--search", issue_title, "--json", "number", "-q", ".[].number"],
+                      capture_output=True, text=True,
+                  )
+                  for num in found.stdout.split():
+                      if num.strip():
+                          subprocess.run(
+                              ["gh", "issue", "close", num.strip(), "--comment",
+                               f"Resolved: {listing} listing now matches live truth (or carries no stale number)."],
+                              check=False,
+                          )
+
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
+              f.write("\n".join(summary_lines) + "\n")
+          PYEOF
+
+      - name: Fail if any listing is currently blocking
+        if: always()
+        run: |
+          if echo '${{ steps.check.outputs.json }}' | grep -q '"blocking": *true'; then
+            echo "::error::At least one external listing's drift has crossed its blocking threshold — see the job summary/issue."
+            exit 1
+          fi
+          exit 0
 
   lint:
     name: Code Quality

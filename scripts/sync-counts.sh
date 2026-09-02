@@ -169,6 +169,14 @@ STALE_CATALOG=$(grep -hoE "[0-9]{3,} tool (endpoints|definitions)" "$CATALOG" 2>
 SERVER_CARD_LEN=$(python3 -c "import json; print(len(json.load(open('static/.well-known/mcp/server-card.json'))['tools']))")
 STALE_README_PROSE=$(grep -oE "[0-9]{2,4}\+? real-world API tools|[0-9]{2,4}\+? external API tools" README.md 2>/dev/null \
   | grep -vE "^${TOOLS} real-world API tools$|^${TOOLS} external API tools$" || true)
+# Q3 (Fable ruling, T-30 dispute q-1, 2026-09-02): a negative check instead of another
+# precise per-phrase regex -- README.md must not carry ANY digit+tool/provider/schema/
+# categor/integration/registr phrasing except the two exact drift-checked forms
+# ("${TOOLS} tools" / "${PROV} providers"). This is what stops a THIRD hand-typed count
+# (a "490 tool schemas" or "21 categories") from ever sitting stale in README again --
+# instead of writing it as a fixed number, don't write it as a number at all.
+STALE_README_NUMBERS=$(grep -ohE '[0-9]{2,4}\+? ?(tool|provider|schema|categor|integration|registr)[a-zA-Z]*' README.md 2>/dev/null \
+  | grep -vE "^${TOOLS} tools$|^${PROV} providers$" | sort -u || true)
 # static/sitemap.xml must carry a <loc> for every static page + .well-known file we actually
 # serve -- this is what caught the sitemap sitting stale since 2026-04-22 missing /pricing,
 # /catalog, /connect, /policy/moderation (all shipped after that date). Read-only re-derivation
@@ -200,6 +208,7 @@ FAIL=0
 [ -n "$STALE_FOOTER_TOOLS" ] && { echo "sync-counts: STALE footer 'TOOLS: N' remain:"; echo "$STALE_FOOTER_TOOLS"; FAIL=1; }
 [ -n "$STALE_MCP_DESC" ] && { echo "sync-counts: STALE mcp.json description remains: $STALE_MCP_DESC"; FAIL=1; }
 [ -n "$STALE_README_PROSE" ] && { echo "sync-counts: STALE README prose remains:"; echo "$STALE_README_PROSE"; FAIL=1; }
+[ -n "$STALE_README_NUMBERS" ] && { echo "sync-counts: README.md has a number+tool/provider/schema/categor/integration/registr phrase that isn't the two covered forms:"; echo "$STALE_README_NUMBERS"; FAIL=1; }
 [ -n "$STALE_SITEMAP" ] && { echo "sync-counts: STALE static/sitemap.xml — differs from the generated URL set:"; echo "$STALE_SITEMAP"; FAIL=1; }
 
 if [ "$FAIL" = "0" ]; then
