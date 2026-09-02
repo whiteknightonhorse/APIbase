@@ -15,7 +15,7 @@ clients; this is a revenue-protection alert, not a housekeeping one.
 F6: MARGIN_MULTIPLIER used to be a second hardcoded `1.3` here (three literal
 occurrences), independent of src/pipeline/stages/tool-status.stage.ts's own
 `MARGIN_MULTIPLIER = 1.3` -- the same policy constant in two places with no
-link between them. Now read from config/margin.json, the one file both the
+link between them. Now read from src/config/margin.json, the one file both the
 TS runtime gate and this alert cron load.
 """
 import json, subprocess
@@ -24,7 +24,7 @@ ROOT = "/home/apibase/apibase"
 REPO = "whiteknightonhorse/APIbase"
 TITLE_PREFIX = "Margin gate blocking: "
 
-with open(f"{ROOT}/config/margin.json") as f:
+with open(f"{ROOT}/src/config/margin.json") as f:
     MARGIN_MULTIPLIER = json.load(f)["MARGIN_MULTIPLIER"]
 
 
