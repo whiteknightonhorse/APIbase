@@ -116,10 +116,10 @@ pre code{background:none;border:none;padding:0;color:inherit}
 <pre>curl -X POST https://apibase.pro/api/v1/agents/auto
 &rarr; {"agent_id":"...", "api_key":"ak_live_...", "tier":"free"}</pre>
 <p>Use it on any call:</p>
-<pre>curl https://apibase.pro/api/v1/tools/coingecko.get_price/call \
+<pre>curl https://apibase.pro/api/v1/tools/crypto.get_price/call \
   -H "Authorization: Bearer ak_live_..." \
   -H "Content-Type: application/json" \
-  -d '{"params": {"id": "bitcoin"}}'</pre>
+  -d '{"params": {"coins": ["bitcoin"]}}'</pre>
 <p class="note">Free tools respond immediately. A priced tool without a payment header replies HTTP 402 with a challenge &mdash; sign it with either rail below and retry.</p>
 </div>
 
@@ -129,9 +129,9 @@ pre code{background:none;border:none;padding:0;color:inherit}
 <pre>npm i mppx</pre>
 <pre>import { pay } from "mppx";
 
-const res = await pay("https://apibase.pro/api/v1/tools/coingecko.get_price/call", {
+const res = await pay("https://apibase.pro/api/v1/tools/crypto.get_price/call", {
   network: "tempo",
-  params: { id: "bitcoin" },
+  params: { coins: ["bitcoin"] },
 });</pre>
 <p>No prior call ever touched apibase.pro from this wallet &mdash; the first payment IS the signup.</p>
 <p class="note">x402 on Base now bootstraps identity from the wallet alone too (as of 2026-09-02) &mdash; a signed x402 payment with no prior API key auto-registers your agent exactly like MPP, deterministically keyed to your wallet address. The example above uses MPP because <code>mppx</code> handles the signing for you; the same &ldquo;first payment is the signup&rdquo; guarantee now holds for x402/Base too.</p>

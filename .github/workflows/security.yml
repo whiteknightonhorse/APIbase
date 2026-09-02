@@ -87,6 +87,27 @@ jobs:
       - name: Every declared route has an nginx location proxying to it
         run: python3 scripts/check-mount-nginx-parity.py
 
+  static-tool-refs:
+    # F5: connect.html's starter example called `tools/coingecko.get_price/call`,
+    # which does not exist -- the real id is `crypto.get_price`. Nothing compared
+    # what static/*.html tells visitors to call against the real tool catalog.
+    name: Static Page Tool References
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts --legacy-peer-deps
+
+      - name: Every tools/<id>/call reference in static/*.html is a real tool_id
+        run: npx tsx scripts/check-static-tool-refs.ts
+
   lint:
     name: Code Quality
     runs-on: ubuntu-latest
