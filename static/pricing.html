@@ -114,6 +114,7 @@ td code,p code{background:#111;border:1px solid #1a3a1a;border-radius:3px;paddin
 
 <h2>Cache discount</h2>
 <p>A tool response is cached per its own TTL (5 seconds for volatile data like crypto prices, up to 7 days for near-static data). A cache hit within that window costs <strong>10% of the listed price</strong> &mdash; billed via balance debit, no on-chain settlement needed for a hit.</p>
+<p class="note">The 10% discount applies on the <strong>Balance</strong> rail only. x402 and MPP payments are verified and settled against the full listed price before the call runs, so a cache hit on either of those rails is still billed at 100% &mdash; there is no on-chain equivalent of a post-hoc discount once a payment has already settled.</p>
 
 <h2>How you pay &mdash; three rails, pick per request</h2>
 <div class="table-wrap">

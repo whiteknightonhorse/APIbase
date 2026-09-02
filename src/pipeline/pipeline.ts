@@ -80,7 +80,7 @@ verifyStageOrder();
 // ---------------------------------------------------------------------------
 
 /**
- * Run all 13 pipeline stages sequentially (§12.170).
+ * Run all 14 pipeline stages sequentially (§12.170).
  * Stops on first error. Returns Result with final context or error.
  */
 export async function runPipeline(

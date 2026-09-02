@@ -17,7 +17,7 @@
  *   - src/routes/execute.router.ts   — via its actual Express handler
  *   - src/services/batch.service.ts  — via the real runBatch()
  *   - src/mcp/tool-adapter.ts        — via the real registerTools()
- * All three converge on the real runPipeline() / 13 real stages. Only true
+ * All three converge on the real runPipeline() / 14 real stages. Only true
  * infra boundaries are mocked: Postgres (prisma), Redis (a real in-memory
  * fake backing the REAL cache/idempotency/payment-nonce services — so the
  * actual replay-guard and cache logic run, not a stub of them), the x402
