@@ -108,6 +108,34 @@ jobs:
       - name: Every tools/<id>/call reference in static/*.html is a real tool_id
         run: npx tsx scripts/check-static-tool-refs.ts
 
+  static-counts-drift:
+    # F9: sync-counts.sh --check was written FOR CI but wired to nothing -- zero
+    # references in any workflow or cron. It needs the live production DB (docker exec
+    # into postgres), so a GH-hosted runner reaches it the same way deploy.yml reaches
+    # the server: over SSH. Read-only (--check writes nothing); the self-heal (no
+    # --check) side lives in the daily crontab instead, not here -- a CI job should
+    # report drift, not silently fix production files on every push.
+    name: Static Counts Drift
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    steps:
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: sync-counts.sh --check against the live server
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            ${{ secrets.DEPLOY_USER }}@${{ secrets.SERVER_HOST }} \
+            "cd /home/apibase/apibase && bash scripts/sync-counts.sh --check"
+
+      - name: Cleanup SSH key
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
+
   lint:
     name: Code Quality
     runs-on: ubuntu-latest
