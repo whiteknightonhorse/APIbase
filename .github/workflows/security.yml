@@ -96,6 +96,12 @@ jobs:
     # narrow viewport instead of becoming scrollable. Static analysis (markup +
     # each page's own inline CSS), not a live browser resize -- see the script's
     # own header for why and for the structural invariant it actually enforces.
+    # Fable ruling-1: also covers the sibling defect -- a wide element with NO
+    # scroll wrapper AND no overflow:hidden ancestor above it either, which
+    # drags the whole page into horizontal scroll instead of just clipping.
+    # Requiring a scroll ancestor unconditionally catches both symptoms of the
+    # same missing wrapper, so relaxing `.window` to overflow:visible can't
+    # silently turn a clipped table into a page-scrolling one and stay green.
     name: Static Page Overflow (no clipped tables/pre)
     runs-on: ubuntu-latest
     steps:

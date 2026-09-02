@@ -31,9 +31,24 @@ width). It cannot compute real rendered pixel widths, so it does not
 try to. Instead it enforces the structural invariant that actually fixes
 this class of bug: every <table>/<pre> must be wrapped by an ancestor that
 establishes its own horizontal scroll (overflow-x/overflow: auto|scroll)
-strictly BEFORE any ancestor sets overflow:hidden. That invariant is
-necessary and, per the two known-good pages above, sufficient in practice
-on this site's own template family.
+BEFORE the document root. That invariant is necessary and, per the two
+known-good pages above, sufficient in practice on this site's own template
+family.
+
+This covers BOTH failure modes, unconditionally -- a risky element with no
+scroll ancestor is a violation whether or not something above it also
+happens to set overflow:hidden:
+  - clipped (an ancestor sets overflow:hidden before any scroll ancestor,
+    e.g. `.window`): content is unreachable, no scrollbar, nothing to
+    scroll to -- the original iPhone/Safari report.
+  - page-level scroll (no ancestor clips it at all): the wide element
+    forces the whole page to scroll horizontally instead of just the
+    element's own box -- a distinct defect (task item 2), but caused by
+    the exact same missing wrapper, and just as real on a narrow viewport.
+    (Fable ruling-1 on T-60: the first cut of this check treated this case
+    as "someone else's problem" and stayed green if `.window` were ever
+    changed to overflow:visible -- wrong, since nothing else owns this
+    invariant either.)
 
 Run: python3 scripts/check-no-clipped-overflow.py            (checks static/*.html)
      python3 scripts/check-no-clipped-overflow.py --selftest  (unit tests, no disk I/O)
@@ -113,18 +128,26 @@ def find_violations(html_text, label):
             if ov in ("auto", "scroll"):
                 scrollable = True
                 break
-            if ov == "hidden":
+            if ov == "hidden" and clipped_by is None:
                 clipped_by = f"{tag}.{'.'.join(classes)}" if classes else tag
-                break
-        # only a violation if something actually clips it -- an element with
-        # no scrollable wrapper AND no overflow:hidden ancestor either isn't
-        # clipped at all (it may cause page-level scroll, which is a
-        # different, separately-owned invariant, not this check's job).
-        if not scrollable and clipped_by:
-            violations.append(
-                f"{label}: <{risky_tag}> has no horizontal-scroll ancestor "
-                f"(clipped by ancestor {clipped_by}, overflow:hidden)"
-            )
+                # keep walking -- an outer scroll ancestor could still catch it,
+                # but if none does, this is the failure mode we report.
+        # a violation either way: no scroll ancestor means the wide element
+        # either gets clipped (something above sets overflow:hidden first) or
+        # drags the whole page into horizontal scroll (nothing does) -- both
+        # are the live defect, just with a different symptom.
+        if not scrollable:
+            if clipped_by:
+                violations.append(
+                    f"{label}: <{risky_tag}> has no horizontal-scroll ancestor "
+                    f"(clipped by ancestor {clipped_by}, overflow:hidden)"
+                )
+            else:
+                violations.append(
+                    f"{label}: <{risky_tag}> has no horizontal-scroll ancestor "
+                    f"(no overflow:hidden clips it either -- it will force the "
+                    f"whole page to scroll horizontally instead)"
+                )
     return violations
 
 
@@ -150,10 +173,15 @@ SELFTEST_CASES = [
         1,
     ),
     (
-        "bare_table_no_hidden_ancestor_at_all",
+        # Fable ruling-1 on T-60: this is the mutation of the fixed markup --
+        # `.window{overflow:hidden}` relaxed to `overflow:visible` with no
+        # scroll wrapper added back. The table no longer gets clipped, but
+        # nothing stops it from dragging the whole page into horizontal
+        # scroll either -- must stay a violation (RED), not fall back to 0.
+        "bare_table_no_hidden_ancestor_causes_page_scroll",
         '<style>.window{overflow:visible}</style>'
         '<div class="window"><table><tr><td>x</td></tr></table></div>',
-        0,
+        1,
     ),
     (
         "pre_scrollable_on_the_tag_itself",
