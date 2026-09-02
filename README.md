@@ -57,7 +57,7 @@ Full prerequisites, verification steps, and config reference: [`docs/self-hostin
 
 ## Architecture
 
-Single Node.js/TypeScript API server, PostgreSQL as the append-only financial source of truth, Redis for cache/rate-limiting only, 16-container Docker stack on one Hetzner server. Every tool call runs the same 13-stage pipeline (escrow-first, idempotent, fail-closed) — dual-rail payments (self-hosted x402 facilitator + MPP), error-code contract, and full container/pipeline detail: [`docs/architecture.md`](docs/architecture.md).
+Single Node.js/TypeScript API server, PostgreSQL as the append-only financial source of truth, Redis for cache/rate-limiting only, 16-container Docker stack on one Hetzner server. Every tool call runs the same 14-stage pipeline (escrow-first, idempotent, fail-closed, content-moderated) — dual-rail payments (self-hosted x402 facilitator + MPP), error-code contract, and full container/pipeline detail: [`docs/architecture.md`](docs/architecture.md).
 
 ## License
 

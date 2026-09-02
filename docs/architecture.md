@@ -6,11 +6,11 @@ Alertmanager, exporters) on a single Hetzner server, with automated health check
 shutdown, and 27+ Prometheus alert rules. PostgreSQL is the append-only source of truth for
 every financial record; Redis is cache, rate limiting, and single-flight deduplication only —
 it holds nothing that would need to survive a restart. Every tool call passes through the same
-13-stage pipeline in a fixed order:
+14-stage pipeline in a fixed order:
 
 ```
 AUTH → IDEMPOTENCY → CONTENT_NEG → SCHEMA_VALIDATION → TOOL_STATUS →
-CACHE → RATE_LIMIT → ESCROW → PROVIDER_CALL →
+CACHE → RATE_LIMIT → ESCROW → MODERATION → PROVIDER_CALL →
 ESCROW_FINALIZE → LEDGER_WRITE → CACHE_SET → RESPONSE
 ```
 
@@ -18,6 +18,10 @@ ESCROW_FINALIZE → LEDGER_WRITE → CACHE_SET → RESPONSE
 - **Idempotent**: same request + same key = same result, no double charges.
 - **Cache**: per-tool TTL (as short as 5s for stock prices, days for slow-changing data).
 - **Fail-closed**: Redis down = reject all requests, never silently degrade.
+- **Content-moderated**: MODERATION runs after escrow (so a paid request's payment already
+  exists before a block is decided — enables settle-on-block: a blocked paid request keeps
+  the charge and returns an `appeal_url` instead of silently keeping the money with no
+  recourse) and before the provider call.
 
 Payment settlement (self-hosted x402 facilitator, MPP dual-rail, auth, error codes): see
 [`payments.md`](payments.md). Day-2 operations (container management, restarts, backups,
