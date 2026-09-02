@@ -383,6 +383,7 @@ import { IneSpainAdapter } from './ine-spain';
 import { CzsoAdapter } from './czso';
 import { StatistikAustriaAdapter } from './statistik-austria';
 import { HungaryKshAdapter } from './hungary-ksh';
+import { SlovakiaStatisticsAdapter } from './slovakia-statistics';
 import { config } from '../config';
 
 /**
@@ -2068,6 +2069,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // flat datasets.json list, DCAT-AP RDF/XML metadata, distributions mix CSV and
       // SDMX-ML "CompactData" XML (both hand-parsed, no auth, CC BY 4.0)
       return getOrCreate('hungary-ksh', () => new HungaryKshAdapter());
+    case 'slovakia-statistics':
+      // Statistical Office of the Slovak Republic "DATAcube." JSON-stat 2.0 REST API (UC-667) —
+      // 675 tables, no catalog/search endpoint beyond a flat collection.json list, no auth, CC BY
+      // 4.0. Dataset endpoint takes one path segment per dimension VALUE code (not dimension
+      // name) in dimension order — confirmed against REST_API_HELP_EN.pdf.
+      return getOrCreate('slovakia-statistics', () => new SlovakiaStatisticsAdapter());
     default:
       return undefined;
   }

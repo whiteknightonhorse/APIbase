@@ -3428,5 +3428,14 @@
     "reset_period": "none",
     "docs_url": "https://data.ksh.hu/dokumentacio",
     "limit_proof": "Public Hungarian Central Statistical Office (KSH) open-data API (data.ksh.hu); no authentication required per docs ('A hozzáférés nem igényel hitelesítést' — access requires no authentication), no rate-limit headers returned in observed responses, no documented request quota found."
+  },
+  "slovakia-statistics": {
+    "display_name": "Slovakia Statistics (DATAcube.)",
+    "health_url": "https://data.statistics.sk/api/v2/collection?lang=en",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://data.statistics.sk/api/help/REST_API_HELP_EN.pdf",
+    "limit_proof": "Public Statistical Office of the Slovak Republic open-data API (data.statistics.sk); docs state 'Access to data is free and does not require registration', no authentication or API key required for any endpoint, no rate-limit headers returned in observed responses, no documented request quota found (only a stated 2000-char URL length limit and ~10000 values per request)."
   }
 }

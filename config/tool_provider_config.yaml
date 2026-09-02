@@ -8551,6 +8551,25 @@ tools:
     price_usd: "0.002"
     cache_ttl: 3600
 
+  # --- UC-667: Slovakia Statistics (Statistical Office of the Slovak Republic, "DATAcube.") ---
+  - tool_id: slovakia-statistics.dataset_search
+    name: Slovakia Statistics Dataset Search
+    provider: slovakia-statistics
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: slovakia-statistics.dataset_metadata
+    name: Slovakia Statistics Dataset Metadata
+    provider: slovakia-statistics
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: slovakia-statistics.dataset_data
+    name: Slovakia Statistics Dataset Data
+    provider: slovakia-statistics
+    price_usd: "0.002"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

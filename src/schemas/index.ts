@@ -382,6 +382,7 @@ import { ineSpainSchemas } from './ine-spain.schema';
 import { czsoSchemas } from './czso.schema';
 import { statistikAustriaSchemas } from './statistik-austria.schema';
 import { hungaryKshSchemas } from './hungary-ksh.schema';
+import { slovakiaStatisticsSchemas } from './slovakia-statistics.schema';
 import { deviceSchemas } from './device.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
@@ -768,5 +769,6 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...czsoSchemas,
   ...statistikAustriaSchemas,
   ...hungaryKshSchemas,
+  ...slovakiaStatisticsSchemas,
   ...deviceSchemas,
 };

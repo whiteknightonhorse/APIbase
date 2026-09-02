@@ -16331,6 +16331,46 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+  // Slovakia Statistics — Statistical Office of the Slovak Republic "DATAcube." (3) — UC-667
+  {
+    toolId: 'slovakia-statistics.dataset_search',
+    mcpName: 'slovakia-statistics.reference.dataset_search',
+    title: 'Slovakia Statistics Dataset Search',
+    description:
+      'Search/browse the 675 statistical tables published by the Statistical Office of the ' +
+      'Slovak Republic ("DATAcube.") — population, earnings, prices, labour market, households, ' +
+      'and more. Optional query substring filters table labels and cube codes (no full-text ' +
+      'search endpoint upstream — filtered client-side). Returns cube_code + dimension_codes for ' +
+      'use in slovakia-statistics.dataset_metadata and slovakia-statistics.dataset_data. Data: ' +
+      'data.statistics.sk (JSON-stat 2.0 REST API), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'slovakia-statistics.dataset_metadata',
+    mcpName: 'slovakia-statistics.reference.dataset_metadata',
+    title: 'Slovakia Statistics Dataset Metadata',
+    description:
+      'Get the dimensions and valid value codes for one DATAcube table (cube_code from ' +
+      'slovakia-statistics.dataset_search) — every dimension (e.g. year, region, indicator, sex) ' +
+      'with its full list of selectable codes and labels, needed to build the "selections" ' +
+      'object for slovakia-statistics.dataset_data. Data: data.statistics.sk, no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'slovakia-statistics.dataset_data',
+    mcpName: 'slovakia-statistics.series.dataset_data',
+    title: 'Slovakia Statistics Dataset Data',
+    description:
+      'Fetch data rows from one DATAcube table (cube_code + selections from ' +
+      'slovakia-statistics.dataset_metadata — one value per dimension, supports single codes, ' +
+      'comma lists, ranges, "lastN", and "*" wildcards). Returns one row per data point with each ' +
+      "dimension's code + label and the value. Rows capped 1-1000 (default 200). Data: " +
+      'data.statistics.sk, no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
   // ---------------------------------------------------------------------------
   // Ф5 physical-device MCP layer -- device.list/state/command (2026-09-02)
   // Generic vendor-agnostic projection; Tuya is the only connected vendor

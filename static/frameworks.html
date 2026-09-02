@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>APIbase — Connect from Any AI Framework</title>
-<meta name="description" content="Connect APIbase MCP server from Claude Desktop, Cursor, OpenAI Agents SDK, LangChain, Google ADK, CrewAI, Windsurf. One endpoint, 1326 tools.">
+<meta name="description" content="Connect APIbase MCP server from Claude Desktop, Cursor, OpenAI Agents SDK, LangChain, Google ADK, CrewAI, Windsurf. One endpoint, 1336 tools.">
 <link rel="canonical" href="https://apibase.pro/frameworks">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="icon" type="image/png" href="/favicon.png">
@@ -95,7 +95,7 @@ pre code{background:none;border:none;padding:0;color:inherit}
 </nav>
 
 <h1>Connect from any AI framework</h1>
-<p class="lede">One MCP endpoint. 1326 tools. Works with every major AI framework.</p>
+<p class="lede">One MCP endpoint. 1336 tools. Works with every major AI framework.</p>
 <p class="endpoint">https://apibase.pro/mcp</p>
 
 <div class="jump">
@@ -167,7 +167,7 @@ async with MCPServerManager(
 ) as manager:
     agent = Agent(
         name="my-agent",
-        instructions="You have access to 1326 tools.",
+        instructions="You have access to 1336 tools.",
         mcp_servers=manager.servers
     )
     result = await Runner.run(agent, "Search flights from NYC to London")
@@ -220,7 +220,7 @@ tools, exit_stack = await toolset.create_tools()
 
 agent = Agent(
     role="Research Assistant",
-    goal="Find real-time data using 1326 tools",
+    goal="Find real-time data using 1336 tools",
     backstory="You have access to APIbase MCP server with tools for flights, weather, stocks, jobs, and more.",
     mcp_servers=["https://apibase.pro/mcp"],
     verbose=True
@@ -239,7 +239,7 @@ agent = Agent(
 
 <!-- Sunpeak -->
 <h2 id="sunpeak">Sunpeak <span class="badge">MCP Apps</span></h2>
-<p><a href="https://sunpeak.ai">Sunpeak</a> is an open-source framework for building interactive MCP Apps that run inside ChatGPT and Claude. Connect APIbase as a backend to give your app access to 1326 tools &mdash; flights, finance, weather, government data, museums, and more.</p>
+<p><a href="https://sunpeak.ai">Sunpeak</a> is an open-source framework for building interactive MCP Apps that run inside ChatGPT and Claude. Connect APIbase as a backend to give your app access to 1336 tools &mdash; flights, finance, weather, government data, museums, and more.</p>
 <pre>import { createApp } from "sunpeak";
 
 const app = createApp({
@@ -252,7 +252,7 @@ const app = createApp({
   ]
 });
 
-// Your app now has access to 1326 tools via MCP
+// Your app now has access to 1336 tools via MCP
 // Use discover_tools prompt to find relevant tools by task
 await app.run();</pre>
 <p class="note">Install: <code>pnpm add -g sunpeak</code> &nbsp;&middot;&nbsp; Docs: <a href="https://sunpeak.ai">sunpeak.ai</a> &nbsp;&middot;&nbsp; No API key required (auto-registration)</p>
@@ -275,7 +275,7 @@ curl -X POST https://apibase.pro/api/v1/tools/crypto.trending/call \
   -d '{}'</pre>
 
 <h2>Progressive disclosure</h2>
-<p>1326 tools is too many for any context window. Use <code>discover_tools</code> prompt to find relevant tools first:</p>
+<p>1336 tools is too many for any context window. Use <code>discover_tools</code> prompt to find relevant tools first:</p>
 <pre># MCP: call the discover_tools prompt
 {"method": "prompts/get", "params": {"name": "discover_tools", "arguments": {"task": "search flights from NYC to London"}}}
 
@@ -302,7 +302,7 @@ curl -s https://apibase.pro/api/v1/tools | jq '.data[] | select(.category == "tr
     }
   }
 }</pre>
-<p class="note">Playwright = browser automation (2.3M npm/week). Context7 = up-to-date library docs (875K npm/week). APIbase = 1326 tools (flights, stocks, weather, jobs, e-commerce). Each covers a different need &mdash; no overlap.</p>
+<p class="note">Playwright = browser automation (2.3M npm/week). Context7 = up-to-date library docs (875K npm/week). APIbase = 1336 tools (flights, stocks, weather, jobs, e-commerce). Each covers a different need &mdash; no overlap.</p>
 
 <h3>Why three servers?</h3>
 <div class="card">
@@ -325,13 +325,13 @@ async with MCPServerManager(
 ) as manager:
     agent = Agent(
         name="research-agent",
-        instructions="You have browser, docs, and 1326 tools.",
+        instructions="You have browser, docs, and 1336 tools.",
         mcp_servers=manager.servers
     )
     result = await Runner.run(agent, "Get AAPL stock price")</pre>
 
 <h2 id="base-mcp">Base MCP companion <span class="badge">Pay from your Base account</span></h2>
-<p>Base launched their official <a href="https://mcp.base.org" target="_blank" rel="noopener">Base MCP</a> server in May 2026 with native <strong>x402 payment support</strong>. APIbase is x402-native on Base mainnet via a self-hosted facilitator &mdash; the two pair cleanly. Base MCP signs payments from your Base Account; APIbase serves the 1326 tools your agent actually uses.</p>
+<p>Base launched their official <a href="https://mcp.base.org" target="_blank" rel="noopener">Base MCP</a> server in May 2026 with native <strong>x402 payment support</strong>. APIbase is x402-native on Base mainnet via a self-hosted facilitator &mdash; the two pair cleanly. Base MCP signs payments from your Base Account; APIbase serves the 1336 tools your agent actually uses.</p>
 
 <h3>Combined config (Claude Desktop / Cursor / Windsurf)</h3>
 <pre>{
@@ -349,9 +349,9 @@ async with MCPServerManager(
 <h3>What each one does</h3>
 <div class="card">
 <p><strong>Base MCP</strong> &mdash; wallet ops, on-chain swaps (Uniswap, Aerodrome), lending (Morpho, Moonwell), perps (Avantis), and <strong>x402 payment signing</strong>. Your Base Account handles user approval per transaction.</p>
-<p><strong>APIbase</strong> &mdash; 1326 tools across 376 providers (flights, stocks, weather, jobs, music, chess, EV charging, food safety, government docs, &hellip;). Pay per call via x402 USDC on Base &mdash; signed by your Base Account, settled on-chain by our facilitator.</p>
+<p><strong>APIbase</strong> &mdash; 1336 tools across 379 providers (flights, stocks, weather, jobs, music, chess, EV charging, food safety, government docs, &hellip;). Pay per call via x402 USDC on Base &mdash; signed by your Base Account, settled on-chain by our facilitator.</p>
 </div>
-<p class="note">For Base App users this is the cleanest path: zero API key management (Base Account handles auth), zero per-provider signup (APIbase aggregates 376 providers), one approval flow (Base App pops up for each paid call). Compatible because both sides speak EIP-3009 <code>transferWithAuthorization</code> on Base mainnet.</p>
+<p class="note">For Base App users this is the cleanest path: zero API key management (Base Account handles auth), zero per-provider signup (APIbase aggregates 379 providers), one approval flow (Base App pops up for each paid call). Compatible because both sides speak EIP-3009 <code>transferWithAuthorization</code> on Base mainnet.</p>
 
 <h3>Quick test from Claude Desktop</h3>
 <p>After adding both MCP servers to your config and authenticating Base MCP:</p>
@@ -381,7 +381,7 @@ Agent: "AAPL is trading at $187.42 (+0.34%) as of 14:23 ET."</pre>
 
 <div class="footer">
 <span><a href="/">Home</a> &middot; <a href="/connect">Connect</a> &middot; <a href="/dashboard">Dashboard</a> &middot; <a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a> &middot; <a href="https://smithery.ai/servers/apibase-pro/api-hub">Smithery</a></span>
-<span>1326 tools &nbsp;|&nbsp; 376 providers</span>
+<span>1336 tools &nbsp;|&nbsp; 379 providers</span>
 </div>
 
 </div>
