@@ -30,6 +30,15 @@ jest.mock('../../src/config/index', () => ({
     X402_BASE_SEPOLIA_RPC_URL: 'https://sepolia.example',
     X402_OPERATOR_MIN_ETH_BALANCE: 0.01,
     REDIS_URL: 'redis://unused.example',
+    // Ф5: so /connect/device/tuya/start exercises its OWN input-handling
+    // logic (auth check on a bare fuzz req with no req.agent -> 401) instead
+    // of short-circuiting on "Tuya not configured" (503) before ever
+    // touching the fuzzed body -- a legitimate status in production, but
+    // not what THIS gate is checking for a malformed-input case.
+    TUYA_CLIENT_ID: 'fuzz-client-id',
+    TUYA_CLIENT_SECRET: 'fuzz-client-secret',
+    TUYA_API_BASE_URL: 'https://fuzz-tuya.example',
+    TUYA_AUTHORIZE_URL: 'https://fuzz-tuya.example/authorize',
   },
 }));
 jest.mock('../../src/config/logger', () => ({
@@ -40,6 +49,18 @@ jest.mock('../../src/services/prisma.service', () => ({
   getPrisma: () => ({
     agent: { findUnique: jest.fn().mockResolvedValue(null), create: jest.fn() },
     tool: { findMany: jest.fn().mockResolvedValue([]), count: jest.fn().mockResolvedValue(0) },
+    // Ф5 device-connect.router.ts: findPendingByState()/etc. read this table
+    // directly. null/empty results exercise the router's own
+    // "unknown/expired state" and "no active connections" guard clauses --
+    // the same not-found path a real fuzzed/replayed callback would hit,
+    // not a shortcut around them.
+    deviceConnection: {
+      findFirst: jest.fn().mockResolvedValue(null),
+      findMany: jest.fn().mockResolvedValue([]),
+      create: jest.fn(),
+      update: jest.fn(),
+      updateMany: jest.fn().mockResolvedValue({ count: 0 }),
+    },
   }),
 }));
 jest.mock('../../src/services/redis.service', () => ({
@@ -140,6 +161,7 @@ import { executeRouter } from '../../src/routes/execute.router';
 import { batchRouter } from '../../src/routes/batch.router';
 import { dashboardRouter } from '../../src/routes/dashboard.router';
 import { oauthRouter } from '../../src/routes/oauth.router';
+import { deviceConnectRouter } from '../../src/routes/device-connect.router';
 import type { Router } from 'express';
 
 // ---------------------------------------------------------------------------
@@ -186,6 +208,7 @@ const ROUTERS: Array<{ name: string; router: Router }> = [
   { name: 'batchRouter', router: batchRouter },
   { name: 'dashboardRouter', router: dashboardRouter },
   { name: 'oauthRouter', router: oauthRouter },
+  { name: 'deviceConnectRouter', router: deviceConnectRouter },
 ];
 
 // Fuzz payloads for a `:param` path segment -- each is individually

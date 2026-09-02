@@ -95,12 +95,10 @@ deviceConnectRouter.post(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       if (!config.TUYA_AUTHORIZE_URL || !tuyaCfgOrNull()) {
-        res
-          .status(503)
-          .json({
-            error: 'service_unavailable',
-            message: 'Tuya is not configured on this server yet',
-          });
+        res.status(503).json({
+          error: 'service_unavailable',
+          message: 'Tuya is not configured on this server yet',
+        });
         return;
       }
       const agentId = req.agent?.agent_id;
@@ -134,34 +132,41 @@ deviceConnectRouter.get(
   '/connect/device/tuya/callback',
   callbackLimiter,
   async (req: Request, res: Response) => {
-    const code = typeof req.query.code === 'string' ? req.query.code : undefined;
-    const state = typeof req.query.state === 'string' ? req.query.state : undefined;
-
-    if (!code || !state) {
-      res.status(400).send(renderResult(false, 'Missing code or state on callback.'));
-      return;
-    }
-
-    const pending = await findPendingByState(state);
-    if (!pending || pending.vendor !== 'tuya') {
-      res
-        .status(400)
-        .send(
-          renderResult(
-            false,
-            'This link has expired or was already used. Start over from your agent.',
-          ),
-        );
-      return;
-    }
-
-    const cfg = tuyaCfgOrNull();
-    if (!cfg) {
-      res.status(503).send(renderResult(false, 'Tuya is not configured on this server.'));
-      return;
-    }
-
+    // Whole handler wrapped -- a plain browser GET with no auth header
+    // means there is no upstream error-handler middleware pass for this
+    // route the way an authenticated JSON endpoint gets; an unguarded
+    // await throwing here (e.g. a real DB error inside findPendingByState)
+    // must never become an unhandled async rejection.
+    let pendingConnectionId: string | undefined;
     try {
+      const code = typeof req.query.code === 'string' ? req.query.code : undefined;
+      const state = typeof req.query.state === 'string' ? req.query.state : undefined;
+
+      if (!code || !state) {
+        res.status(400).send(renderResult(false, 'Missing code or state on callback.'));
+        return;
+      }
+
+      const pending = await findPendingByState(state);
+      if (pending) pendingConnectionId = pending.connectionId;
+      if (!pending || pending.vendor !== 'tuya') {
+        res
+          .status(400)
+          .send(
+            renderResult(
+              false,
+              'This link has expired or was already used. Start over from your agent.',
+            ),
+          );
+        return;
+      }
+
+      const cfg = tuyaCfgOrNull();
+      if (!cfg) {
+        res.status(503).send(renderResult(false, 'Tuya is not configured on this server.'));
+        return;
+      }
+
       const tokens = await tuyaExchangeCode(cfg, code);
       await activateConnection(pending.connectionId, {
         accessToken: tokens.accessToken,
@@ -178,7 +183,7 @@ deviceConnectRouter.get(
         .send(renderResult(true, 'Your Tuya account is now linked. You can close this window.'));
     } catch (err) {
       logger.error(
-        { err, connection_id: pending.connectionId },
+        { err, connection_id: pendingConnectionId },
         'device connect: tuya code exchange failed',
       );
       res
@@ -248,12 +253,10 @@ deviceConnectRouter.post(
       }
       const revoked = await revokeConnection(agentId, String(req.params.connectionId));
       if (!revoked) {
-        res
-          .status(404)
-          .json({
-            error: 'not_found',
-            message: 'No active connection with that id for this agent',
-          });
+        res.status(404).json({
+          error: 'not_found',
+          message: 'No active connection with that id for this agent',
+        });
         return;
       }
       logger.info(
