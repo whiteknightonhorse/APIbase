@@ -388,6 +388,7 @@ import { LatviaStatisticsAdapter } from './latvia-statistics';
 import { IcelandStatisticsAdapter } from './iceland-statistics';
 import { EstoniaStatisticsAdapter } from './estonia-statistics';
 import { EstatJapanDashboardAdapter } from './estat-japan-dashboard';
+import { WmoWeatherAdapter } from './wmo-weather';
 import { config } from '../config';
 
 /**
@@ -2104,6 +2105,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // getRegionInfo. Public Data License v1.0 (PDL1.0) — attribution required, commercial
       // and non-commercial reuse via an API-backed service explicitly permitted.
       return getOrCreate('estat-japan-dashboard', () => new EstatJapanDashboardAdapter());
+    case 'wmo-weather':
+      // WMO World Weather Information Service (UC-672) — worldweather.wmo.int: official
+      // NMHS-sourced forecasts + 30-year climate normals for ~2,600 cities worldwide,
+      // plus a city directory search. No auth, no documented rate limits.
+      return getOrCreate('wmo-weather', () => new WmoWeatherAdapter());
     default:
       return undefined;
   }

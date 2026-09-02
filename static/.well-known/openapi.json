@@ -123579,6 +123579,250 @@
         ]
       }
     },
+    "/api/v1/tools/wmo-weather.city_search/call": {
+      "post": {
+        "operationId": "wmo-weather_city_search",
+        "summary": "WMO City Search",
+        "description": "Search the WMO World Weather Information Service directory of ~2,600 cities by city or country name (case-insensitive partial match). Returns each match's WMO city ID, needed by wmo-weather.forecast and wmo-weather.climate_normals. Example: query=\"Tokyo\" or query=\"Argentina\". Data: worldweather.wmo.int, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "wmo-weather.city_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "City or country name to search for (case-insensitive partial match), e.g. \"Tokyo\", \"Kabul\", or \"Argentina\". Matches against ~2,600 cities in the WMO city directory.",
+                    "minLength": 2,
+                    "maxLength": 100
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of matching cities to return (default 20, max 50)."
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/wmo-weather.forecast/call": {
+      "post": {
+        "operationId": "wmo-weather_forecast",
+        "summary": "WMO Official City Forecast",
+        "description": "Get the official 7-day weather forecast for a city, sourced directly from that country's National Meteorological and Hydrological Service (NMHS) — the same forecast shown on the government weather portal, not a third-party model. Requires a WMO city ID (see wmo-weather.city_search first, e.g. 183 for Tokyo). Returns daily min/max temperature and weather condition. Forecast coverage and update frequency vary by NMHS; some cities may return fewer days or none if the source NMHS has not published one. Data: worldweather.wmo.int, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "wmo-weather.forecast"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "city_id": {
+                    "type": "integer",
+                    "description": "WMO city ID, e.g. 219 (Kabul) or 183 (Tokyo). Discover IDs with wmo-weather.city_search.",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "city_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/wmo-weather.climate_normals/call": {
+      "post": {
+        "operationId": "wmo-weather_climate_normals",
+        "summary": "WMO City Climate Normals",
+        "description": "Get 30-year monthly climate normals for a city — average max/min/mean temperature and rainfall for each of the 12 months, sourced from the WMO climatological standard normals (typically 1961-1990 or 1991-2020 depending on the station). Requires a WMO city ID (see wmo-weather.city_search first, e.g. 219 for Kabul). Useful for \"what is the weather usually like in [city] in [month]\" style questions, distinct from wmo-weather.forecast which covers the next 7 days. Data: worldweather.wmo.int, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "wmo-weather.climate_normals"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "city_id": {
+                    "type": "integer",
+                    "description": "WMO city ID, e.g. 219 (Kabul) or 183 (Tokyo). Discover IDs with wmo-weather.city_search.",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "city_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/device.list/call": {
       "post": {
         "operationId": "device_list",

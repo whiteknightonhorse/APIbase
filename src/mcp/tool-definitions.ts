@@ -16551,6 +16551,48 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+  // WMO World Weather Information Service — worldweather.wmo.int (3) — UC-672
+  {
+    toolId: 'wmo-weather.city_search',
+    mcpName: 'wmo-weather.reference.city_search',
+    title: 'WMO City Search',
+    description:
+      'Search the WMO World Weather Information Service directory of ~2,600 cities by city or ' +
+      "country name (case-insensitive partial match). Returns each match's WMO city ID, needed " +
+      'by wmo-weather.forecast and wmo-weather.climate_normals. Example: query="Tokyo" or ' +
+      'query="Argentina". Data: worldweather.wmo.int, no auth required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'wmo-weather.forecast',
+    mcpName: 'wmo-weather.forecast.daily',
+    title: 'WMO Official City Forecast',
+    description:
+      'Get the official 7-day weather forecast for a city, sourced directly from that ' +
+      "country's National Meteorological and Hydrological Service (NMHS) — the same forecast " +
+      'shown on the government weather portal, not a third-party model. Requires a WMO city ID ' +
+      '(see wmo-weather.city_search first, e.g. 183 for Tokyo). Returns daily min/max ' +
+      'temperature and weather condition. Forecast coverage and update frequency vary by NMHS; ' +
+      'some cities may return fewer days or none if the source NMHS has not published one. ' +
+      'Data: worldweather.wmo.int, no auth required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'wmo-weather.climate_normals',
+    mcpName: 'wmo-weather.climate.normals',
+    title: 'WMO City Climate Normals',
+    description:
+      'Get 30-year monthly climate normals for a city — average max/min/mean temperature and ' +
+      'rainfall for each of the 12 months, sourced from the WMO climatological standard normals ' +
+      '(typically 1961-1990 or 1991-2020 depending on the station). Requires a WMO city ID (see ' +
+      'wmo-weather.city_search first, e.g. 219 for Kabul). Useful for "what is the weather ' +
+      'usually like in [city] in [month]" style questions, distinct from wmo-weather.forecast ' +
+      'which covers the next 7 days. Data: worldweather.wmo.int, no auth required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
   // ---------------------------------------------------------------------------
   // Ф5 physical-device MCP layer -- device.list/state/command (2026-09-02)
   // Generic vendor-agnostic projection; Tuya is the only connected vendor

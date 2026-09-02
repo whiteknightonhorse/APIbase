@@ -3473,5 +3473,14 @@
     "reset_period": "none",
     "docs_url": "https://dashboard.e-stat.go.jp/static/terms",
     "limit_proof": "Statistics Dashboard API run by Japan's Ministry of Internal Affairs and Communications (総務省統計局) — no authentication or API key required, licensed under Public Data License v1.0 (PDL1.0) with commercial and non-commercial reuse via an API-backed service explicitly permitted (attribution required), no documented rate limits found."
+  },
+  "wmo-weather": {
+    "display_name": "WMO World Weather Information Service",
+    "health_url": "https://worldweather.wmo.int/en/json/183_en.json",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://worldweather.wmo.int/",
+    "limit_proof": "Official World Meteorological Organization public weather portal aggregating NMHS-sourced forecasts and climate normals — no authentication or API key required, no documented rate limits found; public information service intended for general dissemination."
   }
 }

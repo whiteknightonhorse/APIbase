@@ -8646,6 +8646,25 @@ tools:
     price_usd: "0.003"
     cache_ttl: 3600
 
+  # --- UC-672: WMO World Weather Information Service (worldweather.wmo.int) ---
+  - tool_id: wmo-weather.city_search
+    name: WMO City Search
+    provider: wmo-weather
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: wmo-weather.forecast
+    name: WMO Official City Forecast
+    provider: wmo-weather
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: wmo-weather.climate_normals
+    name: WMO City Climate Normals
+    provider: wmo-weather
+    price_usd: "0.001"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform
