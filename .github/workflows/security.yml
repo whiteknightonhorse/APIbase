@@ -87,6 +87,26 @@ jobs:
       - name: Every declared route has an nginx location proxying to it
         run: python3 scripts/check-mount-nginx-parity.py
 
+  static-no-clipped-overflow:
+    # T-60 (2026-09-02): the homepage's "vs alternatives" comparison table was
+    # reported live, on an iPhone (Safari), as cut off with no way to scroll to
+    # the missing content -- every static/*.html page wraps its content in
+    # `.window`, which sets overflow:hidden, and a wide element (table/pre) with
+    # no scroll wrapper of its own gets silently CLIPPED by that ancestor on a
+    # narrow viewport instead of becoming scrollable. Static analysis (markup +
+    # each page's own inline CSS), not a live browser resize -- see the script's
+    # own header for why and for the structural invariant it actually enforces.
+    name: Static Page Overflow (no clipped tables/pre)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Self-test the checker itself
+        run: python3 scripts/check-no-clipped-overflow.py --selftest
+
+      - name: Every <table>/<pre> in static/*.html has a horizontal-scroll wrapper
+        run: python3 scripts/check-no-clipped-overflow.py
+
   static-tool-refs:
     # F5: connect.html's starter example called `tools/coingecko.get_price/call`,
     # which does not exist -- the real id is `crypto.get_price`. Nothing compared

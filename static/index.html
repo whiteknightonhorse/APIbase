@@ -253,6 +253,16 @@ table{
   font-size:0.82rem;
   background:#080808;
 }
+/* T-60: table{width:100%} is only a target, not a hard cap -- if a cell's
+   longest unbreakable token (e.g. "rapidapi.com", "CRM/accounting") forces
+   the table wider than its container, the table itself grows past 100%
+   instead of shrinking, per the CSS2 table-width algorithm. With no wrapper,
+   that excess bleeds into .window, which sets overflow:hidden -- so the
+   overflow gets silently clipped (not scrolled) on narrow viewports. Same
+   .table-wrap pattern already used on pricing.html/dashboard.html: give the
+   table its OWN scroll container so overflow is reachable here, before it
+   ever reaches .window's clip. */
+.table-wrap{overflow-x:auto}
 th,td{
   border:1px solid #1a3a1a;
   padding:0.6rem 0.8rem;
@@ -449,6 +459,7 @@ code{
 </ul>
 
 <h2>vs alternatives: how APIbase compares</h2>
+<div class="table-wrap">
 <table>
 <thead>
 <tr><th>Option</th><th>Best for</th><th>Trade-offs</th><th>Next step</th></tr>
@@ -480,6 +491,7 @@ code{
 </tr>
 </tbody>
 </table>
+</div>
 
 <h2>Pricing expectations for API tool calls</h2>
 <p>Tool call prices on APIbase range from $0.001 to $1.00 per call depending on the upstream provider cost and data richness. Free-upstream tools (public government data, open-source databases) are priced at $0.001. Premium tools like flight search or e-commerce product lookup cost $0.012–$0.035. All prices are listed in the <a href="https://apibase.pro/api/v1/tools">tool catalog</a> and billed per call via x402 or MPP (USDC) — no monthly minimums, no overage fees.</p>
