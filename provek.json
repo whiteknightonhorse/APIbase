@@ -1,5 +1,5 @@
 {
-  "provek_declaration": "1.0.0",
+  "provek_declaration": "1.1.0",
   "accountability": {
     "claims_addressee": {
       "type": "legal_entity",
@@ -16,5 +16,10 @@
     "dispute_path": {
       "type": "contact"
     }
+  },
+  "service": {
+    "order_url": "https://apibase.pro/connect",
+    "offering": "MCP access to 1300+ API tools, pay-per-call in USDC (x402 on Base, MPP on Tempo). No subscription.",
+    "pricing_url": "https://apibase.pro/pricing"
   }
 }
