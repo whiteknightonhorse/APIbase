@@ -67,17 +67,17 @@ body{font-family:'JetBrains Mono','Fira Code','Cascadia Code','Courier New',mono
 .container{padding:1.8rem 2rem 2rem;position:relative;z-index:1}
 nav{display:flex;flex-wrap:wrap;gap:0.3rem;margin-bottom:1rem;padding:0.5rem 0;border-bottom:1px solid #1a3a1a}
 nav::before{content:'[';color:#555}nav::after{content:']';color:#555}
-nav .brand{color:#00ff41;font-weight:700;font-size:0.9rem;text-decoration:none;text-shadow:0 0 8px rgba(0,255,65,0.4)}
-nav a{color:#00cc33;text-decoration:none;font-size:0.85rem}
+nav .brand{color:#00ff41;font-weight:700;font-size:1rem;text-decoration:none;text-shadow:0 0 8px rgba(0,255,65,0.4);padding:0.5rem 0.35rem 0.5rem 0;display:inline-block}
+nav a{color:#00cc33;text-decoration:none;font-size:1rem;padding:0.5rem 0.35rem;display:inline-block}
 nav a::before{content:' | ';color:#340}nav .brand::before{content:''}
 nav a:hover{color:#00ff41;text-shadow:0 0 6px rgba(0,255,65,0.5)}
 h1{color:#00ff41;font-size:1.3rem;margin-bottom:0.5rem;line-height:1.5;text-shadow:0 0 10px #00ff41,0 0 20px #00ff41,0 0 40px rgba(0,255,65,0.3)}
 h1::before{content:'> ';color:#00aa30}
 h2{color:#00ff41;font-size:1.05rem;margin:2rem 0 0.8rem;padding-left:1rem;border-left:2px solid #00aa30;text-shadow:0 0 6px rgba(0,255,65,0.2)}
 h2::before{content:'## ';color:#006620}
-p{margin-bottom:0.8rem;font-size:0.9rem;color:#a0d8a0}
+p{margin-bottom:0.8rem;font-size:1rem;color:#a0d8a0}
 strong{color:#33ff66}
-.updated{color:#2a6a2a;font-size:0.82rem;margin-bottom:1.8rem}
+.updated{color:#2a942a;font-size:0.82rem;margin-bottom:1.8rem}
 a{color:#00ccff;text-decoration:none}
 a:hover{color:#66ddff;text-shadow:0 0 6px rgba(0,204,255,0.4)}
 table{width:100%;border-collapse:collapse;margin:0.8rem 0 1.4rem;font-size:0.83rem}
@@ -87,7 +87,7 @@ td{color:#a0d8a0}
 td:last-child,th:last-child{text-align:right}
 .scroll{max-height:60vh;overflow-y:auto;border:1px solid #1a3a1a;border-radius:6px}
 .note{color:#5a9a5a;font-size:0.82rem;font-style:italic}
-.footer{margin-top:2rem;padding:0.6rem 0;border-top:1px solid #1a3a1a;color:#2a6a2a;font-size:0.72rem;display:flex;flex-direction:column;gap:0.2rem}
+.footer{margin-top:2rem;padding:0.6rem 0;border-top:1px solid #1a3a1a;color:#2a942a;font-size:0.72rem;display:flex;flex-direction:column;gap:0.2rem}
 .footer-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.5rem}
 .footer .online{color:#00aa30}
 *::-webkit-scrollbar{width:8px;height:8px}

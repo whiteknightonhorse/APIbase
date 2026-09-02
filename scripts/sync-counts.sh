@@ -49,7 +49,7 @@ else
   # for contact/privacy. sync-counts.sh --check never caught it because its own generic STALE
   # regex (line ~111) also requires an adjacent "tools"/"providers" word this markup lacks.
   # Added here so it can never drift silently again.
-  for f in static/index.html static/contact.html static/privacy.html; do
+  for f in static/index.html static/contact.html static/privacy.html static/terms.html static/policy-moderation.html; do
     [ -f "$f" ] || continue
     b=$(md5sum "$f" | cut -d" " -f1)
     sed -i -E "s/PRV:<\/span><strong>[0-9]+<\/strong>/PRV:<\/span><strong>${PROV}<\/strong>/; s/TOOLS:<\/span><strong>[0-9]+<\/strong>/TOOLS:<\/span><strong>${TOOLS}<\/strong>/" "$f"
@@ -148,7 +148,7 @@ SERVER_CARD_LEN=$(python3 -c "import json; print(len(json.load(open('static/.wel
 # structurally blind to it — this is exactly the shape that let index.html sit stale at 243/833
 # while this script's own --check reported 0 drift. Checked directly, every run, not just when
 # a fix pass happens to touch these files.
-STALE_SYSMON=$(grep -hoE "PRV:</span><strong>[0-9]+</strong>|TOOLS:</span><strong>[0-9]+</strong>" static/index.html static/contact.html static/privacy.html 2>/dev/null \
+STALE_SYSMON=$(grep -hoE "PRV:</span><strong>[0-9]+</strong>|TOOLS:</span><strong>[0-9]+</strong>" static/index.html static/contact.html static/privacy.html static/terms.html static/policy-moderation.html 2>/dev/null \
   | grep -vE "^PRV:</span><strong>${PROV}</strong>$|^TOOLS:</span><strong>${TOOLS}</strong>$" | sort -u || true)
 STALE_FOOTER_TOOLS=$(grep -hoE "TOOLS: [0-9]+<" static/index.html static/contact.html static/privacy.html static/dashboard.html 2>/dev/null \
   | grep -v "^TOOLS: ${TOOLS}<$" | sort -u || true)
