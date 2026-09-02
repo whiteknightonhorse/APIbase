@@ -386,6 +386,7 @@ import { slovakiaStatisticsSchemas } from './slovakia-statistics.schema';
 import { latviaStatisticsSchemas } from './latvia-statistics.schema';
 import { icelandStatisticsSchemas } from './iceland-statistics.schema';
 import { estoniaStatisticsSchemas } from './estonia-statistics.schema';
+import { estatJapanDashboardSchemas } from './estat-japan-dashboard.schema';
 import { deviceSchemas } from './device.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
@@ -776,5 +777,6 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...latviaStatisticsSchemas,
   ...icelandStatisticsSchemas,
   ...estoniaStatisticsSchemas,
+  ...estatJapanDashboardSchemas,
   ...deviceSchemas,
 };

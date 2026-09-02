@@ -3464,5 +3464,14 @@
     "reset_period": "none",
     "docs_url": "https://stat.ee/en/statistics-estonia/about-us/strategy/principles-dissemination-official-statistics",
     "limit_proof": "Official statistics portal of Statistics Estonia (andmed.stat.ee), a standard PXWeb API — no authentication or API key required, published as open data under CC BY-SA 4.0 with commercial and non-commercial reuse explicitly permitted (attribution + share-alike required), no documented rate limits found."
+  },
+  "estat-japan-dashboard": {
+    "display_name": "e-Stat Japan Dashboard (Statistics Bureau)",
+    "health_url": "https://dashboard.e-stat.go.jp/api/1.0/Json/getRegionInfo?Lang=EN&RegionCode=00000",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://dashboard.e-stat.go.jp/static/terms",
+    "limit_proof": "Statistics Dashboard API run by Japan's Ministry of Internal Affairs and Communications (総務省統計局) — no authentication or API key required, licensed under Public Data License v1.0 (PDL1.0) with commercial and non-commercial reuse via an API-backed service explicitly permitted (attribution required), no documented rate limits found."
   }
 }

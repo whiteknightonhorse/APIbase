@@ -123305,6 +123305,280 @@
         ]
       }
     },
+    "/api/v1/tools/estat-japan-dashboard.indicator_info/call": {
+      "post": {
+        "operationId": "estat-japan-dashboard_indicator_info",
+        "summary": "e-Stat Japan Dashboard Indicator Info",
+        "description": "Get metadata for one e-Stat Statistics Dashboard indicator code — name, unit, source survey, valid date range, and the cycle/regional-rank combinations it publishes (e.g. Month vs Calendar Year, Japan vs Prefecture). Call this BEFORE estat-japan-dashboard.get_data to confirm units and available cycles for the indicator. Data: dashboard.e-stat.go.jp (Japan Ministry of Internal Affairs and Communications), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "estat-japan-dashboard.indicator_info"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "indicator_code": {
+                    "type": "string",
+                    "description": "20-digit e-Stat Dashboard indicator code to look up, e.g. '0201010000000010000' (total population). Returns the indicator name, unit, source survey, valid date range, and cycle codes per regional level — call this BEFORE estat-japan-dashboard.get_data to confirm units and available cycles."
+                  },
+                  "lang": {
+                    "type": "string",
+                    "enum": [
+                      "JP",
+                      "EN"
+                    ],
+                    "description": "Response language: 'EN' (English, default) or 'JP' (Japanese).",
+                    "default": "EN"
+                  }
+                },
+                "required": [
+                  "indicator_code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/estat-japan-dashboard.region_info/call": {
+      "post": {
+        "operationId": "estat-japan-dashboard_region_info",
+        "summary": "e-Stat Japan Dashboard Region Info",
+        "description": "Get metadata for one e-Stat Statistics Dashboard region code (name, level, valid date range), or omit region_code to fetch the full region catalog — Japan, its 47 prefectures and municipalities, plus world countries used for international-comparison indicators. Use this to discover region codes for estat-japan-dashboard.get_data. Data: dashboard.e-stat.go.jp, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "estat-japan-dashboard.region_info"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "region_code": {
+                    "type": "string",
+                    "description": "Region code to look up, e.g. '13000' (Tokyo) or '00000' (Japan). Omit to fetch the full region catalog (Japan + prefectures + municipalities + world countries) so you can discover valid codes for estat-japan-dashboard.get_data."
+                  },
+                  "lang": {
+                    "type": "string",
+                    "enum": [
+                      "JP",
+                      "EN"
+                    ],
+                    "description": "Response language: 'EN' (English, default) or 'JP' (Japanese).",
+                    "default": "EN"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/estat-japan-dashboard.get_data/call": {
+      "post": {
+        "operationId": "estat-japan-dashboard_get_data",
+        "summary": "e-Stat Japan Dashboard Get Data",
+        "description": "Fetch time-series values for one or more e-Stat Statistics Dashboard indicator codes, optionally filtered by region and time range — population, labour, economy, trade, and other official Japanese government statistics (and comparable world figures for some indicators). Always call estat-japan-dashboard.indicator_info first to confirm units and valid cycle for the indicator, and estat-japan-dashboard.region_info to confirm region codes. Example: total population (indicator_code='0201010000000010000'), Japan (region_code='00000'), 2020-2022 (time_from='2020CY00', time_to='2022CY00'). Data: dashboard.e-stat.go.jp, no auth required, Public Data License v1.0 (attribution required, commercial reuse permitted).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "estat-japan-dashboard.get_data"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "indicator_code": {
+                    "type": "string",
+                    "description": "20-digit e-Stat Dashboard indicator code, e.g. '0201010000000010000' (total population). Comma-separate multiple codes to fetch several series in one call. Discover codes via estat-japan-dashboard.indicator_info or the public catalog at https://dashboard.e-stat.go.jp/."
+                  },
+                  "region_code": {
+                    "type": "string",
+                    "description": "Region code to filter by. '00000' = Japan (national total, default upstream behaviour if omitted returns all regions the indicator has data for). 5-digit codes '01000'-'47000' are Japanese prefectures (JIS X 0401, e.g. '13000' = Tokyo). 3-digit codes (e.g. '840') are ISO 3166-1 numeric country codes for international comparison indicators. Discover codes via estat-japan-dashboard.region_info."
+                  },
+                  "time_from": {
+                    "type": "string",
+                    "description": "Start of the time range, in the indicator's own cycle notation, e.g. '2020CY00' (calendar year 2020) or '202101' + '00' -> '20210100' (January 2021 for monthly indicators). Check the valid range and cycle in estat-japan-dashboard.indicator_info."
+                  },
+                  "time_to": {
+                    "type": "string",
+                    "description": "End of the time range, same notation as time_from, e.g. '2022CY00'."
+                  },
+                  "cycle": {
+                    "type": "string",
+                    "description": "Filter to one reporting cycle when an indicator publishes more than one, e.g. '1' (Month) or '3' (Calendar Year). See the cycle codes returned by estat-japan-dashboard.indicator_info for this indicator."
+                  },
+                  "lang": {
+                    "type": "string",
+                    "enum": [
+                      "JP",
+                      "EN"
+                    ],
+                    "description": "Response language: 'EN' (English, default) or 'JP' (Japanese).",
+                    "default": "EN"
+                  }
+                },
+                "required": [
+                  "indicator_code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/device.list/call": {
       "post": {
         "operationId": "device_list",

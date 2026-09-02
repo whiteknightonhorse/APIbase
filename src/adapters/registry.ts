@@ -387,6 +387,7 @@ import { SlovakiaStatisticsAdapter } from './slovakia-statistics';
 import { LatviaStatisticsAdapter } from './latvia-statistics';
 import { IcelandStatisticsAdapter } from './iceland-statistics';
 import { EstoniaStatisticsAdapter } from './estonia-statistics';
+import { EstatJapanDashboardAdapter } from './estat-japan-dashboard';
 import { config } from '../config';
 
 /**
@@ -2097,6 +2098,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // JSON-stat2 query. No auth, CC BY-SA 4.0, reuse (incl. commercial)
       // explicitly permitted with attribution and share-alike.
       return getOrCreate('estonia-statistics', () => new EstoniaStatisticsAdapter());
+    case 'estat-japan-dashboard':
+      // e-Stat Statistics Dashboard (dashboard.e-stat.go.jp) API (UC-671) — Japan's Ministry
+      // of Internal Affairs and Communications. No auth. Data: getData/getIndicatorInfo/
+      // getRegionInfo. Public Data License v1.0 (PDL1.0) — attribution required, commercial
+      // and non-commercial reuse via an API-backed service explicitly permitted.
+      return getOrCreate('estat-japan-dashboard', () => new EstatJapanDashboardAdapter());
     default:
       return undefined;
   }

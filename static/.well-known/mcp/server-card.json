@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1345 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1348 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -64600,6 +64600,154 @@
         "required": [
           "table_path",
           "query"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "estat-japan-dashboard.reference.indicator_info",
+      "description": "Get metadata for one e-Stat Statistics Dashboard indicator code — name, unit, source survey, valid date range, and the cycle/regional-rank combinations it publishes (e.g. Month vs Calendar Year, Japan vs Prefecture). Call this BEFORE estat-japan-dashboard.get_data to confirm units and available cycles for the indicator. Data: dashboard.e-stat.go.jp (Japan Ministry of Internal Affairs and Communications), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "indicator_code": {
+            "type": "string",
+            "description": "20-digit e-Stat Dashboard indicator code to look up, e.g. '0201010000000010000' (total population). Returns the indicator name, unit, source survey, valid date range, and cycle codes per regional level — call this BEFORE estat-japan-dashboard.get_data to confirm units and available cycles."
+          },
+          "lang": {
+            "type": "string",
+            "enum": [
+              "JP",
+              "EN"
+            ],
+            "description": "Response language: 'EN' (English, default) or 'JP' (Japanese).",
+            "default": "EN"
+          }
+        },
+        "required": [
+          "indicator_code"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "estat-japan-dashboard.reference.region_info",
+      "description": "Get metadata for one e-Stat Statistics Dashboard region code (name, level, valid date range), or omit region_code to fetch the full region catalog — Japan, its 47 prefectures and municipalities, plus world countries used for international-comparison indicators. Use this to discover region codes for estat-japan-dashboard.get_data. Data: dashboard.e-stat.go.jp, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "region_code": {
+            "type": "string",
+            "description": "Region code to look up, e.g. '13000' (Tokyo) or '00000' (Japan). Omit to fetch the full region catalog (Japan + prefectures + municipalities + world countries) so you can discover valid codes for estat-japan-dashboard.get_data."
+          },
+          "lang": {
+            "type": "string",
+            "enum": [
+              "JP",
+              "EN"
+            ],
+            "description": "Response language: 'EN' (English, default) or 'JP' (Japanese).",
+            "default": "EN"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "estat-japan-dashboard.series.get_data",
+      "description": "Fetch time-series values for one or more e-Stat Statistics Dashboard indicator codes, optionally filtered by region and time range — population, labour, economy, trade, and other official Japanese government statistics (and comparable world figures for some indicators). Always call estat-japan-dashboard.indicator_info first to confirm units and valid cycle for the indicator, and estat-japan-dashboard.region_info to confirm region codes. Example: total population (indicator_code='0201010000000010000'), Japan (region_code='00000'), 2020-2022 (time_from='2020CY00', time_to='2022CY00'). Data: dashboard.e-stat.go.jp, no auth required, Public Data License v1.0 (attribution required, commercial reuse permitted).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "indicator_code": {
+            "type": "string",
+            "description": "20-digit e-Stat Dashboard indicator code, e.g. '0201010000000010000' (total population). Comma-separate multiple codes to fetch several series in one call. Discover codes via estat-japan-dashboard.indicator_info or the public catalog at https://dashboard.e-stat.go.jp/."
+          },
+          "region_code": {
+            "type": "string",
+            "description": "Region code to filter by. '00000' = Japan (national total, default upstream behaviour if omitted returns all regions the indicator has data for). 5-digit codes '01000'-'47000' are Japanese prefectures (JIS X 0401, e.g. '13000' = Tokyo). 3-digit codes (e.g. '840') are ISO 3166-1 numeric country codes for international comparison indicators. Discover codes via estat-japan-dashboard.region_info."
+          },
+          "time_from": {
+            "type": "string",
+            "description": "Start of the time range, in the indicator's own cycle notation, e.g. '2020CY00' (calendar year 2020) or '202101' + '00' -> '20210100' (January 2021 for monthly indicators). Check the valid range and cycle in estat-japan-dashboard.indicator_info."
+          },
+          "time_to": {
+            "type": "string",
+            "description": "End of the time range, same notation as time_from, e.g. '2022CY00'."
+          },
+          "cycle": {
+            "type": "string",
+            "description": "Filter to one reporting cycle when an indicator publishes more than one, e.g. '1' (Month) or '3' (Calendar Year). See the cycle codes returned by estat-japan-dashboard.indicator_info for this indicator."
+          },
+          "lang": {
+            "type": "string",
+            "enum": [
+              "JP",
+              "EN"
+            ],
+            "description": "Response language: 'EN' (English, default) or 'JP' (Japanese).",
+            "default": "EN"
+          }
+        },
+        "required": [
+          "indicator_code"
         ]
       },
       "outputSchema": {

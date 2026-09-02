@@ -8627,6 +8627,25 @@ tools:
     price_usd: "0.003"
     cache_ttl: 1800
 
+  # --- UC-671: e-Stat Japan Dashboard (dashboard.e-stat.go.jp, Japan MIC) ---
+  - tool_id: estat-japan-dashboard.indicator_info
+    name: e-Stat Japan Dashboard Indicator Info
+    provider: estat-japan-dashboard
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: estat-japan-dashboard.region_info
+    name: e-Stat Japan Dashboard Region Info
+    provider: estat-japan-dashboard
+    price_usd: "0.001"
+    cache_ttl: 604800
+
+  - tool_id: estat-japan-dashboard.get_data
+    name: e-Stat Japan Dashboard Get Data
+    provider: estat-japan-dashboard
+    price_usd: "0.003"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

@@ -16506,6 +16506,51 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+  // e-Stat Statistics Dashboard — Japan MIC (総務省統計局) API (3) — UC-671
+  {
+    toolId: 'estat-japan-dashboard.indicator_info',
+    mcpName: 'estat-japan-dashboard.reference.indicator_info',
+    title: 'e-Stat Japan Dashboard Indicator Info',
+    description:
+      'Get metadata for one e-Stat Statistics Dashboard indicator code — name, unit, source ' +
+      'survey, valid date range, and the cycle/regional-rank combinations it publishes (e.g. ' +
+      'Month vs Calendar Year, Japan vs Prefecture). Call this BEFORE ' +
+      'estat-japan-dashboard.get_data to confirm units and available cycles for the indicator. ' +
+      'Data: dashboard.e-stat.go.jp (Japan Ministry of Internal Affairs and Communications), ' +
+      'no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'estat-japan-dashboard.region_info',
+    mcpName: 'estat-japan-dashboard.reference.region_info',
+    title: 'e-Stat Japan Dashboard Region Info',
+    description:
+      'Get metadata for one e-Stat Statistics Dashboard region code (name, level, valid date ' +
+      'range), or omit region_code to fetch the full region catalog — Japan, its 47 ' +
+      'prefectures and municipalities, plus world countries used for international-comparison ' +
+      'indicators. Use this to discover region codes for estat-japan-dashboard.get_data. Data: ' +
+      'dashboard.e-stat.go.jp, no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'estat-japan-dashboard.get_data',
+    mcpName: 'estat-japan-dashboard.series.get_data',
+    title: 'e-Stat Japan Dashboard Get Data',
+    description:
+      'Fetch time-series values for one or more e-Stat Statistics Dashboard indicator codes, ' +
+      'optionally filtered by region and time range — population, labour, economy, trade, and ' +
+      'other official Japanese government statistics (and comparable world figures for some ' +
+      'indicators). Always call estat-japan-dashboard.indicator_info first to confirm units and ' +
+      'valid cycle for the indicator, and estat-japan-dashboard.region_info to confirm region ' +
+      "codes. Example: total population (indicator_code='0201010000000010000'), Japan " +
+      "(region_code='00000'), 2020-2022 (time_from='2020CY00', time_to='2022CY00'). Data: " +
+      'dashboard.e-stat.go.jp, no auth required, Public Data License v1.0 (attribution ' +
+      'required, commercial reuse permitted).',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
   // ---------------------------------------------------------------------------
   // Ф5 physical-device MCP layer -- device.list/state/command (2026-09-02)
   // Generic vendor-agnostic projection; Tuya is the only connected vendor
