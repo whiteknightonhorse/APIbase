@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1336 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1339 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -64162,6 +64162,152 @@
         "required": [
           "cube_code",
           "selections"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "latvia-statistics.reference.catalog",
+      "description": "Browse the Central Statistical Bureau of Latvia's statistics database tree by path. Top-level categories: POP (population), EMP (labour market), VES (social security and health), IZG (education, culture and science), VEK (economy), TIR (trade and services), ENT (business), IKT (information technologies), ENV (environment), FIN (indicators of well-being and equality). Returns child nodes (subcategories, type=l) or table descriptors at leaf nodes (type=t). Use empty path '' to get top-level categories. Navigate hierarchically until type=t nodes appear, then use latvia-statistics.table_metadata. Data: data.stat.gov.lv (PXWeb API), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Hierarchical path through the Latvia statistics taxonomy. Empty '' gets top-level categories. Examples: 'POP' (population), 'EMP' (labour market), 'VES' (social security and health), 'IZG' (education, culture and science), 'VEK' (economy), 'TIR' (trade and services), 'ENT' (business), 'IKT' (information technologies), 'ENV' (environment), 'FIN' (indicators of well-being and equality). Use latvia-statistics.catalog recursively to navigate until type=t (table leaf) nodes appear.",
+            "default": ""
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "latvia-statistics.reference.table_metadata",
+      "description": "Get metadata for a specific Latvia statistics table — title, dimensions (e.g. INDICATOR, TIME, ContentsCode), valid value codes for each dimension, and latest update timestamp. Use this BEFORE latvia-statistics.table_query to discover accepted filter values. Example path: 'POP/IR/IRS/IRS010' (population at the beginning of year, key vital statistics). Data: data.stat.gov.lv, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "table_path": {
+            "type": "string",
+            "description": "Full path to a leaf table (type='t' from latvia-statistics.catalog), e.g. 'POP/IR/IRS/IRS010' (population at the beginning of year, key vital statistics). Returns title, dimension codes, and valid values to use in latvia-statistics.table_query."
+          }
+        },
+        "required": [
+          "table_path"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "latvia-statistics.series.table_query",
+      "description": "Run a statistical query against a Latvia statistics table — specify dimension filters to slice data by indicator, time period, region, etc. Returns JSON-stat2 format with labeled dimensions and numeric values. Always call latvia-statistics.table_metadata first to discover valid dimension codes and value codes. Example: population at start of year (INDICATOR='POP_SY'), latest year (TIME filter='top' values=['1']). Data: data.stat.gov.lv, no auth required, CC BY 4.0 (Central Statistical Bureau of Latvia).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "table_path": {
+            "type": "string",
+            "description": "Full path to the leaf table to query — same as latvia-statistics.table_metadata table_path. Example: 'POP/IR/IRS/IRS010'."
+          },
+          "query": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string",
+                  "description": "Dimension code from latvia-statistics.table_metadata variables[].code. Examples: 'INDICATOR', 'ContentsCode', 'TIME'."
+                },
+                "selection": {
+                  "type": "object",
+                  "properties": {
+                    "filter": {
+                      "type": "string",
+                      "description": "Filter type. Common values: 'item' (select by exact code), 'top' (select N most recent — use with TIME/year dimensions), 'all' (all values). Use the valueSet codes from metadata."
+                    },
+                    "values": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Array of value codes to select. Get valid codes from latvia-statistics.table_metadata variables[].values. For filter='item': list codes like ['POP_SY']. For filter='top': list count like ['3'] (3 most recent years). For filter='all': use ['*']."
+                    }
+                  },
+                  "required": [
+                    "filter",
+                    "values"
+                  ],
+                  "description": "Selection criteria for this dimension."
+                }
+              },
+              "required": [
+                "code",
+                "selection"
+              ],
+              "description": "Filter for one dimension (variable) in the table."
+            },
+            "description": "Array of dimension filters. Each filter selects which values to include for one dimension. Example: [{code:'INDICATOR',selection:{filter:'item',values:['POP_SY']}}, {code:'ContentsCode',selection:{filter:'item',values:['IRS010']}}, {code:'TIME',selection:{filter:'top',values:['1']}}]. Response is JSON-stat2 format with dimension labels and numeric values array."
+          }
+        },
+        "required": [
+          "table_path",
+          "query"
         ]
       },
       "outputSchema": {

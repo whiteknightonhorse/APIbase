@@ -384,6 +384,7 @@ import { CzsoAdapter } from './czso';
 import { StatistikAustriaAdapter } from './statistik-austria';
 import { HungaryKshAdapter } from './hungary-ksh';
 import { SlovakiaStatisticsAdapter } from './slovakia-statistics';
+import { LatviaStatisticsAdapter } from './latvia-statistics';
 import { config } from '../config';
 
 /**
@@ -2075,6 +2076,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // 4.0. Dataset endpoint takes one path segment per dimension VALUE code (not dimension
       // name) in dimension order — confirmed against REST_API_HELP_EN.pdf.
       return getOrCreate('slovakia-statistics', () => new SlovakiaStatisticsAdapter());
+    case 'latvia-statistics':
+      // Central Statistical Bureau of Latvia PXWeb API (UC-668) — data.stat.gov.lv:
+      // identical PXWeb v1 shape to Statistics Sweden (scb adapter) — verified live
+      // before writing. Catalog browse + leaf table metadata + JSON-stat2 query. No
+      // auth, CC BY 4.0, commercial use explicitly permitted with attribution.
+      return getOrCreate('latvia-statistics', () => new LatviaStatisticsAdapter());
     default:
       return undefined;
   }

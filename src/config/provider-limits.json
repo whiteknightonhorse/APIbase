@@ -3437,5 +3437,14 @@
     "reset_period": "none",
     "docs_url": "https://data.statistics.sk/api/help/REST_API_HELP_EN.pdf",
     "limit_proof": "Public Statistical Office of the Slovak Republic open-data API (data.statistics.sk); docs state 'Access to data is free and does not require registration', no authentication or API key required for any endpoint, no rate-limit headers returned in observed responses, no documented request quota found (only a stated 2000-char URL length limit and ~10000 values per request)."
+  },
+  "latvia-statistics": {
+    "display_name": "Latvia Statistics (Central Statistical Bureau)",
+    "health_url": "https://data.stat.gov.lv/api/v1/en/OSP_PUB",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://stat.gov.lv/en/about-osp",
+    "limit_proof": "Official statistics portal of the Central Statistical Bureau of Latvia (data.stat.gov.lv), a standard PXWeb API — no authentication or API key required, published as open data under CC BY 4.0 with commercial and non-commercial reuse explicitly permitted (attribution required), no documented rate limits found."
   }
 }

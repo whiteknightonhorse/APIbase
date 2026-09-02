@@ -16371,6 +16371,50 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+  // Latvia Statistics — Central Statistical Bureau of Latvia PXWeb API (3) — UC-668
+  {
+    toolId: 'latvia-statistics.catalog',
+    mcpName: 'latvia-statistics.reference.catalog',
+    title: 'Latvia Statistics Catalog Browse',
+    description:
+      "Browse the Central Statistical Bureau of Latvia's statistics database tree by path. " +
+      'Top-level categories: POP (population), EMP (labour market), VES (social security and ' +
+      'health), IZG (education, culture and science), VEK (economy), TIR (trade and services), ' +
+      'ENT (business), IKT (information technologies), ENV (environment), FIN (indicators of ' +
+      'well-being and equality). Returns child nodes (subcategories, type=l) or table ' +
+      "descriptors at leaf nodes (type=t). Use empty path '' to get top-level categories. " +
+      'Navigate hierarchically until type=t nodes appear, then use ' +
+      'latvia-statistics.table_metadata. Data: data.stat.gov.lv (PXWeb API), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'latvia-statistics.table_metadata',
+    mcpName: 'latvia-statistics.reference.table_metadata',
+    title: 'Latvia Statistics Table Metadata',
+    description:
+      'Get metadata for a specific Latvia statistics table — title, dimensions (e.g. ' +
+      'INDICATOR, TIME, ContentsCode), valid value codes for each dimension, and latest update ' +
+      'timestamp. Use this BEFORE latvia-statistics.table_query to discover accepted filter ' +
+      "values. Example path: 'POP/IR/IRS/IRS010' (population at the beginning of year, key " +
+      'vital statistics). Data: data.stat.gov.lv, no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'latvia-statistics.table_query',
+    mcpName: 'latvia-statistics.series.table_query',
+    title: 'Latvia Statistics Table Query',
+    description:
+      'Run a statistical query against a Latvia statistics table — specify dimension filters ' +
+      'to slice data by indicator, time period, region, etc. Returns JSON-stat2 format with ' +
+      'labeled dimensions and numeric values. Always call latvia-statistics.table_metadata ' +
+      'first to discover valid dimension codes and value codes. Example: population at start ' +
+      "of year (INDICATOR='POP_SY'), latest year (TIME filter='top' values=['1']). Data: " +
+      'data.stat.gov.lv, no auth required, CC BY 4.0 (Central Statistical Bureau of Latvia).',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
   // ---------------------------------------------------------------------------
   // Ф5 physical-device MCP layer -- device.list/state/command (2026-09-02)
   // Generic vendor-agnostic projection; Tuya is the only connected vendor

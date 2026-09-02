@@ -8570,6 +8570,25 @@ tools:
     price_usd: "0.002"
     cache_ttl: 3600
 
+  # --- UC-668: Latvia Statistics (Central Statistical Bureau of Latvia, PXWeb API) ---
+  - tool_id: latvia-statistics.catalog
+    name: Latvia Statistics Catalog Browse
+    provider: latvia-statistics
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: latvia-statistics.table_metadata
+    name: Latvia Statistics Table Metadata
+    provider: latvia-statistics
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: latvia-statistics.table_query
+    name: Latvia Statistics Table Query
+    provider: latvia-statistics
+    price_usd: "0.003"
+    cache_ttl: 1800
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform
