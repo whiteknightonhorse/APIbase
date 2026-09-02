@@ -3410,5 +3410,14 @@
     "reset_period": "none",
     "docs_url": "https://vdb.czso.cz/vdbvo2/",
     "limit_proof": "Public Czech Statistical Office open-data catalog (vdb.czso.cz); no authentication or API key required for any endpoint, no rate-limit headers returned in observed responses, no documented request quota found."
+  },
+  "statistik-austria": {
+    "display_name": "Statistik Austria Open Data",
+    "health_url": "https://data.statistik.gv.at/web/catalog.jsp",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.statistik.at/en/services/open-government-data-ogd",
+    "limit_proof": "Public Statistik Austria open-data portal (data.statistik.gv.at); no authentication or API key required for any endpoint, no rate-limit headers returned in observed responses, no documented request quota found."
   }
 }

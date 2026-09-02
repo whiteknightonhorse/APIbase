@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1326 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1330 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -63715,6 +63715,178 @@
         },
         "required": [
           "dataset_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "statistik-austria.reference.dataset_search",
+      "description": "Browse/search the Statistik Austria open-data catalog (~540 datasets: population, prices, labour market, foreign trade, industry indices). Optional search substring filters on title or dataset_id, case-insensitive — Statistik Austria has no full-text search API. Returns dataset_id + title for use in statistik-austria.dataset_metadata and statistik-austria.dataset_data. Data: data.statistik.gv.at (Statistik Austria), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "search": {
+            "type": "string",
+            "description": "Filter datasets by substring, case-insensitive, matched against title and dataset_id (e.g. \"Bevölkerung\" for population datasets, \"veste309\" for the earnings-structure survey). Statistik Austria has no full-text search API — omit to page through the full ~540-dataset catalog with offset/limit."
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of matching datasets to skip (default 0). For paging through results."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Max datasets to return (1-50, default 20)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "statistik-austria.reference.dataset_metadata",
+      "description": "Get full metadata for one Statistik Austria dataset (dataset_id from statistik-austria.dataset_search) — title, notes, tags, license, update frequency, resource list, column meanings (attribute_description), and the category_dimensions list needed for statistik-austria.category_codes. Data: data.statistik.gv.at (Statistik Austria), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "dataset_id": {
+            "type": "string",
+            "description": "Statistik Austria dataset id, from statistik-austria.dataset_search (e.g. \"OGD_veste309_Veste309_1\" for the 2018 earnings-structure survey, \"OGD_konjunkturmonitor_KonMon_1\" for the economic-monitor series).",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "dataset_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "statistik-austria.series.dataset_data",
+      "description": "Fetch rows from a Statistik Austria dataset's CSV data file (dataset_id from statistik-austria.dataset_search). Column codes are opaque (e.g. \"C-STAATS-0\", \"F-VESTE_AM\") — use statistik-austria.dataset_metadata for column meanings and statistik-austria.category_codes to decode category values (e.g. \"STAATS-9\"). Rows capped 1-200 (default 20). Data: data.statistik.gv.at (Statistik Austria), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "dataset_id": {
+            "type": "string",
+            "description": "Statistik Austria dataset id, from statistik-austria.dataset_search (e.g. \"OGD_konjunkturmonitor_KonMon_1\").",
+            "minLength": 1
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "description": "Max rows to return (1-200, default 20)."
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of rows to skip, for paging through a large dataset."
+          }
+        },
+        "required": [
+          "dataset_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "statistik-austria.reference.category_codes",
+      "description": "Decode a categorical column's codes into German + English display names (e.g. \"STAATS-9\" -> \"Insgesamt\" / \"Total\"). Requires dataset_id and dimension_code (format \"C-{NAME}-{N}\", from statistik-austria.dataset_metadata's category_dimensions list). Data: data.statistik.gv.at (Statistik Austria), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "dataset_id": {
+            "type": "string",
+            "description": "Statistik Austria dataset id, from statistik-austria.dataset_search (e.g. \"OGD_veste309_Veste309_1\").",
+            "minLength": 1
+          },
+          "dimension_code": {
+            "type": "string",
+            "description": "Categorical column code to decode, from statistik-austria.dataset_metadata's category_dimensions list (format \"C-{NAME}-{N}\", e.g. \"C-STAATS-0\" for citizenship, \"C-VEBDL-0\" for federal state). Columns starting with \"F-\" are numeric measures with no code lookup.",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "dataset_id",
+          "dimension_code"
         ]
       },
       "outputSchema": {

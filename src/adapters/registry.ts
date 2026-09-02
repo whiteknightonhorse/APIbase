@@ -381,6 +381,7 @@ import { InePortugalAdapter } from './ine-portugal';
 import { BundesbankTimeseriesAdapter } from './bundesbank-timeseries';
 import { IneSpainAdapter } from './ine-spain';
 import { CzsoAdapter } from './czso';
+import { StatistikAustriaAdapter } from './statistik-austria';
 import { config } from '../config';
 
 /**
@@ -2054,6 +2055,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // prices, census, territorial); no auth, no full-text search endpoint (confirmed
       // 404), data resources are mostly CSV, some ZIP (rejected — no unzip dependency)
       return getOrCreate('czso', () => new CzsoAdapter());
+    case 'statistik-austria':
+      // Statistik Austria open-data portal (UC-665) — data.statistik.gv.at: no
+      // catalog/search JSON API (only a scraped HTML page), OGD Austria Metadata
+      // 2.3 JSON for per-dataset metadata, semicolon-delimited CSV for data and
+      // categorical code lookups; no auth, CC BY 4.0
+      return getOrCreate('statistik-austria', () => new StatistikAustriaAdapter());
     default:
       return undefined;
   }

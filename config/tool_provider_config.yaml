@@ -8507,6 +8507,31 @@ tools:
     price_usd: "0.002"
     cache_ttl: 3600
 
+  # --- UC-665: Statistik Austria open-data portal ---
+  - tool_id: statistik-austria.dataset_search
+    name: Statistik Austria Dataset Search
+    provider: statistik-austria
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: statistik-austria.dataset_metadata
+    name: Statistik Austria Dataset Metadata
+    provider: statistik-austria
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: statistik-austria.dataset_data
+    name: Statistik Austria Dataset Data
+    provider: statistik-austria
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: statistik-austria.category_codes
+    name: Statistik Austria Category Codes
+    provider: statistik-austria
+    price_usd: "0.001"
+    cache_ttl: 604800
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

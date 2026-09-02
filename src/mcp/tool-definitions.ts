@@ -16237,6 +16237,58 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+  // Statistik Austria — data.statistik.gv.at open-data portal (4) — UC-665
+  {
+    toolId: 'statistik-austria.dataset_search',
+    mcpName: 'statistik-austria.reference.dataset_search',
+    title: 'Statistik Austria Dataset Search',
+    description:
+      'Browse/search the Statistik Austria open-data catalog (~540 datasets: population, ' +
+      'prices, labour market, foreign trade, industry indices). Optional search substring ' +
+      'filters on title or dataset_id, case-insensitive — Statistik Austria has no full-text ' +
+      'search API. Returns dataset_id + title for use in statistik-austria.dataset_metadata and ' +
+      'statistik-austria.dataset_data. Data: data.statistik.gv.at (Statistik Austria), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'statistik-austria.dataset_metadata',
+    mcpName: 'statistik-austria.reference.dataset_metadata',
+    title: 'Statistik Austria Dataset Metadata',
+    description:
+      'Get full metadata for one Statistik Austria dataset (dataset_id from ' +
+      'statistik-austria.dataset_search) — title, notes, tags, license, update frequency, ' +
+      'resource list, column meanings (attribute_description), and the category_dimensions ' +
+      'list needed for statistik-austria.category_codes. Data: data.statistik.gv.at (Statistik ' +
+      'Austria), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'statistik-austria.dataset_data',
+    mcpName: 'statistik-austria.series.dataset_data',
+    title: 'Statistik Austria Dataset Data',
+    description:
+      "Fetch rows from a Statistik Austria dataset's CSV data file (dataset_id from " +
+      'statistik-austria.dataset_search). Column codes are opaque (e.g. "C-STAATS-0", ' +
+      '"F-VESTE_AM") — use statistik-austria.dataset_metadata for column meanings and ' +
+      'statistik-austria.category_codes to decode category values (e.g. "STAATS-9"). Rows ' +
+      'capped 1-200 (default 20). Data: data.statistik.gv.at (Statistik Austria), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'statistik-austria.category_codes',
+    mcpName: 'statistik-austria.reference.category_codes',
+    title: 'Statistik Austria Category Codes',
+    description:
+      "Decode a categorical column's codes into German + English display names (e.g. " +
+      '"STAATS-9" -> "Insgesamt" / "Total"). Requires dataset_id and dimension_code (format ' +
+      '"C-{NAME}-{N}", from statistik-austria.dataset_metadata\'s category_dimensions list). ' +
+      'Data: data.statistik.gv.at (Statistik Austria), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
   // ---------------------------------------------------------------------------
   // Ф5 physical-device MCP layer -- device.list/state/command (2026-09-02)
   // Generic vendor-agnostic projection; Tuya is the only connected vendor
