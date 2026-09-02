@@ -2,7 +2,12 @@ name: Security Audit
 
 on:
   push:
-    branches: [main]
+    # F3: also run on ci-staging, not just main. promote_staging.sh (the only path onto
+    # branch-protected main) reads these jobs' check-runs for the ci-staging SHA BEFORE
+    # promoting -- if this only ran on main, that data would not exist yet at decision
+    # time (promotion IS what puts the SHA on main), so the required-check gate added to
+    # promote_staging.sh would see "MISSING" forever and never promote anything.
+    branches: [main, ci-staging]
   pull_request:
     branches: [main]
   schedule:
