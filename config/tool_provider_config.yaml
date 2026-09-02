@@ -8463,6 +8463,31 @@ tools:
     price_usd: "0.002"
     cache_ttl: 3600
 
+  # --- UC-663: INE Spain (Instituto Nacional de Estadística) Tempus3 API ---
+  - tool_id: ine-spain.operations
+    name: INE Spain Operation Catalog
+    provider: ine-spain
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: ine-spain.tables
+    name: INE Spain Tables for Operation
+    provider: ine-spain
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: ine-spain.table_data
+    name: INE Spain Table Data
+    provider: ine-spain
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: ine-spain.series_data
+    name: INE Spain Series Data
+    provider: ine-spain
+    price_usd: "0.002"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

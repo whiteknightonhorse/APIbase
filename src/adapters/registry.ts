@@ -379,6 +379,7 @@ import { IstatAdapter } from './istat';
 import { MscGeometAdapter } from './msc-geomet';
 import { InePortugalAdapter } from './ine-portugal';
 import { BundesbankTimeseriesAdapter } from './bundesbank-timeseries';
+import { IneSpainAdapter } from './ine-spain';
 import { config } from '../config';
 
 /**
@@ -2041,6 +2042,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // (dataflow list, datastructure) serve XML only, not JSON — verified live against the
       // API's /v3/api-docs OpenAPI spec.
       return getOrCreate('bundesbank-timeseries', () => new BundesbankTimeseriesAdapter());
+    case 'ine-spain':
+      // INE Spain Tempus3 public REST API (UC-663) — Spanish National Statistics
+      // Institute: operation catalog browse, per-operation table list, per-table
+      // recent data, per-series data + rich metadata; no auth, CC BY-SA 4.0
+      return getOrCreate('ine-spain', () => new IneSpainAdapter());
     default:
       return undefined;
   }

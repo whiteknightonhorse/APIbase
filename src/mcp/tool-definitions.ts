@@ -16149,6 +16149,54 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+  // INE Spain (4)
+  {
+    toolId: 'ine-spain.operations',
+    mcpName: 'ine-spain.reference.operations',
+    title: 'INE Spain Operation Catalog',
+    description:
+      'Browse the catalog of 109 published Spanish official statistical operations (e.g. IPC = ' +
+      'Consumer Price Index, EPA = Labour Force Survey). Optional search filters by name substring. ' +
+      'Returns operation_code for use in ine-spain.tables. Data: servicios.ine.es (Instituto ' +
+      'Nacional de Estadística Tempus3 API), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ine-spain.tables',
+    mcpName: 'ine-spain.reference.tables',
+    title: 'INE Spain Tables for Operation',
+    description:
+      'List the published data tables under a Spanish statistical operation (operation_code from ' +
+      'ine-spain.operations, e.g. "IPC" or "EPA"). Returns table_id, name, and covered period for ' +
+      'use in ine-spain.table_data. Data: servicios.ine.es (INE Tempus3 API), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ine-spain.table_data',
+    mcpName: 'ine-spain.series.table_data',
+    title: 'INE Spain Table Data',
+    description:
+      'Get the most-recent data points (1-6 periods, default 1) for EVERY series in a table ' +
+      '(table_id from ine-spain.tables). Tables can bundle hundreds of series, so periods is capped ' +
+      'tightly — use ine-spain.series_data for a longer single-series history. Data: servicios.ine.es ' +
+      '(INE Tempus3 API), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'ine-spain.series_data',
+    mcpName: 'ine-spain.series.data',
+    title: 'INE Spain Series Data',
+    description:
+      'Get up to 100 most-recent data points plus rich metadata (period name, provisional flag) for ' +
+      'ONE specific series (series_code, e.g. "IPC251856" — from an ine-spain.table_data result COD ' +
+      'field or the INE website). An unrecognized series_code returns an empty upstream response. ' +
+      'Data: servicios.ine.es (INE Tempus3 API), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
   // ---------------------------------------------------------------------------
   // Ф5 physical-device MCP layer -- device.list/state/command (2026-09-02)
   // Generic vendor-agnostic projection; Tuya is the only connected vendor

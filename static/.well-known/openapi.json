@@ -120893,6 +120893,732 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/ine-spain.operations/call": {
+      "post": {
+        "operationId": "ine-spain_operations",
+        "summary": "INE Spain Operation Catalog",
+        "description": "Browse the catalog of 109 published Spanish official statistical operations (e.g. IPC = Consumer Price Index, EPA = Labour Force Survey). Optional search filters by name substring. Returns operation_code for use in ine-spain.tables. Data: servicios.ine.es (Instituto Nacional de Estadística Tempus3 API), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ine-spain.operations"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "search": {
+                    "type": "string",
+                    "description": "Case-insensitive substring to filter operations by name, e.g. \"precios\" or \"population\". Omit to list all 109 published operations."
+                  },
+                  "lang": {
+                    "type": "string",
+                    "enum": [
+                      "ES",
+                      "EN"
+                    ],
+                    "description": "Response language: ES (Spanish, default) or EN (English)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ine-spain.tables/call": {
+      "post": {
+        "operationId": "ine-spain_tables",
+        "summary": "INE Spain Tables for Operation",
+        "description": "List the published data tables under a Spanish statistical operation (operation_code from ine-spain.operations, e.g. \"IPC\" or \"EPA\"). Returns table_id, name, and covered period for use in ine-spain.table_data. Data: servicios.ine.es (INE Tempus3 API), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ine-spain.tables"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "operation_code": {
+                    "type": "string",
+                    "enum": [
+                      "ADRH",
+                      "ANES",
+                      "APEL",
+                      "CCM",
+                      "CDMGE",
+                      "CMEA",
+                      "CNE",
+                      "CNEAG",
+                      "CNTR2000",
+                      "CNTR2008",
+                      "CNTR2010",
+                      "CODEM",
+                      "CONA",
+                      "CONM",
+                      "CP",
+                      "CTNFSI",
+                      "DIR",
+                      "DPOD",
+                      "DPOH",
+                      "DPOP",
+                      "EACL",
+                      "EAES",
+                      "EAES:Q",
+                      "ECM",
+                      "ECP",
+                      "ECSE",
+                      "ECV",
+                      "ECVG",
+                      "EDES",
+                      "EEE:COM",
+                      "EEE:IND",
+                      "EEE:SER",
+                      "EFPA",
+                      "EG",
+                      "EH",
+                      "EI",
+                      "EIAP",
+                      "EJP",
+                      "EM",
+                      "EMCR",
+                      "EMLG",
+                      "EMN",
+                      "ENSD",
+                      "EOA",
+                      "EOAC",
+                      "EOAP",
+                      "EOH",
+                      "EOT",
+                      "EOTR",
+                      "EPA",
+                      "EPC",
+                      "EPF",
+                      "EPOBA",
+                      "EPOBC",
+                      "EPOBL",
+                      "ETCL",
+                      "ETDP",
+                      "ETR",
+                      "FR",
+                      "GDRE",
+                      "GDVE",
+                      "HPT",
+                      "IAS",
+                      "ICE",
+                      "ICES",
+                      "ICLA",
+                      "ICM",
+                      "ICN",
+                      "ICNE",
+                      "IDB",
+                      "IEP",
+                      "IGC",
+                      "IIH",
+                      "IMCV",
+                      "IMM",
+                      "IPAC",
+                      "IPAP",
+                      "IPC",
+                      "IPCA",
+                      "IPCO",
+                      "IPH",
+                      "IPI",
+                      "IPRI",
+                      "IPRX-M",
+                      "IPS",
+                      "IPSS",
+                      "IPT",
+                      "IPTR",
+                      "IPV",
+                      "IPVA",
+                      "IRSH",
+                      "MMOV",
+                      "MNPD",
+                      "MNPM",
+                      "MNPN",
+                      "MOS",
+                      "MYH",
+                      "OAT",
+                      "PERE",
+                      "SM",
+                      "STEC",
+                      "TF",
+                      "TM",
+                      "TMOV",
+                      "TNOM",
+                      "TV",
+                      "UA",
+                      "VGD",
+                      "VTE"
+                    ],
+                    "description": "Operation code from ine-spain.operations, e.g. \"IPC\" (Consumer Price Index) or \"EPA\" (Labour Force Survey)."
+                  },
+                  "lang": {
+                    "type": "string",
+                    "enum": [
+                      "ES",
+                      "EN"
+                    ],
+                    "description": "Response language: ES (Spanish, default) or EN (English)."
+                  }
+                },
+                "required": [
+                  "operation_code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ine-spain.table_data/call": {
+      "post": {
+        "operationId": "ine-spain_table_data",
+        "summary": "INE Spain Table Data",
+        "description": "Get the most-recent data points (1-6 periods, default 1) for EVERY series in a table (table_id from ine-spain.tables). Tables can bundle hundreds of series, so periods is capped tightly — use ine-spain.series_data for a longer single-series history. Data: servicios.ine.es (INE Tempus3 API), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ine-spain.table_data"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "table_id": {
+                    "type": "integer",
+                    "description": "Numeric table id from ine-spain.tables, e.g. 24077 for the national CPI index table."
+                  },
+                  "periods": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 6,
+                    "description": "Number of most-recent periods to return per series, 1-6 (default 1). Tables can bundle hundreds of series, so this is capped tightly to stay under the response size limit — use ine-spain.series_data for a longer single-series history."
+                  },
+                  "lang": {
+                    "type": "string",
+                    "enum": [
+                      "ES",
+                      "EN"
+                    ],
+                    "description": "Response language: ES (Spanish, default) or EN (English)."
+                  }
+                },
+                "required": [
+                  "table_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ine-spain.series_data/call": {
+      "post": {
+        "operationId": "ine-spain_series_data",
+        "summary": "INE Spain Series Data",
+        "description": "Get up to 100 most-recent data points plus rich metadata (period name, provisional flag) for ONE specific series (series_code, e.g. \"IPC251856\" — from an ine-spain.table_data result COD field or the INE website). An unrecognized series_code returns an empty upstream response. Data: servicios.ine.es (INE Tempus3 API), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ine-spain.series_data"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "series_code": {
+                    "type": "string",
+                    "description": "Series code, e.g. \"IPC251856\" (from a table_data result COD field, or the INE website). An unrecognized code returns an empty response.",
+                    "minLength": 1
+                  },
+                  "periods": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Number of most-recent periods to return, 1-100 (default 12)."
+                  },
+                  "lang": {
+                    "type": "string",
+                    "enum": [
+                      "ES",
+                      "EN"
+                    ],
+                    "description": "Response language: ES (Spanish, default) or EN (English)."
+                  }
+                },
+                "required": [
+                  "series_code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/device.list/call": {
+      "post": {
+        "operationId": "device_list",
+        "summary": "List Connected Devices",
+        "description": "List every physical device reachable through the calling agent's own linked vendor accounts (Tuya first). Returns each device's vendor id, name, category, and online status, grouped by connection_id. Empty if the agent has not linked any vendor account yet -- see /connect/device/vendors.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "device.list"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "vendor": {
+                    "type": "string",
+                    "description": "Filter to one linked vendor's devices, e.g. 'tuya' (omit to list all)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/device.state/call": {
+      "post": {
+        "operationId": "device_state",
+        "summary": "Get Device State",
+        "description": "Read the current state (data points) of one physical device the calling agent owns via a linked vendor connection. Requires connection_id (from device.list) and device_id.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "device.state"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "connection_id": {
+                    "type": "string",
+                    "description": "Your device-connection id from /connect/device/connections"
+                  },
+                  "device_id": {
+                    "type": "string",
+                    "description": "The vendor's device id (from device.list)",
+                    "minLength": 1,
+                    "maxLength": 128
+                  }
+                },
+                "required": [
+                  "connection_id",
+                  "device_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/device.command/call": {
+      "post": {
+        "operationId": "device_command",
+        "summary": "Send Device Command",
+        "description": "⚡ ACTION: Send a command to a physical device the calling agent owns via a linked vendor connection (e.g. turn a plug on/off, set an AC temperature). Numeric setpoints are bounds-checked against the device class's configured safety limits (config/device-classes.json); some device classes require confirm:true. Requires connection_id, device_id, command, value.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "device.command"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "connection_id": {
+                    "type": "string",
+                    "description": "Your device-connection id from /connect/device/connections"
+                  },
+                  "device_id": {
+                    "type": "string",
+                    "description": "The vendor's device id (from device.list)",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "command": {
+                    "type": "string",
+                    "description": "The device's data-point code, e.g. 'switch_1', 'temp_set'",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  "value": {
+                    "type": "string",
+                    "description": "The value to set for this command"
+                  },
+                  "confirm": {
+                    "type": "boolean",
+                    "description": "Must be true for any device class flagged confirm_required in the safety layer (locks, valves, etc.)"
+                  }
+                },
+                "required": [
+                  "connection_id",
+                  "device_id",
+                  "command",
+                  "value"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {
