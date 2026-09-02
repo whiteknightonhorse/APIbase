@@ -2,25 +2,53 @@ import { createHmac, randomUUID } from 'node:crypto';
 import { logger } from '../../config/logger';
 
 /**
- * Tuya OpenAPI client -- OAuth 2.0 account-linking ("Code Mode", grant_type=2)
- * + device state/command calls, per Tuya's publicly documented Cloud API
- * signature scheme (developer.tuya.com "Sign Requests" + "Get Token" +
- * "Refresh Token" docs, cross-checked against Tuya's own support article and
- * multiple open-source SDKs, 2026-09-02).
+ * ⛔ FROZEN, 2026-09-02 (Fable's final ruling on the device-vendor program).
+ * Not deleted -- kept as the reference shape for the next vendor's client
+ * (SmartThings is next, has a real web OAuth flow this codebase can reach).
  *
- * ⚠️ DISCLOSED GAP, not glossed over: this has NOT been exercised against a
- * real Tuya cloud project. That requires a client_id/secret issued by Tuya's
- * IoT Development Platform, which requires the operator to register a
- * developer account -- see docs/OPERATOR-ACTION-device-vendor-tuya.md. Every
- * request/response shape below is taken from Tuya's own documentation and
- * verified self-consistent by this file's own tests (signature format,
- * header shape) -- it is NOT independently verified live. Do not treat the
- * request-count numbers in any report as calls that actually reached Tuya.
+ * Why frozen: Tuya's account-linking OAuth ("Link Tuya App Account") turned
+ * out to be reachable only through an OEM application Tuya sells as its own
+ * product. Buying that product would not even get us what this file was
+ * built for -- the end user would be authorizing OUR OEM app's own Tuya
+ * account, not logging into their own Smart Life / Tuya Smart app the way
+ * the connect-webview flow in device-connect.router.ts assumes. Tuya is no
+ * longer the first vendor; see docs/OPERATOR-ACTION-device-vendor-tuya.md
+ * (status: SUPERSEDED) and docs/OPERATOR-ACTION-device-vendor-smartthings.md.
  *
- * Two distinct signature formulas (Tuya's own split):
- *   Token management (get/refresh token): sign = HMAC-SHA256(client_id + t, secret)
- *   Service management (device calls):    sign = HMAC-SHA256(client_id + access_token + t, secret)
- * Both upper-cased hex, both include `t` (13-digit ms epoch) as a request header too.
+ * This module is NOT verified working. Two known defects sit in it,
+ * unresolved, so the next person doesn't have to re-find them:
+ *
+ * (a) SIGNING IS WRONG. `signTokenOp`/`signServiceOp` below implement an
+ *     outdated simple formula -- HMAC-SHA256(client_id + t) for token ops,
+ *     HMAC-SHA256(client_id + access_token + t) for device ops. Tuya's
+ *     current Cloud API scheme requires a `stringToSign` component (method
+ *     + "\n" + SHA256(body) + "\n" + signed-headers + "\n" + URL-with-
+ *     ALPHABETICALLY-SORTED-query-params) folded into the HMAC input. With
+ *     the formula as it stands today, EVERY real call to Tuya fails
+ *     signature verification -- including the very first authorization-code
+ *     exchange. There is no live call anywhere in this codebase that would
+ *     have caught this; it was only ever exercised against a mocked HTTP
+ *     layer that mirrors the (wrong) formula back at itself. Full spec:
+ *     https://developer.tuya.com/en/docs/iot/new-singnature?id=Kbw0q34cs2e5g
+ *
+ * (b) REFRESH IS NOT SAFE UNDER CONCURRENCY. Tuya's `refresh_token` is
+ *     single-use -- it is consumed the moment it is redeemed. Nothing in
+ *     this file or in device-connection.service.ts serializes a refresh
+ *     per connection. Two calls that both see an expired access token for
+ *     the SAME connection at the same moment will both try to redeem the
+ *     same refresh_token: one wins, the other's refresh fails, and the
+ *     connection is now stuck with no valid refresh_token left to recover
+ *     with -- a bricked connection, not a retryable error.
+ *
+ * Thaw predicate -- resume work here only when ONE of these becomes true:
+ *   1. Tuya opens OAuth account-linking to non-OEM / plain web clients, or
+ *   2. Tuya publishes a real API for generating the "Link Tuya App Account"
+ *      QR code (today that binding is console-only, admin-driven, and has
+ *      no API this codebase found), or
+ *   3. the operator makes an informed, deliberate decision to buy the OEM
+ *      application as a product, understanding it authorizes OUR app's own
+ *      Tuya account rather than the end user's.
+ * None of these is true as of this freeze.
  */
 
 export interface TuyaConfig {

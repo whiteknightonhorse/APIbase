@@ -1,3 +1,25 @@
+/**
+ * ⛔ FROZEN, 2026-09-02 (Fable's final ruling on the device-vendor program).
+ * Not deleted -- `DeviceAdapter` is the vendor-generic MCP projection
+ * (device.list / device.state / device.command) and SmartThings (the new
+ * first public vendor -- real web OAuth, unlike Tuya) plugs into this same
+ * shape as a new `case` in `callVendor()`, not a rewrite.
+ *
+ * Tuya specifically is frozen, not verified working. Full reasoning and the
+ * thaw predicate live in tuya-client.ts's own header -- read that before
+ * touching anything below that calls into it. Short version, so the two
+ * defects are visible from here too: `ensureFreshTuyaToken()` below signs
+ * every request with tuya-client.ts's outdated formula (every real Tuya
+ * call fails, including the first token exchange), and it does not
+ * serialize a refresh per connection (`rotateTokens` below can race -- two
+ * concurrent callers can both try to redeem the same one-time-use
+ * `refresh_token` and brick the connection). Zero live Tuya calls are
+ * possible today anyway -- `tuyaConfig()` returns undefined with no
+ * TUYA_CLIENT_ID set, which is deliberate (see docs/OPERATOR-ACTION-
+ * device-vendor-tuya.md, status SUPERSEDED) -- but that env gate must not
+ * be read as proof this code path is otherwise sound.
+ */
+
 import { BaseAdapter } from '../base.adapter';
 import {
   type ProviderRequest,

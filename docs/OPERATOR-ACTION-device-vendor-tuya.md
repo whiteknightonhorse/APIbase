@@ -1,56 +1,43 @@
-# Operator action needed -- Tuya IoT Cloud Project (Ф5 device layer)
+# Operator action -- Tuya IoT Cloud Project (Ф5 device layer)
 
-Filed 2026-09-02. This is a manual-registration class of action (like a vendor API key) that
-an agent should not perform autonomously: it requires the operator's own identity/email/business
-context and accepting Tuya's own terms. Code is already built and tested (mocked) to consume
-whatever comes out of this -- see `docs/09-device-mcp-layer.md`.
+## ⛔ STATUS: SUPERSEDED, 2026-09-02 -- do not act on this document
 
-## Why this can't be done by the agent
+This document used to ask the operator to register a Tuya IoT Development Platform account and
+enable "Authorization Management" OAuth. **Do not do that registration.** Fable's final ruling on
+the device-vendor program removed Tuya from first place and froze the Tuya code
+(`src/adapters/device-tuya/`) rather than finishing it. The console setting this document used to
+point at (an approved "Authorization Management" subscription that unlocks account-linking OAuth
+for a plain web client) **does not exist for a non-OEM project** -- following the old steps below
+would run into a wall Tuya puts up on purpose, not a review queue that eventually clears.
 
-Tuya's OAuth "Link Tuya App Account" flow (the one that lets an end user link their own Tuya
-account without giving us their password) requires a **Tuya IoT Development Platform account**
-and, for the account-linking capability specifically, an **"Authorization Management" service
-subscription that Tuya's own team reviews before it works for real end users** -- this is the
-"OAuth requires app verification, can take real time" case the operator's brief anticipated.
-Registering it needs a real business identity, not something to create on the operator's behalf.
+## Why: the OEM wall
 
-## Steps (operator, ~15-30 min to submit + a wait for Tuya's review)
+Tuya's "Link Tuya App Account" OAuth flow -- the one that would let an end user link their own
+Tuya account to us without giving us their password -- is reachable only through an **OEM
+application**, a product Tuya sells. And buying it would not even get us what this integration
+was built for: the end user would be logging into and authorizing **our OEM app's own Tuya
+account**, not their own Smart Life / Tuya Smart app account, which is exactly the assumption
+`device-connect.router.ts`'s connect-webview flow was built on. There is no cheaper or faster path
+found to plain web OAuth for a project of our shape.
 
-1. Register a free account at **iot.tuya.com** (Tuya IoT Development Platform).
-2. Create a **Cloud Project** -> Development Method: "Smart Home" (the PaaS project type that
-   supports third-party account linking, not "Custom" / "Industry").
-3. In the project's **Service API** tab, subscribe to (at minimum): IoT Core, Authorization
-   Management, Smart Home Basic Service.
-4. Note the project's **Access ID (`client_id`)** and **Access Secret (`client_secret`)**, and
-   which **data center** the project was created in (e.g. Western America -> `openapi.tuyaus.com`,
-   Central Europe -> `openapi.tuyaeu.com`, China -> `openapi.tuyacn.com`). This determines
-   `TUYA_API_BASE_URL`.
-5. In the project's **Authorization Management** (or "App Account" linking) settings, enable
-   **OAuth 2.0 Authorization** and set the callback/redirect URL to:
-   `https://apibase.pro/connect/device/tuya/callback`
-   Tuya's console will show a data-center-specific authorization page URL once this is approved
-   -- that full URL is `TUYA_AUTHORIZE_URL`.
-6. **This step is the one that can take real time** (Tuya's own review of the Authorization
-   Management subscription for a new project). Submit it and move on -- do not block other work
-   waiting on it.
-7. Once approved, set these on the server (`.env`, then restart the API container):
-   ```
-   TUYA_CLIENT_ID=<Access ID>
-   TUYA_CLIENT_SECRET=<Access Secret>
-   TUYA_API_BASE_URL=https://openapi.<your-data-center>.com
-   TUYA_AUTHORIZE_URL=<the authorization page URL from step 5>
-   ENCRYPTION_KEY=<a random 32+ byte secret, e.g. `openssl rand -hex 32`>
-   ```
-8. Tell the executor "Tuya is live" -- the next pass runs the same connect -> state -> command
-   -> revoke scenario for real (against a real Tuya account, ideally with the "Tuya Smart" or
-   "Smart Life" app's built-in device simulator so no physical hardware is required to prove it),
-   greps the real container logs (`scripts/check-device-no-plaintext-secrets.sh`), and reports
-   numbers.
+## What is frozen, not deleted
 
-## What happens if this sits unapproved
+`src/adapters/device-tuya/tuya-client.ts` and `index.ts` carry the full technical reasoning at the
+top of each file (two concrete unresolved defects: the request-signing formula is outdated and
+would fail every real call, and token refresh is not safe under concurrent callers) plus the
+resume condition below. The vendor-generic pieces this project built around Tuya --
+`device-connect.router.ts`'s routes, `device-connection.service.ts`, the safety layer, and the
+`device.*` MCP projection -- are **not** Tuya-specific and are being reused, word for word, for
+SmartThings (see `docs/OPERATOR-ACTION-device-vendor-smartthings.md`), the new first vendor.
 
-Nothing breaks: `device.list`/`device.state`/`device.command` are already live in the MCP
-catalog and resolve to a clean `503 service_unavailable` ("Tuya is not configured on this
-server") until the four Tuya env vars above are set -- same convention every other
-un-provisioned provider adapter in this repo already uses (`resolveAdapter`'s `cfgKey` pattern).
-No agent-facing tool is published as "working" while unverified.
+## Resume condition -- act on Tuya again only if ONE of these becomes true
+
+1. Tuya opens OAuth account-linking to non-OEM / plain web clients, or
+2. Tuya publishes a real API for generating the "Link Tuya App Account" QR code that an admin
+   currently has to generate by hand in the console (no such API was found), or
+3. the operator makes an informed, deliberate decision to buy the OEM application as a product,
+   understanding point 2 above (it authorizes our app's Tuya account, not the end user's).
+
+None of these is true today. Nothing on the live site or in `.env` references Tuya as available --
+`device.*` tools resolve to a clean 503 with no `TUYA_CLIENT_ID` set, same as any other
+un-provisioned adapter, and that gate stays in place until one of the three conditions above.
