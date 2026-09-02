@@ -7,16 +7,25 @@ violation from the DB directly (never from application logs — the hot path nev
 calls out to GitHub itself, see src/pipeline/stages/tool-status.stage.ts doc
 comment), dedup by an existing open issue title prefix, idempotent re-run.
 
-A tool shows up here iff price_usd < upstream_cost_usd * 1.3 AND upstream_cost_usd
-IS NOT NULL (rows still pending migration never match — see
+A tool shows up here iff price_usd < upstream_cost_usd * MARGIN_MULTIPLIER AND
+upstream_cost_usd IS NOT NULL (rows still pending migration never match — see
 scripts/migrate-upstream-cost.py). Every hit here is currently 503-ing real
 clients; this is a revenue-protection alert, not a housekeeping one.
+
+F6: MARGIN_MULTIPLIER used to be a second hardcoded `1.3` here (three literal
+occurrences), independent of src/pipeline/stages/tool-status.stage.ts's own
+`MARGIN_MULTIPLIER = 1.3` -- the same policy constant in two places with no
+link between them. Now read from config/margin.json, the one file both the
+TS runtime gate and this alert cron load.
 """
 import json, subprocess
 
 ROOT = "/home/apibase/apibase"
 REPO = "whiteknightonhorse/APIbase"
 TITLE_PREFIX = "Margin gate blocking: "
+
+with open(f"{ROOT}/config/margin.json") as f:
+    MARGIN_MULTIPLIER = json.load(f)["MARGIN_MULTIPLIER"]
 
 
 def psql(sql):
@@ -32,11 +41,11 @@ def gh(*args):
 
 
 rows = psql(
-    """
+    f"""
     SELECT tool_id, provider, price_usd, upstream_cost_usd
     FROM tools
     WHERE upstream_cost_usd IS NOT NULL
-      AND price_usd < ROUND(upstream_cost_usd * 1.3, 8)
+      AND price_usd < ROUND(upstream_cost_usd * {MARGIN_MULTIPLIER}, 8)
     ORDER BY tool_id
     """
 )
@@ -68,13 +77,13 @@ for tool_id, provider, price, cost in violations:
     if title in existing_titles:
         print(f"skip (already open): {tool_id}")
         continue
-    required = round(float(cost) * 1.3, 8)
+    required = round(float(cost) * MARGIN_MULTIPLIER, 8)
     body = (
         f"Runtime margin gate (TOOL_STATUS stage, F1/C-4) is refusing to serve **`{tool_id}`** "
         f"(provider `{provider}`) — clients get 503.\n\n"
         f"- `price_usd` = {price}\n"
         f"- `upstream_cost_usd` = {cost}\n"
-        f"- required minimum (cost × 1.3) = {required}\n\n"
+        f"- required minimum (cost × {MARGIN_MULTIPLIER}) = {required}\n\n"
         f"Fix by raising `price_usd` for this tool in `config/tool_provider_config.yaml` to at "
         f"least {required}, or re-verify `upstream_cost_usd` if it was migrated wrong, then re-seed. "
         f"Auto-detected by margin-gate-alerts (hourly)."

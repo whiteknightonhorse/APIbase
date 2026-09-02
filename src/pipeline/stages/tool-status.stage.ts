@@ -1,6 +1,7 @@
 import { type Stage, ok, err, type PipelineError } from '../types';
 import { getPrisma } from '../../services/prisma.service';
 import { logger } from '../../config/logger';
+import marginConfig from '../../config/margin.json';
 
 /**
  * TOOL_STATUS stage (§12.43 stage 5, §12.114).
@@ -20,9 +21,14 @@ import { logger } from '../../config/logger';
  * cron (scripts/margin-gate-alerts.py, same pattern as
  * provider-limit-alerts.py) re-derives the same violation from the DB and
  * files/updates a deduped GitHub issue; the hot path never calls out.
+ *
+ * F6 (2026-09-02): MARGIN_MULTIPLIER used to be a second hardcoded `1.3` in
+ * scripts/margin-gate-alerts.py, independent of this one -- the same policy
+ * constant in two places with no link between them. Both now read
+ * config/margin.json, one source for TS and Python.
  */
 
-const MARGIN_MULTIPLIER = 1.3;
+const MARGIN_MULTIPLIER: number = marginConfig.MARGIN_MULTIPLIER;
 
 // ---------------------------------------------------------------------------
 // In-memory tool cache
@@ -150,6 +156,11 @@ export function __setToolCacheEntryForTest(entry: ToolCacheEntry): void {
 /** Test-only: remove a cache entry. */
 export function __deleteToolCacheEntryForTest(toolId: string): void {
   toolCache.delete(toolId);
+}
+
+/** Test-only (F6): expose the actual runtime value for the single-source cross-check. */
+export function __getMarginMultiplierForTest(): number {
+  return MARGIN_MULTIPLIER;
 }
 
 // ---------------------------------------------------------------------------
