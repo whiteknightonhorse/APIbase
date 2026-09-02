@@ -16197,6 +16197,46 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+  // CZSO — Czech Statistical Office VDB open-data catalog (3) — UC-664
+  {
+    toolId: 'czso.dataset_list',
+    mcpName: 'czso.reference.dataset_list',
+    title: 'CZSO Dataset Catalog',
+    description:
+      'Browse the Czech Statistical Office open-data catalog (~1000 datasets: demographics, ' +
+      'prices, census, territorial statistics). Optional id_prefix substring filter narrows by ' +
+      'dataset id — CZSO has no full-text search. Returns dataset_id + title + temporal coverage ' +
+      'for use in czso.dataset_metadata and czso.dataset_data. Data: vdb.czso.cz (Czech ' +
+      'Statistical Office open-data catalog), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'czso.dataset_metadata',
+    mcpName: 'czso.reference.dataset_metadata',
+    title: 'CZSO Dataset Metadata',
+    description:
+      'Get full metadata for one CZSO dataset (dataset_id from czso.dataset_list) — description, ' +
+      'update frequency, temporal coverage, tags, and the resource list (download URL + format) ' +
+      'needed before calling czso.dataset_data. Data: vdb.czso.cz (Czech Statistical Office ' +
+      'open-data catalog), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'czso.dataset_data',
+    mcpName: 'czso.series.dataset_data',
+    title: 'CZSO Dataset Data',
+    description:
+      "Fetch rows from a CZSO dataset's CSV data file (dataset_id from czso.dataset_list). " +
+      'Column names vary per dataset (e.g. "vuzemi_txt" for territory, "rok" for year) — call ' +
+      'once without filter_column to see the header, then narrow with filter_column + ' +
+      'filter_value (substring match). Rows capped 1-500 (default 50). Datasets whose only ' +
+      'resource is not CSV (e.g. ZIP) are rejected with a pointer to the raw download URL. Data: ' +
+      'vdb.czso.cz (Czech Statistical Office open-data catalog), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
   // ---------------------------------------------------------------------------
   // Ф5 physical-device MCP layer -- device.list/state/command (2026-09-02)
   // Generic vendor-agnostic projection; Tuya is the only connected vendor

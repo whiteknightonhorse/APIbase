@@ -379,6 +379,7 @@ import { mscGeometSchemas } from './msc-geomet.schema';
 import { inePortugalSchemas } from './ine-portugal.schema';
 import { bundesbankTimeseriesSchemas } from './bundesbank-timeseries.schema';
 import { ineSpainSchemas } from './ine-spain.schema';
+import { czsoSchemas } from './czso.schema';
 import { deviceSchemas } from './device.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
@@ -762,5 +763,6 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...inePortugalSchemas,
   ...bundesbankTimeseriesSchemas,
   ...ineSpainSchemas,
+  ...czsoSchemas,
   ...deviceSchemas,
 };

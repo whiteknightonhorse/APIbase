@@ -121359,6 +121359,269 @@
         ]
       }
     },
+    "/api/v1/tools/czso.dataset_list/call": {
+      "post": {
+        "operationId": "czso_dataset_list",
+        "summary": "CZSO Dataset Catalog",
+        "description": "Browse the Czech Statistical Office open-data catalog (~1000 datasets: demographics, prices, census, territorial statistics). Optional id_prefix substring filter narrows by dataset id — CZSO has no full-text search. Returns dataset_id + title + temporal coverage for use in czso.dataset_metadata and czso.dataset_data. Data: vdb.czso.cz (Czech Statistical Office open-data catalog), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "czso.dataset_list"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id_prefix": {
+                    "type": "string",
+                    "description": "Filter dataset ids by substring, case-insensitive (e.g. \"13014\" for population-movement series, \"sldb2021\" for the 2021 census). CZSO has no full-text search — omit to page through the full ~1000-dataset catalog with offset/limit."
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Number of matching dataset ids to skip (default 0). For paging through results."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20,
+                    "description": "Max datasets to return with title + coverage attached (1-20, default 10)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/czso.dataset_metadata/call": {
+      "post": {
+        "operationId": "czso_dataset_metadata",
+        "summary": "CZSO Dataset Metadata",
+        "description": "Get full metadata for one CZSO dataset (dataset_id from czso.dataset_list) — description, update frequency, temporal coverage, tags, and the resource list (download URL + format) needed before calling czso.dataset_data. Data: vdb.czso.cz (Czech Statistical Office open-data catalog), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "czso.dataset_metadata"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "dataset_id": {
+                    "type": "string",
+                    "description": "CZSO dataset id, from czso.dataset_list (e.g. \"130141r25\" for 2024 population movement, \"010022\" for consumer price indices).",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "dataset_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/czso.dataset_data/call": {
+      "post": {
+        "operationId": "czso_dataset_data",
+        "summary": "CZSO Dataset Data",
+        "description": "Fetch rows from a CZSO dataset's CSV data file (dataset_id from czso.dataset_list). Column names vary per dataset (e.g. \"vuzemi_txt\" for territory, \"rok\" for year) — call once without filter_column to see the header, then narrow with filter_column + filter_value (substring match). Rows capped 1-500 (default 50). Datasets whose only resource is not CSV (e.g. ZIP) are rejected with a pointer to the raw download URL. Data: vdb.czso.cz (Czech Statistical Office open-data catalog), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "czso.dataset_data"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "dataset_id": {
+                    "type": "string",
+                    "description": "CZSO dataset id, from czso.dataset_list (e.g. \"130141r25\" for 2024 population movement).",
+                    "minLength": 1
+                  },
+                  "filter_column": {
+                    "type": "string",
+                    "description": "Column name to filter on, must match a column in the CSV header returned by this same tool (column names vary per dataset, e.g. \"vuzemi_txt\" for territory name, \"rok\" for year, \"vuk\" for indicator code) — call once without a filter to see the header first. Requires filter_value."
+                  },
+                  "filter_value": {
+                    "type": "string",
+                    "description": "Substring to match (case-insensitive) against filter_column's value, e.g. \"Praha\" when filter_column is \"vuzemi_txt\". Required when filter_column is set."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 500,
+                    "description": "Max rows to return after filtering (1-500, default 50)."
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Number of matching rows to skip, for paging through a large filtered result."
+                  }
+                },
+                "required": [
+                  "dataset_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/device.list/call": {
       "post": {
         "operationId": "device_list",

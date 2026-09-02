@@ -380,6 +380,7 @@ import { MscGeometAdapter } from './msc-geomet';
 import { InePortugalAdapter } from './ine-portugal';
 import { BundesbankTimeseriesAdapter } from './bundesbank-timeseries';
 import { IneSpainAdapter } from './ine-spain';
+import { CzsoAdapter } from './czso';
 import { config } from '../config';
 
 /**
@@ -2047,6 +2048,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // Institute: operation catalog browse, per-operation table list, per-table
       // recent data, per-series data + rich metadata; no auth, CC BY-SA 4.0
       return getOrCreate('ine-spain', () => new IneSpainAdapter());
+    case 'czso':
+      // Czech Statistical Office VDB open-data catalog (UC-664) — CKAN-shaped
+      // package_list/package_show metadata over ~1000 static datasets (demographics,
+      // prices, census, territorial); no auth, no full-text search endpoint (confirmed
+      // 404), data resources are mostly CSV, some ZIP (rejected — no unzip dependency)
+      return getOrCreate('czso', () => new CzsoAdapter());
     default:
       return undefined;
   }

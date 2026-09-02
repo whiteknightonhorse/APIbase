@@ -3401,5 +3401,14 @@
     "reset_period": "none",
     "docs_url": "https://www.ine.es/dyngs/DAB/index.htm?cid=1099",
     "limit_proof": "Public Instituto Nacional de Estadística Tempus3 REST API (servicios.ine.es); no authentication or API key required for any endpoint, no rate-limit headers returned in observed responses, no documented request quota found in the official DataLab API manual."
+  },
+  "czso": {
+    "display_name": "CZSO (Czech Statistical Office VDB)",
+    "health_url": "https://vdb.czso.cz/pll/eweb/package_list",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://vdb.czso.cz/vdbvo2/",
+    "limit_proof": "Public Czech Statistical Office open-data catalog (vdb.czso.cz); no authentication or API key required for any endpoint, no rate-limit headers returned in observed responses, no documented request quota found."
   }
 }
