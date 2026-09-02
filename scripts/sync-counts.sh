@@ -76,6 +76,28 @@ else
     [ "$(md5sum "$CATALOG" | cut -d" " -f1)" != "$b" ] && { echo "  updated $CATALOG"; CHANGED=$((CHANGED+1)); }
   fi
 
+  # F-EXT (2026-09-02): README's "N real-world API tools" / "N external API tools"
+  # phrasings sat stale (789 / 600+ against live 1316) because the main loop's generic
+  # pattern above only tolerates ONE intervening word ("[0-9]+ WORD tools"); both of these
+  # have TWO ("real-world API" / "external API") and silently never matched. Confirmed by
+  # reading the actual prose, not assumed: both were genuinely the same total-tool-count
+  # claim, not a distinct metric (an earlier comment on this file guessed otherwise --
+  # wrong, corrected below). Scoped to these two exact phrasings, not a blanket widen of
+  # the generic pattern, to avoid it start matching unrelated multi-word prose elsewhere.
+  if [ -f README.md ]; then
+    b=$(md5sum README.md | cut -d" " -f1)
+    sed -i -E "s/[0-9]{2,4}\+? real-world API tools/${TOOLS} real-world API tools/g; s/[0-9]{2,4}\+? external API tools/${TOOLS} external API tools/g" README.md
+    [ "$(md5sum README.md | cut -d" " -f1)" != "$b" ] && { echo "  updated README.md (real-world/external API tools phrasing)"; CHANGED=$((CHANGED+1)); }
+  fi
+
+  # gen-sitemap.sh -- static/sitemap.xml is generated from the actual served static
+  # surface (static/*.html + static/.well-known/**), never hand-edited. Regenerated here
+  # so a newly shipped page enters the sitemap on the same day it ships, not months later.
+  b=$(md5sum static/sitemap.xml 2>/dev/null | cut -d" " -f1 || echo "")
+  bash scripts/gen-sitemap.sh > /tmp/gen-sitemap.out 2>&1 \
+    || { echo "sync-counts: gen-sitemap.sh FAILED"; cat /tmp/gen-sitemap.out; exit 1; }
+  [ "$(md5sum static/sitemap.xml | cut -d" " -f1)" != "$b" ] && { echo "  updated static/sitemap.xml"; CHANGED=$((CHANGED+1)); }
+
   # server-card.json is generated (scripts/gen-card.ts), never hand-edited. Regenerate it here so
   # it can never drift from the same DB truth as the text surfaces above.
   PG_IP=$(docker inspect apibase-postgres-1 2>/dev/null | python3 -c "import sys,json; c=json.load(sys.stdin)[0]; print(list(c['NetworkSettings']['Networks'].values())[0]['IPAddress'])")
@@ -131,9 +153,11 @@ PY
 fi
 
 # verify zero stale catalog counts remain in text surfaces — fatal, not a printed warning.
-# Same shape as the fix-pass regex (one optional intervening word): widening it further starts
-# matching unrelated prose (e.g. README's "600+ external API tools", a different metric), which
-# would fail the build on content this task has no mandate to touch.
+# Same shape as the fix-pass regex (one optional intervening word) -- catches the common case;
+# README's "N real-world/external API tools" phrasings (two intervening words) have their OWN
+# dedicated STALE_README_PROSE check below (2026-09-02 correction: an earlier version of this
+# comment guessed "600+ external API tools" was a different metric -- it was not, it was the
+# same stale-count defect, confirmed by reading the actual prose).
 STALE=$(grep -rhoE "[0-9]{3,}\+?( [A-Za-z]+)? (tools|providers)" static/*.html static/*.txt README.md 2>/dev/null \
   | grep -vE "^${TOOLS} tools$|^${PROV} (upstream )?providers$|^${TOOLS} [A-Za-z]+ tools$" | sort -u || true)
 # Dedicated checks for the three surfaces this task added but whose phrasing the generic
@@ -143,6 +167,14 @@ STALE_AI_TXT=$(grep -oE "Tools: [0-9]{3,} across" static/ai.txt 2>/dev/null | gr
 STALE_CATALOG=$(grep -hoE "[0-9]{3,} tool (endpoints|definitions)" "$CATALOG" 2>/dev/null \
   | grep -v "^${TOOLS} tool " | sort -u || true)
 SERVER_CARD_LEN=$(python3 -c "import json; print(len(json.load(open('static/.well-known/mcp/server-card.json'))['tools']))")
+STALE_README_PROSE=$(grep -oE "[0-9]{2,4}\+? real-world API tools|[0-9]{2,4}\+? external API tools" README.md 2>/dev/null \
+  | grep -vE "^${TOOLS} real-world API tools$|^${TOOLS} external API tools$" || true)
+# static/sitemap.xml must carry a <loc> for every static page + .well-known file we actually
+# serve -- this is what caught the sitemap sitting stale since 2026-04-22 missing /pricing,
+# /catalog, /connect, /policy/moderation (all shipped after that date). Read-only re-derivation
+# of the same URL list gen-sitemap.sh builds, diffed against what is currently on disk.
+STALE_SITEMAP=$(diff <(bash scripts/gen-sitemap.sh --print 2>/dev/null | grep -oE "<loc>[^<]+</loc>" | sort) \
+  <(grep -oE "<loc>[^<]+</loc>" static/sitemap.xml 2>/dev/null | sort) || true)
 # F6 (2026-09-02): the bare "PRV:</span><strong>N</strong>" sys-monitor shape (index/contact/
 # privacy) has no adjacent "tools"/"providers" word, so the generic STALE regex above is
 # structurally blind to it — this is exactly the shape that let index.html sit stale at 243/833
@@ -167,6 +199,8 @@ FAIL=0
 [ -n "$STALE_SYSMON" ] && { echo "sync-counts: STALE sys-monitor bar(s) remain:"; echo "$STALE_SYSMON"; FAIL=1; }
 [ -n "$STALE_FOOTER_TOOLS" ] && { echo "sync-counts: STALE footer 'TOOLS: N' remain:"; echo "$STALE_FOOTER_TOOLS"; FAIL=1; }
 [ -n "$STALE_MCP_DESC" ] && { echo "sync-counts: STALE mcp.json description remains: $STALE_MCP_DESC"; FAIL=1; }
+[ -n "$STALE_README_PROSE" ] && { echo "sync-counts: STALE README prose remains:"; echo "$STALE_README_PROSE"; FAIL=1; }
+[ -n "$STALE_SITEMAP" ] && { echo "sync-counts: STALE static/sitemap.xml — differs from the generated URL set:"; echo "$STALE_SITEMAP"; FAIL=1; }
 
 if [ "$FAIL" = "0" ]; then
   if [ "$CHECK" = "1" ]; then

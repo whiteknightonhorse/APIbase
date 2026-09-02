@@ -132,6 +132,20 @@ jobs:
             ${{ secrets.DEPLOY_USER }}@${{ secrets.SERVER_HOST }} \
             "cd /home/apibase/apibase && bash scripts/sync-counts.sh --check"
 
+      # 2026-09-02: sync-counts.sh only ever compared OUR OWN surfaces against the DB --
+      # it has no way to see a third-party site's cached copy of our tool count, which is
+      # exactly how the Smithery listing sat at "95 tools" (live: 1316) with sync-counts
+      # reporting "0 drift" the whole time. This step is that missing half: it curls
+      # public external listing pages (no API key needed) and fails if one disagrees with
+      # live truth. Deliberately not folded into promote_staging.sh's required set (see
+      # the script's own header) -- a third party's page is not something any commit here
+      # can fix, so it must not be able to wedge every future promotion.
+      - name: External listings drift (Smithery, etc.) against the live server
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            ${{ secrets.DEPLOY_USER }}@${{ secrets.SERVER_HOST }} \
+            "cd /home/apibase/apibase && bash scripts/check-external-listings.sh"
+
       - name: Cleanup SSH key
         if: always()
         run: rm -f ~/.ssh/deploy_key
