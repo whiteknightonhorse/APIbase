@@ -160,6 +160,21 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      # 2026-09-02, found live on this job's own first real run: `gh issue create --label
+      # external-drift` fails with "could not add label: 'external-drift' not found" if the
+      # label doesn't exist yet -- and the report step below deliberately uses check=False
+      # (a GitHub-side hiccup here must not fail the whole job), which means a missing label
+      # silently ate the issue-creation step entirely. Idempotent: the API 422s harmlessly
+      # if the label already exists.
+      - name: Ensure the external-drift label exists
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/${{ github.repository }}/labels" -f name="external-drift" \
+            -f color="d93f0b" \
+            -f description="Third-party listing text disagrees with live truth (see check-external-listings.sh)" \
+            >/dev/null 2>&1 || true
+
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
