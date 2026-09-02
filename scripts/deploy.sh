@@ -134,8 +134,19 @@ if [ "$SMOKE_OK" = "true" ]; then
   mkdir -p "$STATIC_RELEASES_DIR"
   rm -rf "${STATIC_RELEASES_DIR:?}/${NEW_SHA}"
   cp -a "${APP_DIR}/static" "${STATIC_RELEASES_DIR}/${NEW_SHA}"
+  touch "${STATIC_RELEASES_DIR}/${NEW_SHA}" # guarantee a fresh mtime for the retention sort below,
+                                             # independent of `cp -a` preserving the source tree's
+                                             # own timestamps
   ln -sfn "${STATIC_RELEASES_DIR}/${NEW_SHA}" "${STATIC_LINK}.tmp"
   mv -Tf "${STATIC_LINK}.tmp" "$STATIC_LINK"
+
+  # Retention: keep the last 10 static releases. Without this, static-releases/ grows by one
+  # full copy of static/ (~14MB today) per deploy forever -- the exact "partition never
+  # dropped" shape F1 fixed for the DB, just relocated to disk-backed static assets instead.
+  # 10 is generous rollback headroom; this is disk hygiene, not a security boundary.
+  ls -t "$STATIC_RELEASES_DIR" 2>/dev/null | tail -n +11 | while IFS= read -r old_sha; do
+    rm -rf "${STATIC_RELEASES_DIR:?}/${old_sha}"
+  done
 
   # docker-compose.yml mounts ./static-current (a symlink). Docker resolves a
   # bind-mount source's symlink ONCE, at container-create time -- swapping
