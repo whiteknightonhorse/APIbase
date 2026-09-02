@@ -64,6 +64,12 @@ static/video/*.mp4
 # Deploy state (written by scripts/deploy.sh on the server)
 .last-successful-sha
 
+# F2: versioned static-asset releases + the live symlink deploy.sh flips after a
+# passing smoke test (see docker-compose.yml's nginx volume mount) -- generated
+# per-deploy on the server, never checked in.
+static-releases/
+static-current
+
 # --- A-02: секретные бэкапы и состояние оркестры ---------------------------------------------
 # Измерено 2026-08-24: `.env.bak-prov-0623` несёт 148 переменных, ПЯТЬ из них платёжные
 # (TEMPO_PRIVATE_KEY, X402_OPERATOR_PRIVATE_KEY, MPP_SECRET_KEY, CDP_API_KEY_*). Файл лежал

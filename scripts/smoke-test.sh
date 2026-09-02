@@ -1,7 +1,7 @@
 #!/bin/bash
 # APIbase.pro — Smoke Test Suite (§12.199)
 #
-# Post-deploy verification. All 8 tests must pass.
+# Post-deploy verification. All 9 tests must pass.
 # Fail = rollback (CI/CD) or alert (manual).
 #
 # Usage:
@@ -10,7 +10,7 @@
 #
 # Environment:
 #   API_URL       — Base URL (default: https://apibase.pro)
-#   TEST_API_KEY  — Valid API key for authenticated tests (optional, tests 3/4/8 skipped if absent)
+#   TEST_API_KEY  — Valid API key for authenticated tests (optional, tests 3/4/9 skipped if absent)
 set -euo pipefail
 
 API_URL="${API_URL:-https://apibase.pro}"
@@ -30,7 +30,7 @@ echo ""
 # ---------------------------------------------------------------------------
 # 1. Health readiness — GET /health/ready → 200
 # ---------------------------------------------------------------------------
-echo -n "1/8 Health readiness..."
+echo -n "1/9 Health readiness..."
 HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$API_URL/health/ready" 2>/dev/null || echo "000")
 if [ "$HTTP_CODE" = "200" ]; then
   pass
@@ -41,7 +41,7 @@ fi
 # ---------------------------------------------------------------------------
 # 2. Tool catalog — GET /api/v1/tools → 200 + data.length > 0
 # ---------------------------------------------------------------------------
-echo -n "2/8 Tool catalog..."
+echo -n "2/9 Tool catalog..."
 CATALOG_RAW=$(curl -s -w "\n%{http_code}" -H "Accept: application/json" "$API_URL/api/v1/tools" 2>/dev/null || echo -e "\n000")
 CATALOG_HTTP=$(echo "$CATALOG_RAW" | tail -1)
 CATALOG_BODY=$(echo "$CATALOG_RAW" | sed '$d')
@@ -62,7 +62,7 @@ fi
 #    Requires TEST_API_KEY for authenticated tool call via HTTP.
 #    Falls back to tool detail endpoint if no key provided.
 # ---------------------------------------------------------------------------
-echo -n "3/8 Tool execution..."
+echo -n "3/9 Tool execution..."
 if [ -n "$TEST_API_KEY" ]; then
   TOOL_RESPONSE=$(curl -s -w "\n%{http_code}" \
     -H "Authorization: Bearer $TEST_API_KEY" \
@@ -96,7 +96,7 @@ fi
 # ---------------------------------------------------------------------------
 # 4. Response structure — Parse response → data + request_id present
 # ---------------------------------------------------------------------------
-echo -n "4/8 Response structure..."
+echo -n "4/9 Response structure..."
 # Verify X-Request-ID header + valid JSON structure on API responses
 STRUCT_HEADERS=$(curl -s -D - -o /tmp/smoke_body.json \
   -H "Accept: application/json" \
@@ -114,7 +114,7 @@ fi
 # ---------------------------------------------------------------------------
 # 5. MCP discovery — GET /.well-known/mcp.json → 200 + valid JSON
 # ---------------------------------------------------------------------------
-echo -n "5/8 MCP discovery..."
+echo -n "5/9 MCP discovery..."
 MCP_RAW=$(curl -s -w "\n%{http_code}" "$API_URL/.well-known/mcp.json" 2>/dev/null || echo -e "\n000")
 MCP_HTTP=$(echo "$MCP_RAW" | tail -1)
 MCP_BODY=$(echo "$MCP_RAW" | sed '$d')
@@ -132,7 +132,7 @@ fi
 # ---------------------------------------------------------------------------
 # 6. Content negotiation — GET /api/v1/tools with wrong Accept → 406
 # ---------------------------------------------------------------------------
-echo -n "6/8 Content negotiation..."
+echo -n "6/9 Content negotiation..."
 CN_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
   -H "Accept: text/xml" \
   "$API_URL/api/v1/tools" 2>/dev/null || echo "000")
@@ -145,7 +145,7 @@ fi
 # ---------------------------------------------------------------------------
 # 7. Auth rejection — POST /mcp initialize without Authorization → 401
 # ---------------------------------------------------------------------------
-echo -n "7/8 Auth rejection..."
+echo -n "7/9 Auth rejection..."
 AUTH_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
   -X POST \
   -H "Content-Type: application/json" \
@@ -161,7 +161,7 @@ fi
 # ---------------------------------------------------------------------------
 # 8. Rate limit headers — X-RateLimit-* present on authenticated response
 # ---------------------------------------------------------------------------
-echo -n "8/8 Rate limit headers..."
+echo -n "8/9 Rate limit headers..."
 # Nginx rate limiting is active (limit_req), verify 429 on burst
 # Check via response headers or nginx limit_req status
 RL_CHECK=$(curl -s -D - -o /dev/null \
@@ -172,6 +172,27 @@ if [ "$RL_CHECK" -gt 0 ] 2>/dev/null; then
   echo "       (Nginx rate limiting active, X-Request-ID present)"
 else
   fail "no rate limit or request tracking headers"
+fi
+
+# ---------------------------------------------------------------------------
+# 9. Served-pair check (F2) — one route genuinely NEW in this release,
+#    through nginx, not the repo. Every other check above exists on stable
+#    routes and would stay green even if nginx.conf and the running image
+#    were built from two different commits (exactly what happened live:
+#    /connect/device/vendors 404'd for 40 minutes while check-mount-nginx-
+#    parity.py, which only ever compares router files to nginx/nginx.conf
+#    IN THE REPO, stayed green throughout). Update NEW_ROUTE_CHECK whenever
+#    a release adds a genuinely new route -- a stale entry here (still 200
+#    from an older release) is a known ceiling of one hand-picked check,
+#    not a general "every new route" gate.
+# ---------------------------------------------------------------------------
+NEW_ROUTE_CHECK="/connect/device/vendors"
+echo -n "9/9 Served pair ($NEW_ROUTE_CHECK)..."
+SERVED_PAIR_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$API_URL$NEW_ROUTE_CHECK" 2>/dev/null || echo "000")
+if [ "$SERVED_PAIR_CODE" = "200" ]; then
+  pass
+else
+  fail "expected 200 through nginx, got $SERVED_PAIR_CODE -- nginx.conf and the running image likely mismatch"
 fi
 
 # ---------------------------------------------------------------------------

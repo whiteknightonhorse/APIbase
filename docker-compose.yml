@@ -206,7 +206,10 @@ services:
       - "127.0.0.1:8880:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./static:/var/www/static:ro
+      # F2: served from a symlink deploy.sh flips AFTER a release's smoke test
+      # passes, not the git-tracked ./static directly -- see scripts/deploy.sh.
+      # Bootstrapped once by hand on the server; deploy.sh maintains it from here.
+      - ./static-current:/var/www/static:ro
     depends_on:
       api:
         condition: service_healthy
