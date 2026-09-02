@@ -1,4 +1,5 @@
 import { type BaseAdapter } from './base.adapter';
+import { DeviceAdapter } from './device-tuya';
 import { JmaBosaiAdapter } from './jma-bosai';
 import { DestatisAdapter } from './destatis';
 import { PostcodeJapanAdapter } from './postcode-japan';
@@ -422,6 +423,15 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
   const provider = toolId.split('.')[0];
 
   switch (provider) {
+    case 'device':
+      // Ф5 physical-device MCP layer: device.list/state/command all share
+      // ONE generic adapter -- vendor dispatch happens per-connection
+      // inside it (see device-tuya/index.ts's class doc). Registered
+      // unconditionally (no cfgKey gate) because whether Tuya itself is
+      // configured is checked per-call, not per-adapter-instantiation --
+      // an agent with zero connections still gets a clean empty
+      // device.list, not a 503.
+      return getOrCreate('device', () => new DeviceAdapter());
     case 'polymarket':
       return getOrCreate('polymarket', () => new PolymarketAdapter());
     case 'hyperliquid':

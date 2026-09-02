@@ -431,6 +431,25 @@ export const appEnvSchema = z.object({
   POLYMARKET_BUILDER_API_KEY: z.string().optional().default(''),
   POLYMARKET_BUILDER_SECRET: z.string().optional().default(''),
   POLYMARKET_BUILDER_PASSPHRASE: z.string().optional().default(''),
+
+  // --- Ф5 physical-device MCP layer (device.list/state/command) ---
+  // AES-256-GCM key for vendor OAuth token encryption at rest
+  // (secret-crypto.service.ts). 32+ char random secret, same generation
+  // pattern as API_KEY_SECRET -- NOT a KDF-derived value, a raw random key.
+  ENCRYPTION_KEY: z.string().optional().default(''),
+  // Tuya IoT Cloud Project credentials (Cloud Development platform,
+  // "Authorization Management" service). Operator-provisioned -- see
+  // docs/OPERATOR-ACTION-device-vendor-tuya.md. Empty = adapter resolves to
+  // undefined (503), same convention as every other optional provider key.
+  TUYA_CLIENT_ID: z.string().optional().default(''),
+  TUYA_CLIENT_SECRET: z.string().optional().default(''),
+  // Data-center-specific REST base, e.g. https://openapi.tuyaus.com
+  TUYA_API_BASE_URL: z.string().optional().default(''),
+  // The Tuya-hosted OAuth "Link Tuya App Account" H5 authorization page URL
+  // for this Cloud Project, as shown in the Tuya IoT console once
+  // "Authorization Management" is approved for the project. We append our
+  // own `state` query param to it (device-connect.router.ts).
+  TUYA_AUTHORIZE_URL: z.string().optional().default(''),
 });
 
 export type AppEnv = z.infer<typeof appEnvSchema>;

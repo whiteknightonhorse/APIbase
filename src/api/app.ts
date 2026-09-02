@@ -19,6 +19,7 @@ import { executeRouter } from '../routes/execute.router';
 import { batchRouter } from '../routes/batch.router';
 import { dashboardRouter } from '../routes/dashboard.router';
 import { oauthRouter } from '../routes/oauth.router';
+import { deviceConnectRouter } from '../routes/device-connect.router';
 
 /**
  * Express application configuration (§6.1, §12.243).
@@ -72,6 +73,11 @@ export function createApp(): express.Express {
   // --- Moderation appeal page + endpoint (F2/C-3 — HTML form posts before
   // content-type enforcement, same reason as onboardRouter above) ---
   app.use(appealsRouter);
+
+  // --- Ф5 device connect-webview (vendor OAuth redirect callback is a
+  // plain browser GET, same "before content-type enforcement" reason as
+  // onboardRouter/appealsRouter above) ---
+  app.use(deviceConnectRouter);
 
   // --- Content-type enforcement (JSON-only for API routes) ---
   app.use(contentTypeMiddleware);

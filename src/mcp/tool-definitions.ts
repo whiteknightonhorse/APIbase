@@ -16149,4 +16149,42 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+  // ---------------------------------------------------------------------------
+  // Ф5 physical-device MCP layer -- device.list/state/command (2026-09-02)
+  // Generic vendor-agnostic projection; Tuya is the only connected vendor
+  // cloud this cycle (see adapters/device-tuya). Requires the caller to
+  // have already linked a vendor account via /connect/device/tuya/start.
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'device.list',
+    mcpName: 'device.registry.list',
+    title: 'List Connected Devices',
+    description:
+      "List every physical device reachable through the calling agent's own linked vendor accounts (Tuya first). Returns each device's vendor id, name, category, and online status, grouped by connection_id. Empty if the agent has not linked any vendor account yet -- see /connect/device/vendors.",
+    category: 'device',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'device.state',
+    mcpName: 'device.registry.state',
+    title: 'Get Device State',
+    description:
+      'Read the current state (data points) of one physical device the calling agent owns via a linked vendor connection. Requires connection_id (from device.list) and device_id.',
+    category: 'device',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'device.command',
+    mcpName: 'device.registry.command',
+    title: 'Send Device Command',
+    description:
+      "⚡ ACTION: Send a command to a physical device the calling agent owns via a linked vendor connection (e.g. turn a plug on/off, set an AC temperature). Numeric setpoints are bounds-checked against the device class's configured safety limits (config/device-classes.json); some device classes require confirm:true. Requires connection_id, device_id, command, value.",
+    category: 'device',
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: false,
+      openWorldHint: true,
+    },
+  },
 ];

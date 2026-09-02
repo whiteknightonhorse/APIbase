@@ -1,0 +1,1066 @@
+{
+  "version": "1.0",
+  "updated": "2026-09-02",
+  "description": "Ф5 physical-device MCP layer -- full 42-class catalog descriptor, per the operator's instruction to design coverage for the whole catalog even though execution this cycle implements only T1 (Tuya OAuth). One row per device class: {class, tier, capabilities[], state_schema, limits, safety}. Calibration fields (bounds, rate_cap) are DATA here, never hardcoded in adapter code, so the operator can retune a ceiling without a deploy (§0 CLAUDE.md 'no dev-only logic', but a physical bound is an operational knob, not a code constant). vendor_examples names commonly-cited cloud platforms for orientation only -- it is not a claim any of them is wired up; see EXECUTED.md-style status in docs/09-device-mcp-layer.md for what is actually live. Bound KEYS are the real vendor DP/command code, not the abstract state_schema field name -- verified against Tuya's documented DP code only for thermostat_ac (temp_set) this cycle (the class actually implemented+tested); every other class' bound keys below are illustrative placeholders using the abstract field name and MUST be confirmed against that specific vendor's real DP code before being relied on (a guessed DP code is worse than no bound at all -- it would silently never fire).",
+  "tiers": {
+    "T1": {
+      "label": "Ambient / low-consequence",
+      "inclusion_criteria": "Fully reversible in under a few seconds, no physical-safety exposure beyond nuisance (light flicker, a few minutes of wrong temperature), no access-control or privacy function, mass consumer hardware with a real free-tier OAuth cloud already in production (Tuya/SmartThings/Aqara-class). Default posture: confirm_required=false, standard MODERATION action-class checks apply, generous rate_cap.",
+      "onboarding_bar": "Vendor OAuth cloud exists, redirect_uri whitelisting is self-service or a same-day approval, a sandbox/simulated device is enough to prove the full connect->state->command->revoke scenario live."
+    },
+    "T2": {
+      "label": "Security / access / consumable",
+      "inclusion_criteria": "Either controls physical access (locks, gates, garage doors, alarm arm/disarm), captures footage/audio of a real space (cameras, doorbells), or consumes/dispenses a physical resource (water valves, pet feeders, irrigation). A wrong command can strand a person outside, expose a private space, or waste a consumable -- reversible but not free of consequence. Default posture: confirm_required=true on every state-changing command, tighter rate_cap, moderation action-class always on.",
+      "onboarding_bar": "Same as T1 PLUS a documented, testable safety default (e.g. unlock always logs a confirm token; camera stream access is per-connection scoped, never a shared credential)."
+    },
+    "T3": {
+      "label": "Financial / energy exposure",
+      "inclusion_criteria": "A wrong command has a real dollar cost (charges/discharges a vehicle or battery pack, moves grid energy, runs a heater/generator) or touches equipment with its own safety interlocks the vendor already certifies (pool chemical dosing, commercial HVAC). We rely on the vendor's own hardware interlocks as the last line of defense -- our layer adds confirm + bounds, it does not replace UL/CE-certified cutoffs. Default posture: confirm_required=true, numeric bounds mandatory (no unbounded numeric command), low rate_cap.",
+      "onboarding_bar": "Vendor OAuth cloud AND a written statement of the vendor's own hardware safety interlock (we do not onboard a T3 class whose vendor cloud has no independent hardware cutoff)."
+    },
+    "T4": {
+      "label": "Mobility / industrial / lab",
+      "inclusion_criteria": "Can cause physical injury or property damage through autonomous motion (drones, robot arms, mowers, lab liquid handlers), typically regulated (FAA Part 107, industrial safety standards) and normally operated through a certified integrator, not a consumer OAuth app. No consumer-cloud OAuth exists for most of this tier today.",
+      "onboarding_bar": "PUBLISHED AS UNVERIFIED, never claimed working, until an actual unit + vendor account is available to prove it live (operator instruction, 2026-09-02) -- this project has no hardware and no vendor account for T4 as of this design pass, so all four T4 rows below are descriptor-only."
+    }
+  },
+  "classes": [
+    {
+      "class": "smart_plug",
+      "tier": "T1",
+      "vendor_examples": [
+        "Tuya",
+        "SmartThings"
+      ],
+      "capabilities": [
+        "get_state",
+        "write",
+        "execute"
+      ],
+      "state_schema": {
+        "on": "boolean",
+        "power_w": "number?"
+      },
+      "limits": {
+        "rate_cap_per_min": 20
+      },
+      "safety": {
+        "confirm_required": false,
+        "bounds": {}
+      }
+    },
+    {
+      "class": "smart_switch",
+      "tier": "T1",
+      "vendor_examples": [
+        "Tuya"
+      ],
+      "capabilities": [
+        "get_state",
+        "write",
+        "execute"
+      ],
+      "state_schema": {
+        "on": "boolean"
+      },
+      "limits": {
+        "rate_cap_per_min": 20
+      },
+      "safety": {
+        "confirm_required": false,
+        "bounds": {}
+      }
+    },
+    {
+      "class": "dimmable_light",
+      "tier": "T1",
+      "vendor_examples": [
+        "Tuya",
+        "SmartThings"
+      ],
+      "capabilities": [
+        "get_state",
+        "write",
+        "execute"
+      ],
+      "state_schema": {
+        "on": "boolean",
+        "brightness_pct": "number"
+      },
+      "limits": {
+        "rate_cap_per_min": 30
+      },
+      "safety": {
+        "confirm_required": false,
+        "bounds": {
+          "brightness_pct": {
+            "min": 0,
+            "max": 100
+          }
+        }
+      }
+    },
+    {
+      "class": "color_light",
+      "tier": "T1",
+      "vendor_examples": [
+        "Tuya",
+        "Aqara"
+      ],
+      "capabilities": [
+        "get_state",
+        "write",
+        "execute"
+      ],
+      "state_schema": {
+        "on": "boolean",
+        "brightness_pct": "number",
+        "hue": "number",
+        "sat": "number"
+      },
+      "limits": {
+        "rate_cap_per_min": 30
+      },
+      "safety": {
+        "confirm_required": false,
+        "bounds": {
+          "brightness_pct": {
+            "min": 0,
+            "max": 100
+          },
+          "hue": {
+            "min": 0,
+            "max": 360
+          }
+        }
+      }
+    },
+    {
+      "class": "light_strip",
+      "tier": "T1",
+      "vendor_examples": [
+        "Tuya"
+      ],
+      "capabilities": [
+        "get_state",
+        "write",
+        "execute"
+      ],
+      "state_schema": {
+        "on": "boolean",
+        "brightness_pct": "number"
+      },
+      "limits": {
+        "rate_cap_per_min": 30
+      },
+      "safety": {
+        "confirm_required": false,
+        "bounds": {
+          "brightness_pct": {
+            "min": 0,
+            "max": 100
+          }
+        }
+      }
+    },
+    {
+      "class": "thermostat_ac",
+      "tier": "T1",
+      "vendor_examples": [
+        "Tuya"
+      ],
+      "capabilities": [
+        "get_state",
+        "write",
+        "execute"
+      ],
+      "state_schema": {
+        "on": "boolean",
+        "mode": "string",
+        "target_temp_c": "number",
+        "current_temp_c": "number?"
+      },
+      "limits": {
+        "rate_cap_per_min": 12
+      },
+      "safety": {
+        "confirm_required": false,
+        "bounds": {
+          "temp_set": {
+            "min": 16,
+            "max": 30
+          }
+        }
+      }
+    },
+    {
+      "class": "thermostat_heating",
+      "tier": "T1",
+      "vendor_examples": [
+        "Tuya",
+        "SmartThings"
+      ],
+      "capabilities": [
+        "get_state",
+        "write",
+        "execute"
+      ],
+      "state_schema": {
+        "on": "boolean",
+        "target_temp_c": "number"
+      },
+      "limits": {
+        "rate_cap_per_min": 12
+      },
+      "safety": {
+        "confirm_required": false,
+        "bounds": {
+          "target_temp_c": {
+            "min": 10,
+            "max": 28
+          }
+        }
+      }
+    },
+    {
+      "class": "smart_blinds_curtains",
+      "tier": "T1",
+      "vendor_examples": [
+        "Tuya",
+        "Aqara"
+      ],
+      "capabilities": [
+        "get_state",
+        "write",
+        "execute",
+        "stop"
+      ],
+      "state_schema": {
+        "position_pct": "number"
+      },
+      "limits": {
+        "rate_cap_per_min": 20
+      },
+      "safety": {
+        "confirm_required": false,
+        "bounds": {
+          "position_pct": {
+            "min": 0,
+            "max": 100
+          }
+        }
+      }
+    },
+    {
+      "class": "temp_humidity_sensor",
+      "tier": "T1",
+      "vendor_examples": [
+        "Tuya",
+        "Aqara"
+      ],
+      "capabilities": [
+        "get_state",
+        "read",
+        "health"
+      ],
+      "state_schema": {
+        "temp_c": "number",
+        "humidity_pct": "number"
+      },
+      "limits": {
+        "rate_cap_per_min": 60
+      },
+      "safety": {
+        "confirm_required": false,
+        "bounds": {}
+      }
+    },
+    {
+      "class": "air_quality_sensor",
+      "tier": "T1",
+      "vendor_examples": [
+        "Tuya"
+      ],
+      "capabilities": [
+        "get_state",
+        "read",
+        "health"
+      ],
+      "state_schema": {
+        "pm25": "number",
+        "co2_ppm": "number?"
+      },
+      "limits": {
+        "rate_cap_per_min": 60
+      },
+      "safety": {
+        "confirm_required": false,
+        "bounds": {}
+      }
+    },
+    {
+      "class": "motion_presence_sensor",
+      "tier": "T1",
+      "vendor_examples": [
+        "Tuya",
+        "Aqara"
+      ],
+      "capabilities": [
+        "get_state",
+        "read",
+        "health"
+      ],
+      "state_schema": {
+        "occupied": "boolean"
+      },
+      "limits": {
+        "rate_cap_per_min": 60
+      },
+      "safety": {
+        "confirm_required": false,
+        "bounds": {}
+      }
+    },
+    {
+      "class": "contact_sensor",
+      "tier": "T1",
+      "vendor_examples": [
+        "Tuya",
+        "SmartThings",
+        "Aqara"
+      ],
+      "capabilities": [
+        "get_state",
+        "read",
+        "health"
+      ],
+      "state_schema": {
+        "open": "boolean"
+      },
+      "limits": {
+        "rate_cap_per_min": 60
+      },
+      "safety": {
+        "confirm_required": false,
+        "bounds": {}
+      }
+    },
+    {
+      "class": "smart_fan",
+      "tier": "T1",
+      "vendor_examples": [
+        "Tuya"
+      ],
+      "capabilities": [
+        "get_state",
+        "write",
+        "execute"
+      ],
+      "state_schema": {
+        "on": "boolean",
+        "speed_pct": "number"
+      },
+      "limits": {
+        "rate_cap_per_min": 20
+      },
+      "safety": {
+        "confirm_required": false,
+        "bounds": {
+          "speed_pct": {
+            "min": 0,
+            "max": 100
+          }
+        }
+      }
+    },
+    {
+      "class": "smart_humidifier_dehumidifier",
+      "tier": "T1",
+      "vendor_examples": [
+        "Tuya"
+      ],
+      "capabilities": [
+        "get_state",
+        "write",
+        "execute"
+      ],
+      "state_schema": {
+        "on": "boolean",
+        "target_humidity_pct": "number"
+      },
+      "limits": {
+        "rate_cap_per_min": 20
+      },
+      "safety": {
+        "confirm_required": false,
+        "bounds": {
+          "target_humidity_pct": {
+            "min": 30,
+            "max": 80
+          }
+        }
+      }
+    },
+    {
+      "class": "smart_power_strip",
+      "tier": "T1",
+      "vendor_examples": [
+        "Tuya"
+      ],
+      "capabilities": [
+        "get_state",
+        "write",
+        "execute"
+      ],
+      "state_schema": {
+        "outlets": "array"
+      },
+      "limits": {
+        "rate_cap_per_min": 20
+      },
+      "safety": {
+        "confirm_required": false,
+        "bounds": {}
+      }
+    },
+    {
+      "class": "smart_diffuser",
+      "tier": "T1",
+      "vendor_examples": [
+        "Tuya"
+      ],
+      "capabilities": [
+        "get_state",
+        "write",
+        "execute"
+      ],
+      "state_schema": {
+        "on": "boolean",
+        "intensity_pct": "number"
+      },
+      "limits": {
+        "rate_cap_per_min": 20
+      },
+      "safety": {
+        "confirm_required": false,
+        "bounds": {
+          "intensity_pct": {
+            "min": 0,
+            "max": 100
+          }
+        }
+      }
+    },
+    {
+      "class": "smart_lock",
+      "tier": "T2",
+      "vendor_examples": [
+        "SmartThings",
+        "Aqara"
+      ],
+      "capabilities": [
+        "get_state",
+        "execute",
+        "health"
+      ],
+      "state_schema": {
+        "locked": "boolean",
+        "battery_pct": "number?"
+      },
+      "limits": {
+        "rate_cap_per_min": 6
+      },
+      "safety": {
+        "confirm_required": true,
+        "bounds": {}
+      }
+    },
+    {
+      "class": "garage_door_opener",
+      "tier": "T2",
+      "vendor_examples": [
+        "SmartThings"
+      ],
+      "capabilities": [
+        "get_state",
+        "execute",
+        "stop"
+      ],
+      "state_schema": {
+        "open": "boolean"
+      },
+      "limits": {
+        "rate_cap_per_min": 6
+      },
+      "safety": {
+        "confirm_required": true,
+        "bounds": {}
+      }
+    },
+    {
+      "class": "smart_camera_indoor",
+      "tier": "T2",
+      "vendor_examples": [
+        "Tuya"
+      ],
+      "capabilities": [
+        "get_state",
+        "read",
+        "health"
+      ],
+      "state_schema": {
+        "streaming": "boolean",
+        "privacy_mode": "boolean"
+      },
+      "limits": {
+        "rate_cap_per_min": 10
+      },
+      "safety": {
+        "confirm_required": true,
+        "bounds": {}
+      }
+    },
+    {
+      "class": "smart_camera_outdoor",
+      "tier": "T2",
+      "vendor_examples": [
+        "Tuya"
+      ],
+      "capabilities": [
+        "get_state",
+        "read",
+        "health"
+      ],
+      "state_schema": {
+        "streaming": "boolean",
+        "motion_alerts": "boolean"
+      },
+      "limits": {
+        "rate_cap_per_min": 10
+      },
+      "safety": {
+        "confirm_required": true,
+        "bounds": {}
+      }
+    },
+    {
+      "class": "video_doorbell",
+      "tier": "T2",
+      "vendor_examples": [
+        "Tuya"
+      ],
+      "capabilities": [
+        "get_state",
+        "read",
+        "execute",
+        "health"
+      ],
+      "state_schema": {
+        "last_event_at": "string?"
+      },
+      "limits": {
+        "rate_cap_per_min": 10
+      },
+      "safety": {
+        "confirm_required": true,
+        "bounds": {}
+      }
+    },
+    {
+      "class": "smart_alarm_panel",
+      "tier": "T2",
+      "vendor_examples": [
+        "SmartThings"
+      ],
+      "capabilities": [
+        "get_state",
+        "execute",
+        "emergency_stop"
+      ],
+      "state_schema": {
+        "armed": "boolean",
+        "mode": "string"
+      },
+      "limits": {
+        "rate_cap_per_min": 6
+      },
+      "safety": {
+        "confirm_required": true,
+        "bounds": {}
+      }
+    },
+    {
+      "class": "smart_gate_controller",
+      "tier": "T2",
+      "vendor_examples": [
+        "Tuya"
+      ],
+      "capabilities": [
+        "get_state",
+        "execute",
+        "stop"
+      ],
+      "state_schema": {
+        "open": "boolean"
+      },
+      "limits": {
+        "rate_cap_per_min": 6
+      },
+      "safety": {
+        "confirm_required": true,
+        "bounds": {}
+      }
+    },
+    {
+      "class": "smart_safe",
+      "tier": "T2",
+      "vendor_examples": [
+        "-- no mainstream consumer OAuth cloud found yet"
+      ],
+      "capabilities": [
+        "get_state",
+        "execute"
+      ],
+      "state_schema": {
+        "locked": "boolean"
+      },
+      "limits": {
+        "rate_cap_per_min": 3
+      },
+      "safety": {
+        "confirm_required": true,
+        "bounds": {}
+      }
+    },
+    {
+      "class": "water_leak_shutoff_valve",
+      "tier": "T2",
+      "vendor_examples": [
+        "SmartThings"
+      ],
+      "capabilities": [
+        "get_state",
+        "execute",
+        "emergency_stop"
+      ],
+      "state_schema": {
+        "valve_open": "boolean",
+        "leak_detected": "boolean?"
+      },
+      "limits": {
+        "rate_cap_per_min": 6
+      },
+      "safety": {
+        "confirm_required": true,
+        "bounds": {}
+      }
+    },
+    {
+      "class": "smart_smoke_co_detector",
+      "tier": "T2",
+      "vendor_examples": [
+        "SmartThings"
+      ],
+      "capabilities": [
+        "get_state",
+        "read",
+        "execute",
+        "health"
+      ],
+      "state_schema": {
+        "alarm": "boolean",
+        "battery_pct": "number?"
+      },
+      "limits": {
+        "rate_cap_per_min": 10
+      },
+      "safety": {
+        "confirm_required": true,
+        "bounds": {}
+      }
+    },
+    {
+      "class": "pet_feeder",
+      "tier": "T2",
+      "vendor_examples": [
+        "Tuya"
+      ],
+      "capabilities": [
+        "get_state",
+        "execute"
+      ],
+      "state_schema": {
+        "food_level_pct": "number?"
+      },
+      "limits": {
+        "rate_cap_per_min": 6
+      },
+      "safety": {
+        "confirm_required": true,
+        "bounds": {
+          "portion_g": {
+            "min": 5,
+            "max": 200
+          }
+        }
+      }
+    },
+    {
+      "class": "irrigation_controller",
+      "tier": "T2",
+      "vendor_examples": [
+        "Tuya"
+      ],
+      "capabilities": [
+        "get_state",
+        "execute",
+        "stop"
+      ],
+      "state_schema": {
+        "zone_active": "boolean"
+      },
+      "limits": {
+        "rate_cap_per_min": 6
+      },
+      "safety": {
+        "confirm_required": true,
+        "bounds": {
+          "duration_min": {
+            "min": 1,
+            "max": 60
+          }
+        }
+      }
+    },
+    {
+      "class": "ev_charger",
+      "tier": "T3",
+      "vendor_examples": [
+        "-- consumer OAuth aggregators (Enode/Smartcar) are paid, not purchased per operator ceiling"
+      ],
+      "capabilities": [
+        "get_state",
+        "execute",
+        "stop",
+        "emergency_stop"
+      ],
+      "state_schema": {
+        "charging": "boolean",
+        "amps": "number",
+        "battery_pct": "number?"
+      },
+      "limits": {
+        "rate_cap_per_min": 4
+      },
+      "safety": {
+        "confirm_required": true,
+        "bounds": {
+          "amps": {
+            "min": 6,
+            "max": 32
+          }
+        }
+      }
+    },
+    {
+      "class": "home_battery_storage",
+      "tier": "T3",
+      "vendor_examples": [
+        "-- vendor-specific, no unified consumer OAuth found"
+      ],
+      "capabilities": [
+        "get_state",
+        "execute"
+      ],
+      "state_schema": {
+        "mode": "string",
+        "soc_pct": "number"
+      },
+      "limits": {
+        "rate_cap_per_min": 4
+      },
+      "safety": {
+        "confirm_required": true,
+        "bounds": {}
+      }
+    },
+    {
+      "class": "solar_inverter_control",
+      "tier": "T3",
+      "vendor_examples": [
+        "-- vendor-specific"
+      ],
+      "capabilities": [
+        "get_state",
+        "execute"
+      ],
+      "state_schema": {
+        "export_limit_w": "number"
+      },
+      "limits": {
+        "rate_cap_per_min": 4
+      },
+      "safety": {
+        "confirm_required": true,
+        "bounds": {}
+      }
+    },
+    {
+      "class": "vehicle_telematics_read",
+      "tier": "T3",
+      "vendor_examples": [
+        "-- Smartcar/Enode are paid aggregators, not purchased"
+      ],
+      "capabilities": [
+        "get_state",
+        "read"
+      ],
+      "state_schema": {
+        "location": "object?",
+        "fuel_pct": "number?"
+      },
+      "limits": {
+        "rate_cap_per_min": 4
+      },
+      "safety": {
+        "confirm_required": false,
+        "bounds": {}
+      }
+    },
+    {
+      "class": "vehicle_remote_command",
+      "tier": "T3",
+      "vendor_examples": [
+        "-- same aggregator gap as above"
+      ],
+      "capabilities": [
+        "execute"
+      ],
+      "state_schema": {},
+      "limits": {
+        "rate_cap_per_min": 2
+      },
+      "safety": {
+        "confirm_required": true,
+        "bounds": {}
+      }
+    },
+    {
+      "class": "pool_spa_controller",
+      "tier": "T3",
+      "vendor_examples": [
+        "-- vendor-specific"
+      ],
+      "capabilities": [
+        "get_state",
+        "execute"
+      ],
+      "state_schema": {
+        "target_temp_c": "number",
+        "pump_on": "boolean"
+      },
+      "limits": {
+        "rate_cap_per_min": 6
+      },
+      "safety": {
+        "confirm_required": true,
+        "bounds": {
+          "target_temp_c": {
+            "min": 20,
+            "max": 40
+          }
+        }
+      }
+    },
+    {
+      "class": "water_heater_control",
+      "tier": "T3",
+      "vendor_examples": [
+        "Tuya"
+      ],
+      "capabilities": [
+        "get_state",
+        "write",
+        "execute"
+      ],
+      "state_schema": {
+        "target_temp_c": "number"
+      },
+      "limits": {
+        "rate_cap_per_min": 6
+      },
+      "safety": {
+        "confirm_required": true,
+        "bounds": {
+          "target_temp_c": {
+            "min": 35,
+            "max": 60
+          }
+        }
+      }
+    },
+    {
+      "class": "hvac_commercial_system",
+      "tier": "T3",
+      "vendor_examples": [
+        "-- vendor-specific, building-scale"
+      ],
+      "capabilities": [
+        "get_state",
+        "write",
+        "execute"
+      ],
+      "state_schema": {
+        "zones": "array"
+      },
+      "limits": {
+        "rate_cap_per_min": 4
+      },
+      "safety": {
+        "confirm_required": true,
+        "bounds": {}
+      }
+    },
+    {
+      "class": "generator_control",
+      "tier": "T3",
+      "vendor_examples": [
+        "-- vendor-specific"
+      ],
+      "capabilities": [
+        "get_state",
+        "execute",
+        "emergency_stop"
+      ],
+      "state_schema": {
+        "running": "boolean"
+      },
+      "limits": {
+        "rate_cap_per_min": 2
+      },
+      "safety": {
+        "confirm_required": true,
+        "bounds": {}
+      }
+    },
+    {
+      "class": "smart_meter_grid",
+      "tier": "T3",
+      "vendor_examples": [
+        "-- utility-specific, usually not a consumer OAuth"
+      ],
+      "capabilities": [
+        "get_state",
+        "read",
+        "execute"
+      ],
+      "state_schema": {
+        "demand_kw": "number"
+      },
+      "limits": {
+        "rate_cap_per_min": 4
+      },
+      "safety": {
+        "confirm_required": true,
+        "bounds": {}
+      }
+    },
+    {
+      "class": "consumer_drone",
+      "tier": "T4",
+      "vendor_examples": [
+        "-- no consumer account-linking OAuth; certified-integrator SDKs only"
+      ],
+      "capabilities": [
+        "get_state",
+        "execute",
+        "stop",
+        "emergency_stop"
+      ],
+      "state_schema": {
+        "airborne": "boolean",
+        "battery_pct": "number?"
+      },
+      "limits": {
+        "rate_cap_per_min": 2
+      },
+      "safety": {
+        "confirm_required": true,
+        "bounds": {}
+      },
+      "status": "UNVERIFIED -- descriptor only, no hardware or vendor account"
+    },
+    {
+      "class": "industrial_robot_arm",
+      "tier": "T4",
+      "vendor_examples": [
+        "-- industrial fieldbus/vendor SDKs, not consumer OAuth"
+      ],
+      "capabilities": [
+        "get_state",
+        "execute",
+        "stop",
+        "emergency_stop"
+      ],
+      "state_schema": {
+        "running": "boolean"
+      },
+      "limits": {
+        "rate_cap_per_min": 2
+      },
+      "safety": {
+        "confirm_required": true,
+        "bounds": {}
+      },
+      "status": "UNVERIFIED -- descriptor only, no hardware or vendor account"
+    },
+    {
+      "class": "autonomous_mower_or_ag_robot",
+      "tier": "T4",
+      "vendor_examples": [
+        "-- vendor-specific, mostly local/Bluetooth not cloud OAuth"
+      ],
+      "capabilities": [
+        "get_state",
+        "execute",
+        "stop",
+        "emergency_stop"
+      ],
+      "state_schema": {
+        "running": "boolean"
+      },
+      "limits": {
+        "rate_cap_per_min": 2
+      },
+      "safety": {
+        "confirm_required": true,
+        "bounds": {}
+      },
+      "status": "UNVERIFIED -- descriptor only, no hardware or vendor account"
+    },
+    {
+      "class": "lab_liquid_handling_robot",
+      "tier": "T4",
+      "vendor_examples": [
+        "-- lab-instrument vendor SDKs, not consumer OAuth"
+      ],
+      "capabilities": [
+        "get_state",
+        "execute",
+        "stop",
+        "emergency_stop"
+      ],
+      "state_schema": {
+        "running": "boolean"
+      },
+      "limits": {
+        "rate_cap_per_min": 2
+      },
+      "safety": {
+        "confirm_required": true,
+        "bounds": {}
+      },
+      "status": "UNVERIFIED -- descriptor only, no hardware or vendor account"
+    }
+  ]
+}

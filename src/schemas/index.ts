@@ -378,6 +378,7 @@ import { istatSchemas } from './istat.schema';
 import { mscGeometSchemas } from './msc-geomet.schema';
 import { inePortugalSchemas } from './ine-portugal.schema';
 import { bundesbankTimeseriesSchemas } from './bundesbank-timeseries.schema';
+import { deviceSchemas } from './device.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -759,4 +760,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...mscGeometSchemas,
   ...inePortugalSchemas,
   ...bundesbankTimeseriesSchemas,
+  ...deviceSchemas,
 };

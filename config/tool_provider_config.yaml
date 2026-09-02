@@ -8468,3 +8468,28 @@ tools:
     provider: platform
     price_usd: "0"
     cache_ttl: 0
+
+  # --- Ф5 physical-device MCP layer (2026-09-02) -- Tuya OAuth account
+  # linking, T1 classes only this cycle. provider is generic 'device' (not
+  # 'device-tuya') because these tool_ids are vendor-agnostic -- the actual
+  # vendor is resolved per-call from the caller's connection_id. cache_ttl:0
+  # is enforced for real by cache.stage.ts's AGENT_SCOPED_TOOL_PREFIXES
+  # bypass (device.* never reaches the shared cache at all, not even for 0
+  # seconds) -- listed here as documentation, not as the enforcement point.
+  - tool_id: device.list
+    name: List Connected Devices
+    provider: device
+    price_usd: "0.001"
+    cache_ttl: 0
+
+  - tool_id: device.state
+    name: Get Device State
+    provider: device
+    price_usd: "0.001"
+    cache_ttl: 0
+
+  - tool_id: device.command
+    name: Send Device Command
+    provider: device
+    price_usd: "0.003"
+    cache_ttl: 0

@@ -25,6 +25,7 @@ model Agent {
 
   account             Account?
   executions          ExecutionLedger[]
+  device_connections  DeviceConnection[]
 
   @@map("agents")
 }
@@ -199,4 +200,39 @@ model OnboardingSubmission {
   created_at         DateTime @default(now()) @db.Timestamptz()
 
   @@map("onboarding_submissions")
+}
+
+// ---------------------------------------------------------------------------
+// device_connections -- Ф5 physical-device layer: per-agent vendor OAuth
+// account links (Tuya first). Never stores a vendor PASSWORD -- only the
+// OAuth access/refresh tokens the vendor issued for the user's own account
+// linking consent, and those are encrypted (AES-256-GCM, secret-crypto
+// service) before they land here. `oauth_state` is the CSRF/ownership
+// binding for the connect-webview's pending->active transition (see
+// device-connection.service.ts); cleared once consumed. Low volume, not
+// partitioned -- same class of table as moderation_appeals.
+// ---------------------------------------------------------------------------
+model DeviceConnection {
+  connection_id      String    @id @default(uuid()) @db.Uuid
+  agent_id           String    @db.Uuid
+  vendor             String    // 'tuya' | 'smartthings' | 'aqara' (only 'tuya' implemented so far)
+  vendor_user_id     String?   // vendor's own uid for the linked account
+  status             String    @default("pending") // pending | active | revoked
+  scope              String?
+  // AES-256-GCM ciphertext (base64: iv || authTag || ciphertext), never plaintext.
+  // NULL once revoked -- revocation wipes these columns, not just the status flag.
+  access_token_enc   String?
+  refresh_token_enc  String?
+  token_expires_at   DateTime? @db.Timestamptz()
+  // Single-use CSRF token for the pending->active OAuth callback. NULL once
+  // consumed (activation) so a callback can never be replayed.
+  oauth_state        String?   @unique
+  created_at         DateTime  @default(now()) @db.Timestamptz()
+  updated_at         DateTime  @updatedAt @db.Timestamptz()
+  revoked_at         DateTime? @db.Timestamptz()
+
+  agent              Agent     @relation(fields: [agent_id], references: [agent_id])
+
+  @@index([agent_id, status])
+  @@map("device_connections")
 }
