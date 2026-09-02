@@ -8,6 +8,7 @@ import { run as runProviderHealth } from '../jobs/provider-health.job';
 import { run as runX402Health } from '../jobs/x402-health.job';
 import { run as runPartitionCreate } from '../jobs/partition-create.job';
 import { run as runToolQuality } from '../jobs/tool-quality.job';
+import { run as runPartitionCleanup } from '../jobs/partition-cleanup.job';
 
 /**
  * Worker process entry point (§12.194, §12.244).
@@ -169,18 +170,47 @@ const toolQualityTask = cron.schedule('*/10 * * * *', () => {
 });
 
 // Run tool quality once at startup after 15s delay
-setTimeout(() => { runToolQualitySafe().catch(() => {}); }, 15_000);
+setTimeout(() => {
+  runToolQualitySafe().catch(() => {});
+}, 15_000);
 
 // Run x402 health once at startup after 10s delay
-setTimeout(() => { runX402HealthSafe().catch(() => {}); }, 10_000);
+setTimeout(() => {
+  runX402HealthSafe().catch(() => {});
+}, 10_000);
 
 // Schedule partition creation daily at 23:00 UTC (§12.244 job #1)
 async function runPartitionCreateSafe(): Promise<void> {
-  try { await runPartitionCreate(); }
-  catch (err) { logger.error({ err, job: 'partition-create' }, 'Partition creation failed'); }
+  try {
+    await runPartitionCreate();
+  } catch (err) {
+    logger.error({ err, job: 'partition-create' }, 'Partition creation failed');
+  }
 }
 const partitionCreateTask = cron.schedule('0 23 * * *', () => {
   runPartitionCreateSafe().catch(() => {});
+});
+
+// Schedule partition cleanup daily at 04:00 UTC (§12.244 job #2, per its own docstring).
+// F1: this job existed with a green test but was never wired into any server.ts --
+// moderation content ("deleted automatically" per /policy/moderation) never actually expired,
+// outbox/execution_ledger/request_metrics partitions were created daily and never dropped.
+let partitionCleanupRunning = false;
+async function runPartitionCleanupSafe(): Promise<void> {
+  if (partitionCleanupRunning) {
+    return;
+  }
+  partitionCleanupRunning = true;
+  try {
+    await runPartitionCleanup();
+  } catch (err) {
+    logger.error({ err, job: 'partition-cleanup' }, 'Partition cleanup job failed');
+  } finally {
+    partitionCleanupRunning = false;
+  }
+}
+const partitionCleanupTask = cron.schedule('0 4 * * *', () => {
+  runPartitionCleanupSafe().catch(() => {});
 });
 
 // Create partitions for next 7 days at startup (catch up after restart/missed crons)
@@ -199,19 +229,26 @@ setTimeout(async () => {
       const from = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`;
       const to = `${next.getUTCFullYear()}-${String(next.getUTCMonth() + 1).padStart(2, '0')}-${String(next.getUTCDate()).padStart(2, '0')}`;
       for (const table of tables) {
-        await db.$executeRawUnsafe(
-          `CREATE TABLE IF NOT EXISTS "${table}_${suffix}" PARTITION OF "${table}" FOR VALUES FROM ('${from}') TO ('${to}')`,
-        ).catch(() => {}); // ignore if already exists
+        await db
+          .$executeRawUnsafe(
+            `CREATE TABLE IF NOT EXISTS "${table}_${suffix}" PARTITION OF "${table}" FOR VALUES FROM ('${from}') TO ('${to}')`,
+          )
+          .catch(() => {}); // ignore if already exists
       }
     }
     await db.$disconnect();
-    logger.info({ job: 'partition-create', days: 8 }, 'Startup partition catch-up complete (today + 7 days)');
+    logger.info(
+      { job: 'partition-create', days: 8 },
+      'Startup partition catch-up complete (today + 7 days)',
+    );
   } catch (err) {
     logger.error({ err, job: 'partition-create' }, 'Startup partition catch-up failed');
   }
 }, 5_000);
 
-logger.info('Worker started — heartbeat + reconciliation + provider-health + x402-health + partition-create cron active');
+logger.info(
+  'Worker started — heartbeat + reconciliation + provider-health + x402-health + partition-create + partition-cleanup cron active',
+);
 
 // ---------------------------------------------------------------------------
 // Graceful shutdown (§12.230 — 60s stop_grace_period)
@@ -225,6 +262,7 @@ function shutdown(signal: string): void {
   x402HealthTask.stop();
   partitionCreateTask.stop();
   toolQualityTask.stop();
+  partitionCleanupTask.stop();
 
   if (heartbeatTimer) {
     clearInterval(heartbeatTimer);
