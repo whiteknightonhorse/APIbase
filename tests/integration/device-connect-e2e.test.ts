@@ -154,10 +154,21 @@ describe('Ф5 device connect -> state -> command -> revoke (full T1 scenario)', 
     // brief, run as an automated check against REAL log output, not a
     // check that silence looks clean.
     logger.level = 'debug';
-    jest.spyOn(process.stdout, 'write').mockImplementation((chunk: unknown) => {
-      logLines.push(String(chunk));
-      return true;
-    });
+    // F7: the mock MUST invoke the write callback -- truncatingStream (logger.ts) calls
+    // `process.stdout.write(line, callback)` and waits for it before its own _write()
+    // completes. A mock that swallows the callback (this test's original shape) stalls
+    // the Writable's internal queue after the very first log line: every subsequent
+    // logger call in this whole file is silently buffered and never reaches the mock
+    // again, which would make the FINAL CHECK below pass on an empty/truncated
+    // `logLines`, not on the real accumulated logs.
+    jest
+      .spyOn(process.stdout, 'write')
+      .mockImplementation((chunk: unknown, encodingOrCb?: unknown, cb?: unknown) => {
+        logLines.push(String(chunk));
+        const callback = typeof encodingOrCb === 'function' ? encodingOrCb : cb;
+        if (typeof callback === 'function') callback();
+        return true;
+      });
   });
 
   afterAll(() => {

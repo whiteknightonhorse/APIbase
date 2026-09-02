@@ -28,14 +28,25 @@ function maskEmail(email: string): string {
 /** Redact known sensitive patterns in an arbitrary string value. */
 function redactString(key: string, value: string): string {
   const lk = key.toLowerCase();
-  if (lk.includes('api_key') || lk.includes('apikey') || lk === 'authorization') {
+  // F7: access_token/refresh_token (OAuth tokens, e.g. device-connect's Tuya flow) were
+  // going out in plaintext -- only api_key/apikey/authorization were masked. Matched the
+  // same way api_key is: partial mask, useful for support/debugging without exposing the
+  // live credential.
+  if (
+    lk.includes('api_key') ||
+    lk.includes('apikey') ||
+    lk === 'authorization' ||
+    lk.includes('token')
+  ) {
     return maskApiKey(value);
   }
   if (lk === 'email') {
     return maskEmail(value);
   }
-  // Provider keys must never appear at all (§12.246)
-  if (lk.startsWith('provider_key')) {
+  // F7: client_secret/password/secret were also going out in plaintext. Full redact, same
+  // treatment as provider_key -- unlike a token, there is no safe partial mask for a secret
+  // or password (support/debugging never needs to see even a fragment of it).
+  if (lk.startsWith('provider_key') || lk.includes('secret') || lk.includes('password')) {
     return '[REDACTED]';
   }
   return value;
