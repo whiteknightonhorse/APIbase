@@ -49,3 +49,4 @@ Content-Signal: ai-train=yes, search=yes, ai-input=yes
 # Agent Skills index: https://apibase.pro/.well-known/agent-skills/index.json
 
 Sitemap: https://apibase.pro/sitemap.xml
+Sitemap: https://apibase.pro/sitemap-guides.xml

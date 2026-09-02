@@ -210,6 +210,8 @@ services:
       # passes, not the git-tracked ./static directly -- see scripts/deploy.sh.
       # Bootstrapped once by hand on the server; deploy.sh maintains it from here.
       - ./static-current:/var/www/static:ro
+      # content-machine: guides pages, own git repo, ro-bind (see nginx/nginx.conf location /guides/)
+      - /home/apibase/content-hub/guides:/var/www/guides:ro
     depends_on:
       api:
         condition: service_healthy
