@@ -39,4 +39,7 @@ jobs:
         run: npm run typecheck
 
       - name: Unit tests
-        run: npm run test -- --ci --passWithNoTests
+        # F8: --passWithNoTests removed. This repo has 24 suites / 818+ tests --
+        # a broken jest config that collects 0 tests should FAIL the build, not
+        # report green because nothing ran.
+        run: npm run test -- --ci

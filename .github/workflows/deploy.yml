@@ -59,7 +59,10 @@ jobs:
         run: npm run typecheck
 
       - name: Unit tests
-        run: npm run test -- --ci --passWithNoTests
+        # F8: --passWithNoTests removed -- same reasoning as test.yml. This is the
+        # job that gates promotion to main; a config that silently collects 0 tests
+        # must never report green right before a deploy.
+        run: npm run test -- --ci
 
   # -------------------------------------------------------------------------
   # Stage 2: Build Docker image + push to GHCR
