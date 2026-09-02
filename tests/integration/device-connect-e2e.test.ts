@@ -196,8 +196,10 @@ describe('Ф5 device connect -> state -> command -> revoke (full T1 scenario)', 
       }),
     );
 
-    const { tuyaExchangeCode } = await import('../../src/adapters/device-tuya');
-    const tokens = await tuyaExchangeCode(
+    // F3 fix: the router (and now this test, to match) goes through the
+    // same pipeline-stage seam PROVIDER_CALL uses, not a bare adapter import.
+    const { exchangeTuyaCode } = await import('../../src/pipeline/stages/device-oauth.stage');
+    const tokens = await exchangeTuyaCode(
       {
         clientId: 'test_client_id',
         clientSecret: 'test_client_secret',

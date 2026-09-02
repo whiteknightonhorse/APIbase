@@ -18,14 +18,10 @@ import {
   getDeviceStatus as tuyaGetStatus,
   sendDeviceCommand as tuyaSendCommand,
   type TuyaConfig,
+  type TuyaTokenResult,
 } from './tuya-client';
 import { config } from '../../config';
 import { logger } from '../../config/logger';
-
-// Re-exported so the connect-webview router can use the same OAuth code
-// exchange this adapter uses for refresh, without importing the vendor
-// client directly (one seam, not two ways to talk to Tuya).
-export { tuyaExchangeCode };
 
 /** Best-effort Tuya device-category -> our device-classes.json class name.
  *  Only the T1 classes actually reachable through Tuya this cycle are
@@ -105,6 +101,19 @@ export class DeviceAdapter extends BaseAdapter {
 
   protected parseResponse(raw: ProviderRawResponse): unknown {
     return raw.body;
+  }
+
+  /**
+   * OAuth code -> tokens, for the connect-webview callback (F3 fix). Was a
+   * bare module function re-exported from this file and imported directly
+   * by device-connect.router.ts -- a route reaching into src/adapters/**
+   * that check-adapter-import-boundary.py exists specifically to catch.
+   * Now the router goes through the SAME registry.resolveAdapter() seam
+   * PROVIDER_CALL uses (via pipeline/stages/device-oauth.stage.ts), same as
+   * every other adapter capability.
+   */
+  async exchangeTuyaCode(cfg: TuyaConfig, code: string): Promise<TuyaTokenResult> {
+    return tuyaExchangeCode(cfg, code);
   }
 
   async call(req: ProviderRequest): Promise<ProviderRawResponse> {

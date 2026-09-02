@@ -10,8 +10,8 @@ import {
   listActiveConnections,
   revokeConnection,
 } from '../services/device-connection.service';
-import { tuyaExchangeCode } from '../adapters/device-tuya';
-import { type TuyaConfig } from '../adapters/device-tuya/tuya-client';
+import { exchangeTuyaCode } from '../pipeline/stages/device-oauth.stage';
+import type { TuyaConfig } from '../adapters/device-tuya/tuya-client';
 
 /**
  * Ф5 Connect-webview -- the ONLY place a user's vendor password touches a
@@ -167,7 +167,7 @@ deviceConnectRouter.get(
         return;
       }
 
-      const tokens = await tuyaExchangeCode(cfg, code);
+      const tokens = await exchangeTuyaCode(cfg, code);
       await activateConnection(pending.connectionId, {
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
