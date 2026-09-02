@@ -3446,5 +3446,14 @@
     "reset_period": "none",
     "docs_url": "https://stat.gov.lv/en/about-osp",
     "limit_proof": "Official statistics portal of the Central Statistical Bureau of Latvia (data.stat.gov.lv), a standard PXWeb API — no authentication or API key required, published as open data under CC BY 4.0 with commercial and non-commercial reuse explicitly permitted (attribution required), no documented rate limits found."
+  },
+  "iceland-statistics": {
+    "display_name": "Iceland Statistics (Statistics Iceland)",
+    "health_url": "https://px.hagstofa.is/pxen/api/v1/en",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://statice.is/publications/open-data-access/",
+    "limit_proof": "Official statistics portal of Statistics Iceland (px.hagstofa.is), a standard PXWeb API — no authentication or API key required ('The API can be used without registration'), published as open data under CC BY 4.0 with reuse for any purpose including commercial explicitly permitted (attribution required), no documented rate limits found."
   }
 }

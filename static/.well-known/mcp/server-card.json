@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1339 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1342 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -64303,6 +64303,152 @@
               "description": "Filter for one dimension (variable) in the table."
             },
             "description": "Array of dimension filters. Each filter selects which values to include for one dimension. Example: [{code:'INDICATOR',selection:{filter:'item',values:['POP_SY']}}, {code:'ContentsCode',selection:{filter:'item',values:['IRS010']}}, {code:'TIME',selection:{filter:'top',values:['1']}}]. Response is JSON-stat2 format with dimension labels and numeric values array."
+          }
+        },
+        "required": [
+          "table_path",
+          "query"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "iceland-statistics.reference.catalog",
+      "description": "Browse Statistics Iceland's (Hagstofa Íslands) statistics database tree by path. Top-level databases: Atvinnuvegir (industries/sectors: fisheries, agriculture, tourism), Efnahagur (economy: prices, national accounts, public finance, trade), Ibuar (population: migration, births/deaths, family, elections, census), Samfelag (society: labour market, education, wages, health, culture, justice), Umhverfi (environment: land, air quality, energy, transport). Returns child nodes (subcategories, type=l) or table descriptors at leaf nodes (type=t). Use empty path '' to get the top-level databases. Navigate hierarchically until type=t nodes appear, then use iceland-statistics.table_metadata. Data: px.hagstofa.is (PXWeb API), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Hierarchical path through the Iceland statistics taxonomy. Empty '' gets the top-level databases: 'Atvinnuvegir' (industries/sectors: fisheries, agriculture, tourism), 'Efnahagur' (economy: prices, national accounts, public finance, trade), 'Ibuar' (population: migration, births/deaths, family, elections, census), 'Samfelag' (society: labour market, education, wages, health, culture, justice), 'Umhverfi' (environment: land, air quality, energy, transport). Use iceland-statistics.catalog recursively to navigate until type=t (table leaf) nodes appear.",
+            "default": ""
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "iceland-statistics.reference.table_metadata",
+      "description": "Get metadata for a specific Iceland statistics table — title, dimensions (e.g. Ár/Year, Eining/Unit), valid value codes for each dimension, and latest update timestamp. Use this BEFORE iceland-statistics.table_query to discover accepted filter values. Example path: 'Ibuar/mannfjoldi/1_yfirlit/yfirlit_mannfjolda/MAN00000.px' (population key figures since 1703). Data: px.hagstofa.is, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "table_path": {
+            "type": "string",
+            "description": "Full path to a leaf table (type='t' from iceland-statistics.catalog), e.g. 'Ibuar/mannfjoldi/1_yfirlit/yfirlit_mannfjolda/MAN00000.px' (population key figures since 1703). Returns title, dimension codes, and valid values to use in iceland-statistics.table_query."
+          }
+        },
+        "required": [
+          "table_path"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "iceland-statistics.series.table_query",
+      "description": "Run a statistical query against an Iceland statistics table — specify dimension filters to slice data by year, unit, and other indicators. Returns JSON-stat2 format with labeled dimensions and numeric values. Always call iceland-statistics.table_metadata first to discover valid dimension codes and value codes (often Icelandic words, e.g. 'Ár' for year). Example: population 1 January (Eining='0'), 3 most recent years (Ár filter='top' values=['3']). Data: px.hagstofa.is, no auth required, CC BY 4.0 (Statistics Iceland).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "table_path": {
+            "type": "string",
+            "description": "Full path to the leaf table to query — same as iceland-statistics.table_metadata table_path. Example: 'Ibuar/mannfjoldi/1_yfirlit/yfirlit_mannfjolda/MAN00000.px'."
+          },
+          "query": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string",
+                  "description": "Dimension code from iceland-statistics.table_metadata variables[].code. Examples: 'Ár' (year), 'Eining' (unit). Dimension codes are frequently Icelandic words with non-ASCII characters — copy them exactly as returned by table_metadata."
+                },
+                "selection": {
+                  "type": "object",
+                  "properties": {
+                    "filter": {
+                      "type": "string",
+                      "description": "Filter type. Common values: 'item' (select by exact code), 'top' (select N most recent — use with time dimensions like 'Ár'), 'all' (all values). Use the valueSet codes from metadata."
+                    },
+                    "values": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Array of value codes to select. Get valid codes from iceland-statistics.table_metadata variables[].values. For filter='item': list codes like ['0']. For filter='top': list count like ['3'] (3 most recent years). For filter='all': use ['*']."
+                    }
+                  },
+                  "required": [
+                    "filter",
+                    "values"
+                  ],
+                  "description": "Selection criteria for this dimension."
+                }
+              },
+              "required": [
+                "code",
+                "selection"
+              ],
+              "description": "Filter for one dimension (variable) in the table."
+            },
+            "description": "Array of dimension filters. Each filter selects which values to include for one dimension. Example: [{code:'Ár',selection:{filter:'top',values:['3']}}, {code:'Eining',selection:{filter:'item',values:['0']}}]. Response is JSON-stat2 format with dimension labels and numeric values array."
           }
         },
         "required": [

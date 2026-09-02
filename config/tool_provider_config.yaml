@@ -8589,6 +8589,25 @@ tools:
     price_usd: "0.003"
     cache_ttl: 1800
 
+  # --- UC-669: Iceland Statistics (Hagstofa Íslands, PXWeb API) ---
+  - tool_id: iceland-statistics.catalog
+    name: Iceland Statistics Catalog Browse
+    provider: iceland-statistics
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: iceland-statistics.table_metadata
+    name: Iceland Statistics Table Metadata
+    provider: iceland-statistics
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: iceland-statistics.table_query
+    name: Iceland Statistics Table Query
+    provider: iceland-statistics
+    price_usd: "0.003"
+    cache_ttl: 1800
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

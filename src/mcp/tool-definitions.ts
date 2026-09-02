@@ -16415,6 +16415,51 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+  // Iceland Statistics — Statistics Iceland (Hagstofa Íslands) PXWeb API (3) — UC-669
+  {
+    toolId: 'iceland-statistics.catalog',
+    mcpName: 'iceland-statistics.reference.catalog',
+    title: 'Iceland Statistics Catalog Browse',
+    description:
+      "Browse Statistics Iceland's (Hagstofa Íslands) statistics database tree by path. " +
+      'Top-level databases: Atvinnuvegir (industries/sectors: fisheries, agriculture, tourism), ' +
+      'Efnahagur (economy: prices, national accounts, public finance, trade), Ibuar (population: ' +
+      'migration, births/deaths, family, elections, census), Samfelag (society: labour market, ' +
+      'education, wages, health, culture, justice), Umhverfi (environment: land, air quality, ' +
+      'energy, transport). Returns child nodes (subcategories, type=l) or table descriptors at ' +
+      "leaf nodes (type=t). Use empty path '' to get the top-level databases. Navigate " +
+      'hierarchically until type=t nodes appear, then use iceland-statistics.table_metadata. ' +
+      'Data: px.hagstofa.is (PXWeb API), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'iceland-statistics.table_metadata',
+    mcpName: 'iceland-statistics.reference.table_metadata',
+    title: 'Iceland Statistics Table Metadata',
+    description:
+      'Get metadata for a specific Iceland statistics table — title, dimensions (e.g. Ár/Year, ' +
+      'Eining/Unit), valid value codes for each dimension, and latest update timestamp. Use this ' +
+      'BEFORE iceland-statistics.table_query to discover accepted filter values. Example path: ' +
+      "'Ibuar/mannfjoldi/1_yfirlit/yfirlit_mannfjolda/MAN00000.px' (population key figures since " +
+      '1703). Data: px.hagstofa.is, no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'iceland-statistics.table_query',
+    mcpName: 'iceland-statistics.series.table_query',
+    title: 'Iceland Statistics Table Query',
+    description:
+      'Run a statistical query against an Iceland statistics table — specify dimension filters ' +
+      'to slice data by year, unit, and other indicators. Returns JSON-stat2 format with labeled ' +
+      'dimensions and numeric values. Always call iceland-statistics.table_metadata first to ' +
+      "discover valid dimension codes and value codes (often Icelandic words, e.g. 'Ár' for " +
+      "year). Example: population 1 January (Eining='0'), 3 most recent years (Ár filter='top' " +
+      "values=['3']). Data: px.hagstofa.is, no auth required, CC BY 4.0 (Statistics Iceland).",
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
   // ---------------------------------------------------------------------------
   // Ф5 physical-device MCP layer -- device.list/state/command (2026-09-02)
   // Generic vendor-agnostic projection; Tuya is the only connected vendor
