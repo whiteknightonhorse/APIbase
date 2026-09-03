@@ -57,14 +57,19 @@ Cascade (H3, cheapest first, $0 until step 4):
      STRUCTURALLY (the binary cannot act, not "the prompt asks it not
      to"), plus a prompt-level reminder that the email body is untrusted
      data as defense in depth. `--json-schema` constrains the model's own
-     output to a JSON object (verified live against the installed CLI: the
-     `--output-format json` envelope carries the payload under `result`,
-     confirmed by an actual `--print --json-schema` invocation in this
-     sandbox even though it could not authenticate — the envelope shape
-     itself was still observable); this file re-validates it anyway (never
-     trust a subprocess blindly) — invalid output is UNMATCHED, never
-     guessed into a real class (H3: "невалидный выход = UNMATCHED"). Cost
-     cap (--max-budget-usd) lives on the SAME subprocess.run() call as the
+     output to a JSON object; the exact envelope shape `--output-format
+     json` uses to carry that payload was NOT verified against a live
+     model call (ruling-2: every sandbox this was tried in failed auth
+     before a real response came back, so an earlier claim of "verified
+     live" here was not backed by an actual observation and has been
+     removed) — this file reads the documented `structured_output` key
+     FIRST, falls back to the older `result` key SECOND, and
+     re-validates whichever shape comes back against the schema either
+     way (never trust a subprocess blindly) — invalid output is
+     UNMATCHED, never guessed into a real class (H3: "невалидный выход =
+     UNMATCHED"). Confirm the real shape at the first actual run and
+     correct the read order here if it differs. Cost cap
+     (--max-budget-usd) lives on the SAME subprocess.run() call as the
      model invocation — the taskloop protocol's own LAW ("Потолок расхода
      стоит в ТОЙ ЖЕ строке, что и вызов модели").
 
@@ -301,18 +306,54 @@ def write_setup_instructions():
 # ---------------------------------------------------------------------------
 # Domain map (H3 point 2).
 # ---------------------------------------------------------------------------
+# ruling-2 REJECT: the old "last two DNS labels" heuristic collapsed every
+# two-part public suffix (gov.uk, co.uk, ac.uk, ...) to the bare suffix
+# itself. Against the REAL provider-limits.json that is not a harmless
+# near-miss, it is a false MATCH: ~25 providers sit under one of these
+# (ONS/TfL/UKHSA/EA-hydrology/Companies House/food ratings/legislation on
+# gov.uk; EBI/BGS/V&A on ac.uk; SEPA/carbonintensity on org.uk; reed/Bank of
+# England on co.uk; and more on gov.au/go.jp/gov.br/org.mx/gov.za/org.nz/
+# com.br/gov.sg), so any sender on the bare suffix would match whichever of
+# them happened to be inserted into the dict first. This list does not need
+# to be exhaustive of the public suffix list (a missed entry only ever
+# degrades to the OLD, already-shipped, less-precise behaviour for that one
+# suffix — never worse) — it only needs to cover what actually appears in
+# THIS codebase's provider-limits.json, checked by selftest() against the
+# real file.
+_TWO_PART_SUFFIXES = frozenset([
+    "co.uk", "gov.uk", "org.uk", "ac.uk", "nhs.uk", "ltd.uk", "plc.uk", "me.uk", "net.uk", "sch.uk",
+    "com.au", "gov.au", "org.au", "net.au", "edu.au", "asn.au", "id.au",
+    "co.nz", "org.nz", "govt.nz", "net.nz", "ac.nz", "geek.nz",
+    "co.jp", "go.jp", "or.jp", "ne.jp", "ac.jp", "ad.jp",
+    "com.br", "gov.br", "org.br", "net.br",
+    "com.mx", "org.mx", "gob.mx", "net.mx",
+    "co.za", "gov.za", "org.za", "net.za",
+    "gov.sg", "com.sg", "org.sg", "net.sg", "edu.sg",
+])
+
+
 def _base_domain(host):
-    """Last two DNS labels, lowercased, 'www.' stripped. A naive heuristic
-    (mis-handles two-part public suffixes like 'co.uk') — acceptable here:
-    a wrong base domain only ever makes a match MISS (falls through to
-    UNMATCHED, $0, no action), never a false match that could misroute an
-    incident, so the failure mode of this simplification is silence, not
-    a wrong action."""
+    """Registrable domain, lowercased, 'www.' stripped, port dropped. For a
+    host under one of _TWO_PART_SUFFIXES the registrable domain is the LAST
+    THREE labels (e.g. 'tfl.gov.uk', never the bare 'gov.uk') — a bare
+    public suffix identifies no one, it's shared by every department/agency
+    that happens to sit under it (ruling-2). For every other host it's the
+    last two labels, same as the original heuristic. A host that IS exactly
+    one of the suffixes (e.g. 'gov.uk' itself, no label in front of it) has
+    no registrable domain to give — callers that care (build_domain_map)
+    check membership in _TWO_PART_SUFFIXES themselves before treating a
+    result as usable; this function still returns something rather than
+    raising, same fail-soft spirit as the rest of this module."""
     host = (host or "").lower().split(":")[0].strip().rstrip(".")
     if host.startswith("www."):
         host = host[4:]
     parts = host.split(".")
-    return ".".join(parts[-2:]) if len(parts) >= 2 else host
+    if len(parts) < 2:
+        return host
+    last2 = ".".join(parts[-2:])
+    if last2 in _TWO_PART_SUFFIXES and len(parts) >= 3:
+        return ".".join(parts[-3:])
+    return last2
 
 
 def _load_provider_domain_aliases():
@@ -341,27 +382,80 @@ def build_domain_map():
     half tracks provider-limits.json live, so it can never go stale the way
     a persisted generated artifact could (H3 point 2's 'строится один раз
     скриптом' is read here as 'the construction is one deterministic
-    function', not 'written to disk once and never touched again')."""
-    domain_to_provider = {}
+    function', not 'written to disk once and never touched again').
+
+    ruling-2 fix: registers TWO keys per docs_url/health_url — the full,
+    exact host (most specific: 'environment.data.gov.uk') AND its
+    registrable domain via _base_domain() ('data.gov.uk' collapses to the
+    eTLD+1 ONLY when that adds no extra ambiguity over the full host). A
+    bare _TWO_PART_SUFFIXES entry (a host with nothing in front of the
+    suffix, e.g. 'gov.uk' itself from a health_url like
+    'https://www.gov.uk/...') is never registered as ANY key — it
+    identifies no one. When two DIFFERENT providers claim the same key
+    (e.g. EA Hydrology and UKHSA Dashboard both reduce to 'data.gov.uk';
+    Companies House and the GOV.UK Content API both reduce to
+    'service.gov.uk'), that key is EXCLUDED from the map entirely and
+    logged — never silently resolved to whichever provider happened to be
+    inserted first. The two real providers still match correctly via their
+    own more specific full hosts; only the ambiguous shared key is refused."""
+    claimed_by = {}  # key -> set of providers that have claimed it
+
+    def _claim(key, provider):
+        if key:
+            claimed_by.setdefault(key, set()).add(provider)
+
     for provider, cfg in _load_provider_limits_for_domains().items():
-        for key in ("docs_url", "health_url"):
-            url = cfg.get(key)
+        for url_key in ("docs_url", "health_url"):
+            url = cfg.get(url_key)
             if not url:
                 continue
             try:
                 netloc = urllib.parse.urlparse(url).netloc
             except ValueError:
                 continue
-            base = _base_domain(netloc)
-            if base and base not in domain_to_provider:
-                domain_to_provider[base] = provider
+            host = netloc.lower().split(":")[0].strip().rstrip(".")
+            if host.startswith("www."):
+                host = host[4:]
+            if not host or host in _TWO_PART_SUFFIXES:
+                continue  # bare public suffix — no registrable domain to claim, see docstring
+            _claim(host, provider)
+            base = _base_domain(host)
+            if base != host:
+                _claim(base, provider)
+
+    domain_to_provider = {}
+    for key, providers in claimed_by.items():
+        if len(providers) == 1:
+            domain_to_provider[key] = next(iter(providers))
+        else:
+            ap.notice(
+                f"молчу: email-intake domain map key {key!r} claimed by {sorted(providers)} "
+                f"— ambiguous, excluded from auto-match (no silent first-wins)"
+            )
+
     aliases, whitelist = _load_provider_domain_aliases()
-    domain_to_provider.update(aliases)  # manual aliases win over auto-extracted
+    domain_to_provider.update(aliases)  # manual aliases: human-curated, always win, even over a collision
     return domain_to_provider, whitelist
 
 
 def match_provider(from_domain, domain_map):
-    return domain_map.get(_base_domain(from_domain))
+    """Full host first (most specific — matches a provider registered on a
+    non-colliding subdomain like 'environment.data.gov.uk'), THEN the
+    registrable domain (eTLD+1) SECOND, and never anything shorter than
+    that — a bare public suffix is never a domain_map key (build_domain_map
+    excludes it), so this function can never fall all the way down to
+    matching every sender on 'gov.uk'."""
+    host = (from_domain or "").lower().split(":")[0].strip().rstrip(".")
+    if host.startswith("www."):
+        host = host[4:]
+    if not host:
+        return None
+    if host in domain_map:
+        return domain_map[host]
+    base = _base_domain(host)
+    if base != host:
+        return domain_map.get(base)
+    return None
 
 
 # ---------------------------------------------------------------------------
@@ -549,11 +643,19 @@ def classify_with_haiku(subject, body, invoke_fn=_default_haiku_invoke):
         return "UNMATCHED", False, "model call failed"
     try:
         outer = json.loads(r.stdout)
-        # --output-format json wraps the actual text in a {"result": ...}
-        # envelope; --json-schema constrains that text to be the JSON object
-        # itself, but it may still arrive as a STRING that needs a second
-        # json.loads — handle both shapes defensively rather than assume one.
-        payload = outer.get("result", outer) if isinstance(outer, dict) else outer
+        # ruling-2: read the documented `structured_output` envelope key
+        # FIRST (where --json-schema's own schema-validated payload is
+        # supposed to land), fall back to the older `result` key SECOND —
+        # this file's earlier claim that the `result` shape was "verified
+        # live" was not actually backed by a real authenticated call (see
+        # header docstring); either key's payload may still arrive as a
+        # STRING needing a second json.loads — handle both defensively.
+        if isinstance(outer, dict) and "structured_output" in outer:
+            payload = outer["structured_output"]
+        elif isinstance(outer, dict):
+            payload = outer.get("result", outer)
+        else:
+            payload = outer
         if isinstance(payload, str):
             payload = json.loads(payload)
         cls = payload["class"]
@@ -965,7 +1067,61 @@ def selftest():
     assert domain_map, "domain map must not be empty against the real provider-limits.json"
     assert "github.com" in whitelist
     assert _base_domain("mail.HETZNER.com:993") == "hetzner.com"
-    assert _base_domain("notifications.example.co.uk") == "co.uk"  # documented heuristic limit, not a crash
+
+    # ruling-2: a two-part public suffix (gov.uk, co.uk, ac.uk, ...) is NOT
+    # a registrable domain by itself — the label in FRONT of the suffix is
+    # what actually identifies a provider.
+    assert _base_domain("api.tfl.gov.uk") == "tfl.gov.uk"
+    assert _base_domain("notifications.example.co.uk") == "example.co.uk"
+
+    # Mutation control: prove the OLD "last two DNS labels" heuristic would
+    # have gotten the tfl.gov.uk case wrong, so a future edit that quietly
+    # reintroduces it is caught even by someone skimming this file rather
+    # than running it.
+    def _naive_last_two_labels(host):
+        parts = (host or "").lower().rstrip(".").split(".")
+        return ".".join(parts[-2:]) if len(parts) >= 2 else host
+    assert _naive_last_two_labels("api.tfl.gov.uk") == "gov.uk"
+    assert _naive_last_two_labels("api.tfl.gov.uk") != _base_domain("api.tfl.gov.uk"), (
+        "the naive heuristic and the fixed one must disagree here, otherwise this "
+        "mutation-control check proves nothing"
+    )
+
+    # No key in the built map may be a bare public suffix — that would
+    # match ANY sender under it, exactly ruling-2's REJECT.
+    for key in domain_map:
+        assert key not in _TWO_PART_SUFFIXES, (
+            f"domain map key {key!r} is a bare public suffix — would match ANY sender under it"
+        )
+
+    # Real-data collision proof: EA Hydrology and UKHSA Dashboard both sit
+    # under *.data.gov.uk (their shared eTLD+1, 'data.gov.uk', must NEVER
+    # be a resolvable key); Companies House and the GOV.UK Content API both
+    # sit under *.service.gov.uk likewise. Each pair must still resolve to
+    # its OWN, DIFFERENT provider via its real, more specific host — no
+    # silent first-wins on the shared ambiguous key.
+    ea = match_provider("environment.data.gov.uk", domain_map)
+    ukhsa = match_provider("api.ukhsa-dashboard.data.gov.uk", domain_map)
+    assert ea == "ea-hydrology", f"got {ea!r}"
+    assert ukhsa == "ukhsa-dashboard", f"got {ukhsa!r}"
+    assert ea != ukhsa
+    assert domain_map.get("data.gov.uk") is None, (
+        "the shared ambiguous eTLD+1 key must never resolve to either provider"
+    )
+    ch = match_provider("developer.company-information.service.gov.uk", domain_map)
+    gu = match_provider("content-api.publishing.service.gov.uk", domain_map)
+    assert ch == "companieshouse", f"got {ch!r}"
+    assert gu == "govuk", f"got {gu!r}"
+    assert ch != gu
+    assert domain_map.get("service.gov.uk") is None
+
+    # A sender on a THIRD, unregistered *.gov.uk subdomain must never match
+    # any provider via an excluded/bare key — the exact failure ruling-2
+    # REJECTed (any *.gov.uk/*.co.uk/*.ac.uk sender "matching" a provider
+    # it has nothing to do with).
+    assert match_provider("random-department.service.gov.uk", domain_map) is None
+    assert match_provider("random-department.gov.uk", domain_map) is None
+    assert match_provider("gov.uk", domain_map) is None
 
     # --- rules cascade: one representative case per class, including the
     # ordering guarantee (KEY_REVOKED must win over a generic SECURITY_CHANGE
@@ -1039,6 +1195,24 @@ def selftest():
         lambda: classify_with_haiku("s", "b", invoke_fn=lambda p: _FakeResult(0, valid_out))
     )
     assert (cls, ar) == ("DEPRECATION", True), f"got {(cls, ar)}"
+
+    # ruling-2: the documented `structured_output` envelope key must be read
+    # (and preferred over `result`), not just the older/unverified shape.
+    structured_out = json.dumps({"structured_output": {"class": "MAINTENANCE", "action_required": False}})
+    cls_so, ar_so, _ = _with_fresh_haiku_budget(
+        lambda: classify_with_haiku("s", "b", invoke_fn=lambda p: _FakeResult(0, structured_out))
+    )
+    assert (cls_so, ar_so) == ("MAINTENANCE", False), f"got {(cls_so, ar_so)}"
+
+    # structured_output must win when BOTH keys are present (preference order).
+    both_out = json.dumps({
+        "structured_output": {"class": "QUOTA", "action_required": True},
+        "result": json.dumps({"class": "MARKETING", "action_required": False}),
+    })
+    cls_both, ar_both, _ = _with_fresh_haiku_budget(
+        lambda: classify_with_haiku("s", "b", invoke_fn=lambda p: _FakeResult(0, both_out))
+    )
+    assert (cls_both, ar_both) == ("QUOTA", True), f"got {(cls_both, ar_both)}"
 
     malformed_out = "not json at all {{{"
     cls2, ar2, _ = _with_fresh_haiku_budget(
