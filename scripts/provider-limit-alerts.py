@@ -1,78 +1,444 @@
 #!/usr/bin/env python3
-"""provider-limit-alerts.py — warn when a provider's FREE upstream quota is ~exhausted.
+"""provider-limit-alerts.py — warn when a provider's FREE upstream quota is ~exhausted,
+and (AP-5) turn real ledger traffic into a burn-rate forecast written durably into
+provider_status, so "the quota is fine" and "we can't tell" are never the same value.
 
 For every provider with a finite free tier (limit_type daily/monthly/hourly/credits/trial),
 count real upstream calls (execution_ledger.provider_called=true) in the provider's reset window
-and, at >=THRESHOLD% of free_limit, open/update a GitHub issue. Unlimited / rate_limited(0) skip.
-Runs hourly via cron. No secrets printed. Source of truth: src/config/provider-limits.json + DB.
+and, at >=THRESHOLD% USED, open/update a GitHub issue (unchanged AP-4-era behavior — this stays
+the durable log of the alert). Unlimited / rate_limited(0) skip. Runs hourly via cron.
+
+AP-5 additions (~/AUTOPILOT-DESIGN-2026-09-03.md section G3, §4/§5 of the task): same pass also
+computes burn_per_hour (calls in the last 3h / 3) and an exhaustion ETA from it, classifies a
+`risk` level (NOINFO|NORMAL|ATTENTION|WARNING|CRITICAL|EXHAUSTED — E1's own enum) and writes
+pct_remaining/burn_per_hour/exhaustion_eta/risk into the SAME provider_status row AP-3's probe
+job reads and updates. That write IS the "emergency-polling flag" the task plan names — E1's own
+docstring is explicit that Redis stays a cache in FRONT of provider_status, not a second place of
+record, so this task does not invent a parallel Redis key for it. What is NOT done here, on
+purpose (this task's own file list is `scripts/provider-limit-alerts.py` only, nothing under
+src/jobs/): making provider-health.job.ts (AP-3) actually READ `risk` and stop `cost_class=paid`
+probes at CRITICAL/EXHAUSTED (G3.4's "emergency mode"). That's a real gap, the same shape as
+AP-4's own documented AP-6 gap in autopilot_common.py's module docstring — flagged, not silently
+assumed, and not invented here since it touches a file outside this task's boundary.
+
+NOINFO discipline (this task's central law, C0.3): a provider we could not measure this pass
+(the ledger query itself failed) must never fall back to "0 used" — that would silently render as
+100% remaining / risk=NORMAL, i.e. exactly the "no data == fine" bug the whole autopilot project
+exists to prevent. See `usage is None` handling below — pre-AP-5 this script's local `psql()`
+helper discarded the subprocess return code entirely, so a query failure WAS silently read as "0
+rows" (every provider "at 0% used"). Fixed here by switching to autopilot_common.psql (returns
+the exit code) and gating on it explicitly.
 """
-import json, subprocess, sys, os
+import json
+import os
+import subprocess
+import sys
+from datetime import datetime, timedelta, timezone
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "autopilot"))
+import autopilot_common as ap  # noqa: E402
 
 ROOT = "/home/apibase/apibase"
 REPO = "whiteknightonhorse/APIbase"
 THRESHOLD = float(os.environ.get("LIMIT_ALERT_PCT", "90"))
 LABEL = "limit-alert"
 
-def psql(sql):
-    out = subprocess.run(
-        ["docker","exec","apibase-postgres-1","psql","-U","apibase","-d","apibase","-tAF\t","-c",sql],
-        capture_output=True, text=True)
-    return out.stdout.strip()
+WINDOW = {"hourly": "hourly", "daily": "daily", "monthly": "monthly", "credits": "none", "trial": "none"}
+
+# G3.2, literal thresholds (this project's own convention: constants live ONE place, not
+# scattered magic numbers — see autopilot/config.py's F1 thresholds for the sibling example).
+RISK_CRITICAL_ETA_H = 6
+RISK_CRITICAL_PCT = 10
+RISK_WARNING_ETA_H = 24
+RISK_WARNING_PCT = 25
+RISK_ATTENTION_PCT = 50
+
+QUOTA_INCIDENT_KIND = {"EXHAUSTED": "QUOTA_EXHAUSTED", "CRITICAL": "QUOTA_LOW"}
+
 
 def gh(*args):
-    return subprocess.run(["gh",*args], capture_output=True, text=True, cwd=ROOT)
+    return subprocess.run(["gh", *args], capture_output=True, text=True, cwd=ROOT)
 
-cfg = json.load(open(f"{ROOT}/src/config/provider-limits.json"))
 
-# one pass: per-provider call counts in each window (real upstream hits only)
-rows = psql("""
-  SELECT t.provider,
-    count(*) FILTER (WHERE el.created_at >= now() - interval '1 hour') AS h,
-    count(*) FILTER (WHERE el.created_at >= date_trunc('day',   now() at time zone 'UTC')) AS d,
-    count(*) FILTER (WHERE el.created_at >= date_trunc('month', now() at time zone 'UTC')) AS m,
-    count(*) AS total
-  FROM execution_ledger el JOIN tools t ON t.tool_id = el.tool_id
-  WHERE el.provider_called = true
-  GROUP BY t.provider
-""")
-usage = {}
-for line in rows.splitlines():
-    p,h,d,m,tot = line.split("\t")
-    usage[p] = {"hourly":int(h),"daily":int(d),"monthly":int(m),"none":int(tot)}
+# ---------------------------------------------------------------------------
+# AP-5: burn rate / ETA / risk — pure functions, no I/O, so `--selftest` can
+# exercise every branch (including the NOINFO-vs-zero one) without a DB.
+# ---------------------------------------------------------------------------
+def compute_eta_hours(remaining_count, burn_per_hour):
+    """None means "can't say", not "never" and not "now" — both real answers
+    on their own. burn_per_hour<=0 (no calls in the last 3h) genuinely means
+    "not burning right now", which is also None (no failure implied, just no
+    eta to compute — a quota that isn't being spent doesn't have an exhaustion
+    date), never coerced to 0 or infinity."""
+    if remaining_count is None or burn_per_hour is None:
+        return None
+    if burn_per_hour <= 0:
+        return None
+    return remaining_count / burn_per_hour
 
-WINDOW = {"hourly":"hourly","daily":"daily","monthly":"monthly","credits":"none","trial":"none"}
-alerts = []
-for prov, c in cfg.items():
-    lt = c.get("limit_type"); lim = int(c.get("free_limit") or 0)
-    if lt not in WINDOW or lim <= 0:
-        continue
-    used = usage.get(prov, {}).get(WINDOW[lt], 0)
-    pct = used / lim * 100
-    if pct >= THRESHOLD:
-        alerts.append((prov, c.get("display_name", prov), used, lim, lt, round(pct)))
 
-# upsert one GitHub issue per breaching provider (idempotent by title prefix)
-def open_issues():
-    r = gh("issue","list","--repo",REPO,"--state","open","--search","Limit in:title","--limit","100",
-           "--json","number,title")
-    try: return json.loads(r.stdout or "[]")
-    except Exception: return []
+def classify_risk(pct_remaining, remaining_count, eta_hours):
+    """G3.2 literal: EXHAUSTED (remaining=0) | CRITICAL (eta<6h OR pct<10) |
+    WARNING (eta<24h OR pct<25) | ATTENTION (pct<50) | NORMAL; missing
+    measurement = NOINFO, checked FIRST and never conflated with NORMAL (this
+    task's own headline law) or with EXHAUSTED (None is not 0)."""
+    if pct_remaining is None or remaining_count is None:
+        return "NOINFO"
+    if remaining_count <= 0:
+        return "EXHAUSTED"
+    if (eta_hours is not None and eta_hours < RISK_CRITICAL_ETA_H) or pct_remaining < RISK_CRITICAL_PCT:
+        return "CRITICAL"
+    if (eta_hours is not None and eta_hours < RISK_WARNING_ETA_H) or pct_remaining < RISK_WARNING_PCT:
+        return "WARNING"
+    if pct_remaining < RISK_ATTENTION_PCT:
+        return "ATTENTION"
+    return "NORMAL"
 
-existing = {i["title"]: i["number"] for i in open_issues()}
-for prov, disp, used, lim, lt, pct in alerts:
-    title = f"Limit {pct}%: {disp} ({used}/{lim} {lt})"
-    prefix = f"Limit "  # match any prior pct for this provider
-    body = (f"Provider **{disp}** (`{prov}`) free upstream quota is at **{pct}%** "
-            f"({used} / {lim} calls, {lt} window).\n\n"
-            f"At 100% the upstream starts rejecting / charging. Options: add a paid plan + funds, "
-            f"rotate to a backup provider, or throttle. Auto-detected by provider-limit-alerts (hourly). "
-            f"Resets on the {lt} boundary.")
-    # find any existing open issue for this provider (different pct in title)
-    found = next((num for t,num in existing.items() if t.startswith(prefix) and f"{disp} (" in t), None)
-    if found:
-        print(f"skip (already open #{found}): {disp} {pct}%")
-        continue
-    r = gh("issue","create","--repo",REPO,"--title",title,"--body",body)
-    print(f"created: {title} -> {r.stdout.strip().splitlines()[-1] if r.stdout else r.stderr[:80]}")
 
-print(f"limit-alerts: checked {sum(1 for c in cfg.values() if c.get('limit_type') in WINDOW and int(c.get('free_limit') or 0)>0)} finite-limit providers, {len(alerts)} at >={int(THRESHOLD)}%")
+# ---------------------------------------------------------------------------
+# AP-5: durable writes (provider_status + probe_log + incidents). Gated on
+# migration 0009 being deployed (schema_present, same gate incident-engine.py
+# uses) — this script also runs the GH-issue path below on hosts that don't
+# have the autopilot schema yet, so that legacy behavior must NOT be gated.
+# ---------------------------------------------------------------------------
+def update_provider_status_risk(provider, pct_remaining, burn_per_hour, eta_hours, risk):
+    """Returns True iff a provider_status row existed and was updated. A
+    missing row (AP-3 hasn't seeded/probed this provider yet) is logged and
+    skipped, never fabricated here — provider_status's other columns (state,
+    next_probe_at, probe_interval_s...) are AP-3's to own, not this script's
+    to guess defaults for."""
+    if eta_hours is not None:
+        eta_ts = (datetime.now(timezone.utc) + timedelta(hours=eta_hours)).isoformat()
+        eta_sql = f"{ap.sql_literal(eta_ts)}::timestamptz"
+    else:
+        eta_sql = "NULL"
+    pct_sql = str(int(round(pct_remaining))) if pct_remaining is not None else "NULL"
+    burn_sql = f"{burn_per_hour:.2f}" if burn_per_hour is not None else "NULL"
+    out, rc = ap.psql(
+        f"UPDATE provider_status SET pct_remaining = {pct_sql}, burn_per_hour = {burn_sql}, "
+        f"exhaustion_eta = {eta_sql}, risk = {ap.sql_literal(risk)}, updated_at = now() "
+        f"WHERE provider = {ap.sql_literal(provider)} RETURNING provider"
+    )
+    if rc != 0:
+        ap.notice(f"provider-limit-alerts: risk write failed for {provider}: {out}")
+        return False
+    if not out:
+        ap.notice(f"provider-limit-alerts: no provider_status row for {provider} yet "
+                  f"(not probed/seeded by AP-3) — skipping risk write, not fabricating one")
+        return False
+    return True
+
+
+def log_probe(provider, kind, result, detail):
+    _, rc = ap.psql(
+        f"INSERT INTO probe_log (provider, kind, result, detail) VALUES ("
+        f"{ap.sql_literal(provider)}, {ap.sql_literal(kind)}, {ap.sql_literal(result)}, "
+        f"{ap.sql_literal((detail or '')[:2000] or None)})"
+    )
+    if rc != 0:
+        ap.notice(f"provider-limit-alerts: probe_log insert failed for {provider}/{kind}: {rc}")
+
+
+def open_quota_incident(provider, risk, pct_remaining, remaining_count, burn_per_hour, eta_hours, lim, lt, used):
+    kind = QUOTA_INCIDENT_KIND[risk]
+    eta_str = f"{eta_hours:.1f}h" if eta_hours is not None else "неизвестно (burn=0 сейчас)"
+    evidence = {
+        "risk": risk, "pct_remaining": pct_remaining, "remaining_calls": remaining_count,
+        "free_limit": lim, "limit_type": lt, "used_this_window": used,
+        "burn_per_hour": round(burn_per_hour, 2) if burn_per_hour is not None else None,
+        "exhaustion_eta_hours": round(eta_hours, 2) if eta_hours is not None else None,
+    }
+    what = (f"{'квота исчерпана' if risk == 'EXHAUSTED' else 'квота почти исчерпана'} "
+            f"({pct_remaining}% remains, burn {burn_per_hour:.2f}/h, eta {eta_str})")
+    try:
+        ap.open_or_merge_incident(
+            kind=kind, provider=provider, evidence=evidence, detected_by="limits",
+            what=what, system_did="burn-rate risk classification (provider-limit-alerts.py, G3.2)",
+        )
+    except Exception as e:
+        ap.notice(f"provider-limit-alerts: failed to open/merge {kind} incident for {provider}: {e}")
+
+
+def main():
+    cfg = json.load(open(f"{ROOT}/src/config/provider-limits.json"))
+
+    # One pass: per-provider call counts in each window (real upstream hits only).
+    # `usage is None` (query failed) is a DISTINCT state from `usage == {}` (query
+    # ran fine, found nothing) — the former is NOINFO for every provider, the
+    # latter is real "0 calls" data for providers not present in the dict.
+    rows, rc = ap.psql("""
+      SELECT t.provider,
+        count(*) FILTER (WHERE el.created_at >= now() - interval '1 hour') AS h,
+        count(*) FILTER (WHERE el.created_at >= now() - interval '3 hours') AS h3,
+        count(*) FILTER (WHERE el.created_at >= date_trunc('day',   now() at time zone 'UTC')) AS d,
+        count(*) FILTER (WHERE el.created_at >= date_trunc('month', now() at time zone 'UTC')) AS m,
+        count(*) AS total
+      FROM execution_ledger el JOIN tools t ON t.tool_id = el.tool_id
+      WHERE el.provider_called = true
+      GROUP BY t.provider
+    """)
+    if rc != 0:
+        ap.notice(f"provider-limit-alerts: usage query failed (rc={rc}): {rows!r} — "
+                  f"treating as NOINFO for every provider this run, not silently 0")
+        usage = None
+    else:
+        usage = {}
+        for line in rows.splitlines():
+            if not line:
+                continue
+            p, h, h3, d, m, tot = line.split(ap.SEP)
+            usage[p] = {"hourly": int(h), "burn3h": int(h3), "daily": int(d),
+                        "monthly": int(m), "none": int(tot)}
+
+    schema_ok, missing = ap.schema_present()
+    if not schema_ok:
+        ap.notice(f"provider-limit-alerts: autopilot schema not deployed yet (missing {missing}) — "
+                  f"skipping risk/probe_log/incident writes this run, GH-issue alerting unaffected")
+
+    alerts = []
+    finite_providers = 0
+    for prov, c in cfg.items():
+        lt = c.get("limit_type")
+        lim = int(c.get("free_limit") or 0)
+        if lt not in WINDOW or lim <= 0:
+            continue
+        finite_providers += 1
+
+        if usage is None:
+            if schema_ok:
+                update_provider_status_risk(prov, None, None, None, "NOINFO")
+                log_probe(prov, "usage_api", "NOINFO", "usage query failed this run — no measurement")
+            continue
+
+        row = usage.get(prov)
+        used = row[WINDOW[lt]] if row else 0  # genuinely 0 real calls -- real data, not NOINFO
+        pct_used = used / lim * 100
+        if pct_used >= THRESHOLD:
+            alerts.append((prov, c.get("display_name", prov), used, lim, lt, round(pct_used)))
+
+        remaining_count = max(0, lim - used)
+        pct_remaining = round(remaining_count / lim * 100)
+        burn_per_hour = (row["burn3h"] / 3.0) if row else 0.0
+        eta_hours = compute_eta_hours(remaining_count, burn_per_hour)
+        risk = classify_risk(pct_remaining, remaining_count, eta_hours)
+
+        if schema_ok:
+            update_provider_status_risk(prov, pct_remaining, burn_per_hour, eta_hours, risk)
+            log_probe(prov, "usage_api", "OK",
+                      f"pct_remaining={pct_remaining} remaining={remaining_count}/{lim} "
+                      f"burn/h={burn_per_hour:.2f} eta_h={eta_hours} risk={risk}")
+            if risk in ("CRITICAL", "EXHAUSTED"):
+                log_probe(prov, "suppressed", "SKIPPED_BUDGET",
+                          f"emergency mode: cost_class=paid probes suppressed for risk={risk} (G3.4) "
+                          f"— NOTE: provider-health.job.ts does not yet read this flag, see module docstring")
+                open_quota_incident(prov, risk, pct_remaining, remaining_count, burn_per_hour,
+                                     eta_hours, lim, lt, used)
+
+    # Upsert one GitHub issue per breaching provider (idempotent by title prefix) — unchanged
+    # AP-4-era behavior, now correctly skipped (not silently "no alerts") when usage is None.
+    def open_issues():
+        r = gh("issue", "list", "--repo", REPO, "--state", "open", "--search", "Limit in:title",
+               "--limit", "100", "--json", "number,title")
+        try:
+            return json.loads(r.stdout or "[]")
+        except Exception:
+            return []
+
+    if usage is not None:
+        existing = {i["title"]: i["number"] for i in open_issues()}
+        for prov, disp, used, lim, lt, pct in alerts:
+            title = f"Limit {pct}%: {disp} ({used}/{lim} {lt})"
+            prefix = "Limit "  # match any prior pct for this provider
+            body = (f"Provider **{disp}** (`{prov}`) free upstream quota is at **{pct}%** "
+                    f"({used} / {lim} calls, {lt} window).\n\n"
+                    f"At 100% the upstream starts rejecting / charging. Options: add a paid plan + funds, "
+                    f"rotate to a backup provider, or throttle. Auto-detected by provider-limit-alerts (hourly). "
+                    f"Resets on the {lt} boundary.")
+            found = next((num for t, num in existing.items() if t.startswith(prefix) and f"{disp} (" in t), None)
+            if found:
+                print(f"skip (already open #{found}): {disp} {pct}%")
+                continue
+            r = gh("issue", "create", "--repo", REPO, "--title", title, "--body", body)
+            print(f"created: {title} -> {r.stdout.strip().splitlines()[-1] if r.stdout else r.stderr[:80]}")
+
+    print(f"limit-alerts: checked {finite_providers} finite-limit providers, "
+          f"{len(alerts) if usage is not None else 0} at >={int(THRESHOLD)}% used "
+          f"(usage query {'OK' if usage is not None else 'FAILED -- NOINFO this run'})")
+    return 0
+
+
+# ---------------------------------------------------------------------------
+# Selftests (AP-5 acceptance criteria: "тест: eta-математика + контроль «нет
+# данных ≠ NORMAL»"). Same split as incident-engine.py: --selftest is fast,
+# pure logic, no DB; --selftest-db exercises the real provider_status/
+# probe_log/incidents writes against a disposable Postgres.
+# ---------------------------------------------------------------------------
+def selftest():
+    # --- eta math ---
+    assert compute_eta_hours(120, 20.0) == 6.0, "120 remaining at 20/h burns out in exactly 6h"
+    assert compute_eta_hours(0, 5.0) == 0.0, "already at 0 remaining -> eta is now (0h), not None"
+    assert compute_eta_hours(100, 0.0) is None, "not burning right now -> no eta to compute, not 0/inf"
+    assert compute_eta_hours(100, None) is None, "unmeasured burn -> unmeasured eta"
+    assert compute_eta_hours(None, 10.0) is None, "unmeasured remaining -> unmeasured eta"
+
+    # --- risk: the central "нет данных ≠ NORMAL" control ---
+    assert classify_risk(None, None, None) == "NOINFO", "no measurement at all must be NOINFO, not NORMAL"
+    assert classify_risk(None, None, None) != "NORMAL"
+    assert classify_risk(100, 1000, None) == "NORMAL", "100% remaining, no burn -> genuinely fine"
+
+    # --- risk: EXHAUSTED takes priority over everything else, incl. a stale/odd eta ---
+    assert classify_risk(0, 0, 100.0) == "EXHAUSTED", "remaining=0 is EXHAUSTED regardless of eta math"
+    assert classify_risk(0, 0, None) == "EXHAUSTED", "remaining=0 with no burn data is still EXHAUSTED, not NOINFO"
+
+    # --- risk: CRITICAL via eta OR via pct (either arm of the OR) ---
+    assert classify_risk(50, 500, 5.0) == "CRITICAL", "eta<6h alone must trigger CRITICAL even at pct=50"
+    assert classify_risk(9, 9, None) == "CRITICAL", "pct<10 alone must trigger CRITICAL even with no eta"
+    assert classify_risk(6, 6, 6.0) == "CRITICAL", "eta==6 is NOT <6 (boundary), but pct=6<10 still is"
+
+    # --- risk: WARNING via eta OR via pct, and boundary exactness ---
+    assert classify_risk(50, 500, 23.0) == "WARNING", "eta<24h alone must trigger WARNING"
+    assert classify_risk(24, 24, None) == "WARNING", "pct<25 alone must trigger WARNING"
+    assert classify_risk(25, 25, 24.0) == "ATTENTION", "pct==25 and eta==24 are both boundary-exclusive -> falls to ATTENTION"
+
+    # --- risk: ATTENTION and the NORMAL boundary ---
+    assert classify_risk(49, 49, None) == "ATTENTION"
+    assert classify_risk(50, 50, None) == "NORMAL", "pct==50 is boundary-exclusive for ATTENTION -> NORMAL"
+
+    print("provider-limit-alerts --selftest: OK")
+
+
+def selftest_db():
+    """The DB-backed half of AP-5's acceptance criteria: a real UPDATE against
+    provider_status, a real probe_log INSERT respecting the CHECK constraints,
+    and a real QUOTA_LOW incident opened through autopilot_common's ONE write
+    path (I4) — against a disposable postgres:16.2-alpine container, same
+    boundary as AP-1/AP-4's own DB selftests (never apibase-postgres-1)."""
+    import time
+
+    name = "autopilot-ap5-selftest-pg"
+    subprocess.run(["docker", "rm", "-f", name], capture_output=True)
+    print("selftest-db: starting disposable postgres:16.2-alpine ...")
+    r = subprocess.run(
+        ["docker", "run", "-d", "--name", name, "-e", "POSTGRES_PASSWORD=x",
+         "-e", "POSTGRES_USER=apibase", "-e", "POSTGRES_DB=apibase", "postgres:16.2-alpine"],
+        capture_output=True, text=True,
+    )
+    if r.returncode != 0:
+        print(f"selftest-db: could not start container: {r.stderr}")
+        return 1
+    try:
+        ready = False
+        for _ in range(60):
+            time.sleep(1)
+            chk = subprocess.run(
+                ["docker", "exec", name, "psql", "-U", "apibase", "-d", "apibase", "-tAc", "SELECT 1"],
+                capture_output=True, text=True,
+            )
+            if chk.returncode == 0 and chk.stdout.strip() == "1":
+                ready = True
+                break
+        if not ready:
+            print("selftest-db: postgres never became ready")
+            return 1
+
+        migration_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "..",
+            "prisma", "migrations", "0009_autopilot_schema", "migration.sql",
+        )
+        with open(migration_path) as f:
+            migration_sql = f.read()
+        apply = subprocess.run(
+            ["docker", "exec", "-i", name, "psql", "-U", "apibase", "-d", "apibase"],
+            input=migration_sql, capture_output=True, text=True,
+        )
+        if apply.returncode != 0:
+            print(f"selftest-db: migration apply failed: {apply.stderr}")
+            return 1
+
+        os.environ["AUTOPILOT_PG_CONTAINER"] = name
+        os.environ["AUTOPILOT_NOTICES_LOG"] = "/tmp/autopilot-ap5-selftest-notices.log"
+        os.environ["AUTOPILOT_OPERATOR_DIR"] = "/tmp/autopilot-ap5-selftest-operator"
+        os.environ["AUTOPILOT_HUMAN_DONE_DIR"] = "/tmp/autopilot-ap5-selftest-human-done"
+        os.environ["AUTOPILOT_TG_ENV_PATH"] = "/tmp/autopilot-ap5-selftest-tg-env-does-not-exist"
+        import importlib
+        importlib.reload(ap)
+        assert ap.load_tg_env() == {}, "selftest-db: tg.env override failed — refusing to risk a real TG send"
+
+        schema_ok, missing = ap.schema_present()
+        assert schema_ok, f"selftest-db: migration didn't create expected tables, missing={missing}"
+
+        # World 1: no provider_status row yet -> risk write must be a no-op + notice,
+        # never a fabricated row (this script does not own provider_status's other columns).
+        ok1 = update_provider_status_risk("ghostprov", 42, 1.0, 10.0, "WARNING")
+        assert ok1 is False, "world 1: missing provider_status row must NOT be silently created"
+        row1, _ = ap.psql("SELECT count(*) FROM provider_status WHERE provider = 'ghostprov'")
+        assert row1 == "0", "world 1: no row should have been inserted"
+        print("world 1 (no row -> skipped, not fabricated): OK")
+
+        # World 2: a real row exists -> risk write updates it, and NOINFO is
+        # written distinctly from a computed NORMAL (not defaulted away).
+        ap.psql(
+            "INSERT INTO provider_status (provider, state, state_since, next_probe_at, "
+            "probe_interval_s) VALUES ('testprov', 'HEALTHY', now(), now(), 3600)"
+        )
+        ok2 = update_provider_status_risk("testprov", None, None, None, "NOINFO")
+        assert ok2 is True
+        row2, _ = ap.psql("SELECT risk, pct_remaining, burn_per_hour, exhaustion_eta FROM provider_status "
+                           "WHERE provider = 'testprov'")
+        risk2, pct2, burn2, eta2 = row2.split(ap.SEP)
+        assert risk2 == "NOINFO"
+        assert pct2 == "" and burn2 == "" and eta2 == "", (
+            f"world 2: NOINFO write must leave the numeric columns NULL, not 0/false, got "
+            f"pct={pct2!r} burn={burn2!r} eta={eta2!r}"
+        )
+        print("world 2 (NOINFO write, numeric columns stay NULL): OK")
+
+        # World 3: a genuinely CRITICAL risk both updates provider_status AND
+        # opens exactly one QUOTA_LOW incident (MIXED route -> stays OPEN,
+        # per autopilot_common's own AP-6 gap note, not a fabricated
+        # REMEDIATION_QUEUED).
+        ok3 = update_provider_status_risk("testprov", 5, 50.0, 3.0, "CRITICAL")
+        assert ok3 is True
+        log_probe("testprov", "usage_api", "OK", "selftest-db world 3")
+        open_quota_incident("testprov", "CRITICAL", 5, 5, 50.0, 3.0, 100, "daily", 95)
+        inc_row, rc_inc = ap.psql(
+            "SELECT incident_id, kind, state FROM incidents WHERE provider = 'testprov' "
+            "AND kind = 'QUOTA_LOW'"
+        )
+        assert rc_inc == 0 and inc_row, "world 3: QUOTA_LOW incident not found"
+        inc_id, inc_kind, inc_state = inc_row.split(ap.SEP)
+        assert inc_kind == "QUOTA_LOW"
+        assert inc_state == "OPEN", f"world 3: MIXED route (no AP-6 yet) must stay OPEN, got {inc_state}"
+        print("world 3 (CRITICAL -> provider_status + QUOTA_LOW incident, OPEN): OK")
+
+        # World 3b: a second CRITICAL pass for the SAME provider must MERGE,
+        # not open a second incident (I3 dedup, reused via autopilot_common).
+        open_quota_incident("testprov", "CRITICAL", 4, 4, 55.0, 2.5, 100, "daily", 96)
+        count_row, _ = ap.psql(
+            "SELECT count(*) FROM incidents WHERE provider = 'testprov' AND kind = 'QUOTA_LOW'"
+        )
+        assert count_row == "1", f"world 3b: recurring CRITICAL must merge into the same incident, got count={count_row}"
+        print("world 3b (recurring CRITICAL merges, no duplicate): OK")
+
+        # probe_log rows must respect the CHECK constraints (real schema, not
+        # a mock) — insert failures would have already raised a notice above;
+        # confirm the rows actually landed.
+        plog_count, _ = ap.psql(
+            "SELECT count(*) FROM probe_log WHERE provider = 'testprov' AND kind IN ('usage_api','suppressed')"
+        )
+        assert int(plog_count) >= 1, "probe_log rows for testprov did not land"
+        print("probe_log CHECK-constraint rows: OK")
+
+        print("selftest-db: ALL WORLDS OK")
+        return 0
+    finally:
+        subprocess.run(["docker", "rm", "-f", name], capture_output=True)
+
+
+if __name__ == "__main__":
+    if "--selftest" in sys.argv:
+        selftest()
+        raise SystemExit(0)
+    if "--selftest-db" in sys.argv:
+        raise SystemExit(selftest_db())
+    raise SystemExit(main())
