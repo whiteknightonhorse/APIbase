@@ -16761,6 +16761,43 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'weather',
     annotations: READ_ONLY,
   },
+  // Danish Energy Data Service API — api.energidataservice.dk (3) — UC-677
+  {
+    toolId: 'denmark-energidataservice.spot_prices',
+    mcpName: 'denmark-energidataservice.power.spot_prices',
+    title: 'Denmark Electricity Spot Prices',
+    description:
+      'Get hourly day-ahead electricity spot prices for a Nordic/European bidding zone (e.g. ' +
+      '"DK1", "DK2", or connected zones like "DE", "NO2", "SE3"). Returns each hour\'s price ' +
+      'in both DKK/MWh and EUR/MWh. Supports an optional date range (start_date/end_date); ' +
+      'omit both to get the most recent hours. Data: Energinet (Danish TSO), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'denmark-energidataservice.co2_emissions',
+    mcpName: 'denmark-energidataservice.power.co2_emissions',
+    title: 'Denmark Grid CO2 Intensity',
+    description:
+      'Get 5-minute-resolution CO2 emission intensity (grams CO2 per kWh) of the Danish ' +
+      'electricity grid for a price zone (e.g. "DK1", "DK2"). Supports an optional date range ' +
+      '(start_date/end_date); omit both to get the most recent readings. Useful for scheduling ' +
+      'energy-intensive tasks during low-carbon periods. Data: Energinet, no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'denmark-energidataservice.production_consumption',
+    mcpName: 'denmark-energidataservice.power.production_consumption',
+    title: 'Denmark Power Production & Consumption',
+    description:
+      'Get hourly Danish electricity production mix (central power, local power, offshore ' +
+      'wind, onshore wind, hydro, solar) and gross consumption in MWh, per price zone (e.g. ' +
+      '"DK1", "DK2"). Supports an optional date range (start_date/end_date); omit both to get ' +
+      'the most recent hours. Data: Energinet, no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
   // ---------------------------------------------------------------------------
   // Ф5 physical-device MCP layer -- device.list/state/command (2026-09-02)
   // Generic vendor-agnostic projection; Tuya is the only connected vendor

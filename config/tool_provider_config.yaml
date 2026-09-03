@@ -8741,6 +8741,25 @@ tools:
     price_usd: "0.002"
     cache_ttl: 1800
 
+  # --- UC-677: Danish Energy Data Service API (api.energidataservice.dk) ---
+  - tool_id: denmark-energidataservice.spot_prices
+    name: Denmark Electricity Spot Prices
+    provider: denmark-energidataservice
+    price_usd: "0.001"
+    cache_ttl: 1800
+
+  - tool_id: denmark-energidataservice.co2_emissions
+    name: Denmark Grid CO2 Intensity
+    provider: denmark-energidataservice
+    price_usd: "0.001"
+    cache_ttl: 300
+
+  - tool_id: denmark-energidataservice.production_consumption
+    name: Denmark Power Production & Consumption
+    provider: denmark-energidataservice
+    price_usd: "0.002"
+    cache_ttl: 1800
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

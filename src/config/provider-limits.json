@@ -3518,5 +3518,14 @@
     "reset_period": "none",
     "docs_url": "https://www2.sepa.org.uk/rainfall/",
     "limit_proof": "No API key or registration required. No rate-limit documentation found on www2.sepa.org.uk/rainfall/ or the SEPA time series API docs (timeseriesdoc.sepa.org.uk) \u2014 the site only notes telemetry is transmitted once or twice per day (data freshness, not a request-rate cap). Verified live 2026-09-03: /api/Stations returned all 280 stations with no rate-limit headers."
+  },
+  "denmark-energidataservice": {
+    "display_name": "Denmark Energy Data Service",
+    "health_url": "https://api.energidataservice.dk/dataset/Elspotprices?limit=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.energidataservice.dk/guides/api-guides",
+    "limit_proof": "No API key or registration required. No documented per-caller request quota in the API guides; a shared-pool rate limit does exist \u2014 verified live 2026-09-03: a burst of test requests returned HTTP 429 'Rate limit is exceeded. Try again in 294 seconds', confirming a shared throttle (not a per-key quota) rather than an unlimited firehose."
   }
 }

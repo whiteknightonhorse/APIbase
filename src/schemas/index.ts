@@ -393,6 +393,7 @@ import { deviceSchemas } from './device.schema';
 import { openalexSchemas } from './openalex.schema';
 import { semanticscholarSchemas } from './semanticscholar.schema';
 import { sepaScotlandSchemas } from './sepa-scotland.schema';
+import { denmarkEnergidataserviceSchemas } from './denmark-energidataservice.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -789,4 +790,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...openalexSchemas,
   ...semanticscholarSchemas,
   ...sepaScotlandSchemas,
+  ...denmarkEnergidataserviceSchemas,
 };

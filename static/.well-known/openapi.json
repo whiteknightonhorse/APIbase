@@ -124851,6 +124851,273 @@
         ]
       }
     },
+    "/api/v1/tools/denmark-energidataservice.spot_prices/call": {
+      "post": {
+        "operationId": "denmark-energidataservice_spot_prices",
+        "summary": "Denmark Electricity Spot Prices",
+        "description": "Get hourly day-ahead electricity spot prices for a Nordic/European bidding zone (e.g. \"DK1\", \"DK2\", or connected zones like \"DE\", \"NO2\", \"SE3\"). Returns each hour's price in both DKK/MWh and EUR/MWh. Supports an optional date range (start_date/end_date); omit both to get the most recent hours. Data: Energinet (Danish TSO), no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "denmark-energidataservice.spot_prices"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "price_area": {
+                    "type": "string",
+                    "description": "Bidding/price zone to filter by, e.g. \"DK1\" (West Denmark), \"DK2\" (East Denmark), or a connected zone such as \"DE\", \"NO2\", \"SE3\". Omit to return all zones."
+                  },
+                  "start_date": {
+                    "type": "string",
+                    "description": "Start of the time range, ISO 8601 (e.g. \"2026-09-01\" or \"2026-09-01T00:00\"). Omit for the most recent data."
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "End of the time range, ISO 8601 (e.g. \"2026-09-02\"). Omit for the most recent data."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 200,
+                    "description": "Maximum number of hourly price points to return (1-200, default 24)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/denmark-energidataservice.co2_emissions/call": {
+      "post": {
+        "operationId": "denmark-energidataservice_co2_emissions",
+        "summary": "Denmark Grid CO2 Intensity",
+        "description": "Get 5-minute-resolution CO2 emission intensity (grams CO2 per kWh) of the Danish electricity grid for a price zone (e.g. \"DK1\", \"DK2\"). Supports an optional date range (start_date/end_date); omit both to get the most recent readings. Useful for scheduling energy-intensive tasks during low-carbon periods. Data: Energinet, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "denmark-energidataservice.co2_emissions"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "price_area": {
+                    "type": "string",
+                    "description": "Bidding/price zone to filter by, e.g. \"DK1\" (West Denmark), \"DK2\" (East Denmark), or a connected zone such as \"DE\", \"NO2\", \"SE3\". Omit to return all zones."
+                  },
+                  "start_date": {
+                    "type": "string",
+                    "description": "Start of the time range, ISO 8601 (e.g. \"2026-09-01\" or \"2026-09-01T00:00\"). Omit for the most recent data."
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "End of the time range, ISO 8601 (e.g. \"2026-09-02\"). Omit for the most recent data."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 200,
+                    "description": "Maximum number of 5-minute CO2 readings to return (1-200, default 24)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/denmark-energidataservice.production_consumption/call": {
+      "post": {
+        "operationId": "denmark-energidataservice_production_consumption",
+        "summary": "Denmark Power Production & Consumption",
+        "description": "Get hourly Danish electricity production mix (central power, local power, offshore wind, onshore wind, hydro, solar) and gross consumption in MWh, per price zone (e.g. \"DK1\", \"DK2\"). Supports an optional date range (start_date/end_date); omit both to get the most recent hours. Data: Energinet, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "denmark-energidataservice.production_consumption"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "price_area": {
+                    "type": "string",
+                    "description": "Bidding/price zone to filter by, e.g. \"DK1\" (West Denmark), \"DK2\" (East Denmark), or a connected zone such as \"DE\", \"NO2\", \"SE3\". Omit to return all zones."
+                  },
+                  "start_date": {
+                    "type": "string",
+                    "description": "Start of the time range, ISO 8601 (e.g. \"2026-09-01\" or \"2026-09-01T00:00\"). Omit for the most recent data."
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "End of the time range, ISO 8601 (e.g. \"2026-09-02\"). Omit for the most recent data."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 200,
+                    "description": "Maximum number of hourly production/consumption records to return (1-200, default 24)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/device.list/call": {
       "post": {
         "operationId": "device_list",

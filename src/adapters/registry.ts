@@ -393,6 +393,7 @@ import { UnescoDataAdapter } from './unesco-data';
 import { OpenAlexAdapter } from './openalex';
 import { SemanticScholarAdapter } from './semanticscholar';
 import { SepaScotlandAdapter } from './sepa-scotland';
+import { DenmarkEnergidataserviceAdapter } from './denmark-energidataservice';
 import { config } from '../config';
 
 /**
@@ -2140,6 +2141,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // no key. Open Government Licence v3.0 — commercial reuse permitted
       // with attribution to SEPA.
       return getOrCreate('sepa-scotland', () => new SepaScotlandAdapter());
+    case 'denmark-energidataservice':
+      // Danish Energy Data Service API (UC-677) — api.energidataservice.dk:
+      // Energinet (Danish TSO) open dataset API. Hourly day-ahead spot
+      // prices, 5-min CO2 intensity, hourly production mix + consumption.
+      // No auth, no key. Free public data.
+      return getOrCreate('denmark-energidataservice', () => new DenmarkEnergidataserviceAdapter());
     default:
       return undefined;
   }
