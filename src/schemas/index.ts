@@ -390,6 +390,7 @@ import { estatJapanDashboardSchemas } from './estat-japan-dashboard.schema';
 import { wmoWeatherSchemas } from './wmo-weather.schema';
 import { unescoDataSchemas } from './unesco-data.schema';
 import { deviceSchemas } from './device.schema';
+import { openalexSchemas } from './openalex.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -783,4 +784,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...wmoWeatherSchemas,
   ...unescoDataSchemas,
   ...deviceSchemas,
+  ...openalexSchemas,
 };

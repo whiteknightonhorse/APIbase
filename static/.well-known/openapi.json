@@ -124105,6 +124105,255 @@
         ]
       }
     },
+    "/api/v1/tools/openalex.works_search/call": {
+      "post": {
+        "operationId": "openalex_works_search",
+        "summary": "OpenAlex Works Search",
+        "description": "Search 250M+ scholarly works (journal articles, books, preprints, datasets) by title, abstract, or full text. Returns OpenAlex ID, DOI, title, authors, publication year, open-access status, citation count, and primary research topic. Complements crossref.works_search (which returns publisher-registered bibliographic metadata) with OpenAlex's broader citation graph and topic classification. Call openalex.get_work with a result ID or DOI for full detail. Data: api.openalex.org, no auth required, CC0 metadata.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "openalex.works_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search query across title, abstract, and full text (e.g. \"climate change\")",
+                    "minLength": 1
+                  },
+                  "per_page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 25,
+                    "description": "Number of results to return (1-25, default 10)"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/openalex.authors_search/call": {
+      "post": {
+        "operationId": "openalex_authors_search",
+        "summary": "OpenAlex Authors Search",
+        "description": "Search 90M+ researcher/author records by display name. Returns OpenAlex author ID, ORCID, works count, total citation count, h-index, and last known institution with country. Useful for identifying a researcher before filtering openalex.works_search results by author, or for author-level impact metrics. Data: api.openalex.org, no auth required, CC0 metadata.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "openalex.authors_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search query for researcher/author name (e.g. \"marie curie\")",
+                    "minLength": 1
+                  },
+                  "per_page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 25,
+                    "description": "Number of results to return (1-25, default 10)"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/openalex.get_work/call": {
+      "post": {
+        "operationId": "openalex_get_work",
+        "summary": "OpenAlex Work Detail",
+        "description": "Fetch full details for one scholarly work by OpenAlex ID (e.g. \"W2101234009\") or DOI (e.g. \"10.48550/arxiv.1201.0490\"). Returns title, all authors with ORCID and institutions, open-access status and PDF/landing-page URLs, citation and reference counts, primary research topic, and a reconstructed plain-text abstract. Call openalex.works_search first to discover an ID from a text query. Data: api.openalex.org, no auth required, CC0 metadata.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "openalex.get_work"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "OpenAlex work ID (e.g. \"W2101234009\"), OpenAlex URL, or DOI (e.g. \"10.48550/arxiv.1201.0490\") to fetch full details for",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/device.list/call": {
       "post": {
         "operationId": "device_list",

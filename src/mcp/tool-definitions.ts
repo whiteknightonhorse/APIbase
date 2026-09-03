@@ -16635,6 +16635,49 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'education',
     annotations: READ_ONLY,
   },
+  // OpenAlex REST API — api.openalex.org (3) — UC-674
+  {
+    toolId: 'openalex.works_search',
+    mcpName: 'openalex.works.search',
+    title: 'OpenAlex Works Search',
+    description:
+      'Search 250M+ scholarly works (journal articles, books, preprints, datasets) by title, ' +
+      'abstract, or full text. Returns OpenAlex ID, DOI, title, authors, publication year, ' +
+      'open-access status, citation count, and primary research topic. Complements ' +
+      'crossref.works_search (which returns publisher-registered bibliographic metadata) with ' +
+      "OpenAlex's broader citation graph and topic classification. Call openalex.get_work with " +
+      'a result ID or DOI for full detail. Data: api.openalex.org, no auth required, CC0 ' +
+      'metadata.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'openalex.authors_search',
+    mcpName: 'openalex.authors.search',
+    title: 'OpenAlex Authors Search',
+    description:
+      'Search 90M+ researcher/author records by display name. Returns OpenAlex author ID, ' +
+      'ORCID, works count, total citation count, h-index, and last known institution with ' +
+      'country. Useful for identifying a researcher before filtering openalex.works_search ' +
+      'results by author, or for author-level impact metrics. Data: api.openalex.org, no auth ' +
+      'required, CC0 metadata.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'openalex.get_work',
+    mcpName: 'openalex.works.get',
+    title: 'OpenAlex Work Detail',
+    description:
+      'Fetch full details for one scholarly work by OpenAlex ID (e.g. "W2101234009") or DOI ' +
+      '(e.g. "10.48550/arxiv.1201.0490"). Returns title, all authors with ORCID and ' +
+      'institutions, open-access status and PDF/landing-page URLs, citation and reference ' +
+      'counts, primary research topic, and a reconstructed plain-text abstract. Call ' +
+      'openalex.works_search first to discover an ID from a text query. Data: ' +
+      'api.openalex.org, no auth required, CC0 metadata.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
   // ---------------------------------------------------------------------------
   // Ф5 physical-device MCP layer -- device.list/state/command (2026-09-02)
   // Generic vendor-agnostic projection; Tuya is the only connected vendor

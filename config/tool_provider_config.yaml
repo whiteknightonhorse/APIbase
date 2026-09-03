@@ -8684,6 +8684,25 @@ tools:
     price_usd: "0.003"
     cache_ttl: 3600
 
+  # --- UC-674: OpenAlex REST API (api.openalex.org) ---
+  - tool_id: openalex.works_search
+    name: OpenAlex Works Search
+    provider: openalex
+    price_usd: "0.002"
+    cache_ttl: 3600
+
+  - tool_id: openalex.authors_search
+    name: OpenAlex Authors Search
+    provider: openalex
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: openalex.get_work
+    name: OpenAlex Work Detail
+    provider: openalex
+    price_usd: "0.002"
+    cache_ttl: 86400
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

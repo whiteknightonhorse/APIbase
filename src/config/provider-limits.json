@@ -3491,5 +3491,14 @@
     "reset_period": "none",
     "docs_url": "https://api.uis.unesco.org/api/public/documentation",
     "limit_proof": "UIS Data API (api.uis.unesco.org) — no authentication or API key required, no documented rate limits found; data licensed CC BY-SA 4.0 per https://databrowser.uis.unesco.org/terms-and-conditions (commercial reuse and redistribution permitted with attribution and share-alike)."
+  },
+  "openalex": {
+    "display_name": "OpenAlex",
+    "health_url": "https://api.openalex.org/works?per_page=1",
+    "limit_type": "daily",
+    "free_limit": 1000,
+    "reset_period": "daily",
+    "docs_url": "https://docs.openalex.org/how-to-use-the-api/rate-limits-and-authentication",
+    "limit_proof": "No API key required to call the API. Observed live via response headers (2026-09-03): x-ratelimit-limit: 1000, x-ratelimit-remaining decrements per call (credit-cost based, ~1 credit for a simple query), x-ratelimit-reset: countdown consistent with a rolling ~24h window — anonymous requests get this daily allotment; a descriptive User-Agent with a mailto contact opts into OpenAlex's 'polite pool' for priority handling."
   }
 }

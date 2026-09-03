@@ -390,6 +390,7 @@ import { EstoniaStatisticsAdapter } from './estonia-statistics';
 import { EstatJapanDashboardAdapter } from './estat-japan-dashboard';
 import { WmoWeatherAdapter } from './wmo-weather';
 import { UnescoDataAdapter } from './unesco-data';
+import { OpenAlexAdapter } from './openalex';
 import { config } from '../config';
 
 /**
@@ -2118,6 +2119,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // databrowser.uis.unesco.org/terms-and-conditions) — commercial reuse and
       // redistribution permitted with attribution and share-alike.
       return getOrCreate('unesco-data', () => new UnescoDataAdapter());
+    case 'openalex':
+      // OpenAlex REST API (UC-674) — api.openalex.org: 250M+ scholarly works +
+      // 90M+ author records, fully open catalog of global research. No auth,
+      // no key; a polite-pool User-Agent (mailto contact) is sent for
+      // priority rate limits, same practice as the crossref adapter.
+      return getOrCreate('openalex', () => new OpenAlexAdapter());
     default:
       return undefined;
   }
