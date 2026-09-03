@@ -18,10 +18,12 @@ Each tick, in order:
   2. detect_from_provider_status() — turn AP-3's F1 state into new/merged
      incidents.
   3. route_auto_incidents() (AP-6) — OPEN incidents whose kind routes to
-     AUTO/MIXED get a real fleet task filed (I2, capped 3/day) and move to
-     REMEDIATION_QUEUED; AUTO_NO_MODEL (RATE_LIMITED) gets an engine
-     self-action (I1: "движок сам") straight to VERIFYING, no fleet task, no
-     model, no cap spent.
+     AUTO/MIXED get a real fleet task filed (I2, capped 3/day, severity-
+     ordered so SEV1 never loses a slot to an older SEV3) and move to
+     REMEDIATION_QUEUED; PROVIDER_DOWN additionally waits for I1's own
+     ">24ч" age gate before it may spend a slot. AUTO_NO_MODEL
+     (RATE_LIMITED) gets an engine self-action (I1: "движок сам") straight
+     to VERIFYING, no fleet task, no model, no cap spent.
   4. bridge_key_incidents() (AP-6) — WAITING_HUMAN AUTH_FAILED/
      CREDENTIAL_EXPIRED incidents get bridged into the existing
      connected_db.py key-request letter (I1's HUMAN_KEY row), once per
@@ -33,7 +35,9 @@ Each tick, in order:
      only the taskloop machine's done/stuck placement) and moves
      REMEDIATION_QUEUED -> VERIFYING (fleet DONE) or -> STUCK (fleet
      stuck/exhausted attempts), per F2.
-  6. advance_waiting_human() — 72h reminder edge, human-done/ watcher.
+  6. advance_waiting_human() — 72h reminder edge; human-done/ watcher, which
+     (F2) files a real follow-up fleet task (same generator/cap as #3) and
+     moves the incident to REMEDIATION_QUEUED, never straight to VERIFYING.
   7. advance_verifying() — re-probe confirmation -> RESOLVED or STUCK.
   8. write_heartbeat().
 
@@ -202,6 +206,32 @@ def _self_action_rate_limited(incident_id, provider):
     ap.transition_state(incident_id, "VERIFYING")
 
 
+def _provider_down_ready(incident_id, provider, created_at) -> bool:
+    """I1: 'PROVIDER_DOWN (SEV2+, >24ч)' — a PROVIDER_DOWN incident only gets
+    a fleet task once it has been open >=24h (AP-3's own backoff runs
+    1h->2h->4h->cap 24h in that same window: a provider that flips to DOWN
+    this tick is very plausibly still self-healing, not yet worth a model
+    call or one of the ≤3/day slots). `created_at` is the incident's own
+    open time — the moment detect_from_provider_status() first saw this
+    provider DOWN, which for PROVIDER_DOWN is also the moment it stopped
+    being merely DEGRADED (F1: incidents open exactly once per
+    dedup_key while a fault is ongoing, recurrences merge into the SAME
+    row's attempts, never resetting created_at). Unparseable created_at is
+    NOINFO, not a free pass -- treated as not-ready-yet (fail closed on the
+    model-spend side, same posture as consume_daily_task_slot())."""
+    ts = _parse_ts(created_at)
+    if ts is None:
+        ap.notice(f"молчу: {incident_id} ({provider}/PROVIDER_DOWN) — created_at unparseable, "
+                  f"cannot confirm the >24h age gate (I1), staying OPEN")
+        return False
+    age = datetime.now(timezone.utc) - ts
+    if age < timedelta(seconds=ap.PROVIDER_DOWN_MIN_AGE_SECONDS):
+        ap.notice(f"молчу: {incident_id} ({provider}/PROVIDER_DOWN) — only {age} old, "
+                  f"I1 requires >24h before a fleet task (backoff may still self-heal), staying OPEN")
+        return False
+    return True
+
+
 def route_auto_incidents():
     """AP-6 (I1/I2/I3): turn OPEN incidents whose kind routes to AUTO/MIXED
     into real REMEDIATION_QUEUED fleet tasks, respecting the ≤3/day cap
@@ -210,21 +240,33 @@ def route_auto_incidents():
     never double-files it once a task exists). HUMAN_* kinds are not this
     function's job (handled at open time, see open_or_merge_incident); those
     never have fleet_task_id set by anything, so the WHERE clause below
-    naturally never selects them once route is checked."""
+    naturally never selects them once route is checked.
+
+    Candidates are read `ORDER BY severity, created_at` (SEV1 < SEV2 < SEV3
+    sorts correctly as plain text) — I2's cap is scarce (≤3/day) and I1's own
+    table is severity-ordered prose ("SEV1 раньше SEV3 через 81x/85x/89x" for
+    the filenames); without this ORDER BY a plain SELECT has no guaranteed
+    ordering at all, so an older SEV3 could spend a cap slot a newer SEV1
+    needed the same tick. PROVIDER_DOWN additionally gates on I1's own
+    literal condition ("SEV2+, >24ч") via `_provider_down_ready()` below —
+    everything else has no such age gate."""
     out, rc = ap.psql(
-        "SELECT incident_id, provider, kind, severity, evidence::text, attempts::text "
-        "FROM incidents WHERE state = 'OPEN' AND fleet_task_id IS NULL"
+        f"SELECT incident_id, provider, kind, severity, evidence::text, attempts::text, "
+        f"{UTC_TS_EXPR('created_at')} FROM incidents WHERE state = 'OPEN' AND fleet_task_id IS NULL "
+        f"ORDER BY severity, created_at"
     )
     if rc != 0 or not out:
         return
     for line in out.splitlines():
-        incident_id, provider, kind, severity, evidence_raw, attempts_raw = line.split(ap.SEP)
+        incident_id, provider, kind, severity, evidence_raw, attempts_raw, created_at = line.split(ap.SEP)
         route = ap.ROUTE_CLASS.get(kind)
         if route == "AUTO_NO_MODEL":
             _self_action_rate_limited(incident_id, provider)
             continue
         if kind not in ap.FLEET_TASK_KINDS:
             continue  # HUMAN_* (or a future route class this function doesn't own)
+        if kind == "PROVIDER_DOWN" and not _provider_down_ready(incident_id, provider, created_at):
+            continue
         if not ap.consume_daily_task_slot():
             ap.notice(f"молчу: {incident_id} ({provider}/{kind}) — daily fleet-task cap "
                       f"({ap.DAILY_TASK_CAP}) reached, staying OPEN")
@@ -323,25 +365,27 @@ def advance_remediation_queued():
 def advance_waiting_human():
     out, rc = ap.psql(
         f"SELECT incident_id, provider, kind, {UTC_TS_EXPR('created_at')}, attempts::text, "
-        f"{UTC_TS_EXPR('updated_at')} FROM incidents WHERE state = 'WAITING_HUMAN'"
+        f"{UTC_TS_EXPR('updated_at')}, operator_file FROM incidents WHERE state = 'WAITING_HUMAN'"
     )
     if rc != 0 or not out:
         return
     processed_dir = os.path.join(ap.HUMAN_DONE_DIR, "processed")
     for line in out.splitlines():
-        incident_id, provider, kind, created_at, attempts_raw, updated_at = line.split(ap.SEP)
+        incident_id, provider, kind, created_at, attempts_raw, updated_at, operator_file = line.split(ap.SEP)
         sid = ap.short_id(incident_id)
         route = ap.ROUTE_CLASS[kind]
 
-        # 1. human-done watcher (J3) — HUMAN_KEY incidents don't use this path
-        # at all (no generic operator file was ever written for them; their
-        # resolution is a fresh AP-3 probe seeing the rotated key, handled by
-        # advance_verifying's provider_status check once someone flips them
-        # to VERIFYING — which for HUMAN_KEY currently only happens via a
-        # manual resolve-request, since there is no automatic "key rotated"
-        # event source yet, a gap explicitly left to a later task per G2's
-        # own "или события смены ключа" note).
-        if route in ap.OPERATOR_FILE_ROUTE_CLASSES and os.path.isdir(ap.HUMAN_DONE_DIR):
+        # 1. human-done watcher (J3/F2: "human-done файл -> REMEDIATION_QUEUED
+        # (follow-up)"). Watches for a generic operator file either because
+        # this kind's route normally gets one (HUMAN_ONLY/HUMAN_GENERIC), OR
+        # because THIS SPECIFIC incident got one as a documented one-off
+        # exception (bridge_key_incident's "key already in .env but still
+        # failing" fallback sets incidents.operator_file even for a
+        # HUMAN_KEY-routed incident — see that function). Checking the
+        # incident's own operator_file column, not just its macro route
+        # class, is what makes that fallback actually resolvable instead of
+        # a WAITING_HUMAN incident nothing ever watches again.
+        if (route in ap.OPERATOR_FILE_ROUTE_CLASSES or operator_file) and os.path.isdir(ap.HUMAN_DONE_DIR):
             match = None
             for fn in os.listdir(ap.HUMAN_DONE_DIR):
                 if f"INC-{sid}" in fn and os.path.isfile(os.path.join(ap.HUMAN_DONE_DIR, fn)):
@@ -351,9 +395,36 @@ def advance_waiting_human():
                 result = ap.parse_human_done(match)
                 if result:
                     ap.note_incident(incident_id, "operator", "human-done", result[:2000])
-                    ap.transition_state(incident_id, "VERIFYING")
-                    ap.notice(f"incident {incident_id} ({provider}/{kind}): human-done "
-                              f"consumed, -> VERIFYING")
+                    # F2: this does NOT go straight to VERIFYING — there is no
+                    # fix yet to verify, only the operator's answer. It goes
+                    # through the SAME fleet-task generator route_auto_
+                    # incidents() uses (I2's format, I2's ≤3/day cap — a
+                    # human-done follow-up is still a fleet task the router
+                    # generates, it spends the same budget) so the operator's
+                    # answer becomes a real, reviewed piece of work, not a
+                    # fabricated "fixed" claim.
+                    if not ap.consume_daily_task_slot():
+                        ap.notice(f"молчу: {incident_id} ({provider}/{kind}) — human-done follow-up "
+                                  f"blocked, daily fleet-task cap ({ap.DAILY_TASK_CAP}) reached; "
+                                  f"file left in {ap.HUMAN_DONE_DIR}/ for a later tick")
+                        continue  # do NOT archive the file — retry on a future tick once budget frees up
+                    inc = ap.get_incident(incident_id)
+                    filename, content = ap.build_human_followup_task_body(inc, result)
+                    path = os.path.join(ap.TASKLOOP_QUEUE_DIR, filename)
+                    try:
+                        os.makedirs(ap.TASKLOOP_QUEUE_DIR, exist_ok=True)
+                        with open(path, "w", encoding="utf-8") as f:
+                            f.write(content)
+                    except Exception as e:
+                        ap.notice(f"WARN: {incident_id} ({provider}/{kind}) — failed to write "
+                                  f"human-done follow-up task {path}: {e}")
+                        continue  # leave WAITING_HUMAN, file un-archived, retry next tick
+                    ap.transition_state(incident_id, "REMEDIATION_QUEUED",
+                                         extra_set=f", fleet_task_id = {ap.sql_literal(filename)}")
+                    ap.note_incident(incident_id, "remediation-router", "human-done-followup-queued",
+                                      f"fleet task {filename}")
+                    ap.notice(f"incident {incident_id} ({provider}/{kind}): human-done consumed, "
+                              f"follow-up {filename} -> REMEDIATION_QUEUED")
                     try:
                         os.makedirs(processed_dir, exist_ok=True)
                         os.rename(match, os.path.join(processed_dir, os.path.basename(match)))
@@ -726,6 +797,15 @@ def selftest_db():
             )
         opened4 = detect_from_provider_status()
         assert opened4 == 4, f"world 4 setup: expected 4 new PROVIDER_DOWN incidents, got {opened4}"
+        # I1's own age gate ("PROVIDER_DOWN (SEV2+, >24ч)") would otherwise
+        # leave these fresh-this-tick incidents OPEN regardless of cap space
+        # -- world 9 below tests THAT gate in isolation; this world is about
+        # the ≤3/day CAP once a PROVIDER_DOWN incident is already eligible,
+        # so backdate created_at past the gate first (a fault genuinely open
+        # for >24h), same shape as world 5's own "simulate the passage of
+        # time via SQL, not sleep()" pattern elsewhere in this file.
+        ap.psql("UPDATE incidents SET created_at = now() - interval '25 hours' "
+                "WHERE provider LIKE 'ap6prov%'")
         route_auto_incidents()
         rows4, rc4 = ap.psql(
             "SELECT provider, state, fleet_task_id FROM incidents WHERE provider LIKE 'ap6prov%' "
@@ -865,6 +945,210 @@ def selftest_db():
             f"queued, got {inc8_still['state']}"
         )
         print("world 8 (fleet outcome watcher: done->VERIFYING, stuck->STUCK, no-outcome stays put): OK")
+
+        # World 9 (Fable ruling-1, point 1): PROVIDER_DOWN's I1 age gate
+        # ("SEV2+, >24ч") -- a PROVIDER_DOWN incident opened THIS tick must
+        # NOT get a fleet task even with cap room, only once it's genuinely
+        # >24h old. Mutation control: this is the RED case for the bug the
+        # ruling found (route_auto_incidents used to queue every OPEN
+        # PROVIDER_DOWN regardless of age) -- reverting _provider_down_ready's
+        # gate check makes this assertion fail.
+        if os.path.exists(ap.DAILY_TASK_COUNTER_FILE):
+            os.remove(ap.DAILY_TASK_COUNTER_FILE)
+        # World 5's ap6ratelimited is still DEGRADED in provider_status (its
+        # self-action only touches probe_interval_s, never the health state)
+        # -- left alone it would be picked up again here and reclassified as
+        # a brand-new DEGRADED_QUALITY incident (a pre-existing AP-4 quirk,
+        # out of this task's scope). Cleanup, not a finding -- same pattern
+        # as bonus 2's own testprov2 cleanup above.
+        ap.psql("UPDATE provider_status SET state = 'HEALTHY', last_probe_result = 'OK' "
+                "WHERE provider = 'ap6ratelimited'")
+        ap.psql(
+            "INSERT INTO provider_status (provider, state, state_since, next_probe_at, "
+            "probe_interval_s, last_probe_result, last_probe_at) VALUES "
+            "('ap6freshdown', 'DOWN', now(), now(), 3600, 'FAIL_TRANSIENT', now())"
+        )
+        opened9 = detect_from_provider_status()
+        assert opened9 == 1, f"world 9 setup: expected 1 new PROVIDER_DOWN incident, got {opened9}"
+        row9, _ = ap.psql("SELECT incident_id FROM incidents WHERE provider = 'ap6freshdown'")
+        route_auto_incidents()
+        inc9a = ap.get_incident(row9)
+        assert inc9a["state"] == "OPEN", (
+            f"world 9: a PROVIDER_DOWN incident younger than 24h must stay OPEN (I1's own gate), "
+            f"got {inc9a['state']}"
+        )
+        assert not inc9a["fleet_task_id"], "world 9: no fleet task should exist for a <24h-old DOWN"
+        # C0.5: a suppressed action is a logged line (notices.log), same
+        # place/pattern the daily-cap suppression already uses -- not silence.
+        notices9 = open(ap.NOTICES_LOG, encoding="utf-8").read() if os.path.exists(ap.NOTICES_LOG) else ""
+        assert "ap6freshdown" in notices9 and "24h" in notices9, (
+            f"world 9: age-gate suppression must be logged (C0.5), got: {notices9[-500:]}"
+        )
+        # Now genuinely backdate it past the gate -- the SAME incident must
+        # queue on the very next tick.
+        ap.psql(f"UPDATE incidents SET created_at = now() - interval '25 hours' "
+                f"WHERE incident_id = {ap.sql_literal(row9)}")
+        route_auto_incidents()
+        inc9b = ap.get_incident(row9)
+        assert inc9b["state"] == "REMEDIATION_QUEUED", (
+            f"world 9: a PROVIDER_DOWN incident aged past 24h must now queue, got {inc9b['state']}"
+        )
+        assert inc9b["fleet_task_id"], "world 9: expected a fleet_task_id once past the age gate"
+        print("world 9 (PROVIDER_DOWN >24h age gate, I1): OK")
+
+        # World 10 (Fable ruling-1, point 1): severity ordering under cap
+        # pressure. Deliberately open the LOWER-severity (SEV3) incident
+        # FIRST (older) and the HIGHER-severity (SEV2) one SECOND (newer) --
+        # a plain SELECT with no ORDER BY (or one ordered only by created_at)
+        # would let the older SEV3 grab the one remaining slot; `ORDER BY
+        # severity, created_at` must pick the SEV2 instead. Mutation control:
+        # dropping the ORDER BY clause makes this fail (SEV3 gets queued,
+        # SEV2 doesn't) -- verified by temporarily reverting it below.
+        if os.path.exists(ap.DAILY_TASK_COUNTER_FILE):
+            os.remove(ap.DAILY_TASK_COUNTER_FILE)
+        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        with open(ap.DAILY_TASK_COUNTER_FILE, "w", encoding="utf-8") as f:
+            f.write(f"{today}:2")  # 2 of 3 already spent today -- exactly 1 slot left
+        id10_sev3, _ = ap.open_or_merge_incident(
+            kind="EMAIL_NOTICE", provider="ap6ordersev3", evidence={"email": "deprecation notice"},
+            detected_by="email", what="older SEV3, opened first",
+        )
+        id10_sev2, _ = ap.open_or_merge_incident(
+            kind="DEGRADED_QUALITY", provider="ap6ordersev2", evidence={"error_rate": 0.4},
+            detected_by="probe", what="newer SEV2, opened second",
+        )
+        assert ap.get_incident(id10_sev3)["severity"] == "SEV3"
+        assert ap.get_incident(id10_sev2)["severity"] == "SEV2"
+        route_auto_incidents()
+        inc10_sev3 = ap.get_incident(id10_sev3)
+        inc10_sev2 = ap.get_incident(id10_sev2)
+        assert inc10_sev2["state"] == "REMEDIATION_QUEUED", (
+            f"world 10: the NEWER but HIGHER-severity (SEV2) incident must win the last slot, "
+            f"got {inc10_sev2['state']}"
+        )
+        assert inc10_sev3["state"] == "OPEN", (
+            f"world 10: the OLDER but LOWER-severity (SEV3) incident must lose to SEV2, "
+            f"got {inc10_sev3['state']}"
+        )
+        print("world 10 (severity-ordered fleet-task cap, SEV2 beats an older SEV3): OK")
+
+        # World 11 (Fable ruling-1, point 2): human-done watcher must follow
+        # F2's diagram literally -- WAITING_HUMAN + human-done file ->
+        # REMEDIATION_QUEUED (follow-up fleet task), NOT straight to
+        # VERIFYING. Mutation control: reverting advance_waiting_human()'s
+        # human-done branch to its pre-fix "-> VERIFYING" behavior makes the
+        # REMEDIATION_QUEUED assertion below fail (and the follow-up task
+        # file would never exist).
+        if os.path.exists(ap.DAILY_TASK_COUNTER_FILE):
+            os.remove(ap.DAILY_TASK_COUNTER_FILE)
+        id11, _ = ap.open_or_merge_incident(
+            kind="UNKNOWN", provider="ap6humandone", evidence={"probe": "connection reset, unrecognized"},
+            detected_by="probe", what="unrecognized deterministic fail",
+        )
+        inc11a = ap.get_incident(id11)
+        assert inc11a["state"] == "WAITING_HUMAN", f"world 11 setup: expected WAITING_HUMAN, got {inc11a['state']}"
+        assert inc11a["operator_file"], "world 11 setup: UNKNOWN (HUMAN_GENERIC) must get an operator file"
+        os.makedirs(ap.HUMAN_DONE_DIR, exist_ok=True)
+        sid11 = ap.short_id(id11)
+        with open(os.path.join(ap.HUMAN_DONE_DIR, f"INC-{sid11}.md"), "w", encoding="utf-8") as f:
+            f.write(f"# INC-{sid11}\n...\n---\nРЕЗУЛЬТАТ ОПЕРАТОРА:\nЭто ENDPOINT_CHANGED, "
+                    f"URL сменился на https://example.invalid/v2 -- обновите adapter.\n")
+        advance_waiting_human()
+        inc11b = ap.get_incident(id11)
+        assert inc11b["state"] == "REMEDIATION_QUEUED", (
+            f"world 11: human-done must move the incident to REMEDIATION_QUEUED (F2's own diagram: "
+            f"'human-done файл -> REMEDIATION_QUEUED (follow-up)'), not straight to VERIFYING -- "
+            f"got {inc11b['state']}"
+        )
+        assert inc11b["fleet_task_id"], "world 11: expected a follow-up fleet_task_id"
+        followup_path = os.path.join(ap.TASKLOOP_QUEUE_DIR, inc11b["fleet_task_id"])
+        assert os.path.isfile(followup_path), f"world 11: follow-up task file missing: {followup_path}"
+        followup_body = open(followup_path, encoding="utf-8").read()
+        assert followup_body.startswith("REVIEW: fable\n"), followup_body[:40]
+        assert "ENDPOINT_CHANGED" in followup_body and "example.invalid/v2" in followup_body, (
+            "world 11: follow-up task must quote the operator's actual answer as data"
+        )
+        assert any(a["action"] == "human-done" for a in inc11b["attempts"]), inc11b["attempts"]
+        assert not os.path.exists(os.path.join(ap.HUMAN_DONE_DIR, f"INC-{sid11}.md")), (
+            "world 11: consumed human-done file must be archived out of the watch directory"
+        )
+        # Close the loop the same way world 8 already proved: fleet DONE ->
+        # VERIFYING via the SAME advance_remediation_queued(), never a second
+        # invented path.
+        with open(os.path.join(ap.TASKLOOP_ROOT, "done", inc11b["fleet_task_id"]), "w", encoding="utf-8") as f:
+            f.write("VERDICT: DONE\n")
+        advance_remediation_queued()
+        inc11c = ap.get_incident(id11)
+        assert inc11c["state"] == "VERIFYING", f"world 11: expected VERIFYING after fleet DONE, got {inc11c['state']}"
+        print("world 11 (human-done -> REMEDIATION_QUEUED follow-up -> VERIFYING, F2/J3): OK")
+
+        # World 11b: human-done arriving when the daily cap is already spent
+        # must NOT fabricate a follow-up -- the incident stays WAITING_HUMAN
+        # and the human-done file is left in place (not archived) so a later
+        # tick, once the cap frees up, can still pick it up. Silence here is
+        # a logged "молчу", not data loss.
+        with open(ap.DAILY_TASK_COUNTER_FILE, "w", encoding="utf-8") as f:
+            f.write(f"{today}:3")  # cap exhausted
+        id11d, _ = ap.open_or_merge_incident(
+            kind="UNKNOWN", provider="ap6humandonecapped", evidence={"probe": "?"},
+            detected_by="probe", what="unrecognized",
+        )
+        sid11d = ap.short_id(id11d)
+        human_done_path_d = os.path.join(ap.HUMAN_DONE_DIR, f"INC-{sid11d}.md")
+        with open(human_done_path_d, "w", encoding="utf-8") as f:
+            f.write(f"# INC-{sid11d}\n---\nРЕЗУЛЬТАТ ОПЕРАТОРА:\nsome answer\n")
+        advance_waiting_human()
+        inc11d = ap.get_incident(id11d)
+        assert inc11d["state"] == "WAITING_HUMAN", (
+            f"world 11b: cap-exhausted human-done must NOT advance the incident, got {inc11d['state']}"
+        )
+        assert os.path.isfile(human_done_path_d), "world 11b: cap-exhausted human-done file must NOT be archived"
+        print("world 11b (human-done follow-up respects the daily cap, no fabricated advance): OK")
+
+        # World 12 (Fable ruling-1, point 3): KEY bridge two-worlds guard --
+        # an AUTH_FAILED whose auth_env is ALREADY present in .env must NOT
+        # be handed to connected_db.py add (which would silently become an
+        # "issued, nothing to do" letter for a key that actually needs
+        # rotating). Mutation control: removing the _env_var_present() guard
+        # makes this world fail (calls stub connected_db.py, logs "queued").
+        os.environ["AUTOPILOT_DEPLOY_ENV_FILE"] = "/tmp/autopilot-ap6-selftest.env"
+        with open("/tmp/autopilot-ap6-selftest.env", "w", encoding="utf-8") as f:
+            f.write("PROVIDER_KEY_KEYPROVC=sk-already-configured-but-revoked\n")
+        limits_path = os.environ["AUTOPILOT_PROVIDER_LIMITS_JSON"]
+        limits = json.load(open(limits_path, encoding="utf-8"))
+        limits["keyprovc"] = {"display_name": "Key Provider C", "docs_url": "https://example.invalid/c",
+                               "probe": {"auth_env": "PROVIDER_KEY_KEYPROVC"}}
+        with open(limits_path, "w", encoding="utf-8") as f:
+            json.dump(limits, f)
+        importlib.reload(ap)
+        id12, _ = ap.open_or_merge_incident(
+            kind="AUTH_FAILED", provider="keyprovc", evidence={"probe": "401"},
+            detected_by="probe", what="401 with configured key",
+        )
+        calls_before = open(call_log, encoding="utf-8").read().splitlines() if os.path.exists(call_log) else []
+        bridge_key_incidents()
+        calls_after = open(call_log, encoding="utf-8").read().splitlines() if os.path.exists(call_log) else []
+        assert calls_after == calls_before, (
+            f"world 12: connected_db.py must NOT be called for an already-in-.env auth_env, "
+            f"got new calls: {calls_after[len(calls_before):]}"
+        )
+        inc12 = ap.get_incident(id12)
+        bridge_note = next(a for a in inc12["attempts"] if a["action"] == "connected-db-bridge")
+        assert "queued" not in bridge_note["result"].lower(), (
+            f"world 12: must not claim 'queued' for a key already in .env: {bridge_note['result']}"
+        )
+        assert "уже присутствует" in bridge_note["result"], bridge_note["result"]
+        assert inc12["operator_file"], "world 12: expected a fallback operator file for this exception"
+        assert os.path.isfile(inc12["operator_file"]), f"world 12: {inc12['operator_file']} not written"
+        op_body12 = open(inc12["operator_file"], encoding="utf-8").read()
+        assert "PROVIDER_KEY_KEYPROVC" in op_body12, "world 12: operator file must name the exact var"
+        # Idempotent: a second tick must not re-write/duplicate anything.
+        bridge_key_incidents()
+        inc12b = ap.get_incident(id12)
+        assert len([a for a in inc12b["attempts"] if a["action"] == "connected-db-bridge"]) == 1, (
+            "world 12: bridge must not re-fire on a second tick"
+        )
+        print("world 12 (KEY bridge: already-in-.env falls back to operator file, no false 'queued'): OK")
 
         print("selftest-db: ALL WORLDS OK")
         return 0
