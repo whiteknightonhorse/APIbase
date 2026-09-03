@@ -17,9 +17,18 @@ Each tick, in order:
      correctly, which is a distinct fact from "the schema exists").
   2. detect_from_provider_status() — turn AP-3's F1 state into new/merged
      incidents.
-  3. advance_waiting_human() — 72h reminder edge, human-done/ watcher.
-  4. advance_verifying() — re-probe confirmation -> RESOLVED or STUCK.
-  5. write_heartbeat().
+  3. route_auto_incidents() (AP-6) — OPEN incidents whose kind routes to
+     AUTO/MIXED get a real fleet task filed (I2, capped 3/day) and move to
+     REMEDIATION_QUEUED; AUTO_NO_MODEL (RATE_LIMITED) gets an engine
+     self-action (I1: "движок сам") straight to VERIFYING, no fleet task, no
+     model, no cap spent.
+  4. bridge_key_incidents() (AP-6) — WAITING_HUMAN AUTH_FAILED/
+     CREDENTIAL_EXPIRED incidents get bridged into the existing
+     connected_db.py key-request letter (I1's HUMAN_KEY row), once per
+     incident.
+  5. advance_waiting_human() — 72h reminder edge, human-done/ watcher.
+  6. advance_verifying() — re-probe confirmation -> RESOLVED or STUCK.
+  7. write_heartbeat().
 
 Why this file does NOT touch crontab or fleet-check.sh/fleet-pulse.sh
 itself: those live outside this git repo (~/taskloop/*, the crontab) on a
@@ -164,6 +173,99 @@ def detect_from_provider_status():
     return n
 
 
+def _self_action_rate_limited(incident_id, provider):
+    """I1: 'RATE_LIMITED (устойчиво) | AUTO без модели | движок сам: снизить
+    probe-частоту'. No fleet task, no model call, no daily-cap spend — lowers
+    the provider's active-probe cadence directly (durable in
+    provider_status.probe_interval_s/next_probe_at) and moves the incident
+    straight to VERIFYING so the existing re-probe confirmation loop
+    (advance_verifying, AP-4, unmodified) judges whether that was enough.
+    Floor of 1800s matches G2's INTERVAL_DEGRADED_S (src/config/autopilot.ts)
+    by value — this Python engine has no import path into that TS constant,
+    same "one value, two files, kept in sync by review" situation as this
+    module's own KINDS/enum mirrors."""
+    ap.psql(
+        f"UPDATE provider_status SET probe_interval_s = GREATEST(probe_interval_s * 2, 1800), "
+        f"next_probe_at = now() + (GREATEST(probe_interval_s * 2, 1800) || ' seconds')::interval "
+        f"WHERE provider = {ap.sql_literal(provider)}"
+    )
+    ap.note_incident(incident_id, "remediation-router", "throttled",
+                      "снижена частота активных проб (probe_interval_s удвоен, floor 1800s) "
+                      "— I1 AUTO_NO_MODEL, движок сам")
+    ap.transition_state(incident_id, "VERIFYING")
+
+
+def route_auto_incidents():
+    """AP-6 (I1/I2/I3): turn OPEN incidents whose kind routes to AUTO/MIXED
+    into real REMEDIATION_QUEUED fleet tasks, respecting the ≤3/day cap
+    (I2) and "one fleet task per incident" (I3 — `fleet_task_id IS NULL` is
+    the guard here, so a later tick over the same still-unqueued incident
+    never double-files it once a task exists). HUMAN_* kinds are not this
+    function's job (handled at open time, see open_or_merge_incident); those
+    never have fleet_task_id set by anything, so the WHERE clause below
+    naturally never selects them once route is checked."""
+    out, rc = ap.psql(
+        "SELECT incident_id, provider, kind, severity, evidence::text, attempts::text "
+        "FROM incidents WHERE state = 'OPEN' AND fleet_task_id IS NULL"
+    )
+    if rc != 0 or not out:
+        return
+    for line in out.splitlines():
+        incident_id, provider, kind, severity, evidence_raw, attempts_raw = line.split(ap.SEP)
+        route = ap.ROUTE_CLASS.get(kind)
+        if route == "AUTO_NO_MODEL":
+            _self_action_rate_limited(incident_id, provider)
+            continue
+        if kind not in ap.FLEET_TASK_KINDS:
+            continue  # HUMAN_* (or a future route class this function doesn't own)
+        if not ap.consume_daily_task_slot():
+            ap.notice(f"молчу: {incident_id} ({provider}/{kind}) — daily fleet-task cap "
+                      f"({ap.DAILY_TASK_CAP}) reached, staying OPEN")
+            continue
+        try:
+            evidence = json.loads(evidence_raw)
+            attempts = json.loads(attempts_raw)
+        except Exception:
+            evidence, attempts = {}, []
+        incident = {"incident_id": incident_id, "provider": provider, "kind": kind,
+                    "severity": severity, "evidence": evidence, "attempts": attempts}
+        filename, content = ap.build_remediation_task_body(incident)
+        path = os.path.join(ap.TASKLOOP_QUEUE_DIR, filename)
+        try:
+            os.makedirs(ap.TASKLOOP_QUEUE_DIR, exist_ok=True)
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(content)
+        except Exception as e:
+            ap.notice(f"WARN: {incident_id} ({provider}/{kind}) — failed to write fleet task "
+                      f"{path}: {e}")
+            continue
+        ap.transition_state(incident_id, "REMEDIATION_QUEUED",
+                             extra_set=f", fleet_task_id = {ap.sql_literal(filename)}")
+        ap.note_incident(incident_id, "remediation-router", "queued", f"fleet task {filename}")
+        ap.notice(f"remediation-router: queued {filename} for {incident_id} ({provider}/{kind})")
+
+
+def bridge_key_incidents():
+    """AP-6: I1's HUMAN_KEY row promises the existing connected_db.py key
+    letter — this actually calls it (see ap.bridge_key_incident for the
+    idempotency/NOINFO details)."""
+    out, rc = ap.psql(
+        "SELECT incident_id, provider, kind, evidence::text, attempts::text FROM incidents "
+        "WHERE state = 'WAITING_HUMAN' AND kind IN ('AUTH_FAILED', 'CREDENTIAL_EXPIRED')"
+    )
+    if rc != 0 or not out:
+        return
+    for line in out.splitlines():
+        incident_id, provider, kind, evidence_raw, attempts_raw = line.split(ap.SEP)
+        try:
+            evidence = json.loads(evidence_raw)
+            attempts = json.loads(attempts_raw)
+        except Exception:
+            evidence, attempts = {}, []
+        ap.bridge_key_incident({"incident_id": incident_id, "provider": provider, "kind": kind,
+                                 "evidence": evidence, "attempts": attempts})
+
+
 def advance_waiting_human():
     out, rc = ap.psql(
         f"SELECT incident_id, provider, kind, {UTC_TS_EXPR('created_at')}, attempts::text, "
@@ -287,6 +389,8 @@ def run():
         write_heartbeat()  # the ENGINE ran; the schema being absent is a separate fact
         return 0
     opened = detect_from_provider_status()
+    route_auto_incidents()
+    bridge_key_incidents()
     advance_waiting_human()
     advance_verifying()
     write_heartbeat()
@@ -307,6 +411,25 @@ def selftest():
     assert _classify_deterministic_fail("schema mismatch: expected array") == "ENDPOINT_CHANGED"
     assert _classify_deterministic_fail("connection reset") == "UNKNOWN"
     assert _classify_deterministic_fail(None) == "UNKNOWN"
+
+    # AP-6: every kind routed, no silent gaps (routing.json, not a hardcoded
+    # dict, now backs ap.ROUTE_CLASS — see autopilot_common._load_routing).
+    assert set(ap.ROUTE_CLASS) == ap.KINDS
+    # Test on ABSENCE (this task's own row): money never gets an auto-branch,
+    # and never gets a fleet task either.
+    assert ap.ROUTE_CLASS["PAYMENT_REQUIRED"] == "HUMAN_ONLY"
+    assert "PAYMENT_REQUIRED" not in ap.FLEET_TASK_KINDS
+    assert all(v not in ("AUTO", "AUTO_NO_MODEL") for k, v in ap.ROUTE_CLASS.items()
+               if k == "PAYMENT_REQUIRED")
+    # Every AUTO/MIXED kind IS a fleet-task kind (I1); every HUMAN_*/
+    # AUTO_NO_MODEL kind is NOT.
+    for kind, route in ap.ROUTE_CLASS.items():
+        expect_fleet_task = route in ("AUTO", "MIXED")
+        assert (kind in ap.FLEET_TASK_KINDS) == expect_fleet_task, (
+            f"{kind} ({route}): fleet_task flag disagrees with its route class"
+        )
+    fn = ap.next_task_filename("PROVIDER_DOWN", "Test Provider!", "SEV1")
+    assert fn.startswith("9") and fn.endswith("-autopilot-remediation-PROVIDER_DOWN-test-provider.md"), fn
     print("incident-engine --selftest: OK")
 
 
@@ -388,6 +511,41 @@ def selftest_db():
         # phone. Point it at a path that provably does not exist instead of
         # trusting that the real tg.env happens to be absent right now.
         os.environ["AUTOPILOT_TG_ENV_PATH"] = "/tmp/autopilot-ap4-selftest-tg-env-does-not-exist"
+
+        # AP-6 fixtures: isolated taskloop dirs/counter (never the real
+        # ~/taskloop), a provider-limits stub with one provider whose
+        # auth_env IS known and one where it ISN'T (bridge_key_incident must
+        # never guess), and a stub connected_db.py that logs its own calls
+        # instead of touching the real deploy-tree state file.
+        os.environ["AUTOPILOT_TASKLOOP_ROOT"] = "/tmp/autopilot-ap6-selftest-taskloop"
+        os.environ["AUTOPILOT_TASKLOOP_QUEUE_DIR"] = "/tmp/autopilot-ap6-selftest-taskloop/queue"
+        os.environ["AUTOPILOT_DAILY_TASK_COUNTER"] = "/tmp/autopilot-ap6-selftest-daily.count"
+        os.environ["AUTOPILOT_PROVIDER_LIMITS_JSON"] = "/tmp/autopilot-ap6-selftest-provider-limits.json"
+        os.environ["AUTOPILOT_CONNECTED_DB_PY"] = "/tmp/autopilot-ap6-selftest-connected-db.py"
+        os.environ["AUTOPILOT_FIX_MD"] = "/tmp/autopilot-ap6-selftest-fix-md-does-not-exist.md"
+        import shutil
+        shutil.rmtree("/tmp/autopilot-ap6-selftest-taskloop", ignore_errors=True)
+        for sub in ("queue", "active", "done", "stuck"):
+            os.makedirs(f"/tmp/autopilot-ap6-selftest-taskloop/{sub}", exist_ok=True)
+        for stale in ("/tmp/autopilot-ap6-selftest-daily.count",
+                      "/tmp/autopilot-ap6-selftest-connected-db.calls.log"):
+            if os.path.exists(stale):
+                os.remove(stale)
+        with open("/tmp/autopilot-ap6-selftest-provider-limits.json", "w", encoding="utf-8") as f:
+            json.dump({
+                "keyprovA": {"display_name": "Key Provider A", "docs_url": "https://example.invalid/a",
+                             "probe": {"auth_env": "PROVIDER_KEY_KEYPROVA"}},
+                "keyprovB": {"display_name": "Key Provider B", "docs_url": "https://example.invalid/b"},
+            }, f)
+        with open("/tmp/autopilot-ap6-selftest-connected-db.py", "w", encoding="utf-8") as f:
+            f.write(
+                "#!/usr/bin/env python3\n"
+                "import sys\n"
+                "with open('/tmp/autopilot-ap6-selftest-connected-db.calls.log', 'a') as fh:\n"
+                "    fh.write(' '.join(sys.argv[1:]) + chr(10))\n"
+                "print('stub: queued ' + ' '.join(sys.argv[1:]))\n"
+            )
+
         import importlib
         importlib.reload(ap)
         assert ap.load_tg_env() == {}, "selftest-db: tg.env override failed — refusing to risk a real TG send"
@@ -464,9 +622,11 @@ def selftest_db():
         print("bonus (reopen after RESOLVED): OK")
 
         # Bonus 2: the actual cron-tick entry point (detect_from_provider_status),
-        # not just the lower-level open_or_merge_incident it calls -- an
-        # AUTO-route kind (PROVIDER_DOWN) must open OPEN, not a fabricated
-        # REMEDIATION_QUEUED, since AP-6 doesn't exist yet (module docstring).
+        # not just the lower-level open_or_merge_incident it calls -- calling
+        # detect_from_provider_status() ALONE (not run()) must still open an
+        # AUTO-route kind (PROVIDER_DOWN) as plain OPEN, never a fabricated
+        # REMEDIATION_QUEUED -- that transition is route_auto_incidents()'s
+        # job (AP-6, exercised separately below in world 4), not detect's.
         ap.psql(
             "INSERT INTO provider_status (provider, state, state_since, next_probe_at, "
             "probe_interval_s, last_probe_result, last_probe_at) VALUES "
@@ -487,6 +647,132 @@ def selftest_db():
         opened2 = detect_from_provider_status()
         assert opened2 == 0, f"bonus 2: second tick over same fault must open 0, got {opened2}"
         print("bonus 2 (cron-tick detect, AUTO-route stays OPEN): OK")
+
+        # Clean up bonus 2's testprov2 before world 4 -- otherwise its still-
+        # OPEN PROVIDER_DOWN incident (and its still-DOWN provider_status row,
+        # which would spawn a FRESH one on the next detect() call) would
+        # compete for one of world 4's 3 daily fleet-task slots and throw off
+        # the exact counts asserted below. Cleanup, not a finding.
+        ap.transition_state(row, "RESOLVED")
+        ap.psql("UPDATE provider_status SET state = 'HEALTHY', last_probe_result = 'OK' "
+                "WHERE provider = 'testprov2'")
+
+        # World 4 (AP-6): OPEN incidents whose kind routes to AUTO get a real
+        # fleet task filed and move to REMEDIATION_QUEUED -- capped at
+        # DAILY_TASK_CAP (3): a 4th AUTO incident opened the same day stays
+        # OPEN with a logged suppression, never silently queued past the cap.
+        assert ap.ROUTE_CLASS["PAYMENT_REQUIRED"] == "HUMAN_ONLY", "sanity: real routing.json intact"
+        assert "PAYMENT_REQUIRED" not in ap.FLEET_TASK_KINDS, "sanity: money kind never gets a fleet task"
+        for i in range(1, 5):
+            ap.psql(
+                f"INSERT INTO provider_status (provider, state, state_since, next_probe_at, "
+                f"probe_interval_s, last_probe_result, last_probe_at) VALUES "
+                f"('ap6prov{i}', 'DOWN', now(), now(), 3600, 'FAIL_TRANSIENT', now())"
+            )
+        opened4 = detect_from_provider_status()
+        assert opened4 == 4, f"world 4 setup: expected 4 new PROVIDER_DOWN incidents, got {opened4}"
+        route_auto_incidents()
+        rows4, rc4 = ap.psql(
+            "SELECT provider, state, fleet_task_id FROM incidents WHERE provider LIKE 'ap6prov%' "
+            "ORDER BY provider"
+        )
+        assert rc4 == 0
+        queued = [r.split(ap.SEP) for r in rows4.splitlines()]
+        n_queued = sum(1 for _, st, _ in queued if st == "REMEDIATION_QUEUED")
+        n_open = sum(1 for _, st, _ in queued if st == "OPEN")
+        assert n_queued == 3, f"world 4: expected exactly 3 queued (daily cap), got {n_queued}: {queued}"
+        assert n_open == 1, f"world 4: expected exactly 1 still OPEN (cap-refused), got {n_open}: {queued}"
+        for provider, state, task_id in queued:
+            if state == "REMEDIATION_QUEUED":
+                assert task_id, f"world 4: {provider} REMEDIATION_QUEUED but fleet_task_id is empty"
+                task_path = os.path.join(ap.TASKLOOP_QUEUE_DIR, task_id)
+                assert os.path.isfile(task_path), f"world 4: {task_path} was not actually written"
+                body = open(task_path, encoding="utf-8").read()
+                assert body.startswith("REVIEW: fable\nMAX_ATTEMPTS: 2\n"), body[:80]
+                assert "resolve-request" in body and "PROVIDER_DOWN" in body
+            else:
+                assert not task_id, f"world 4: OPEN incident has a fleet_task_id: {task_id}"
+        print("world 4 (fleet-task generation + daily cap): OK")
+
+        # A second tick over the still-OPEN, cap-refused incident must not
+        # queue a duplicate on top of the 3 already queued today.
+        route_auto_incidents()
+        rows4b, _ = ap.psql(
+            "SELECT count(*) FROM incidents WHERE provider LIKE 'ap6prov%' AND state = 'REMEDIATION_QUEUED'"
+        )
+        assert rows4b.strip() == "3", f"world 4b: second tick changed the queued count: {rows4b}"
+        print("world 4b (cap stays exhausted same day): OK")
+
+        # World 5 (AP-6): AUTO_NO_MODEL (RATE_LIMITED) never spends the daily
+        # cap and never files a fleet task -- the engine acts directly.
+        ap.psql(
+            "INSERT INTO provider_status (provider, state, state_since, next_probe_at, "
+            "probe_interval_s, last_probe_result, last_probe_at) VALUES "
+            "('ap6ratelimited', 'DEGRADED', now(), now(), 900, 'FAIL_TRANSIENT', now())"
+        )
+        id5, created5 = ap.open_or_merge_incident(
+            kind="RATE_LIMITED", provider="ap6ratelimited", evidence={"probe": "429"},
+            detected_by="probe", what="sustained 429s",
+        )
+        assert created5 is True
+        before5, _ = ap.psql("SELECT probe_interval_s FROM provider_status WHERE provider = 'ap6ratelimited'")
+        route_auto_incidents()
+        inc5b = ap.get_incident(id5)
+        assert inc5b["state"] == "VERIFYING", f"world 5: expected VERIFYING, got {inc5b['state']}"
+        assert not inc5b["fleet_task_id"], "world 5: AUTO_NO_MODEL must never file a fleet task"
+        after5, _ = ap.psql("SELECT probe_interval_s FROM provider_status WHERE provider = 'ap6ratelimited'")
+        assert int(after5) > int(before5), f"world 5: probe_interval_s did not increase ({before5} -> {after5})"
+        rows5c, _ = ap.psql(
+            "SELECT count(*) FROM incidents WHERE provider LIKE 'ap6prov%' AND state = 'REMEDIATION_QUEUED'"
+        )
+        assert rows5c.strip() == "3", "world 5: AUTO_NO_MODEL must not touch the (already exhausted) daily cap"
+        print("world 5 (AUTO_NO_MODEL self-action, cap untouched): OK")
+
+        # World 6 (AP-6): KEY -> connected_db.py bridge. keyprovA has a known
+        # auth_env (provider-limits stub), keyprovB does not -- the bridge
+        # must call the stubbed connected_db.py exactly once for A, never
+        # guess a name for B, and never call A twice even across ticks.
+        id6a, _ = ap.open_or_merge_incident(
+            kind="AUTH_FAILED", provider="keyprovA", evidence={"probe": "401"},
+            detected_by="probe", what="401 with configured key",
+        )
+        id6b, _ = ap.open_or_merge_incident(
+            kind="AUTH_FAILED", provider="keyprovB", evidence={"probe": "401"},
+            detected_by="probe", what="401 with configured key",
+        )
+        call_log = "/tmp/autopilot-ap6-selftest-connected-db.calls.log"
+        bridge_key_incidents()
+        bridge_key_incidents()  # second tick: must be a no-op for A, still nothing for B
+        calls = open(call_log, encoding="utf-8").read().splitlines() if os.path.exists(call_log) else []
+        assert len(calls) == 1, f"world 6: expected exactly 1 connected_db.py call, got {calls}"
+        assert "keyprova" in calls[0].lower() and "PROVIDER_KEY_KEYPROVA" in calls[0], calls[0]
+        inc6a = ap.get_incident(id6a)
+        inc6b = ap.get_incident(id6b)
+        assert any(a["action"] == "connected-db-bridge" and "stub: queued" in a["result"]
+                   for a in inc6a["attempts"]), inc6a["attempts"]
+        assert any(a["action"] == "connected-db-bridge" and "NOINFO" in a["result"]
+                   for a in inc6b["attempts"]), inc6b["attempts"]
+        print("world 6 (KEY -> connected_db.py bridge, idempotent, no-guess): OK")
+
+        # World 7 (AP-6): routing.json's fail-closed money guard actually
+        # REJECTS a file that gives PAYMENT_REQUIRED an auto-branch -- run
+        # for real (mutation control: this IS the red case, not a claim).
+        import tempfile
+        bad_routing = dict(ap.ROUTING)
+        bad_routing["PAYMENT_REQUIRED"] = {"route_class": "AUTO", "review": "fable", "fleet_task": True}
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as tf:
+            json.dump(bad_routing, tf)
+            bad_path = tf.name
+        try:
+            raised = False
+            try:
+                ap._load_routing(bad_path)
+            except AssertionError:
+                raised = True
+            assert raised, "world 7: a routing.json that auto-routes PAYMENT_REQUIRED must be REJECTED"
+        finally:
+            os.remove(bad_path)
+        print("world 7 (routing.json money-guard rejects a rigged file): OK")
 
         print("selftest-db: ALL WORLDS OK")
         return 0

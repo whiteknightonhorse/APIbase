@@ -133,6 +133,16 @@ def selftest():
     # closed HUMAN-ONLY list per J1 — payment is never AUTO, by construction
     assert ap.ROUTE_CLASS["PAYMENT_REQUIRED"] == "HUMAN_ONLY"
     assert "PAYMENT_REQUIRED" not in (k for k, v in ap.ROUTE_CLASS.items() if v in ("AUTO", "AUTO_NO_MODEL"))
+    # AP-6: test on ABSENCE against the SHIPPED config/autopilot/routing.json
+    # file directly (raw JSON, bypassing ap.ROUTE_CLASS's own loader/guard) —
+    # proves the artifact itself is safe, not just the code that reads it.
+    _raw_routing = json.loads(open(ap.ROUTING_PATH, encoding="utf-8").read())
+    _raw_routing = {k: v for k, v in _raw_routing.items() if not k.startswith("_")}
+    assert "PAYMENT_REQUIRED" in _raw_routing
+    assert _raw_routing["PAYMENT_REQUIRED"]["route_class"] not in ("AUTO", "AUTO_NO_MODEL")
+    assert not any(v.get("route_class") in ("AUTO", "AUTO_NO_MODEL") and k == "PAYMENT_REQUIRED"
+                   for k, v in _raw_routing.items())
+    assert set(_raw_routing) == ap.KINDS, "routing.json on disk must cover every incident kind"
     # sql_literal escaping
     assert ap.sql_literal("it's") == "'it''s'"
     assert ap.sql_literal(None) == "NULL"
