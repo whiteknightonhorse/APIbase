@@ -102,6 +102,12 @@ jobs:
     # Requiring a scroll ancestor unconditionally catches both symptoms of the
     # same missing wrapper, so relaxing `.window` to overflow:visible can't
     # silently turn a clipped table into a page-scrolling one and stay green.
+    # T-75 (2026-09-03): the T-60 fix above was patched into the committed static/catalog.html
+    # but never into scripts/gen-catalog-page.ts, which REGENERATES that file wholesale on every
+    # sync-counts.sh run (daily cron + onboarding). Every regen silently reverted the fix -- the
+    # step above stayed green throughout, because it only ever reads whatever HAPPENS to be
+    # committed right now, never what the generator would actually produce next. Closed by
+    # running the generator itself (fixture data, no DB) through the same checker.
     name: Static Page Overflow (no clipped tables/pre)
     runs-on: ubuntu-latest
     steps:
@@ -112,6 +118,20 @@ jobs:
 
       - name: Every <table>/<pre> in static/*.html has a horizontal-scroll wrapper
         run: python3 scripts/check-no-clipped-overflow.py
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts --legacy-peer-deps
+
+      - name: gen-catalog-page.ts itself (not just its last committed output) satisfies the invariant
+        run: |
+          npx tsx scripts/gen-catalog-page.ts --print > /tmp/catalog-dry-run.html
+          python3 scripts/check-no-clipped-overflow.py /tmp/catalog-dry-run.html
 
   static-tool-refs:
     # F5: connect.html's starter example called `tools/coingecko.get_price/call`,

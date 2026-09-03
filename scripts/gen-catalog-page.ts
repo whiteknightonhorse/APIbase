@@ -5,32 +5,26 @@
 // live catalog routes serve (status != 'unavailable' — src/services/tool-registry.service.ts)
 // and rewrites the whole file every run, so it can never disagree with /api/v1/tools or the
 // synced tool/provider counts. Called from sync-counts.sh alongside gen-card.ts.
-import { PrismaClient } from '@prisma/client';
+//
+// T-75 (2026-09-03): a mobile-overflow fix (T-60) was patched directly into the committed
+// static/catalog.html (`.scroll{...overflow-x:auto}`) but never into THIS file, which is what
+// actually produces that file. Every regen (cron, self-heal) silently reverted the fix -- the
+// generated output stayed byte-for-byte "correct" per this script, while the shipped page lost
+// an accessibility fix nobody would notice failing (no test reads the artifact's CSS against
+// the fix; check-no-clipped-overflow.py only ever saw whatever was currently committed). Root
+// cause of the bug class: a hand-fix landing in the PRODUCER's output instead of the PRODUCER.
+// Fixed here (.scroll now carries overflow-x:auto, matching index.html/pricing.html/
+// dashboard.html's own .table-wrap pattern) and closed structurally: `renderPage()` below is
+// now reachable via `--print`/`--dry-run` with zero DB dependency, so CI can run the actual
+// generator (not just eyeball its last output) through check-no-clipped-overflow.py on every
+// commit -- see .github/workflows/security.yml's static-no-clipped-overflow job.
 import { writeFileSync } from 'fs';
-
-const prisma = new PrismaClient();
 
 function escapeHtml(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-async function main() {
-  const rows = await prisma.tool.groupBy({
-    by: ['provider'],
-    where: { status: { not: 'unavailable' } },
-    _count: { _all: true },
-  });
-
-  if (rows.length === 0) {
-    throw new Error(
-      'gen-catalog-page: zero active providers — refusing to publish an empty catalog',
-    );
-  }
-
-  const providers = rows
-    .map((r) => ({ provider: r.provider, tools: r._count._all }))
-    .sort((a, b) => b.tools - a.tools || a.provider.localeCompare(b.provider));
-
+export function renderPage(providers: { provider: string; tools: number }[]): string {
   const totalTools = providers.reduce((sum, p) => sum + p.tools, 0);
   const totalProviders = providers.length;
 
@@ -38,7 +32,7 @@ async function main() {
     .map((p) => `<tr><td>${escapeHtml(p.provider)}</td><td>${p.tools}</td></tr>`)
     .join('\n');
 
-  const html = `<!doctype html>
+  return `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -85,7 +79,7 @@ th,td{text-align:left;padding:0.4rem 0.7rem;border-bottom:1px solid #1a3a1a}
 th{color:#00ff41;font-weight:700;border-bottom:1px solid #00aa30;position:sticky;top:0;background:#0c0c0c}
 td{color:#a0d8a0}
 td:last-child,th:last-child{text-align:right}
-.scroll{max-height:60vh;overflow-y:auto;border:1px solid #1a3a1a;border-radius:6px}
+.scroll{max-height:60vh;overflow-y:auto;overflow-x:auto;border:1px solid #1a3a1a;border-radius:6px}
 .note{color:#5a9a5a;font-size:0.82rem;font-style:italic}
 .footer{margin-top:2rem;padding:0.6rem 0;border-top:1px solid #1a3a1a;color:#2a942a;font-size:0.72rem;display:flex;flex-direction:column;gap:0.2rem}
 .footer-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.5rem}
@@ -150,16 +144,57 @@ ${tableRows}
 </body>
 </html>
 `;
-
-  writeFileSync('static/catalog.html', html);
-  console.log(
-    `gen-catalog-page: wrote static/catalog.html (${totalTools} tools / ${totalProviders} providers)`,
-  );
 }
 
-main()
-  .catch((err) => {
-    console.error('gen-catalog-page failed:', err);
-    process.exitCode = 1;
-  })
-  .finally(() => prisma.$disconnect());
+// --print / --dry-run: render with fixture data and write to stdout, no Postgres touched at
+// all (PrismaClient isn't even constructed). Lets CI validate the TEMPLATE itself -- the thing
+// that actually determines what ships -- without DB/SSH access, same shape as gen-sitemap.sh's
+// own --print flag. One fixture row is enough: the structural checks this feeds
+// (check-no-clipped-overflow.py) only care about the CSS/markup shape, not the data.
+// `@prisma/client` is imported dynamically below, only on the non-dry-run path -- a top-level
+// import would need `prisma generate` to have run first (CI's own `npm ci --ignore-scripts`
+// for this exact job class deliberately skips that), which would defeat the whole point of a
+// DB-free dry run.
+const DRY_RUN = process.argv.includes('--print') || process.argv.includes('--dry-run');
+
+async function main() {
+  if (DRY_RUN) {
+    process.stdout.write(renderPage([{ provider: 'fixture-provider', tools: 1 }]));
+    return;
+  }
+
+  const { PrismaClient } = await import('@prisma/client');
+  const prisma = new PrismaClient();
+  try {
+    const rows = await prisma.tool.groupBy({
+      by: ['provider'],
+      where: { status: { not: 'unavailable' } },
+      _count: { _all: true },
+    });
+
+    if (rows.length === 0) {
+      throw new Error(
+        'gen-catalog-page: zero active providers — refusing to publish an empty catalog',
+      );
+    }
+
+    const providers = rows
+      .map((r) => ({ provider: r.provider, tools: r._count._all }))
+      .sort((a, b) => b.tools - a.tools || a.provider.localeCompare(b.provider));
+
+    const totalTools = providers.reduce((sum, p) => sum + p.tools, 0);
+    const totalProviders = providers.length;
+
+    writeFileSync('static/catalog.html', renderPage(providers));
+    console.log(
+      `gen-catalog-page: wrote static/catalog.html (${totalTools} tools / ${totalProviders} providers)`,
+    );
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
+main().catch((err) => {
+  console.error('gen-catalog-page failed:', err);
+  process.exitCode = 1;
+});

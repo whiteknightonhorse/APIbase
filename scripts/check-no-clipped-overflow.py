@@ -52,6 +52,13 @@ happens to set overflow:hidden:
 
 Run: python3 scripts/check-no-clipped-overflow.py            (checks static/*.html)
      python3 scripts/check-no-clipped-overflow.py --selftest  (unit tests, no disk I/O)
+     python3 scripts/check-no-clipped-overflow.py <path> ...  (checks exactly these files
+                                                                instead of the static/*.html
+                                                                glob -- e.g. a generator's
+                                                                --print output piped to a
+                                                                tempfile, so the PRODUCER can
+                                                                be gated, not just whatever
+                                                                happens to be committed)
 """
 import glob
 import re
@@ -221,7 +228,8 @@ if __name__ == "__main__":
     if "--selftest" in sys.argv:
         sys.exit(0 if selftest() else 1)
 
-    paths = sorted(glob.glob("static/*.html"))
+    explicit = [a for a in sys.argv[1:] if not a.startswith("--")]
+    paths = sorted(explicit) if explicit else sorted(glob.glob("static/*.html"))
     if not paths:
         print("check-no-clipped-overflow: no static/*.html found (wrong cwd?)")
         sys.exit(1)
