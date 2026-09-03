@@ -16,13 +16,16 @@
 # right after its ROOT/cd lines) so this is the only path left.
 #
 # Guardrails, in order, ANY failure = exit nonzero, NOTHING committed:
-#   0. flock on taskloop's own lock file -- the fleet worktree's git index is shared (T-72);
-#      cron and a running taskloop tick must never write it at the same time. This lock is
-#      also held by whichever taskloop TASK is currently executing (up to 5400s exec + up to
-#      1800s arbiter + up to 900s fix-pass + up to 1800s second arbiter = ~9900s worst case,
-#      see taskloop.sh) -- at 05:00 with a non-empty backlog the lock is MORE likely busy than
-#      free. See the retry loop below (T-75 update, 2026-09-03): this is not optional polish,
-#      it is the fix for a defect a real dispatcher-triggered run exposed the same morning.
+#   0. flock on the fleet worktree's own lock file (T-703: state/worktree-fleet.lock, split off
+#      taskloop's scheduler-only state/tick.lock -- this cron never wants the scheduler lock, it
+#      only ever wanted the tree) -- the fleet worktree's git index is shared (T-72); cron and a
+#      running taskloop task, or (until T-704) the night orchestra, must never write it at the
+#      same time. This lock is held by whichever taskloop TASK is currently executing (up to
+#      5400s exec + up to 1800s arbiter + up to 900s fix-pass + up to 1800s second arbiter =
+#      ~9900s worst case, see taskloop.sh) -- at 05:00 with a non-empty backlog the lock is MORE
+#      likely busy than free. See the retry loop below (T-75 update, 2026-09-03): this is not
+#      optional polish, it is the fix for a defect a real dispatcher-triggered run exposed the
+#      same morning.
 #   1. must be on ci-staging, not detached, not behind origin/ci-staging (T-72 ancestry guard
 #      shape -- refuse to build a commit on a base that's already stale).
 #   2. every file sync-counts.sh is allowed to touch must be clean BEFORE it runs -- refuses to
@@ -59,42 +62,54 @@ calert(){
 }
 
 # Overridable only for the mutation-control tests in T-75's own writeup (a real cron/taskloop
-# run always uses the default -- this must be the SAME file taskloop.sh flocks, that's the
-# whole point of the lock).
-LOCK="${SYNC_COUNTS_CRON_LOCK:-$HOME/taskloop/state/lock}"
+# run always uses the default -- this must be the SAME file taskloop.sh flocks for the fleet
+# worktree, that's the whole point of the lock). T-703: this used to point at taskloop's old
+# single lock file; renamed to state/worktree-fleet.lock when taskloop split its scheduler
+# lock from its tree lock.
+LOCK="${SYNC_COUNTS_CRON_LOCK:-$HOME/taskloop/state/worktree-fleet.lock}"
 mkdir -p "$(dirname "$LOCK")"
 STATE_DIR="${SYNC_COUNTS_CRON_STATE_DIR:-$HOME/taskloop/state}"
 mkdir -p "$STATE_DIR"
 TODAY="$(date -u +%F)"
 MISS_FLAG="$STATE_DIR/.sync-counts-cron-missed-$TODAY"
 
-# T-75 update (2026-09-03): a plain `flock -n` skip was WRONG in two ways a real run caught --
-# (a) it exited 0, so a skip and a real sync were indistinguishable to anything watching the
-# exit code; (b) its own message promised "next cron tick will retry", but this cron is DAILY
-# -- the next tick is tomorrow 05:00, not five minutes away. Neither was true.
-# Fix: retry for real, inside this one invocation, bounded by the lock-holder's own worst case
-# (~9900s, see above) plus margin, logging every attempt so a wait is never silent. Give up
-# LOUDLY (nonzero exit, a dated marker file, a best-effort alert) only past that ceiling, with
-# a message that says what will actually happen next (tomorrow's cron), not what won't.
-MAX_WAIT_S="${SYNC_COUNTS_CRON_MAX_WAIT_S:-10800}"   # 3h ceiling
-POLL_S="${SYNC_COUNTS_CRON_POLL_S:-60}"
+# T-705 (2026-09-03, ~/FLEET-LOCKS-AND-AUTH-2026-09-03.md §2/§6): the wait ceiling used to be a
+# second hardcoded literal (10800s) eyeballed from taskloop.sh's worst case. T-703 already put
+# that worst case in exactly one place -- config.env's TASK_TIMEOUT -- so this derives from it
+# instead of restating a second guessed number that would silently drift the moment TASK_TIMEOUT
+# changes and this literal doesn't (LAW #ONE-PLACE / a-guessed-constant).
+CONFIG_ENV="${SYNC_COUNTS_CRON_CONFIG_ENV:-$HOME/taskloop/config.env}"
+if [ ! -f "$CONFIG_ENV" ]; then
+  clog "REFUSAL -- $CONFIG_ENV missing, cannot derive the lock-wait ceiling"
+  calert "🔴 sync-counts-cron: $CONFIG_ENV отсутствует -- отказ прибора, счётчики НЕ синхронизированы."
+  exit 1
+fi
+. "$CONFIG_ENV"
+case "${TASK_TIMEOUT:-}" in
+  ''|*[!0-9]*)
+    clog "REFUSAL -- TASK_TIMEOUT in $CONFIG_ENV is not a positive integer ('${TASK_TIMEOUT:-}')"
+    calert "🔴 sync-counts-cron: TASK_TIMEOUT в $CONFIG_ENV не число -- отказ прибора."
+    exit 1
+    ;;
+esac
+# 2*(TASK_TIMEOUT+600): a single worst-case taskloop task holds worktree-fleet.lock for at most
+# TASK_TIMEOUT+600 (exec timeout + the same pull/verdict/mv grace taskloop.sh itself uses for
+# every lock-hold ceiling); doubling it survives two such tasks back to back. A daily 05:00 cron
+# has no reason to be in a hurry, so this WAITS for real via flock's own -w timeout, rather than
+# the plain `flock -n` immediate-skip this used to be (that version exited 0 on a busy lock and
+# promised "next cron tick will retry" on a cron that only runs once a day -- both false).
+MAX_WAIT_S="${SYNC_COUNTS_CRON_MAX_WAIT_S:-$((2*(TASK_TIMEOUT+600)))}"
 exec 9>"$LOCK"
-WAITED=0
-ATTEMPT=0
-until flock -n 9; do
-  if [ "$WAITED" -ge "$MAX_WAIT_S" ]; then
-    date -u +%FT%TZ > "$MISS_FLAG"
-    clog "GAVE UP after ${WAITED}s -- taskloop lock still held by another writer. This cron is DAILY: the next attempt is tomorrow 05:00, not \"the next tick\". Marked $MISS_FLAG."
-    calert "🔴 sync-counts-cron gave up after ${WAITED}s (lock busy) -- counts NOT synced today, next attempt tomorrow 05:00."
-    exit 3
-  fi
-  ATTEMPT=$((ATTEMPT+1))
-  clog "taskloop lock busy (attempt $ATTEMPT, waited ${WAITED}s/${MAX_WAIT_S}s) -- retrying in ${POLL_S}s"
-  sleep "$POLL_S"
-  WAITED=$((WAITED+POLL_S))
-done
+clog "waiting for worktree-fleet.lock, up to ${MAX_WAIT_S}s (2*(TASK_TIMEOUT+600), TASK_TIMEOUT=$TASK_TIMEOUT from $CONFIG_ENV) -- this cron is DAILY, no reason to hurry"
+if ! flock -w "$MAX_WAIT_S" 9; then
+  date -u +%FT%TZ > "$MISS_FLAG"
+  clog "SKIPPED after ${MAX_WAIT_S}s -- worktree-fleet.lock still held by another writer. This cron is DAILY: today's self-heal is skipped, the next attempt is the ordinary tomorrow 05:00 firing, not \"the next tick\". Marked $MISS_FLAG."
+  calert "🔴 sync-counts-cron: суточный self-heal ПРОПУЩЕН после ${MAX_WAIT_S}s ожидания (worktree-fleet.lock busy) -- следующий штатный запуск завтра в 05:00."
+  exit 1
+fi
+clog "worktree-fleet.lock acquired"
 if [ -f "$MISS_FLAG" ]; then
-  clog "lock acquired after $ATTEMPT retr$([ "$ATTEMPT" = 1 ] && echo y || echo ies) (waited ${WAITED}s) -- clearing yesterday's/earlier miss marker"
+  clog "lock acquired -- clearing yesterday's/earlier miss marker"
   rm -f "$MISS_FLAG"
 fi
 echo "$$" > "$LOCK.pid"
