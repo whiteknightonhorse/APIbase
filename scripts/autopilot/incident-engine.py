@@ -26,9 +26,16 @@ Each tick, in order:
      CREDENTIAL_EXPIRED incidents get bridged into the existing
      connected_db.py key-request letter (I1's HUMAN_KEY row), once per
      incident.
-  5. advance_waiting_human() — 72h reminder edge, human-done/ watcher.
-  6. advance_verifying() — re-probe confirmation -> RESOLVED or STUCK.
-  7. write_heartbeat().
+  5. advance_remediation_queued() (AP-6) — F3's other half: "автопилот
+     только кладёт файл и читает исход (done/, stuck/)". route_auto_
+     incidents() does the "кладёт файл" side; this reads back what the
+     fleet actually did with it (never trusting the fleet's own report,
+     only the taskloop machine's done/stuck placement) and moves
+     REMEDIATION_QUEUED -> VERIFYING (fleet DONE) or -> STUCK (fleet
+     stuck/exhausted attempts), per F2.
+  6. advance_waiting_human() — 72h reminder edge, human-done/ watcher.
+  7. advance_verifying() — re-probe confirmation -> RESOLVED or STUCK.
+  8. write_heartbeat().
 
 Why this file does NOT touch crontab or fleet-check.sh/fleet-pulse.sh
 itself: those live outside this git repo (~/taskloop/*, the crontab) on a
@@ -266,6 +273,53 @@ def bridge_key_incidents():
                                  "evidence": evidence, "attempts": attempts})
 
 
+def advance_remediation_queued():
+    """AP-6/F3: 'Автопилот только кладёт файл и читает исход (done/, stuck/).'
+    route_auto_incidents() writes the fleet task (кладёт файл); this reads
+    the outcome back — without it REMEDIATION_QUEUED is a permanent dead end,
+    even once the fleet finishes the task, because nothing else in this
+    codebase ever looks at taskloop's done/ or stuck/ dirs for an incident's
+    fleet_task_id.
+
+    Deliberately does NOT trust the fleet's own verdict text — a fleet task
+    landing in done/ only proves taskloop's own review gate accepted it
+    (VERDICT: DONE, +fable ACCEPT where REVIEW: fable), never that the
+    provider is actually healthy again (C0.3: no fabricated verdicts). So
+    'fleet DONE' moves the incident to VERIFYING, the SAME state
+    advance_verifying() already confirms or rejects via a REAL re-probe
+    against provider_status — one verification path, reused, not a second
+    one invented here. 'fleet stuck' (exhausted MAX_ATTEMPTS, disputed past
+    the ruling ceiling, or a permissions/no-verdict deadlock) has no re-probe
+    to attempt — F2's diagram routes it straight to STUCK, 'только человек'."""
+    out, rc = ap.psql(
+        "SELECT incident_id, provider, kind, fleet_task_id FROM incidents "
+        "WHERE state = 'REMEDIATION_QUEUED' AND fleet_task_id IS NOT NULL"
+    )
+    if rc != 0 or not out:
+        return
+    for line in out.splitlines():
+        incident_id, provider, kind, fleet_task_id = line.split(ap.SEP)
+        done_path = os.path.join(ap.TASKLOOP_ROOT, "done", fleet_task_id)
+        stuck_path = os.path.join(ap.TASKLOOP_ROOT, "stuck", fleet_task_id)
+        if os.path.isfile(done_path):
+            ap.transition_state(incident_id, "VERIFYING")
+            ap.note_incident(incident_id, "incident-engine", "fleet-done",
+                              f"fleet task {fleet_task_id} landed in done/ -> VERIFYING "
+                              f"(re-probe will confirm, fleet's own report is not trusted alone)")
+            ap.notice(f"incident-engine: {incident_id} ({provider}/{kind}) fleet task "
+                      f"{fleet_task_id} done -> VERIFYING")
+        elif os.path.isfile(stuck_path):
+            ap.transition_state(incident_id, "STUCK")
+            ap.note_incident(incident_id, "incident-engine", "fleet-stuck",
+                              f"fleet task {fleet_task_id} landed in stuck/ — F2: "
+                              f"REMEDIATION_QUEUED + fleet stuck -> STUCK")
+            ap.tg_send(f"[apibase] \U0001F534 STUCK INC-{ap.short_id(incident_id)} {kind} "
+                       f"({provider}) — fleet task {fleet_task_id} is stuck, needs a human now")
+            ap.notice(f"incident-engine: {incident_id} ({provider}/{kind}) fleet task "
+                      f"{fleet_task_id} stuck -> STUCK")
+        # else: still in queue/ or active/ -- genuinely no outcome yet (NOINFO), leave queued.
+
+
 def advance_waiting_human():
     out, rc = ap.psql(
         f"SELECT incident_id, provider, kind, {UTC_TS_EXPR('created_at')}, attempts::text, "
@@ -391,6 +445,7 @@ def run():
     opened = detect_from_provider_status()
     route_auto_incidents()
     bridge_key_incidents()
+    advance_remediation_queued()
     advance_waiting_human()
     advance_verifying()
     write_heartbeat()
@@ -773,6 +828,43 @@ def selftest_db():
         finally:
             os.remove(bad_path)
         print("world 7 (routing.json money-guard rejects a rigged file): OK")
+
+        # World 8 (AP-6): advance_remediation_queued() reads the fleet's
+        # outcome back from done/stuck -- the "и читает исход" half of F3
+        # that route_auto_incidents() alone doesn't cover (that function only
+        # writes the file, never checks what became of it). Reuses two of
+        # world 4's already-REMEDIATION_QUEUED ap6prov* incidents; the third
+        # is left untouched to prove "no outcome yet" is NOINFO, not a guess.
+        rows8, _ = ap.psql(
+            "SELECT incident_id, fleet_task_id FROM incidents "
+            "WHERE provider LIKE 'ap6prov%' AND state = 'REMEDIATION_QUEUED' ORDER BY provider"
+        )
+        queued8 = [r.split(ap.SEP) for r in rows8.splitlines()]
+        assert len(queued8) == 3, f"world 8 setup: expected 3 still-queued incidents, got {queued8}"
+        id8_done, task8_done = queued8[0]
+        id8_stuck, task8_stuck = queued8[1]
+        id8_still, _task8_still = queued8[2]
+        done_dir = os.path.join(ap.TASKLOOP_ROOT, "done")
+        stuck_dir = os.path.join(ap.TASKLOOP_ROOT, "stuck")
+        os.makedirs(done_dir, exist_ok=True)
+        os.makedirs(stuck_dir, exist_ok=True)
+        with open(os.path.join(done_dir, task8_done), "w", encoding="utf-8") as f:
+            f.write("VERDICT: DONE\n")
+        with open(os.path.join(stuck_dir, task8_stuck), "w", encoding="utf-8") as f:
+            f.write("stuck: exhausted attempts\n")
+        advance_remediation_queued()
+        inc8_done = ap.get_incident(id8_done)
+        inc8_stuck = ap.get_incident(id8_stuck)
+        inc8_still = ap.get_incident(id8_still)
+        assert inc8_done["state"] == "VERIFYING", f"world 8: expected VERIFYING, got {inc8_done['state']}"
+        assert any(a["action"] == "fleet-done" for a in inc8_done["attempts"]), inc8_done["attempts"]
+        assert inc8_stuck["state"] == "STUCK", f"world 8: expected STUCK, got {inc8_stuck['state']}"
+        assert any(a["action"] == "fleet-stuck" for a in inc8_stuck["attempts"]), inc8_stuck["attempts"]
+        assert inc8_still["state"] == "REMEDIATION_QUEUED", (
+            f"world 8: incident with no fleet outcome yet (neither done/ nor stuck/) must stay "
+            f"queued, got {inc8_still['state']}"
+        )
+        print("world 8 (fleet outcome watcher: done->VERIFYING, stuck->STUCK, no-outcome stays put): OK")
 
         print("selftest-db: ALL WORLDS OK")
         return 0
