@@ -18,6 +18,7 @@ import { appealsRouter } from '../routes/appeals.router';
 import { executeRouter } from '../routes/execute.router';
 import { batchRouter } from '../routes/batch.router';
 import { dashboardRouter } from '../routes/dashboard.router';
+import { incidentsRouter } from '../routes/incidents.router';
 import { oauthRouter } from '../routes/oauth.router';
 import { deviceConnectRouter } from '../routes/device-connect.router';
 
@@ -52,6 +53,7 @@ export function createApp(): express.Express {
   app.use(metricsRouter);
   app.use(x402Router);
   app.use(dashboardRouter);
+  app.use(incidentsRouter);
 
   // --- Body parsing ---
   app.use(express.json({ limit: '1mb' }));

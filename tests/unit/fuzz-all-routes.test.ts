@@ -79,6 +79,12 @@ jest.mock('../../src/services/agent.service', () => ({
 jest.mock('../../src/services/dashboard.service', () => ({
   getDashboardData: jest.fn().mockResolvedValue({ tools: 0, providers: 0 }),
 }));
+jest.mock('../../src/services/incidents.service', () => ({
+  listIncidents: jest.fn().mockResolvedValue([]),
+  getIncidentById: jest.fn().mockResolvedValue(null),
+  VALID_STATES: ['OPEN', 'REMEDIATION_QUEUED', 'WAITING_HUMAN', 'VERIFYING', 'RESOLVED', 'STUCK'],
+  VALID_SEVERITIES: ['SEV1', 'SEV2', 'SEV3'],
+}));
 jest.mock('../../src/services/onboard.service', () => ({
   checkIpRateLimit: jest.fn().mockResolvedValue({ allowed: true }),
   createSubmission: jest.fn().mockResolvedValue({ id: 'sub-fuzz-1' }),
@@ -160,6 +166,7 @@ import { appealsRouter } from '../../src/routes/appeals.router';
 import { executeRouter } from '../../src/routes/execute.router';
 import { batchRouter } from '../../src/routes/batch.router';
 import { dashboardRouter } from '../../src/routes/dashboard.router';
+import { incidentsRouter } from '../../src/routes/incidents.router';
 import { oauthRouter } from '../../src/routes/oauth.router';
 import { deviceConnectRouter } from '../../src/routes/device-connect.router';
 import type { Router } from 'express';
@@ -207,6 +214,7 @@ const ROUTERS: Array<{ name: string; router: Router }> = [
   { name: 'executeRouter', router: executeRouter },
   { name: 'batchRouter', router: batchRouter },
   { name: 'dashboardRouter', router: dashboardRouter },
+  { name: 'incidentsRouter', router: incidentsRouter },
   { name: 'oauthRouter', router: oauthRouter },
   { name: 'deviceConnectRouter', router: deviceConnectRouter },
 ];

@@ -8,6 +8,10 @@ import providerLimitsConfig from '../config/provider-limits.json';
  * Assembles provider status from:
  *   - Redis: provider:health:{name} and provider:limits:{name} (written by worker cron)
  *   - PG: execution_ledger aggregate (calls_24h, avg_latency) + tools GROUP BY provider
+ *   - PG: provider_status (AP-1..AP-9 durable truth — state/risk/reliability_score/
+ *     last_probe_at) + incidents (open count) via one extra LEFT JOIN each (AP-9, L1:
+ *     "дополнить полями state, risk, reliability_score, probe_age_s, open_incidents
+ *     per provider (из provider_status — один JOIN)").
  *
  * Cached in Redis for 60s to avoid repeated PG queries.
  */
@@ -50,6 +54,14 @@ interface ProviderDashboardEntry {
   calls_24h: number;
   avg_latency_ms: number | null;
   tool_count: number;
+  // AP-9 (L1): durable provider_status truth, one JOIN. `null` means "no
+  // provider_status row yet" (never fabricated) — distinct from a real
+  // UNKNOWN/NOINFO value, which IS one of the enum's own members.
+  state: string | null; // UNKNOWN|HEALTHY|DEGRADED|DOWN
+  risk: string | null; // NOINFO|NORMAL|ATTENTION|WARNING|CRITICAL|EXHAUSTED
+  reliability_score: number | null; // 0-100, §20 — null until AP-9's daily calc has run once
+  probe_age_s: number | null; // seconds since last_probe_at; null = never probed
+  open_incidents: number; // non-RESOLVED incidents for this provider right now
 }
 
 interface PaymentSystemStatus {
@@ -75,17 +87,20 @@ interface DashboardResponse {
   payment_system: PaymentSystemStatus;
 }
 
-const limitsConfig = providerLimitsConfig as Record<string, {
-  display_name: string;
-  health_url: string;
-  limit_type: string;
-  free_limit: number;
-  reset_period: string;
-  paid_balance?: boolean;
-  balance_api?: boolean;
-  docs_url?: string;
-  limit_proof?: string;
-}>;
+const limitsConfig = providerLimitsConfig as Record<
+  string,
+  {
+    display_name: string;
+    health_url: string;
+    limit_type: string;
+    free_limit: number;
+    reset_period: string;
+    paid_balance?: boolean;
+    balance_api?: boolean;
+    docs_url?: string;
+    limit_proof?: string;
+  }
+>;
 
 export async function getDashboardData(): Promise<DashboardResponse> {
   try {
@@ -101,6 +116,7 @@ export async function getDashboardData(): Promise<DashboardResponse> {
   const prisma = getPrisma();
 
   // Single aggregate query: tools per provider + 24h + period-aware call stats
+  // + AP-9's one extra provider_status/incidents JOIN (L1).
   const providerStats: Array<{
     provider: string;
     tool_count: bigint;
@@ -111,6 +127,11 @@ export async function getDashboardData(): Promise<DashboardResponse> {
     paid_calls_24h: bigint;
     revenue_24h: number | null;
     avg_latency_ms: number | null;
+    provider_state: string | null;
+    provider_risk: string | null;
+    reliability_score: number | null;
+    last_probe_at: Date | null;
+    open_incidents: bigint;
   }> = await prisma.$queryRawUnsafe(`
     SELECT
       t.provider,
@@ -121,13 +142,22 @@ export async function getDashboardData(): Promise<DashboardResponse> {
       COUNT(el.execution_id) AS calls_total,
       COUNT(el.execution_id) FILTER (WHERE el.billing_status = 'PAID' AND el.created_at >= NOW() - INTERVAL '24 hours') AS paid_calls_24h,
       SUM(el.cost_usd) FILTER (WHERE el.created_at >= NOW() - INTERVAL '24 hours')::numeric AS revenue_24h,
-      ROUND(AVG(el.latency_ms) FILTER (WHERE el.created_at >= NOW() - INTERVAL '24 hours'))::integer AS avg_latency_ms
+      ROUND(AVG(el.latency_ms) FILTER (WHERE el.created_at >= NOW() - INTERVAL '24 hours'))::integer AS avg_latency_ms,
+      ps.state AS provider_state,
+      ps.risk AS provider_risk,
+      ps.reliability_score AS reliability_score,
+      ps.last_probe_at AS last_probe_at,
+      COALESCE(inc.open_incidents, 0) AS open_incidents
     FROM tools t
     LEFT JOIN execution_ledger el
       ON el.tool_id = t.tool_id
       AND el.status IN ('success', 'shared_success', 'provider_success')
+    LEFT JOIN provider_status ps ON ps.provider = t.provider
+    LEFT JOIN (
+      SELECT provider, COUNT(*) AS open_incidents FROM incidents WHERE state <> 'RESOLVED' GROUP BY provider
+    ) inc ON inc.provider = t.provider
     WHERE t.status != 'unavailable'
-    GROUP BY t.provider
+    GROUP BY t.provider, ps.state, ps.risk, ps.reliability_score, ps.last_probe_at, inc.open_incidents
     ORDER BY t.provider
   `);
 
@@ -186,16 +216,28 @@ export async function getDashboardData(): Promise<DashboardResponse> {
             used: parseInt(limitsData.used || '0', 10),
             remaining: parseInt(limitsData.remaining || '0', 10),
             pct_remaining: parseInt(limitsData.pct_remaining || '100', 10),
-            status: limitsData.limit_status as ProviderLimits['status'] || 'green',
+            status: (limitsData.limit_status as ProviderLimits['status']) || 'green',
           };
         } else {
-          limits = buildDefaultLimits(providerName, { today: callsToday, month: callsThisMonth, total: callsTotal });
+          limits = buildDefaultLimits(providerName, {
+            today: callsToday,
+            month: callsThisMonth,
+            total: callsTotal,
+          });
         }
       } catch {
-        limits = buildDefaultLimits(providerName, { today: callsToday, month: callsThisMonth, total: callsTotal });
+        limits = buildDefaultLimits(providerName, {
+          today: callsToday,
+          month: callsThisMonth,
+          total: callsTotal,
+        });
       }
     } else {
-      limits = buildDefaultLimits(providerName, { today: callsToday, month: callsThisMonth, total: callsTotal });
+      limits = buildDefaultLimits(providerName, {
+        today: callsToday,
+        month: callsThisMonth,
+        total: callsTotal,
+      });
     }
 
     // Fetch real balance for paid providers (cached in Redis 5min)
@@ -203,6 +245,12 @@ export async function getDashboardData(): Promise<DashboardResponse> {
     if (cfg?.paid_balance) {
       balance = await fetchProviderBalance(providerName, redis);
     }
+
+    // AP-9 (L1): probe_age_s derived from last_probe_at — null (never
+    // probed) stays null, never coerced to Infinity/0.
+    const probeAgeS = row.last_probe_at
+      ? Math.max(0, Math.floor((Date.now() - row.last_probe_at.getTime()) / 1000))
+      : null;
 
     providers.push({
       provider: providerName,
@@ -218,6 +266,11 @@ export async function getDashboardData(): Promise<DashboardResponse> {
       calls_24h: calls24h,
       avg_latency_ms: avgLatency,
       tool_count: toolCount,
+      state: row.provider_state,
+      risk: row.provider_risk,
+      reliability_score: row.reliability_score,
+      probe_age_s: probeAgeS,
+      open_incidents: Number(row.open_incidents),
     });
   }
 
@@ -359,43 +412,64 @@ async function fetchProviderBalance(
     try {
       const cached = await redis.get(cacheKey);
       if (cached) return JSON.parse(cached);
-    } catch { /* non-fatal */ }
+    } catch {
+      /* non-fatal */
+    }
   }
 
   // Fetch real balance from upstream
   let balance: ProviderBalance | null = null;
   try {
     balance = await fetchBalanceUpstream(providerName);
-  } catch { /* non-fatal — return null */ }
+  } catch {
+    /* non-fatal — return null */
+  }
 
   // Cache result
   if (balance && redis) {
     try {
       await redis.set(cacheKey, JSON.stringify(balance), 'EX', BALANCE_CACHE_TTL);
-    } catch { /* non-fatal */ }
+    } catch {
+      /* non-fatal */
+    }
   }
 
   return balance;
 }
 
 async function fetchBalanceUpstream(providerName: string): Promise<ProviderBalance | null> {
-  const cfg = limitsConfig[providerName as keyof typeof limitsConfig] as Record<string, unknown> | undefined;
+  const cfg = limitsConfig[providerName as keyof typeof limitsConfig] as
+    | Record<string, unknown>
+    | undefined;
   if (!cfg) return null;
 
   switch (providerName) {
     case 'namesilo': {
       const key = process.env.PROVIDER_KEY_NAMESILO;
       if (!key) return null;
-      const res = await fetch(`https://www.namesilo.com/api/getAccountBalance?version=1&type=json&key=${key}`, { signal: AbortSignal.timeout(5000) });
+      const res = await fetch(
+        `https://www.namesilo.com/api/getAccountBalance?version=1&type=json&key=${key}`,
+        { signal: AbortSignal.timeout(5000) },
+      );
       const data = (await res.json()) as { reply: { balance: string } };
-      return { balance_usd: parseFloat(data.reply.balance), currency: 'USD', last_check: new Date().toISOString() };
+      return {
+        balance_usd: parseFloat(data.reply.balance),
+        currency: 'USD',
+        last_check: new Date().toISOString(),
+      };
     }
     case 'zerobounce': {
       const key = process.env.PROVIDER_KEY_ZEROBOUNCE;
       if (!key) return null;
-      const res = await fetch(`https://api.zerobounce.net/v2/getcredits?api_key=${key}`, { signal: AbortSignal.timeout(5000) });
+      const res = await fetch(`https://api.zerobounce.net/v2/getcredits?api_key=${key}`, {
+        signal: AbortSignal.timeout(5000),
+      });
       const data = (await res.json()) as { Credits: string };
-      return { balance_usd: parseInt(data.Credits, 10), currency: 'credits', last_check: new Date().toISOString() };
+      return {
+        balance_usd: parseInt(data.Credits, 10),
+        currency: 'credits',
+        last_check: new Date().toISOString(),
+      };
     }
     default:
       return null;
