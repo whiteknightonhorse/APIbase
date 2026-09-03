@@ -394,7 +394,6 @@ def advance_waiting_human():
             if match:
                 result = ap.parse_human_done(match)
                 if result:
-                    ap.note_incident(incident_id, "operator", "human-done", result[:2000])
                     # F2: this does NOT go straight to VERIFYING — there is no
                     # fix yet to verify, only the operator's answer. It goes
                     # through the SAME fleet-task generator route_auto_
@@ -403,11 +402,24 @@ def advance_waiting_human():
                     # generates, it spends the same budget) so the operator's
                     # answer becomes a real, reviewed piece of work, not a
                     # fabricated "fixed" claim.
+                    #
+                    # note_incident() is called ONLY after the slot is
+                    # actually captured (Fable ruling-2, point 1): the file is
+                    # deliberately left un-archived and re-scanned every tick
+                    # while the cap is exhausted, so noting "human-done" here
+                    # unconditionally would append a fresh attempts-array
+                    # entry (up to ~144/day at a 10-minute tick) for the same
+                    # unresolved answer every single tick until budget frees
+                    # up — a bloated audit trail that then gets pasted
+                    # verbatim into the follow-up task body. Capturing the
+                    # slot first makes this branch run at most once per
+                    # incident.
                     if not ap.consume_daily_task_slot():
                         ap.notice(f"молчу: {incident_id} ({provider}/{kind}) — human-done follow-up "
                                   f"blocked, daily fleet-task cap ({ap.DAILY_TASK_CAP}) reached; "
                                   f"file left in {ap.HUMAN_DONE_DIR}/ for a later tick")
                         continue  # do NOT archive the file — retry on a future tick once budget frees up
+                    ap.note_incident(incident_id, "operator", "human-done", result[:2000])
                     inc = ap.get_incident(incident_id)
                     filename, content = ap.build_human_followup_task_body(inc, result)
                     path = os.path.join(ap.TASKLOOP_QUEUE_DIR, filename)
@@ -1103,7 +1115,33 @@ def selftest_db():
             f"world 11b: cap-exhausted human-done must NOT advance the incident, got {inc11d['state']}"
         )
         assert os.path.isfile(human_done_path_d), "world 11b: cap-exhausted human-done file must NOT be archived"
-        print("world 11b (human-done follow-up respects the daily cap, no fabricated advance): OK")
+        assert not any(a["action"] == "human-done" for a in inc11d["attempts"]), (
+            f"world 11b: a slot-blocked human-done must not be noted into attempts either, "
+            f"got {inc11d['attempts']}"
+        )
+
+        # Second tick, cap still exhausted: the un-archived file is re-scanned
+        # every tick (that's the whole point of leaving it in place), so this
+        # is where a pre-fix "note before slot capture" would append a SECOND
+        # "human-done" attempts entry for the same still-unresolved answer.
+        # Mutation control: moving the note_incident() call in
+        # advance_waiting_human() back above the consume_daily_task_slot()
+        # check makes this assertion fail (2 entries instead of 0, growing by
+        # one every further tick).
+        advance_waiting_human()
+        inc11e = ap.get_incident(id11d)
+        assert inc11e["state"] == "WAITING_HUMAN", (
+            f"world 11b: second cap-exhausted tick must still not advance the incident, got {inc11e['state']}"
+        )
+        assert os.path.isfile(human_done_path_d), (
+            "world 11b: second cap-exhausted tick must still not archive the file"
+        )
+        assert not any(a["action"] == "human-done" for a in inc11e["attempts"]), (
+            f"world 11b: repeated cap-exhausted ticks must NOT accumulate duplicate 'human-done' "
+            f"attempts entries for the same unresolved answer, got {inc11e['attempts']}"
+        )
+        print("world 11b (human-done follow-up respects the daily cap, no fabricated advance, "
+              "no duplicate attempts across repeated ticks): OK")
 
         # World 12 (Fable ruling-1, point 3): KEY bridge two-worlds guard --
         # an AUTH_FAILED whose auth_env is ALREADY present in .env must NOT
