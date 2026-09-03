@@ -1,3 +1,34 @@
+# T-72 fleet-writer guard — apibase-fleet's git index is shared by everyone who touches this
+# tree; a commit made outside taskloop's own lock can pick up whatever another writer staged
+# (04f8599: a dispatcher's `git add provek.json` landed inside the fleet executor's unrelated
+# commit). No-op when no marker is present — that's how the deploy tree, and any other clone
+# of this repo, behaves; the marker is per-worktree, written once by hand, never committed.
+# POSIX sh only below: husky runs this file via `sh -e`.
+GUARD_GITDIR=$(git rev-parse --git-dir)
+GUARD_MARKER="$GUARD_GITDIR/taskloop-guard"
+if [ -f "$GUARD_MARKER" ]; then
+  GUARD_LOCK=$(cat "$GUARD_MARKER")
+  GUARD_OK=0
+  if [ -n "$GUARD_LOCK" ] && ! flock -n "$GUARD_LOCK" true 2>/dev/null; then
+    # flock refused -> the lock is currently held by someone -> check we descend from them.
+    if [ -f "$GUARD_LOCK.pid" ]; then
+      GUARD_HOLDER=$(cat "$GUARD_LOCK.pid")
+      GUARD_PID=$$
+      while [ -n "$GUARD_PID" ] && [ "$GUARD_PID" != "1" ]; do
+        if [ "$GUARD_PID" = "$GUARD_HOLDER" ]; then
+          GUARD_OK=1
+          break
+        fi
+        GUARD_PID=$(awk '/^PPid:/{print $2; exit}' "/proc/$GUARD_PID/status" 2>/dev/null)
+      done
+    fi
+  fi
+  if [ "$GUARD_OK" -ne 1 ]; then
+    echo "BLOCKED: apibase-fleet writes go through taskloop's lock — queue the task in ~/taskloop/queue/ or enter via ~/taskloop/fleet-shell" >&2
+    exit 1
+  fi
+fi
+
 # Secret scan — block commits with API keys, private keys, .env
 STAGED=$(git diff --cached --name-only --diff-filter=ACM)
 if echo "$STAGED" | grep -qE '^\.env$|^\.env\.|\.env\.enc'; then
