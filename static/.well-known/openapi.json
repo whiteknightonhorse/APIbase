@@ -123823,6 +123823,288 @@
         ]
       }
     },
+    "/api/v1/tools/unesco-data.indicator_search/call": {
+      "post": {
+        "operationId": "unesco-data_indicator_search",
+        "summary": "UNESCO UIS Indicator Search",
+        "description": "Search the UNESCO Institute for Statistics indicator catalog (~5,063 codes across education, science & technology, culture, and demographic/socioeconomic themes) by name, code, or theme. Call this BEFORE unesco-data.get_data to find a valid indicator code. Example: query='literacy' or theme='EDUCATION'. Data: api.uis.unesco.org, no auth required, CC BY-SA 4.0.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "unesco-data.indicator_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Case-insensitive substring to match against indicator name or code, e.g. 'literacy' or 'LR.AG15T24'. Omit to browse by theme alone."
+                  },
+                  "theme": {
+                    "type": "string",
+                    "enum": [
+                      "EDUCATION",
+                      "SCIENCE_TECHNOLOGY_INNOVATION",
+                      "CULTURE",
+                      "DEMOGRAPHIC_SOCIOECONOMIC"
+                    ],
+                    "description": "Filter to one UIS theme: EDUCATION, SCIENCE_TECHNOLOGY_INNOVATION, CULTURE, or DEMOGRAPHIC_SOCIOECONOMIC. Omit to search across all themes."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Max number of matching indicators to return (default 50, max 200). The UIS catalog has ~5,063 indicators total — narrow with query/theme before raising this."
+                  }
+                },
+                "description": "Search the UNESCO Institute for Statistics indicator catalog (education, science & technology, culture, and demographic/socioeconomic indicators) by name, code, or theme. Call this first to find a valid indicator_code for unesco-data.get_data."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/unesco-data.geounit_list/call": {
+      "post": {
+        "operationId": "unesco-data_geounit_list",
+        "summary": "UNESCO UIS Geo Unit List",
+        "description": "List the 462 country and world-region codes recognized by the UNESCO Institute for Statistics Data API, optionally filtered by name or level (NATIONAL/REGIONAL). Use this to find a valid geo_unit code for unesco-data.get_data. Example: query='Kenya'. Data: api.uis.unesco.org, no auth required, CC BY-SA 4.0.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "unesco-data.geounit_list"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Case-insensitive substring to match against country/region name, e.g. 'Kenya' or 'Africa'."
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "NATIONAL",
+                      "REGIONAL"
+                    ],
+                    "description": "Filter to one geo unit level: NATIONAL (countries) or REGIONAL (world regions)."
+                  }
+                },
+                "description": "List the 462 country/region codes (NATIONAL and REGIONAL) recognized by the UIS Data API. Call this to find a valid geo_unit code for unesco-data.get_data."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/unesco-data.get_data/call": {
+      "post": {
+        "operationId": "unesco-data_get_data",
+        "summary": "UNESCO UIS Get Data",
+        "description": "Fetch time-series values for 1-2 UNESCO Institute for Statistics indicator codes, optionally filtered by geo unit and year range — official education, science, culture, and demographic statistics reported by UN member states. Always call unesco-data.indicator_search first to confirm a valid indicator code, and unesco-data.geounit_list to confirm geo_unit codes. Example: youth literacy rate (indicator='LR.AG15T24'), India (geo_unit='IND'), 2015-2022 (start=2015, end=2022). Data: api.uis.unesco.org, no auth required, CC BY-SA 4.0 (attribution + share-alike required).",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "unesco-data.get_data"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "indicator": {
+                    "type": "string",
+                    "description": "One or two UIS indicator codes (comma-separated string or array), e.g. 'LR.AG15T24' (youth literacy rate). Discover codes via unesco-data.indicator_search."
+                  },
+                  "geo_unit": {
+                    "type": "string",
+                    "description": "One or more 3-letter geo unit codes (comma-separated string or array), e.g. 'IND' or 'KEN,NGA'. Omit to return data for every country/region the indicator covers (can be large — prefer narrowing with start/end too). Discover codes via unesco-data.geounit_list."
+                  },
+                  "geo_unit_type": {
+                    "type": "string",
+                    "enum": [
+                      "NATIONAL",
+                      "REGIONAL"
+                    ],
+                    "description": "Filter to one geo unit level: NATIONAL (countries) or REGIONAL (world regions)."
+                  },
+                  "start": {
+                    "type": "integer",
+                    "description": "Start year (inclusive), e.g. 2015. Omit for the full available history."
+                  },
+                  "end": {
+                    "type": "integer",
+                    "description": "End year (inclusive), e.g. 2022. Omit for the full available history."
+                  },
+                  "footnotes": {
+                    "type": "boolean",
+                    "description": "Include per-record footnotes (data source caveats) in the response."
+                  },
+                  "indicator_metadata": {
+                    "type": "boolean",
+                    "description": "Include full indicator metadata (definition, calculation method, data source) alongside the records."
+                  }
+                },
+                "required": [
+                  "indicator"
+                ],
+                "description": "Fetch time-series values for 1-2 UNESCO UIS indicator codes, optionally filtered by geo unit and year range. Always call unesco-data.indicator_search first to confirm a valid indicator code."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/device.list/call": {
       "post": {
         "operationId": "device_list",

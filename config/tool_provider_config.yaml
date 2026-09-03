@@ -8665,6 +8665,25 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-673: UNESCO Institute for Statistics (UIS) Data API (api.uis.unesco.org) ---
+  - tool_id: unesco-data.indicator_search
+    name: UNESCO UIS Indicator Search
+    provider: unesco-data
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: unesco-data.geounit_list
+    name: UNESCO UIS Geo Unit List
+    provider: unesco-data
+    price_usd: "0.001"
+    cache_ttl: 604800
+
+  - tool_id: unesco-data.get_data
+    name: UNESCO UIS Get Data
+    provider: unesco-data
+    price_usd: "0.003"
+    cache_ttl: 3600
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

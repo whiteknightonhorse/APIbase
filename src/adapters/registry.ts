@@ -389,6 +389,7 @@ import { IcelandStatisticsAdapter } from './iceland-statistics';
 import { EstoniaStatisticsAdapter } from './estonia-statistics';
 import { EstatJapanDashboardAdapter } from './estat-japan-dashboard';
 import { WmoWeatherAdapter } from './wmo-weather';
+import { UnescoDataAdapter } from './unesco-data';
 import { config } from '../config';
 
 /**
@@ -2110,6 +2111,13 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // NMHS-sourced forecasts + 30-year climate normals for ~2,600 cities worldwide,
       // plus a city directory search. No auth, no documented rate limits.
       return getOrCreate('wmo-weather', () => new WmoWeatherAdapter());
+    case 'unesco-data':
+      // UNESCO Institute for Statistics (UIS) Data API (UC-673) — api.uis.unesco.org:
+      // education/science/culture/demographic indicator catalog + country/region
+      // catalog + time-series data. No auth, CC BY-SA 4.0 (verified live at
+      // databrowser.uis.unesco.org/terms-and-conditions) — commercial reuse and
+      // redistribution permitted with attribution and share-alike.
+      return getOrCreate('unesco-data', () => new UnescoDataAdapter());
     default:
       return undefined;
   }

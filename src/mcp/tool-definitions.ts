@@ -16593,6 +16593,48 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'weather',
     annotations: READ_ONLY,
   },
+  // UNESCO Institute for Statistics (UIS) Data API — api.uis.unesco.org (3) — UC-673
+  {
+    toolId: 'unesco-data.indicator_search',
+    mcpName: 'unesco-data.reference.indicator_search',
+    title: 'UNESCO UIS Indicator Search',
+    description:
+      'Search the UNESCO Institute for Statistics indicator catalog (~5,063 codes across ' +
+      'education, science & technology, culture, and demographic/socioeconomic themes) by ' +
+      'name, code, or theme. Call this BEFORE unesco-data.get_data to find a valid ' +
+      "indicator code. Example: query='literacy' or theme='EDUCATION'. Data: " +
+      'api.uis.unesco.org, no auth required, CC BY-SA 4.0.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'unesco-data.geounit_list',
+    mcpName: 'unesco-data.reference.geounit_list',
+    title: 'UNESCO UIS Geo Unit List',
+    description:
+      'List the 462 country and world-region codes recognized by the UNESCO Institute for ' +
+      'Statistics Data API, optionally filtered by name or level (NATIONAL/REGIONAL). Use ' +
+      "this to find a valid geo_unit code for unesco-data.get_data. Example: query='Kenya'. " +
+      'Data: api.uis.unesco.org, no auth required, CC BY-SA 4.0.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'unesco-data.get_data',
+    mcpName: 'unesco-data.series.get_data',
+    title: 'UNESCO UIS Get Data',
+    description:
+      'Fetch time-series values for 1-2 UNESCO Institute for Statistics indicator codes, ' +
+      'optionally filtered by geo unit and year range — official education, science, ' +
+      'culture, and demographic statistics reported by UN member states. Always call ' +
+      'unesco-data.indicator_search first to confirm a valid indicator code, and ' +
+      'unesco-data.geounit_list to confirm geo_unit codes. Example: youth literacy rate ' +
+      "(indicator='LR.AG15T24'), India (geo_unit='IND'), 2015-2022 (start=2015, end=2022). " +
+      'Data: api.uis.unesco.org, no auth required, CC BY-SA 4.0 (attribution + share-alike ' +
+      'required).',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
   // ---------------------------------------------------------------------------
   // Ф5 physical-device MCP layer -- device.list/state/command (2026-09-02)
   // Generic vendor-agnostic projection; Tuya is the only connected vendor
