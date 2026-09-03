@@ -1,0 +1,18 @@
+{
+  "_comment": "AP-7 (816-autopilot-email-intake.md) — H3 point 2: 'from_domain -> provider Таблица строится один раз скриптом из provider-limits.json (docs_url/health_url домены) + ручные алиасы (config/autopilot/provider-domains.json)'. This file is the HAND-CURATED half only. scripts/autopilot/email-intake.py's build_domain_map() merges these two dicts with domains auto-extracted from src/config/provider-limits.json at every run (never persisted to a second generated file — a stale cache would silently drift from provider-limits.json, which already IS the single source of the auto half). Add an 'aliases' entry only when a provider's actual outbound-mail domain does NOT match its docs_url/health_url domain (e.g. a provider that mails from a separate billing/notifications subdomain the auto-extraction can't guess).",
+  "_whitelist_comment": "H3 point 2: 'Письмо с домена вне таблицы и вне whitelist-классов (github, google, hetzner…) -> class=UNMATCHED, действий нет'. Both an out-of-table domain and a whitelisted one end up UNMATCHED (no incident, no model call, provider_match=null) — the ONLY difference is that a whitelist hit is known operational noise (this fleet's own infra: git hosting, mail/security alerts for the account itself, the hosting provider), not a random/unexpected sender worth flagging as suspicious in a future digest (N.10). Keep this list to infra APIbase itself depends on, not API providers — a real provider belongs in provider-limits.json (auto-extracted) or 'aliases' above, never here.",
+
+  "aliases": {},
+
+  "whitelist": [
+    "github.com",
+    "google.com",
+    "accounts.google.com",
+    "hetzner.com",
+    "hetzner-cloud.de",
+    "cloudflare.com",
+    "letsencrypt.org",
+    "npmjs.com",
+    "anthropic.com"
+  ]
+}
