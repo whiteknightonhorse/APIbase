@@ -97,6 +97,20 @@ ROUTING_PATH = os.environ.get(
                  "config", "autopilot", "routing.json"),
 )
 
+# AP-8 (P-table: "демоция меняет счётчики витрин — прогон sync-counts
+# после"): this module's own ROOT above is the DEPLOY tree
+# (/home/apibase/apibase), same as every other autopilot cron script — but
+# sync-counts-cron.sh only exists as a FLEET-WORKTREE mechanism (its own
+# header: worktree-fleet.lock, "must be on ci-staging", commit+push through
+# the gated path). Kept as its own override-able path rather than folding
+# into ROOT, since the two trees are deliberately different things in this
+# repo (T-75) and conflating them here would be exactly the mistake T-75's
+# own fix undid for this script.
+FLEET_WORKTREE = os.environ.get("AUTOPILOT_FLEET_WORKTREE", "/home/apibase/apibase-fleet")
+SYNC_COUNTS_CRON_SH = os.environ.get(
+    "AUTOPILOT_SYNC_COUNTS_CRON_SH", f"{FLEET_WORKTREE}/scripts/sync-counts-cron.sh"
+)
+
 
 def psql(sql):
     """Returns (stdout, returncode). Never raises — a Postgres/docker outage
@@ -1089,3 +1103,56 @@ def bridge_key_incident(incident: dict):
         result = f"ERROR invoking connected_db.py: {e}"
     note_incident(incident_id, "remediation-router", "connected-db-bridge", result)
     return result
+
+
+# ---------------------------------------------------------------------------
+# AP-8: tool-status sync — sync-counts trigger (incident-engine.py's
+# sync_tool_status() is the caller; see that function's own docstring for the
+# demotion/promotion logic itself — this is only the "прогон sync-counts
+# после" coordination half of that P-table row).
+# ---------------------------------------------------------------------------
+def trigger_sync_counts() -> bool:
+    """A tool crossing INTO or OUT OF 'unavailable' changes the public tool/
+    provider counts sync-counts.sh publishes (README, static pages, server-
+    card.json — see that script's own header: "source of truth: DB tools
+    WHERE status != 'unavailable'"). Waiting for the existing daily 05:00
+    cron to notice could leave a demoted tool's stale count live for up to
+    24h; a tool that just came back healthy would stay under-counted just as
+    long.
+
+    Fire-and-forget ON PURPOSE, never awaited: sync-counts-cron.sh does its
+    OWN flock on worktree-fleet.lock and documents a wait ceiling of
+    2*(TASK_TIMEOUT+600) for a busy lock (commonly tens of minutes to a few
+    hours if a taskloop task is mid-run) — calling it synchronously from
+    incident-engine.py's own */10min tick would risk hanging THIS process
+    for hours behind an unrelated lock holder, turning one demoted tool into
+    a stalled incident engine. Launched detached (own process group, own log
+    file, never waited on): sync-counts-cron.sh's own clog()/calert() are the
+    source of truth for whether the run actually completed; this function
+    only proves the LAUNCH was attempted (the boolean return, used by tests),
+    it never claims the sync itself succeeded (C0.3: no fabricated
+    verdicts — the caller's own notice() line says "launched", not "synced").
+
+    Missing script / launch failure is logged via notice() and returns
+    False — never raises, matching every other best-effort I/O in this
+    module (tg_send, note_incident's own callers)."""
+    if not os.path.isfile(SYNC_COUNTS_CRON_SH):
+        notice(f"tool-status-sync: sync-counts trigger skipped — "
+               f"{SYNC_COUNTS_CRON_SH} not found")
+        return False
+    try:
+        log_dir = f"{TASKLOOP_ROOT}/logs"
+        os.makedirs(log_dir, exist_ok=True)
+        with open(f"{log_dir}/sync-counts-triggered.log", "a") as logf:
+            subprocess.Popen(
+                ["bash", SYNC_COUNTS_CRON_SH],
+                stdout=logf, stderr=logf,
+                cwd=FLEET_WORKTREE,
+                start_new_session=True,
+            )
+        notice("tool-status-sync: sync-counts-cron.sh launched (detached) after an "
+               "availability-crossing status change")
+        return True
+    except Exception as e:
+        notice(f"tool-status-sync: failed to launch sync-counts-cron.sh: {e}")
+        return False

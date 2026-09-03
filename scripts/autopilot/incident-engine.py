@@ -17,6 +17,14 @@ Each tick, in order:
      correctly, which is a distinct fact from "the schema exists").
   2. detect_from_provider_status() — turn AP-3's F1 state into new/merged
      incidents.
+  2b. sync_tool_status() (AP-8) — mirror AP-3's F1 state into Tool.status
+      (healthy|degraded|unavailable), status_source='autopilot', best-effort
+      journal into whichever incident is currently open (any state !=
+      RESOLVED) for that provider — usually the one detect() just opened or
+      merged into this same tick, but never required to exist — and
+      (best-effort, detached) kick sync-counts-cron.sh when a tool crosses
+      into/out of 'unavailable'. Independent of the routing steps below —
+      depends only on provider_status (AP-3), not on incident routing.
   3. route_auto_incidents() (AP-6) — OPEN incidents whose kind routes to
      AUTO/MIXED get a real fleet task filed (I2, capped 3/day, severity-
      ordered so SEV1 never loses a slot to an older SEV3) and move to
@@ -506,6 +514,109 @@ def advance_verifying():
         # SKIPPED_BUDGET/NOINFO: genuinely no answer yet, leave in VERIFYING.
 
 
+# ---------------------------------------------------------------------------
+# AP-8: Tool.status autodemotion/promotion. E5's own schema comment named
+# this task before it existed: "`status` не пишет НИКТО — это первый
+# потребитель." Deliberately reuses F1's own hysteresis rather than building
+# a second one — provider_status.state ALREADY only changes after the
+# fail-streak/recovery-streak counters AP-3's computeTransition() enforces,
+# so mirroring `state` verbatim IS "гистерезис = F1-пороги" (the P-table
+# row's own words), not a shortcut around it.
+# ---------------------------------------------------------------------------
+
+def _tool_status_for_state(state: str):
+    """Pure F1-state -> Tool.status mapping (src/pipeline/stages/tool-
+    status.stage.ts's own three values: healthy | degraded | unavailable).
+    UNKNOWN (never-probed, AP-3's bootstrap seed) maps to None — "no verdict
+    yet" is NOINFO, not a silent demotion OR a forced healthy stamp over
+    whatever a human/seed already set."""
+    return {"HEALTHY": "healthy", "DEGRADED": "degraded", "DOWN": "unavailable"}.get(state)
+
+
+def _availability_crossed(old_statuses, target: str) -> bool:
+    """Whether this batch of tool-status writes changed the COUNT of
+    available tools (sync-counts.sh's own query: `status != 'unavailable'`)
+    — true if the new target itself is 'unavailable' (a fresh demotion) or
+    any tool being written was PREVIOUSLY 'unavailable' (a promotion out of
+    it). A healthy<->degraded flip never changes that count, so it must not
+    trigger a sync-counts run for no reason."""
+    return target == "unavailable" or "unavailable" in old_statuses
+
+
+def sync_tool_status():
+    """Self-healing reconciler, not edge-triggered off incident open/close —
+    reads provider_status directly and runs every tick regardless of whether
+    an incident exists for the provider (same posture as every other self-
+    heal cron in this codebase: converges on its own, even if it somehow
+    fell out of sync, rather than only reacting to a transition it
+    witnessed). Independent of AP-6's routing (depends on AP-3's
+    provider_status only, per this task's own P-table row: "зависит от:
+    AP-3").
+
+    status_source LAW (manual status is never overwritten): only tools.rows
+    where status_source IS NULL, 'autopilot', or 'seed' are eligible —
+    'manual' is the one value this function must never touch again once set
+    (schema.prisma's own E5 comment: "no drive-by write ever loses who
+    changed this and why"). `status <> target` in the WHERE clause also
+    means a no-op state (nothing actually changed) never rewrites
+    status_changed_at, keeping that column meaningful as an audit trail
+    rather than a heartbeat.
+
+    Journals into whichever OPEN-ish incident (state != 'RESOLVED') exists
+    for this provider — best-effort (P-table: "журнал в attempts"): the
+    status write above has already happened and must not be undone just
+    because no incident exists yet or note_incident errors, so this half is
+    wrapped separately and never re-raises."""
+    out, rc = ap.psql(
+        "SELECT provider, state, state_reason FROM provider_status "
+        "WHERE state IN ('HEALTHY','DEGRADED','DOWN')"
+    )
+    if rc != 0:
+        ap.notice(f"tool-status-sync: provider_status query failed: {out}")
+        return
+    if not out:
+        return  # no provider has left UNKNOWN yet — genuinely nothing to sync
+    for line in out.splitlines():
+        provider, state, reason = (line.split(ap.SEP) + [None, None, None])[:3]
+        target = _tool_status_for_state(state)
+        if target is None:
+            continue
+        reason_text = f"autopilot: provider_status.state={state}" + (f" ({reason})" if reason else "")
+        sql = (
+            "WITH changed AS ("
+            f"SELECT tool_id, status FROM tools WHERE provider = {ap.sql_literal(provider)} "
+            f"AND status_source IS DISTINCT FROM 'manual' AND status <> {ap.sql_literal(target)}"
+            ") "
+            f"UPDATE tools t SET status = {ap.sql_literal(target)}, status_source = 'autopilot', "
+            f"status_changed_at = now(), status_reason = {ap.sql_literal(reason_text)} "
+            "FROM changed WHERE t.tool_id = changed.tool_id "
+            "RETURNING t.tool_id, changed.status"
+        )
+        out2, rc2 = ap.psql(sql)
+        if rc2 != 0:
+            ap.notice(f"tool-status-sync: update failed for {provider} -> {target}: {out2}")
+            continue
+        if not out2:
+            continue  # already converged — nothing eligible needed a change
+        rows = [r.split(ap.SEP) for r in out2.splitlines()]
+        old_statuses = [r[1] for r in rows]
+        ap.notice(f"tool-status-sync: {provider} -> {target} ({len(rows)} tool(s))")
+
+        inc_row, inc_rc = ap.psql(
+            f"SELECT incident_id FROM incidents WHERE provider = {ap.sql_literal(provider)} "
+            f"AND state != 'RESOLVED' ORDER BY created_at DESC LIMIT 1"
+        )
+        if inc_rc == 0 and inc_row:
+            try:
+                ap.note_incident(inc_row, "tool-status-sync", "status-changed",
+                                  f"{len(rows)} tool(s) -> {target} (status_source=autopilot)")
+            except Exception as e:
+                ap.notice(f"tool-status-sync: note_incident failed for {inc_row}: {e}")
+
+        if _availability_crossed(old_statuses, target):
+            ap.trigger_sync_counts()
+
+
 def write_heartbeat():
     try:
         with open(ap.HEARTBEAT_FILE, "w") as f:
@@ -526,6 +637,7 @@ def run():
         write_heartbeat()  # the ENGINE ran; the schema being absent is a separate fact
         return 0
     opened = detect_from_provider_status()
+    sync_tool_status()
     route_auto_incidents()
     bridge_key_incidents()
     advance_remediation_queued()
@@ -568,6 +680,18 @@ def selftest():
         )
     fn = ap.next_task_filename("PROVIDER_DOWN", "Test Provider!", "SEV1")
     assert fn.startswith("9") and fn.endswith("-autopilot-remediation-PROVIDER_DOWN-test-provider.md"), fn
+
+    # AP-8: pure F1-state -> Tool.status mapping + availability-crossing check.
+    assert _tool_status_for_state("HEALTHY") == "healthy"
+    assert _tool_status_for_state("DEGRADED") == "degraded"
+    assert _tool_status_for_state("DOWN") == "unavailable"
+    assert _tool_status_for_state("UNKNOWN") is None, "UNKNOWN is NOINFO, never a guessed status"
+    assert _availability_crossed(["healthy"], "unavailable") is True, "demotion INTO unavailable crosses"
+    assert _availability_crossed(["unavailable"], "healthy") is True, "promotion OUT OF unavailable crosses"
+    assert _availability_crossed(["unavailable"], "degraded") is True, "still a promotion out of unavailable"
+    assert _availability_crossed(["healthy"], "degraded") is False, "healthy<->degraded never changes the count"
+    assert _availability_crossed(["degraded"], "healthy") is False, "healthy<->degraded never changes the count"
+    assert _availability_crossed([], "degraded") is False, "no rows changed at all"
     print("incident-engine --selftest: OK")
 
 
@@ -628,9 +752,13 @@ def selftest_db():
         # effort tool_count/revenue_pct) -- minimal stand-ins so those queries
         # don't error (NOINFO paths are already tolerant, but let's exercise
         # the real path, not just the fallback).
+        # AP-8's own columns (E5, migration 0009) added to this minimal stand-in
+        # too -- status defaults 'healthy' exactly like the real tools table.
         subprocess.run(
             ["docker", "exec", "-i", name, "psql", "-U", "apibase", "-d", "apibase"],
-            input="CREATE TABLE tools (tool_id text primary key, provider text); "
+            input="CREATE TABLE tools (tool_id text primary key, provider text, "
+                  "status text not null default 'healthy', status_source text, "
+                  "status_changed_at timestamptz, status_reason text); "
                   "CREATE TABLE execution_ledger (tool_id text, cost_usd numeric default 0, "
                   "billing_status text, created_at timestamptz default now());",
             capture_output=True, text=True,
@@ -1187,6 +1315,146 @@ def selftest_db():
             "world 12: bridge must not re-fire on a second tick"
         )
         print("world 12 (KEY bridge: already-in-.env falls back to operator file, no false 'queued'): OK")
+
+        # World 13 (AP-8): demote -> promote cycle, manual status never
+        # overwritten, journal into the matching incident's attempts, and the
+        # sync-counts trigger firing ONLY on an availability-crossing change.
+        # A fresh, isolated sync-counts-cron.sh stub (never the real one --
+        # this must not touch git or a real lock) that just proves it was
+        # launched.
+        marker = "/tmp/autopilot-ap8-selftest-sync-counts-marker"
+        if os.path.exists(marker):
+            os.remove(marker)
+        stub_sh = "/tmp/autopilot-ap8-selftest-sync-counts-cron.sh"
+        with open(stub_sh, "w", encoding="utf-8") as f:
+            f.write(f"#!/usr/bin/env bash\necho ran > {marker}\n")
+        os.environ["AUTOPILOT_SYNC_COUNTS_CRON_SH"] = stub_sh
+        os.environ["AUTOPILOT_FLEET_WORKTREE"] = "/tmp"
+        importlib.reload(ap)
+
+        def _wait_for(path, timeout_s=5):
+            # `time` is already imported in the enclosing selftest_db() scope.
+            deadline = time.time() + timeout_s
+            while time.time() < deadline:
+                if os.path.exists(path):
+                    return True
+                time.sleep(0.1)
+            return False
+
+        ap.psql(
+            "INSERT INTO tools (tool_id, provider, status, status_source) VALUES "
+            "('ap8down1-tool1', 'ap8down1', 'healthy', NULL), "
+            "('ap8down1-tool2', 'ap8down1', 'healthy', 'autopilot')"
+        )
+        ap.psql(
+            "INSERT INTO provider_status (provider, state, state_since, next_probe_at, "
+            "probe_interval_s, last_probe_result, last_probe_at, state_reason) VALUES "
+            "('ap8down1', 'DOWN', now(), now(), 3600, 'FAIL_TRANSIENT', now(), '5 подряд неудачных проб')"
+        )
+        opened13 = detect_from_provider_status()
+        assert opened13 == 1, f"world 13 setup: expected 1 new PROVIDER_DOWN incident, got {opened13}"
+        sync_tool_status()
+        rows13a, _ = ap.psql(
+            "SELECT tool_id, status, status_source, status_reason, "
+            f"({UTC_TS_EXPR('status_changed_at')} IS NOT NULL) FROM tools "
+            "WHERE provider = 'ap8down1' ORDER BY tool_id"
+        )
+        for line in rows13a.splitlines():
+            tool_id, status, source, reason, has_ts = line.split(ap.SEP)
+            assert status == "unavailable", f"world 13: {tool_id} expected unavailable, got {status}"
+            assert source == "autopilot", f"world 13: {tool_id} expected status_source=autopilot, got {source}"
+            assert has_ts == "t", f"world 13: {tool_id} status_changed_at was not set"
+            assert "DOWN" in reason, f"world 13: {tool_id} status_reason must name the state: {reason}"
+        inc13_row, _ = ap.psql("SELECT incident_id FROM incidents WHERE provider = 'ap8down1'")
+        inc13 = ap.get_incident(inc13_row)
+        assert any(
+            a["actor"] == "tool-status-sync" and a["action"] == "status-changed"
+            and "unavailable" in a["result"] for a in inc13["attempts"]
+        ), f"world 13: demotion must be journaled into the open incident's attempts, got {inc13['attempts']}"
+        assert _wait_for(marker), "world 13: demotion crossing availability must trigger sync-counts (detached)"
+        print("world 13a (demote: DOWN -> unavailable, status_source=autopilot, journaled, "
+              "sync-counts triggered): OK")
+
+        # A manually-set tool on the SAME still-DOWN provider must be skipped,
+        # even mid-outage -- and an already-converged tool must not be
+        # rewritten again (status_changed_at stays put, proving the
+        # `status <> target` no-op guard, not just the status_source guard).
+        os.remove(marker)
+        ap.psql(
+            "INSERT INTO tools (tool_id, provider, status, status_source, status_changed_at) VALUES "
+            "('ap8down1-tool3', 'ap8down1', 'degraded', 'manual', now() - interval '1 day')"
+        )
+        ts_before, _ = ap.psql(
+            f"SELECT {UTC_TS_EXPR('status_changed_at')} FROM tools WHERE tool_id = 'ap8down1-tool1'"
+        )
+        sync_tool_status()
+        row_manual, _ = ap.psql(
+            "SELECT status, status_source FROM tools WHERE tool_id = 'ap8down1-tool3'"
+        )
+        assert row_manual == "degraded" + ap.SEP + "manual", (
+            f"world 13: a status_source='manual' tool must NEVER be overwritten by autopilot, "
+            f"got {row_manual}"
+        )
+        ts_after, _ = ap.psql(
+            f"SELECT {UTC_TS_EXPR('status_changed_at')} FROM tools WHERE tool_id = 'ap8down1-tool1'"
+        )
+        assert ts_after == ts_before, (
+            "world 13: an already-converged autopilot row must not be rewritten on a no-op tick "
+            f"({ts_before} -> {ts_after})"
+        )
+        assert not os.path.exists(marker), (
+            "world 13: a no-op tick (nothing actually changed) must NOT re-trigger sync-counts"
+        )
+        print("world 13b (manual status never overwritten, no-op tick doesn't re-touch "
+              "status_changed_at or re-trigger sync-counts): OK")
+
+        # Promote back: provider recovers to HEALTHY (AP-3's own 2-consecutive-
+        # OK streak already happened upstream by the time `state` says so --
+        # this function only reacts to the CURRENT F1 state column, no second
+        # streak of its own, per this task's own "гистерезис = F1-пороги").
+        ap.psql(
+            "UPDATE provider_status SET state = 'HEALTHY', last_probe_result = 'OK', "
+            "last_probe_at = now(), state_reason = NULL WHERE provider = 'ap8down1'"
+        )
+        sync_tool_status()
+        rows13c, _ = ap.psql(
+            "SELECT tool_id, status, status_source FROM tools WHERE provider = 'ap8down1' "
+            "AND tool_id != 'ap8down1-tool3' ORDER BY tool_id"
+        )
+        for line in rows13c.splitlines():
+            tool_id, status, source = line.split(ap.SEP)
+            assert status == "healthy", f"world 13: {tool_id} expected healthy after recovery, got {status}"
+            assert source == "autopilot"
+        row_manual2, _ = ap.psql("SELECT status, status_source FROM tools WHERE tool_id = 'ap8down1-tool3'")
+        assert row_manual2 == "degraded" + ap.SEP + "manual", (
+            f"world 13: manual tool must survive the FULL demote->promote cycle untouched, got {row_manual2}"
+        )
+        assert _wait_for(marker), "world 13: promotion crossing availability must also trigger sync-counts"
+        print("world 13c (promote: HEALTHY -> healthy, manual tool survives the whole cycle, "
+              "sync-counts triggered again): OK")
+
+        # DEGRADED-only change must NOT cross the availability boundary --
+        # no sync-counts trigger (mutation control: dropping the `target ==
+        # "unavailable" or "unavailable" in old_statuses` check in favor of
+        # "always trigger" makes this assertion fail).
+        os.remove(marker)
+        ap.psql(
+            "INSERT INTO tools (tool_id, provider, status, status_source) VALUES "
+            "('ap8degradedonly-tool1', 'ap8degradedonly', 'healthy', NULL)"
+        )
+        ap.psql(
+            "INSERT INTO provider_status (provider, state, state_since, next_probe_at, "
+            "probe_interval_s, last_probe_result, last_probe_at) VALUES "
+            "('ap8degradedonly', 'DEGRADED', now(), now(), 900, 'FAIL_TRANSIENT', now())"
+        )
+        sync_tool_status()
+        row_deg, _ = ap.psql("SELECT status, status_source FROM tools WHERE tool_id = 'ap8degradedonly-tool1'")
+        assert row_deg == "degraded" + ap.SEP + "autopilot", f"world 13: expected degraded/autopilot, got {row_deg}"
+        assert not _wait_for(marker, timeout_s=1), (
+            "world 13: healthy<->degraded must NOT change the available-tool count, "
+            "so it must NOT trigger sync-counts"
+        )
+        print("world 13d (DEGRADED-only change never crosses availability, no sync-counts trigger): OK")
 
         print("selftest-db: ALL WORLDS OK")
         return 0
