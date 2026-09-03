@@ -18,6 +18,20 @@ ROOT="${ROOT:-/home/apibase/apibase}"; cd "$ROOT"
 CHECK=0
 [ "${1:-}" = "--check" ] && CHECK=1
 
+# T-75 (2026-09-03, Fable ruling): self-heal (no --check) writes TRACKED files. The deploy
+# tree (/home/apibase/apibase) belongs to deploy.sh alone (F2 dirty-tree gate) -- a write here
+# is exactly what dirtied it every 05:00 and aborted the next deploy. --check stays read-only
+# and is still required to work in the deploy tree (CI's static-counts-drift job runs there).
+# Self-heal now runs from the fleet worktree via scripts/sync-counts-cron.sh, which commits
+# and pushes through the normal gated path -- same shape as .husky/pre-push's own refusal.
+if [ "$CHECK" != "1" ] && [ "$(git rev-parse --show-toplevel 2>/dev/null)" = "/home/apibase/apibase" ]; then
+  echo "BLOCKED: sync-counts.sh self-heal (no --check) refused in the deploy tree (/home/apibase/apibase)." >&2
+  echo "         It writes tracked files there and dirties F2's gate, aborting the next deploy." >&2
+  echo "         Run it from the fleet worktree instead: scripts/sync-counts-cron.sh (commits + pushes)." >&2
+  echo "         --check is still fine here (read-only) -- CI's static-counts-drift job depends on that." >&2
+  exit 1
+fi
+
 COUNTS=$(docker exec apibase-postgres-1 psql -U apibase -d apibase -tAc \
   "select count(*)||' '||count(distinct provider) from tools where status != 'unavailable'")
 TOOLS=$(echo "$COUNTS" | awk '{print $1}'); PROV=$(echo "$COUNTS" | awk '{print $2}')
