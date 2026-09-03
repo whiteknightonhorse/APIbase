@@ -122,7 +122,12 @@ if [ "$BRANCH" != "ci-staging" ]; then
   exit 1
 fi
 
-git fetch origin ci-staging --quiet
+# T-708 (~/FLEET-LOCKS-AND-AUTH-2026-09-03.md §2): every git op that runs while a lock is held
+# gets its own bound -- an unbounded fetch/push here would hold worktree-fleet.lock hostage
+# forever, exactly the next deadlock after the one T-705's wait-with-timeout already fixed on the
+# ACQUIRE side. `set -e` above still exits nonzero on a timeout (rc=124), this just names it.
+timeout 300 git fetch origin ci-staging --quiet \
+  || { clog "ABORT -- git fetch origin ci-staging timed out or failed (300s bound)"; exit 1; }
 LOCAL_SHA="$(git rev-parse HEAD)"
 REMOTE_SHA="$(git rev-parse origin/ci-staging)"
 if [ "$LOCAL_SHA" != "$REMOTE_SHA" ] && ! git merge-base --is-ancestor "$REMOTE_SHA" "$LOCAL_SHA"; then
@@ -186,5 +191,10 @@ for f in "${CHANGED[@]}"; do
 done
 
 git commit -m "counts: sync ${TOOLS:-?} tools / ${PROV:-?} providers (cron 05:00)" -- "${CHANGED[@]}"
-git push origin HEAD:ci-staging
+# T-708: same 300s bound as the fetch above. A timed-out push here leaves the commit sitting
+# local (never lost, never force-pushed) -- tomorrow's run re-fetches, sees HEAD ahead of
+# origin/ci-staging (still an ancestor, so the divergence guard above does not ABORT it), and the
+# next successful push carries it along.
+timeout 300 git push origin HEAD:ci-staging \
+  || { clog "ABORT -- git push origin HEAD:ci-staging timed out or failed (300s bound); commit $(git rev-parse --short HEAD) stays local, will push next run"; exit 1; }
 clog "committed and pushed $(git rev-parse --short HEAD) (${#CHANGED[@]} file(s): ${CHANGED[*]})"
