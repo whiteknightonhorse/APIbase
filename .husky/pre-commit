@@ -1,8 +1,15 @@
-# T-72 fleet-writer guard — apibase-fleet's git index is shared by everyone who touches this
-# tree; a commit made outside taskloop's own lock can pick up whatever another writer staged
-# (04f8599: a dispatcher's `git add provek.json` landed inside the fleet executor's unrelated
-# commit). No-op when no marker is present — that's how the deploy tree, and any other clone
-# of this repo, behaves; the marker is per-worktree, written once by hand, never committed.
+# T-72 shared-index writer guard — this hook runs for every worktree of this repo (core.hooksPath
+# is repo-wide, not per-worktree: see FLEET-LOCKS-AND-AUTH-2026-09-03.md section 1). Any worktree
+# whose git index is shared by more than one writer can hit 04f8599's bug (a dispatcher's `git add
+# provek.json` landing inside an unrelated commit made by a different writer of the same tree) --
+# a commit made outside that tree's designated lock can pick up whatever another writer staged.
+# No-op when no marker is present — that's how the deploy tree, and any other clone of this repo,
+# behaves; the marker is per-worktree (lives under this worktree's own git-dir, `git rev-parse
+# --git-dir`), written once by hand, never committed. T-704 (2026-09-03) added the second live
+# marker: apibase-fleet's points at ~/taskloop/state/worktree-fleet.lock (taskloop.sh /
+# fleet-shell), apibase-orchestra's points at night-orchestra's own state/orchestra.lock
+# (supervisor.sh) -- same mechanism, different lock, whichever worktree is committing decides
+# which lock this run checks.
 # POSIX sh only below: husky runs this file via `sh -e`.
 GUARD_GITDIR=$(git rev-parse --git-dir)
 GUARD_MARKER="$GUARD_GITDIR/taskloop-guard"
@@ -24,7 +31,7 @@ if [ -f "$GUARD_MARKER" ]; then
     fi
   fi
   if [ "$GUARD_OK" -ne 1 ]; then
-    echo "BLOCKED: apibase-fleet writes go through taskloop's lock — queue the task in ~/taskloop/queue/ or enter via ~/taskloop/fleet-shell" >&2
+    echo "BLOCKED: this worktree's writes go through its own lock ($GUARD_LOCK) — queue the task in ~/taskloop/queue/, enter via ~/taskloop/fleet-shell, or (apibase-orchestra) let supervisor.sh hold orchestra.lock" >&2
     exit 1
   fi
 fi
