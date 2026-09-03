@@ -391,6 +391,7 @@ import { EstatJapanDashboardAdapter } from './estat-japan-dashboard';
 import { WmoWeatherAdapter } from './wmo-weather';
 import { UnescoDataAdapter } from './unesco-data';
 import { OpenAlexAdapter } from './openalex';
+import { SemanticScholarAdapter } from './semanticscholar';
 import { config } from '../config';
 
 /**
@@ -2125,6 +2126,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // no key; a polite-pool User-Agent (mailto contact) is sent for
       // priority rate limits, same practice as the crossref adapter.
       return getOrCreate('openalex', () => new OpenAlexAdapter());
+    case 'semanticscholar':
+      // Semantic Scholar Graph API (UC-675) — api.semanticscholar.org/graph/v1:
+      // 200M+ paper search + author search + full paper detail (incl. AI-
+      // generated tldr summaries). No auth; public endpoints share a 1000
+      // req/s pool across all unauthenticated callers per S2's own docs.
+      return getOrCreate('semanticscholar', () => new SemanticScholarAdapter());
     default:
       return undefined;
   }

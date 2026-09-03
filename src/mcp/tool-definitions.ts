@@ -16678,6 +16678,48 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'education',
     annotations: READ_ONLY,
   },
+  // Semantic Scholar Graph API — api.semanticscholar.org/graph/v1 (3) — UC-675
+  {
+    toolId: 'semanticscholar.papers_search',
+    mcpName: 'semanticscholar.papers.search',
+    title: 'Semantic Scholar Papers Search',
+    description:
+      'Search 200M+ academic papers by title and abstract text across all fields of study. ' +
+      'Returns Semantic Scholar paper ID, DOI, title, year, venue, authors, citation count, ' +
+      'and open-access PDF link when available. Complements openalex.works_search (broader ' +
+      "topic classification) with Semantic Scholar's AI-driven relevance ranking and TLDR " +
+      'summaries. Call semanticscholar.get_paper with a result paper_id, DOI, or ArXiv ID for ' +
+      'full detail including abstract and TLDR. Data: api.semanticscholar.org, no auth required.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'semanticscholar.authors_search',
+    mcpName: 'semanticscholar.authors.search',
+    title: 'Semantic Scholar Authors Search',
+    description:
+      'Search researcher/author records by display name. Returns Semantic Scholar author ID, ' +
+      'name, institutional affiliations, total paper count, total citation count, and h-index. ' +
+      'Useful for identifying a researcher before filtering semanticscholar.papers_search ' +
+      'results by author, or for author-level impact metrics. Data: api.semanticscholar.org, ' +
+      'no auth required.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'semanticscholar.get_paper',
+    mcpName: 'semanticscholar.papers.get',
+    title: 'Semantic Scholar Paper Detail',
+    description:
+      'Fetch full details for one academic paper by Semantic Scholar paper ID, DOI (e.g. ' +
+      '"10.1038/nature14539"), or ArXiv ID (e.g. "ARXIV:1706.03762"). Returns title, full ' +
+      'abstract, an AI-generated one-sentence TLDR summary, all authors, venue, fields of ' +
+      'study, citation and reference counts, and open-access PDF link when available. Call ' +
+      'semanticscholar.papers_search first to discover a paper_id from a text query. Data: ' +
+      'api.semanticscholar.org, no auth required.',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
   // ---------------------------------------------------------------------------
   // Ф5 physical-device MCP layer -- device.list/state/command (2026-09-02)
   // Generic vendor-agnostic projection; Tuya is the only connected vendor

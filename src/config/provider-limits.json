@@ -3500,5 +3500,14 @@
     "reset_period": "daily",
     "docs_url": "https://docs.openalex.org/how-to-use-the-api/rate-limits-and-authentication",
     "limit_proof": "No API key required to call the API. Observed live via response headers (2026-09-03): x-ratelimit-limit: 1000, x-ratelimit-remaining decrements per call (credit-cost based, ~1 credit for a simple query), x-ratelimit-reset: countdown consistent with a rolling ~24h window — anonymous requests get this daily allotment; a descriptive User-Agent with a mailto contact opts into OpenAlex's 'polite pool' for priority handling."
+  },
+  "semanticscholar": {
+    "display_name": "Semantic Scholar",
+    "health_url": "https://api.semanticscholar.org/graph/v1/paper/search?query=test&limit=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.semanticscholar.org/product/api",
+    "limit_proof": "No authentication or API key required for public endpoints. Docs (2026-09-03, 'Do I need an API Key?' section): 'Most Semantic Scholar endpoints are available to the public without authentication, but they are rate-limited to 1000 requests per second shared among all unauthenticated users' — a shared global pool, not a per-caller quota; observed live 429 with a shared-pool message during testing, confirming the throttle is real and shared."
   }
 }
