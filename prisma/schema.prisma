@@ -176,6 +176,13 @@ model Tool {
   // config/tool_provider_config.yaml + scripts/migrate-upstream-cost.py) — the TOOL_STATUS
   // margin gate only enforces price_usd >= upstream_cost_usd * 1.3 where this is set.
   upstream_cost_usd Decimal? @db.Decimal(18, 8)
+  // AP-1 (2026-09-03, autopilot E5): audit trail for `status`. NULL status_source means
+  // pre-autopilot / hand-set — no drive-by write ever loses "who changed this and why".
+  // A `status` write with status_source='autopilot' must always set the other two together
+  // (see incidents.state F2 VERIFYING->RESOLVED / STUCK for the writer, AP-8).
+  status_source     String?   // manual | autopilot | seed
+  status_changed_at DateTime? @db.Timestamptz()
+  status_reason     String?
 
   executions ExecutionLedger[]
 
@@ -235,4 +242,107 @@ model DeviceConnection {
 
   @@index([agent_id, status])
   @@map("device_connections")
+}
+
+// ---------------------------------------------------------------------------
+// AP-1 (2026-09-03) — autopilot durable model (see ~/AUTOPILOT-DESIGN-2026-09-03.md
+// section E). `provider`/`tool_id` here are plain string keys, same convention as
+// Tool.provider elsewhere — there is no `providers` table to FK against.
+//
+// Enum-shaped String columns (F1/F2/H3) are enforced by a CHECK constraint in the
+// migration SQL, not a Postgres ENUM type or Prisma @@unique — same convention as
+// tools_status_check in 0001_init. The valid value lists live in exactly two places:
+// the column comment below and the CHECK constraint; migration.sql is the source the
+// DB actually enforces.
+// ---------------------------------------------------------------------------
+
+// provider_status — one row per provider, durable health truth (Redis stays a cache
+// in front of it). Written by the active-probe job (AP-3) and passively by real
+// traffic (AP-2/AP-3). NEVER defaults pct_remaining to 100 — null means NOINFO, not
+// "fine" (C0.3: "прошла" и "не запускалась" must differ in data).
+model ProviderStatus {
+  provider             String    @id
+  state                String    // UNKNOWN | HEALTHY | DEGRADED | DOWN (F1)
+  state_since          DateTime  @db.Timestamptz()
+  state_reason         String?
+  last_probe_at        DateTime? @db.Timestamptz()
+  last_probe_result    String?   // OK | FAIL_TRANSIENT | FAIL_DETERMINISTIC | SKIPPED_BUDGET | NOINFO
+  last_ok_at           DateTime? @db.Timestamptz()
+  consecutive_failures Int       @default(0)
+  last_latency_ms      Int?
+  // Limits/burn (written by AP-5). null = NOINFO, never a silent 100.
+  pct_remaining        Int?
+  burn_per_hour        Decimal?  @db.Decimal(12, 2)
+  exhaustion_eta       DateTime? @db.Timestamptz()
+  risk                 String    @default("NOINFO") // NOINFO|NORMAL|ATTENTION|WARNING|CRITICAL|EXHAUSTED
+  reliability_score    Int?      // 0-100, daily (§20)
+  next_probe_at        DateTime  @db.Timestamptz() // priority queue key for active probe (AP-3)
+  probe_interval_s     Int       // current adaptive interval
+  updated_at           DateTime  @updatedAt @db.Timestamptz()
+
+  @@map("provider_status")
+}
+
+// probe_log — append-only record of every measurement attempt, INCLUDING the ones
+// suppressed by budget (C0.5: a suppressed action is a row, not silence).
+// Not partitioned: low volume (~3-5k rows/day per E2), cleaned up by
+// partition-cleanup.job's existing DELETE-past-retention pattern (>90d, wired
+// separately — out of AP-1's scope, this migration only creates the table).
+model ProbeLog {
+  id          BigInt   @id @default(autoincrement())
+  provider    String
+  ts          DateTime @default(now()) @db.Timestamptz()
+  kind        String   // head | get | auth | usage_api | passive | suppressed
+  result      String   // OK | FAIL_TRANSIENT | FAIL_DETERMINISTIC | SKIPPED_BUDGET | NOINFO
+  http_status Int?
+  latency_ms  Int?
+  detail      String?  // e.g. "budget 4/4 spent", "401 with configured key"
+
+  @@index([provider, ts])
+  @@map("probe_log")
+}
+
+// incidents — the heart of the system (E3). The dedup lock against two fixers
+// working the same fault at once is a PARTIAL UNIQUE INDEX on dedup_key WHERE
+// state <> 'RESOLVED', added as raw SQL in the migration (Prisma's schema
+// language cannot express a filtered unique index) — see incidents_open_dedup.
+model Incident {
+  incident_id     String    @id @default(uuid()) @db.Uuid
+  dedup_key       String    // "<kind>:<provider>[:<tool_id>]"
+  provider        String
+  tool_id         String?
+  // enum: AUTH_FAILED | CREDENTIAL_EXPIRED | PROVIDER_DOWN | DEGRADED_QUALITY | RATE_LIMITED | QUOTA_LOW | QUOTA_EXHAUSTED | PAYMENT_REQUIRED | API_CHANGED | ENDPOINT_CHANGED | EMAIL_NOTICE | UNKNOWN
+  kind            String
+  severity        String    // SEV1 (money/whole provider) | SEV2 (degradation) | SEV3 (warning)
+  state           String    // OPEN | REMEDIATION_QUEUED | WAITING_HUMAN | VERIFYING | RESOLVED | STUCK (F2)
+  detected_by     String    // probe | passive | limits | email | tester | manual
+  evidence        Json      @db.JsonB // fact snapshot at open time; untrusted content is tagged (H4)
+  attempts        Json      @default("[]") @db.JsonB // [{ts, actor, action, result}] — "what we already tried"
+  fleet_task_id   String?   // NN-autopilot-... filename in taskloop
+  operator_file   String?   // path, once generated (J3)
+  next_recheck_at DateTime? @db.Timestamptz() // every wait has a place to expire (LAW)
+  created_at      DateTime  @default(now()) @db.Timestamptz()
+  updated_at      DateTime  @updatedAt @db.Timestamptz()
+  resolved_at     DateTime? @db.Timestamptz()
+
+  @@index([state, severity])
+  @@map("incidents")
+}
+
+// email_events — idempotent record of every parsed inbound email (E4, H3/H4).
+// `summary` is an UNTRUSTED quote (<=500 chars), never a command — see H4.
+model EmailEvent {
+  msg_id          String   @id // Message-ID header — idempotency key for re-reads
+  received_at     DateTime @db.Timestamptz()
+  from_domain     String
+  provider_match  String?  // matched provider, or null
+  // enum §H3: KEY_EXPIRES | KEY_REVOKED | DEPRECATION | SUNSET | ENDPOINT_CHANGE | PRICING_CHANGE | PAYMENT_FAILED | QUOTA | MAINTENANCE | SECURITY_CHANGE | ACCOUNT_ACTION | MARKETING | UNMATCHED | DEFERRED_BUDGET
+  // UNMATCHED is an honest "didn't understand", not an error.
+  class           String
+  action_required Boolean
+  incident_id     String?  @db.Uuid
+  processed_at    DateTime @default(now()) @db.Timestamptz()
+  summary         String?  // <=500 chars, UNTRUSTED — quote only, never a command
+
+  @@map("email_events")
 }
