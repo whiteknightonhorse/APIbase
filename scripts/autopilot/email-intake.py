@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 """email-intake.py — AP-7: daily IMAP pull + classification cascade for
-provider emails. Cron daily 07:00 UTC (see this task's queue file for the
-exact line — NOT installed by this script itself; crontab -e/-r is
-hard-blocked in this taskloop sandbox, same boundary AP-4's
-incident-engine.py documents for itself).
+provider emails. Cron daily 07:00 UTC — NOT installed by this script itself
+(crontab -e/-r is hard-blocked in this taskloop sandbox, same boundary AP-4's
+incident-engine.py documents for itself); the exact line a human/dispatcher
+installs on the real deploy tree (same "cd <tree> && <interpreter> <script>"
+shape as T-75's sync-counts.sh line):
+
+    0 7 * * * cd /home/apibase/apibase && python3 scripts/autopilot/email-intake.py >> logs/autopilot-email-intake-cron.log 2>&1
 
 Design source: ~/AUTOPILOT-DESIGN-2026-09-03.md section H (email strategy,
 H1 transport / H2 frequency / H3 cascade / H4 security), E4 (email_events
@@ -14,10 +17,16 @@ N.1/N.2/N.8/N.10/N.18 (the failure scenarios this file owns).
 PRECONDITION, named explicitly in this task's own P-table row: reading real
 mail needs a Gmail App Password, which does not exist anywhere yet. This
 script does NOT invent a fake credential or a stub inbox — it writes a
-one-time human setup guide (write_setup_instructions()) the first time it
-runs without ~/.config/autopilot/imap.env, and returns NOINFO honestly
-(never crashes, never silently claims "0 emails read" when it never
-actually connected) until a human drops the password there (chmod 600,
+one-time human setup guide (write_setup_instructions(), to
+~/autopilot/operator/EMAIL-IMAP-SETUP.md) the first time it runs without
+~/.config/autopilot/imap.env — checked and written BEFORE the schema_present()
+gate (run()'s own first lines), because writing that guide is a filesystem
+operation with no database dependency and must not wait on migration 0009
+landing on a given host — and returns NOINFO honestly (never crashes, never
+silently claims "0 emails read" when it never actually connected, and never
+exits 0 for a run that didn't read mail — N.18: "intake rc≠0" — a NOINFO run
+is rc=1, a completed run that read 0 real messages is rc=0, the two are
+never the same number) until a human drops the password there (chmod 600,
 created BY the human — this script only ever READS that file, same
 boundary as tg.env/connected_db.py's own secret: "не в apibase/.env, чтобы
 не смешивать с провайдерскими ключами").
@@ -29,20 +38,33 @@ Cascade (H3, cheapest first, $0 until step 4):
      aliases/whitelist in config/autopilot/provider-domains.json).
   3. regex rules: subject+body -> one of H3's 12 email classes.
   4. haiku — ONLY if the domain matched AND rules found nothing AND the
-     body has an action-marker (H3 point 4's own gate). Capped at 3
+     subject/body has an action-marker (H3 point 4's own gate). Capped at 3
      calls/day via its OWN disposable counter file (never AP-6's
      fleet-task counter — a different budget line, I2 vs this task's own
      "потолок 3 вызова"). The model is invoked `--restricted --safe-mode
-     --strict-mcp-config --allowedTools "" --permission-mode manual
-     --no-session-persistence` with NO CLAUDE.md/skills/hooks/MCP/tools —
+     --strict-mcp-config --tools "" --permission-mode manual
+     --no-session-persistence`, cwd pointed at a throwaway empty temp dir —
+     `--tools ""` is the flag that actually disables every tool (verified
+     against the installed CLI's own `--help`: `--allowedTools` is only an
+     auto-approval allowlist for a session that still HAS tools available to
+     ask about, not a disable switch — an earlier version of this file used
+     that flag and was REJECTed for it, ruling-1); `--restricted` layers on
+     top removing Bash/code-exec/WebFetch and confining any leftover file
+     tool to the working directory, which is why the empty temp cwd is a
+     second, independent layer rather than trusting one flag alone; NO
+     CLAUDE.md/skills/hooks/MCP either (--safe-mode/--strict-mcp-config) —
      H4's "классификатор вызывается без инструментов" enforced
      STRUCTURALLY (the binary cannot act, not "the prompt asks it not
      to"), plus a prompt-level reminder that the email body is untrusted
      data as defense in depth. `--json-schema` constrains the model's own
-     output; this file re-validates it anyway (never trust a subprocess
-     blindly) — invalid output is UNMATCHED, never guessed into a real
-     class (H3: "невалидный выход = UNMATCHED"). Cost cap
-     (--max-budget-usd) lives on the SAME subprocess.run() call as the
+     output to a JSON object (verified live against the installed CLI: the
+     `--output-format json` envelope carries the payload under `result`,
+     confirmed by an actual `--print --json-schema` invocation in this
+     sandbox even though it could not authenticate — the envelope shape
+     itself was still observable); this file re-validates it anyway (never
+     trust a subprocess blindly) — invalid output is UNMATCHED, never
+     guessed into a real class (H3: "невалидный выход = UNMATCHED"). Cost
+     cap (--max-budget-usd) lives on the SAME subprocess.run() call as the
      model invocation — the taskloop protocol's own LAW ("Потолок расхода
      стоит в ТОЙ ЖЕ строке, что и вызов модели").
 
@@ -87,6 +109,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import urllib.parse
 from datetime import datetime, timedelta, timezone
 
@@ -420,8 +443,12 @@ def classify_by_rules(subject, body):
     return None
 
 
-def has_action_marker(body):
-    low = body[:4000].lower()
+def has_action_marker(subject, body):
+    # subject included (not just body) — an urgent-sounding subject with a
+    # bland body is exactly as real a signal as the reverse, and
+    # classify_by_rules() two functions up already treats subject+body as
+    # one combined text for the same reason.
+    low = f"{subject}\n{body[:4000]}".lower()
     return any(re.search(p, low, re.IGNORECASE) for p in _ACTION_MARKERS)
 
 
@@ -461,24 +488,39 @@ def _default_haiku_invoke(prompt):
     # The cost cap lives on THIS SAME call, per the taskloop protocol's own
     # LAW ("Потолок расхода стоит в ТОЙ ЖЕ строке, что и вызов модели") —
     # --max-budget-usd is not a separate check elsewhere, it's an argument
-    # on this exact subprocess.run(). --restricted removes Bash/code-exec/
-    # WebFetch; --allowedTools "" removes everything else (Read/Write/Edit/
-    # Grep/Glob included) so there is structurally nothing left to call;
-    # --strict-mcp-config with no --mcp-config given means zero MCP servers;
-    # --safe-mode ignores CLAUDE.md/skills/hooks/plugins so a compromised
-    # local config can't inject a second instruction path; --permission-mode
-    # manual means even a tool call that somehow got through has no one to
-    # approve it in a non-interactive run; --no-session-persistence leaves
-    # nothing on disk to resume/inspect later.
-    return subprocess.run(
-        ["claude", "--print", "--model", "haiku", "--output-format", "json",
-         "--json-schema", json.dumps(_HAIKU_SCHEMA),
-         "--restricted", "--safe-mode", "--strict-mcp-config",
-         "--allowedTools", "", "--permission-mode", "manual",
-         "--no-session-persistence", "--max-budget-usd", "0.05",
-         prompt],
-        capture_output=True, text=True, timeout=60,
-    )
+    # on this exact subprocess.run(). --tools "" is the flag that actually
+    # disables the tool set (verified against the installed CLI's own
+    # `claude --help`: "--tools <tools...> ... Use "" to disable all tools" —
+    # ruling-1 REJECTed an earlier version of this file for using
+    # --allowedTools "" instead, which per the same --help text is only "a
+    # list of tool names to allow" for auto-approval purposes and does NOT
+    # remove tools from the session; --allowedTools "" alone would have left
+    # Read/Glob/Grep/Write/Edit reachable). --restricted layers on top,
+    # removing Bash/code-exec/WebFetch and confining any tool --tools might
+    # still name to the working directory; --strict-mcp-config with no
+    # --mcp-config given means zero MCP servers; --safe-mode ignores
+    # CLAUDE.md/skills/hooks/plugins so a compromised local config can't
+    # inject a second instruction path; --permission-mode manual means even
+    # a tool call that somehow got through has no one to approve it in a
+    # non-interactive run; --no-session-persistence leaves nothing on disk
+    # to resume/inspect later. cwd is a THROWAWAY EMPTY temp directory
+    # (created fresh, removed after) — a second, independent layer: even if
+    # every flag above were somehow defeated, there is nothing in that
+    # directory to read (not this worktree, not the deploy tree, not
+    # ~/.config) and it disappears immediately after this one call.
+    scratch_dir = tempfile.mkdtemp(prefix="autopilot-haiku-cwd-")
+    try:
+        return subprocess.run(
+            ["claude", "--print", "--model", "haiku", "--output-format", "json",
+             "--json-schema", json.dumps(_HAIKU_SCHEMA),
+             "--restricted", "--safe-mode", "--strict-mcp-config",
+             "--tools", "", "--permission-mode", "manual",
+             "--no-session-persistence", "--max-budget-usd", "0.05",
+             prompt],
+            capture_output=True, text=True, timeout=60, cwd=scratch_dir,
+        )
+    finally:
+        shutil.rmtree(scratch_dir, ignore_errors=True)
 
 
 def classify_with_haiku(subject, body, invoke_fn=_default_haiku_invoke):
@@ -575,7 +617,7 @@ def process_message(msg_id, received_at, from_addr, subject, body, domain_map, w
         if cls is not None:
             action_required = ACTION_REQUIRED_DEFAULT.get(cls, True)
             source = "rules"
-        elif has_action_marker(body):
+        elif has_action_marker(subject, body):
             cls, action_required, source = classify_with_haiku(subject, body, invoke_fn=haiku_invoke)
         else:
             cls, action_required = "UNMATCHED", False
@@ -835,22 +877,37 @@ def write_heartbeat():
 # Orchestration.
 # ---------------------------------------------------------------------------
 def run():
+    # H1's own PRECONDITION note is written FIRST, independent of whether
+    # migration 0009 has been applied yet — this is a filesystem-only
+    # operation with no DB dependency, and a human waiting on setup
+    # instructions must not depend on a database deployment step landing
+    # first. Ruling-1: the old order gated write_setup_instructions() behind
+    # schema_present(), so on a host where the schema wasn't deployed yet
+    # the setup guide would never appear even though creating it needs
+    # nothing from the database. Everything that DOES need the database
+    # (record_run_result's history is local-file-only and safe here too, but
+    # maybe_escalate_noinfo_streak()/process_message() write real rows) stays
+    # behind the schema_present() gate below, unchanged.
+    env, err = load_imap_env()
+    if env is None:
+        created = write_setup_instructions()
+    else:
+        created = False
+
     ok, missing = ap.schema_present()
     if not ok:
         print(f"email-intake: schema not deployed yet (missing: {missing}) — nothing to do this run")
         write_heartbeat()
-        return 0
+        return 1  # N.18: "intake rc≠0" — this run did not read mail, don't look like a clean OK
 
-    env, err = load_imap_env()
     if env is None:
-        created = write_setup_instructions()
         record_run_result("NOINFO", reason=err)
         write_heartbeat()
         maybe_escalate_noinfo_streak()
         ap.notice(f"молчу: email-intake NOINFO — {err}"
                   + (f" (wrote setup guide to {SETUP_FILE})" if created else ""))
         print(f"email-intake: NOINFO ({err}) — see {SETUP_FILE}")
-        return 0
+        return 1  # N.18: rc≠0 distinguishes "didn't read mail" from "read mail, found 0" (rc=0 below)
 
     domain_map, whitelist = build_domain_map()
     try:
@@ -861,7 +918,7 @@ def run():
         maybe_escalate_noinfo_streak()
         ap.notice(f"молчу: email-intake IMAP fetch failed: {e}")
         print(f"email-intake: NOINFO (IMAP fetch failed: {e})")
-        return 0
+        return 1
 
     n_processed = 0
     for m in messages:
@@ -877,7 +934,7 @@ def run():
     record_run_result("OK", n_read=n_processed)  # OK even if n_processed == 0 — "0 писем" is a real answer
     write_heartbeat()
     print(f"email-intake: run complete, {n_processed} message(s) processed")
-    return 0
+    return 0  # N.18: only a run that actually read the mailbox (even to 0 messages) is rc=0
 
 
 # ---------------------------------------------------------------------------
@@ -933,8 +990,9 @@ def selftest():
     assert classify_by_rules("hello", "just saying hi, nothing here") is None
 
     # --- action markers gate the haiku step ---
-    assert has_action_marker("Please confirm your account details immediately.")
-    assert not has_action_marker("Thanks for using our service, have a nice day.")
+    assert has_action_marker("subject line", "Please confirm your account details immediately.")
+    assert not has_action_marker("subject line", "Thanks for using our service, have a nice day.")
+    assert has_action_marker("Action required on your account", "nothing urgent in the body")
 
     # --- haiku budget: fail-closed at the cap, own counter file, isolated. ---
     scratch_counter = "/tmp/autopilot-ap7-selftest-haiku.count"
@@ -1273,6 +1331,43 @@ def selftest_db():
         assert inc4["kind"] == "UNKNOWN" and inc4["provider"] == "email-intake"
         assert inc4["state"] == "WAITING_HUMAN"
         print("selftest-db: world 5 (3x NOINFO -> UNKNOWN/WAITING_HUMAN incident) OK")
+
+        # World 6 (N.18, ruling-1): intake rc must distinguish "didn't read
+        # mail" (NOINFO) from "read mail, found/processed 0 messages" (a
+        # completed OK run) — the exact "two worlds must never collapse into
+        # one return value" LAW this task's own header states generally.
+        # Exercises the REAL run() end-to-end (schema gate,
+        # write_setup_instructions ordering, record_run_result), not just
+        # the two code paths checked in isolation elsewhere.
+        global IMAP_ENV_PATH, SETUP_FILE, fetch_messages
+        orig_imap_env_path, orig_setup_file, orig_fetch_messages = IMAP_ENV_PATH, SETUP_FILE, fetch_messages
+        scratch_operator_dir = "/tmp/autopilot-ap7-selftest-run-operator"
+        shutil.rmtree(scratch_operator_dir, ignore_errors=True)
+        SETUP_FILE = os.path.join(scratch_operator_dir, "EMAIL-IMAP-SETUP.md")
+        imap_ok_path = "/tmp/autopilot-ap7-selftest-run-imap-ok.env"
+        try:
+            IMAP_ENV_PATH = "/tmp/autopilot-ap7-selftest-run-imap-missing.env"
+            if os.path.exists(IMAP_ENV_PATH):
+                os.remove(IMAP_ENV_PATH)
+            rc_noinfo = run()
+            assert rc_noinfo != 0, (
+                "N.18: rc must be nonzero when IMAP env is missing (NOINFO), never look like a clean OK"
+            )
+            assert os.path.exists(SETUP_FILE), "run() must have written the setup guide on this NOINFO run"
+
+            with open(imap_ok_path, "w", encoding="utf-8") as f:
+                f.write("IMAP_HOST=imap.example.com\nIMAP_USER=test@example.com\nIMAP_APP_PASSWORD=xxxx\n")
+            os.chmod(imap_ok_path, 0o600)
+            IMAP_ENV_PATH = imap_ok_path
+            fetch_messages = lambda env: []  # 0 real messages read is still a COMPLETED run, not NOINFO
+            rc_ok = run()
+            assert rc_ok == 0, "N.18: a completed run (even 0 messages read) must be rc=0, distinct from NOINFO's rc=1"
+        finally:
+            IMAP_ENV_PATH, SETUP_FILE, fetch_messages = orig_imap_env_path, orig_setup_file, orig_fetch_messages
+            shutil.rmtree(scratch_operator_dir, ignore_errors=True)
+            if os.path.exists(imap_ok_path):
+                os.remove(imap_ok_path)
+        print("selftest-db: world 6 (N.18: rc distinguishes NOINFO from a completed 0-message OK run) OK")
 
         print("selftest-db: ALL WORLDS OK")
         return 0
