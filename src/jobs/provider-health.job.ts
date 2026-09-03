@@ -46,6 +46,15 @@ import {
  * Redis provider:health:{p} and provider:limits:{p} writes are PRESERVED
  * (existing dashboard consumer) alongside the new durable writes, per G2's
  * "каркас и Redis-записи сохранить".
+ *
+ * G3.4 emergency mode (AP-5 review fix, Fable ruling-1 on
+ * 814-autopilot-limits-burnrate): before a `cost_class=paid` probe runs,
+ * `probeOne` reads `provider_status.risk` (written hourly by
+ * `scripts/provider-limit-alerts.py`) and, at CRITICAL/EXHAUSTED, suppresses
+ * it entirely — a free HEAD achievability check runs in its place, and the
+ * suppression itself is a real `probe_log` row (`kind='suppressed'`), not a
+ * claim made by the script that wrote the risk value. See
+ * `currentEmergencyRisk`/`recordEmergencySuppressed` below.
  */
 
 const HEALTH_CHECK_TIMEOUT_MS = 5000;
@@ -609,6 +618,51 @@ async function recordPauseRespected(db: PrismaClient, provider: string): Promise
   });
 }
 
+/**
+ * G3.4 emergency mode (AP-5, `scripts/provider-limit-alerts.py`, hourly):
+ * that script writes `provider_status.risk` — this is the read side Fable's
+ * ruling-1 on 814-autopilot-limits-burnrate flagged as missing (the write
+ * existed with nothing consuming it, and the alerts script was logging a
+ * "paid probes suppressed" probe_log row that was false — nothing here was
+ * actually reading `risk` yet). Returns the risk level iff it's CRITICAL or
+ * EXHAUSTED (the two levels G3.4 names), else null — `risk` itself (not
+ * `pct_remaining`/`burn_per_hour`) is the single source of truth here, same
+ * as the alerts script's own classify_risk() rather than re-deriving it.
+ */
+async function currentEmergencyRisk(db: PrismaClient, provider: string): Promise<string | null> {
+  const row = await db.providerStatus.findUnique({ where: { provider } });
+  const risk = row?.risk;
+  return risk === 'CRITICAL' || risk === 'EXHAUSTED' ? risk : null;
+}
+
+/**
+ * G3.4: "cost_class=paid probes останавливаются совсем (emergency mode:
+ * только passive + бесплатный HEAD)". A real suppression — unlike
+ * provider-limit-alerts.py's now-removed row, this one is written by the
+ * code that actually skipped the call. `provider_status` itself is left
+ * alone here (no state/failure-count change — nothing was measured); the
+ * caller runs a free HEAD probe right after, and THAT probe's own
+ * recordProbeResult call is what updates provider_status/next_probe_at.
+ */
+async function recordEmergencySuppressed(
+  db: PrismaClient,
+  provider: string,
+  risk: string,
+): Promise<void> {
+  await db.probeLog.create({
+    data: {
+      provider,
+      kind: 'suppressed',
+      result: 'SKIPPED_BUDGET',
+      detail: `emergency mode: cost_class=paid probe suppressed (risk=${risk}, G3.4) — falling back to free HEAD`,
+    },
+  });
+  logger.info(
+    { job: 'provider-health', provider, risk },
+    'Paid probe suppressed — emergency polling mode (G3.4)',
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Active probe execution
 // ---------------------------------------------------------------------------
@@ -674,18 +728,27 @@ async function probeOne(db: PrismaClient, redis: Redis, provider: string): Promi
   } else {
     const probeCfg = cfg.probe;
     const costClass = probeCfg?.cost_class ?? 'free';
-    const budget = await checkAndConsumeBudget(redis, provider, costClass, probeCfg?.max_per_day);
-    if (!budget.allowed) {
-      await recordSkippedBudget(db, provider, budget);
-    } else if (probeCfg?.auth_env && probeCfg.url) {
-      await probeAuth(
-        db,
-        redis,
-        provider,
-        probeCfg as Required<Pick<ProbeConfig, 'url' | 'auth_env'>> & ProbeConfig,
-      );
-    } else {
+    const emergencyRisk = costClass === 'paid' ? await currentEmergencyRisk(db, provider) : null;
+    if (emergencyRisk) {
+      // G3.4: the paid probe does not run at all this tick — not even
+      // budget-gated, budget is a separate, lower-severity throttle. Only a
+      // free HEAD achievability check runs in its place.
+      await recordEmergencySuppressed(db, provider, emergencyRisk);
       await probeHead(db, redis, provider, cfg);
+    } else {
+      const budget = await checkAndConsumeBudget(redis, provider, costClass, probeCfg?.max_per_day);
+      if (!budget.allowed) {
+        await recordSkippedBudget(db, provider, budget);
+      } else if (probeCfg?.auth_env && probeCfg.url) {
+        await probeAuth(
+          db,
+          redis,
+          provider,
+          probeCfg as Required<Pick<ProbeConfig, 'url' | 'auth_env'>> & ProbeConfig,
+        );
+      } else {
+        await probeHead(db, redis, provider, cfg);
+      }
     }
   }
 

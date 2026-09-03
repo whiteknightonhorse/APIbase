@@ -14,12 +14,31 @@ computes burn_per_hour (calls in the last 3h / 3) and an exhaustion ETA from it,
 pct_remaining/burn_per_hour/exhaustion_eta/risk into the SAME provider_status row AP-3's probe
 job reads and updates. That write IS the "emergency-polling flag" the task plan names — E1's own
 docstring is explicit that Redis stays a cache in FRONT of provider_status, not a second place of
-record, so this task does not invent a parallel Redis key for it. What is NOT done here, on
-purpose (this task's own file list is `scripts/provider-limit-alerts.py` only, nothing under
-src/jobs/): making provider-health.job.ts (AP-3) actually READ `risk` and stop `cost_class=paid`
-probes at CRITICAL/EXHAUSTED (G3.4's "emergency mode"). That's a real gap, the same shape as
-AP-4's own documented AP-6 gap in autopilot_common.py's module docstring — flagged, not silently
-assumed, and not invented here since it touches a file outside this task's boundary.
+record, so this task does not invent a parallel Redis key for it.
+
+Fable ruling-1 (attempt 2 REJECT, fixed this attempt):
+1. G3.4 emergency mode now HAS a reader: `provider-health.job.ts` (AP-3, already built — the
+   dependency existed, so "out of this task's file list" was not a valid reason to leave the flag
+   unread) checks `provider_status.risk` before running a `cost_class=paid` probe and, at
+   CRITICAL/EXHAUSTED, suppresses it (a real `probe_log` row written BY THAT JOB, not by this
+   script) and falls back to a free HEAD check instead — see `probeOne`/`recordEmergencySuppressed`
+   there. This script no longer writes its OWN "paid probes suppressed" probe_log row on
+   CRITICAL/EXHAUSTED — it never suppressed anything itself, that line was a false record of an
+   action that hadn't happened (the exact "двоемирие" this whole project forbids, just inverted).
+   It still opens/merges the QUOTA_LOW/QUOTA_EXHAUSTED incident, unchanged.
+2. Risk classification now compares the EXACT (unrounded) pct_remaining, not the value already
+   rounded for the `provider_status.pct_remaining` INTEGER column — see `compute_risk_for_usage`.
+   Rounding first let e.g. 9.5% (lim=1000, remaining=95) round up to 10 and read as WARNING
+   instead of CRITICAL (spec: pct<10). Rounding still happens, but only for what gets stored/shown.
+3. A QUOTA_LOW/QUOTA_EXHAUSTED incident now has a path OUT of OPEN: when a provider's risk drops
+   back below CRITICAL/EXHAUSTED (and is a genuine measurement, not NOINFO), any OPEN QUOTA_*
+   incident for it is moved to VERIFYING — see `advance_quota_incidents_if_recovered`. AP-4's
+   existing `advance_verifying()` (cron */10) then confirms it via the next real probe and either
+   resolves it or bounces it to STUCK, the same F2 path every other incident kind already uses.
+   Without this, only VERIFYING (via re-probe) ever reached RESOLVED, and QUOTA_* — never routed
+   there by anything — stayed OPEN forever, so a resolved quota crunch and next month's fresh one
+   would silently merge into the same stale incident (F2: RESOLVED is terminal, a new episode is a
+   new incident).
 
 NOINFO discipline (this task's central law, C0.3): a provider we could not measure this pass
 (the ledger query itself failed) must never fall back to "0 used" — that would silently render as
@@ -27,7 +46,8 @@ NOINFO discipline (this task's central law, C0.3): a provider we could not measu
 exists to prevent. See `usage is None` handling below — pre-AP-5 this script's local `psql()`
 helper discarded the subprocess return code entirely, so a query failure WAS silently read as "0
 rows" (every provider "at 0% used"). Fixed here by switching to autopilot_common.psql (returns
-the exit code) and gating on it explicitly.
+the exit code) and gating on it explicitly. NOINFO also never counts as "risk recovered" for the
+QUOTA_* incident-closing path above (#3) — not knowing is not the same as knowing it's fine.
 """
 import json
 import os
@@ -95,6 +115,30 @@ def classify_risk(pct_remaining, remaining_count, eta_hours):
     return "NORMAL"
 
 
+def compute_risk_for_usage(lim, used, burn3h_count):
+    """Pure — the actual caller-side computation main() does per provider,
+    extracted so its own ordering bug (Fable ruling-1 #2) has a --selftest
+    that exercises the real call site, not just classify_risk() in isolation.
+
+    Bug that lived here: `pct_remaining` was rounded to an int for the
+    provider_status INTEGER column FIRST, and that already-rounded value was
+    what got compared against the CRITICAL/WARNING thresholds. lim=1000,
+    used=905 -> remaining=95 -> exact 9.5% -> round() -> 10 -> reads as
+    WARNING (pct<25) instead of CRITICAL (pct<10), even though 9.5 is
+    genuinely below 10. Fixed by classifying on `pct_remaining_exact` and
+    rounding ONLY the copy returned for storage/display.
+
+    Returns (remaining_count, pct_remaining_exact, pct_remaining, burn_per_hour, eta_hours, risk).
+    """
+    remaining_count = max(0, lim - used)
+    pct_remaining_exact = (remaining_count / lim * 100) if lim > 0 else 100.0
+    pct_remaining = round(pct_remaining_exact)  # INTEGER column / display only — NOT for classify_risk
+    burn_per_hour = burn3h_count / 3.0
+    eta_hours = compute_eta_hours(remaining_count, burn_per_hour)
+    risk = classify_risk(pct_remaining_exact, remaining_count, eta_hours)
+    return remaining_count, pct_remaining_exact, pct_remaining, burn_per_hour, eta_hours, risk
+
+
 # ---------------------------------------------------------------------------
 # AP-5: durable writes (provider_status + probe_log + incidents). Gated on
 # migration 0009 being deployed (schema_present, same gate incident-engine.py
@@ -159,6 +203,47 @@ def open_quota_incident(provider, risk, pct_remaining, remaining_count, burn_per
         ap.notice(f"provider-limit-alerts: failed to open/merge {kind} incident for {provider}: {e}")
 
 
+QUOTA_KINDS = ("QUOTA_LOW", "QUOTA_EXHAUSTED")
+
+
+def advance_quota_incidents_if_recovered(provider, risk):
+    """Fable ruling-1 #3 / N7 ("risk спадает → RESOLVED"): this script is the
+    only place that knows a provider's burn-rate risk just fell back below
+    CRITICAL/EXHAUSTED — AP-4's incident-engine only watches
+    provider_status.state (F1, reachability), never .risk (G3.2), so nothing
+    else will ever route a QUOTA_* incident out of OPEN. Moves any OPEN
+    QUOTA_LOW/QUOTA_EXHAUSTED incident for this provider to VERIFYING — the
+    SAME state AP-4's existing advance_verifying() (cron */10) already knows
+    how to confirm (via the next real probe) into RESOLVED, or bounce to
+    STUCK on a fresh failure. This function never resolves anything directly
+    — it only proposes the recheck; the actual re-probe is what earns
+    RESOLVED (C0.3: a classification pass is not itself a measurement).
+
+    NOINFO is deliberately NOT a recovery signal here (see caller) — "we
+    couldn't measure this pass" must never read as "the quota is fine now",
+    the same law this whole task exists to enforce, just at the closing end
+    of an incident instead of the opening end.
+    """
+    if risk in ("CRITICAL", "EXHAUSTED", "NOINFO"):
+        return
+    for kind in QUOTA_KINDS:
+        dk = ap.dedup_key(kind, provider)
+        row, rc = ap.psql(
+            f"SELECT incident_id FROM incidents WHERE dedup_key = {ap.sql_literal(dk)} "
+            f"AND state = 'OPEN'"
+        )
+        if rc != 0 or not row:
+            continue
+        try:
+            ap.transition_state(row, "VERIFYING")
+            ap.note_incident(row, "provider-limit-alerts", "risk-recovered",
+                              f"risk dropped to {risk} (below CRITICAL/EXHAUSTED) — moved to "
+                              f"VERIFYING for re-probe confirmation (F2/N7)")
+        except Exception as e:
+            ap.notice(f"provider-limit-alerts: failed to advance {kind} incident {row} "
+                      f"for {provider} to VERIFYING: {e}")
+
+
 def main():
     cfg = json.load(open(f"{ROOT}/src/config/provider-limits.json"))
 
@@ -216,11 +301,9 @@ def main():
         if pct_used >= THRESHOLD:
             alerts.append((prov, c.get("display_name", prov), used, lim, lt, round(pct_used)))
 
-        remaining_count = max(0, lim - used)
-        pct_remaining = round(remaining_count / lim * 100)
-        burn_per_hour = (row["burn3h"] / 3.0) if row else 0.0
-        eta_hours = compute_eta_hours(remaining_count, burn_per_hour)
-        risk = classify_risk(pct_remaining, remaining_count, eta_hours)
+        remaining_count, _pct_exact, pct_remaining, burn_per_hour, eta_hours, risk = (
+            compute_risk_for_usage(lim, used, row["burn3h"] if row else 0)
+        )
 
         if schema_ok:
             update_provider_status_risk(prov, pct_remaining, burn_per_hour, eta_hours, risk)
@@ -228,11 +311,16 @@ def main():
                       f"pct_remaining={pct_remaining} remaining={remaining_count}/{lim} "
                       f"burn/h={burn_per_hour:.2f} eta_h={eta_hours} risk={risk}")
             if risk in ("CRITICAL", "EXHAUSTED"):
-                log_probe(prov, "suppressed", "SKIPPED_BUDGET",
-                          f"emergency mode: cost_class=paid probes suppressed for risk={risk} (G3.4) "
-                          f"— NOTE: provider-health.job.ts does not yet read this flag, see module docstring")
+                # NOTE: this script does not itself suppress anything — the real
+                # suppression (and its own probe_log row) happens in
+                # provider-health.job.ts (AP-3), which reads this `risk` write
+                # before running a cost_class=paid probe (G3.4, Fable ruling-1 #1).
+                # Writing a second "suppressed" row here would be a false record
+                # of an action this pass never took.
                 open_quota_incident(prov, risk, pct_remaining, remaining_count, burn_per_hour,
                                      eta_hours, lim, lt, used)
+            else:
+                advance_quota_incidents_if_recovered(prov, risk)
 
     # Upsert one GitHub issue per breaching provider (idempotent by title prefix) — unchanged
     # AP-4-era behavior, now correctly skipped (not silently "no alerts") when usage is None.
@@ -303,6 +391,23 @@ def selftest():
     # --- risk: ATTENTION and the NORMAL boundary ---
     assert classify_risk(49, 49, None) == "ATTENTION"
     assert classify_risk(50, 50, None) == "NORMAL", "pct==50 is boundary-exclusive for ATTENTION -> NORMAL"
+
+    # --- compute_risk_for_usage: rounding-order regression (Fable ruling-1 #2) ---
+    # lim=1000, used=905 -> remaining=95 -> exact 9.5% -> rounds to 10 for the
+    # display/storage column, but classification must use the EXACT value, so
+    # this must still be CRITICAL (pct<10), not WARNING (what round()->10 gives).
+    _remaining, exact, rounded, _burn, _eta, risk905 = compute_risk_for_usage(1000, 905, 0)
+    assert exact == 9.5
+    assert rounded == 10, "sanity check: this case DOES round to 10 for the storage column"
+    assert risk905 == "CRITICAL", (
+        f"9.5% remaining must classify on the EXACT value, not the rounded display value "
+        f"(got risk={risk905} from rounded pct={rounded})"
+    )
+    # A boundary case that genuinely IS >=10% after rounding must stay non-CRITICAL —
+    # proves the fix didn't just make everything CRITICAL.
+    _remaining2, exact2, _rounded2, _burn2, _eta2, risk2 = compute_risk_for_usage(1000, 895, 0)
+    assert exact2 == 10.5
+    assert risk2 != "CRITICAL", "10.5% remaining is genuinely >=10 -> must not be CRITICAL"
 
     print("provider-limit-alerts --selftest: OK")
 
@@ -419,6 +524,31 @@ def selftest_db():
         )
         assert count_row == "1", f"world 3b: recurring CRITICAL must merge into the same incident, got count={count_row}"
         print("world 3b (recurring CRITICAL merges, no duplicate): OK")
+
+        # World 4 (Fable ruling-1 #3): risk recovering below CRITICAL/EXHAUSTED
+        # must move the still-OPEN QUOTA_LOW incident to VERIFYING — the ONLY
+        # path that can ever get it to RESOLVED (AP-4's advance_verifying()
+        # confirms VERIFYING via the next re-probe; nothing confirms OPEN).
+        advance_quota_incidents_if_recovered("testprov", "WARNING")
+        state_row, _ = ap.psql(f"SELECT state FROM incidents WHERE incident_id = {ap.sql_literal(inc_id)}")
+        assert state_row == "VERIFYING", f"world 4: expected VERIFYING after risk recovery, got {state_row!r}"
+        print("world 4a (risk WARNING -> OPEN QUOTA_LOW moves to VERIFYING): OK")
+
+        # World 4b: NOINFO must NOT be treated as a recovery signal — "can't
+        # measure this pass" is not "confirmed fine now" (C0.3 at the closing
+        # end of an incident, not just the opening end). Re-open a fresh
+        # CRITICAL incident to test against, since world 4a already consumed
+        # the OPEN one above.
+        open_quota_incident("testprov", "EXHAUSTED", 0, 0, 10.0, 0.0, 100, "daily", 100)
+        inc_row2, _ = ap.psql(
+            "SELECT incident_id FROM incidents WHERE provider = 'testprov' "
+            "AND kind = 'QUOTA_EXHAUSTED' AND state = 'OPEN'"
+        )
+        assert inc_row2, "world 4b: expected a fresh OPEN QUOTA_EXHAUSTED incident"
+        advance_quota_incidents_if_recovered("testprov", "NOINFO")
+        state_row2, _ = ap.psql(f"SELECT state FROM incidents WHERE incident_id = {ap.sql_literal(inc_row2)}")
+        assert state_row2 == "OPEN", f"world 4b: NOINFO must NOT advance an OPEN incident, got {state_row2!r}"
+        print("world 4b (risk NOINFO does not advance an OPEN QUOTA_* incident): OK")
 
         # probe_log rows must respect the CHECK constraints (real schema, not
         # a mock) — insert failures would have already raised a notice above;

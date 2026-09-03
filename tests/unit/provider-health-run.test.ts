@@ -386,6 +386,112 @@ describe('run() — probe budget (G2/C0.5)', () => {
   });
 });
 
+describe('run() — G3.4 emergency polling (AP-5 review fix, Fable ruling-1 #1 on 814-autopilot-limits-burnrate)', () => {
+  it('a CRITICAL-risk paid-cost_class provider has its auth probe suppressed and falls back to a free HEAD', async () => {
+    const fetchMock = jest.fn().mockResolvedValue(new Response(null, { status: 200 }));
+    globalThis.fetch = fetchMock;
+
+    const t0 = new Date('2026-09-03T00:00:00Z');
+    const seed: Record<string, Record<string, unknown>> = {};
+    SEVEN_PROVIDERS.forEach((name, i) => {
+      seed[name] = {
+        provider: name,
+        state: 'HEALTHY',
+        state_since: t0,
+        next_probe_at: new Date(t0.getTime() + i * 1000),
+        probe_interval_s: 21600,
+        consecutive_failures: 0,
+        // provider-limit-alerts.py (AP-5) writes this hourly; the burn-rate
+        // math itself is exercised by that script's own --selftest, this is
+        // only about what provider-health.job.ts DOES once it's written.
+        risk: name === 'alpha' ? 'CRITICAL' : 'NORMAL',
+      };
+    });
+
+    const db = createFakeDb(seed);
+    const redis = createFakeRedis();
+    const { run } = loadJobModule(
+      db,
+      mockProviderLimits({
+        alpha: {
+          health_url: 'https://alpha.test/health',
+          probe: { cost_class: 'paid', auth_env: 'ALPHA_KEY', url: 'https://alpha.test/usage' },
+        },
+      }),
+    );
+
+    await run(redis as never);
+
+    // The configured paid auth probe (GET /usage) never fired at all.
+    const usageCalled = fetchMock.mock.calls.some(([url]) => String(url).includes('/usage'));
+    expect(usageCalled).toBe(false);
+    // A free HEAD check ran in its place — "только passive + бесплатный HEAD" (G3.4).
+    const headCalled = fetchMock.mock.calls.some(
+      ([url, init]) => String(url).includes('/health') && (init as RequestInit)?.method === 'HEAD',
+    );
+    expect(headCalled).toBe(true);
+
+    // The suppression itself is a real row written by the code that actually
+    // skipped the call — not a claim made by provider-limit-alerts.py, which
+    // never suppressed anything itself (Fable ruling-1's exact objection).
+    const suppressedLog = db.probeLogs.find(
+      (l) => l.provider === 'alpha' && l.kind === 'suppressed',
+    );
+    expect(suppressedLog).toMatchObject({ result: 'SKIPPED_BUDGET' });
+    expect(String(suppressedLog?.detail)).toContain('emergency mode');
+    expect(String(suppressedLog?.detail)).toContain('CRITICAL');
+
+    // The free HEAD probe's own OK result still landed as a normal probe_log row.
+    const headLog = db.probeLogs.find((l) => l.provider === 'alpha' && l.kind === 'head');
+    expect(headLog).toMatchObject({ result: 'OK' });
+
+    // No paid-budget key was ever touched — the paid probe is skipped
+    // upstream of the budget check entirely, not counted against it.
+    const dateKey = new Date().toISOString().slice(0, 10);
+    expect(redis.strings.has(`probe:budget:alpha:${dateKey}`)).toBe(false);
+  });
+
+  it('a NORMAL-risk paid-cost_class provider runs its configured auth probe as usual (no false suppression)', async () => {
+    const fetchMock = jest.fn().mockResolvedValue(new Response(null, { status: 200 }));
+    globalThis.fetch = fetchMock;
+
+    const t0 = new Date('2026-09-03T00:00:00Z');
+    const seed: Record<string, Record<string, unknown>> = {};
+    SEVEN_PROVIDERS.forEach((name, i) => {
+      seed[name] = {
+        provider: name,
+        state: 'HEALTHY',
+        state_since: t0,
+        next_probe_at: new Date(t0.getTime() + i * 1000),
+        probe_interval_s: 21600,
+        consecutive_failures: 0,
+        risk: 'NORMAL',
+      };
+    });
+
+    const db = createFakeDb(seed);
+    const redis = createFakeRedis();
+    const { run } = loadJobModule(
+      db,
+      mockProviderLimits({
+        alpha: {
+          health_url: 'https://alpha.test/health',
+          probe: { cost_class: 'paid', auth_env: 'ALPHA_KEY', url: 'https://alpha.test/usage' },
+        },
+      }),
+    );
+
+    await run(redis as never);
+
+    const usageCalled = fetchMock.mock.calls.some(([url]) => String(url).includes('/usage'));
+    expect(usageCalled).toBe(true);
+    const suppressedLog = db.probeLogs.find(
+      (l) => l.provider === 'alpha' && l.kind === 'suppressed',
+    );
+    expect(suppressedLog).toBeUndefined();
+  });
+});
+
 describe('run() — "401, zero retries" holds even under an asap flag (AP-2 knowledge entry requirement)', () => {
   it('an asap-flagged provider already paused by FAIL_DETERMINISTIC is NOT re-probed', async () => {
     const fetchMock = jest.fn().mockResolvedValue(new Response(null, { status: 200 }));
