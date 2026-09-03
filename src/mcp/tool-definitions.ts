@@ -16720,6 +16720,47 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'education',
     annotations: READ_ONLY,
   },
+  // SEPA Scotland Rainfall Data API — www2.sepa.org.uk/rainfall/api (3) — UC-676
+  {
+    toolId: 'sepa-scotland.stations_search',
+    mcpName: 'sepa-scotland.rainfall.stations',
+    title: 'SEPA Rainfall Station Search',
+    description:
+      "Search Scotland's ~280-gauge live rainfall telemetry network by station name substring " +
+      '(e.g. "Glasgow"), or list all stations. Returns each station\'s number, name, ' +
+      'latitude/longitude, and latest reading (value in mm and timestamp). Call ' +
+      "sepa-scotland.station_current or sepa-scotland.rainfall_history with a result's " +
+      'station_no for live or historical data. Data: SEPA (Scottish Environment Protection ' +
+      'Agency), no auth required, Open Government Licence v3.0.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'sepa-scotland.station_current',
+    mcpName: 'sepa-scotland.rainfall.current',
+    title: 'SEPA Current Rainfall Reading',
+    description:
+      'Get the latest telemetered rainfall reading for one SEPA gauge station by station_no. ' +
+      'Returns the reading value (mm) and timestamp, the accumulation window in minutes, and ' +
+      "the station's name and coordinates. Telemetry is transmitted once or twice per day. " +
+      'Call sepa-scotland.stations_search first to find a station_no. Data: SEPA, no auth ' +
+      'required, Open Government Licence v3.0.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'sepa-scotland.rainfall_history',
+    mcpName: 'sepa-scotland.rainfall.history',
+    title: 'SEPA Rainfall History',
+    description:
+      'Get historical rainfall totals for one SEPA gauge station by station_no, aggregated by ' +
+      'period: "hourly" (last 7 days), "daily" (last month), or "monthly" (multi-year archive, ' +
+      'commonly a decade or more). Returns a timestamped list of rainfall totals in mm. Call ' +
+      'sepa-scotland.stations_search first to find a station_no. Data: SEPA, no auth required, ' +
+      'Open Government Licence v3.0.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
   // ---------------------------------------------------------------------------
   // Ф5 physical-device MCP layer -- device.list/state/command (2026-09-02)
   // Generic vendor-agnostic projection; Tuya is the only connected vendor

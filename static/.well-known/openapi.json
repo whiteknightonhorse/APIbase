@@ -124603,6 +124603,254 @@
         ]
       }
     },
+    "/api/v1/tools/sepa-scotland.stations_search/call": {
+      "post": {
+        "operationId": "sepa-scotland_stations_search",
+        "summary": "SEPA Rainfall Station Search",
+        "description": "Search Scotland's ~280-gauge live rainfall telemetry network by station name substring (e.g. \"Glasgow\"), or list all stations. Returns each station's number, name, latitude/longitude, and latest reading (value in mm and timestamp). Call sepa-scotland.station_current or sepa-scotland.rainfall_history with a result's station_no for live or historical data. Data: SEPA (Scottish Environment Protection Agency), no auth required, Open Government Licence v3.0.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "sepa-scotland.stations_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Substring to match against rainfall gauge station names (e.g. \"Glasgow\"). Omit to list all ~280 stations."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of stations to return (1-50, default 20)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/sepa-scotland.station_current/call": {
+      "post": {
+        "operationId": "sepa-scotland_station_current",
+        "summary": "SEPA Current Rainfall Reading",
+        "description": "Get the latest telemetered rainfall reading for one SEPA gauge station by station_no. Returns the reading value (mm) and timestamp, the accumulation window in minutes, and the station's name and coordinates. Telemetry is transmitted once or twice per day. Call sepa-scotland.stations_search first to find a station_no. Data: SEPA, no auth required, Open Government Licence v3.0.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "sepa-scotland.station_current"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "station_no": {
+                    "type": "string",
+                    "description": "SEPA rainfall gauge station number (e.g. \"15018\"). Obtain from sepa-scotland.stations_search.",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "station_no"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/sepa-scotland.rainfall_history/call": {
+      "post": {
+        "operationId": "sepa-scotland_rainfall_history",
+        "summary": "SEPA Rainfall History",
+        "description": "Get historical rainfall totals for one SEPA gauge station by station_no, aggregated by period: \"hourly\" (last 7 days), \"daily\" (last month), or \"monthly\" (multi-year archive, commonly a decade or more). Returns a timestamped list of rainfall totals in mm. Call sepa-scotland.stations_search first to find a station_no. Data: SEPA, no auth required, Open Government Licence v3.0.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "sepa-scotland.rainfall_history"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "station_no": {
+                    "type": "string",
+                    "description": "SEPA rainfall gauge station number (e.g. \"15018\"). Obtain from sepa-scotland.stations_search.",
+                    "minLength": 1
+                  },
+                  "period": {
+                    "type": "string",
+                    "enum": [
+                      "hourly",
+                      "daily",
+                      "monthly"
+                    ],
+                    "description": "Aggregation period: \"hourly\" (last 7 days), \"daily\" (last month), or \"monthly\" (multi-year history). Default \"daily\"."
+                  }
+                },
+                "required": [
+                  "station_no"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/device.list/call": {
       "post": {
         "operationId": "device_list",

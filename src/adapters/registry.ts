@@ -392,6 +392,7 @@ import { WmoWeatherAdapter } from './wmo-weather';
 import { UnescoDataAdapter } from './unesco-data';
 import { OpenAlexAdapter } from './openalex';
 import { SemanticScholarAdapter } from './semanticscholar';
+import { SepaScotlandAdapter } from './sepa-scotland';
 import { config } from '../config';
 
 /**
@@ -2132,6 +2133,13 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // generated tldr summaries). No auth; public endpoints share a 1000
       // req/s pool across all unauthenticated callers per S2's own docs.
       return getOrCreate('semanticscholar', () => new SemanticScholarAdapter());
+    case 'sepa-scotland':
+      // SEPA Scotland Rainfall Data API (UC-676) — www2.sepa.org.uk/rainfall/api:
+      // ~280-gauge live rainfall telemetry network (station list, latest
+      // reading per gauge, hourly/daily/monthly historical totals). No auth,
+      // no key. Open Government Licence v3.0 — commercial reuse permitted
+      // with attribution to SEPA.
+      return getOrCreate('sepa-scotland', () => new SepaScotlandAdapter());
     default:
       return undefined;
   }

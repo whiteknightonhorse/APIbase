@@ -8722,6 +8722,25 @@ tools:
     price_usd: "0.002"
     cache_ttl: 86400
 
+  # --- UC-676: SEPA Scotland Rainfall Data API (www2.sepa.org.uk/rainfall/api) ---
+  - tool_id: sepa-scotland.stations_search
+    name: SEPA Rainfall Station Search
+    provider: sepa-scotland
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: sepa-scotland.station_current
+    name: SEPA Current Rainfall Reading
+    provider: sepa-scotland
+    price_usd: "0.001"
+    cache_ttl: 900
+
+  - tool_id: sepa-scotland.rainfall_history
+    name: SEPA Rainfall History
+    provider: sepa-scotland
+    price_usd: "0.002"
+    cache_ttl: 1800
+
   - tool_id: platform.call_batch
     name: Batch Tool Calls
     provider: platform

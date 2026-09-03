@@ -392,6 +392,7 @@ import { unescoDataSchemas } from './unesco-data.schema';
 import { deviceSchemas } from './device.schema';
 import { openalexSchemas } from './openalex.schema';
 import { semanticscholarSchemas } from './semanticscholar.schema';
+import { sepaScotlandSchemas } from './sepa-scotland.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -787,4 +788,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...deviceSchemas,
   ...openalexSchemas,
   ...semanticscholarSchemas,
+  ...sepaScotlandSchemas,
 };

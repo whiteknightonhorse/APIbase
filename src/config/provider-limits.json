@@ -3292,7 +3292,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://data.humdata.org/hapi/terms",
-    "limit_proof": "HAPI Terms of Service (data.humdata.org/hapi/terms): 'the API imposes a restriction on the maximum number of entries retrievable per API call, capped at 10,000 entries' and 'users are kindly requested to moderate their rate of requests to 1 per second'. No signup or API key — only a self-declared, non-secret app_identifier is required on every request."
+    "limit_proof": "HAPI Terms of Service (data.humdata.org/hapi/terms): 'the API imposes a restriction on the maximum number of entries retrievable per API call, capped at 10,000 entries' and 'users are kindly requested to moderate their rate of requests to 1 per second'. No signup or API key \u2014 only a self-declared, non-secret app_identifier is required on every request."
   },
   "geonet-nz": {
     "display_name": "GeoNet New Zealand",
@@ -3310,7 +3310,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://ogcapi.bgs.ac.uk/",
-    "limit_proof": "No signup, API key, or rate limit documented on the service landing page (ogcapi.bgs.ac.uk) — a public BETA pygeoapi service published by the British Geological Survey under Open Government Licence."
+    "limit_proof": "No signup, API key, or rate limit documented on the service landing page (ogcapi.bgs.ac.uk) \u2014 a public BETA pygeoapi service published by the British Geological Survey under Open Government Licence."
   },
   "ilostat": {
     "display_name": "ILOSTAT SDMX Public REST API",
@@ -3400,7 +3400,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://www.ine.es/dyngs/DAB/index.htm?cid=1099",
-    "limit_proof": "Public Instituto Nacional de Estadística Tempus3 REST API (servicios.ine.es); no authentication or API key required for any endpoint, no rate-limit headers returned in observed responses, no documented request quota found in the official DataLab API manual."
+    "limit_proof": "Public Instituto Nacional de Estad\u00edstica Tempus3 REST API (servicios.ine.es); no authentication or API key required for any endpoint, no rate-limit headers returned in observed responses, no documented request quota found in the official DataLab API manual."
   },
   "czso": {
     "display_name": "CZSO (Czech Statistical Office VDB)",
@@ -3427,7 +3427,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://data.ksh.hu/dokumentacio",
-    "limit_proof": "Public Hungarian Central Statistical Office (KSH) open-data API (data.ksh.hu); no authentication required per docs ('A hozzáférés nem igényel hitelesítést' — access requires no authentication), no rate-limit headers returned in observed responses, no documented request quota found."
+    "limit_proof": "Public Hungarian Central Statistical Office (KSH) open-data API (data.ksh.hu); no authentication required per docs ('A hozz\u00e1f\u00e9r\u00e9s nem ig\u00e9nyel hiteles\u00edt\u00e9st' \u2014 access requires no authentication), no rate-limit headers returned in observed responses, no documented request quota found."
   },
   "slovakia-statistics": {
     "display_name": "Slovakia Statistics (DATAcube.)",
@@ -3445,7 +3445,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://stat.gov.lv/en/about-osp",
-    "limit_proof": "Official statistics portal of the Central Statistical Bureau of Latvia (data.stat.gov.lv), a standard PXWeb API — no authentication or API key required, published as open data under CC BY 4.0 with commercial and non-commercial reuse explicitly permitted (attribution required), no documented rate limits found."
+    "limit_proof": "Official statistics portal of the Central Statistical Bureau of Latvia (data.stat.gov.lv), a standard PXWeb API \u2014 no authentication or API key required, published as open data under CC BY 4.0 with commercial and non-commercial reuse explicitly permitted (attribution required), no documented rate limits found."
   },
   "iceland-statistics": {
     "display_name": "Iceland Statistics (Statistics Iceland)",
@@ -3454,7 +3454,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://statice.is/publications/open-data-access/",
-    "limit_proof": "Official statistics portal of Statistics Iceland (px.hagstofa.is), a standard PXWeb API — no authentication or API key required ('The API can be used without registration'), published as open data under CC BY 4.0 with reuse for any purpose including commercial explicitly permitted (attribution required), no documented rate limits found."
+    "limit_proof": "Official statistics portal of Statistics Iceland (px.hagstofa.is), a standard PXWeb API \u2014 no authentication or API key required ('The API can be used without registration'), published as open data under CC BY 4.0 with reuse for any purpose including commercial explicitly permitted (attribution required), no documented rate limits found."
   },
   "estonia-statistics": {
     "display_name": "Estonia Statistics (Statistikaamet)",
@@ -3463,7 +3463,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://stat.ee/en/statistics-estonia/about-us/strategy/principles-dissemination-official-statistics",
-    "limit_proof": "Official statistics portal of Statistics Estonia (andmed.stat.ee), a standard PXWeb API — no authentication or API key required, published as open data under CC BY-SA 4.0 with commercial and non-commercial reuse explicitly permitted (attribution + share-alike required), no documented rate limits found."
+    "limit_proof": "Official statistics portal of Statistics Estonia (andmed.stat.ee), a standard PXWeb API \u2014 no authentication or API key required, published as open data under CC BY-SA 4.0 with commercial and non-commercial reuse explicitly permitted (attribution + share-alike required), no documented rate limits found."
   },
   "estat-japan-dashboard": {
     "display_name": "e-Stat Japan Dashboard (Statistics Bureau)",
@@ -3472,7 +3472,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://dashboard.e-stat.go.jp/static/terms",
-    "limit_proof": "Statistics Dashboard API run by Japan's Ministry of Internal Affairs and Communications (総務省統計局) — no authentication or API key required, licensed under Public Data License v1.0 (PDL1.0) with commercial and non-commercial reuse via an API-backed service explicitly permitted (attribution required), no documented rate limits found."
+    "limit_proof": "Statistics Dashboard API run by Japan's Ministry of Internal Affairs and Communications (\u7dcf\u52d9\u7701\u7d71\u8a08\u5c40) \u2014 no authentication or API key required, licensed under Public Data License v1.0 (PDL1.0) with commercial and non-commercial reuse via an API-backed service explicitly permitted (attribution required), no documented rate limits found."
   },
   "wmo-weather": {
     "display_name": "WMO World Weather Information Service",
@@ -3481,7 +3481,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://worldweather.wmo.int/",
-    "limit_proof": "Official World Meteorological Organization public weather portal aggregating NMHS-sourced forecasts and climate normals — no authentication or API key required, no documented rate limits found; public information service intended for general dissemination."
+    "limit_proof": "Official World Meteorological Organization public weather portal aggregating NMHS-sourced forecasts and climate normals \u2014 no authentication or API key required, no documented rate limits found; public information service intended for general dissemination."
   },
   "unesco-data": {
     "display_name": "UNESCO Institute for Statistics (UIS)",
@@ -3490,7 +3490,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://api.uis.unesco.org/api/public/documentation",
-    "limit_proof": "UIS Data API (api.uis.unesco.org) — no authentication or API key required, no documented rate limits found; data licensed CC BY-SA 4.0 per https://databrowser.uis.unesco.org/terms-and-conditions (commercial reuse and redistribution permitted with attribution and share-alike)."
+    "limit_proof": "UIS Data API (api.uis.unesco.org) \u2014 no authentication or API key required, no documented rate limits found; data licensed CC BY-SA 4.0 per https://databrowser.uis.unesco.org/terms-and-conditions (commercial reuse and redistribution permitted with attribution and share-alike)."
   },
   "openalex": {
     "display_name": "OpenAlex",
@@ -3499,7 +3499,7 @@
     "free_limit": 1000,
     "reset_period": "daily",
     "docs_url": "https://docs.openalex.org/how-to-use-the-api/rate-limits-and-authentication",
-    "limit_proof": "No API key required to call the API. Observed live via response headers (2026-09-03): x-ratelimit-limit: 1000, x-ratelimit-remaining decrements per call (credit-cost based, ~1 credit for a simple query), x-ratelimit-reset: countdown consistent with a rolling ~24h window — anonymous requests get this daily allotment; a descriptive User-Agent with a mailto contact opts into OpenAlex's 'polite pool' for priority handling."
+    "limit_proof": "No API key required to call the API. Observed live via response headers (2026-09-03): x-ratelimit-limit: 1000, x-ratelimit-remaining decrements per call (credit-cost based, ~1 credit for a simple query), x-ratelimit-reset: countdown consistent with a rolling ~24h window \u2014 anonymous requests get this daily allotment; a descriptive User-Agent with a mailto contact opts into OpenAlex's 'polite pool' for priority handling."
   },
   "semanticscholar": {
     "display_name": "Semantic Scholar",
@@ -3508,6 +3508,15 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://www.semanticscholar.org/product/api",
-    "limit_proof": "No authentication or API key required for public endpoints. Docs (2026-09-03, 'Do I need an API Key?' section): 'Most Semantic Scholar endpoints are available to the public without authentication, but they are rate-limited to 1000 requests per second shared among all unauthenticated users' — a shared global pool, not a per-caller quota; observed live 429 with a shared-pool message during testing, confirming the throttle is real and shared."
+    "limit_proof": "No authentication or API key required for public endpoints. Docs (2026-09-03, 'Do I need an API Key?' section): 'Most Semantic Scholar endpoints are available to the public without authentication, but they are rate-limited to 1000 requests per second shared among all unauthenticated users' \u2014 a shared global pool, not a per-caller quota; observed live 429 with a shared-pool message during testing, confirming the throttle is real and shared."
+  },
+  "sepa-scotland": {
+    "display_name": "SEPA Scotland Rainfall",
+    "health_url": "https://www2.sepa.org.uk/rainfall/api/Stations",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www2.sepa.org.uk/rainfall/",
+    "limit_proof": "No API key or registration required. No rate-limit documentation found on www2.sepa.org.uk/rainfall/ or the SEPA time series API docs (timeseriesdoc.sepa.org.uk) \u2014 the site only notes telemetry is transmitted once or twice per day (data freshness, not a request-rate cap). Verified live 2026-09-03: /api/Stations returned all 280 stations with no rate-limit headers."
   }
 }
