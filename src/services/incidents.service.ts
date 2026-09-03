@@ -11,9 +11,14 @@ import { getPrisma } from './prisma.service';
  * писем") — H4's own design is explicit that email-derived evidence is the
  * ONLY field that can carry an `UNTRUSTED-EMAIL-QUOTE:`-tagged quote; every
  * other column is either an internal enum/timestamp or `attempts` (an
- * actor/action/result audit trail written by the engine/CLI, never raw
- * upstream content), both safe for an unauthenticated public read — same
- * posture as `dashboardRouter`, this is a status page, not a control surface.
+ * actor/action/result audit trail written by the engine/CLI). `attempts` is
+ * NOT a second evidence field by construction: autopilot_common.py's
+ * `_redact_untrusted_evidence()` strips any `UNTRUSTED-EMAIL-QUOTE:`-tagged
+ * string BEFORE a recurrence merge JSON-dumps evidence into an attempts
+ * note (Fable ruling-1 REJECT #1 — that dump used to carry the quote
+ * verbatim into this exact public projection). Both columns are safe for
+ * an unauthenticated public read — same posture as `dashboardRouter`, this
+ * is a status page, not a control surface.
  */
 
 // Mirrored 1:1 from prisma/migrations/0009_autopilot_schema/migration.sql CHECK

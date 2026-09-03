@@ -433,7 +433,17 @@ SELECT
       date_trunc('day', now() - interval '{RS_WINDOW_DAYS - 1} days'), date_trunc('day', now()), interval '1 day'
     ) AS d
     WHERE EXISTS (
-      SELECT 1 FROM incidents i WHERE i.provider = ps.provider AND i.state <> 'RESOLVED'
+      -- Per-day "was this incident open on day d", from timestamps alone --
+      -- NOT `i.state <> 'RESOLVED'` (Fable ruling-1 REJECT #2): that read
+      -- today's state, so the instant an incident resolves, every day it
+      -- was open inside the window vanished from the count retroactively
+      -- (score jumps to "incident-free" the moment you fix the thing,
+      -- contradicting §20's day-granularity definition). `resolved_at`
+      -- IS NULL while still open and gets set exactly once, on the
+      -- RESOLVED transition (transition_state()) -- so "open on day d" is
+      -- just "existed by day d and wasn't yet resolved as of day d",
+      -- true regardless of what the row's CURRENT state is now.
+      SELECT 1 FROM incidents i WHERE i.provider = ps.provider
         AND i.created_at <= d + interval '1 day' AND (i.resolved_at IS NULL OR i.resolved_at >= d)
     )
   ) AS open_days
@@ -920,12 +930,25 @@ def selftest_db():
         # against RELIABILITY_SQL, not just the pure function in isolation.
         # 5a: a provider with real traffic + probes + one resolved (non-open)
         # incident should score high but not need every component present.
+        # The incident is inserted for real (Fable ruling-1 REJECT #2 caught
+        # this world claiming to cover a resolved incident while inserting
+        # none at all) and dated entirely BEFORE the 7-day window --
+        # created_at/resolved_at both older than RS_WINDOW_DAYS -- so it
+        # must contribute zero open_days and leave the score untouched;
+        # world 5a2 below is the complementary case where resolution
+        # happens INSIDE the window.
         ap.psql(
             "INSERT INTO provider_status (provider, state, state_since, next_probe_at, "
             "probe_interval_s) VALUES ('rsprov', 'HEALTHY', now(), now(), 3600) "
             "ON CONFLICT (provider) DO NOTHING"
         )
         ap.psql("INSERT INTO tools (tool_id, provider) VALUES ('rsprov.tool1', 'rsprov')")
+        ap.psql(
+            "INSERT INTO incidents (dedup_key, provider, kind, severity, state, detected_by, "
+            "evidence, created_at, resolved_at) VALUES ("
+            "'rsprov:old-resolved', 'rsprov', 'PROVIDER_DOWN', 'SEV2', 'RESOLVED', 'probe', "
+            "'{}'::jsonb, now() - interval '20 days', now() - interval '15 days')"
+        )
         for i in range(9):
             ap.psql(
                 "INSERT INTO execution_ledger (tool_id, provider_called, status, latency_ms, created_at) "
@@ -946,12 +969,61 @@ def selftest_db():
         # 9/10 real calls succeeded (availability=0.9), 4/4 probes OK
         # (probe_uptime=1.0), p95 latency of the 9 successful 500ms calls is
         # 500ms -> latency_score=1.0, no probe errors -> auth_ok/rl_ok
-        # unmeasured (dropped), incident_free=1.0 (no incidents for rsprov).
+        # unmeasured (dropped), incident_free=1.0 (the resolved incident is
+        # dated entirely before the 7-day window, so it contributes zero
+        # open_days -- resolved-and-long-over does not haunt the score).
         # known weights: availability .40 + probe_uptime .15 + latency .10 +
         # incident_free .15 = .80. score = (.40*.9+.15*1+.10*1+.15*1)/.80*100
         # = .76/.80*100 = 95.0 -> 95.
         assert rsprov_score == 95, f"world 5a: expected 95, got {rsprov_score}"
         print(f"world 5a (real traffic+probes -> reliability_score={rsprov_score}, not NULL): OK")
+
+        # 5a2 (Fable ruling-1 REJECT #2): the complementary case -- an
+        # incident that was open for real days INSIDE the window and only
+        # resolves partway through it. Its CURRENT state is RESOLVED, same
+        # as 5a's, but unlike 5a it must still cost incident_free days,
+        # because those days really did have an open incident. This is the
+        # exact case the old `i.state <> 'RESOLVED'` filter got wrong: it
+        # read today's state, not the per-day history, so the moment this
+        # incident resolved it would vanish from the count and rsprov2 would
+        # wrongly score identically to rsprov (95) despite 3 real open days.
+        ap.psql(
+            "INSERT INTO provider_status (provider, state, state_since, next_probe_at, "
+            "probe_interval_s) VALUES ('rsprov2', 'HEALTHY', now(), now(), 3600) "
+            "ON CONFLICT (provider) DO NOTHING"
+        )
+        ap.psql("INSERT INTO tools (tool_id, provider) VALUES ('rsprov2.tool1', 'rsprov2')")
+        ap.psql(
+            "INSERT INTO incidents (dedup_key, provider, kind, severity, state, detected_by, "
+            "evidence, created_at, resolved_at) VALUES ("
+            "'rsprov2:mid-window-resolved', 'rsprov2', 'PROVIDER_DOWN', 'SEV2', 'RESOLVED', "
+            "'probe', '{}'::jsonb, now() - interval '5 days', now() - interval '2 days')"
+        )
+        for i in range(9):
+            ap.psql(
+                "INSERT INTO execution_ledger (tool_id, provider_called, status, latency_ms, created_at) "
+                f"VALUES ('rsprov2.tool1', true, 'success', 500, now() - interval '{i} hours')"
+            )
+        ap.psql(
+            "INSERT INTO execution_ledger (tool_id, provider_called, status, created_at) "
+            "VALUES ('rsprov2.tool1', true, 'failed', now() - interval '1 hours')"
+        )
+        for _ in range(4):
+            log_probe("rsprov2", "head", "OK", "selftest-db world 5a2")
+        compute_and_write_reliability_scores()
+        score_row2, _ = ap.psql("SELECT reliability_score FROM provider_status WHERE provider = 'rsprov2'")
+        assert score_row2 != "", f"world 5a2: reliability_score must be a real number, got NULL ({score_row2!r})"
+        rsprov2_score = int(score_row2)
+        # Same availability/probe_uptime/latency inputs as rsprov (95), but
+        # incident_free must be strictly below 1.0 here (some window days
+        # really did have this incident open) -> score must be strictly
+        # lower than rsprov's 95, never equal to it.
+        assert rsprov2_score < 95, (
+            f"world 5a2: a mid-window-resolved incident must still cost incident_free days "
+            f"(expected < 95, same inputs as rsprov otherwise), got {rsprov2_score}"
+        )
+        print(f"world 5a2 (resolved-mid-window incident still costs incident_free -> "
+              f"reliability_score={rsprov2_score} < 95): OK")
 
         # 5b: a provider with NOTHING measurable in the window (no traffic,
         # no probes, no incidents ever) must stay NULL, never a fabricated

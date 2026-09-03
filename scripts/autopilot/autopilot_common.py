@@ -507,6 +507,36 @@ def parse_human_done(path: str):
     return result or None
 
 
+_UNTRUSTED_EMAIL_QUOTE_PREFIX = "UNTRUSTED-EMAIL-QUOTE:"
+
+
+def _redact_untrusted_evidence(value):
+    """`attempts` is part of the public `/api/v1/incidents` projection
+    (incidents.service.ts's own PUBLIC_SELECT, L1) -- unlike `evidence`,
+    which that projection deliberately never selects. email-intake.py's H4
+    discipline puts the raw email text ONLY in `evidence.email.quote`,
+    tagged `UNTRUSTED-EMAIL-QUOTE:`, on the assumption every downstream
+    consumer either doesn't read it or re-quotes it with the tag intact.
+    The recurrence-merge path below breaks that assumption by JSON-dumping
+    the FULL evidence dict into an attempts note verbatim (Fable ruling-1
+    REJECT #1) -- a second EMAIL_NOTICE landing against an already-open
+    incident would otherwise leak the provider's raw email text through the
+    public read. Recurses through evidence's actual shape (nested
+    dicts/lists from `evidence = {"email": {...}}` etc.) and redacts any
+    string carrying that tag before it is ever embedded in an attempts
+    note; every other field (msg_id, from_domain, class, timestamps, ...)
+    passes through unchanged."""
+    if isinstance(value, str):
+        if value.startswith(_UNTRUSTED_EMAIL_QUOTE_PREFIX):
+            return "[redacted: untrusted email content, kept only in internal evidence, not public attempts]"
+        return value
+    if isinstance(value, dict):
+        return {k: _redact_untrusted_evidence(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_redact_untrusted_evidence(v) for v in value]
+    return value
+
+
 # ---------------------------------------------------------------------------
 # Core write path — shared by incident-engine.py's own detection loop and by
 # incident-cli.py's `open` command (I4: not two write paths, one).
@@ -540,7 +570,7 @@ def open_or_merge_incident(kind, provider, evidence, detected_by, tool_id=None,
         raise RuntimeError(f"open_or_merge_incident: lookup failed for {dk}")
     if existing:
         note_incident(existing, actor, "recurrence",
-                       json.dumps(evidence, ensure_ascii=False)[:2000])
+                       json.dumps(_redact_untrusted_evidence(evidence), ensure_ascii=False)[:2000])
         return existing, False
 
     severity = classify_severity(kind, tool_count, revenue_pct)
@@ -574,7 +604,7 @@ def open_or_merge_incident(kind, provider, evidence, detected_by, tool_id=None,
                                f"AND state <> 'RESOLVED'")
         if rc3 == 0 and existing2:
             note_incident(existing2, actor, "recurrence (race)",
-                          json.dumps(evidence, ensure_ascii=False)[:2000])
+                          json.dumps(_redact_untrusted_evidence(evidence), ensure_ascii=False)[:2000])
             return existing2, False
         raise RuntimeError(f"open_or_merge_incident: insert returned nothing and no row found for {dk}")
 
