@@ -156,7 +156,18 @@ export async function getDashboardData(): Promise<DashboardResponse> {
     LEFT JOIN (
       SELECT provider, COUNT(*) AS open_incidents FROM incidents WHERE state <> 'RESOLVED' GROUP BY provider
     ) inc ON inc.provider = t.provider
-    WHERE t.status != 'unavailable'
+    -- AP-9 (Fable ruling-2 REJECT): must exclude only MANUAL/legacy-NULL
+    -- unavailable tools (the ~20 hand-set zyte/api2pdf-style rows this
+    -- filter existed for pre-AP-9), never an AP-8 autopilot demotion.
+    -- t.status_source is AP-8's own law (incident-engine.py sync_tool_status):
+    -- 'manual' and legacy NULL are never overwritten by autopilot, so both
+    -- stay excluded here exactly as before; 'autopilot' unavailable tools
+    -- must now surface so a DOWN provider's state/open_incidents are
+    -- visible instead of the provider silently vanishing from the dashboard
+    -- (L1/L2: sort by open_incidents desc, SEV1/SEV2 on top). 'seed' is left
+    -- excluded (conservative): no code path writes it on an unavailable row
+    -- today, so there is no live case to prove it should bypass this filter.
+    WHERE (t.status != 'unavailable' OR t.status_source = 'autopilot')
     GROUP BY t.provider, ps.state, ps.risk, ps.reliability_score, ps.last_probe_at, inc.open_incidents
     ORDER BY t.provider
   `);

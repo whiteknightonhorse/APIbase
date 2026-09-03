@@ -637,8 +637,17 @@ def main():
             print("reliability-score: already computed today — skipping (§20 daily cadence)")
         else:
             n = compute_and_write_reliability_scores()
-            _mark_reliability_score_ran_today()
-            print(f"reliability-score: computed for {n} providers")
+            # Fable ruling-2: only mark today's run done when it actually
+            # wrote something. compute_and_write_reliability_scores()
+            # returns 0 on a query failure (ap.notice already logged it) —
+            # marking the day done anyway would leave every score stuck at
+            # yesterday's value for the rest of the day, contradicting this
+            # function's own "unsure -> compute" docstring. Leaving the
+            # marker unset means the very next hourly tick just retries.
+            if n > 0:
+                _mark_reliability_score_ran_today()
+            print(f"reliability-score: computed for {n} providers"
+                  + ("" if n > 0 else " — not marking today done, will retry next run"))
     else:
         print("reliability-score: autopilot schema not deployed yet — skipped")
 
