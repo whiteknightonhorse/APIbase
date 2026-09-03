@@ -19,8 +19,10 @@
 #   0. flock on the fleet worktree's own lock file (T-703: state/worktree-fleet.lock, split off
 #      taskloop's scheduler-only state/tick.lock -- this cron never wants the scheduler lock, it
 #      only ever wanted the tree) -- the fleet worktree's git index is shared (T-72); cron and a
-#      running taskloop task, or (until T-704) the night orchestra, must never write it at the
-#      same time. This lock is held by whichever taskloop TASK is currently executing (up to
+#      running taskloop task, or (rare, only while ~/apibase-orchestra/.env is still pending its
+#      one-time human symlink -- see scripts/night-orchestra/lib.sh's ROOT fallback, T-704) the
+#      night orchestra, must never write it at the same time. This lock is held by whichever
+#      taskloop TASK is currently executing (up to
 #      5400s exec + up to 1800s arbiter + up to 900s fix-pass + up to 1800s second arbiter =
 #      ~9900s worst case, see taskloop.sh) -- at 05:00 with a non-empty backlog the lock is MORE
 #      likely busy than free. See the retry loop below (T-75 update, 2026-09-03): this is not
