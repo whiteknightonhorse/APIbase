@@ -553,14 +553,25 @@ def sync_tool_status():
     provider_status only, per this task's own P-table row: "зависит от:
     AP-3").
 
-    status_source LAW (manual status is never overwritten): only tools.rows
-    where status_source IS NULL, 'autopilot', or 'seed' are eligible —
-    'manual' is the one value this function must never touch again once set
-    (schema.prisma's own E5 comment: "no drive-by write ever loses who
-    changed this and why"). `status <> target` in the WHERE clause also
-    means a no-op state (nothing actually changed) never rewrites
-    status_changed_at, keeping that column meaningful as an audit trail
-    rather than a heartbeat.
+    status_source LAW (manual status is never overwritten): 'manual' is the
+    one value this function must never touch again once set (schema.prisma's
+    own E5 comment: "no drive-by write ever loses who changed this and
+    why"). But schema.prisma ALSO documents NULL status_source as "pre-
+    autopilot / hand-set" — this migration (0009/AP-1) added the column with
+    no backfill, so every tool touched by a human before AP-1 existed (e.g.
+    the ~20 rows manually flipped to 'unavailable' for suspended-account
+    providers back in June 2026) still carries status_source=NULL today. A
+    NULL row is only "just never touched, fine to adopt" when status is
+    still the column's own default ('healthy'); a NULL row sitting at
+    'degraded'/'unavailable' got there by someone's hand, not by any
+    process that runs today, and must be treated exactly like 'manual' — or
+    the very first tick after this ships would silently promote every one
+    of those suspended-account tools back to healthy. So eligibility is:
+    status_source IN ('autopilot', 'seed'), OR status_source IS NULL AND
+    status = 'healthy'. `status <> target` in the WHERE clause also means a
+    no-op state (nothing actually changed) never rewrites status_changed_at,
+    keeping that column meaningful as an audit trail rather than a
+    heartbeat.
 
     Journals into whichever OPEN-ish incident (state != 'RESOLVED') exists
     for this provider — best-effort (P-table: "журнал в attempts"): the
@@ -585,7 +596,9 @@ def sync_tool_status():
         sql = (
             "WITH changed AS ("
             f"SELECT tool_id, status FROM tools WHERE provider = {ap.sql_literal(provider)} "
-            f"AND status_source IS DISTINCT FROM 'manual' AND status <> {ap.sql_literal(target)}"
+            f"AND status_source IS DISTINCT FROM 'manual' "
+            f"AND (status_source IS NOT NULL OR status = 'healthy') "
+            f"AND status <> {ap.sql_literal(target)}"
             ") "
             f"UPDATE tools t SET status = {ap.sql_literal(target)}, status_source = 'autopilot', "
             f"status_changed_at = now(), status_reason = {ap.sql_literal(reason_text)} "
@@ -1316,9 +1329,11 @@ def selftest_db():
         )
         print("world 12 (KEY bridge: already-in-.env falls back to operator file, no false 'queued'): OK")
 
-        # World 13 (AP-8): demote -> promote cycle, manual status never
-        # overwritten, journal into the matching incident's attempts, and the
-        # sync-counts trigger firing ONLY on an availability-crossing change.
+        # World 13 (AP-8): demote -> promote cycle, manual status AND legacy
+        # status_source=NULL-but-non-healthy status never overwritten
+        # (ruling-1 REJECT), journal into the matching incident's attempts,
+        # and the sync-counts trigger firing ONLY on an availability-crossing
+        # change.
         # A fresh, isolated sync-counts-cron.sh stub (never the real one --
         # this must not touch git or a real lock) that just proves it was
         # launched.
@@ -1384,6 +1399,19 @@ def selftest_db():
             "INSERT INTO tools (tool_id, provider, status, status_source, status_changed_at) VALUES "
             "('ap8down1-tool3', 'ap8down1', 'degraded', 'manual', now() - interval '1 day')"
         )
+        # Legacy hand-set row: status_source IS NULL (migration 0009/AP-1 did
+        # not backfill it) but status is already non-'healthy' -- exactly the
+        # shape of the ~20 real prod rows hand-flipped to 'unavailable' in
+        # June 2026 (zyte, api2pdf, ...) before this column existed. Must be
+        # treated like 'manual', never adopted by autopilot (ruling-1
+        # REJECT). Mutation control: dropping the new "(status_source IS NOT
+        # NULL OR status = 'healthy')" clause from the WHERE makes this row
+        # eligible again (NULL IS DISTINCT FROM 'manual' is true) and this
+        # assertion fails.
+        ap.psql(
+            "INSERT INTO tools (tool_id, provider, status, status_source, status_changed_at) VALUES "
+            "('ap8down1-tool4', 'ap8down1', 'degraded', NULL, now() - interval '1 day')"
+        )
         ts_before, _ = ap.psql(
             f"SELECT {UTC_TS_EXPR('status_changed_at')} FROM tools WHERE tool_id = 'ap8down1-tool1'"
         )
@@ -1395,6 +1423,13 @@ def selftest_db():
             f"world 13: a status_source='manual' tool must NEVER be overwritten by autopilot, "
             f"got {row_manual}"
         )
+        row_legacy, _ = ap.psql(
+            "SELECT status, status_source FROM tools WHERE tool_id = 'ap8down1-tool4'"
+        )
+        assert row_legacy == "degraded" + ap.SEP, (
+            f"world 13: a legacy status_source=NULL non-healthy tool must NEVER be adopted "
+            f"by autopilot (ruling-1 REJECT), got {row_legacy!r}"
+        )
         ts_after, _ = ap.psql(
             f"SELECT {UTC_TS_EXPR('status_changed_at')} FROM tools WHERE tool_id = 'ap8down1-tool1'"
         )
@@ -1405,8 +1440,9 @@ def selftest_db():
         assert not os.path.exists(marker), (
             "world 13: a no-op tick (nothing actually changed) must NOT re-trigger sync-counts"
         )
-        print("world 13b (manual status never overwritten, no-op tick doesn't re-touch "
-              "status_changed_at or re-trigger sync-counts): OK")
+        print("world 13b (manual status AND legacy status_source=NULL non-healthy status never "
+              "overwritten, no-op tick doesn't re-touch status_changed_at or re-trigger "
+              "sync-counts): OK")
 
         # Promote back: provider recovers to HEALTHY (AP-3's own 2-consecutive-
         # OK streak already happened upstream by the time `state` says so --
@@ -1419,7 +1455,7 @@ def selftest_db():
         sync_tool_status()
         rows13c, _ = ap.psql(
             "SELECT tool_id, status, status_source FROM tools WHERE provider = 'ap8down1' "
-            "AND tool_id != 'ap8down1-tool3' ORDER BY tool_id"
+            "AND tool_id NOT IN ('ap8down1-tool3', 'ap8down1-tool4') ORDER BY tool_id"
         )
         for line in rows13c.splitlines():
             tool_id, status, source = line.split(ap.SEP)
@@ -1428,6 +1464,11 @@ def selftest_db():
         row_manual2, _ = ap.psql("SELECT status, status_source FROM tools WHERE tool_id = 'ap8down1-tool3'")
         assert row_manual2 == "degraded" + ap.SEP + "manual", (
             f"world 13: manual tool must survive the FULL demote->promote cycle untouched, got {row_manual2}"
+        )
+        row_legacy2, _ = ap.psql("SELECT status, status_source FROM tools WHERE tool_id = 'ap8down1-tool4'")
+        assert row_legacy2 == "degraded" + ap.SEP, (
+            f"world 13: legacy status_source=NULL non-healthy tool must survive the FULL "
+            f"demote->promote cycle untouched too, got {row_legacy2!r}"
         )
         assert _wait_for(marker), "world 13: promotion crossing availability must also trigger sync-counts"
         print("world 13c (promote: HEALTHY -> healthy, manual tool survives the whole cycle, "
