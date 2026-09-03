@@ -278,6 +278,16 @@ model ProviderStatus {
   reliability_score    Int?      // 0-100, daily (§20)
   next_probe_at        DateTime  @db.Timestamptz() // priority queue key for active probe (AP-3)
   probe_interval_s     Int       // current adaptive interval
+  // AP-3 review fix (Fable, 2026-09-03): the "401 — zero retries" pause anchor,
+  // deliberately SEPARATE from last_probe_result/next_probe_at above. Those two
+  // columns are written by BOTH the active probe path and tool-quality.job's
+  // passive step — one field, two meanings ("last ACTIVE probe result" vs
+  // "last live traffic observation"), so the passive step was silently
+  // overwriting an active FAIL_DETERMINISTIC pause within ~10 minutes. This
+  // column is set ONLY by an active (non-passive) FAIL_DETERMINISTIC result
+  // and cleared ONLY by another active result — recordProbeResult's passive
+  // path (kind='passive') never touches it, by construction, not by ordering.
+  deterministic_paused_until DateTime? @db.Timestamptz()
   updated_at           DateTime  @updatedAt @db.Timestamptz()
 
   @@map("provider_status")

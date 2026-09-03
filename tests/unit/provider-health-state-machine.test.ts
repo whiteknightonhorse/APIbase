@@ -11,6 +11,8 @@ import {
   computeTransition,
   classifyHeadResult,
   classifyAuthResult,
+  classifyDashboardStatus,
+  authHeaders,
   selectProbeTargets,
   budgetMaxForCostClass,
   checkAndConsumeBudget,
@@ -221,6 +223,51 @@ describe('classifyAuthResult — real key, so 401/403 IS deterministic', () => {
     // Telling real schema/endpoint drift apart from noise needs adapter-level
     // knowledge this generic probe doesn't have (documented scope cut).
     expect(classifyAuthResult({ kind: 'status', status: 418 }, [200])).toBe('FAIL_TRANSIENT');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Dashboard status — AP-3 review fix (Fable, minor #1): "slow" and "dead"
+// are different worlds, restoring v1's three-color dashboard.
+// ---------------------------------------------------------------------------
+
+describe('classifyDashboardStatus — three colors, "slow" != "dead"', () => {
+  it('a fast OK is green', () => {
+    expect(classifyDashboardStatus('OK', 200, 150)).toBe('green');
+  });
+
+  it('a slow (>2s) OK is orange, not green', () => {
+    expect(classifyDashboardStatus('OK', 200, 2500)).toBe('orange');
+  });
+
+  it('exactly 2000ms is still green (boundary), 2001ms is orange', () => {
+    expect(classifyDashboardStatus('OK', 200, 2000)).toBe('green');
+    expect(classifyDashboardStatus('OK', 200, 2001)).toBe('orange');
+  });
+
+  it('a 405 OK (HEAD unsupported, service alive) is orange even if fast', () => {
+    expect(classifyDashboardStatus('OK', 405, 50)).toBe('orange');
+  });
+
+  it('any non-OK result is red, regardless of latency or status — "dead" is its own world', () => {
+    expect(classifyDashboardStatus('FAIL_TRANSIENT', 503, 50)).toBe('red');
+    expect(classifyDashboardStatus('FAIL_DETERMINISTIC', 401, 50)).toBe('red');
+    expect(classifyDashboardStatus('FAIL_TRANSIENT', undefined, 0)).toBe('red'); // timeout/network error
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Auth-probe headers — AP-3 review fix (Fable, minor #2): Bearer by default,
+// but an x-api-key-style provider must not be silently unprobeable.
+// ---------------------------------------------------------------------------
+
+describe('authHeaders — Bearer by default, arbitrary header when configured', () => {
+  it('defaults to Authorization: Bearer <key> when no auth_header is set', () => {
+    expect(authHeaders('secret123')).toEqual({ Authorization: 'Bearer secret123' });
+  });
+
+  it('sends the key verbatim under a configured header, no Bearer prefix', () => {
+    expect(authHeaders('secret123', 'x-api-key')).toEqual({ 'x-api-key': 'secret123' });
   });
 });
 

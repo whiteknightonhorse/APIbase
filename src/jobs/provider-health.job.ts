@@ -62,6 +62,13 @@ interface ProbeConfig {
   // nothing for a third value to do yet. If that changes, this is the spot.
   url?: string;
   auth_env?: string;
+  /** how `auth_env`'s value is sent (AP-3 review fix, Fable — minor #2: the
+   *  auth probe only knew `Authorization: Bearer`, which silently isn't
+   *  usable for an `x-api-key`-style provider). Unset/omitted keeps the
+   *  default `Authorization: Bearer <key>`; set to any other header name
+   *  (e.g. `x-api-key`) to send the key verbatim under that header instead,
+   *  no `Bearer` prefix. */
+  auth_header?: string;
   expect_status?: number[];
   cost_class?: 'free' | 'cheap' | 'paid';
   /** overrides the cost_class default cap (budgetMaxForCostClass) — see
@@ -136,6 +143,30 @@ export function classifyAuthResult(outcome: ProbeOutcome, expectStatus: number[]
   if (outcome.status >= 500) return 'FAIL_TRANSIENT';
   if (expectStatus.includes(outcome.status)) return 'OK';
   return 'FAIL_TRANSIENT';
+}
+
+export type DashboardStatus = 'green' | 'orange' | 'red';
+
+/**
+ * AP-3 review fix (Fable, minor #1): v1's dashboard had three colors — this
+ * job's rewrite collapsed it to two (green/red from `result` alone), losing
+ * "slow" (>2s) and 405 (HEAD unsupported, service alive) as their own
+ * `orange` state. "Медленно" и "мертво" — разные миры: any non-OK `result`
+ * (FAIL_TRANSIENT or FAIL_DETERMINISTIC — a probe that didn't succeed) is
+ * `red`; a successful probe that was merely slow, or got the 405 HEAD isn't
+ * wired for, is `orange`; everything else `green`. This is presentation
+ * only — it never feeds the F1 state machine, only the dashboard's Redis
+ * cache (`provider:health:{p}`).
+ */
+export function classifyDashboardStatus(
+  result: ProbeResult,
+  httpStatus: number | undefined,
+  latencyMs: number,
+): DashboardStatus {
+  if (result !== 'OK') return 'red';
+  if (httpStatus === 405) return 'orange';
+  if (latencyMs > 2000) return 'orange';
+  return 'green';
 }
 
 export interface TransitionInput {
@@ -377,6 +408,18 @@ interface RecordMeta {
  * through the same F1 state machine so there is exactly one place that
  * decides what a result means, matching AP-2's "one place, all adapters"
  * pattern for signal capture.
+ *
+ * AP-3 review fix (Fable): `last_probe_result`/`next_probe_at` are written by
+ * BOTH the active path (kind != 'passive') and the passive path (kind ===
+ * 'passive') below — that is intentional and unchanged, they drive queue
+ * scheduling for either signal. `deterministic_paused_until` is NOT one of
+ * those shared fields: it is the durable "401, zero retries" pause anchor,
+ * and only an active call may ever write it (set on a fresh
+ * FAIL_DETERMINISTIC, cleared on any other active result). The passive path
+ * leaves it alone unconditionally — see the `kind === 'passive'` branch
+ * below — so real traffic volume can never shorten or erase a pause an
+ * active auth probe just set, which is the exact defect this splits away
+ * from `last_probe_result` rather than "fixing" with write ordering.
  */
 export async function recordProbeResult(
   db: PrismaClient,
@@ -413,6 +456,20 @@ export async function recordProbeResult(
   });
 
   const now = new Date();
+
+  // `undefined` here means "leave the column exactly as it is" (Prisma skips
+  // undefined fields on update — see the fake-db test doubles doing the same
+  // for `v !== undefined`). Passive calls never set OR clear the pause; only
+  // an active call may do either, and it does one or the other every time it
+  // runs (never both), so the anchor's value always traces back to the most
+  // recent ACTIVE result alone, never to traffic volume.
+  const deterministicPausedUntil: Date | null | undefined =
+    kind === 'passive'
+      ? undefined
+      : result === 'FAIL_DETERMINISTIC'
+        ? new Date(now.getTime() + t.newIntervalS * 1000)
+        : null;
+
   await db.providerStatus.update({
     where: { provider },
     data: {
@@ -426,6 +483,7 @@ export async function recordProbeResult(
       last_latency_ms: meta.latencyMs,
       next_probe_at: new Date(now.getTime() + t.newIntervalS * 1000),
       probe_interval_s: t.newIntervalS,
+      deterministic_paused_until: deterministicPausedUntil,
     },
   });
 
@@ -452,9 +510,10 @@ export async function recordProbeResult(
 
   // Preserve the pre-existing Redis cache for the current dashboard (G2:
   // "каркас и Redis-записи сохранить") until the dashboard reads
-  // provider_status directly (AP-9).
+  // provider_status directly (AP-9). Three colors, not two — see
+  // classifyDashboardStatus (AP-3 review fix, Fable, minor #1).
   await redis.hmset(`provider:health:${provider}`, {
-    status: result === 'OK' ? 'green' : 'red',
+    status: classifyDashboardStatus(result, meta.httpStatus, meta.latencyMs ?? 0),
     latency_ms: String(meta.latencyMs ?? 0),
     last_check: now.toISOString(),
   });
@@ -516,6 +575,15 @@ async function recordSkippedBudget(
  * the top-K), but the asap path deliberately bypasses next_probe_at
  * ordering — this is the guard that keeps it from turning "there's an asap
  * flag" into "retry the deterministically-impossible call".
+ *
+ * AP-3 review fix (Fable): reads `deterministic_paused_until` ONLY — not
+ * `last_probe_result`/`next_probe_at`, which tool-quality.job.ts's passive
+ * step also writes every ~10 minutes for any provider with enough traffic.
+ * Keying the pause on a field the passive path can overwrite meant a dead
+ * key on a busy provider lost its 24h pause within one passive tick, and got
+ * re-probed via the very asap flags this guard exists to stop (see
+ * recordProbeResult's `deterministic_paused_until` handling: passive calls
+ * never touch it, by construction).
  */
 async function isDeterministicallyPaused(
   db: PrismaClient,
@@ -524,7 +592,7 @@ async function isDeterministicallyPaused(
 ): Promise<boolean> {
   const row = await db.providerStatus.findUnique({ where: { provider } });
   if (!row) return false;
-  return row.last_probe_result === 'FAIL_DETERMINISTIC' && row.next_probe_at > now;
+  return row.deterministic_paused_until != null && row.deterministic_paused_until > now;
 }
 
 /** The pause was respected — nothing was measured, so this is NOINFO, not a
@@ -564,6 +632,17 @@ async function probeHead(
   await recordProbeResult(db, redis, provider, 'head', result, { httpStatus, latencyMs });
 }
 
+/**
+ * AP-3 review fix (Fable, minor #2): default `Authorization: Bearer <key>`,
+ * or — when `auth_header` names a different header (e.g. `x-api-key`) — that
+ * header with the key sent verbatim, no `Bearer` prefix. Exported (pure) so
+ * both providers' shapes are covered without a live probe.
+ */
+export function authHeaders(key: string, authHeader?: string): Record<string, string> {
+  if (authHeader) return { [authHeader]: key };
+  return { Authorization: `Bearer ${key}` };
+}
+
 async function probeAuth(
   db: PrismaClient,
   redis: Redis,
@@ -574,7 +653,7 @@ async function probeAuth(
   const expectStatus = probeCfg.expect_status ?? [200];
   const { outcome, latencyMs, httpStatus } = await fetchOutcome(probeCfg.url, 'GET', {
     'User-Agent': 'APIbase-HealthCheck/2.0',
-    Authorization: `Bearer ${key}`,
+    ...authHeaders(key, probeCfg.auth_header),
   });
   const result = classifyAuthResult(outcome, expectStatus);
   const detail = result === 'FAIL_DETERMINISTIC' ? `${httpStatus} with configured key` : undefined;

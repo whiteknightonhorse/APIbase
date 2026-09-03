@@ -61,6 +61,10 @@ interface ProviderErrorRateRow {
   provider: string;
   total: bigint;
   failed: bigint;
+  // provider_status.next_probe_at, joined in — null for a provider that has
+  // never been probed yet (always due). See applyPassiveDegradation's F1
+  // spacing gate below.
+  next_probe_at: string | Date | null;
 }
 
 /**
@@ -126,8 +130,23 @@ async function applyPassiveStep(db: PrismaClient, redis: Redis): Promise<Set<str
  * this same tick (see applyPassiveStep) so the two signals don't fight over
  * one row within a single pass — a persisting problem still surfaces on the
  * next tick once the 6h success count no longer clears the OK threshold.
+ *
+ * AP-3 review fix (Fable) — F1 spacing: "между замерами ≥ probe_interval"
+ * applies to passive measurements too, not just active ones. This function
+ * runs every 10 min (tool-quality's own cadence) but re-aggregates the SAME
+ * trailing window each time, so without a gate a single bad episode wrote a
+ * fresh FAIL_TRANSIENT on every tick and could drive DOWN in ~50 minutes
+ * (6 ticks) from one episode — exactly the "один случайный 500 роняет"
+ * outcome F1 forbids. Joined-in `next_probe_at` (the SAME column the active
+ * probe's own priority queue is ordered by) gates this: a provider not yet
+ * due for its next measurement is skipped here too, so a passive fail can
+ * escalate the state at most once per adaptive interval, same as an active
+ * one. This also means a provider currently paused by FAIL_DETERMINISTIC
+ * (next_probe_at pushed 24h out) is naturally skipped here for that whole
+ * window — belt-and-braces on top of `deterministic_paused_until` in
+ * recordProbeResult, not a substitute for it.
  */
-async function applyPassiveDegradation(
+export async function applyPassiveDegradation(
   db: PrismaClient,
   redis: Redis,
   skipProviders: Set<string>,
@@ -138,17 +157,24 @@ async function applyPassiveDegradation(
       COUNT(*) AS total,
       COUNT(*) FILTER (
         WHERE el.status NOT IN ('success', 'shared_success', 'provider_success')
-      ) AS failed
+      ) AS failed,
+      MAX(ps.next_probe_at) AS next_probe_at
     FROM execution_ledger el
     JOIN tools t ON t.tool_id = el.tool_id
+    LEFT JOIN provider_status ps ON ps.provider = t.provider
     WHERE el.created_at >= NOW() - INTERVAL '${PASSIVE_ERROR_RATE_WINDOW_HOURS} hour'
       AND el.provider_called = true
     GROUP BY t.provider
     HAVING COUNT(*) >= ${PASSIVE_ERROR_RATE_MIN_CALLS}
   `);
 
+  const now = Date.now();
   for (const row of rows) {
     if (skipProviders.has(row.provider)) continue;
+    // Not due yet — the last measurement (active OR passive) that set this
+    // provider's interval hasn't elapsed. A null next_probe_at (never probed
+    // at all) is always due.
+    if (row.next_probe_at !== null && new Date(row.next_probe_at).getTime() > now) continue;
     const total = Number(row.total);
     const failed = Number(row.failed);
     const errorRate = total > 0 ? failed / total : 0;

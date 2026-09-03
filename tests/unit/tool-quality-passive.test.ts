@@ -176,4 +176,95 @@ describe('tool-quality.job passive-degradation step (F1: "реальный тр�
     expect(errorRateSql).toContain(`INTERVAL '${PASSIVE_ERROR_RATE_WINDOW_HOURS} hour'`);
     expect(errorRateSql).toContain(`HAVING COUNT(*) >= ${PASSIVE_ERROR_RATE_MIN_CALLS}`);
   });
+
+  it('joins provider_status so each row carries next_probe_at for the F1 spacing gate', async () => {
+    mockQueries([], []);
+
+    await run(createFakeRedis() as never);
+
+    const errorRateSql = queryRawUnsafe.mock.calls[1][0] as string;
+    expect(errorRateSql).toContain('provider_status');
+    expect(errorRateSql).toContain('next_probe_at');
+  });
+
+  // F1 (~/AUTOPILOT-DESIGN-2026-09-03.md): "между замерами ≥ probe_interval" —
+  // a passive fail must respect the SAME spacing an active probe would,
+  // otherwise one bad hour re-aggregates on every 10-min tick and can drive
+  // DOWN in ~50 minutes from a single episode (Fable's review, attempt 1).
+  it('does NOT flag a provider whose next_probe_at is still in the future — not due for another measurement yet', async () => {
+    mockQueries(
+      [],
+      [
+        {
+          provider: 'flakyco',
+          total: 20n,
+          failed: 6n, // 30%, over threshold
+          next_probe_at: new Date(Date.now() + 20 * 60 * 1000).toISOString(), // 20 min out
+        },
+      ],
+    );
+
+    await run(createFakeRedis() as never);
+
+    expect(mockedRecordProbeResult).not.toHaveBeenCalled();
+  });
+
+  it('DOES flag a provider whose next_probe_at has already passed — due for a measurement', async () => {
+    mockQueries(
+      [],
+      [
+        {
+          provider: 'flakyco',
+          total: 20n,
+          failed: 6n,
+          next_probe_at: new Date(Date.now() - 1000).toISOString(), // 1s in the past
+        },
+      ],
+    );
+
+    await run(createFakeRedis() as never);
+
+    expect(mockedRecordProbeResult).toHaveBeenCalledTimes(1);
+    expect(mockedRecordProbeResult).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.anything(),
+      'flakyco',
+      'passive',
+      'FAIL_TRANSIENT',
+      expect.anything(),
+    );
+  });
+
+  it('a provider never probed before (next_probe_at NULL) is always due', async () => {
+    mockQueries([], [{ provider: 'brandnewco', total: 20n, failed: 6n, next_probe_at: null }]);
+
+    await run(createFakeRedis() as never);
+
+    expect(mockedRecordProbeResult).toHaveBeenCalledTimes(1);
+  });
+
+  // The main defect this whole review-fix task exists for: a provider paused
+  // by an active auth-probe's FAIL_DETERMINISTIC (next_probe_at pushed 24h
+  // out) must not get a fresh passive FAIL_TRANSIENT write within that
+  // window even if real 401 traffic from the dead key clears the error-rate
+  // threshold — belt-and-braces on top of recordProbeResult's own
+  // deterministic_paused_until guard (see provider-health-run.test.ts for
+  // the full pause-survives-the-passive-step mutation check).
+  it('does not re-measure a provider currently paused by FAIL_DETERMINISTIC (next_probe_at 24h out)', async () => {
+    mockQueries(
+      [],
+      [
+        {
+          provider: 'deadkeyco',
+          total: 40n,
+          failed: 40n, // every client call 401s
+          next_probe_at: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
+        },
+      ],
+    );
+
+    await run(createFakeRedis() as never);
+
+    expect(mockedRecordProbeResult).not.toHaveBeenCalled();
+  });
 });

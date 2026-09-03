@@ -13,6 +13,7 @@
  * "already seeded" state (module registries persist across `it()`s in the
  * same file by default).
  */
+import { applyPassiveDegradation } from '../../src/jobs/tool-quality.job';
 
 type FakeRedis = ReturnType<typeof createFakeRedis>;
 type FakeDb = ReturnType<typeof createFakeDb>;
@@ -367,6 +368,11 @@ describe('run() — "401, zero retries" holds even under an asap flag (AP-2 know
         state: name === 'alpha' ? 'DEGRADED' : 'HEALTHY',
         state_since: now,
         last_probe_result: name === 'alpha' ? 'FAIL_DETERMINISTIC' : 'OK',
+        // AP-3 review fix: the guard reads deterministic_paused_until, NOT
+        // last_probe_result/next_probe_at (see below) — those two are kept
+        // here anyway because they're the realistic post-transition state
+        // and other assertions below still check them.
+        deterministic_paused_until: name === 'alpha' ? pausedUntil : null,
         next_probe_at: name === 'alpha' ? pausedUntil : new Date(now.getTime() + i * 1000),
         probe_interval_s: name === 'alpha' ? 24 * 3600 : 21600,
         consecutive_failures: name === 'alpha' ? 1 : 0,
@@ -393,6 +399,7 @@ describe('run() — "401, zero retries" holds even under an asap flag (AP-2 know
       state: 'DEGRADED',
       last_probe_result: 'FAIL_DETERMINISTIC',
       next_probe_at: pausedUntil,
+      deterministic_paused_until: pausedUntil,
     });
 
     // The suppression is still a row (C0.5), tagged NOINFO — this measurement
@@ -402,5 +409,70 @@ describe('run() — "401, zero retries" holds even under an asap flag (AP-2 know
 
     // The asap flag is still consumed either way, so it doesn't loop forever.
     expect(redis.deleted).toContain('probe:asap:alpha');
+  });
+});
+
+describe('AP-3 review fix (Fable, attempt 1) — the FAIL_DETERMINISTIC pause survives the passive step', () => {
+  it('a passive FAIL_TRANSIENT write (real 401 traffic on a dead key) does NOT clear deterministic_paused_until, so a later asap tick still makes zero HTTP calls', async () => {
+    const fetchMock = jest.fn().mockResolvedValue(new Response(null, { status: 200 }));
+    globalThis.fetch = fetchMock;
+
+    const now = new Date('2026-09-03T00:00:00Z');
+    const pausedUntil = new Date(now.getTime() + 24 * 3600 * 1000); // set by an earlier active auth-probe 401
+    const seed: Record<string, Record<string, unknown>> = {};
+    SEVEN_PROVIDERS.forEach((name, i) => {
+      seed[name] = {
+        provider: name,
+        state: name === 'alpha' ? 'DEGRADED' : 'HEALTHY',
+        state_since: now,
+        last_probe_result: name === 'alpha' ? 'FAIL_DETERMINISTIC' : 'OK',
+        deterministic_paused_until: name === 'alpha' ? pausedUntil : null,
+        next_probe_at: name === 'alpha' ? pausedUntil : new Date(now.getTime() + i * 1000),
+        probe_interval_s: name === 'alpha' ? 24 * 3600 : 21600,
+        consecutive_failures: name === 'alpha' ? 1 : 0,
+      };
+    });
+
+    const db = createFakeDb(seed);
+
+    // Step 1 — the passive step (tool-quality.job, runs every 10 min) sees
+    // real client traffic against the dead key: every call 401s, well over
+    // the 25% error-rate threshold. Its next_probe_at is deliberately set to
+    // ALREADY DUE (past) so this exercises recordProbeResult's own
+    // deterministic_paused_until guard directly, independent of the
+    // separate F1-spacing gate in applyPassiveDegradation (covered by its
+    // own tests in tool-quality-passive.test.ts).
+    (db as unknown as { $queryRawUnsafe: jest.Mock }).$queryRawUnsafe = jest
+      .fn()
+      .mockResolvedValue([
+        {
+          provider: 'alpha',
+          total: 40n,
+          failed: 40n,
+          next_probe_at: new Date(now.getTime() - 1000).toISOString(),
+        },
+      ]);
+    await applyPassiveDegradation(db as never, createFakeRedis() as never, new Set());
+
+    // The passive step DID write — last_probe_result/next_probe_at moved,
+    // proving this isn't a no-op that would trivially pass the assertion
+    // below for the wrong reason.
+    const afterPassive = db.statuses.get('alpha');
+    expect(afterPassive).toMatchObject({ last_probe_result: 'FAIL_TRANSIENT' });
+    expect((afterPassive?.next_probe_at as Date).getTime()).not.toBe(pausedUntil.getTime());
+
+    // But the pause anchor itself is untouched by that passive write.
+    expect((afterPassive?.deterministic_paused_until as Date).getTime()).toBe(
+      pausedUntil.getTime(),
+    );
+
+    // Step 2 — 10 minutes later, alpha's own client-facing 401s re-flag it
+    // asap (AP-2). The pause must still hold: zero HTTP calls.
+    const redis = createFakeRedis(['alpha']);
+    const { run } = loadJobModule(db, mockProviderLimits());
+    await run(redis as never);
+
+    const alphaCalled = fetchMock.mock.calls.some(([url]) => String(url).includes('alpha'));
+    expect(alphaCalled).toBe(false);
   });
 });
