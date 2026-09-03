@@ -1,0 +1,543 @@
+#!/usr/bin/env python3
+"""autopilot_common.py — AP-4 shared library for incident-engine.py and
+incident-cli.py (I4: "incident-cli.py — единственная ручка записи для
+агентов"; the engine and the CLI both write incidents, so the write path,
+enum validation, dedup logic and message templates live in exactly ONE
+place, not duplicated between the two entry points).
+
+Design source: ~/AUTOPILOT-DESIGN-2026-09-03.md, sections E3 (incidents
+schema), F2 (incident lifecycle), I1 (routing table), I3 (dedup/lock), I4
+(cli contract), J1-J3 (human-in-the-loop), M (security model).
+
+Scope note (read before extending): AP-6 (`815-autopilot-remediation-router.md`,
+routing.json + fleet-task generator + templates) does not exist yet. Per this
+task's own boundary ("не строй заглушку и не догадывайся об интерфейсе"),
+this module does NOT invent AP-6's task-file format. Kinds routed AUTO/
+AUTO_NO_MODEL/MIXED are classified correctly (ROUTE_CLASS below matches I1's
+table exactly) but stay at incident state OPEN with an `attempts` note
+explaining why — never a fabricated REMEDIATION_QUEUED with no fleet task
+behind it (that would be exactly the "two worlds" bug this whole project is
+built to avoid: state that CLAIMS a task exists when none does). Only the
+HUMAN_KEY / HUMAN_ONLY / HUMAN_GENERIC branches are fully wired end-to-end,
+because those don't need AP-6: HUMAN_KEY reuses the EXISTING connected_db.py
+key contour (J3: "для KEY-инцидентов операторский файл НЕ дублируется"),
+and HUMAN_ONLY/HUMAN_GENERIC use the fully-specified J2/J3 templates.
+"""
+import json
+import os
+import subprocess
+import uuid
+from datetime import datetime, timezone
+
+# ---------------------------------------------------------------------------
+# Postgres access. Same pattern as provider-limit-alerts.py / margin-gate-
+# alerts.py / mpp-refund-resolve.py (this repo): docker exec + psql, unit-
+# separator output. Container name is an env var (not a hardcoded
+# apibase-postgres-1) so tests can point this whole module at a disposable
+# container instead — AP-1's own boundary ("verified against a disposable
+# postgres:16.2-alpine container, never apibase-postgres-1/production")
+# applies here too: this module itself never assumes production.
+# ---------------------------------------------------------------------------
+PG_CONTAINER = os.environ.get("AUTOPILOT_PG_CONTAINER", "apibase-postgres-1")
+PG_USER = os.environ.get("AUTOPILOT_PG_USER", "apibase")
+PG_DB = os.environ.get("AUTOPILOT_PG_DB", "apibase")
+SEP = "\x1f"
+
+ROOT = "/home/apibase/apibase"
+STATE = f"{ROOT}/scripts/night-orchestra/state"
+OPERATOR_DIR = os.environ.get("AUTOPILOT_OPERATOR_DIR", "/home/apibase/autopilot/operator")
+HUMAN_DONE_DIR = os.environ.get("AUTOPILOT_HUMAN_DONE_DIR", "/home/apibase/taskloop/human-done")
+NOTICES_LOG = os.environ.get("AUTOPILOT_NOTICES_LOG", "/home/apibase/taskloop/logs/notices.log")
+HEARTBEAT_FILE = os.environ.get("AUTOPILOT_HEARTBEAT_FILE", "/tmp/autopilot-incident-engine.hb")
+
+
+def psql(sql):
+    """Returns (stdout, returncode). Never raises — a Postgres/docker outage
+    is data (NOINFO), not a Python exception the caller has to guess about.
+
+    -q (quiet) matters here in a way it doesn't for the other scripts in this
+    repo that inspired this helper (provider-limit-alerts.py etc., -tA only):
+    those never use INSERT/UPDATE ... RETURNING, so the "INSERT 0 1" /
+    "UPDATE 1" command tag psql prints AFTER the tuple output (-t only
+    suppresses column headers/row-count footers, NOT that tag) never mixed
+    into their captured stdout. This module's open_or_merge_incident() DOES
+    use RETURNING to get the new incident_id back — without -q, `out` would
+    silently be "the-uuid\nINSERT 0 1" instead of just the uuid, and every
+    caller that stuffs that into a later `sql_literal()` WHERE clause would
+    match zero rows without ever raising (caught live: the 3-world selftest's
+    world 1 failed with `get_incident() -> None` until this was added)."""
+    try:
+        out = subprocess.run(
+            ["docker", "exec", "-i", PG_CONTAINER, "psql", "-U", PG_USER, "-d", PG_DB,
+             "-tAqF", SEP, "-c", sql],
+            capture_output=True, text=True, timeout=30,
+        )
+        # NOT .strip() -- Python classifies \x1f (this module's own field
+        # separator, chosen BECAUSE it can't appear in normal text) as
+        # whitespace (str.isspace()), so a bare .strip() silently eats a
+        # leading/trailing separator whenever the first/last selected column
+        # is NULL (empty string), shifting every field after it by one and
+        # breaking positional unpacking (caught live: get_incident()'s
+        # trailing `resolved_at` NULL made a 15-field row split into 14).
+        # Only the actual line-ending newline psql adds is stripped.
+        return out.stdout.strip("\n"), out.returncode
+    except Exception as e:  # docker missing, container not running, timeout, ...
+        return f"ERROR: {e}", 1
+
+
+def sql_literal(value) -> str:
+    """Quote a Python value as a SQL string literal. NOT json.dumps() — that
+    produces double-quoted syntax Postgres parses as an identifier, not a
+    string (see mpp-refund-resolve.py, same repo, same lesson)."""
+    if value is None:
+        return "NULL"
+    return "'" + str(value).replace("'", "''") + "'"
+
+
+def sql_jsonb_literal(value) -> str:
+    """A Python value (already JSON-serializable) as a jsonb literal."""
+    return sql_literal(json.dumps(value, ensure_ascii=False)) + "::jsonb"
+
+
+def schema_present():
+    """Returns (bool, missing_tables). Distinguishes 'the 4 autopilot tables
+    exist' from 'they don't' explicitly — the FIRST thing every entry point
+    checks, because writing incident rows against a database that doesn't
+    have the table yet is not an error to retry, it's a precondition that
+    hasn't been deployed (migration 0009 not yet applied — see AP-4's own
+    knowledge entry). Never conflated with 'ran and found 0 incidents'."""
+    tables = ["provider_status", "probe_log", "incidents", "email_events"]
+    out, rc = psql(
+        "SELECT string_agg(t, ',') FROM (VALUES "
+        + ",".join(f"('{t}')" for t in tables)
+        + ") AS x(t) WHERE to_regclass('public.' || t) IS NULL"
+    )
+    if rc != 0:
+        return False, tables  # can't even ask — treat as "not present" (fail-closed)
+    missing = out.split(",") if out else []
+    return len(missing) == 0, missing
+
+
+# ---------------------------------------------------------------------------
+# Enums — mirrored 1:1 from prisma/migrations/0009_autopilot_schema/migration.sql
+# CHECK constraints (single source of truth per AP-1's own convention: "живут
+# ОДНИМ местом"). If that migration ever adds/removes a value, update here too
+# — tests/unit/autopilot-schema-0009.test.ts (TS side) already cross-checks
+# the migration/schema/test triple; this is the fourth (Python) copy, kept in
+# sync by code review, not by a shared file (no Python/TS shared-constant
+# mechanism exists in this repo).
+# ---------------------------------------------------------------------------
+KINDS = frozenset([
+    "AUTH_FAILED", "CREDENTIAL_EXPIRED", "PROVIDER_DOWN", "DEGRADED_QUALITY",
+    "RATE_LIMITED", "QUOTA_LOW", "QUOTA_EXHAUSTED", "PAYMENT_REQUIRED",
+    "API_CHANGED", "ENDPOINT_CHANGED", "EMAIL_NOTICE", "UNKNOWN",
+])
+SEVERITIES = frozenset(["SEV1", "SEV2", "SEV3"])
+STATES = frozenset(["OPEN", "REMEDIATION_QUEUED", "WAITING_HUMAN", "VERIFYING", "RESOLVED", "STUCK"])
+DETECTED_BY = frozenset(["probe", "passive", "limits", "email", "tester", "manual"])
+
+# I1's routing table, literal. AUTO/AUTO_NO_MODEL/MIXED are classified
+# correctly but cannot reach REMEDIATION_QUEUED without AP-6 (see module
+# docstring) — see ROUTE_ACTIONABLE below for what AP-4 itself can do today.
+ROUTE_CLASS = {
+    "PROVIDER_DOWN": "AUTO",
+    "API_CHANGED": "AUTO",
+    "ENDPOINT_CHANGED": "AUTO",
+    "DEGRADED_QUALITY": "AUTO",
+    "EMAIL_NOTICE": "AUTO",
+    "RATE_LIMITED": "AUTO_NO_MODEL",
+    "QUOTA_LOW": "MIXED",
+    "QUOTA_EXHAUSTED": "MIXED",
+    "AUTH_FAILED": "HUMAN_KEY",
+    "CREDENTIAL_EXPIRED": "HUMAN_KEY",
+    "PAYMENT_REQUIRED": "HUMAN_ONLY",
+    "UNKNOWN": "HUMAN_GENERIC",
+}
+assert set(ROUTE_CLASS) == KINDS, "ROUTE_CLASS must cover every incident kind"
+
+# Route classes that go straight to WAITING_HUMAN on open (J1's closed list +
+# I1). Everything else stays OPEN (parked, pending AP-6 or a self-action).
+HUMAN_ROUTE_CLASSES = frozenset(["HUMAN_KEY", "HUMAN_ONLY", "HUMAN_GENERIC"])
+
+# Route classes that get the GENERIC J3 operator file. HUMAN_KEY explicitly
+# does NOT (J3: "для KEY-инцидентов операторский файл НЕ дублируется" — the
+# existing connected_db.py email contour is the one place for keys, LAW
+# #ONE-PLACE).
+OPERATOR_FILE_ROUTE_CLASSES = frozenset(["HUMAN_ONLY", "HUMAN_GENERIC"])
+
+WAITING_HUMAN_REMINDER_SECONDS = 72 * 3600  # J2/F2: "напоминание раз в 72ч"
+
+
+def dedup_key(kind: str, provider: str, tool_id: str | None = None) -> str:
+    base = f"{kind}:{provider}"
+    return f"{base}:{tool_id}" if tool_id else base
+
+
+def short_id(incident_id: str) -> str:
+    """INC-a1b2c3 style short form used in TG/operator-file headings (J2's
+    own worked example uses 6 hex chars)."""
+    return incident_id.replace("-", "")[:6]
+
+
+def utc_now_str():
+    return datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+
+
+def now_iso():
+    return datetime.now(timezone.utc).isoformat()
+
+
+def notice(line: str):
+    """Append one line to the SAME notices.log fleet-check.sh already uses
+    for suppressed actions (C0.5: "паттерн «молчу:» fleet-check —
+    переиспользуется дословно" — one file, not a second one for this
+    engine)."""
+    try:
+        os.makedirs(os.path.dirname(NOTICES_LOG), exist_ok=True)
+        ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        with open(NOTICES_LOG, "a") as f:
+            f.write(f"{ts} {line}\n")
+    except Exception:
+        pass  # best-effort logging must never crash the engine
+
+
+# ---------------------------------------------------------------------------
+# Telegram (tg(), matching fleet-check.sh / fleet-pulse.sh / the *-alerts.py
+# scripts exactly — one tg.env, best-effort, never blocks on failure, N17).
+# ---------------------------------------------------------------------------
+def load_tg_env():
+    env = {}
+    path = os.environ.get("AUTOPILOT_TG_ENV_PATH", f"{STATE}/tg.env")
+    if not os.path.exists(path):
+        return env
+    for line in open(path):
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        k, v = line.split("=", 1)
+        env[k] = v.strip('"').strip("'")
+    return env
+
+
+def tg_send(text: str) -> bool:
+    env = load_tg_env()
+    token, chat_id = env.get("TG_BOT_TOKEN"), env.get("TG_CHAT_ID")
+    if not token or not chat_id:
+        return False
+    try:
+        r = subprocess.run(
+            ["curl", "-sS", "--max-time", "30", "-F", f"chat_id={chat_id}", "-F", f"text={text}",
+             f"https://api.telegram.org/bot{token}/sendMessage"],
+            capture_output=True, text=True,
+        )
+        return '"ok":true' in r.stdout
+    except Exception:
+        return False
+
+
+# ---------------------------------------------------------------------------
+# Severity (E3: SEV1 money/whole-provider, SEV2 degradation, SEV3 warning).
+# tool_count/revenue_pct are best-effort context, NOT required — None means
+# NOINFO, never silently treated as 0 (a provider we can't measure revenue
+# for is not "worth $0", it's unmeasured).
+# ---------------------------------------------------------------------------
+def classify_severity(kind: str, tool_count: int | None = None, revenue_pct: float | None = None) -> str:
+    if kind == "PAYMENT_REQUIRED":
+        return "SEV1"
+    if kind == "PROVIDER_DOWN":
+        big = (tool_count is not None and tool_count >= 5) or (revenue_pct is not None and revenue_pct >= 1.0)
+        return "SEV1" if big else "SEV2"
+    if kind in ("DEGRADED_QUALITY", "AUTH_FAILED", "CREDENTIAL_EXPIRED"):
+        return "SEV2"
+    return "SEV3"  # RATE_LIMITED, QUOTA_*, API_CHANGED, ENDPOINT_CHANGED, EMAIL_NOTICE, UNKNOWN
+
+
+_SEVERITY_EMOJI = {"SEV1": "\U0001F534", "SEV2": "\U0001F7E0", "SEV3": "\U0001F7E1"}  # red/orange/yellow
+
+# Kind-specific human-readable copy for the J2 message + J3 file. Only the
+# route classes AP-4 can genuinely finish end-to-end (HUMAN_*) need real
+# "нужно от вас"/"после вас" text; AUTO/AUTO_NO_MODEL/MIXED get one shared,
+# honest line instead of per-kind invention (see module docstring).
+_WHY_NOT_AUTO = {
+    "HUMAN_KEY": "учётные данные — только контур connected_db.py (LAW #ONE-PLACE, один контур ключей)",
+    "HUMAN_ONLY": "деньги/оплата — HUMAN-ONLY, автоветки не существует (раздел 9C задания)",
+    "HUMAN_GENERIC": "не удалось классифицировать детерминированно — нужен человек",
+}
+_NEED_FROM_YOU = {
+    "HUMAN_KEY": "обновите ключ провайдера через существующий контур (см. письмо от connected_db.py)",
+    "HUMAN_ONLY": f"файл-инструкция → {OPERATOR_DIR}/INC-<id>.md (шаги, URL, что вернуть)",
+    "HUMAN_GENERIC": f"файл-инструкция → {OPERATOR_DIR}/INC-<id>.md (шаги, URL, что вернуть)",
+}
+_AFTER_YOU = {
+    "HUMAN_KEY": "движок сам увидит новый ключ на следующей пробе (AP-3) и переоткроет проверку — ничего класть не нужно",
+    "HUMAN_ONLY": f"положите файл в {HUMAN_DONE_DIR}/ — продолжит движок",
+    "HUMAN_GENERIC": f"положите файл в {HUMAN_DONE_DIR}/ — продолжит движок",
+}
+
+
+def format_tg_message(incident: dict) -> str:
+    """Reproduces J2's exact structure. `incident` needs: incident_id, kind,
+    severity, provider, state, evidence (dict), created_at, tool_count
+    (optional), revenue_pct (optional), what (str, human summary), system_did
+    (str, what the engine already did)."""
+    route = ROUTE_CLASS[incident["kind"]]
+    emoji = _SEVERITY_EMOJI.get(incident["severity"], "⚪")
+    sid = short_id(incident["incident_id"])
+    provider_line = f"Provider: {incident['provider']}"
+    tc, rp = incident.get("tool_count"), incident.get("revenue_pct")
+    if tc is not None or rp is not None:
+        tc_s = f"{tc} tools" if tc is not None else "tools: NOINFO"
+        rp_s = f"{rp:.1f}% выручки за 30д" if rp is not None else "выручка: NOINFO"
+        provider_line += f" ({tc_s}, {rp_s})"
+    lines = [
+        f"[apibase] {emoji} {incident['severity']} INC-{sid} {incident['kind']}",
+        provider_line,
+        f"Что: {incident.get('what', incident['kind'])}",
+        f"Когда: впервые {incident.get('created_at', utc_now_str())}",
+        f"Система уже: {incident.get('system_did', 'обнаружила и открыла инцидент')}",
+    ]
+    if route in HUMAN_ROUTE_CLASSES:
+        lines.append(f"Почему не сама: {_WHY_NOT_AUTO[route]}")
+        lines.append(f"Нужно от вас: {_NEED_FROM_YOU[route].replace('<id>', sid)}")
+        lines.append(f"После вас: {_AFTER_YOU[route]}")
+    else:
+        lines.append(
+            f"Почему не сама: классифицирована как {route}, но задачи флоту требуют "
+            f"remediation-router (AP-6, не построен) — инцидент остаётся OPEN"
+        )
+    return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------
+# J3 operator file. Only OPERATOR_FILE_ROUTE_CLASSES (HUMAN_ONLY/HUMAN_GENERIC)
+# ever call this — HUMAN_KEY reuses the existing connected_db.py contour.
+# ---------------------------------------------------------------------------
+_REQUIRED_ACTIONS = {
+    "PAYMENT_REQUIRED": [
+        "Проверить провайдера в src/config/provider-limits.json (docs_url/health_url) — "
+        "узнать тариф и способ оплаты.",
+        "Войти в консоль провайдера, оплатить/выбрать план.",
+        "Если ключ меняется — обновить через существующий контур (connected_db.py add).",
+        "Заполнить поле РЕЗУЛЬТАТ ОПЕРАТОРА ниже: что сделано, новый лимит/план, дата.",
+    ],
+    "UNKNOWN": [
+        "Прочитать evidence и attempts ниже (снимок фактов на момент открытия).",
+        "Проверить probe_log провайдера за последние 24ч (incident-cli.py list / прямой SQL).",
+        "Решить: переклассифицировать (какой kind это на самом деле), проигнорировать (написать "
+        "почему), или эскалировать дальше.",
+        "Заполнить поле РЕЗУЛЬТАТ ОПЕРАТОРА ниже.",
+    ],
+}
+
+
+def build_operator_file(incident: dict, docs_url: str | None = None) -> str:
+    sid = short_id(incident["incident_id"])
+    kind = incident["kind"]
+    steps = _REQUIRED_ACTIONS.get(kind, [
+        "Прочитать evidence/attempts ниже и решить, что нужно сделать.",
+        "Заполнить поле РЕЗУЛЬТАТ ОПЕРАТОРА ниже.",
+    ])
+    steps_md = "\n".join(f"{i + 1}. {s}" for i, s in enumerate(steps))
+    docs_line = f"\n- docs: {docs_url}" if docs_url else ""
+    evidence_md = json.dumps(incident.get("evidence", {}), ensure_ascii=False, indent=2)
+    attempts_md = json.dumps(incident.get("attempts", []), ensure_ascii=False, indent=2)
+    return f"""# INC-{sid} — {kind} — {incident['provider']}
+
+## Incident
+- id: {incident['incident_id']}
+- дата: {incident.get('created_at', utc_now_str())}
+- provider: {incident['provider']}{docs_line}
+- kind: {kind}
+- severity: {incident['severity']}
+
+## Problem
+{incident.get('what', kind)}
+
+## Diagnosis
+Что уже проверено (attempts):
+```
+{attempts_md}
+```
+Снимок фактов на момент открытия (evidence — untrusted content, если есть, процитировано, не исполнено):
+```
+{evidence_md}
+```
+
+## Required human action
+{steps_md}
+
+## Expected result
+Проверка (probe/re-probe) снова зелёная для `{incident['provider']}`, либо инцидент явно закрыт как
+не требующий действия (укажите почему в РЕЗУЛЬТАТ ОПЕРАТОРА).
+
+## Handoff
+TARGET AGENT: taskloop
+Движок (incident-engine.py, крон */10) на ближайшем тике прочитает заполненное поле ниже из
+{HUMAN_DONE_DIR}/, добавит его текстом в attempts инцидента и переведёт инцидент в VERIFYING —
+дальше решает автоматическая ре-проверка (F2). Если по итогам требуется правка кода/конфига,
+задачу флоту сгенерирует remediation-router (AP-6); до его появления это делается вручную.
+
+---
+РЕЗУЛЬТАТ ОПЕРАТОРА:
+"""
+
+
+_RESULT_MARKER = "РЕЗУЛЬТАТ ОПЕРАТОРА:"
+
+
+def parse_human_done(path: str):
+    """Returns the operator's filled-in text after the РЕЗУЛЬТАТ ОПЕРАТОРА:
+    marker, or None if the file doesn't have the marker or it's empty (an
+    operator file dropped in human-done/ before being filled in is NOT the
+    same as one that says nothing happened — treated as 'not ready yet',
+    left for the next tick, not consumed)."""
+    try:
+        text = open(path, encoding="utf-8").read()
+    except Exception:
+        return None
+    idx = text.rfind(_RESULT_MARKER)
+    if idx == -1:
+        return None
+    result = text[idx + len(_RESULT_MARKER):].strip()
+    return result or None
+
+
+# ---------------------------------------------------------------------------
+# Core write path — shared by incident-engine.py's own detection loop and by
+# incident-cli.py's `open` command (I4: not two write paths, one).
+# ---------------------------------------------------------------------------
+def open_or_merge_incident(kind, provider, evidence, detected_by, tool_id=None,
+                            tool_count=None, revenue_pct=None, what=None, system_did=None,
+                            docs_url=None, actor="incident-engine"):
+    """Idempotent: if an incident with this dedup_key is already open (state
+    != RESOLVED), append a 'recurrence' note to attempts and return
+    (incident_id, False). Otherwise INSERT a new row (state decided by
+    ROUTE_CLASS) and return (incident_id, True). The DB-level partial unique
+    index (incidents_open_dedup) is the real lock (I3); this function's
+    SELECT-then-INSERT is the fast path, the unique-violation fallback below
+    is what actually makes it race-safe against a second writer landing
+    between the SELECT and the INSERT.
+
+    ONE place (I4) also handles what happens on a genuinely new incident:
+    TG (J2) for every HUMAN-route incident (it needs a human now, regardless
+    of formal severity) or any SEV1 (N.3: "TG при SEV1 (топ-провайдер)");
+    SEV2/SEV3 AUTO-class incidents stay TG-silent, visible instead via
+    fleet-pulse's daily count and `incident-cli.py list` (N.3's "digest").
+    A generic J3 operator file is written for HUMAN_ONLY/HUMAN_GENERIC only
+    (HUMAN_KEY reuses connected_db.py — see module docstring)."""
+    assert kind in KINDS, f"unknown incident kind: {kind}"
+    assert detected_by in DETECTED_BY, f"unknown detected_by: {detected_by}"
+    dk = dedup_key(kind, provider, tool_id)
+
+    existing, rc = psql(f"SELECT incident_id FROM incidents WHERE dedup_key = {sql_literal(dk)} "
+                         f"AND state <> 'RESOLVED'")
+    if rc != 0:
+        raise RuntimeError(f"open_or_merge_incident: lookup failed for {dk}")
+    if existing:
+        note_incident(existing, actor, "recurrence",
+                       json.dumps(evidence, ensure_ascii=False)[:2000])
+        return existing, False
+
+    severity = classify_severity(kind, tool_count, revenue_pct)
+    route = ROUTE_CLASS[kind]
+    state = "WAITING_HUMAN" if route in HUMAN_ROUTE_CLASSES else "OPEN"
+    new_id = str(uuid.uuid4())
+    attempts = []
+    if route not in HUMAN_ROUTE_CLASSES:
+        attempts.append({
+            "ts": now_iso(), "actor": "incident-engine", "action": "route",
+            "result": f"classified {route}; remediation-router (AP-6) not built yet — "
+                      f"staying OPEN, no fleet task filed",
+        })
+    insert_sql = (
+        f"INSERT INTO incidents (incident_id, dedup_key, provider, tool_id, kind, severity, "
+        f"state, detected_by, evidence, attempts) VALUES ("
+        f"{sql_literal(new_id)}, {sql_literal(dk)}, {sql_literal(provider)}, "
+        f"{sql_literal(tool_id)}, {sql_literal(kind)}, {sql_literal(severity)}, "
+        f"{sql_literal(state)}, {sql_literal(detected_by)}, {sql_jsonb_literal(evidence)}, "
+        f"{sql_jsonb_literal(attempts)}) "
+        f"ON CONFLICT (dedup_key) WHERE state <> 'RESOLVED' DO NOTHING "
+        f"RETURNING incident_id"
+    )
+    out, rc2 = psql(insert_sql)
+    if rc2 != 0:
+        raise RuntimeError(f"open_or_merge_incident: insert failed for {dk}: {out}")
+    if not out:
+        # Lost a race to a concurrent writer between our SELECT and INSERT —
+        # the row that won is the truth now, merge into it instead.
+        existing2, rc3 = psql(f"SELECT incident_id FROM incidents WHERE dedup_key = {sql_literal(dk)} "
+                               f"AND state <> 'RESOLVED'")
+        if rc3 == 0 and existing2:
+            note_incident(existing2, actor, "recurrence (race)",
+                          json.dumps(evidence, ensure_ascii=False)[:2000])
+            return existing2, False
+        raise RuntimeError(f"open_or_merge_incident: insert returned nothing and no row found for {dk}")
+
+    incident = {
+        "incident_id": out, "kind": kind, "severity": severity, "provider": provider,
+        "state": state, "evidence": evidence, "attempts": attempts,
+        "created_at": utc_now_str(), "tool_count": tool_count, "revenue_pct": revenue_pct,
+        "what": what, "system_did": system_did,
+    }
+    if route in HUMAN_ROUTE_CLASSES and route in OPERATOR_FILE_ROUTE_CLASSES:
+        try:
+            os.makedirs(OPERATOR_DIR, exist_ok=True)
+            op_path = os.path.join(OPERATOR_DIR, f"INC-{short_id(out)}.md")
+            with open(op_path, "w", encoding="utf-8") as f:
+                f.write(build_operator_file(incident, docs_url=docs_url))
+            psql(f"UPDATE incidents SET operator_file = {sql_literal(op_path)} "
+                 f"WHERE incident_id = {sql_literal(out)}")
+        except Exception as e:
+            notice(f"WARN: failed to write operator file for {out}: {e}")
+    if route in HUMAN_ROUTE_CLASSES or severity == "SEV1":
+        sent = tg_send(format_tg_message(incident))
+        if not sent:
+            notice(f"молчу: TG send failed/unconfigured for new incident {out} ({kind}/{provider})")
+    return out, True
+
+
+def note_incident(incident_id: str, actor: str, action: str, result: str):
+    entry = {"ts": now_iso(), "actor": actor, "action": action, "result": result}
+    _, rc = psql(
+        f"UPDATE incidents SET attempts = attempts || {sql_jsonb_literal([entry])}, updated_at = now() "
+        f"WHERE incident_id = {sql_literal(incident_id)}"
+    )
+    if rc != 0:
+        raise RuntimeError(f"note_incident: update failed for {incident_id}")
+
+
+def transition_state(incident_id: str, new_state: str, extra_set: str = ""):
+    """NOTE: this repo's `@updatedAt` on Incident.updated_at is a Prisma-
+    CLIENT convention, not a DB trigger -- migration 0009 (raw SQL, AP-1)
+    only sets it as an INSERT default. Since this whole module talks to
+    Postgres over `psql`, not Prisma Client, every write that should move
+    `updated_at` must say so explicitly, here, or advance_verifying()'s
+    "has there been a probe SINCE we entered VERIFYING" check silently
+    compares against a timestamp that never moved."""
+    assert new_state in STATES, f"unknown state: {new_state}"
+    resolved_sql = ", resolved_at = now()" if new_state == "RESOLVED" else ""
+    _, rc = psql(
+        f"UPDATE incidents SET state = {sql_literal(new_state)}, updated_at = now()"
+        f"{resolved_sql}{extra_set} WHERE incident_id = {sql_literal(incident_id)}"
+    )
+    if rc != 0:
+        raise RuntimeError(f"transition_state: update failed for {incident_id} -> {new_state}")
+
+
+def get_incident(incident_id: str):
+    out, rc = psql(
+        f"SELECT incident_id, dedup_key, provider, tool_id, kind, severity, state, "
+        f"detected_by, evidence::text, attempts::text, fleet_task_id, operator_file, "
+        f"next_recheck_at, created_at, resolved_at "
+        f"FROM incidents WHERE incident_id = {sql_literal(incident_id)}"
+    )
+    if rc != 0 or not out:
+        return None
+    f = out.split(SEP)
+    return {
+        "incident_id": f[0], "dedup_key": f[1], "provider": f[2], "tool_id": f[3] or None,
+        "kind": f[4], "severity": f[5], "state": f[6], "detected_by": f[7],
+        "evidence": json.loads(f[8]), "attempts": json.loads(f[9]),
+        "fleet_task_id": f[10] or None, "operator_file": f[11] or None,
+        "next_recheck_at": f[12] or None, "created_at": f[13], "resolved_at": f[14] or None,
+    }

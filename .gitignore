@@ -88,3 +88,9 @@ static-current
 # night-orchestra now lives in its own private repo (B-01, github.com/whiteknightonhorse/night-orchestra)
 # — pricing-audit.md carries margin policy that must never reach this PUBLIC repo. Whole dir excluded.
 scripts/night-orchestra/
+
+# AP-4: scripts/autopilot/ is this repo's first scripts/ subdir with cross-file imports
+# (incident-cli.py / incident-engine.py both `import autopilot_common`) — running any of them
+# generates a bytecode cache the earlier flat *.py scripts never did.
+__pycache__/
+*.pyc
