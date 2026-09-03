@@ -489,9 +489,22 @@ print(json.dumps({
 }))
 ")
 
+  # gh_api_post uses `curl -sf`: on an HTTP error it exits non-zero with an
+  # empty body. Under `set -e`, `pr_result=$(gh_api_post ...)` as a bare
+  # assignment takes that non-zero exit and kills the whole script right
+  # here — silently, before the "PR creation failed" handling below (which
+  # DOES exist, declared right underneath) ever runs. That's exactly why
+  # this call is guarded with `|| { ... }` like the fork call above it:
+  # the declared error path is worthless if control never reaches it
+  # (LAW #DECLARED-IS-NOT-WIRED — found live via 349 "Creating PR" log
+  # lines against 12 "PR created" lines and zero "ERROR" lines, T-706).
   local pr_result
   pr_result=$(gh_api_post "https://api.github.com/repos/$repo/pulls" \
-    -d "$pr_payload" 2>&1)
+    -d "$pr_payload" 2>&1) || {
+    log "ERROR: PR creation API call failed (non-2xx or network error)"
+    log "$pr_result"
+    return 1
+  }
 
   local pr_url
   pr_url=$(echo "$pr_result" | python3 -c "import json,sys; print(json.load(sys.stdin).get('html_url','ERROR'))" 2>/dev/null)

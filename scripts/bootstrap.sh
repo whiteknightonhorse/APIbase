@@ -5,7 +5,7 @@
 # in ~2-3 minutes.
 #
 # Usage (as root on fresh server):
-#   curl -O https://raw.githubusercontent.com/apibase/apibase/main/scripts/bootstrap.sh
+#   curl -O https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/scripts/bootstrap.sh
 #   bash bootstrap.sh
 #
 # Prerequisites:
@@ -37,7 +37,11 @@ set -euo pipefail
 DEPLOY_USER="deploy"
 DEPLOY_UID=1001
 APP_DIR="/opt/app"
-REPO_URL="https://github.com/apibase/apibase.git"
+# T-706: was "https://github.com/apibase/apibase.git" — org "apibase" does
+# not exist on GitHub (LAW #DECLARED-IS-NOT-WIRED, G10). The real repo has
+# always been whiteknightonhorse/APIbase; verified live against this tree's
+# own `origin` remote.
+REPO_URL="https://github.com/whiteknightonhorse/APIbase.git"
 COMPOSE_CMD="docker compose -f docker-compose.yml -f docker-compose.prod.yml"
 DOMAIN="apibase.pro"
 READINESS_TIMEOUT=120
