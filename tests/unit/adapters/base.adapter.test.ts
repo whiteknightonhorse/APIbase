@@ -8,6 +8,43 @@ jest.mock('../../../src/config/provider-limits.json', () => ({
   test_provider: { limit_type: 'unlimited' },
 }));
 
+// AP-2: minimal fake Redis so base.adapter.ts's header-capture / asap-flag
+// writes (getSharedRedis()) never touch a real connection in tests. Records
+// every call so tests can assert on what got written, per key.
+function createFakeRedis() {
+  const hashes = new Map<string, Record<string, string>>();
+  const strings = new Map<string, string>();
+  const expirations = new Map<string, number>();
+  return {
+    hashes,
+    strings,
+    expirations,
+    async del(key: string) {
+      hashes.delete(key);
+      strings.delete(key);
+      return 1;
+    },
+    async hmset(key: string, fields: Record<string, string>) {
+      hashes.set(key, { ...(hashes.get(key) ?? {}), ...fields });
+      return 'OK';
+    },
+    async expire(key: string, seconds: number) {
+      expirations.set(key, seconds);
+      return 1;
+    },
+    async setex(key: string, seconds: number, value: string) {
+      strings.set(key, value);
+      expirations.set(key, seconds);
+      return 'OK';
+    },
+  };
+}
+
+let fakeRedis = createFakeRedis();
+jest.mock('../../../src/services/redis.service', () => ({
+  getSharedRedis: () => fakeRedis,
+}));
+
 import { BaseAdapter } from '../../../src/adapters/base.adapter';
 import {
   type ProviderRequest,
@@ -76,6 +113,7 @@ const originalFetch = globalThis.fetch;
 
 beforeEach(() => {
   jest.restoreAllMocks();
+  fakeRedis = createFakeRedis();
 });
 
 afterAll(() => {
@@ -337,5 +375,108 @@ describe('BaseAdapter retry cap (F1/C-6)', () => {
     } catch (error) {
       expect(globalThis.fetch).toHaveBeenCalledTimes(3); // 1 + 2 configured retries
     }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// AP-2 — signal capture: upstream rate-limit headers + asap-probe flag
+// ---------------------------------------------------------------------------
+
+describe('BaseAdapter signal capture (AP-2)', () => {
+  const rlKey = 'provider:upstream_rl:test_provider';
+  const asapKey = 'probe:asap:test_provider';
+
+  const adapter = new TestAdapter({
+    provider: 'test_provider', // mocked as unlimited at the top of this file
+    baseUrl: 'https://api.test.com',
+    timeoutMs: 500,
+    maxRetries: 2,
+  });
+
+  it('captures upstream rate-limit headers into Redis on a normal success', async () => {
+    globalThis.fetch = jest
+      .fn()
+      .mockResolvedValue(
+        mockFetchResponse({ result: 'ok' }, 200, {
+          'X-RateLimit-Limit': '100',
+          'X-RateLimit-Remaining': '7',
+          'X-RateLimit-Reset': '1700000000',
+        }),
+      );
+
+    await adapter.call(makeRequest());
+
+    expect(fakeRedis.hashes.get(rlKey)).toEqual(
+      expect.objectContaining({ limit: '100', remaining: '7', reset: '1700000000' }),
+    );
+    expect(fakeRedis.expirations.get(rlKey)).toBe(6 * 60 * 60);
+  });
+
+  it('does not touch Redis when the response carries no rate-limit-shaped headers', async () => {
+    globalThis.fetch = jest.fn().mockResolvedValue(mockFetchResponse({ result: 'ok' }));
+
+    await adapter.call(makeRequest());
+
+    expect(fakeRedis.hashes.has(rlKey)).toBe(false);
+  });
+
+  it('captures Retry-After from a 429 even though the call itself throws', async () => {
+    globalThis.fetch = jest
+      .fn()
+      .mockResolvedValue(
+        mockFetchResponse({ error: 'rate limited' }, 429, { 'Retry-After': '30' }),
+      );
+
+    await expect(adapter.call(makeRequest())).rejects.toMatchObject({
+      code: ProviderErrorCode.RATE_LIMIT,
+    });
+
+    expect(fakeRedis.hashes.get(rlKey)).toEqual(expect.objectContaining({ retry_after: '30' }));
+  });
+
+  it('flags probe:asap:{provider} (SETEX 600) when a ProviderError is thrown', async () => {
+    globalThis.fetch = jest.fn().mockRejectedValue(new Error('connection reset'));
+
+    await expect(adapter.call(makeRequest())).rejects.toMatchObject({
+      code: ProviderErrorCode.UNAVAILABLE,
+    });
+
+    expect(fakeRedis.strings.get(asapKey)).toBe('1');
+    expect(fakeRedis.expirations.get(asapKey)).toBe(600);
+  });
+
+  it('flags the asap probe exactly once even after multiple retries', async () => {
+    globalThis.fetch = jest.fn().mockRejectedValue(new Error('connection reset'));
+    const setexSpy = jest.spyOn(fakeRedis, 'setex');
+
+    await expect(adapter.call(makeRequest())).rejects.toBeDefined();
+
+    // 3 total attempts (1 + 2 retries) but the asap flag is set once by the
+    // call() wrapper, not once per retry inside callInternal().
+    expect(globalThis.fetch).toHaveBeenCalledTimes(3);
+    expect(setexSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('does NOT flag an asap probe on success', async () => {
+    globalThis.fetch = jest.fn().mockResolvedValue(mockFetchResponse({ result: 'ok' }));
+
+    await adapter.call(makeRequest());
+
+    expect(fakeRedis.strings.has(asapKey)).toBe(false);
+  });
+
+  it('does not fail the provider call when Redis itself is down', async () => {
+    fakeRedis.hmset = jest.fn().mockRejectedValue(new Error('ECONNREFUSED'));
+    fakeRedis.setex = jest.fn().mockRejectedValue(new Error('ECONNREFUSED'));
+    globalThis.fetch = jest
+      .fn()
+      .mockResolvedValue(
+        mockFetchResponse({ result: 'ok' }, 200, { 'X-RateLimit-Remaining': '1' }),
+      );
+
+    // Must resolve normally — a Redis outage is never allowed to surface as
+    // a provider-call failure (best-effort signal capture).
+    const result = await adapter.call(makeRequest());
+    expect(result.body).toEqual({ result: 'ok' });
   });
 });

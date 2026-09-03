@@ -11,6 +11,29 @@ import {
   PROVIDER_MAX_RESPONSE_BYTES,
 } from '../types/provider';
 import providerLimitsConfig from '../config/provider-limits.json';
+import { getSharedRedis } from '../services/redis.service';
+import {
+  X_RATELIMIT_LIMIT,
+  X_RATELIMIT_REMAINING,
+  X_RATELIMIT_RESET,
+} from '../config/http-headers';
+
+/**
+ * AP-2 (2026-09-03): the upstream's own rate-limit/Retry-After headers, and a
+ * ProviderError itself, are both signals we already receive on every call and
+ * previously discarded. Captured here — the one place all ~372 adapters
+ * funnel through — instead of duplicated per-adapter.
+ *   - `provider:upstream_rl:{provider}` (G3.1): last-write-wins snapshot of
+ *     whatever rate-limit headers this response carried, for burn-rate calc.
+ *   - `probe:asap:{provider}` (G2): a ProviderError is "suspicion" — flag the
+ *     provider for an out-of-turn health-job probe instead of waiting out the
+ *     round-robin. Consuming/classifying that flag (e.g. respecting a
+ *     FAIL_DETERMINISTIC pause) is the probe job's job, not this one's.
+ * Both are best-effort: a Redis hiccup must never fail the actual provider
+ * call, so failures here are caught and logged, never thrown.
+ */
+const UPSTREAM_RL_TTL_S = 6 * 60 * 60; // 6h (G3.1)
+const ASAP_PROBE_TTL_S = 600; // 10 min (G2)
 
 /**
  * F1/C-6 (2026-09-01): retries cost real money against a PAID upstream — each
@@ -76,8 +99,21 @@ export abstract class BaseAdapter {
   /**
    * Execute a provider call with timeout, retries, and size enforcement.
    * Returns either a ProviderRawResponse or throws a structured ProviderError.
+   *
+   * Thin wrapper around callInternal() so every failure path — non-retryable
+   * immediate throw, or retries exhausted — flags an asap re-probe exactly
+   * once, regardless of which branch inside callInternal() produced it (G2).
    */
   async call(req: ProviderRequest): Promise<ProviderRawResponse> {
+    try {
+      return await this.callInternal(req);
+    } catch (error) {
+      await this.flagAsapProbe();
+      throw error;
+    }
+  }
+
+  private async callInternal(req: ProviderRequest): Promise<ProviderRawResponse> {
     const built = this.buildRequest(req);
     let lastError: ProviderError | undefined;
 
@@ -168,6 +204,11 @@ export abstract class BaseAdapter {
         cause: error instanceof Error ? error : undefined,
       });
     }
+
+    // G3.1: capture upstream rate-limit signal before anything else can
+    // throw (size limit, JSON parse, 4xx/5xx branches below) — the headers
+    // are on every response regardless of status, so capture unconditionally.
+    await this.captureUpstreamRateLimit(response);
 
     // Read response body with size enforcement (§12.162)
     const bodyText = await this.readResponseBody(response, req, start);
@@ -308,6 +349,58 @@ export abstract class BaseAdapter {
     // Flush any remaining bytes in the decoder
     chunks.push(decoder.decode());
     return chunks.join('');
+  }
+
+  /**
+   * G3.1: mirror the upstream's own rate-limit/Retry-After headers into
+   * Redis as a last-write-wins snapshot. DEL-then-write so a response that
+   * only carries `retry-after` (e.g. a 429) doesn't leave stale
+   * limit/remaining fields from an earlier, different-shaped response mixed
+   * into the same hash — each capture fully replaces the prior one.
+   */
+  private async captureUpstreamRateLimit(response: Response): Promise<void> {
+    const limit = response.headers.get(X_RATELIMIT_LIMIT);
+    const remaining = response.headers.get(X_RATELIMIT_REMAINING);
+    const reset = response.headers.get(X_RATELIMIT_RESET);
+    const retryAfter = response.headers.get('retry-after');
+
+    if (limit === null && remaining === null && reset === null && retryAfter === null) {
+      return; // nothing on this response — leave any previous snapshot alone
+    }
+
+    const fields: Record<string, string> = { captured_at: new Date().toISOString() };
+    if (limit !== null) fields.limit = limit;
+    if (remaining !== null) fields.remaining = remaining;
+    if (reset !== null) fields.reset = reset;
+    if (retryAfter !== null) fields.retry_after = retryAfter;
+
+    const key = `provider:upstream_rl:${this.provider}`;
+    try {
+      const redis = getSharedRedis();
+      await redis.del(key);
+      await redis.hmset(key, fields);
+      await redis.expire(key, UPSTREAM_RL_TTL_S);
+    } catch (err) {
+      logger.warn(
+        { provider: this.provider, err },
+        'Failed to capture upstream rate-limit headers',
+      );
+    }
+  }
+
+  /**
+   * G2: a ProviderError is itself "suspicion" — flag this provider for an
+   * out-of-turn probe on the health job's next tick instead of waiting out
+   * the slow round-robin/adaptive schedule.
+   */
+  private async flagAsapProbe(): Promise<void> {
+    const key = `probe:asap:${this.provider}`;
+    try {
+      const redis = getSharedRedis();
+      await redis.setex(key, ASAP_PROBE_TTL_S, '1');
+    } catch (err) {
+      logger.warn({ provider: this.provider, err }, 'Failed to flag asap probe');
+    }
   }
 }
 
