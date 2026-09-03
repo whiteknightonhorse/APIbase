@@ -183,7 +183,39 @@ afterEach(() => {
   globalThis.fetch = originalFetch;
   jest.dontMock('@prisma/client');
   jest.dontMock('../../src/config/provider-limits.json');
+  // Restore real time after any test that pinned the clock below — a fake
+  // system time leaking into the next test is as bad as not pinning one.
+  jest.useRealTimers();
 });
+
+/**
+ * Pin `Date`/`Date.now()` to a fixed instant for the duration of a test.
+ * Only `Date` is faked (timers stay real) so unrelated setTimeout-based
+ * retry paths in the code under test aren't affected.
+ *
+ * AP-3 review fix (Fable, attempt 2): tests that assert a
+ * `deterministic_paused_until` pause is still in effect compare a hardcoded
+ * `pausedUntil` against `isDeterministicallyPaused`'s `new Date()` call. Left
+ * unpinned, that comparison silently flips from true to false the moment the
+ * real calendar date catches up to the hardcoded one, and the test starts
+ * failing on unchanged, correct code — not proving anything about the pause
+ * anymore.
+ */
+function pinSystemTime(now: Date) {
+  jest.useFakeTimers({
+    now,
+    doNotFake: [
+      'setTimeout',
+      'clearTimeout',
+      'setInterval',
+      'clearInterval',
+      'setImmediate',
+      'clearImmediate',
+      'nextTick',
+      'queueMicrotask',
+    ],
+  });
+}
 
 describe('run() — priority queue + asap out-of-turn (G2)', () => {
   it('probes every asap-flagged provider plus K=5 most overdue from the queue, in order', async () => {
@@ -360,6 +392,7 @@ describe('run() — "401, zero retries" holds even under an asap flag (AP-2 know
     globalThis.fetch = fetchMock;
 
     const now = new Date('2026-09-03T00:00:00Z');
+    pinSystemTime(now); // isDeterministicallyPaused compares against a real new Date()
     const pausedUntil = new Date(now.getTime() + 24 * 3600 * 1000); // still 24h out
     const seed: Record<string, Record<string, unknown>> = {};
     SEVEN_PROVIDERS.forEach((name, i) => {
@@ -418,6 +451,7 @@ describe('AP-3 review fix (Fable, attempt 1) — the FAIL_DETERMINISTIC pause su
     globalThis.fetch = fetchMock;
 
     const now = new Date('2026-09-03T00:00:00Z');
+    pinSystemTime(now); // isDeterministicallyPaused compares against a real new Date()
     const pausedUntil = new Date(now.getTime() + 24 * 3600 * 1000); // set by an earlier active auth-probe 401
     const seed: Record<string, Record<string, unknown>> = {};
     SEVEN_PROVIDERS.forEach((name, i) => {
