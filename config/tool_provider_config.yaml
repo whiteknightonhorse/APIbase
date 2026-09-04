@@ -8866,3 +8866,22 @@ tools:
     provider: norway-kartverket-stedsnavn
     price_usd: "0.001"
     cache_ttl: 604800
+
+  # --- UC-682: BIS Statistics (Bank for International Settlements) (3 tools) ---
+  - tool_id: bis-stats.policy_rates
+    name: BIS Central Bank Policy Rates
+    provider: bis-stats
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: bis-stats.exchange_rates
+    name: BIS Effective Exchange Rates
+    provider: bis-stats
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: bis-stats.property_prices
+    name: BIS Residential Property Prices
+    provider: bis-stats
+    price_usd: "0.002"
+    cache_ttl: 604800

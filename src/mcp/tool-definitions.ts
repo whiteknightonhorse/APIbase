@@ -16995,4 +16995,45 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
       openWorldHint: true,
     },
   },
+  // ---------------------------------------------------------------------------
+  // BIS Statistics — Bank for International Settlements SDMX API (UC-682)
+  // Central bank policy rates, effective exchange rates, residential property
+  // prices. Public no-auth SDMX v2 REST API at stats.bis.org.
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'bis-stats.policy_rates',
+    mcpName: 'bis-stats.finance.policy_rates',
+    title: 'BIS Central Bank Policy Rates',
+    description:
+      "Fetch central bank policy interest rates for a country from the Bank for International Settlements' " +
+      "monthly policy rate series (WS_CBPOL) — the interest rate that best captures a monetary authority's " +
+      "policy intentions (e.g. the US Federal Reserve's federal funds rate target, the ECB's main refinancing " +
+      'rate). Covers dozens of central banks worldwide. Returns one or more time series with period/value pairs.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bis-stats.exchange_rates',
+    mcpName: 'bis-stats.finance.exchange_rates',
+    title: 'BIS Effective Exchange Rates',
+    description:
+      "Fetch a country's nominal or real effective exchange rate (EER) index from the BIS monthly EER series " +
+      '(WS_EER) — a trade-weighted average of bilateral exchange rates against a narrow (27 economies) or ' +
+      'broad (64 economies) basket of trading partners, indexed to a base period. Real EER adjusts for relative ' +
+      'consumer price inflation. Useful for gauging currency competitiveness beyond a single bilateral FX rate.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'bis-stats.property_prices',
+    mcpName: 'bis-stats.finance.property_prices',
+    title: 'BIS Residential Property Prices',
+    description:
+      "Fetch a country's selected residential property price index (nominal or real) from the BIS quarterly " +
+      'property price series (WS_SPP) — a long-run, cross-country comparable house price index used to track ' +
+      'housing market cycles and financial stability risk. Real values are deflated by the consumer price index. ' +
+      'Returns one or more indexed time series with period/value pairs.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
 ];

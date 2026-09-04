@@ -269,6 +269,7 @@ import { LmprAdapter } from './lmpr';
 import { TreasuryDirectAdapter } from './treasurydirect';
 import { OpenTopographyAdapter } from './opentopography';
 import { OecdStatsAdapter } from './oecd-stats';
+import { BisStatsAdapter } from './bis-stats';
 import { StatCanAdapter } from './statcan';
 import { FbiCdeAdapter } from './fbi';
 import { SwissNbmAdapter } from './swissnbm';
@@ -1631,6 +1632,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'oecd-stats':
       // OECD SDMX Statistics (UC-538) — GDP, unemployment, CPI, GHG, BoP; CC BY 4.0, no auth
       return getOrCreate('oecd-stats', () => new OecdStatsAdapter());
+    case 'bis-stats':
+      // BIS Statistics SDMX (UC-682) — policy rates, effective exchange rates, property prices; no auth
+      return getOrCreate('bis-stats', () => new BisStatsAdapter());
     case 'statcan':
       // Statistics Canada WDS (UC-539) — 6000+ time-series; Canada Open Licence, no auth
       return getOrCreate('statcan', () => new StatCanAdapter());

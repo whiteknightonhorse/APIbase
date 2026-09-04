@@ -258,6 +258,7 @@ import { lmprSchemas } from './lmpr.schema';
 import { treasuryDirectSchemas } from './treasurydirect.schema';
 import { opentopographySchemas } from './opentopography.schema';
 import { oecdStatsSchemas } from './oecd-stats.schema';
+import { bisStatsSchemas } from './bis-stats.schema';
 import { statcanSchemas } from './statcan.schema';
 import { fbiSchemas } from './fbi.schema';
 import { swissnbmSchemas } from './swissnbm.schema';
@@ -659,6 +660,7 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...treasuryDirectSchemas,
   ...opentopographySchemas,
   ...oecdStatsSchemas,
+  ...bisStatsSchemas,
   ...statcanSchemas,
   ...fbiSchemas,
   ...swissnbmSchemas,
