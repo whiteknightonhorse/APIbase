@@ -37,9 +37,19 @@ prove the REAL incidents.service.ts / the REAL dashboard.service.ts SQL text
 see this drill's synthetic incidents correctly — the gap AP-9's own tests
 (query-shape-proofs, no live Postgres in CI) never closed.
 
+Mutation control for this file is the manual, one-off procedure documented in
+drills.py's own docstring and docs/runbook.md "10. Autopilot" (break one line
+of production code, confirm this drill goes RED, `git checkout` it back,
+confirm GREEN) — this file does not implement a `--mutate` flag itself; an
+earlier revision advertised one in this docstring without ever wiring
+sys.argv or filling in the mutation table, which produced a false GREEN on
+unmutated code for anyone who tried it (ruling-1, 820-autopilot-drills). Fixed
+by removing the dead flag rather than half-implementing it, matching this
+drill's sibling files (drill-email-injection.py, the jest drill) which never
+had one either.
+
 Usage:
   python3 scripts/autopilot/drill-incident-lifecycle.py            # run both drills
-  python3 scripts/autopilot/drill-incident-lifecycle.py --mutate M # see MUTATIONS below
 """
 import json
 import os
@@ -52,6 +62,17 @@ ROOT = os.path.dirname(os.path.dirname(SCRIPTS_DIR))
 CONTAINER = "autopilot-ap11-drill-lifecycle-pg"
 PG_PORT = 55491
 SCRATCH = "/tmp/autopilot-ap11-drill"
+
+# "Проверка прошла" и "проверка не запускалась" must be distinguishable in the
+# data, not just readable in stdout (ruling-1, 820-autopilot-drills rejected
+# the prior cut for exactly this: verify_api() -> None fell through to a bare
+# SKIPPED print with no effect on the exit code, so a run where the API layer
+# never executed still printed "ALL PASS (GREEN)" and returned rc=0
+# indistinguishably from a run that actually verified it). Every verify_api()
+# call site that takes the None branch appends its own stage label here;
+# main() turns a non-empty list into an explicit NOINFO verdict + rc=2,
+# distinct from both GREEN (rc=0) and RED (rc=1).
+API_VERIFY_NOINFO = []
 
 
 def sh(cmd, **kw):
@@ -184,11 +205,16 @@ def cli_list(env, provider):
     return r.stdout.strip()
 
 
-def verify_api(provider, incident_id=None):
+def verify_api(provider, incident_id=None, stage="unlabeled"):
     """Runs scripts/autopilot/drill-verify-api.ts against THIS drill's
     disposable Postgres over a real TCP port (DATABASE_URL) — proves the
     REAL incidents.service.ts / dashboard.service.ts SQL see this drill's
-    synthetic state, not a reimplementation of either."""
+    synthetic state, not a reimplementation of either.
+
+    A None return means the API layer was NOT verified this run (npx/tsx
+    missing, Prisma client not generated, port conflict, ...) — every caller
+    must treat that as NOINFO, never as a silent pass-through; see
+    API_VERIFY_NOINFO above."""
     env = dict(os.environ)
     env["DATABASE_URL"] = f"postgresql://apibase:x@127.0.0.1:{PG_PORT}/apibase"
     args = ["npx", "tsx", os.path.join(SCRIPTS_DIR, "drill-verify-api.ts"), provider]
@@ -197,11 +223,13 @@ def verify_api(provider, incident_id=None):
     r = subprocess.run(args, capture_output=True, text=True, env=env, cwd=ROOT, timeout=60)
     if r.returncode != 0:
         print(f"  [verify-api] FAILED rc={r.returncode}\n{r.stdout}\n{r.stderr}", file=sys.stderr)
+        API_VERIFY_NOINFO.append(f"{stage}: drill-verify-api.ts rc={r.returncode}")
         return None
     try:
         return json.loads(r.stdout)
     except json.JSONDecodeError:
         print(f"  [verify-api] non-JSON output:\n{r.stdout}", file=sys.stderr)
+        API_VERIFY_NOINFO.append(f"{stage}: drill-verify-api.ts returned non-JSON output")
         return None
 
 
@@ -245,7 +273,7 @@ def drill_down_provider(env):
     assert tools_source == "autopilot"
     print(f"  OK: {inc}, tools.status={tools_row}")
 
-    api = verify_api(provider)
+    api = verify_api(provider, stage="drill A / tick 1 (OPEN)")
     if api is not None:
         assert len(api["incidents"]) == 1 and api["incidents"][0]["state"] == "OPEN"
         assert api["dashboard_row"][0]["provider_state"] == "DOWN", api["dashboard_row"]
@@ -254,7 +282,8 @@ def drill_down_provider(env):
             "drill A: totals.tools must exclude the autopilot-demoted tool (T-8181 ruling-3 fix)")
         print("  OK: /api/v1/incidents + dashboard JOIN both see OPEN/DOWN/tool_count=0")
     else:
-        print("  SKIPPED: verify-api step unavailable this run (see stderr above), continuing on psql evidence alone")
+        print("  NOINFO: verify-api step did not run this pass (see stderr above) — "
+              "core lifecycle assertions above are still real, this is the API layer only")
 
     print("-- simulate >24h elapsed (I1's PROVIDER_DOWN age gate) --")
     psql_raw(f"UPDATE incidents SET created_at = created_at - interval '25 hours' WHERE incident_id = '{inc['incident_id']}'")
@@ -311,13 +340,16 @@ def drill_down_provider(env):
     assert tools_row2.split("\x1f")[0] == "healthy", f"drill A: tool should be promoted back, got {tools_row2!r}"
     print(f"  OK: {inc}, tools.status={tools_row2}")
 
-    api = verify_api(provider, inc["incident_id"])
+    api = verify_api(provider, inc["incident_id"], stage="drill A / tick 5 (RESOLVED)")
     if api is not None:
         assert api["incident_by_id"]["state"] == "RESOLVED"
         assert api["incident_by_id"]["resolved_at"] is not None
         row = next((r for r in api["dashboard_row"] if True), None)
         assert row is None or row.get("open_incidents") in (0, "0"), api["dashboard_row"]
         print("  OK: /api/v1/incidents/:id RESOLVED + dashboard open_incidents back to 0")
+    else:
+        print("  NOINFO: verify-api step did not run this pass (see stderr above) — "
+              "core lifecycle assertions above are still real, this is the API layer only")
     print("Drill A: PASS (full cycle OPEN -> REMEDIATION_QUEUED -> VERIFYING -> RESOLVED)")
     return True
 
@@ -372,11 +404,14 @@ def drill_401(env):
         "connected_db.py letter IS the operator communication for the common missing-key case)")
     print("  OK: no duplicate J3 operator file for the common missing-key case")
 
-    api = verify_api(provider, inc["incident_id"])
+    api = verify_api(provider, inc["incident_id"], stage="drill B / tick 1 (WAITING_HUMAN)")
     if api is not None:
         assert api["incident_by_id"]["state"] == "WAITING_HUMAN"
         assert api["incident_by_id"]["kind"] == "AUTH_FAILED"
         print("  OK: /api/v1/incidents/:id shows WAITING_HUMAN")
+    else:
+        print("  NOINFO: verify-api step did not run this pass (see stderr above) — "
+              "core lifecycle assertions above are still real, this is the API layer only")
 
     print("-- one more tick: idempotent, no double-bridge, no state change --")
     run_engine_tick(env)
@@ -389,11 +424,6 @@ def drill_401(env):
 
     print("Drill B: PASS (WAITING_HUMAN is the correct terminus for a HUMAN_KEY-routed kind — J1)")
     return True
-
-
-MUTATIONS = {
-    # name -> (description, apply() -> restore())
-}
 
 
 def main():
@@ -410,8 +440,22 @@ def main():
         ok = False
     finally:
         stop_pg()
-    print("\n=== drill-incident-lifecycle.py: " + ("ALL PASS (GREEN)" if ok else "FAILED (RED)") + " ===")
-    return 0 if ok else 1
+
+    if not ok:
+        print("\n=== drill-incident-lifecycle.py: FAILED (RED) ===")
+        return 1
+    if API_VERIFY_NOINFO:
+        # Core lifecycle (incident-engine.py, real Postgres) passed every
+        # assertion, but the API layer (drill-verify-api.ts) never actually
+        # ran at least once -- "passed" and "didn't run" must not collapse
+        # into the same GREEN/rc=0, so this is its own verdict + its own rc.
+        print(f"\n=== drill-incident-lifecycle.py: CORE LIFECYCLE PASS, "
+              f"API-LAYER NOINFO ({len(API_VERIFY_NOINFO)} verify-api call(s) did not run) ===")
+        for msg in API_VERIFY_NOINFO:
+            print(f"  NOINFO: {msg}")
+        return 2
+    print("\n=== drill-incident-lifecycle.py: ALL PASS (GREEN) ===")
+    return 0
 
 
 if __name__ == "__main__":

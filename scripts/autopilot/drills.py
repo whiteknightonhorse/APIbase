@@ -34,6 +34,15 @@ ROOT = __import__("os").path.dirname(__import__("os").path.dirname(SCRIPTS_DIR))
 def run(label, cmd, **kw):
     print(f"\n########## {label} ##########")
     r = subprocess.run(cmd, cwd=ROOT, **kw)
+    # drill-incident-lifecycle.py's own three-way verdict: rc=0 GREEN, rc=1
+    # RED, rc=2 NOINFO (core lifecycle passed, its API-layer sub-check never
+    # ran this pass). NOINFO must not print as PASS here either -- it rolls
+    # into the overall summary as a fail so a real omission never reads as a
+    # green run, but the per-drill line keeps NOINFO visible as its own word,
+    # not silently relabeled RED.
+    if r.returncode == 2:
+        print(f"########## {label}: NOINFO (rc=2) ##########")
+        return False
     ok = r.returncode == 0
     print(f"########## {label}: {'PASS' if ok else 'FAIL'} (rc={r.returncode}) ##########")
     return ok
