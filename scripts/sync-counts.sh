@@ -9,9 +9,21 @@
 # a stale count that survives the rewrite pass must fail the build, not print a warning nobody reads.
 # C-02 (2026-08-24): added --check mode. Default (no flag) is the cron self-heal behavior —
 # rewrite every surface, then verify. `--check` is read-only: no file is written (no sed, no
-# gen-card.ts regen, no GitHub About edit), it only compares current on-disk surfaces against the
-# live DB count and fails (exit 1) on any drift. Gates/CI must use --check — self-heal mode always
+# gen-card.ts regen, no GitHub About edit), it only compares current on-disk surfaces against a
+# baseline and fails (exit 1) on any drift. Gates/CI must use --check — self-heal mode always
 # exits 0 by construction (it fixes drift before verifying it), so it can never catch a regression.
+# T-05 (2026-09-04, ruling-1): --check used to treat a fresh live-DB query as the baseline for
+# internal-consistency (do all surfaces agree with each other) AND compare it byte-exact — but
+# AP-8 now demotes providers continuously (every ~10min tick), so the live count moves dozens of
+# times a day while the committed surfaces (updated once by self-heal) always trail it by some
+# amount. A byte-exact check against a constantly moving target turns "surfaces agree with what
+# we committed" (a real bug) and "the DB moved since we last synced" (expected lag, not a bug)
+# into the same red X. Split in two: internal consistency is checked against the COMMITTED
+# baseline (mcp.json's own tools_count/providers_count — what self-heal itself just wrote),
+# exact as before; freshness (that baseline vs. the live DB right now) is checked separately with
+# a tolerance, so a few AP-8 demotions between self-heal runs don't fail the gate, but a "94 vs
+# 1316" class drift (the actual bug this gate was built to catch, T-30) still does.
+FRESHNESS_TOLERANCE_PCT=3
 set -euo pipefail
 ROOT="${ROOT:-/home/apibase/apibase}"; cd "$ROOT"
 
@@ -32,17 +44,77 @@ if [ "$CHECK" != "1" ] && [ "$(git rev-parse --show-toplevel 2>/dev/null)" = "/h
   exit 1
 fi
 
-COUNTS=$(docker exec apibase-postgres-1 psql -U apibase -d apibase -tAc \
-  "select count(*)||' '||count(distinct provider) from tools where status != 'unavailable'")
-TOOLS=$(echo "$COUNTS" | awk '{print $1}'); PROV=$(echo "$COUNTS" | awk '{print $2}')
-[ -n "$TOOLS" ] && [ -n "$PROV" ] || { echo "sync-counts: failed to read counts"; exit 1; }
-echo "sync-counts: live active (status != unavailable) = $TOOLS tools / $PROV providers"
-
 CATALOG="static/.well-known/api-catalog"
 CHANGED=0
 if [ "$CHECK" = "1" ]; then
+  # Internal-consistency baseline = what self-heal itself last committed (mcp.json's own
+  # tools_count/providers_count), NOT a fresh query -- see the FRESHNESS_TOLERANCE_PCT comment
+  # near the top of this file for why. Every STALE_* check below now compares surfaces against
+  # THIS baseline, exactly as before (still byte-exact, still fatal).
+  BASELINE="$(python3 -c "
+import json
+d = json.load(open('static/.well-known/mcp.json'))
+t = d.get('tools_count')
+p = d.get('providers_count', d.get('providers'))
+print('%s %s' % (t, p))
+" 2>/dev/null || true)"
+  TOOLS=$(echo "$BASELINE" | awk '{print $1}'); PROV=$(echo "$BASELINE" | awk '{print $2}')
+  case "$TOOLS" in ''|*[!0-9]*) TOOLS="" ;; esac
+  case "$PROV" in ''|*[!0-9]*) PROV="" ;; esac
+  [ -n "$TOOLS" ] && [ -n "$PROV" ] \
+    || { echo "sync-counts: --check could not read tools_count/providers_count from static/.well-known/mcp.json"; exit 1; }
+  echo "sync-counts: --check baseline (static/.well-known/mcp.json, last self-heal) = $TOOLS tools / $PROV providers"
+
+  # Freshness: baseline vs. the live DB right now, with a tolerance -- AP-8 demotes providers
+  # continuously between self-heal runs, so SOME drift is expected and must not fail the gate;
+  # a "94 vs 1316" class drift (T-30, the bug this gate exists to catch) still must.
+  LIVE_COUNTS=$(docker exec apibase-postgres-1 psql -U apibase -d apibase -tAc \
+    "select count(*)||' '||count(distinct provider) from tools where status != 'unavailable'")
+  LIVE_TOOLS=$(echo "$LIVE_COUNTS" | awk '{print $1}'); LIVE_PROV=$(echo "$LIVE_COUNTS" | awk '{print $2}')
+  [ -n "$LIVE_TOOLS" ] && [ -n "$LIVE_PROV" ] || { echo "sync-counts: --check failed to read live DB counts"; exit 1; }
+  echo "sync-counts: --check live DB right now = $LIVE_TOOLS tools / $LIVE_PROV providers"
+
+  # Symmetric percent drift in tenths of a percent (integer arithmetic -- bash has no floats):
+  # |live-baseline| / baseline * 1000, compared against FRESHNESS_TOLERANCE_PCT*10.
+  TOOLS_DIFF=$(( LIVE_TOOLS>TOOLS ? LIVE_TOOLS-TOOLS : TOOLS-LIVE_TOOLS ))
+  PROV_DIFF=$(( LIVE_PROV>PROV ? LIVE_PROV-PROV : PROV-LIVE_PROV ))
+  TOOLS_DIFF_PCT_X10=$(( TOOLS > 0 ? (TOOLS_DIFF * 1000) / TOOLS : 1000 ))
+  PROV_DIFF_PCT_X10=$(( PROV > 0 ? (PROV_DIFF * 1000) / PROV : 1000 ))
+  TOLERANCE_X10=$(( FRESHNESS_TOLERANCE_PCT * 10 ))
+  FRESH_FAIL=0
+  if [ "$TOOLS_DIFF_PCT_X10" -gt "$TOLERANCE_X10" ]; then
+    echo "sync-counts: FRESHNESS FAIL -- tools baseline $TOOLS vs live $LIVE_TOOLS is $((TOOLS_DIFF_PCT_X10/10)).$((TOOLS_DIFF_PCT_X10%10))% off, tolerance ${FRESHNESS_TOLERANCE_PCT}%"
+    FRESH_FAIL=1
+  fi
+  if [ "$PROV_DIFF_PCT_X10" -gt "$TOLERANCE_X10" ]; then
+    echo "sync-counts: FRESHNESS FAIL -- providers baseline $PROV vs live $LIVE_PROV is $((PROV_DIFF_PCT_X10/10)).$((PROV_DIFF_PCT_X10%10))% off, tolerance ${FRESHNESS_TOLERANCE_PCT}%"
+    FRESH_FAIL=1
+  fi
+  if [ "$FRESH_FAIL" = "1" ]; then
+    echo "sync-counts: run self-heal (scripts/sync-counts-cron.sh) to catch up; if this keeps failing right after a self-heal run, that's the real T-30-class bug this gate exists to catch"
+    exit 1
+  fi
+  echo "sync-counts: --check freshness OK (within ${FRESHNESS_TOLERANCE_PCT}% of live)"
   echo "sync-counts: --check mode — read-only, no file will be written"
 else
+  # Self-heal: one atomic point-in-time snapshot of every active tool_id+provider, not just an
+  # aggregate count. T-05 (2026-09-04, ruling-1): gen-card.ts/gen-catalog-page.ts used to run
+  # their OWN separate DB queries after this one -- three queries, three chances to see a
+  # DIFFERENT slice of `tools` if AP-8 writes mid-run (confirmed live: this query returned
+  # 1352/384, gen-card.ts's own query returned 1344, gen-catalog-page.ts's returned 1340/381 --
+  # all three from ONE run, six seconds apart, while AP-8 was mid-tick demoting providers).
+  # Every consumer of this run now reads the SAME frozen set via SYNC_COUNTS_SNAPSHOT.
+  SNAPSHOT="$(mktemp /tmp/sync-counts-snapshot.XXXXXX)"
+  trap 'rm -f "$SNAPSHOT"' EXIT
+  docker exec apibase-postgres-1 psql -U apibase -d apibase -tAc \
+    "select tool_id||E'\t'||provider from tools where status != 'unavailable' order by tool_id" > "$SNAPSHOT"
+  TOOLS=$(wc -l < "$SNAPSHOT" | tr -d ' ')
+  PROV=$(cut -f2 "$SNAPSHOT" | sort -u | wc -l | tr -d ' ')
+  [ -n "$TOOLS" ] && [ "$TOOLS" != "0" ] && [ -n "$PROV" ] && [ "$PROV" != "0" ] \
+    || { echo "sync-counts: failed to read counts"; exit 1; }
+  export SYNC_COUNTS_SNAPSHOT="$SNAPSHOT"
+  echo "sync-counts: live active (status != unavailable) = $TOOLS tools / $PROV providers (snapshot $SNAPSHOT)"
+
   for f in static/index.html static/terms.html static/frameworks.html static/contact.html \
            static/privacy.html static/dashboard.html static/pricing.html static/connect.html \
            static/llms.txt static/ai.txt README.md; do
@@ -248,7 +320,7 @@ FAIL=0
 
 if [ "$FAIL" = "0" ]; then
   if [ "$CHECK" = "1" ]; then
-    echo "sync-counts: OK (--check, 0 drift) — ai.txt/llms.txt/api-catalog/server-card.json/DB all agree on $TOOLS tools / $PROV providers"
+    echo "sync-counts: OK (--check, 0 drift) — ai.txt/llms.txt/api-catalog/server-card.json all agree on the $TOOLS tools / $PROV providers baseline, live DB within ${FRESHNESS_TOLERANCE_PCT}% of it"
   else
     echo "sync-counts: OK, 0 stale ($CHANGED changed) — ai.txt/llms.txt/api-catalog/server-card.json/DB all agree on $TOOLS tools / $PROV providers"
   fi

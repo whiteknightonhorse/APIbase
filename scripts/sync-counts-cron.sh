@@ -101,6 +101,25 @@ esac
 # the plain `flock -n` immediate-skip this used to be (that version exited 0 on a busy lock and
 # promised "next cron tick will retry" on a cron that only runs once a day -- both false).
 MAX_WAIT_S="${SYNC_COUNTS_CRON_MAX_WAIT_S:-$((2*(TASK_TIMEOUT+600)))}"
+
+# T-05 (2026-09-04, ruling-1): a SECOND flock, taken BEFORE the wait above, coalesces concurrent
+# launches into at most one waiter. AP-8's trigger_sync_counts() now fires at most once per tick
+# (see incident-engine.py's own T-05 fix), but the daily 05:00 cron can still overlap an
+# AP-8-triggered run, and a live incident recorded ~15 instances of this script starting within
+# one minute before that fix -- each one would otherwise queue up its OWN up-to-MAX_WAIT_S wait,
+# and whichever won the race would read a DB state the others had already made stale by the time
+# THEY got the lock. `flock -n` (non-blocking): at most one process holds this pending slot; every
+# other launch that shows up while it's held reads the SAME OR NEWER DB state once the holder (or
+# its successor) finishes, so it has nothing useful left to do and exits immediately instead of
+# joining the queue for worktree-fleet.lock. Released the moment the real lock (fd 9) is held, so
+# the NEXT launch after this one is free to queue as its own pending waiter.
+PENDING_LOCK="$LOCK.pending"
+exec 8>"$PENDING_LOCK"
+if ! flock -n 8; then
+  clog "COALESCED -- another sync-counts-cron already queued (holds $PENDING_LOCK), it will read the same or newer DB state; not joining the queue"
+  exit 0
+fi
+
 exec 9>"$LOCK"
 clog "waiting for worktree-fleet.lock, up to ${MAX_WAIT_S}s (2*(TASK_TIMEOUT+600), TASK_TIMEOUT=$TASK_TIMEOUT from $CONFIG_ENV) -- this cron is DAILY, no reason to hurry"
 if ! flock -w "$MAX_WAIT_S" 9; then
@@ -110,6 +129,7 @@ if ! flock -w "$MAX_WAIT_S" 9; then
   exit 1
 fi
 clog "worktree-fleet.lock acquired"
+flock -u 8 2>/dev/null || true  # release the pending slot -- the next launch may now queue its own
 if [ -f "$MISS_FLAG" ]; then
   clog "lock acquired -- clearing yesterday's/earlier miss marker"
   rm -f "$MISS_FLAG"
@@ -147,7 +167,20 @@ FILES=(
 
 PRE_DIRTY="$(git status --porcelain -- "${FILES[@]}")"
 if [ -n "$PRE_DIRTY" ]; then
+  # T-05 (2026-09-04, ruling-1): this is the ONE case this script cannot self-heal -- dirt on an
+  # allow-listed path that predates THIS run (a killed prior run's leftovers, or a real
+  # in-progress hand-edit). Both look identical to `git status`; a human has to tell them apart.
+  # The trap below (installed after this check passes) auto-reverts what THIS run itself dirties,
+  # but it can't run for dirt that was already here when we started -- so give whoever reads this
+  # log enough to decide without re-deriving it by hand: each path's mtime (a killed run's files
+  # all share one mtime cluster from whenever it died; a real hand-edit in progress usually
+  # doesn't) next to the timestamp of the last time this exact ABORT fired, plus the exact command
+  # to discard them if they turn out to be orphaned.
+  DIRTY_PATHS="$(echo "$PRE_DIRTY" | cut -c4-)"
+  MTIMES="$(while IFS= read -r p; do [ -f "$p" ] && stat -c '%y %n' "$p" 2>/dev/null; done <<<"$DIRTY_PATHS")"
+  LAST_ABORT_TS="$(grep -m1 'ABORT -- target file' "$LOG_DIR/sync-counts-cron.log" 2>/dev/null | awk '{print $1}' || true)"
   clog "ABORT -- target file(s) already have uncommitted changes, refusing to fold them into a cron commit: $(echo "$PRE_DIRTY" | tr '\n' ';')"
+  clog "ABORT detail -- mtimes: $(echo "$MTIMES" | tr '\n' '; ') | previous ABORT at: ${LAST_ABORT_TS:-none recorded} | if these mtimes predate/cluster around a killed run (not a real in-progress edit), confirm then discard with: git -C '$HERE' checkout -- $DIRTY_PATHS"
   exit 1
 fi
 
@@ -157,6 +190,39 @@ fi
 # construction -- caught live in this task's own mutation test: a stub that wrote an extra file
 # outside FILES got committed anyway because the check was filtering before it could see it).
 PRE_STATUS="$(git status --porcelain)"
+
+# T-05 (2026-09-04, ruling-1): owns cleanup of dirt THIS run produces if it dies before
+# committing (killed mid-run, a generator crash, an unhandled error) -- the class of "orphaned
+# dirty tree" this task exists to fix. PRE_DIRTY above already proved every FILES path was clean
+# at this exact moment under the exclusive worktree-fleet.lock; anything in FILES that's dirty
+# when we exit was written by OUR OWN child process (sync-counts.sh) this run, so reverting it is
+# safe -- unlike the flotilla cycle's "dirty at start" detector, this owns dirt whose origin it
+# just proved, not dirt of unknown origin. Anything outside FILES is left alone and only logged --
+# this script has never claimed ownership of the whole tree, only of FILES. Cleared right after a
+# successful commit (the changes are safe once committed, not just when the tree is clean).
+cleanup_orphaned_dirt() {
+  local post
+  post="$(git status --porcelain)"
+  [ "$post" = "$PRE_STATUS" ] && return 0
+  local new_lines to_revert=() path allowed a
+  mapfile -t new_lines < <(comm -13 <(echo "$PRE_STATUS" | sort) <(echo "$post" | sort))
+  for line in "${new_lines[@]}"; do
+    path="${line:3}"
+    allowed=0
+    for a in "${FILES[@]}"; do [ "$path" = "$a" ] && allowed=1 && break; done
+    [ "$allowed" = 1 ] && to_revert+=("$path")
+  done
+  if [ "${#to_revert[@]}" -gt 0 ]; then
+    clog "cleanup: run exited without committing -- reverting ${#to_revert[@]} allow-listed path(s) this run itself dirtied: ${to_revert[*]}"
+    git checkout -- "${to_revert[@]}" 2>>"$LOG_DIR/sync-counts-cron.log" || clog "cleanup: git checkout -- failed for one or more paths, tree may still be dirty"
+  fi
+  local still
+  still="$(git status --porcelain)"
+  if [ "$still" != "$PRE_STATUS" ]; then
+    clog "cleanup: dirt remains outside FILES after cleanup, NOT touched (not this script's to revert): $(echo "$still" | tr '\n' ';')"
+  fi
+}
+trap cleanup_orphaned_dirt EXIT ERR INT TERM
 
 RUN_OUT="$(ROOT="$HERE" bash scripts/sync-counts.sh 2>&1)" && RUN_RC=0 || RUN_RC=$?
 echo "$RUN_OUT"
@@ -191,6 +257,10 @@ for f in "${CHANGED[@]}"; do
 done
 
 git commit -m "counts: sync ${TOOLS:-?} tools / ${PROV:-?} providers (cron 05:00)" -- "${CHANGED[@]}"
+# Committed -- these changes are safe now (tracked in git history, not just clean working tree),
+# so cleanup_orphaned_dirt must stop reverting anything on exit from here on. A push failure below
+# still exits nonzero, but the commit itself stays (see its own comment) -- nothing left to revert.
+trap - EXIT ERR INT TERM
 # T-708: same 300s bound as the fetch above. A timed-out push here leaves the commit sitting
 # local (never lost, never force-pushed) -- tomorrow's run re-fetches, sees HEAD ahead of
 # origin/ci-staging (still an ancestor, so the divergence guard above does not ABORT it), and the

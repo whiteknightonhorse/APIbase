@@ -587,6 +587,18 @@ def sync_tool_status():
         return
     if not out:
         return  # no provider has left UNKNOWN yet — genuinely nothing to sync
+    # T-05 (2026-09-04, ruling-1): trigger_sync_counts() used to fire from
+    # INSIDE this loop, once per provider that crossed the availability
+    # boundary this tick. A single tick demoting several providers back to
+    # back therefore launched several sync-counts-cron.sh instances seconds
+    # apart, each reading `tools` mid-write by the others still running in
+    # this same loop -- confirmed live (T-05 diagnosis): three DIFFERENT
+    # tool/provider counts captured six seconds apart out of one tick, and
+    # ~15 sync-counts-cron.sh processes started in that same minute while
+    # taskloop itself was idle. One tick must trigger AT MOST one sync, and
+    # only after every provider this tick touches has finished writing —
+    # tracked with `crossed` and fired once, after the loop.
+    crossed = False
     for line in out.splitlines():
         provider, state, reason = (line.split(ap.SEP) + [None, None, None])[:3]
         target = _tool_status_for_state(state)
@@ -627,7 +639,10 @@ def sync_tool_status():
                 ap.notice(f"tool-status-sync: note_incident failed for {inc_row}: {e}")
 
         if _availability_crossed(old_statuses, target):
-            ap.trigger_sync_counts()
+            crossed = True
+
+    if crossed:
+        ap.trigger_sync_counts()
 
 
 def write_heartbeat():
@@ -750,6 +765,18 @@ def selftest_db():
     import time
 
     name = "autopilot-ap4-selftest-pg"
+    # T-05 (2026-09-04, ruling-1): World 13 below overrides
+    # AUTOPILOT_SYNC_COUNTS_CRON_SH/AUTOPILOT_FLEET_WORKTREE and reloads `ap`
+    # to point trigger_sync_counts() at a disposable stub instead of the real
+    # sync-counts-cron.sh -- captured here, BEFORE the try/finally, so the
+    # `finally` below can always put them back and reload `ap` again, even if
+    # an earlier world's assertion raises first. Without this, any selftest
+    # run after World 13 in the SAME process (e.g. `--selftest` then
+    # `--selftest-db` in one interpreter, or a future caller that imports
+    # this module) would silently keep firing the stub instead of the real
+    # script.
+    _prev_sync_sh = os.environ.get("AUTOPILOT_SYNC_COUNTS_CRON_SH")
+    _prev_fleet_wt = os.environ.get("AUTOPILOT_FLEET_WORKTREE")
     subprocess.run(["docker", "rm", "-f", name], capture_output=True)
     print("selftest-db: starting disposable postgres:16.2-alpine ...")
     r = subprocess.run(
@@ -1412,7 +1439,10 @@ def selftest_db():
             os.remove(marker)
         stub_sh = "/tmp/autopilot-ap8-selftest-sync-counts-cron.sh"
         with open(stub_sh, "w", encoding="utf-8") as f:
-            f.write(f"#!/usr/bin/env bash\necho ran > {marker}\n")
+            # Appends (not overwrites) so World 14 below can count INVOCATIONS across a single
+            # sync_tool_status() call, not just detect "at least one" -- World 13's own
+            # _wait_for(marker) only checks existence so this change doesn't affect it.
+            f.write(f"#!/usr/bin/env bash\ndate +%s%N >> {marker}\n")
         os.environ["AUTOPILOT_SYNC_COUNTS_CRON_SH"] = stub_sh
         os.environ["AUTOPILOT_FLEET_WORKTREE"] = "/tmp"
         importlib.reload(ap)
@@ -1567,10 +1597,62 @@ def selftest_db():
         )
         print("world 13d (DEGRADED-only change never crosses availability, no sync-counts trigger): OK")
 
+        # World 14 (T-05, 2026-09-04, ruling-1): TWO providers crossing INTO 'unavailable' in the
+        # SAME sync_tool_status() call must fire trigger_sync_counts() exactly ONCE, not once per
+        # provider. Before this fix, the trigger lived inside the per-provider loop -- a tick that
+        # demoted several providers back to back launched several sync-counts-cron.sh instances
+        # seconds apart, each capable of reading `tools` mid-write by the others (confirmed live:
+        # three different tool/provider counts captured six seconds apart from ONE tick). The stub
+        # now APPENDS one line per invocation (see its own comment above), so this counts
+        # invocations instead of just detecting "at least one".
+        # World 13d ended with the marker absent (DEGRADED-only never triggers it) -- guard the
+        # removal instead of assuming it exists, same pattern as the very first removal above.
+        if os.path.exists(marker):
+            os.remove(marker)
+        ap.psql(
+            "INSERT INTO tools (tool_id, provider, status, status_source) VALUES "
+            "('ap8multi1-tool1', 'ap8multi1', 'healthy', NULL), "
+            "('ap8multi2-tool1', 'ap8multi2', 'healthy', NULL)"
+        )
+        ap.psql(
+            "INSERT INTO provider_status (provider, state, state_since, next_probe_at, "
+            "probe_interval_s, last_probe_result, last_probe_at) VALUES "
+            "('ap8multi1', 'DOWN', now(), now(), 3600, 'FAIL_TRANSIENT', now()), "
+            "('ap8multi2', 'DOWN', now(), now(), 3600, 'FAIL_TRANSIENT', now())"
+        )
+        sync_tool_status()
+        assert _wait_for(marker), "world 14: two providers crossing availability in one tick must still trigger sync-counts"
+        # Give the (fire-and-forget, detached) stub a moment to finish writing before counting --
+        # _wait_for already proved the FIRST line landed; this is only extra grace for a possible
+        # second line, so an over-trigger isn't masked by reading the marker too early.
+        time.sleep(0.5)
+        with open(marker, encoding="utf-8") as f:
+            invocations = len([ln for ln in f.read().splitlines() if ln.strip()])
+        assert invocations == 1, (
+            f"world 14: two providers crossing 'unavailable' in ONE sync_tool_status() call must "
+            f"trigger sync-counts exactly once, got {invocations} invocation(s)"
+        )
+        for tid in ("ap8multi1-tool1", "ap8multi2-tool1"):
+            row, _ = ap.psql(f"SELECT status FROM tools WHERE tool_id = {ap.sql_literal(tid)}")
+            assert row == "unavailable", f"world 14: {tid} expected unavailable, got {row}"
+        print("world 14 (two providers crossing availability in ONE tick -> sync-counts triggered exactly once): OK")
+
         print("selftest-db: ALL WORLDS OK")
         return 0
     finally:
         subprocess.run(["docker", "rm", "-f", name], capture_output=True)
+        # Restore whatever World 13 overrode (or no-op if World 13 never ran
+        # because an earlier world raised first) and reload `ap` so it's
+        # pointing at the real sync-counts-cron.sh/FLEET_WORKTREE again for
+        # anything that runs after this function returns, in this process.
+        for _k, _v in (("AUTOPILOT_SYNC_COUNTS_CRON_SH", _prev_sync_sh),
+                        ("AUTOPILOT_FLEET_WORKTREE", _prev_fleet_wt)):
+            if _v is None:
+                os.environ.pop(_k, None)
+            else:
+                os.environ[_k] = _v
+        import importlib
+        importlib.reload(ap)
 
 
 if __name__ == "__main__":

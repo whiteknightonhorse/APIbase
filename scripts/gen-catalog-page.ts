@@ -18,13 +18,19 @@
 // now reachable via `--print`/`--dry-run` with zero DB dependency, so CI can run the actual
 // generator (not just eyeball its last output) through check-no-clipped-overflow.py on every
 // commit -- see .github/workflows/security.yml's static-no-clipped-overflow job.
-import { writeFileSync } from 'fs';
+import { writeFileSync, readFileSync } from 'fs';
 
 function escapeHtml(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-export function renderPage(providers: { provider: string; tools: number }[]): string {
+export function renderPage(
+  providers: { provider: string; tools: number }[],
+  // T-05 (2026-09-04, ruling-1): AP-8 demotes providers continuously between regens now, so
+  // "actually serve right now" is only ever true at the instant this ran. Defaults to today
+  // (UTC) so callers that don't pass one (existing tests, manual runs) still get a real date.
+  generatedAt: string = new Date().toISOString().slice(0, 10),
+): string {
   const totalTools = providers.reduce((sum, p) => sum + p.tools, 0);
   const totalProviders = providers.length;
 
@@ -118,7 +124,7 @@ td:last-child,th:last-child{text-align:right}
 <p class="updated">Generated straight from the production database — never hand-edited, never rounded.</p>
 
 <h2>Every live provider</h2>
-<p><strong>${totalTools} tools</strong> across <strong>${totalProviders} providers</strong>, sorted by tool count. This is not a marketing figure &mdash; it is what <a href="/api/v1/tools">/api/v1/tools</a> and the MCP <code>tools/list</code> call actually serve right now.</p>
+<p><strong>${totalTools} tools</strong> across <strong>${totalProviders} providers</strong>, sorted by tool count. This is not a marketing figure &mdash; it is what <a href="/api/v1/tools">/api/v1/tools</a> and the MCP <code>tools/list</code> served as of ${generatedAt} UTC, regenerated when provider availability changes and daily at 05:00 UTC.</p>
 <div class="scroll">
 <table>
 <thead><tr><th>Provider</th><th>Tools</th></tr></thead>
@@ -157,9 +163,44 @@ ${tableRows}
 // DB-free dry run.
 const DRY_RUN = process.argv.includes('--print') || process.argv.includes('--dry-run');
 
+// T-05 (2026-09-04, ruling-1): same reasoning as gen-card.ts's readActiveToolIds() -- when
+// sync-counts.sh's self-heal sets SYNC_COUNTS_SNAPSHOT, group straight from that frozen
+// `tool_id<TAB>provider` dump instead of running a second, separately-timed live query that
+// could see a different slice of `tools` if AP-8 wrote in between. Unset (manual/ad-hoc runs)
+// falls back to the live groupBy query below, unchanged.
+function readSnapshotProviders(): { provider: string; tools: number }[] | null {
+  const snapshotPath = process.env.SYNC_COUNTS_SNAPSHOT;
+  if (!snapshotPath) return null;
+  const lines = readFileSync(snapshotPath, 'utf8').split('\n').filter(Boolean);
+  const counts = new Map<string, number>();
+  for (const line of lines) {
+    const provider = line.split('\t')[1];
+    if (!provider) continue;
+    counts.set(provider, (counts.get(provider) ?? 0) + 1);
+  }
+  return [...counts.entries()]
+    .map(([provider, tools]) => ({ provider, tools }))
+    .sort((a, b) => b.tools - a.tools || a.provider.localeCompare(b.provider));
+}
+
 async function main() {
   if (DRY_RUN) {
     process.stdout.write(renderPage([{ provider: 'fixture-provider', tools: 1 }]));
+    return;
+  }
+
+  const snapshotProviders = readSnapshotProviders();
+  if (snapshotProviders) {
+    if (snapshotProviders.length === 0) {
+      throw new Error(
+        'gen-catalog-page: zero active providers in SYNC_COUNTS_SNAPSHOT — refusing to publish an empty catalog',
+      );
+    }
+    const totalTools = snapshotProviders.reduce((sum, p) => sum + p.tools, 0);
+    writeFileSync('static/catalog.html', renderPage(snapshotProviders));
+    console.log(
+      `gen-catalog-page: wrote static/catalog.html from SYNC_COUNTS_SNAPSHOT (${totalTools} tools / ${snapshotProviders.length} providers)`,
+    );
     return;
   }
 
