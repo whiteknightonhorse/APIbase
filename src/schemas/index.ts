@@ -399,6 +399,7 @@ import { ukLandregistryPricepaidSchemas } from './uk-landregistry-pricepaid.sche
 import { hathitrustDigitalSchemas } from './hathitrust-digital.schema';
 import { netherlandsPdokKadasterSchemas } from './netherlands-pdok-kadaster.schema';
 import { norwayKartverketStedsnavnSchemas } from './norway-kartverket-stedsnavn.schema';
+import { ukEaFloodMonitoringSchemas } from './uk-ea-flood-monitoring.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -801,4 +802,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...hathitrustDigitalSchemas,
   ...netherlandsPdokKadasterSchemas,
   ...norwayKartverketStedsnavnSchemas,
+  ...ukEaFloodMonitoringSchemas,
 };

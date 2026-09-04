@@ -3572,5 +3572,14 @@
     "reset_period": "none",
     "docs_url": "https://www.bis.org/statistics/dsd_dissem.htm",
     "limit_proof": "BIS Statistics SDMX API is a public open-access service maintained by the Bank for International Settlements; no API key, signup, or documented rate limit — verified live: repeated queries returned no 429s or rate-limit headers."
+  },
+  "uk-ea-flood-monitoring": {
+    "display_name": "UK EA Flood Monitoring",
+    "health_url": "https://environment.data.gov.uk/flood-monitoring/id/stations.json?_limit=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://environment.data.gov.uk/flood-monitoring/doc/reference",
+    "limit_proof": "Public UK Environment Agency real-time flood-monitoring REST API (environment.data.gov.uk/flood-monitoring); open data under the Open Government Licence with no requirement for registration per the API's own documentation, no authentication or API key required for any endpoint, no rate-limit headers returned in observed responses, no documented request quota on the API reference page (only a caching/availability note, no hard cap)."
   }
 }

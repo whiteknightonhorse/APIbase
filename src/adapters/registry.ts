@@ -399,6 +399,7 @@ import { UkLandregistryPricepaidAdapter } from './uk-landregistry-pricepaid';
 import { HathiTrustDigitalAdapter } from './hathitrust-digital';
 import { NetherlandsPdokKadasterAdapter } from './netherlands-pdok-kadaster';
 import { NorwayKartverketStedsnavnAdapter } from './norway-kartverket-stedsnavn';
+import { UkEaFloodMonitoringAdapter } from './uk-ea-flood-monitoring';
 import { config } from '../config';
 
 /**
@@ -2187,6 +2188,14 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
         'norway-kartverket-stedsnavn',
         () => new NorwayKartverketStedsnavnAdapter(),
       );
+    case 'uk-ea-flood-monitoring':
+      // UK Environment Agency Real Time Flood Monitoring API (UC-683) —
+      // environment.data.gov.uk/flood-monitoring: live flood warnings/alerts
+      // by severity/county/geo-radius, monitoring station search, and
+      // per-station latest water-level/flow readings. Sibling of
+      // ea-hydrology (UC-654), same publisher. No auth, no key. Open
+      // Government Licence v3.0.
+      return getOrCreate('uk-ea-flood-monitoring', () => new UkEaFloodMonitoringAdapter());
     default:
       return undefined;
   }

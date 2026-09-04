@@ -126256,6 +126256,293 @@
         ]
       }
     },
+    "/api/v1/tools/uk-ea-flood-monitoring.current_warnings/call": {
+      "post": {
+        "operationId": "uk-ea-flood-monitoring_current_warnings",
+        "summary": "UK Flood Warnings & Alerts",
+        "description": "Get currently active flood warnings and alerts for England from the UK Environment Agency, filterable by minimum severity (1=Severe Flood Warning down to 4=Warning no longer in force), county, or a geographic radius (lat/long/dist). Returns each warning's flood area, county, affected river or sea, severity, tidal flag, public message, and when it was raised/last changed. Data: environment.data.gov.uk/flood-monitoring, UK Open Government Licence v3.0, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "uk-ea-flood-monitoring.current_warnings"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "min_severity": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 4,
+                    "description": "Filter to warnings at this severity or more severe (lower number = more severe): 1=Severe Flood Warning (danger to life), 2=Flood Warning (immediate action), 3=Flood Alert (be prepared), 4=Warning no longer in force. Omit for all active items."
+                  },
+                  "county": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "description": "Filter by county name of the affected flood area (e.g. \"Devon\", \"North Yorkshire\")."
+                  },
+                  "lat": {
+                    "type": "number",
+                    "minimum": -90,
+                    "maximum": 90,
+                    "description": "Latitude for a geographic radius filter — use with `long` and `dist`."
+                  },
+                  "long": {
+                    "type": "number",
+                    "minimum": -180,
+                    "maximum": 180,
+                    "description": "Longitude for a geographic radius filter — use with `lat` and `dist`."
+                  },
+                  "dist": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Search radius in kilometres around `lat`/`long` — use with both."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/uk-ea-flood-monitoring.station_search/call": {
+      "post": {
+        "operationId": "uk-ea-flood-monitoring_station_search",
+        "summary": "UK Flood Monitoring Station Search",
+        "description": "Search the UK Environment Agency real-time river/tidal monitoring network for stations, filterable by town, river name, catchment name, measured parameter (level, flow, rainfall, wind, temperature), or freetext label search. Returns station_id, name, river/catchment, coordinates, and the measures each station records — use station_id with uk-ea-flood-monitoring.station_readings to get its latest values. Data: environment.data.gov.uk/flood-monitoring, UK Open Government Licence v3.0, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "uk-ea-flood-monitoring.station_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "town": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "description": "Filter stations by nearest town (e.g. \"Shrewsbury\")."
+                  },
+                  "river_name": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "description": "Filter stations by river name, partial match (e.g. \"River Severn\")."
+                  },
+                  "catchment_name": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "description": "Filter stations by river catchment name (e.g. \"Cotswolds\")."
+                  },
+                  "parameter": {
+                    "type": "string",
+                    "enum": [
+                      "level",
+                      "flow",
+                      "rainfall",
+                      "wind",
+                      "temperature"
+                    ],
+                    "description": "Filter stations by the type of measurement they record."
+                  },
+                  "search": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "description": "Freetext search matching the station label/name."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 200,
+                    "description": "Max stations to return (default 20, max 200)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/uk-ea-flood-monitoring.station_readings/call": {
+      "post": {
+        "operationId": "uk-ea-flood-monitoring_station_readings",
+        "summary": "UK Flood Monitoring Station Latest Readings",
+        "description": "Get the latest reading for every measure (e.g. water level, flow) recorded at one UK Environment Agency monitoring station, identified by the station_id from uk-ea-flood-monitoring.station_search. Returns each measure_id with its most recent date/time and value. Data: environment.data.gov.uk/flood-monitoring, UK Open Government Licence v3.0, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "uk-ea-flood-monitoring.station_readings"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "station_id": {
+                    "type": "string",
+                    "description": "Station identifier — the `station_id` (notation) returned by uk-ea-flood-monitoring.station_search, e.g. \"1029TH\".",
+                    "minLength": 1,
+                    "maxLength": 100
+                  }
+                },
+                "required": [
+                  "station_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/device.list/call": {
       "post": {
         "operationId": "device_list",

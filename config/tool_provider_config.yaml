@@ -8885,3 +8885,22 @@ tools:
     provider: bis-stats
     price_usd: "0.002"
     cache_ttl: 604800
+
+  # --- UC-683: UK Environment Agency Real Time Flood Monitoring API (3 tools) ---
+  - tool_id: uk-ea-flood-monitoring.current_warnings
+    name: UK Flood Warnings & Alerts
+    provider: uk-ea-flood-monitoring
+    price_usd: "0.002"
+    cache_ttl: 300
+
+  - tool_id: uk-ea-flood-monitoring.station_search
+    name: UK Flood Monitoring Station Search
+    provider: uk-ea-flood-monitoring
+    price_usd: "0.002"
+    cache_ttl: 604800
+
+  - tool_id: uk-ea-flood-monitoring.station_readings
+    name: UK Flood Monitoring Station Latest Readings
+    provider: uk-ea-flood-monitoring
+    price_usd: "0.002"
+    cache_ttl: 300

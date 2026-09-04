@@ -16957,6 +16957,49 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'location',
     annotations: READ_ONLY,
   },
+  // UK Environment Agency Real Time Flood Monitoring API — environment.data.gov.uk/flood-monitoring (3) — UC-683
+  {
+    toolId: 'uk-ea-flood-monitoring.current_warnings',
+    mcpName: 'uk-ea-flood-monitoring.warnings.current',
+    title: 'UK Flood Warnings & Alerts',
+    description:
+      'Get currently active flood warnings and alerts for England from the UK Environment ' +
+      'Agency, filterable by minimum severity (1=Severe Flood Warning down to 4=Warning no ' +
+      'longer in force), county, or a geographic radius (lat/long/dist). Returns each ' +
+      "warning's flood area, county, affected river or sea, severity, tidal flag, public " +
+      'message, and when it was raised/last changed. Data: environment.data.gov.uk/' +
+      'flood-monitoring, UK Open Government Licence v3.0, no auth required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'uk-ea-flood-monitoring.station_search',
+    mcpName: 'uk-ea-flood-monitoring.stations.search',
+    title: 'UK Flood Monitoring Station Search',
+    description:
+      'Search the UK Environment Agency real-time river/tidal monitoring network for ' +
+      'stations, filterable by town, river name, catchment name, measured parameter (level, ' +
+      'flow, rainfall, wind, temperature), or freetext label search. Returns station_id, ' +
+      'name, river/catchment, coordinates, and the measures each station records — use ' +
+      'station_id with uk-ea-flood-monitoring.station_readings to get its latest values. ' +
+      'Data: environment.data.gov.uk/flood-monitoring, UK Open Government Licence v3.0, no ' +
+      'auth required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'uk-ea-flood-monitoring.station_readings',
+    mcpName: 'uk-ea-flood-monitoring.stations.readings',
+    title: 'UK Flood Monitoring Station Latest Readings',
+    description:
+      'Get the latest reading for every measure (e.g. water level, flow) recorded at one UK ' +
+      'Environment Agency monitoring station, identified by the station_id from ' +
+      'uk-ea-flood-monitoring.station_search. Returns each measure_id with its most recent ' +
+      'date/time and value. Data: environment.data.gov.uk/flood-monitoring, UK Open ' +
+      'Government Licence v3.0, no auth required.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
   // ---------------------------------------------------------------------------
   // Ф5 physical-device MCP layer -- device.list/state/command (2026-09-02)
   // Generic vendor-agnostic projection; Tuya is the only connected vendor
