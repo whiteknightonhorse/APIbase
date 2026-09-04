@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APIbase.pro — История инцидента</title>
+<meta name="description" content="Autopilot incident history — timeline and provider status for a single APIbase.pro incident.">
+<meta name="robots" content="noindex, follow">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="shortcut icon" href="/favicon.png">
+<link rel="canonical" href="https://apibase.pro/autopilot/incident">
+<style>
+/* Same terminal-HUD CSS system as /dashboard (static/dashboard.html) — copied,
+   not reinvented, per AP-10's "стиль — существующий терминальный HUD, никакой
+   новой визуальной системы". Trimmed to what this page actually uses. */
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'JetBrains Mono','Fira Code','Cascadia Code','Courier New',monospace;background:#1a1a2e;color:#b0ffb0;line-height:1.7;padding:1.5rem;min-height:100vh;display:flex;justify-content:center;align-items:flex-start}
+.window{max-width:960px;width:100%;background:#0c0c0c;border-radius:10px 10px 8px 8px;border:1px solid #444;box-shadow:0 20px 60px rgba(0,0,0,0.6),0 0 80px rgba(0,255,65,0.04),inset 0 0 80px rgba(0,255,65,0.01);overflow:visible;position:relative}
+.titlebar{background:linear-gradient(180deg,#3d3d3d 0%,#2a2a2a 100%);padding:10px 14px;display:flex;align-items:center;border-bottom:1px solid #1a1a1a}
+.dots{display:flex;gap:7px;flex-shrink:0}
+.dot{width:13px;height:13px;border-radius:50%;border:1px solid rgba(0,0,0,0.2)}
+.dot-red{background:#ff5f56;border-color:#e0443e}
+.dot-yellow{background:#ffbd2e;border-color:#dea123}
+.dot-green{background:#27c93f;border-color:#1aab29}
+.titlebar-text{flex:1;text-align:center;color:#999;font-size:0.78rem;letter-spacing:0.5px}
+.container{padding:1.8rem 2rem 2rem}
+nav{display:flex;flex-wrap:wrap;gap:0.3rem;margin-bottom:1.8rem;padding:0.5rem 0;border-bottom:1px solid #1a3a1a}
+nav::before{content:'[';color:#555}nav::after{content:']';color:#555}
+nav .brand{color:#00ff41;font-weight:700;font-size:1rem;text-decoration:none;text-shadow:0 0 8px rgba(0,255,65,0.4);padding:0.55rem 0.35rem 0.55rem 0;display:inline-block}
+nav a{color:#00cc33;text-decoration:none;font-size:1rem;padding:0.55rem 0.35rem;display:inline-block}
+nav a::before{content:' | ';color:#333}nav .brand::before{content:''}
+nav a:hover{color:#00ff41;text-shadow:0 0 6px rgba(0,255,65,0.5)}
+h1{color:#00ff41;font-size:1.15rem;margin-bottom:0.4rem;word-break:break-all}
+h1::before{content:'> ';color:#00aa30}
+a{color:#00ccff;text-decoration:none}a:hover{color:#66ddff}
+.back-link{display:inline-block;margin-bottom:1.2rem;font-size:0.8rem}
+.loading{text-align:center;padding:3rem;color:#2a942a;font-size:0.9rem}
+.loading::after{content:'';display:inline-block;width:8px;height:1.1em;background:#00ff41;vertical-align:text-bottom;animation:blink 1s step-end infinite;margin-left:4px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.error-msg{text-align:center;padding:2rem;color:#ff5f56;font-size:0.85rem}
+
+.state-badge{display:inline-block;padding:0.15rem 0.5rem;border-radius:3px;font-size:0.75rem;font-weight:700;letter-spacing:0.2px;white-space:nowrap}
+.state-badge.st-open{background:#2a0a0a;color:#ff7a70}
+.state-badge.st-remediation_queued{background:#0a1a2a;color:#4a9eff}
+.state-badge.st-waiting_human{background:#2a2000;color:#ffbd2e}
+.state-badge.st-verifying{background:#0a2a26;color:#3adfc4}
+.state-badge.st-stuck{background:#2a0000;color:#ff4444}
+.state-badge.st-resolved{background:#0a1a0a;color:#3a7a3a}
+.sev-badge{display:inline-block;padding:0.15rem 0.5rem;border-radius:3px;font-size:0.75rem;font-weight:700}
+.sev-badge.SEV1{background:#2a0a0a;color:#ff7a70}
+.sev-badge.SEV2{background:#1a1200;color:#ffbd2e}
+.sev-badge.SEV3{background:#0a1a2a;color:#4a9eff}
+
+.meta-grid{display:grid;grid-template-columns:auto 1fr;gap:0.35rem 1.2rem;font-size:0.85rem;margin:1.2rem 0 1.6rem;background:#080808;border:1px solid #1a3a1a;border-radius:4px;padding:1rem}
+.meta-grid dt{color:#2a942a}
+.meta-grid dd{color:#cdeecd;word-break:break-word}
+.noinfo{color:#555;font-style:italic}
+
+section{margin-bottom:1.6rem}
+section h2{font-size:0.9rem;color:#00ff41;margin-bottom:0.6rem;letter-spacing:0.3px}
+.timeline{list-style:none;display:flex;flex-direction:column;gap:0.5rem}
+.timeline li{background:#080808;border:1px solid #1a3a1a;border-left:3px solid #1a5a1a;border-radius:4px;padding:0.6rem 0.8rem;font-size:0.8rem}
+.timeline .ts{color:#2a942a;font-size:0.72rem}
+.timeline .actor{color:#00ff41;font-weight:700}
+.timeline .action{color:#cdeecd}
+.timeline .result{color:#88bb88}
+.empty-box{color:#1a5a1a;font-size:0.82rem;border:1px dashed #1a3a1a;padding:0.9rem;border-radius:4px}
+.gap-box{color:#8a8a4a;font-size:0.78rem;border:1px dashed #4a4a1a;background:#141400;padding:0.9rem;border-radius:4px;line-height:1.6}
+.gap-box code{color:#c0c060}
+
+.footer{margin-top:2rem;padding:0.6rem 0;border-top:1px solid #1a3a1a;color:#2a942a;font-size:0.72rem}
+@media(max-width:600px){body{padding:0.5rem}.container{padding:1rem}.meta-grid{grid-template-columns:1fr;gap:0.1rem 0}nav::before,nav::after{display:none}}
+</style>
+</head>
+<body>
+<div class="window">
+<div class="titlebar">
+<div class="dots"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></div>
+<span class="titlebar-text">apibase@prod:~$ cat /srv/apibase/incidents/&lt;id&gt;</span>
+</div>
+<div class="container">
+<nav>
+<a class="brand" href="/">APIbase.pro</a>
+<a href="/dashboard">Dashboard</a>
+<a href="/pricing">Pricing</a>
+<a href="/catalog">Catalog</a>
+<a href="/contact">Contact</a>
+</nav>
+<a class="back-link" href="/dashboard">&larr; назад в Dashboard</a>
+<div id="page-content"><div class="loading">Loading incident</div></div>
+<div class="footer">APIbase.pro autopilot &mdash; read-only incident view</div>
+</div>
+</div>
+
+<script>
+(function () {
+  var content = document.getElementById('page-content');
+
+  function escHtml(s) { var d = document.createElement('div'); d.appendChild(document.createTextNode(s == null ? '' : String(s))); return d.innerHTML; }
+  function stateClass(state) { return 'st-' + String(state).toLowerCase(); }
+  function fmtOrNoinfo(v) { return (v === null || v === undefined || v === '') ? '<span class="noinfo">NOINFO</span>' : escHtml(v); }
+  function fmtDate(iso) { if (!iso) return '<span class="noinfo">NOINFO</span>'; var d = new Date(iso); return escHtml(d.toLocaleString()); }
+
+  function getIncidentId() {
+    var params = new URLSearchParams(window.location.search);
+    return params.get('id');
+  }
+
+  function renderTimeline(attempts) {
+    if (!Array.isArray(attempts) || attempts.length === 0) {
+      return '<div class="empty-box">Пока нет записей — по этому инциденту ещё не было ни одной попытки.</div>';
+    }
+    var html = '<ul class="timeline">';
+    for (var i = 0; i < attempts.length; i++) {
+      var a = attempts[i] || {};
+      html += '<li><div class="ts">' + fmtDate(a.ts) + '</div>';
+      html += '<div><span class="actor">' + fmtOrNoinfo(a.actor) + '</span> &mdash; <span class="action">' + fmtOrNoinfo(a.action) + '</span>';
+      if (a.result !== undefined) html += ' &rarr; <span class="result">' + fmtOrNoinfo(a.result) + '</span>';
+      html += '</div></li>';
+    }
+    html += '</ul>';
+    return html;
+  }
+
+  function renderIncident(inc) {
+    document.title = 'APIbase.pro — Инцидент ' + inc.incident_id;
+    var html = '';
+    html += '<h1>' + escHtml(inc.incident_id) + '</h1>';
+    html += '<div><span class="sev-badge ' + escHtml(inc.severity) + '">' + escHtml(inc.severity) + '</span> ';
+    html += '<span class="state-badge ' + stateClass(inc.state) + '">' + escHtml(inc.state) + '</span></div>';
+
+    html += '<dl class="meta-grid">';
+    html += '<dt>Provider</dt><dd>' + escHtml(inc.provider) + '</dd>';
+    html += '<dt>Tool</dt><dd>' + fmtOrNoinfo(inc.tool_id) + '</dd>';
+    html += '<dt>Kind</dt><dd>' + escHtml(inc.kind) + '</dd>';
+    html += '<dt>Detected by</dt><dd>' + escHtml(inc.detected_by) + '</dd>';
+    html += '<dt>Dedup key</dt><dd>' + escHtml(inc.dedup_key) + '</dd>';
+    html += '<dt>Fleet task</dt><dd>' + fmtOrNoinfo(inc.fleet_task_id) + '</dd>';
+    html += '<dt>Operator file</dt><dd>' + fmtOrNoinfo(inc.operator_file) + '</dd>';
+    html += '<dt>Создан</dt><dd>' + fmtDate(inc.created_at) + '</dd>';
+    html += '<dt>Обновлён</dt><dd>' + fmtDate(inc.updated_at) + '</dd>';
+    html += '<dt>Следующая проверка</dt><dd>' + fmtDate(inc.next_recheck_at) + '</dd>';
+    html += '<dt>Закрыт</dt><dd>' + fmtDate(inc.resolved_at) + '</dd>';
+    html += '</dl>';
+
+    html += '<section><h2>Timeline (attempts)</h2>' + renderTimeline(inc.attempts) + '</section>';
+
+    // AP-10 honest-gap note (task precedence rule: real API shape beats the
+    // L2/mockup spec when they disagree). L2 §L2.5 asks this page for an
+    // "evidence-цитата из probe_log" plus three probe windows (24ч/7д/30д).
+    // AP-9's public projection (src/services/incidents.service.ts,
+    // PUBLIC_SELECT) deliberately drops `evidence` for EVERY incident, not
+    // just email-derived ones (Fable ruling-1 REJECT on T-818: the untrusted-
+    // email-quote redaction risk), and there is no probe_log aggregation
+    // endpoint at all. Rendered here as an explicit gap, not fabricated —
+    // see KNOWLEDGE entry for what a future AP-9 extension would need to
+    // expose for this section to render for real.
+    html += '<section><h2>Evidence (probe_log выдержка)</h2>';
+    html += '<div class="gap-box">Не публикуется через текущий публичный API. `evidence` намеренно исключён из <code>GET /api/v1/incidents/:id</code> для ВСЕХ инцидентов (не только email-производных) — постановление AP-9 ruling-1 о риске непроверенных email-цитат. Отдельного эндпойнта для probe_log-выдержки по инциденту тоже нет. NOINFO, не выдумано.</div>';
+    html += '</section>';
+
+    html += '<section><h2>Пробы провайдера — 24ч / 7д / 30д</h2>';
+    html += '<div class="gap-box">Не публикуется через текущий публичный API — агрегации probe_log по окнам 24ч/7д/30д нет ни в <code>GET /api/v1/dashboard</code>, ни в <code>GET /api/v1/incidents/:id</code>. NOINFO, не выдумано.</div>';
+    html += '</section>';
+
+    content.innerHTML = html;
+  }
+
+  function renderError(message) {
+    content.innerHTML = '<div class="error-msg">' + escHtml(message) + '</div>';
+  }
+
+  var id = getIncidentId();
+  if (!id) {
+    renderError('Нет id инцидента в адресе. Откройте эту страницу по ссылке из /dashboard ("Требует вас" / "Чинится само" / Fleet Queue).');
+  } else {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/api/v1/incidents/' + encodeURIComponent(id), true);
+    xhr.timeout = 15000;
+    xhr.onload = function () {
+      if (xhr.status === 200) {
+        try { renderIncident(JSON.parse(xhr.responseText)); }
+        catch (e) { renderError('Не удалось разобрать ответ сервера'); }
+      } else if (xhr.status === 404) {
+        renderError('Инцидент не найден: ' + id);
+      } else {
+        renderError('Инцидент недоступен (HTTP ' + xhr.status + ')');
+      }
+    };
+    xhr.onerror = function () { renderError('Сетевая ошибка при загрузке инцидента'); };
+    xhr.ontimeout = function () { renderError('Таймаут запроса'); };
+    xhr.send();
+  }
+})();
+</script>
+</body>
+</html>

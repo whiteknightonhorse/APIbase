@@ -119,7 +119,49 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
 #boot-screen .line.visible{opacity:1}
 #boot-screen .ok{color:#27c93f}
 #boot-screen .sys{color:#ffbd2e}
-@media(max-width:600px){body{padding:0.5rem}.container{padding:1rem}.titlebar{padding:8px 10px}h1{font-size:1.05rem}h1::before{content:''}table{font-size:0.72rem}th,td{padding:0.35rem}.col-latency{display:none}.system-monitor{font-size:0.72rem}.footer{font-size:0.65rem}nav::before,nav::after{display:none}.cat-tag{font-size:0.65rem;padding:0.2rem 0.4rem}}
+
+/* AP-10: autopilot dashboard extensions (L2 screens 1 "Operator" + 2 "Fleet/Queue" +
+   3 "Technical Control" columns) — same terminal-HUD system, no new visual language. */
+.sev-banner{display:flex;align-items:center;flex-wrap:wrap;gap:0.5rem;padding:0.7rem 1rem;border-radius:4px;margin-bottom:1.2rem;font-size:0.85rem;font-weight:700;letter-spacing:0.3px}
+.sev-banner.ok{background:#0a1a0a;border:1px solid #1a5a1a;color:#00ff41}
+.sev-banner.sev2{background:#1a1200;border:1px solid #4a3a00;color:#ffbd2e}
+.sev-banner.sev1{background:#2a0a0a;border:1px solid #5a1a1a;color:#ff7a70}
+.sev-banner .tick-note{font-weight:400;font-size:0.72rem;color:#2a942a;margin-left:auto}
+
+.incident-section{margin-bottom:1.2rem}
+.incident-section h2{font-size:0.82rem;color:#00ff41;margin-bottom:0.5rem;letter-spacing:0.3px;display:flex;align-items:center;gap:0.4rem;font-weight:700}
+.incident-list{display:flex;flex-direction:column;gap:0.5rem}
+.incident-card{display:flex;align-items:flex-start;gap:0.6rem;padding:0.6rem 0.8rem;background:#080808;border-radius:4px;border-left:3px solid #333;font-size:0.78rem;text-decoration:none}
+.incident-card.st-waiting_human{border-left-color:#ffbd2e}
+.incident-card.st-remediation_queued{border-left-color:#4a9eff}
+.incident-card.st-verifying{border-left-color:#3adfc4}
+.incident-card .icon{flex-shrink:0;margin-top:2px}
+.incident-card .body{flex:1;min-width:0;display:flex;flex-direction:column;gap:0.15rem}
+.incident-card .title{color:#cdeecd;font-weight:700}
+.incident-card .meta{color:#2a942a;font-size:0.72rem}
+.incident-empty{color:#1a5a1a;font-size:0.76rem;padding:0.4rem 0}
+
+.state-badge{display:inline-block;padding:0.1rem 0.4rem;border-radius:3px;font-size:0.68rem;font-weight:700;letter-spacing:0.2px;white-space:nowrap}
+.state-badge.st-open{background:#2a0a0a;color:#ff7a70}
+.state-badge.st-remediation_queued{background:#0a1a2a;color:#4a9eff}
+.state-badge.st-waiting_human{background:#2a2000;color:#ffbd2e}
+.state-badge.st-verifying{background:#0a2a26;color:#3adfc4}
+.state-badge.st-stuck{background:#2a0000;color:#ff4444}
+.state-badge.st-resolved{background:#0a1a0a;color:#3a7a3a}
+
+.fleet-toggle{cursor:pointer;user-select:none;display:block;margin-bottom:0.5rem}
+.fleet-toggle:hover{color:#00ff41}
+.fleet-panel.collapsed{display:none}
+.fleet-legend{font-size:0.68rem;color:#2a942a;margin-bottom:0.6rem;display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center}
+.state-tags{display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:0.6rem}
+.state-tag{background:#0a1a0a;border:1px solid #1a3a1a;border-radius:3px;padding:0.25rem 0.6rem;font-size:0.72rem;color:#2a942a;cursor:pointer;font-family:inherit;transition:all 0.15s;white-space:nowrap}
+.state-tag:hover{color:#00ff41;border-color:#00aa30}
+.state-tag.active{color:#00ff41;border-color:#00ff41;background:#0a2a0a;font-weight:700}
+.state-tag .cat-count{color:#006620;margin-left:3px;font-weight:400}
+.state-tag.active .cat-count{color:#00aa30}
+
+.noinfo{color:#555;font-style:italic}
+@media(max-width:600px){body{padding:0.5rem}.container{padding:1rem}.titlebar{padding:8px 10px}h1{font-size:1.05rem}h1::before{content:''}table{font-size:0.72rem}th,td{padding:0.35rem}.col-latency{display:none}.col-extra{display:none}.system-monitor{font-size:0.72rem}.footer{font-size:0.65rem}nav::before,nav::after{display:none}.cat-tag{font-size:0.65rem;padding:0.2rem 0.4rem}.sev-banner{font-size:0.75rem}}
 </style>
 </head>
 <body>
@@ -150,10 +192,39 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
 <a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a>
 </nav>
 <h1>Provider Status Dashboard</h1>
+<!-- AP-10 / L2 screen 1 "Operator": top-row SEV1/SEV2 banner (green "autopilot: OK"
+     line when there are none). Filled by renderBanner() from GET /api/v1/incidents;
+     "нет данных" if that request fails — never silently blank. -->
+<div class="sev-banner ok" id="sev-banner">Loading…</div>
 <div class="system-monitor" id="system-monitor">
 <span class="label">SYSTEM</span>  <span class="label">PRV:</span><span class="val" id="t-providers">--</span>  <span class="label">TOOLS:</span><span class="val" id="t-tools">--</span>  <span class="label">OPS/24H:</span><span class="val" id="t-calls">--</span>  <span class="label">MEM:</span><span class="val">OK</span>  <span class="label">NET:</span><span class="val">ONLINE</span>
 </div>
 <div class="payment-status" id="payment-status"></div>
+
+<!-- AP-10 / L2 screen 1: "Требует вас" (WAITING_HUMAN) and "Чинится само"
+     (REMEDIATION_QUEUED/VERIFYING) — deliberately different colors + icons
+     (amber+person vs blue/teal+gear) per the project ruling: these two must
+     never be visually confusable. -->
+<div class="incident-section">
+<h2><svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="color:#ffbd2e"><circle cx="12" cy="7" r="4" fill="currentColor"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="currentColor" stroke-width="2" fill="none"/></svg>Требует вас</h2>
+<div class="incident-list" id="waiting-human-list"><div class="incident-empty">Loading…</div></div>
+</div>
+
+<div class="incident-section">
+<h2><svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="color:#4a9eff"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Чинится само</h2>
+<div class="incident-list" id="remediation-list"><div class="incident-empty">Loading…</div></div>
+</div>
+
+<!-- AP-10 / L2 screen 2 "Fleet/Queue": dense table of ALL incidents + legend +
+     state filter tags, projected from the same GET /api/v1/incidents already
+     fetched for the sections above (item 3 default: section within /dashboard,
+     not a separate route — see KNOWLEDGE entry for the open question left to
+     Fable's review). Collapsed by default, same disclosure pattern as the
+     category filter above. -->
+<div class="incident-section">
+<span class="cat-filter-label fleet-toggle" id="fleet-toggle">FLEET / QUEUE — все инциденты <span id="fleet-count-label">[--]</span> ▶</span>
+<div class="fleet-panel collapsed" id="fleet-panel"><div id="fleet-queue-content"><div class="incident-empty">Loading…</div></div></div>
+</div>
 
 <!-- Search bar -->
 <div class="search-bar">
@@ -189,6 +260,7 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
   var pageLoadTime = Date.now();
   var currentFilter = 'ALL';
   var lastData = null;
+  var lastIncidents = null; // AP-10: null = "failed to load", [] = "genuinely zero"
 
   // --- Provider → Category mapping ---
   // UPDATE THIS when onboarding new providers (Step 12 in /onboard-provider)
@@ -531,6 +603,138 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
   function networkLabel(network) { if (network === 'eip155:8453') return 'Base'; if (network === 'eip155:84532') return 'Base Sepolia'; return network || '--'; }
   function escHtml(s) { var d = document.createElement('div'); d.appendChild(document.createTextNode(s)); return d.innerHTML; }
 
+  // --- AP-10: pure NOINFO-shaped formatters (L2 screen 3 + incident page).
+  // Kept as one-line functions on purpose: tests/unit/dashboard-noinfo.test.ts
+  // regex-extracts these exact source lines out of this file and evals them
+  // in isolation (no DOM) so the mutation control asserts on the REAL
+  // rendering code, not a reimplementation — same convention the backend
+  // tests already use for SQL text. Do not reformat across multiple lines. ---
+  function fmtState(v) { return (v === null || v === undefined) ? 'NOINFO' : String(v); }
+  function fmtRisk(v) { return (v === null || v === undefined) ? 'NOINFO' : String(v); }
+  function fmtReliability(v) { return (v === null || v === undefined) ? 'NOINFO' : (v + '/100'); }
+  function fmtProbeAge(s) { if (s === null || s === undefined) return 'никогда не пробовался'; if (s < 60) return s + 's'; if (s < 3600) return Math.floor(s / 60) + 'm'; if (s < 86400) return Math.floor(s / 3600) + 'h'; return Math.floor(s / 86400) + 'd'; }
+  function fmtAge(iso) { if (!iso) return 'NOINFO'; var ms = Date.now() - new Date(iso).getTime(); if (ms < 0) ms = 0; var m = Math.floor(ms / 60000); if (m < 60) return m + 'm'; var h = Math.floor(m / 60); if (h < 24) return h + 'h ' + (m % 60) + 'm'; var d = Math.floor(h / 24); return d + 'd ' + (h % 24) + 'h'; }
+  function stateClass(state) { return 'st-' + String(state).toLowerCase(); }
+  function tdNoinfo(isMissing, text) { return isMissing ? '<span class="noinfo">' + escHtml(text) + '</span>' : escHtml(text); }
+  // Sort (open_incidents desc, reliability asc) — L2 screen 3. A `null`
+  // reliability_score (never scored) is NOT coerced to 0/-1 for ranking
+  // (that would silently encode "unmeasured" as "worst score", the exact
+  // twin-worlds mistake NOINFO exists to prevent) — it sorts to the bottom
+  // instead, as the least-urgent-to-look-at case, not the most.
+  function sortProviders(list) { return list.slice().sort(function(a, b) { var oi = (b.open_incidents || 0) - (a.open_incidents || 0); if (oi !== 0) return oi; var ra = (a.reliability_score === null || a.reliability_score === undefined) ? Infinity : a.reliability_score; var rb = (b.reliability_score === null || b.reliability_score === undefined) ? Infinity : b.reliability_score; return ra - rb; }); }
+
+  var ICON_PERSON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="12" cy="7" r="4" fill="currentColor"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="currentColor" stroke-width="2" fill="none"/></svg>';
+  var ICON_GEAR = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+
+  // --- AP-10 / L2 screens 1+2: incidents-derived sections. `incidents` is
+  // `null` when the GET /api/v1/incidents request itself failed — rendered
+  // as an honest "couldn't load" state, never as an empty/zero result
+  // (twin-worlds: "no incidents" and "don't know" must stay visually and
+  // textually distinct). ---
+  function renderBanner(incidents) {
+    var el = document.getElementById('sev-banner');
+    if (!el) return;
+    if (incidents === null) {
+      el.className = 'sev-banner ok';
+      el.innerHTML = 'autopilot: <span class="noinfo">не удалось загрузить инциденты</span>';
+      return;
+    }
+    var open = incidents.filter(function(i) { return i.state !== 'RESOLVED'; });
+    var sev1 = open.filter(function(i) { return i.severity === 'SEV1'; });
+    var sev2 = open.filter(function(i) { return i.severity === 'SEV2'; });
+    if (sev1.length > 0) {
+      el.className = 'sev-banner sev1';
+      el.innerHTML = 'SEV1: ' + sev1.length + ' открытых инцидент(ов)' + (sev2.length > 0 ? ' &middot; SEV2: ' + sev2.length : '');
+    } else if (sev2.length > 0) {
+      el.className = 'sev-banner sev2';
+      el.innerHTML = 'SEV2: ' + sev2.length + ' открытых инцидент(ов)';
+    } else {
+      el.className = 'sev-banner ok';
+      el.innerHTML = 'autopilot: OK &mdash; нет открытых SEV1/SEV2 инцидентов <span class="tick-note">(тик движка не публикуется через публичный API)</span>';
+    }
+  }
+
+  function renderWaitingHuman(incidents) {
+    var wrap = document.getElementById('waiting-human-list');
+    if (!wrap) return;
+    if (incidents === null) { wrap.innerHTML = '<div class="incident-empty">Не удалось загрузить</div>'; return; }
+    var list = incidents.filter(function(i) { return i.state === 'WAITING_HUMAN'; });
+    if (list.length === 0) { wrap.innerHTML = '<div class="incident-empty">Нет инцидентов, требующих вас</div>'; return; }
+    var html = '';
+    for (var i = 0; i < list.length; i++) {
+      var inc = list[i];
+      html += '<a class="incident-card st-waiting_human" href="/autopilot/incident?id=' + encodeURIComponent(inc.incident_id) + '">';
+      html += '<span class="icon" style="color:#ffbd2e">' + ICON_PERSON + '</span>';
+      html += '<span class="body"><span class="title">' + escHtml(inc.provider) + ' &mdash; ' + escHtml(inc.kind) + '</span>';
+      html += '<span class="meta">' + escHtml(inc.severity) + ' &middot; возраст ' + fmtAge(inc.created_at) + ' &middot; файл: ' + (inc.operator_file ? escHtml(inc.operator_file) : '<span class="noinfo">NOINFO</span>') + '</span></span></a>';
+    }
+    wrap.innerHTML = html;
+  }
+
+  function renderRemediation(incidents) {
+    var wrap = document.getElementById('remediation-list');
+    if (!wrap) return;
+    if (incidents === null) { wrap.innerHTML = '<div class="incident-empty">Не удалось загрузить</div>'; return; }
+    var list = incidents.filter(function(i) { return i.state === 'REMEDIATION_QUEUED' || i.state === 'VERIFYING'; });
+    if (list.length === 0) { wrap.innerHTML = '<div class="incident-empty">Ничего не чинится сейчас</div>'; return; }
+    var html = '';
+    for (var i = 0; i < list.length; i++) {
+      var inc = list[i];
+      var cls = stateClass(inc.state);
+      var color = inc.state === 'VERIFYING' ? '#3adfc4' : '#4a9eff';
+      html += '<a class="incident-card ' + cls + '" href="/autopilot/incident?id=' + encodeURIComponent(inc.incident_id) + '">';
+      html += '<span class="icon" style="color:' + color + '">' + ICON_GEAR + '</span>';
+      html += '<span class="body"><span class="title">' + escHtml(inc.provider) + ' &mdash; ' + escHtml(inc.kind) + '</span>';
+      html += '<span class="meta"><span class="state-badge ' + cls + '">' + escHtml(inc.state) + '</span> &middot; задача: ' + (inc.fleet_task_id ? escHtml(inc.fleet_task_id) : '<span class="noinfo">NOINFO</span>') + ' &middot; попыток: ' + (Array.isArray(inc.attempts) ? inc.attempts.length : 0) + '</span></span></a>';
+    }
+    wrap.innerHTML = html;
+  }
+
+  var fleetStateFilter = 'ALL';
+  var FLEET_STATES = ['OPEN', 'REMEDIATION_QUEUED', 'WAITING_HUMAN', 'VERIFYING', 'RESOLVED', 'STUCK'];
+  function renderFleetQueue(incidents) {
+    var wrap = document.getElementById('fleet-queue-content');
+    var countLabel = document.getElementById('fleet-count-label');
+    if (!wrap) return;
+    if (incidents === null) { wrap.innerHTML = '<div class="incident-empty">Не удалось загрузить</div>'; if (countLabel) countLabel.textContent = '[--]'; return; }
+    if (countLabel) countLabel.textContent = '[' + incidents.length + ']';
+
+    var counts = {};
+    for (var i = 0; i < incidents.length; i++) { counts[incidents[i].state] = (counts[incidents[i].state] || 0) + 1; }
+    var tagHtml = '<span class="state-tag' + (fleetStateFilter === 'ALL' ? ' active' : '') + '" data-state="ALL">ALL <span class="cat-count">' + incidents.length + '</span></span>';
+    for (var j = 0; j < FLEET_STATES.length; j++) {
+      var s = FLEET_STATES[j];
+      tagHtml += '<span class="state-tag' + (fleetStateFilter === s ? ' active' : '') + '" data-state="' + s + '">' + s + ' <span class="cat-count">' + (counts[s] || 0) + '</span></span>';
+    }
+    var legendHtml = '<div class="fleet-legend">Legend: ';
+    for (var k = 0; k < FLEET_STATES.length; k++) { legendHtml += '<span class="state-badge ' + stateClass(FLEET_STATES[k]) + '">' + FLEET_STATES[k] + '</span>'; }
+    legendHtml += '</div>';
+
+    // (open_incidents doesn't apply per-incident — sort SEV1 first, then most
+    // recently created, same ordering the public /api/v1/incidents already
+    // returns; filtering here is purely client-side over that same response.)
+    var rows = fleetStateFilter === 'ALL' ? incidents : incidents.filter(function(i) { return i.state === fleetStateFilter; });
+    var tableHtml = '<div class="table-wrap"><table><thead><tr><th>Provider</th><th>Kind</th><th>Sev</th><th>State</th><th>Age</th><th>Fleet task</th><th>Detail</th></tr></thead><tbody>';
+    if (rows.length === 0) {
+      tableHtml += '<tr><td colspan="7" class="empty-state">Нет инцидентов в состоянии ' + escHtml(fleetStateFilter) + '</td></tr>';
+    } else {
+      for (var m = 0; m < rows.length; m++) {
+        var inc = rows[m];
+        tableHtml += '<tr><td>' + escHtml(inc.provider) + '</td><td>' + escHtml(inc.kind) + '</td><td>' + escHtml(inc.severity) + '</td>';
+        tableHtml += '<td><span class="state-badge ' + stateClass(inc.state) + '">' + escHtml(inc.state) + '</span></td>';
+        tableHtml += '<td>' + fmtAge(inc.created_at) + '</td><td>' + (inc.fleet_task_id ? escHtml(inc.fleet_task_id) : '<span class="noinfo">NOINFO</span>') + '</td>';
+        tableHtml += '<td><a href="/autopilot/incident?id=' + encodeURIComponent(inc.incident_id) + '">открыть →</a></td></tr>';
+      }
+    }
+    tableHtml += '</tbody></table></div>';
+
+    wrap.innerHTML = '<div class="state-tags">' + tagHtml + '</div>' + legendHtml + tableHtml;
+    var tags = wrap.querySelectorAll('.state-tag');
+    for (var t = 0; t < tags.length; t++) {
+      tags[t].addEventListener('click', function() { fleetStateFilter = this.getAttribute('data-state'); renderFleetQueue(lastIncidents); });
+    }
+  }
+
   function renderPaymentStatus(data) {
     var el = document.getElementById('payment-status');
     if (!data.payment_system) { el.style.display = 'none'; return; }
@@ -605,13 +809,18 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
 
     html += '<div class="table-wrap"><table><thead><tr>';
     html += '<th>Provider</th><th>Cat</th><th>Status</th><th>Limits</th><th>Calls 24h</th><th>Tools</th>';
+    html += '<th class="col-extra">State</th><th class="col-extra">Risk</th><th class="col-extra">Reliability</th><th class="col-extra">Probe age</th>';
     html += '</tr></thead><tbody>';
 
+    // AP-10 / L2 screen 3: sort (open_incidents desc, reliability asc) BEFORE
+    // search/category filtering — filters narrow the already-prioritized order,
+    // they don't replace it.
+    var sortedProviders = sortProviders(data.providers);
     var searchTerm = (document.getElementById('search-input').value || '').toLowerCase().trim();
     var visibleCount = 0;
     var totalMatched = 0;
-    for (var i = 0; i < data.providers.length; i++) {
-      var p = data.providers[i];
+    for (var i = 0; i < sortedProviders.length; i++) {
+      var p = sortedProviders[i];
       var cat = getCategory(p.display_name);
       if (currentFilter !== 'ALL' && cat !== currentFilter) continue;
       if (searchTerm) {
@@ -638,11 +847,22 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
       html += '<td>' + formatNum(p.calls_24h);
       if (p.usage && p.usage.calls_total > 0) html += ' <span style="opacity:0.5;font-size:0.85em">/ ' + formatNum(p.usage.calls_total) + ' total</span>';
       html += '</td>';
-      html += '<td>' + p.tool_count + '</td></tr>';
+      html += '<td>' + p.tool_count + '</td>';
+      // AP-9's own contract: `null` here means "no provider_status row yet"
+      // (never probed) — rendered as an explicit NOINFO, never coerced to 0/
+      // empty. `state`/`risk` CAN legitimately be the string 'UNKNOWN'/'NOINFO'
+      // themselves (real enum members) — those render as plain text, not
+      // wrapped in the .noinfo (dim/italic) treatment, since they ARE a real
+      // measured fact, unlike an actually-absent row.
+      html += '<td class="col-extra">' + tdNoinfo(p.state === null || p.state === undefined, fmtState(p.state)) + '</td>';
+      html += '<td class="col-extra">' + tdNoinfo(p.risk === null || p.risk === undefined, fmtRisk(p.risk)) + '</td>';
+      html += '<td class="col-extra">' + tdNoinfo(p.reliability_score === null || p.reliability_score === undefined, fmtReliability(p.reliability_score)) + '</td>';
+      html += '<td class="col-extra">' + tdNoinfo(p.probe_age_s === null || p.probe_age_s === undefined, fmtProbeAge(p.probe_age_s)) + '</td>';
+      html += '</tr>';
     }
 
     if (visibleCount === 0) {
-      html += '<tr><td colspan="6" class="empty-state">$ grep "' + escHtml(searchTerm || currentFilter) + '" /providers<br>0 results. No match found.</td></tr>';
+      html += '<tr><td colspan="10" class="empty-state">$ grep "' + escHtml(searchTerm || currentFilter) + '" /providers<br>0 results. No match found.</td></tr>';
     }
 
     html += '</tbody></table></div>';
@@ -675,8 +895,35 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
     xhr.send();
   }
 
-  function tick() { countdown--; if (countdown <= 0) fetchDashboard(); updateProgressBar(countdown); }
+  // AP-10 / L2 screens 1+2: same GET /api/v1/incidents feeds the SEV banner,
+  // "Требует вас", "Чинится само" and the Fleet/Queue table — one fetch, four
+  // renderers, same 60s cadence as fetchDashboard() (item 1: don't invent a
+  // second refresh mechanism).
+  function fetchIncidents() {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/api/v1/incidents', true);
+    xhr.timeout = 15000;
+    function apply(incidents) {
+      lastIncidents = incidents;
+      renderBanner(incidents);
+      renderWaitingHuman(incidents);
+      renderRemediation(incidents);
+      renderFleetQueue(incidents);
+    }
+    xhr.onload = function() {
+      if (xhr.status === 200) {
+        try { apply(JSON.parse(xhr.responseText).incidents || []); }
+        catch (e) { apply(null); }
+      } else { apply(null); }
+    };
+    xhr.onerror = function() { apply(null); };
+    xhr.ontimeout = function() { apply(null); };
+    xhr.send();
+  }
+
+  function tick() { countdown--; if (countdown <= 0) { fetchDashboard(); fetchIncidents(); } updateProgressBar(countdown); }
   fetchDashboard();
+  fetchIncidents();
   intervalId = setInterval(tick, 1000);
 
   // Search input — live filter on keyup
@@ -701,6 +948,20 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
       label.innerHTML = label.innerHTML.replace('▶', '▼');
     } else {
       tags.classList.add('collapsed');
+      label.innerHTML = label.innerHTML.replace('▼', '▶');
+    }
+  });
+
+  // Fleet/Queue disclosure toggle (AP-10 item 3 default: section within
+  // /dashboard, collapsed by default — same pattern as the category filter).
+  document.getElementById('fleet-toggle').addEventListener('click', function() {
+    var panel = document.getElementById('fleet-panel');
+    var label = this;
+    if (panel.classList.contains('collapsed')) {
+      panel.classList.remove('collapsed');
+      label.innerHTML = label.innerHTML.replace('▶', '▼');
+    } else {
+      panel.classList.add('collapsed');
       label.innerHTML = label.innerHTML.replace('▼', '▶');
     }
   });
