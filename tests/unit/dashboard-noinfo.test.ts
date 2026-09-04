@@ -114,12 +114,12 @@ describe('AP-10: static/dashboard.html NOINFO formatters (real source, not a rei
   describe('fmtProbeAge — the classic 0-vs-null trap, seconds edition', () => {
     it('MUTATION CONTROL: probe_age_s=0 (probed just now) must NOT render as never-probed', () => {
       expect(fmtProbeAge(0)).toBe('0s');
-      expect(fmtProbeAge(0)).not.toMatch(/никогда/);
+      expect(fmtProbeAge(0)).not.toMatch(/never/);
     });
     it('MUTATION CONTROL: probe_age_s=null (never probed) must NOT render as 0s', () => {
-      expect(fmtProbeAge(null)).toMatch(/никогда/);
+      expect(fmtProbeAge(null)).toMatch(/never/);
       expect(fmtProbeAge(null)).not.toBe('0s');
-      expect(fmtProbeAge(undefined)).toMatch(/никогда/);
+      expect(fmtProbeAge(undefined)).toMatch(/never/);
     });
     it('formats real ages in the expected unit bucket', () => {
       expect(fmtProbeAge(45)).toBe('45s');

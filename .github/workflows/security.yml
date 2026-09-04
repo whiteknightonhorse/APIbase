@@ -154,6 +154,25 @@ jobs:
       - name: Every tools/<id>/call reference in static/*.html is a real tool_id
         run: npx tsx scripts/check-static-tool-refs.ts
 
+  static-dashboard-english-only:
+    # T-00 (2026-09-04): the operator found ~85 live Russian text fragments on
+    # https://apibase.pro/dashboard (and /autopilot/incident) -- headings, empty
+    # states, legends, and error texts that only render once something has
+    # already failed. Ruling: the autopilot dashboard UI is English-only. Static
+    # check on the committed static/*.html (no build step, nginx serves them
+    # byte-for-byte -- see the script's own header) so the next commit can't
+    # silently reintroduce Cyrillic the way this one did.
+    name: Static Dashboard English-Only
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Self-test the checker itself
+        run: python3 scripts/check-english-only-static.py --selftest
+
+      - name: static/dashboard.html + static/autopilot-incident.html contain no Cyrillic
+        run: python3 scripts/check-english-only-static.py
+
   static-counts-drift:
     # F9: sync-counts.sh --check was written FOR CI but wired to nothing -- zero
     # references in any workflow or cron. It needs the live production DB (docker exec

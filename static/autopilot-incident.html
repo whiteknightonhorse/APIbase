@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>APIbase.pro — История инцидента</title>
+<title>APIbase.pro — Incident History</title>
 <meta name="description" content="Autopilot incident history — timeline and provider status for a single APIbase.pro incident.">
 <meta name="robots" content="noindex, follow">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -12,8 +12,8 @@
 <link rel="canonical" href="https://apibase.pro/autopilot/incident">
 <style>
 /* Same terminal-HUD CSS system as /dashboard (static/dashboard.html) — copied,
-   not reinvented, per AP-10's "стиль — существующий терминальный HUD, никакой
-   новой визуальной системы". Trimmed to what this page actually uses. */
+   not reinvented, per AP-10's "style — the existing terminal HUD, no new
+   visual system". Trimmed to what this page actually uses. */
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'JetBrains Mono','Fira Code','Cascadia Code','Courier New',monospace;background:#1a1a2e;color:#b0ffb0;line-height:1.7;padding:1.5rem;min-height:100vh;display:flex;justify-content:center;align-items:flex-start}
 .window{max-width:960px;width:100%;background:#0c0c0c;border-radius:10px 10px 8px 8px;border:1px solid #444;box-shadow:0 20px 60px rgba(0,0,0,0.6),0 0 80px rgba(0,255,65,0.04),inset 0 0 80px rgba(0,255,65,0.01);overflow:visible;position:relative}
@@ -87,8 +87,8 @@ section h2{font-size:0.9rem;color:#00ff41;margin-bottom:0.6rem;letter-spacing:0.
 <a href="/catalog">Catalog</a>
 <a href="/contact">Contact</a>
 </nav>
-<a class="back-link" href="/dashboard">&larr; назад в Dashboard</a>
-<div id="page-content"><div class="loading">Загрузка инцидента</div></div>
+<a class="back-link" href="/dashboard">&larr; back to Dashboard</a>
+<div id="page-content"><div class="loading">Loading incident</div></div>
 <div class="footer">APIbase.pro autopilot &mdash; read-only incident view</div>
 </div>
 </div>
@@ -109,7 +109,7 @@ section h2{font-size:0.9rem;color:#00ff41;margin-bottom:0.6rem;letter-spacing:0.
 
   function renderTimeline(attempts) {
     if (!Array.isArray(attempts) || attempts.length === 0) {
-      return '<div class="empty-box">Пока нет записей — по этому инциденту ещё не было ни одной попытки.</div>';
+      return '<div class="empty-box">No entries yet — there has not been a single attempt on this incident.</div>';
     }
     var html = '<ul class="timeline">';
     for (var i = 0; i < attempts.length; i++) {
@@ -124,7 +124,7 @@ section h2{font-size:0.9rem;color:#00ff41;margin-bottom:0.6rem;letter-spacing:0.
   }
 
   function renderIncident(inc) {
-    document.title = 'APIbase.pro — Инцидент ' + inc.incident_id;
+    document.title = 'APIbase.pro — Incident ' + inc.incident_id;
     var html = '';
     html += '<h1>' + escHtml(inc.incident_id) + '</h1>';
     html += '<div><span class="sev-badge ' + escHtml(inc.severity) + '">' + escHtml(inc.severity) + '</span> ';
@@ -138,17 +138,17 @@ section h2{font-size:0.9rem;color:#00ff41;margin-bottom:0.6rem;letter-spacing:0.
     html += '<dt>Dedup key</dt><dd>' + escHtml(inc.dedup_key) + '</dd>';
     html += '<dt>Fleet task</dt><dd>' + fmtOrNoinfo(inc.fleet_task_id) + '</dd>';
     html += '<dt>Operator file</dt><dd>' + fmtOrNoinfo(inc.operator_file) + '</dd>';
-    html += '<dt>Создан</dt><dd>' + fmtDate(inc.created_at) + '</dd>';
-    html += '<dt>Обновлён</dt><dd>' + fmtDate(inc.updated_at) + '</dd>';
-    html += '<dt>Следующая проверка</dt><dd>' + fmtDate(inc.next_recheck_at) + '</dd>';
-    html += '<dt>Закрыт</dt><dd>' + fmtDate(inc.resolved_at) + '</dd>';
+    html += '<dt>Created</dt><dd>' + fmtDate(inc.created_at) + '</dd>';
+    html += '<dt>Updated</dt><dd>' + fmtDate(inc.updated_at) + '</dd>';
+    html += '<dt>Next recheck</dt><dd>' + fmtDate(inc.next_recheck_at) + '</dd>';
+    html += '<dt>Resolved</dt><dd>' + fmtDate(inc.resolved_at) + '</dd>';
     html += '</dl>';
 
-    html += '<section><h2>Хронология (attempts)</h2>' + renderTimeline(inc.attempts) + '</section>';
+    html += '<section><h2>Timeline (attempts)</h2>' + renderTimeline(inc.attempts) + '</section>';
 
     // AP-10 honest-gap note (task precedence rule: real API shape beats the
     // L2/mockup spec when they disagree). L2 §L2.5 asks this page for an
-    // "evidence-цитата из probe_log" plus three probe windows (24ч/7д/30д).
+    // "evidence quote from probe_log" plus three probe windows (24h/7d/30d).
     // AP-9's public projection (src/services/incidents.service.ts,
     // PUBLIC_SELECT) deliberately drops `evidence` for EVERY incident, not
     // just email-derived ones (Fable ruling-1 REJECT on T-818: the untrusted-
@@ -156,12 +156,12 @@ section h2{font-size:0.9rem;color:#00ff41;margin-bottom:0.6rem;letter-spacing:0.
     // endpoint at all. Rendered here as an explicit gap, not fabricated —
     // see KNOWLEDGE entry for what a future AP-9 extension would need to
     // expose for this section to render for real.
-    html += '<section><h2>Evidence (probe_log выдержка)</h2>';
-    html += '<div class="gap-box">Не публикуется через текущий публичный API. `evidence` намеренно исключён из <code>GET /api/v1/incidents/:id</code> для ВСЕХ инцидентов (не только email-производных) — постановление AP-9 ruling-1 о риске непроверенных email-цитат. Отдельного эндпойнта для probe_log-выдержки по инциденту тоже нет. NOINFO, не выдумано.</div>';
+    html += '<section><h2>Evidence (probe_log excerpt)</h2>';
+    html += '<div class="gap-box">Not exposed via the current public API. `evidence` is deliberately excluded from <code>GET /api/v1/incidents/:id</code> for ALL incidents (not just email-derived ones) — AP-9 ruling-1 on the risk of unverified email quotes. There is also no separate endpoint for a probe_log excerpt per incident. NOINFO, not fabricated.</div>';
     html += '</section>';
 
-    html += '<section><h2>Пробы провайдера — 24ч / 7д / 30д</h2>';
-    html += '<div class="gap-box">Не публикуется через текущий публичный API — агрегации probe_log по окнам 24ч/7д/30д нет ни в <code>GET /api/v1/dashboard</code>, ни в <code>GET /api/v1/incidents/:id</code>. NOINFO, не выдумано.</div>';
+    html += '<section><h2>Provider probes — 24h / 7d / 30d</h2>';
+    html += '<div class="gap-box">Not exposed via the current public API — there is no probe_log aggregation by 24h/7d/30d window in either <code>GET /api/v1/dashboard</code> or <code>GET /api/v1/incidents/:id</code>. NOINFO, not fabricated.</div>';
     html += '</section>';
 
     content.innerHTML = html;
@@ -173,7 +173,7 @@ section h2{font-size:0.9rem;color:#00ff41;margin-bottom:0.6rem;letter-spacing:0.
 
   var id = getIncidentId();
   if (!id) {
-    renderError('Нет id инцидента в адресе. Откройте эту страницу по ссылке из /dashboard ("Требует вас" / "Чинится само" / Fleet Queue).');
+    renderError('No incident id in the address. Open this page via a link from /dashboard ("Needs you" / "Self-healing" / Fleet Queue).');
   } else {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', '/api/v1/incidents/' + encodeURIComponent(id), true);
@@ -181,15 +181,15 @@ section h2{font-size:0.9rem;color:#00ff41;margin-bottom:0.6rem;letter-spacing:0.
     xhr.onload = function () {
       if (xhr.status === 200) {
         try { renderIncident(JSON.parse(xhr.responseText)); }
-        catch (e) { renderError('Не удалось разобрать ответ сервера'); }
+        catch (e) { renderError('Failed to parse server response'); }
       } else if (xhr.status === 404) {
-        renderError('Инцидент не найден: ' + id);
+        renderError('Incident not found: ' + id);
       } else {
-        renderError('Инцидент недоступен (HTTP ' + xhr.status + ')');
+        renderError('Incident unavailable (HTTP ' + xhr.status + ')');
       }
     };
-    xhr.onerror = function () { renderError('Сетевая ошибка при загрузке инцидента'); };
-    xhr.ontimeout = function () { renderError('Таймаут запроса'); };
+    xhr.onerror = function () { renderError('Network error while loading incident'); };
+    xhr.ontimeout = function () { renderError('Request timeout'); };
     xhr.send();
   }
 })();
