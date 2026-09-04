@@ -71,7 +71,12 @@ jobs:
     name: Build & Push Image
     needs: validate
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # T-74 (2026-09-04): the image itself (docker/build-push-action) finished and pushed
+    # to GHCR in ~14min on run 33861174289 -- the job was then killed by this timeout while
+    # stuck on `cache-to: type=gha,mode=max`'s "exporting to GitHub Actions Cache" step (one
+    # layer write never completed, a known GHA cache-backend flake, not a code/build defect).
+    # 15 -> 25 gives that export step headroom without touching the (working) build itself.
+    timeout-minutes: 25
 
     steps:
       - name: Checkout
