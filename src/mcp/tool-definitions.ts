@@ -16917,6 +16917,46 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'location',
     annotations: READ_ONLY,
   },
+  // Kartverket Stedsnavn (Norwegian Place Names) API — ws.geonorge.no/stedsnavn/v1 (3) — UC-681
+  {
+    toolId: 'norway-kartverket-stedsnavn.search_names',
+    mcpName: 'norway-kartverket-stedsnavn.places.search_names',
+    title: 'Norwegian Place Name Search',
+    description:
+      'Search the official Norwegian place name register (Kartverket Stedsnavn) by text, ' +
+      "optionally filtered by county or municipality. Returns each match's place id " +
+      '(stedsnummer), type (city, lake, mountain, street, etc.), status, language, county, ' +
+      'municipality, and coordinates. Call norway-kartverket-stedsnavn.get_place for full ' +
+      'detail on a specific result. Data: Kartverket (Norwegian Mapping Authority), NLOD 2.0 ' +
+      'open licence, no auth required.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'norway-kartverket-stedsnavn.search_by_point',
+    mcpName: 'norway-kartverket-stedsnavn.places.search_by_point',
+    title: 'Norwegian Place Name Reverse Lookup',
+    description:
+      'Find Norwegian place names near a geographic coordinate (reverse geocoding), from the ' +
+      'Kartverket Stedsnavn register. Returns matching place ids, types, names, municipality, ' +
+      'and coordinates within the given radius. Data: Kartverket (Norwegian Mapping ' +
+      'Authority), NLOD 2.0 open licence, no auth required.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'norway-kartverket-stedsnavn.get_place',
+    mcpName: 'norway-kartverket-stedsnavn.places.get_place',
+    title: 'Norwegian Place Detail',
+    description:
+      'Get the full record for a single Norwegian place by its stedsnummer id (from ' +
+      'search_names or search_by_point results). Returns all written name forms (incl. ' +
+      'Sámi/minority-language forms where applicable), status, type, county, municipality, ' +
+      'coordinates, last-updated date, and boundary geometry where available. Data: ' +
+      'Kartverket (Norwegian Mapping Authority), NLOD 2.0 open licence, no auth required.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
   // ---------------------------------------------------------------------------
   // Ф5 physical-device MCP layer -- device.list/state/command (2026-09-02)
   // Generic vendor-agnostic projection; Tuya is the only connected vendor

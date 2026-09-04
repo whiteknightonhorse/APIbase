@@ -125979,6 +125979,283 @@
         ]
       }
     },
+    "/api/v1/tools/norway-kartverket-stedsnavn.search_names/call": {
+      "post": {
+        "operationId": "norway-kartverket-stedsnavn_search_names",
+        "summary": "Norwegian Place Name Search",
+        "description": "Search the official Norwegian place name register (Kartverket Stedsnavn) by text, optionally filtered by county or municipality. Returns each match's place id (stedsnummer), type (city, lake, mountain, street, etc.), status, language, county, municipality, and coordinates. Call norway-kartverket-stedsnavn.get_place for full detail on a specific result. Data: Kartverket (Norwegian Mapping Authority), NLOD 2.0 open licence, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "norway-kartverket-stedsnavn.search_names"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Place name text to search for, e.g. \"Oslo\" or \"Bergen\"",
+                    "minLength": 1
+                  },
+                  "county": {
+                    "type": "string",
+                    "description": "Filter results to a Norwegian county name (fylkesnavn), e.g. \"Viken\""
+                  },
+                  "municipality": {
+                    "type": "string",
+                    "description": "Filter results to a Norwegian municipality name (kommunenavn), e.g. \"Bergen\""
+                  },
+                  "fuzzy": {
+                    "type": "boolean",
+                    "description": "Allow fuzzy/approximate text matching instead of exact substring search"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 30,
+                    "description": "Maximum results to return (default 10, max 30)"
+                  }
+                },
+                "required": [
+                  "query"
+                ],
+                "description": "Search the Norwegian official place name register (Kartverket Stedsnavn) by text, optionally filtered by county or municipality"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/norway-kartverket-stedsnavn.search_by_point/call": {
+      "post": {
+        "operationId": "norway-kartverket-stedsnavn_search_by_point",
+        "summary": "Norwegian Place Name Reverse Lookup",
+        "description": "Find Norwegian place names near a geographic coordinate (reverse geocoding), from the Kartverket Stedsnavn register. Returns matching place ids, types, names, municipality, and coordinates within the given radius. Data: Kartverket (Norwegian Mapping Authority), NLOD 2.0 open licence, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "norway-kartverket-stedsnavn.search_by_point"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "lat": {
+                    "type": "number",
+                    "description": "Decimal degree latitude (WGS84/EUREF89) within Norway, e.g. 59.91273 for Oslo",
+                    "minimum": 57,
+                    "maximum": 72
+                  },
+                  "lng": {
+                    "type": "number",
+                    "description": "Decimal degree longitude (WGS84/EUREF89) within Norway, e.g. 10.74609 for Oslo",
+                    "minimum": 4,
+                    "maximum": 32
+                  },
+                  "radius_m": {
+                    "type": "number",
+                    "minimum": 10,
+                    "maximum": 10000,
+                    "description": "Search radius in metres around lat/lng (default 500, max 10000)"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 30,
+                    "description": "Maximum place names to return (default 10, max 30)"
+                  }
+                },
+                "required": [
+                  "lat",
+                  "lng"
+                ],
+                "description": "Find Norwegian place names near a geographic coordinate (reverse lookup), from the Kartverket Stedsnavn register"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/norway-kartverket-stedsnavn.get_place/call": {
+      "post": {
+        "operationId": "norway-kartverket-stedsnavn_get_place",
+        "summary": "Norwegian Place Detail",
+        "description": "Get the full record for a single Norwegian place by its stedsnummer id (from search_names or search_by_point results). Returns all written name forms (incl. Sámi/minority-language forms where applicable), status, type, county, municipality, coordinates, last-updated date, and boundary geometry where available. Data: Kartverket (Norwegian Mapping Authority), NLOD 2.0 open licence, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "norway-kartverket-stedsnavn.get_place"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "place_id": {
+                    "type": "integer",
+                    "description": "Norwegian place id (stedsnummer) to look up, e.g. 307915 for Oslo — from search_names or search_by_point results"
+                  }
+                },
+                "required": [
+                  "place_id"
+                ],
+                "description": "Get the full record for a single Norwegian place by its stedsnummer id, including all written name forms, status, location and geometry"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/device.list/call": {
       "post": {
         "operationId": "device_list",

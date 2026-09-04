@@ -8847,3 +8847,22 @@ tools:
     provider: netherlands-pdok-kadaster
     price_usd: "0.002"
     cache_ttl: 604800
+
+  # --- UC-681: Kartverket Stedsnavn (Norwegian Place Names) API (3 tools) ---
+  - tool_id: norway-kartverket-stedsnavn.search_names
+    name: Norwegian Place Name Search
+    provider: norway-kartverket-stedsnavn
+    price_usd: "0.002"
+    cache_ttl: 604800
+
+  - tool_id: norway-kartverket-stedsnavn.search_by_point
+    name: Norwegian Place Name Reverse Lookup
+    provider: norway-kartverket-stedsnavn
+    price_usd: "0.002"
+    cache_ttl: 604800
+
+  - tool_id: norway-kartverket-stedsnavn.get_place
+    name: Norwegian Place Detail
+    provider: norway-kartverket-stedsnavn
+    price_usd: "0.001"
+    cache_ttl: 604800

@@ -397,6 +397,7 @@ import { DenmarkEnergidataserviceAdapter } from './denmark-energidataservice';
 import { UkLandregistryPricepaidAdapter } from './uk-landregistry-pricepaid';
 import { HathiTrustDigitalAdapter } from './hathitrust-digital';
 import { NetherlandsPdokKadasterAdapter } from './netherlands-pdok-kadaster';
+import { NorwayKartverketStedsnavnAdapter } from './norway-kartverket-stedsnavn';
 import { config } from '../config';
 
 /**
@@ -2172,6 +2173,16 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // from the Kadaster Basisregistratie Kadaster (BRK). No auth, no key.
       // PDOK open data, free reuse incl. commercial.
       return getOrCreate('netherlands-pdok-kadaster', () => new NetherlandsPdokKadasterAdapter());
+    case 'norway-kartverket-stedsnavn':
+      // Kartverket Stedsnavn (Norwegian Place Names) API (UC-681) —
+      // ws.geonorge.no/stedsnavn/v1: official national register of place
+      // names — text search, reverse lookup near a coordinate, and full
+      // place record by id. No auth, no key. NLOD 2.0 (Norway's open
+      // government data licence), free reuse incl. commercial.
+      return getOrCreate(
+        'norway-kartverket-stedsnavn',
+        () => new NorwayKartverketStedsnavnAdapter(),
+      );
     default:
       return undefined;
   }

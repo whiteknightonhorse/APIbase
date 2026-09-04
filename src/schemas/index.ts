@@ -397,6 +397,7 @@ import { denmarkEnergidataserviceSchemas } from './denmark-energidataservice.sch
 import { ukLandregistryPricepaidSchemas } from './uk-landregistry-pricepaid.schema';
 import { hathitrustDigitalSchemas } from './hathitrust-digital.schema';
 import { netherlandsPdokKadasterSchemas } from './netherlands-pdok-kadaster.schema';
+import { norwayKartverketStedsnavnSchemas } from './norway-kartverket-stedsnavn.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -797,4 +798,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...ukLandregistryPricepaidSchemas,
   ...hathitrustDigitalSchemas,
   ...netherlandsPdokKadasterSchemas,
+  ...norwayKartverketStedsnavnSchemas,
 };
