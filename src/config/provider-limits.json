@@ -3545,5 +3545,14 @@
     "reset_period": "none",
     "docs_url": "https://www.hathitrust.org/member-libraries/resources-for-librarians/data-resources/bibliographic-api/",
     "limit_proof": "No API key or registration required. Docs state the API 'is intended for use to retrieve information about small numbers of items at a time' and point bulk retrieval to OAI/hathifiles instead, but document no specific numeric rate limit (verified via archived copy of the docs page, 2026-09-04 — www.hathitrust.org itself returns Cloudflare 403 to non-browser clients including this check). No 429s or rate-limit headers observed across repeated live test queries."
+  },
+  "netherlands-pdok-kadaster": {
+    "display_name": "PDOK Kadaster Kadastrale Kaart",
+    "health_url": "https://api.pdok.nl/kadaster/brk-kadastrale-kaart/ogc/v1/collections/perceel/items?limit=1&f=json",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.pdok.nl/introductie/-/article/kadastrale-kaart",
+    "limit_proof": "PDOK (Publieke Dienstverlening Op de Kaart) is the Dutch national open-data geo platform; the OGC API's own OpenAPI document declares license CC BY 4.0 (commercial reuse permitted with attribution). No API key, signup, or documented rate limit — verified live: repeated queries returned no 429s or rate-limit headers, and the only 400s observed were from unsupported query params (skipGeometry, properties), not throttling."
   }
 }

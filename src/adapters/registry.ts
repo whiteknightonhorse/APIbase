@@ -396,6 +396,7 @@ import { SepaScotlandAdapter } from './sepa-scotland';
 import { DenmarkEnergidataserviceAdapter } from './denmark-energidataservice';
 import { UkLandregistryPricepaidAdapter } from './uk-landregistry-pricepaid';
 import { HathiTrustDigitalAdapter } from './hathitrust-digital';
+import { NetherlandsPdokKadasterAdapter } from './netherlands-pdok-kadaster';
 import { config } from '../config';
 
 /**
@@ -2164,6 +2165,13 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // parsed for authors/publisher/subjects/language), and 10-id batch
       // lookup. No auth, no key. Free public bibliographic metadata.
       return getOrCreate('hathitrust-digital', () => new HathiTrustDigitalAdapter());
+    case 'netherlands-pdok-kadaster':
+      // PDOK Kadaster Kadastrale Kaart OGC API Features (UC-680) —
+      // api.pdok.nl/kadaster/brk-kadastrale-kaart/ogc/v1: Dutch cadastral
+      // parcel search + single-parcel lookup, and building outline search,
+      // from the Kadaster Basisregistratie Kadaster (BRK). No auth, no key.
+      // PDOK open data, free reuse incl. commercial.
+      return getOrCreate('netherlands-pdok-kadaster', () => new NetherlandsPdokKadasterAdapter());
     default:
       return undefined;
   }

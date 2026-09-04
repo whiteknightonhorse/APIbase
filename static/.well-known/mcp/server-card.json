@@ -1,6 +1,6 @@
 {
   "name": "APIbase \u2014 The API Hub for AI Agents",
-  "description": "Unified MCP gateway to 1393 tools. Dual-rail: x402 + MPP.",
+  "description": "Unified MCP gateway to 1396 tools. Dual-rail: x402 + MPP.",
   "version": "2.1.0",
   "tools": [
     {
@@ -67733,6 +67733,185 @@
         "required": [
           "domain"
         ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "netherlands-pdok-kadaster.cadastre.get_perceel",
+      "title": "Dutch Cadastral Parcel Detail",
+      "description": "Get a single Dutch cadastral parcel by its feature id (from search_percelen results). Returns municipality, section, parcel number, registered size (m\u00b2), validity status, and boundary geometry. Data: PDOK / Kadaster (api.pdok.nl), open data, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Feature id (UUID) of a cadastral parcel, e.g. from netherlands-pdok-kadaster.search_percelen results",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "description": "Look up a single Dutch cadastral parcel by its feature id"
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "netherlands-pdok-kadaster.cadastre.search_bebouwing",
+      "title": "Dutch Building Outline Search",
+      "description": "Search Dutch building outlines (bebouwing) near a point, from the Kadaster Basisregistratie Kadaster (BRK) cadastral map. Returns each building's BAG pand identifier, status, source holder (bronhouder), relative height level, and outline geometry. Data: PDOK / Kadaster (api.pdok.nl), open data, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90,
+            "description": "Decimal degree latitude (WGS84) \u2014 must be supplied together with lng. Omit both for full Netherlands coverage."
+          },
+          "lng": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180,
+            "description": "Decimal degree longitude (WGS84) \u2014 must be supplied together with lat."
+          },
+          "radius_km": {
+            "type": "number",
+            "minimum": 0.1,
+            "maximum": 20,
+            "description": "Search radius in kilometres around lat/lng (default 1, max 20)"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30,
+            "description": "Maximum building outlines to return (default 10, max 30)"
+          }
+        },
+        "description": "Search Dutch building outlines (bebouwing) near a point, from the Kadaster Basisregistratie Kadaster (BRK) cadastral map"
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": [
+              "object",
+              "array",
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "description": "Tool response payload. Shape varies per tool \u2014 consult the tool description and inputSchema."
+          },
+          "error": {
+            "type": "object",
+            "description": "Present only when the call failed. Includes error code, message, request_id."
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "netherlands-pdok-kadaster.cadastre.search_percelen",
+      "title": "Dutch Cadastral Parcel Search",
+      "description": "Search Dutch cadastral parcels (kadastrale percelen) near a point, from the Kadaster Basisregistratie Kadaster (BRK) cadastral map. Returns each matching parcel's municipality, section, parcel number, registered size (m\u00b2), and boundary geometry. Call netherlands-pdok-kadaster.get_perceel for a single parcel's full detail by id. Data: PDOK / Kadaster (api.pdok.nl), open data, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90,
+            "description": "Decimal degree latitude (WGS84) \u2014 must be supplied together with lng. Omit both for full Netherlands coverage."
+          },
+          "lng": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180,
+            "description": "Decimal degree longitude (WGS84) \u2014 must be supplied together with lat."
+          },
+          "radius_km": {
+            "type": "number",
+            "minimum": 0.1,
+            "maximum": 20,
+            "description": "Search radius in kilometres around lat/lng (default 1, max 20)"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30,
+            "description": "Maximum cadastral parcels to return (default 10, max 30)"
+          }
+        },
+        "description": "Search Dutch cadastral parcels (kadastrale percelen) near a point, from the Kadaster Basisregistratie Kadaster (BRK) cadastral map"
       },
       "outputSchema": {
         "type": "object",

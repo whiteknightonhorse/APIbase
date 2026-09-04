@@ -396,6 +396,7 @@ import { sepaScotlandSchemas } from './sepa-scotland.schema';
 import { denmarkEnergidataserviceSchemas } from './denmark-energidataservice.schema';
 import { ukLandregistryPricepaidSchemas } from './uk-landregistry-pricepaid.schema';
 import { hathitrustDigitalSchemas } from './hathitrust-digital.schema';
+import { netherlandsPdokKadasterSchemas } from './netherlands-pdok-kadaster.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -795,4 +796,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...denmarkEnergidataserviceSchemas,
   ...ukLandregistryPricepaidSchemas,
   ...hathitrustDigitalSchemas,
+  ...netherlandsPdokKadasterSchemas,
 };

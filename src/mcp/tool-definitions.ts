@@ -16879,6 +16879,44 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'media',
     annotations: READ_ONLY,
   },
+  // PDOK Kadaster Kadastrale Kaart OGC API Features — api.pdok.nl/kadaster/brk-kadastrale-kaart/ogc/v1 (3) — UC-680
+  {
+    toolId: 'netherlands-pdok-kadaster.search_percelen',
+    mcpName: 'netherlands-pdok-kadaster.cadastre.search_percelen',
+    title: 'Dutch Cadastral Parcel Search',
+    description:
+      'Search Dutch cadastral parcels (kadastrale percelen) near a point, from the Kadaster ' +
+      "Basisregistratie Kadaster (BRK) cadastral map. Returns each matching parcel's " +
+      'municipality, section, parcel number, registered size (m²), and boundary geometry. ' +
+      "Call netherlands-pdok-kadaster.get_perceel for a single parcel's full detail by id. " +
+      'Data: PDOK / Kadaster (api.pdok.nl), open data, no auth required.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'netherlands-pdok-kadaster.get_perceel',
+    mcpName: 'netherlands-pdok-kadaster.cadastre.get_perceel',
+    title: 'Dutch Cadastral Parcel Detail',
+    description:
+      'Get a single Dutch cadastral parcel by its feature id (from search_percelen results). ' +
+      'Returns municipality, section, parcel number, registered size (m²), validity ' +
+      'status, and boundary geometry. Data: PDOK / Kadaster (api.pdok.nl), open data, no auth ' +
+      'required.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'netherlands-pdok-kadaster.search_bebouwing',
+    mcpName: 'netherlands-pdok-kadaster.cadastre.search_bebouwing',
+    title: 'Dutch Building Outline Search',
+    description:
+      'Search Dutch building outlines (bebouwing) near a point, from the Kadaster ' +
+      "Basisregistratie Kadaster (BRK) cadastral map. Returns each building's BAG pand " +
+      'identifier, status, source holder (bronhouder), relative height level, and outline ' +
+      'geometry. Data: PDOK / Kadaster (api.pdok.nl), open data, no auth required.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
   // ---------------------------------------------------------------------------
   // Ф5 physical-device MCP layer -- device.list/state/command (2026-09-02)
   // Generic vendor-agnostic projection; Tuya is the only connected vendor

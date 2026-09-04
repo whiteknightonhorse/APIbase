@@ -8828,3 +8828,22 @@ tools:
     provider: hathitrust-digital
     price_usd: "0.002"
     cache_ttl: 86400
+
+  # --- UC-680: PDOK Kadaster Kadastrale Kaart OGC API Features (3 tools) ---
+  - tool_id: netherlands-pdok-kadaster.search_percelen
+    name: Dutch Cadastral Parcel Search
+    provider: netherlands-pdok-kadaster
+    price_usd: "0.002"
+    cache_ttl: 604800
+
+  - tool_id: netherlands-pdok-kadaster.get_perceel
+    name: Dutch Cadastral Parcel Detail
+    provider: netherlands-pdok-kadaster
+    price_usd: "0.001"
+    cache_ttl: 604800
+
+  - tool_id: netherlands-pdok-kadaster.search_bebouwing
+    name: Dutch Building Outline Search
+    provider: netherlands-pdok-kadaster
+    price_usd: "0.002"
+    cache_ttl: 604800
