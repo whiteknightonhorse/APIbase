@@ -6,7 +6,7 @@
         {
           "href": "https://apibase.pro/.well-known/openapi.json",
           "type": "application/vnd.oai.openapi+json;version=3.1",
-          "title": "APIbase OpenAPI 3.1 specification — 1366 tool endpoints with x-payment-info"
+          "title": "APIbase OpenAPI 3.1 specification — 1358 tool endpoints with x-payment-info"
         }
       ],
       "service-doc": [
@@ -30,7 +30,7 @@
         {
           "href": "https://apibase.pro/.well-known/mcp/server-card.json",
           "type": "application/json",
-          "title": "Full MCP server card with 1366 tool definitions, 3 prompts, resources"
+          "title": "Full MCP server card with 1358 tool definitions, 3 prompts, resources"
         },
         {
           "href": "https://apibase.pro/.well-known/mcp.json",
