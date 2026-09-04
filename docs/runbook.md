@@ -456,3 +456,156 @@ $COMPOSE exec postgres psql -U apibase -d apibase_test -c "SELECT count(*) FROM 
 # Cleanup
 $COMPOSE exec postgres dropdb -U apibase apibase_test
 ```
+
+---
+
+## 10. Autopilot
+
+Internal API reliability/control plane (AP-1..AP-11, `~/AUTOPILOT-DESIGN-2026-09-03.md` on the
+server — architecture, all thresholds, full failure-scenario table). Detect → diagnose → act →
+verify → escalate, zero model calls at rest (Detect/Diagnose/Plan are all deterministic Python;
+the only AI spend is the email haiku cascade, capped 3/day). Money is never an auto-action —
+`config/autopilot/routing.json` has no auto-branch for `PAYMENT_REQUIRED`, enforced at load time
+(fails closed) and re-checked in `incident-cli.py --selftest` as a test on absence.
+
+### 10.1 Provider health state machine (F1)
+
+```
+UNKNOWN --first OK--> HEALTHY <--2 consecutive OK (recovery)--+
+   |                     | 2 consecutive FAIL_TRANSIENT       |
+   |                     v                                    |
+   +--3 FAIL-->      DEGRADED --3 more FAIL--> DOWN ----------+
+                         ^  any FAIL_DETERMINISTIC (401/403 with a
+                         |  configured key, 404 on the canonical probe
+                         |  URL, schema mismatch) skips the counters
+                         +  entirely: straight to DEGRADED/DOWN, probe
+                            paused (`deterministic_paused_until`, +24h) —
+                            "детерминированный отказ не перезапускается",
+                            zero retries until that anchor expires or the
+                            key contour reports a fix.
+```
+
+Thresholds live ONCE, in `src/config/autopilot.ts` (`FAIL_THRESHOLD_DEGRADED=2`,
+`FAIL_THRESHOLD_DOWN=5` total, `RECOVERY_STREAK_TO_HEALTHY=2`) — `provider-health.job.ts` (active
+probe, cron `*/2 * * * *`) and `tool-quality.job.ts` (passive, real traffic) both import from
+there, neither hardcodes a number. AP-8 mirrors this state onto `tools.status`
+(healthy|degraded|unavailable, `status_source='autopilot'`) every incident-engine tick —
+`status_source='manual'` (or legacy NULL sitting at a non-healthy status) is never touched.
+
+### 10.2 Incident lifecycle (F2)
+
+```
+OPEN --router--> REMEDIATION_QUEUED --fleet DONE--> VERIFYING --re-probe OK--> RESOLVED
+  |                    | fleet stuck/exhausted            | re-probe FAIL
+  +--HUMAN class--> WAITING_HUMAN --human-done file--> REMEDIATION_QUEUED (follow-up)
+  |                    | 72h no answer -> TG reminder (1x/72h, suppressed ones logged)      |
+  +--money/unknown--> WAITING_HUMAN                                                          v
+                                                                                            STUCK (human only)
+```
+
+Route classes (`config/autopilot/routing.json`, one file, loaded once): `AUTO`/`MIXED` file a real
+fleet task (`≤3/day` cap, severity-ordered so SEV1 never loses a slot to an older SEV3);
+`AUTO_NO_MODEL` (`RATE_LIMITED`) is an engine self-action, zero model, zero fleet task;
+`HUMAN_KEY` (`AUTH_FAILED`/`CREDENTIAL_EXPIRED`) opens straight into `WAITING_HUMAN` and bridges
+into the existing `connected_db.py` key-request letter — **no fleet task, no duplicate operator
+file** (the letter IS the one place); `HUMAN_ONLY`/`HUMAN_GENERIC` (`PAYMENT_REQUIRED`, `UNKNOWN`)
+open into `WAITING_HUMAN` with a generated operator file at
+`~/autopilot/operator/INC-<short_id>.md` — reply by dropping a filled-in file in
+`~/taskloop/human-done/`.
+
+### 10.3 Where to look
+
+| What | Where |
+|---|---|
+| Durable provider truth | `provider_status` table (Redis `provider:health:*`/`provider:limits:*` stay a cache, never the source of truth) |
+| Every measurement, including suppressed ones | `probe_log` (append-only; `kind='suppressed'` rows are budget/pause skips, not silence) |
+| Incidents | `incidents` table — `incident-cli.py list [--state] [--severity] [--provider]` |
+| Email intake decisions | `email_events` table |
+| Engine heartbeat | `/tmp/autopilot-incident-engine.hb` (cron `*/10`, staleness caught by `fleet-check.sh`) |
+| Operator files | `~/autopilot/operator/INC-<id>.md` |
+| Human replies | `~/taskloop/human-done/` (processed ones move to `human-done/processed/`) |
+| Suppressed-action journal | `~/taskloop/logs/notices.log` |
+| Fleet tasks the router files | `~/taskloop/queue/9<sev>xx-autopilot-remediation-<KIND>-<provider>.md` |
+
+```bash
+# Live incident list
+python3 scripts/autopilot/incident-cli.py list --state WAITING_HUMAN
+
+# One provider's recent probes
+$COMPOSE exec -T postgres psql -U apibase -d apibase -c \
+  "SELECT ts, kind, result, http_status, detail FROM probe_log WHERE provider = 'X' ORDER BY ts DESC LIMIT 20;"
+
+# Reliability score / dashboard JOIN for one provider
+curl -s https://apibase.pro/api/v1/dashboard | jq '.providers[] | select(.provider == "X")'
+curl -s "https://apibase.pro/api/v1/incidents?provider=X"
+```
+
+### 10.4 Running the acceptance drills (AP-11)
+
+Three synthetic, sandboxed scenarios prove the whole chain actually fires, not just each piece in
+isolation — a real local HTTP socket standing in for a "fake health_url", a disposable
+`postgres:16.2-alpine` container standing in for prod Postgres (never `apibase-postgres-1`), every
+`~/taskloop`/`~/autopilot`/`tg.env` path pointed at `/tmp` scratch dirs. Nothing here touches
+production state, sends a real Telegram message, or spends a real haiku call.
+
+```bash
+python3 scripts/autopilot/drills.py            # all three, ~20s
+python3 scripts/autopilot/drills.py --skip-jest # skip the jest leg (needs npx)
+
+# Individually:
+npx jest tests/integration/autopilot-drill-provider-health.test.ts --no-coverage
+python3 scripts/autopilot/drill-incident-lifecycle.py
+python3 scripts/autopilot/drill-email-injection.py
+```
+
+| Drill | Proves | Terminus |
+|---|---|---|
+| Synthetic DOWN provider | Real socket 500s → F1 DEGRADED→DOWN (5 fails) → PROVIDER_DOWN incident → fleet task → fix → re-probe → RESOLVED, `/api/v1/dashboard`+`/api/v1/incidents` agree at every step, AP-8 demotes/promotes `tools.status`/`tool_count` in lockstep | `RESOLVED` |
+| Synthetic 401 | Real socket 401 → FAIL_DETERMINISTIC, 24h pause; a second tick makes **zero** further real requests; AUTH_FAILED never gets a fleet task, bridges to the existing key-request letter instead | `WAITING_HUMAN` (correct terminus for a `HUMAN_KEY` kind — key rotation is human-only by design) |
+| Synthetic prompt-injection email | RFC2047-encoded header decode, rules path never reaches the model at all, haiku path rejects an out-of-enum "classification" the injection tried to force, and even a within-enum compliant reply (`MARKETING`) opens no incident | classified, never executed |
+
+Mutation control (required, not optional — a check that can't go red proves nothing): each drill
+was run once against a deliberately broken line of the production code it covers (confirmed RED),
+then against the reverted original (confirmed GREEN). Exact lines mutated and both transcripts are
+in `AUTOPILOT-PROGRESS.md`'s `T-820-autopilot-drills` entry — re-run any of the three against a
+one-line break of your own to re-prove it any time; don't trust a green run you haven't personally
+seen go red first.
+
+### 10.5 N-table — 20 failure scenarios, coverage status
+
+Full scenario table: design doc section N. Status as actually measured (never claim `PROVEN` from
+memory — the drills above are the only three that touch a live-ish system; everything else is
+either a targeted unit/selftest or design-only):
+
+| # | Scenario | Coverage |
+|---|---|---|
+| 1 | API key expired | AP-11 drill 2 (401→DEGRADED+pause+WAITING_HUMAN) proves the detection/routing half; the "key renewed → auto re-probe → RESOLVED" half is design-only (untested) |
+| 2 | API key revoked | Same code path as #1 (dedup by `dedup_key`), same coverage |
+| 3 | Provider fully down | **AP-11 drill 1, full cycle to RESOLVED** |
+| 4 | Endpoint changed (404/schema) | `_classify_deterministic_fail` unit-covered (`incident-engine.py --selftest`); no drill exercises the adapter-fix fleet task itself |
+| 5 | Breaking API version | Design-only |
+| 6 | Rate limit exhausted | Design-only (`AUTO_NO_MODEL` self-action code exists, `route_auto_incidents` unit path not drilled) |
+| 7 | Paid quota near exhaustion | `provider-limit-alerts.py --selftest` (burn-rate math) — not an AP-11 drill |
+| 8 | Payment failed | `incident-cli.py --selftest` proves the ABSENCE of an auto-branch; no drill opens a live PAYMENT_REQUIRED incident |
+| 9 | Email warning (generic) | `email-intake.py --selftest-db` worlds 1/3/5 |
+| 10 | Email prompt injection | **AP-11 drill 3** (own new scenarios, independent of email-intake.py's own H4 fixture) |
+| 11 | Agent couldn't fix it | Existing taskloop STUCK mechanism (unmodified); AP-11 drill 1 simulates a `done/` marker only, never a `stuck/` one |
+| 12 | Partial fix | Design-only (`advance_verifying`'s re-probe-FAIL→STUCK branch has no drill) |
+| 13 | Fix broke something else | Process guarantee (REVIEW: fable + CI + protocol-tester), not a mechanism this table can drill |
+| 14 | Two agents, one incident | `incident-engine.py --selftest-db` (dedup unique-index proof) |
+| 15 | Redis down | Design-only |
+| 16 | Database down | Design-only |
+| 17 | Telegram down | `incident-cli.py`/`autopilot_common.py` selftests (`tg_send` best-effort) |
+| 18 | Email/IMAP down | Design-only (NOINFO-vs-zero distinction exists in code, not drilled live) |
+| 19 | Monitoring worker down | Design-only |
+| 20 | Whole subsystem down | External to this repo by design (`mcp-protocol-tester`, fleet-pulse) |
+
+### 10.6 Troubleshooting
+
+| Symptom | Check |
+|---|---|
+| No incidents opening for a clearly-down provider | Engine heartbeat fresh? `provider_status.state` actually DEGRADED/DOWN? Migration 0009+0010 applied? |
+| Incident stuck OPEN past 24h for a PROVIDER_DOWN | `route_auto_incidents`'s own age gate (`PROVIDER_DOWN_MIN_AGE_SECONDS=24h`) — working as designed, not a bug |
+| WAITING_HUMAN never clears after a key rotation | HUMAN_KEY has no automated re-close path by design (F2) — needs `incident-cli.py resolve-request` (or a human/agent transition) once the key is confirmed fixed |
+| `/api/v1/dashboard` tool_count disagrees with the catalog | Check `t.status != 'unavailable'` FILTER on `tool_count` is still separate from the row-level WHERE (T-8181 ruling-3 — a regression here silently re-breaks the counter) |
+| Fleet task never files despite an OPEN incident | Daily cap (`≤3/day`, `~/taskloop/state/autopilot-router-daily.count`) already spent, or `PROVIDER_DOWN`'s age gate not yet crossed |
