@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1328 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1329 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -8413,6 +8413,81 @@
         },
         "required": [
           "domain"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "earth.fires.detect",
+      "description": "Active fire hotspots detected by NASA satellites (VIIRS, MODIS) — latitude, longitude, brightness, confidence, fire radiative power. Filter by bounding box and days. Near real-time updates (NASA FIRMS)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "west": {
+            "type": "number",
+            "description": "Western longitude of bounding box (e.g. -125 for California)",
+            "minimum": -180,
+            "maximum": 180
+          },
+          "south": {
+            "type": "number",
+            "description": "Southern latitude of bounding box (e.g. 32)",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "east": {
+            "type": "number",
+            "description": "Eastern longitude of bounding box (e.g. -114)",
+            "minimum": -180,
+            "maximum": 180
+          },
+          "north": {
+            "type": "number",
+            "description": "Northern latitude of bounding box (e.g. 42)",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "days": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "description": "Number of days of data (1-5, default 1)"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "VIIRS_SNPP_NRT",
+              "VIIRS_NOAA20_NRT",
+              "VIIRS_NOAA21_NRT",
+              "MODIS_NRT"
+            ],
+            "description": "Satellite sensor: VIIRS_SNPP_NRT (default, highest resolution), MODIS_NRT (legacy)"
+          }
+        },
+        "required": [
+          "west",
+          "south",
+          "east",
+          "north"
         ]
       },
       "outputSchema": {
