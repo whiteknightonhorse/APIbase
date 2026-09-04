@@ -88,7 +88,7 @@ section h2{font-size:0.9rem;color:#00ff41;margin-bottom:0.6rem;letter-spacing:0.
 <a href="/contact">Contact</a>
 </nav>
 <a class="back-link" href="/dashboard">&larr; назад в Dashboard</a>
-<div id="page-content"><div class="loading">Loading incident</div></div>
+<div id="page-content"><div class="loading">Загрузка инцидента</div></div>
 <div class="footer">APIbase.pro autopilot &mdash; read-only incident view</div>
 </div>
 </div>
@@ -144,7 +144,7 @@ section h2{font-size:0.9rem;color:#00ff41;margin-bottom:0.6rem;letter-spacing:0.
     html += '<dt>Закрыт</dt><dd>' + fmtDate(inc.resolved_at) + '</dd>';
     html += '</dl>';
 
-    html += '<section><h2>Timeline (attempts)</h2>' + renderTimeline(inc.attempts) + '</section>';
+    html += '<section><h2>Хронология (attempts)</h2>' + renderTimeline(inc.attempts) + '</section>';
 
     // AP-10 honest-gap note (task precedence rule: real API shape beats the
     // L2/mockup spec when they disagree). L2 §L2.5 asks this page for an

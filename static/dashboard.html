@@ -126,6 +126,9 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
 .sev-banner.ok{background:#0a1a0a;border:1px solid #1a5a1a;color:#00ff41}
 .sev-banner.sev2{background:#1a1200;border:1px solid #4a3a00;color:#ffbd2e}
 .sev-banner.sev1{background:#2a0a0a;border:1px solid #5a1a1a;color:#ff7a70}
+/* ruling-1 (T-819): "не удалось загрузить" is NOT the "ok" (green) case — that
+   would render silence as health. Neutral gray, distinct from both ok/sev1/sev2. */
+.sev-banner.unknown{background:#141414;border:1px solid #333;color:#888}
 .sev-banner .tick-note{font-weight:400;font-size:0.72rem;color:#2a942a;margin-left:auto}
 
 .incident-section{margin-bottom:1.2rem}
@@ -140,6 +143,9 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
 .incident-card .title{color:#cdeecd;font-weight:700}
 .incident-card .meta{color:#2a942a;font-size:0.72rem}
 .incident-empty{color:#1a5a1a;font-size:0.76rem;padding:0.4rem 0}
+/* ruling-1 (T-819): "не удалось загрузить" (don't know) must not share a class
+   with "нет инцидентов" (know, and the answer is zero) — twin-worlds. */
+.incident-noinfo{color:#555;font-style:italic;font-size:0.76rem;padding:0.4rem 0}
 
 .state-badge{display:inline-block;padding:0.1rem 0.4rem;border-radius:3px;font-size:0.68rem;font-weight:700;letter-spacing:0.2px;white-space:nowrap}
 .state-badge.st-open{background:#2a0a0a;color:#ff7a70}
@@ -195,7 +201,7 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
 <!-- AP-10 / L2 screen 1 "Operator": top-row SEV1/SEV2 banner (green "autopilot: OK"
      line when there are none). Filled by renderBanner() from GET /api/v1/incidents;
      "нет данных" if that request fails — never silently blank. -->
-<div class="sev-banner ok" id="sev-banner">Loading…</div>
+<div class="sev-banner unknown" id="sev-banner">Загрузка…</div>
 <div class="system-monitor" id="system-monitor">
 <span class="label">SYSTEM</span>  <span class="label">PRV:</span><span class="val" id="t-providers">--</span>  <span class="label">TOOLS:</span><span class="val" id="t-tools">--</span>  <span class="label">OPS/24H:</span><span class="val" id="t-calls">--</span>  <span class="label">MEM:</span><span class="val">OK</span>  <span class="label">NET:</span><span class="val">ONLINE</span>
 </div>
@@ -207,12 +213,12 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
      never be visually confusable. -->
 <div class="incident-section">
 <h2><svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="color:#ffbd2e"><circle cx="12" cy="7" r="4" fill="currentColor"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="currentColor" stroke-width="2" fill="none"/></svg>Требует вас</h2>
-<div class="incident-list" id="waiting-human-list"><div class="incident-empty">Loading…</div></div>
+<div class="incident-list" id="waiting-human-list"><div class="incident-empty">Загрузка…</div></div>
 </div>
 
 <div class="incident-section">
 <h2><svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="color:#4a9eff"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Чинится само</h2>
-<div class="incident-list" id="remediation-list"><div class="incident-empty">Loading…</div></div>
+<div class="incident-list" id="remediation-list"><div class="incident-empty">Загрузка…</div></div>
 </div>
 
 <!-- AP-10 / L2 screen 2 "Fleet/Queue": dense table of ALL incidents + legend +
@@ -222,8 +228,8 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
      Fable's review). Collapsed by default, same disclosure pattern as the
      category filter above. -->
 <div class="incident-section">
-<span class="cat-filter-label fleet-toggle" id="fleet-toggle">FLEET / QUEUE — все инциденты <span id="fleet-count-label">[--]</span> ▶</span>
-<div class="fleet-panel collapsed" id="fleet-panel"><div id="fleet-queue-content"><div class="incident-empty">Loading…</div></div></div>
+<span class="cat-filter-label fleet-toggle" id="fleet-toggle">FLEET / QUEUE — инциденты <span id="fleet-count-label">[--]</span> ▶</span>
+<div class="fleet-panel collapsed" id="fleet-panel"><div id="fleet-queue-content"><div class="incident-empty">Загрузка…</div></div></div>
 </div>
 
 <!-- Search bar -->
@@ -635,8 +641,8 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
     var el = document.getElementById('sev-banner');
     if (!el) return;
     if (incidents === null) {
-      el.className = 'sev-banner ok';
-      el.innerHTML = 'autopilot: <span class="noinfo">не удалось загрузить инциденты</span>';
+      el.className = 'sev-banner unknown';
+      el.innerHTML = 'autopilot: <span class="noinfo">не удалось загрузить инциденты — состояние неизвестно</span>';
       return;
     }
     var open = incidents.filter(function(i) { return i.state !== 'RESOLVED'; });
@@ -657,7 +663,7 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
   function renderWaitingHuman(incidents) {
     var wrap = document.getElementById('waiting-human-list');
     if (!wrap) return;
-    if (incidents === null) { wrap.innerHTML = '<div class="incident-empty">Не удалось загрузить</div>'; return; }
+    if (incidents === null) { wrap.innerHTML = '<div class="incident-noinfo">Не удалось загрузить — состояние неизвестно</div>'; return; }
     var list = incidents.filter(function(i) { return i.state === 'WAITING_HUMAN'; });
     if (list.length === 0) { wrap.innerHTML = '<div class="incident-empty">Нет инцидентов, требующих вас</div>'; return; }
     var html = '';
@@ -674,7 +680,7 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
   function renderRemediation(incidents) {
     var wrap = document.getElementById('remediation-list');
     if (!wrap) return;
-    if (incidents === null) { wrap.innerHTML = '<div class="incident-empty">Не удалось загрузить</div>'; return; }
+    if (incidents === null) { wrap.innerHTML = '<div class="incident-noinfo">Не удалось загрузить — состояние неизвестно</div>'; return; }
     var list = incidents.filter(function(i) { return i.state === 'REMEDIATION_QUEUED' || i.state === 'VERIFYING'; });
     if (list.length === 0) { wrap.innerHTML = '<div class="incident-empty">Ничего не чинится сейчас</div>'; return; }
     var html = '';
@@ -696,8 +702,11 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
     var wrap = document.getElementById('fleet-queue-content');
     var countLabel = document.getElementById('fleet-count-label');
     if (!wrap) return;
-    if (incidents === null) { wrap.innerHTML = '<div class="incident-empty">Не удалось загрузить</div>'; if (countLabel) countLabel.textContent = '[--]'; return; }
-    if (countLabel) countLabel.textContent = '[' + incidents.length + ']';
+    if (incidents === null) { wrap.innerHTML = '<div class="incident-noinfo">Не удалось загрузить — состояние неизвестно</div>'; if (countLabel) countLabel.textContent = '[--]'; return; }
+    // LIST_LIMIT on GET /api/v1/incidents is 100 (src/services/incidents.service.ts);
+    // API has no separate total-count field, so hitting exactly 100 is the only
+    // signal a longer list was truncated. Label says so instead of implying "все".
+    if (countLabel) countLabel.textContent = '[' + incidents.length + (incidents.length >= 100 ? '+' : '') + ']';
 
     var counts = {};
     for (var i = 0; i < incidents.length; i++) { counts[incidents[i].state] = (counts[incidents[i].state] || 0) + 1; }
@@ -706,7 +715,7 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
       var s = FLEET_STATES[j];
       tagHtml += '<span class="state-tag' + (fleetStateFilter === s ? ' active' : '') + '" data-state="' + s + '">' + s + ' <span class="cat-count">' + (counts[s] || 0) + '</span></span>';
     }
-    var legendHtml = '<div class="fleet-legend">Legend: ';
+    var legendHtml = '<div class="fleet-legend">Легенда: ';
     for (var k = 0; k < FLEET_STATES.length; k++) { legendHtml += '<span class="state-badge ' + stateClass(FLEET_STATES[k]) + '">' + FLEET_STATES[k] + '</span>'; }
     legendHtml += '</div>';
 
