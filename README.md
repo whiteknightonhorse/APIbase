@@ -1,6 +1,6 @@
 # APIbase.pro — The API Hub for AI Agents
 
-Production MCP server: one endpoint gives AI agents access to 1332 tools from 379 providers, pay-per-call via x402 (USDC on Base) or MPP (USDC on Tempo).
+Production MCP server: one endpoint gives AI agents access to 1329 tools from 378 providers, pay-per-call via x402 (USDC on Base) or MPP (USDC on Tempo).
 
 [![Security Audit](https://github.com/whiteknightonhorse/APIbase/actions/workflows/security.yml/badge.svg)](https://github.com/whiteknightonhorse/APIbase/actions/workflows/security.yml)
 [![Deploy](https://github.com/whiteknightonhorse/APIbase/actions/workflows/deploy.yml/badge.svg)](https://github.com/whiteknightonhorse/APIbase/actions/workflows/deploy.yml)
