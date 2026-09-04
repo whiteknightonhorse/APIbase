@@ -125118,6 +125118,305 @@
         ]
       }
     },
+    "/api/v1/tools/uk-landregistry-pricepaid.search_by_postcode/call": {
+      "post": {
+        "operationId": "uk-landregistry-pricepaid_search_by_postcode",
+        "summary": "UK Property Sales By Postcode",
+        "description": "Search HM Land Registry Price Paid Data — every residential property sale in England & Wales since 1995 — by exact UK postcode. Optional filters: min/max price paid (GBP), min/max transaction date (YYYY-MM-DD), and pagination. Returns price paid, transaction date, property type, estate type (freehold/leasehold), new-build flag, and full address for each sale. Data: HM Land Registry, no auth required, Open Government Licence v3.0.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "uk-landregistry-pricepaid.search_by_postcode"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "postcode": {
+                    "type": "string",
+                    "description": "UK postcode to search (e.g. \"SW1A 1AA\"). Matches on exact postcode.",
+                    "minLength": 1
+                  },
+                  "min_date": {
+                    "type": "string",
+                    "description": "Only include transactions completed on/after this date (YYYY-MM-DD)."
+                  },
+                  "max_date": {
+                    "type": "string",
+                    "description": "Only include transactions completed on/before this date (YYYY-MM-DD)."
+                  },
+                  "min_price": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Minimum price paid in GBP."
+                  },
+                  "max_price": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Maximum price paid in GBP."
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Zero-based page number for pagination (default 0)."
+                  },
+                  "page_size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Number of transactions per page (1-100, default 20)."
+                  }
+                },
+                "required": [
+                  "postcode"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/uk-landregistry-pricepaid.search_by_area/call": {
+      "post": {
+        "operationId": "uk-landregistry-pricepaid_search_by_area",
+        "summary": "UK Property Sales By Area",
+        "description": "Search HM Land Registry Price Paid Data by town, county, and/or local authority district (at least one required) — e.g. town=\"WARRINGTON\" or county=\"GREATER LONDON\". Optional filters: min/max price paid (GBP), min/max transaction date (YYYY-MM-DD), and pagination. Returns the same per-sale fields as search_by_postcode. Data: HM Land Registry, no auth required, Open Government Licence v3.0.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "uk-landregistry-pricepaid.search_by_area"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "town": {
+                    "type": "string",
+                    "description": "Town/post town to search (e.g. \"WARRINGTON\"). At least one of town, county, district is required."
+                  },
+                  "county": {
+                    "type": "string",
+                    "description": "County to search (e.g. \"GREATER LONDON\"). At least one of town, county, district is required."
+                  },
+                  "district": {
+                    "type": "string",
+                    "description": "Local authority district to search (e.g. \"WARRINGTON\"). At least one of town, county, district is required."
+                  },
+                  "min_date": {
+                    "type": "string",
+                    "description": "Only include transactions completed on/after this date (YYYY-MM-DD)."
+                  },
+                  "max_date": {
+                    "type": "string",
+                    "description": "Only include transactions completed on/before this date (YYYY-MM-DD)."
+                  },
+                  "min_price": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Minimum price paid in GBP."
+                  },
+                  "max_price": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Maximum price paid in GBP."
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Zero-based page number for pagination (default 0)."
+                  },
+                  "page_size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Number of transactions per page (1-100, default 20)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/uk-landregistry-pricepaid.get_transaction/call": {
+      "post": {
+        "operationId": "uk-landregistry-pricepaid_get_transaction",
+        "summary": "UK Property Transaction Detail",
+        "description": "Get a single HM Land Registry price-paid transaction by its GUID transaction_id. Returns price paid, transaction date, property type, estate type, new-build flag, and full address. Call search_by_postcode or search_by_area first to find a transaction_id. Data: HM Land Registry, no auth required, Open Government Licence v3.0.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "uk-landregistry-pricepaid.get_transaction"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "transaction_id": {
+                    "type": "string",
+                    "description": "HM Land Registry transaction GUID (e.g. \"702EF0D1-AB60-4A1B-A2A1-C127E1EDE547\"). Obtain from search_by_postcode or search_by_area.",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "transaction_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/device.list/call": {
       "post": {
         "operationId": "device_list",

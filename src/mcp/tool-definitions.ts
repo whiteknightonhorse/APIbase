@@ -16798,6 +16798,45 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+  // HM Land Registry Price Paid Data — landregistry.data.gov.uk/data/ppi (3) — UC-678
+  {
+    toolId: 'uk-landregistry-pricepaid.search_by_postcode',
+    mcpName: 'uk-landregistry-pricepaid.property.by_postcode',
+    title: 'UK Property Sales By Postcode',
+    description:
+      'Search HM Land Registry Price Paid Data — every residential property sale in England ' +
+      '& Wales since 1995 — by exact UK postcode. Optional filters: min/max price paid (GBP), ' +
+      'min/max transaction date (YYYY-MM-DD), and pagination. Returns price paid, transaction ' +
+      'date, property type, estate type (freehold/leasehold), new-build flag, and full address ' +
+      'for each sale. Data: HM Land Registry, no auth required, Open Government Licence v3.0.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'uk-landregistry-pricepaid.search_by_area',
+    mcpName: 'uk-landregistry-pricepaid.property.by_area',
+    title: 'UK Property Sales By Area',
+    description:
+      'Search HM Land Registry Price Paid Data by town, county, and/or local authority ' +
+      'district (at least one required) — e.g. town="WARRINGTON" or county="GREATER LONDON". ' +
+      'Optional filters: min/max price paid (GBP), min/max transaction date (YYYY-MM-DD), and ' +
+      'pagination. Returns the same per-sale fields as search_by_postcode. Data: HM Land ' +
+      'Registry, no auth required, Open Government Licence v3.0.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'uk-landregistry-pricepaid.get_transaction',
+    mcpName: 'uk-landregistry-pricepaid.property.transaction',
+    title: 'UK Property Transaction Detail',
+    description:
+      'Get a single HM Land Registry price-paid transaction by its GUID transaction_id. ' +
+      'Returns price paid, transaction date, property type, estate type, new-build flag, and ' +
+      'full address. Call search_by_postcode or search_by_area first to find a transaction_id. ' +
+      'Data: HM Land Registry, no auth required, Open Government Licence v3.0.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
   // ---------------------------------------------------------------------------
   // Ф5 physical-device MCP layer -- device.list/state/command (2026-09-02)
   // Generic vendor-agnostic projection; Tuya is the only connected vendor

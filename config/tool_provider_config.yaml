@@ -8790,3 +8790,22 @@ tools:
     provider: device
     price_usd: "0.003"
     cache_ttl: 0
+
+  # --- UC-678: HM Land Registry Price Paid Data (landregistry.data.gov.uk/data/ppi) ---
+  - tool_id: uk-landregistry-pricepaid.search_by_postcode
+    name: UK Property Sales By Postcode
+    provider: uk-landregistry-pricepaid
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: uk-landregistry-pricepaid.search_by_area
+    name: UK Property Sales By Area
+    provider: uk-landregistry-pricepaid
+    price_usd: "0.003"
+    cache_ttl: 86400
+
+  - tool_id: uk-landregistry-pricepaid.get_transaction
+    name: UK Property Transaction Detail
+    provider: uk-landregistry-pricepaid
+    price_usd: "0.001"
+    cache_ttl: 86400

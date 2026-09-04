@@ -394,6 +394,7 @@ import { OpenAlexAdapter } from './openalex';
 import { SemanticScholarAdapter } from './semanticscholar';
 import { SepaScotlandAdapter } from './sepa-scotland';
 import { DenmarkEnergidataserviceAdapter } from './denmark-energidataservice';
+import { UkLandregistryPricepaidAdapter } from './uk-landregistry-pricepaid';
 import { config } from '../config';
 
 /**
@@ -2147,6 +2148,13 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // prices, 5-min CO2 intensity, hourly production mix + consumption.
       // No auth, no key. Free public data.
       return getOrCreate('denmark-energidataservice', () => new DenmarkEnergidataserviceAdapter());
+    case 'uk-landregistry-pricepaid':
+      // HM Land Registry Price Paid Data (UC-678) — landregistry.data.gov.uk/data/ppi:
+      // every residential property sale in England & Wales since 1995 (Linked
+      // Data API). Search by postcode or by town/county/district, plus single
+      // transaction lookup by GUID. No auth, no key. Open Government Licence
+      // v3.0 — commercial reuse permitted with attribution.
+      return getOrCreate('uk-landregistry-pricepaid', () => new UkLandregistryPricepaidAdapter());
     default:
       return undefined;
   }
