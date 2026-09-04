@@ -31,7 +31,11 @@ function getHandler(path: string): (req: Request, res: Response, next: NextFunct
     }
   ).stack.find((l) => l.route?.path === path);
   if (!layer?.route) throw new Error(`route ${path} not registered`);
-  return layer.route.stack[0].handle as (
+  // AP-9 (Fable ruling-3, non-blocking note): the route now has TWO
+  // middlewares — the rate limiter, then the real async handler — so the
+  // handler under test is the LAST entry in the stack, not stack[0].
+  const stack = layer.route.stack;
+  return stack[stack.length - 1].handle as (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -68,6 +72,11 @@ const REAL_ROW = {
   updated_at: new Date('2026-09-03T06:40:00Z'),
   resolved_at: null,
 };
+
+// AP-9 (Fable ruling-3, non-blocking note): the public response must never
+// carry the raw absolute path Prisma returns — only its basename. This is
+// what the router's response is expected to look like for REAL_ROW.
+const EXPECTED_PUBLIC_ROW = { ...REAL_ROW, operator_file: 'INC-a1b2c3.md' };
 
 beforeEach(() => {
   mockFindMany.mockReset();
@@ -113,7 +122,7 @@ describe('GET /api/v1/incidents', () => {
 
     expect(next).not.toHaveBeenCalled();
     expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({ incidents: [REAL_ROW], count: 1 });
+    expect(res.json).toHaveBeenCalledWith({ incidents: [EXPECTED_PUBLIC_ROW], count: 1 });
 
     expect(mockFindMany).toHaveBeenCalledTimes(1);
     const call = mockFindMany.mock.calls[0][0];
@@ -126,6 +135,20 @@ describe('GET /api/v1/incidents', () => {
     // ask for `evidence`, not just "the response happens not to show it".
     expect(call.select).not.toHaveProperty('evidence');
     expect(call.select.incident_id).toBe(true);
+  });
+
+  it('MUTATION CONTROL: operator_file is stripped to its basename, never the raw server path', async () => {
+    mockFindMany.mockResolvedValue([REAL_ROW]);
+    const res = mockRes();
+    const next = jest.fn();
+    await getHandler('/api/v1/incidents')(mockReq(), res, next);
+
+    const body = (res.json as jest.Mock).mock.calls[0][0] as {
+      incidents: Array<{ operator_file: string }>;
+    };
+    expect(body.incidents[0].operator_file).toBe('INC-a1b2c3.md');
+    expect(body.incidents[0].operator_file).not.toContain('/');
+    expect(body.incidents[0].operator_file).not.toContain('/home/apibase');
   });
 
   it('no filters -> 200 with an empty list when nothing matches (not a 404/500)', async () => {
@@ -172,10 +195,30 @@ describe('GET /api/v1/incidents/:id', () => {
 
     expect(next).not.toHaveBeenCalled();
     expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith(REAL_ROW);
+    expect(res.json).toHaveBeenCalledWith(EXPECTED_PUBLIC_ROW);
 
     const call = mockFindUnique.mock.calls[0][0];
     expect(call.where).toEqual({ incident_id: REAL_ID });
     expect(call.select).not.toHaveProperty('evidence');
+  });
+
+  it('operator_file is stripped to its basename on the single-incident path too', async () => {
+    mockFindUnique.mockResolvedValue(REAL_ROW);
+    const res = mockRes();
+    const next = jest.fn();
+    await getHandler('/api/v1/incidents/:id')(mockReq({}, { id: REAL_ID }), res, next);
+
+    const body = (res.json as jest.Mock).mock.calls[0][0] as { operator_file: string };
+    expect(body.operator_file).toBe('INC-a1b2c3.md');
+  });
+
+  it('operator_file stays null when the incident has none', async () => {
+    mockFindUnique.mockResolvedValue({ ...REAL_ROW, operator_file: null });
+    const res = mockRes();
+    const next = jest.fn();
+    await getHandler('/api/v1/incidents/:id')(mockReq({}, { id: REAL_ID }), res, next);
+
+    const body = (res.json as jest.Mock).mock.calls[0][0] as { operator_file: string | null };
+    expect(body.operator_file).toBeNull();
   });
 });

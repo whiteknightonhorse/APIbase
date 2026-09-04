@@ -135,7 +135,15 @@ export async function getDashboardData(): Promise<DashboardResponse> {
   }> = await prisma.$queryRawUnsafe(`
     SELECT
       t.provider,
-      COUNT(DISTINCT t.tool_id) AS tool_count,
+      -- Fable ruling-3 REJECT: this FILTER must stay narrower than the row-level
+      -- WHERE below. WHERE keeps an autopilot-demoted provider's ROW visible (so
+      -- state/open_incidents surface), but tool_count/totals.tools are a DIFFERENT
+      -- number — "how many tools are actually callable right now" — same
+      -- definition scripts/sync-counts.sh and the tool catalog already use
+      -- (status != 'unavailable', no status_source carve-out). Counting a
+      -- demoted tool here would make totals.tools drift from the catalog the
+      -- instant AP-8 fires, even though the row itself correctly stays.
+      COUNT(DISTINCT t.tool_id) FILTER (WHERE t.status != 'unavailable') AS tool_count,
       COUNT(el.execution_id) FILTER (WHERE el.created_at >= NOW() - INTERVAL '24 hours') AS calls_24h,
       COUNT(el.execution_id) FILTER (WHERE el.created_at >= date_trunc('day', NOW())) AS calls_today,
       COUNT(el.execution_id) FILTER (WHERE el.created_at >= date_trunc('month', NOW())) AS calls_this_month,

@@ -1,4 +1,5 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
+import rateLimit from 'express-rate-limit';
 import {
   listIncidents,
   getIncidentById,
@@ -24,11 +25,32 @@ import { AppError, ErrorCode } from '../types/errors';
  * longer path, so nginx falls through to the `/api/` PREFIX block instead —
  * verified live with the gate script, not assumed (see AP-9 knowledge
  * entry): "declared but not wired" has bitten this project twice already.
+ *
+ * Rate limiting (Fable ruling-3, non-blocking note): unlike dashboardRouter
+ * — which is shielded by a 60s Redis cache, so a hammered dashboard mostly
+ * hammers Redis, not Postgres — this router hits Prisma on every single
+ * request with no cache in front. Same application-level express-rate-limit
+ * pattern as oauth.router.ts, which exists specifically to satisfy CodeQL's
+ * `js/missing-rate-limiting` on a public unauthenticated GET.
  */
+const incidentsLimiter = rateLimit({
+  windowMs: 60_000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (_req: Request, res: Response) => {
+    res.set('Cache-Control', 'no-store').status(429).json({
+      error: 'rate_limited',
+      error_description: 'Too many requests — rate limit exceeded',
+    });
+  },
+});
+
 export const incidentsRouter = Router();
 
 incidentsRouter.get(
   '/api/v1/incidents',
+  incidentsLimiter,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const state = typeof req.query.state === 'string' ? req.query.state : undefined;
@@ -58,6 +80,7 @@ incidentsRouter.get(
 
 incidentsRouter.get(
   '/api/v1/incidents/:id',
+  incidentsLimiter,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = req.params.id as string;

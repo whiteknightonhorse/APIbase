@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import * as path from 'node:path';
 import { getPrisma } from './prisma.service';
 
 /**
@@ -19,6 +20,15 @@ import { getPrisma } from './prisma.service';
  * verbatim into this exact public projection). Both columns are safe for
  * an unauthenticated public read — same posture as `dashboardRouter`, this
  * is a status page, not a control surface.
+ *
+ * `operator_file` is stripped to its basename before it ever leaves this
+ * module (Fable ruling-3, non-blocking note): the raw column is an absolute
+ * server path (`OPERATOR_DIR` in autopilot_common.py, e.g.
+ * `/home/apibase/autopilot/operator/INC-<id>.md`) — internal filesystem
+ * layout, not something a public status page needs to hand an attacker for
+ * free. The filename itself (`INC-<short_id>.md`) is a stable, opaque
+ * per-incident identifier L2's "ссылка на операторский файл" can still key
+ * off of; only the directory prefix is dropped.
  */
 
 // Mirrored 1:1 from prisma/migrations/0009_autopilot_schema/migration.sql CHECK
@@ -89,6 +99,15 @@ export function isValidIncidentId(id: string): boolean {
   return z.string().uuid().safeParse(id).success;
 }
 
+// Fable ruling-3: drop the absolute-path directory prefix, keep the
+// filename as an opaque identifier. `path.basename` on `null` would throw,
+// so the null case (no operator file for this incident) passes through.
+function toPublicIncident<T extends { operator_file: string | null }>(row: T): T {
+  return row.operator_file === null
+    ? row
+    : { ...row, operator_file: path.basename(row.operator_file) };
+}
+
 export async function listIncidents(filters: IncidentFilters): Promise<PublicIncident[]> {
   const prisma = getPrisma();
   const where: Record<string, string> = {};
@@ -104,7 +123,7 @@ export async function listIncidents(filters: IncidentFilters): Promise<PublicInc
     orderBy: [{ severity: 'asc' }, { created_at: 'desc' }],
     take: LIST_LIMIT,
   });
-  return rows;
+  return rows.map(toPublicIncident);
 }
 
 export async function getIncidentById(id: string): Promise<PublicIncident | null> {
@@ -118,5 +137,5 @@ export async function getIncidentById(id: string): Promise<PublicIncident | null
     where: { incident_id: id },
     select: PUBLIC_SELECT,
   });
-  return row;
+  return row === null ? null : toPublicIncident(row);
 }
