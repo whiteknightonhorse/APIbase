@@ -125417,6 +125417,296 @@
         ]
       }
     },
+    "/api/v1/tools/hathitrust-digital.lookup_by_id/call": {
+      "post": {
+        "operationId": "hathitrust-digital_lookup_by_id",
+        "summary": "HathiTrust Catalog Lookup",
+        "description": "Look up a book/serial in the HathiTrust shared digital library (18M+ volumes from 60+ research libraries) by one identifier: oclc (WorldCat number), isbn, issn, lccn, htid (HathiTrust volume ID), or recordnumber. Returns matching catalog record(s) — title, ISBNs/ISSNs/OCLC/LCCN, publish dates — plus every digitized item holding that record, with its contributing library, item URL, and access rights (e.g. \"Full view\", \"Limited (search-only)\"). Call hathitrust-digital.get_full_record for authors/publisher/subjects. Data: HathiTrust Bibliographic API, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hathitrust-digital.lookup_by_id"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id_type": {
+                    "type": "string",
+                    "enum": [
+                      "oclc",
+                      "isbn",
+                      "issn",
+                      "lccn",
+                      "htid",
+                      "recordnumber"
+                    ],
+                    "description": "Identifier type: \"oclc\" (WorldCat number), \"isbn\", \"issn\", \"lccn\" (Library of Congress Control Number), \"htid\" (HathiTrust volume ID, e.g. \"pur1.32754075735872\"), or \"recordnumber\" (HathiTrust catalog record number)"
+                  },
+                  "id_value": {
+                    "type": "string",
+                    "description": "The identifier value to look up (e.g. \"8727632\" for an oclc id_type)",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "id_type",
+                  "id_value"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/hathitrust-digital.get_full_record/call": {
+      "post": {
+        "operationId": "hathitrust-digital_get_full_record",
+        "summary": "HathiTrust Full Catalog Record",
+        "description": "Get the full HathiTrust catalog record for one identifier (oclc/isbn/issn/lccn/htid/recordnumber), including everything lookup_by_id returns plus MARC-derived detail: authors, publisher, place of publication, physical description, subject headings, and language. Use this when you need bibliographic detail beyond title/ISBN, not just item availability. Data: HathiTrust Bibliographic API, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hathitrust-digital.get_full_record"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id_type": {
+                    "type": "string",
+                    "enum": [
+                      "oclc",
+                      "isbn",
+                      "issn",
+                      "lccn",
+                      "htid",
+                      "recordnumber"
+                    ],
+                    "description": "Identifier type: \"oclc\" (WorldCat number), \"isbn\", \"issn\", \"lccn\" (Library of Congress Control Number), \"htid\" (HathiTrust volume ID, e.g. \"pur1.32754075735872\"), or \"recordnumber\" (HathiTrust catalog record number)"
+                  },
+                  "id_value": {
+                    "type": "string",
+                    "description": "The identifier value to look up (e.g. \"8727632\" for an oclc id_type)",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "id_type",
+                  "id_value"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/hathitrust-digital.batch_lookup/call": {
+      "post": {
+        "operationId": "hathitrust-digital_batch_lookup",
+        "summary": "HathiTrust Batch Catalog Lookup",
+        "description": "Look up 1-10 identifiers (any mix of oclc/isbn/issn/lccn/htid/recordnumber) against the HathiTrust catalog in a single call. Returns the same per-identifier record + item availability data as lookup_by_id, one result per queried identifier — use this instead of repeated lookup_by_id calls when checking availability for a reading list or citation set. Data: HathiTrust Bibliographic API, no auth required.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hathitrust-digital.batch_lookup"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id_type": {
+                          "type": "string",
+                          "enum": [
+                            "oclc",
+                            "isbn",
+                            "issn",
+                            "lccn",
+                            "htid",
+                            "recordnumber"
+                          ],
+                          "description": "Identifier type: \"oclc\" (WorldCat number), \"isbn\", \"issn\", \"lccn\" (Library of Congress Control Number), \"htid\" (HathiTrust volume ID, e.g. \"pur1.32754075735872\"), or \"recordnumber\" (HathiTrust catalog record number)"
+                        },
+                        "id_value": {
+                          "type": "string",
+                          "description": "The identifier value to look up",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [
+                        "id_type",
+                        "id_value"
+                      ]
+                    },
+                    "description": "1-10 identifiers to look up in a single call, each with its own id_type",
+                    "minItems": 1,
+                    "maxItems": 10
+                  }
+                },
+                "required": [
+                  "ids"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/device.list/call": {
       "post": {
         "operationId": "device_list",

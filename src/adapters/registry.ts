@@ -395,6 +395,7 @@ import { SemanticScholarAdapter } from './semanticscholar';
 import { SepaScotlandAdapter } from './sepa-scotland';
 import { DenmarkEnergidataserviceAdapter } from './denmark-energidataservice';
 import { UkLandregistryPricepaidAdapter } from './uk-landregistry-pricepaid';
+import { HathiTrustDigitalAdapter } from './hathitrust-digital';
 import { config } from '../config';
 
 /**
@@ -2155,6 +2156,14 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // transaction lookup by GUID. No auth, no key. Open Government Licence
       // v3.0 — commercial reuse permitted with attribution.
       return getOrCreate('uk-landregistry-pricepaid', () => new UkLandregistryPricepaidAdapter());
+    case 'hathitrust-digital':
+      // HathiTrust Digital Library Bibliographic API (UC-679) —
+      // catalog.hathitrust.org/api/volumes: lookup by oclc/isbn/issn/lccn/
+      // htid/recordnumber against a shared catalog of 18M+ digitized volumes
+      // from 60+ research libraries. Brief lookup, full record (MARC-XML
+      // parsed for authors/publisher/subjects/language), and 10-id batch
+      // lookup. No auth, no key. Free public bibliographic metadata.
+      return getOrCreate('hathitrust-digital', () => new HathiTrustDigitalAdapter());
     default:
       return undefined;
   }

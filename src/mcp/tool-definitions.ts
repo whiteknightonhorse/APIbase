@@ -16837,6 +16837,48 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'location',
     annotations: READ_ONLY,
   },
+  // HathiTrust Digital Library Bibliographic API — catalog.hathitrust.org/api/volumes (3) — UC-679
+  {
+    toolId: 'hathitrust-digital.lookup_by_id',
+    mcpName: 'hathitrust-digital.catalog.lookup',
+    title: 'HathiTrust Catalog Lookup',
+    description:
+      'Look up a book/serial in the HathiTrust shared digital library (18M+ volumes from 60+ ' +
+      'research libraries) by one identifier: oclc (WorldCat number), isbn, issn, lccn, htid ' +
+      '(HathiTrust volume ID), or recordnumber. Returns matching catalog record(s) — title, ' +
+      'ISBNs/ISSNs/OCLC/LCCN, publish dates — plus every digitized item holding that record, ' +
+      'with its contributing library, item URL, and access rights (e.g. "Full view", "Limited ' +
+      '(search-only)"). Call hathitrust-digital.get_full_record for authors/publisher/subjects. ' +
+      'Data: HathiTrust Bibliographic API, no auth required.',
+    category: 'media',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'hathitrust-digital.get_full_record',
+    mcpName: 'hathitrust-digital.catalog.get_full_record',
+    title: 'HathiTrust Full Catalog Record',
+    description:
+      'Get the full HathiTrust catalog record for one identifier (oclc/isbn/issn/lccn/htid/' +
+      'recordnumber), including everything lookup_by_id returns plus MARC-derived detail: ' +
+      'authors, publisher, place of publication, physical description, subject headings, and ' +
+      'language. Use this when you need bibliographic detail beyond title/ISBN, not just item ' +
+      'availability. Data: HathiTrust Bibliographic API, no auth required.',
+    category: 'media',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'hathitrust-digital.batch_lookup',
+    mcpName: 'hathitrust-digital.catalog.batch_lookup',
+    title: 'HathiTrust Batch Catalog Lookup',
+    description:
+      'Look up 1-10 identifiers (any mix of oclc/isbn/issn/lccn/htid/recordnumber) against the ' +
+      'HathiTrust catalog in a single call. Returns the same per-identifier record + item ' +
+      'availability data as lookup_by_id, one result per queried identifier — use this instead ' +
+      'of repeated lookup_by_id calls when checking availability for a reading list or citation ' +
+      'set. Data: HathiTrust Bibliographic API, no auth required.',
+    category: 'media',
+    annotations: READ_ONLY,
+  },
   // ---------------------------------------------------------------------------
   // Ф5 physical-device MCP layer -- device.list/state/command (2026-09-02)
   // Generic vendor-agnostic projection; Tuya is the only connected vendor

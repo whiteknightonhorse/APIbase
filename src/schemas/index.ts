@@ -395,6 +395,7 @@ import { semanticscholarSchemas } from './semanticscholar.schema';
 import { sepaScotlandSchemas } from './sepa-scotland.schema';
 import { denmarkEnergidataserviceSchemas } from './denmark-energidataservice.schema';
 import { ukLandregistryPricepaidSchemas } from './uk-landregistry-pricepaid.schema';
+import { hathitrustDigitalSchemas } from './hathitrust-digital.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -793,4 +794,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...sepaScotlandSchemas,
   ...denmarkEnergidataserviceSchemas,
   ...ukLandregistryPricepaidSchemas,
+  ...hathitrustDigitalSchemas,
 };

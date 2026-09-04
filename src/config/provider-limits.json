@@ -3536,5 +3536,14 @@
     "reset_period": "none",
     "docs_url": "https://landregistry.data.gov.uk/app/root/doc/ppd",
     "limit_proof": "No API key or registration required. No rate-limit documentation found on the Price Paid Data Linked Data API doc pages or landregistry.data.gov.uk. Verified live 2026-09-04: dozens of test queries (postcode, town, county, district filters) returned normally with no rate-limit headers or 429s."
+  },
+  "hathitrust-digital": {
+    "display_name": "HathiTrust Digital Library",
+    "health_url": "https://catalog.hathitrust.org/api/volumes/brief/json/oclc:1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.hathitrust.org/member-libraries/resources-for-librarians/data-resources/bibliographic-api/",
+    "limit_proof": "No API key or registration required. Docs state the API 'is intended for use to retrieve information about small numbers of items at a time' and point bulk retrieval to OAI/hathifiles instead, but document no specific numeric rate limit (verified via archived copy of the docs page, 2026-09-04 — www.hathitrust.org itself returns Cloudflare 403 to non-browser clients including this check). No 429s or rate-limit headers observed across repeated live test queries."
   }
 }
