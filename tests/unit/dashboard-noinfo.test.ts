@@ -71,6 +71,14 @@ describe('AP-10: static/dashboard.html NOINFO formatters (real source, not a rei
   const fmtProbeAge = loadFn<(s: number | null | undefined) => string>('fmtProbeAge');
   const fmtAge = loadFn<(iso: string | null | undefined) => string>('fmtAge');
   const tdNoinfo = loadFn<(isMissing: boolean, text: string) => string>('tdNoinfo', ['escHtml']);
+  // T-04 (2026-09-04): the dashboard's third twin-worlds pair — "no open
+  // incidents" vs "the engine never measured anything" — must render
+  // distinguishably. engineStaleText is the pure formatter feeding
+  // renderBanner's stale branch; depends on fmtAge for the "N ago" phrasing.
+  const engineStaleText = loadFn<(heartbeatAt: string | null | undefined) => string>(
+    'engineStaleText',
+    ['fmtAge'],
+  );
   const sortProviders =
     loadFn<
       (
@@ -174,6 +182,22 @@ describe('AP-10: static/dashboard.html NOINFO formatters (real source, not a rei
       const order = sortProviders(list).map((p) => p.reliability_score);
       expect(order[order.length - 1]).toBeNull();
       expect(order).toEqual([5, 95, null]);
+    });
+  });
+
+  describe('engineStaleText — T-04: "never measured" must read distinctly from "no incidents"/OK', () => {
+    it('MUTATION CONTROL: heartbeatAt=null (engine never ran) says so explicitly, never implies OK', () => {
+      const text = engineStaleText(null);
+      expect(text).toMatch(/never run/i);
+      expect(text).not.toMatch(/no open/i);
+      expect(text).not.toMatch(/\bOK\b/);
+    });
+    it('a real (but stale) heartbeat timestamp reports how long ago it last ran, not "never"', () => {
+      const twoHoursAgo = new Date(Date.now() - 2 * 3600_000).toISOString();
+      const text = engineStaleText(twoHoursAgo);
+      expect(text).toMatch(/last ran/i);
+      expect(text).toMatch(/2h/);
+      expect(text).not.toMatch(/never run/i);
     });
   });
 });

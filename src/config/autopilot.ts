@@ -112,3 +112,28 @@ export const PASSIVE_WINDOW_HOURS = 6;
 export const PASSIVE_ERROR_RATE_WINDOW_HOURS = 1;
 export const PASSIVE_ERROR_RATE_MIN_CALLS = 20;
 export const PASSIVE_ERROR_RATE_THRESHOLD = 0.25;
+
+// ---------------------------------------------------------------------------
+// T-04 (2026-09-04) — engine heartbeat freshness, the dashboard's third state
+// ---------------------------------------------------------------------------
+
+/** How old `autopilot_engine_heartbeat.last_run_at` can get before the public
+ *  dashboard must stop showing green "autopilot: OK" and switch to an honest
+ *  "state unknown" (not_measured != 0 — see incident-engine.py's own
+ *  write_heartbeat()/AP-4 comments and the T-04 knowledge entry for the
+ *  incident this closes). incident-engine.py's cron runs every 10 minutes
+ *  (crontab "star-slash-10"); 1500s = 25 minutes tolerates exactly one
+ *  missed tick (10min) plus slack for docker/psql slowness before paging,
+ *  and matches fleet-check.sh's OWN independent AP-4 `AP4_AGE -gt 1500`
+ *  threshold on the
+ *  same underlying signal (the /tmp heartbeat FILE, a separate host-side
+ *  check — see the schema.prisma model comment for why the file and this DB
+ *  row are two channels for one fact, not two facts) — kept in sync by
+ *  review, same "no shared JS/TS/bash constant mechanism in this repo"
+ *  convention autopilot_common.py's KINDS/SEVERITIES/STATES comment already
+ *  documents (bash can't import this file). The Node API is the ONLY other
+ *  reader of this constant — incidents.service.ts applies it server-side and
+ *  hands static/dashboard.html a ready-made boolean
+ *  (`engine_heartbeat_stale`), deliberately NOT a second copy of the number
+ *  in client JS, so a future threshold change is one edit, not two. */
+export const ENGINE_HEARTBEAT_STALE_S = 1500;

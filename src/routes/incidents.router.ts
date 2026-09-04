@@ -3,6 +3,7 @@ import rateLimit from 'express-rate-limit';
 import {
   listIncidents,
   getIncidentById,
+  getEngineHeartbeatStatus,
   VALID_STATES,
   VALID_SEVERITIES,
 } from '../services/incidents.service';
@@ -14,7 +15,12 @@ import { AppError, ErrorCode } from '../types/errors';
  * `incidents` only ever happen through `incident-cli.py`/`incident-engine.py`
  * (I4's "единственная ручка записи для агентов") — nothing here mutates.
  *
- * GET /api/v1/incidents?state=&severity=&provider= — filtered list (max 100)
+ * GET /api/v1/incidents?state=&severity=&provider= — filtered list (max 100),
+ *   plus `engine_heartbeat_at`/`engine_heartbeat_stale` (T-04, 2026-09-04):
+ *   the list endpoint doubles as the freshness signal for
+ *   static/dashboard.html's SEV banner — "no open incidents" and "the
+ *   engine has never measured anything" must never render the same green
+ *   "autopilot: OK" (see incidents.service.ts's getEngineHeartbeatStatus).
  * GET /api/v1/incidents/:id — single incident
  *
  * nginx mount (gate: scripts/check-mount-nginx-parity.py): rides the
@@ -69,9 +75,12 @@ incidentsRouter.get(
       }
       const provider = typeof req.query.provider === 'string' ? req.query.provider : undefined;
 
-      const incidents = await listIncidents({ state, severity, provider });
+      const [incidents, heartbeat] = await Promise.all([
+        listIncidents({ state, severity, provider }),
+        getEngineHeartbeatStatus(),
+      ]);
       res.setHeader('Cache-Control', 'public, max-age=30');
-      res.status(200).json({ incidents, count: incidents.length });
+      res.status(200).json({ incidents, count: incidents.length, ...heartbeat });
     } catch (err) {
       next(err);
     }

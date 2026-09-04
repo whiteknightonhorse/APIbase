@@ -356,3 +356,24 @@ model EmailEvent {
 
   @@map("email_events")
 }
+
+// autopilot_engine_heartbeat — T-04 (2026-09-04): "autopilot: OK" used to mean
+// only "no open SEV1/SEV2 incidents", which is indistinguishable from "the
+// engine never ran" if incidents can never have been detected either way (the
+// exact defect this table closes — /tmp/autopilot-incident-engine.hb, which
+// incident-engine.py already wrote every tick, lives on the HOST filesystem
+// and is invisible to the containerized API: each docker-compose service gets
+// its own tmpfs /tmp, confirmed live via docker-compose.yml). One row per
+// engine name (currently just 'incident-engine'), upserted by
+// incident-engine.py's write_heartbeat() via the same `docker exec psql`
+// path every other autopilot write already uses, so it crosses the
+// host->container boundary the file write cannot. See
+// ENGINE_HEARTBEAT_STALE_S (src/config/autopilot.ts) for the freshness
+// threshold applied to this column before GET /api/v1/incidents hands it to
+// static/dashboard.html.
+model AutopilotEngineHeartbeat {
+  engine      String   @id // 'incident-engine' today; room for more engines later
+  last_run_at DateTime @db.Timestamptz()
+
+  @@map("autopilot_engine_heartbeat")
+}

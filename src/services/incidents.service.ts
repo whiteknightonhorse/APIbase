@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import * as path from 'node:path';
 import { getPrisma } from './prisma.service';
+import { ENGINE_HEARTBEAT_STALE_S } from '../config/autopilot';
 
 /**
  * Incidents read service (AP-9, L1: "read-only, публично-безопасная
@@ -138,4 +139,46 @@ export async function getIncidentById(id: string): Promise<PublicIncident | null
     select: PUBLIC_SELECT,
   });
   return row === null ? null : toPublicIncident(row);
+}
+
+export interface EngineHeartbeatStatus {
+  engine_heartbeat_at: string | null; // ISO 8601 UTC, null = engine has never reported in
+  engine_heartbeat_stale: boolean; // T-04: not_measured != 0 — this must default to true, never false
+}
+
+/**
+ * T-04 (2026-09-04): the dashboard's third state. `GET /api/v1/incidents`
+ * used to be the ONLY signal the public dashboard's SEV banner read, so
+ * "engine ticked an hour ago, found nothing" and "engine has never run"
+ * rendered as the exact same green "autopilot: OK" — the incident this
+ * closes (13 real, undetected SEV1/SEV2 incidents sat behind a green
+ * banner). `autopilot_engine_heartbeat` (0011_autopilot_engine_heartbeat)
+ * is written every tick by incident-engine.py's write_heartbeat(), the same
+ * DB channel every other autopilot write already crosses the
+ * host->container boundary through — see that migration's own comment for
+ * why the pre-existing /tmp heartbeat FILE (AP-4) can't be read from here.
+ *
+ * Fails CLOSED on every path that isn't "a row exists and is fresh": no row
+ * (never ran), and any read error (table not migrated yet, DB hiccup) all
+ * come back `stale: true`. A `renderBanner()`-style caller that treats
+ * `stale` as "don't show green" can never be tricked into displaying OK for
+ * a state it never actually measured.
+ */
+export async function getEngineHeartbeatStatus(
+  engine = 'incident-engine',
+): Promise<EngineHeartbeatStatus> {
+  const prisma = getPrisma();
+  try {
+    const row = await prisma.autopilotEngineHeartbeat.findUnique({ where: { engine } });
+    if (row === null) {
+      return { engine_heartbeat_at: null, engine_heartbeat_stale: true };
+    }
+    const ageS = (Date.now() - row.last_run_at.getTime()) / 1000;
+    return {
+      engine_heartbeat_at: row.last_run_at.toISOString(),
+      engine_heartbeat_stale: ageS > ENGINE_HEARTBEAT_STALE_S,
+    };
+  } catch {
+    return { engine_heartbeat_at: null, engine_heartbeat_stale: true };
+  }
 }

@@ -199,8 +199,10 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
 </nav>
 <h1>Provider Status Dashboard</h1>
 <!-- AP-10 / L2 screen 1 "Operator": top-row SEV1/SEV2 banner (green "autopilot: OK"
-     line when there are none). Filled by renderBanner() from GET /api/v1/incidents;
-     "no data" if that request fails — never silently blank. -->
+     line when there are none AND the incident-engine has ticked recently — T-04,
+     2026-09-04: "no incidents" and "never measured" must never render the same
+     green line). Filled by renderBanner() from GET /api/v1/incidents; "no data"
+     if that request fails — never silently blank. -->
 <div class="sev-banner unknown" id="sev-banner">Loading…</div>
 <div class="system-monitor" id="system-monitor">
 <span class="label">SYSTEM</span>  <span class="label">PRV:</span><span class="val" id="t-providers">--</span>  <span class="label">TOOLS:</span><span class="val" id="t-tools">--</span>  <span class="label">OPS/24H:</span><span class="val" id="t-calls">--</span>  <span class="label">MEM:</span><span class="val">OK</span>  <span class="label">NET:</span><span class="val">ONLINE</span>
@@ -637,12 +639,30 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
   // as an honest "couldn't load" state, never as an empty/zero result
   // (twin-worlds: "no incidents" and "don't know" must stay visually and
   // textually distinct). ---
-  function renderBanner(incidents) {
+  //
+  // T-04 (2026-09-04): a THIRD twin-worlds pair the banner used to conflate
+  // with "no incidents" — "the engine has been ticking and genuinely found
+  // nothing" vs "the engine has never run, or stopped running, so nothing
+  // was ever measured". The incident this closes: the engine's cron line
+  // was never installed, and the dashboard showed green "autopilot: OK" the
+  // whole time — 13 real incidents (one SEV1) had simply never been looked
+  // for. `engine_heartbeat_stale` comes pre-computed from the server
+  // (incidents.service.ts's getEngineHeartbeatStatus, against
+  // ENGINE_HEARTBEAT_STALE_S in src/config/autopilot.ts) — checked BEFORE
+  // the sev1/sev2/ok branches below, so a stale/never-ran engine can never
+  // fall through to green no matter how empty `incidents` is.
+  function engineStaleText(heartbeatAt) { return heartbeatAt ? ('engine last ran ' + fmtAge(heartbeatAt) + ' ago — state unknown, not "no incidents"') : 'engine has never run — state unknown, not "no incidents"'; }
+  function renderBanner(incidents, heartbeatAt, heartbeatStale) {
     var el = document.getElementById('sev-banner');
     if (!el) return;
     if (incidents === null) {
       el.className = 'sev-banner unknown';
       el.innerHTML = 'autopilot: <span class="noinfo">failed to load incidents — status unknown</span>';
+      return;
+    }
+    if (heartbeatStale) {
+      el.className = 'sev-banner unknown';
+      el.innerHTML = 'autopilot: <span class="noinfo">' + engineStaleText(heartbeatAt) + '</span>';
       return;
     }
     var open = incidents.filter(function(i) { return i.state !== 'RESOLVED'; });
@@ -656,7 +676,7 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
       el.innerHTML = 'SEV2: ' + sev2.length + ' open incident(s)';
     } else {
       el.className = 'sev-banner ok';
-      el.innerHTML = 'autopilot: OK &mdash; no open SEV1/SEV2 incidents <span class="tick-note">(engine tick is not exposed via the public API)</span>';
+      el.innerHTML = 'autopilot: OK &mdash; no open SEV1/SEV2 incidents <span class="tick-note">(engine last ran ' + fmtAge(heartbeatAt) + ' ago)</span>';
     }
   }
 
@@ -912,21 +932,27 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
     var xhr = new XMLHttpRequest();
     xhr.open('GET', '/api/v1/incidents', true);
     xhr.timeout = 15000;
-    function apply(incidents) {
+    // T-04: heartbeatStale defaults to true on every failure/parse-error
+    // path below (never false) — a request that couldn't even tell us the
+    // engine's state must not let the banner assume it's fine.
+    function apply(incidents, heartbeatAt, heartbeatStale) {
       lastIncidents = incidents;
-      renderBanner(incidents);
+      renderBanner(incidents, heartbeatAt, heartbeatStale);
       renderWaitingHuman(incidents);
       renderRemediation(incidents);
       renderFleetQueue(incidents);
     }
     xhr.onload = function() {
       if (xhr.status === 200) {
-        try { apply(JSON.parse(xhr.responseText).incidents || []); }
-        catch (e) { apply(null); }
-      } else { apply(null); }
+        try {
+          var data = JSON.parse(xhr.responseText);
+          apply(data.incidents || [], data.engine_heartbeat_at || null, data.engine_heartbeat_stale !== false);
+        }
+        catch (e) { apply(null, null, true); }
+      } else { apply(null, null, true); }
     };
-    xhr.onerror = function() { apply(null); };
-    xhr.ontimeout = function() { apply(null); };
+    xhr.onerror = function() { apply(null, null, true); };
+    xhr.ontimeout = function() { apply(null, null, true); };
     xhr.send();
   }
 

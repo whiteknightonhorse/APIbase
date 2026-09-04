@@ -631,15 +631,47 @@ def sync_tool_status():
 
 
 def write_heartbeat():
+    """T-04 (2026-09-04): writes the SAME fact twice, over two channels, for
+    two different readers. The /tmp file (AP-4, unchanged) is what
+    fleet-check.sh reads FROM THE HOST — cron and fleet-check.sh both run as
+    the apibase user on this box, sharing /tmp directly. The new
+    autopilot_engine_heartbeat DB row is what GET /api/v1/incidents reads
+    FROM INSIDE THE CONTAINERIZED API — that process has its own tmpfs
+    /tmp (docker-compose.yml: every app service gets `tmpfs: - /tmp`), so
+    the file is invisible to it no matter how fresh it is; Postgres (via
+    the same `docker exec psql` path every other write in this module
+    already uses) is the one channel that crosses that boundary. Losing
+    either write is best-effort/non-fatal, matching this function's
+    pre-existing posture for the file — a heartbeat write failing must
+    never crash the tick that's trying to prove the engine is alive.
+    """
+    now = datetime.now(timezone.utc)
     try:
         with open(ap.HEARTBEAT_FILE, "w") as f:
-            f.write(datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ") + "\n")
+            f.write(now.strftime("%Y-%m-%dT%H:%M:%SZ") + "\n")
     except Exception as e:
         # If we can't even write /tmp, don't pretend we ran cleanly — but
         # don't crash the tick over it either (best-effort, matches every
         # other heartbeat write in this codebase, e.g. fleet-check.sh's own
         # /tmp/fleet-CHECK.hb).
-        print(f"incident-engine: WARNING could not write heartbeat: {e}")
+        print(f"incident-engine: WARNING could not write heartbeat file: {e}")
+
+    # now() (Postgres's own clock), not a Python-formatted literal — one
+    # fewer place for a TZ/format mismatch between this script's clock and
+    # the DB's to sneak a wrong timestamp into the freshness check.
+    out, rc = ap.psql(
+        "INSERT INTO autopilot_engine_heartbeat (engine, last_run_at) "
+        "VALUES ('incident-engine', now()) "
+        "ON CONFLICT (engine) DO UPDATE SET last_run_at = EXCLUDED.last_run_at"
+    )
+    if rc != 0:
+        # Same best-effort posture as the file write above — a DB hiccup (or
+        # migration 0011 not deployed yet on some environment) must not
+        # crash the tick. It DOES mean the dashboard will correctly show
+        # "state unknown" until this succeeds again (T-04's whole point:
+        # not_measured != 0, so a failed heartbeat write must never be
+        # silently swallowed into looking like a healthy one).
+        print(f"incident-engine: WARNING could not write heartbeat row: {out}")
 
 
 def run():

@@ -18,11 +18,16 @@ jest.mock('../../src/services/prisma.service', () => ({
 import { incidentsRouter } from '../../src/routes/incidents.router';
 import { getPrisma } from '../../src/services/prisma.service';
 import { AppError, ErrorCode } from '../../src/types/errors';
+import { ENGINE_HEARTBEAT_STALE_S } from '../../src/config/autopilot';
 import type { Request, Response, NextFunction } from 'express';
 
 const mockGetPrisma = getPrisma as jest.Mock;
 const mockFindMany = jest.fn();
 const mockFindUnique = jest.fn();
+// T-04: engine heartbeat freshness (autopilot_engine_heartbeat), read
+// alongside the incident list on every GET /api/v1/incidents — see
+// getEngineHeartbeatStatus in incidents.service.ts.
+const mockHeartbeatFindUnique = jest.fn();
 
 function getHandler(path: string): (req: Request, res: Response, next: NextFunction) => unknown {
   const layer = (
@@ -78,11 +83,18 @@ const REAL_ROW = {
 // what the router's response is expected to look like for REAL_ROW.
 const EXPECTED_PUBLIC_ROW = { ...REAL_ROW, operator_file: 'INC-a1b2c3.md' };
 
+const FRESH_HEARTBEAT_ROW = { engine: 'incident-engine', last_run_at: new Date() };
+
 beforeEach(() => {
   mockFindMany.mockReset();
   mockFindUnique.mockReset();
+  mockHeartbeatFindUnique.mockReset();
+  // Default: a fresh heartbeat, so tests that don't care about T-04 keep
+  // exercising the pre-existing incidents-list behavior undisturbed.
+  mockHeartbeatFindUnique.mockResolvedValue(FRESH_HEARTBEAT_ROW);
   mockGetPrisma.mockReturnValue({
     incident: { findMany: mockFindMany, findUnique: mockFindUnique },
+    autopilotEngineHeartbeat: { findUnique: mockHeartbeatFindUnique },
   });
 });
 
@@ -122,7 +134,12 @@ describe('GET /api/v1/incidents', () => {
 
     expect(next).not.toHaveBeenCalled();
     expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({ incidents: [EXPECTED_PUBLIC_ROW], count: 1 });
+    expect(res.json).toHaveBeenCalledWith({
+      incidents: [EXPECTED_PUBLIC_ROW],
+      count: 1,
+      engine_heartbeat_at: FRESH_HEARTBEAT_ROW.last_run_at.toISOString(),
+      engine_heartbeat_stale: false,
+    });
 
     expect(mockFindMany).toHaveBeenCalledTimes(1);
     const call = mockFindMany.mock.calls[0][0];
@@ -159,7 +176,88 @@ describe('GET /api/v1/incidents', () => {
 
     expect(next).not.toHaveBeenCalled();
     expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({ incidents: [], count: 0 });
+    expect(res.json).toHaveBeenCalledWith({
+      incidents: [],
+      count: 0,
+      engine_heartbeat_at: FRESH_HEARTBEAT_ROW.last_run_at.toISOString(),
+      engine_heartbeat_stale: false,
+    });
+  });
+
+  // T-04 (2026-09-04): the actual incident this closes — zero open incidents
+  // read as green "autopilot: OK" whether the engine had been ticking for
+  // months or had NEVER RUN (its cron line was never installed). These four
+  // cases are the mutational control the task demanded: engine never ran,
+  // engine ran but heartbeat is stale, a DB error on the heartbeat read
+  // (fails closed, never masquerades as "measured and clean"), and the
+  // recovery direction (stale -> fresh flips `stale` back to false) — same
+  // "both directions" requirement the brief's "останови/верни" check states.
+  describe('T-04: engine_heartbeat_at / engine_heartbeat_stale', () => {
+    it('MUTATION: zero open incidents + engine NEVER ran -> stale=true, at=null (must NOT look like OK)', async () => {
+      mockFindMany.mockResolvedValue([]);
+      mockHeartbeatFindUnique.mockResolvedValue(null);
+      const res = mockRes();
+      const next = jest.fn();
+      await getHandler('/api/v1/incidents')(mockReq(), res, next);
+
+      expect(next).not.toHaveBeenCalled();
+      expect(res.json).toHaveBeenCalledWith({
+        incidents: [],
+        count: 0,
+        engine_heartbeat_at: null,
+        engine_heartbeat_stale: true,
+      });
+    });
+
+    it('MUTATION: zero open incidents + heartbeat older than ENGINE_HEARTBEAT_STALE_S -> stale=true', async () => {
+      mockFindMany.mockResolvedValue([]);
+      const staleAt = new Date(Date.now() - (ENGINE_HEARTBEAT_STALE_S + 60) * 1000);
+      mockHeartbeatFindUnique.mockResolvedValue({
+        engine: 'incident-engine',
+        last_run_at: staleAt,
+      });
+      const res = mockRes();
+      await getHandler('/api/v1/incidents')(mockReq(), res, jest.fn());
+
+      const body = (res.json as jest.Mock).mock.calls[0][0] as {
+        engine_heartbeat_stale: boolean;
+        engine_heartbeat_at: string;
+      };
+      expect(body.engine_heartbeat_stale).toBe(true);
+      expect(body.engine_heartbeat_at).toBe(staleAt.toISOString());
+    });
+
+    it('MUTATION CONTROL: a fresh heartbeat AFTER a stale one flips stale back to false (both directions, not just one)', async () => {
+      mockFindMany.mockResolvedValue([]);
+
+      mockHeartbeatFindUnique.mockResolvedValueOnce({
+        engine: 'incident-engine',
+        last_run_at: new Date(Date.now() - (ENGINE_HEARTBEAT_STALE_S + 60) * 1000),
+      });
+      const stopped = mockRes();
+      await getHandler('/api/v1/incidents')(mockReq(), stopped, jest.fn());
+      expect((stopped.json as jest.Mock).mock.calls[0][0].engine_heartbeat_stale).toBe(true);
+
+      mockHeartbeatFindUnique.mockResolvedValueOnce(FRESH_HEARTBEAT_ROW);
+      const restarted = mockRes();
+      await getHandler('/api/v1/incidents')(mockReq(), restarted, jest.fn());
+      expect((restarted.json as jest.Mock).mock.calls[0][0].engine_heartbeat_stale).toBe(false);
+    });
+
+    it('a DB error reading the heartbeat table fails CLOSED (stale=true), never crashes the route', async () => {
+      mockFindMany.mockResolvedValue([]);
+      mockHeartbeatFindUnique.mockRejectedValue(
+        new Error('relation "autopilot_engine_heartbeat" does not exist'),
+      );
+      const res = mockRes();
+      const next = jest.fn();
+      await getHandler('/api/v1/incidents')(mockReq(), res, next);
+
+      expect(next).not.toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(200);
+      const body = (res.json as jest.Mock).mock.calls[0][0] as { engine_heartbeat_stale: boolean };
+      expect(body.engine_heartbeat_stale).toBe(true);
+    });
   });
 });
 
