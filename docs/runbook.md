@@ -433,14 +433,19 @@ Phase 1: single server. Scale triggers for Phase 2:
 | Reconciliation | Every 60s | node-cron (Worker) | EscrowLeak alert |
 | PG Backup | Daily 03:00 UTC | postgres_backup container | BackupMissing alert |
 | Certbot Renewal | 2x/day, `OnCalendar=00,12:00 UTC` + up to 12h jitter | systemd timer (`certbot.timer`) | CertExpiring alert |
-| Docker Prune | Weekly Sun 04:00 UTC | Host cron | Disk usage alert |
-| SecurityAudit | Weekly Sun 02:00 UTC | node-cron (Worker) | Manual review |
+| Docker Prune | 4x/day, `0 4,10,16,22 * * *` UTC | Host cron | Disk usage alert |
+| SecurityAudit | Weekly Sun 04:00 UTC, `0 4 * * 0` | Host cron | Manual review |
 
 There is no single "host cron file" — host-level jobs above split across two real, different
 mechanisms, verified live on the box rather than assumed:
-- **Host cron** rows (e.g. Docker Prune): the `apibase` user's crontab. Inspect with
+- **Host cron** rows (Docker Prune, SecurityAudit): the `apibase` user's crontab. Inspect with
   `crontab -l` (not a directly-readable file for this user — `/var/spool/cron/crontabs/apibase`
-  exists but is root/`crontab`-group only; use the command, not the path).
+  exists but is root/`crontab`-group only; use the command, not the path). Previously this table
+  claimed SecurityAudit ran as `node-cron (Worker)` at `Weekly Sun 02:00 UTC` — neither was true:
+  there is no such job in `src/worker/server.ts`, and the real crontab line
+  (`0 4 * * 0 .../security-audit-cron.sh`) runs Sundays 04:00 UTC, not 02:00. Fixed 2026-09-05
+  alongside the Docker Prune schedule, which likewise said "Weekly Sun 04:00 UTC" while the real
+  crontab entry (`0 4,10,16,22 * * *`) runs four times a day, not once a week.
 - **Certbot Renewal**: `certbot.timer`, a systemd timer unit, not cron at all. Inspect with
   `systemctl list-timers certbot.timer` or `systemctl cat certbot.timer`.
 
