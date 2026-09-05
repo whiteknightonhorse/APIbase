@@ -273,12 +273,15 @@ export class HathiTrustDigitalAdapter extends BaseAdapter {
   }
 
   private decodeXmlEntities(s: string): string {
+    // CWE-116/CodeQL js/double-escaping: `&amp;` must decode LAST, or an
+    // input containing a literal already-decoded-looking sequence such as
+    // `&amp;lt;` gets double-unescaped into `<` instead of the intended `&lt;`.
     return s
-      .replace(/&amp;/g, '&')
       .replace(/&lt;/g, '<')
       .replace(/&gt;/g, '>')
       .replace(/&quot;/g, '"')
-      .replace(/&apos;/g, "'");
+      .replace(/&apos;/g, "'")
+      .replace(/&amp;/g, '&');
   }
 
   private invalidInput(toolId: string, message: string): never {
