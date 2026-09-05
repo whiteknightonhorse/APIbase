@@ -625,6 +625,13 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
   function fmtProbeAge(s) { if (s === null || s === undefined) return 'never probed'; if (s < 60) return s + 's'; if (s < 3600) return Math.floor(s / 60) + 'm'; if (s < 86400) return Math.floor(s / 3600) + 'h'; return Math.floor(s / 86400) + 'd'; }
   function fmtAge(iso) { if (!iso) return 'NOINFO'; var ms = Date.now() - new Date(iso).getTime(); if (ms < 0) ms = 0; var m = Math.floor(ms / 60000); if (m < 60) return m + 'm'; var h = Math.floor(m / 60); if (h < 24) return h + 'h ' + (m % 60) + 'm'; var d = Math.floor(h / 24); return d + 'd ' + (h % 24) + 'h'; }
   function stateClass(state) { return 'st-' + String(state).toLowerCase(); }
+  // T-09 ruling-1 (§5): mirrors autopilot_common.py's short_id() exactly (6
+  // hex chars, hyphens stripped) -- the same INC-xxxxxx form used in
+  // Telegram/operator-file headings and in the /autopilot/incident?id= link
+  // this same row already points at, so a recurrence (same provider, two
+  // different incident_ids) is distinguishable at a glance instead of two
+  // identical-looking rows.
+  function shortId(id) { return String(id || '').replace(/-/g, '').slice(0, 6); }
   function tdNoinfo(isMissing, text) { return isMissing ? '<span class="noinfo">' + escHtml(text) + '</span>' : escHtml(text); }
   // Sort (open_incidents desc, reliability asc) — L2 screen 3. A `null`
   // reliability_score (never scored) is NOT coerced to 0/-1 for ranking
@@ -654,6 +661,16 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
   // the sev1/sev2/ok branches below, so a stale/never-ran engine can never
   // fall through to green no matter how empty `incidents` is.
   function engineStaleText(heartbeatAt) { return heartbeatAt ? ('engine last ran ' + fmtAge(heartbeatAt) + ' ago — state unknown, not "no incidents"') : 'engine has never run — state unknown, not "no incidents"'; }
+  // T-09 ruling-1 (§4): WAITING_HUMAN/STUCK are the two states that are
+  // genuinely "waiting on you"; everything else open (OPEN, REMEDIATION_
+  // QUEUED, VERIFYING) is the autopilot actively working it. Never
+  // downgrades severity or hides a count — same list, same total, just
+  // split into the two buckets an operator actually needs when deciding
+  // whether to look.
+  function sevBreakdown(list) {
+    var needYou = list.filter(function(i) { return i.state === 'WAITING_HUMAN' || i.state === 'STUCK'; }).length;
+    return needYou + ' need you · ' + (list.length - needYou) + ' self-healing';
+  }
   function renderBanner(incidents, heartbeatAt, heartbeatStale) {
     var el = document.getElementById('sev-banner');
     if (!el) return;
@@ -670,12 +687,19 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
     var open = incidents.filter(function(i) { return i.state !== 'RESOLVED'; });
     var sev1 = open.filter(function(i) { return i.severity === 'SEV1'; });
     var sev2 = open.filter(function(i) { return i.severity === 'SEV2'; });
+    // T-09 ruling-1 (§4): "ok"/"unknown" already say "autopilot:" — the SEV
+    // branches didn't, which is what made a working autopilot's own summary
+    // read like "the site is down". Same red/amber colors, same counts,
+    // just the missing word plus a same-data breakdown so SEV1 doesn't read
+    // as one undifferentiated wall of red when some of it is already being
+    // worked automatically.
     if (sev1.length > 0) {
       el.className = 'sev-banner sev1';
-      el.innerHTML = 'SEV1: ' + sev1.length + ' open incident(s)' + (sev2.length > 0 ? ' &middot; SEV2: ' + sev2.length : '');
+      el.innerHTML = 'autopilot: SEV1: ' + sev1.length + ' open (' + sevBreakdown(sev1) + ')' +
+        (sev2.length > 0 ? ' &middot; SEV2: ' + sev2.length : '');
     } else if (sev2.length > 0) {
       el.className = 'sev-banner sev2';
-      el.innerHTML = 'SEV2: ' + sev2.length + ' open incident(s)';
+      el.innerHTML = 'autopilot: SEV2: ' + sev2.length + ' open incident(s)';
     } else {
       el.className = 'sev-banner ok';
       el.innerHTML = 'autopilot: OK &mdash; no open SEV1/SEV2 incidents <span class="tick-note">(engine last ran ' + fmtAge(heartbeatAt) + ' ago)</span>';
@@ -713,7 +737,12 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
       html += '<a class="incident-card ' + cls + '" href="/autopilot/incident?id=' + encodeURIComponent(inc.incident_id) + '">';
       html += '<span class="icon" style="color:' + color + '">' + ICON_GEAR + '</span>';
       html += '<span class="body"><span class="title">' + escHtml(inc.provider) + ' &mdash; ' + escHtml(inc.kind) + '</span>';
-      html += '<span class="meta"><span class="state-badge ' + cls + '">' + escHtml(inc.state) + '</span> &middot; task: ' + (inc.fleet_task_id ? escHtml(inc.fleet_task_id) : '<span class="noinfo">NOINFO</span>') + ' &middot; attempts: ' + (Array.isArray(inc.attempts) ? inc.attempts.length : 0) + '</span></span></a>';
+      // T-09 ruling-1 (§1): this is attempts.length -- the length of the
+      // JOURNAL of notes appended to this incident (note_incident() calls:
+      // resolve-request, fleet-done, verified, waiting-human-reminder,
+      // etc), NOT a count of retry attempts. An operator reading "attempts:
+      // 24" reasonably assumes 24 retries; renamed to what it actually is.
+      html += '<span class="meta"><span class="state-badge ' + cls + '">' + escHtml(inc.state) + '</span> &middot; INC-' + escHtml(shortId(inc.incident_id)) + ' &middot; task: ' + (inc.fleet_task_id ? escHtml(inc.fleet_task_id) : '<span class="noinfo">NOINFO</span>') + ' &middot; notes: ' + (Array.isArray(inc.attempts) ? inc.attempts.length : 0) + '</span></span></a>';
     }
     wrap.innerHTML = html;
   }
