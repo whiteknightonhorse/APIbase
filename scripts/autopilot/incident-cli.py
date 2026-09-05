@@ -39,6 +39,7 @@ import argparse
 import json
 import os
 import sys
+from datetime import datetime, timedelta, timezone
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import autopilot_common as ap  # noqa: E402
@@ -189,6 +190,47 @@ def selftest():
     finally:
         os.unlink(_p15)
         os.unlink(_p300)
+
+    # T-07/A7: notice_dedup — same (incident, reason) suppressed within the
+    # interval, a DIFFERENT reason for the same incident fires immediately,
+    # and the interval elapsing lets the SAME reason fire again.
+    import tempfile as _tempfile2
+    _orig_notices_log, _orig_dedup_file = ap.NOTICES_LOG, ap.NOTICE_DEDUP_FILE
+    _log_fd, _log_path = _tempfile2.mkstemp(suffix=".log")
+    os.close(_log_fd)
+    os.unlink(_log_path)  # notice() creates it fresh — proves it isn't relying on pre-existence
+    _dedup_fd, _dedup_path = _tempfile2.mkstemp(suffix=".json")
+    os.close(_dedup_fd)
+    os.unlink(_dedup_path)
+
+    def _log_line_count():
+        return len(open(ap.NOTICES_LOG, encoding="utf-8").read().splitlines()) if os.path.exists(ap.NOTICES_LOG) else 0
+
+    try:
+        ap.NOTICES_LOG = _log_path
+        ap.NOTICE_DEDUP_FILE = _dedup_path
+        ap.notice_dedup("inc-1", "I1_AGE_GATE", "first sighting")
+        assert _log_line_count() == 1, "first sighting of a (incident, reason) pair must always fire"
+        ap.notice_dedup("inc-1", "I1_AGE_GATE", "same reason, next tick")
+        assert _log_line_count() == 1, "same reason within the interval must be suppressed, not repeated"
+        ap.notice_dedup("inc-1", "DAILY_CAP", "different reason, same incident")
+        assert _log_line_count() == 2, "a DIFFERENT reason for the same incident is new information, must fire"
+        ap.notice_dedup("inc-1", "DAILY_CAP", "same reason again, still within interval")
+        assert _log_line_count() == 2, "still the same reason, still within the interval -> still suppressed"
+        # simulate the interval having elapsed by backdating the stored last_ts
+        _state = json.loads(open(_dedup_path, encoding="utf-8").read())
+        _backdated = (datetime.now(timezone.utc) - timedelta(hours=2)).isoformat()
+        _state["inc-1"]["last_ts"] = _backdated
+        with open(_dedup_path, "w", encoding="utf-8") as f:
+            json.dump(_state, f)
+        ap.notice_dedup("inc-1", "DAILY_CAP", "same reason, interval elapsed")
+        assert _log_line_count() == 3, "same reason but the interval elapsed -> must fire again, not stay suppressed forever"
+    finally:
+        ap.NOTICES_LOG, ap.NOTICE_DEDUP_FILE = _orig_notices_log, _orig_dedup_file
+        for _p in (_log_path, _dedup_path):
+            if os.path.exists(_p):
+                os.unlink(_p)
+
     print("incident-cli --selftest: OK")
 
 

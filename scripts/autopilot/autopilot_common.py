@@ -71,6 +71,11 @@ OPERATOR_DIR = os.environ.get("AUTOPILOT_OPERATOR_DIR", "/home/apibase/autopilot
 TASKLOOP_ROOT = os.environ.get("AUTOPILOT_TASKLOOP_ROOT", "/home/apibase/taskloop")
 HUMAN_DONE_DIR = os.environ.get("AUTOPILOT_HUMAN_DONE_DIR", f"{TASKLOOP_ROOT}/human-done")
 NOTICES_LOG = os.environ.get("AUTOPILOT_NOTICES_LOG", f"{TASKLOOP_ROOT}/logs/notices.log")
+# T-07/A7: state for notice_dedup() below — {incident_id: {"reason": str, "last_ts": iso str}}.
+NOTICE_DEDUP_FILE = os.environ.get(
+    "AUTOPILOT_NOTICE_DEDUP_FILE", f"{TASKLOOP_ROOT}/state/notice-dedup.json"
+)
+NOTICE_DEDUP_INTERVAL_S = 3600  # "раз в час на инцидент, не каждые 10 минут"
 HEARTBEAT_FILE = os.environ.get("AUTOPILOT_HEARTBEAT_FILE", "/tmp/autopilot-incident-engine.hb")
 
 # AP-6: fleet-task generator (I2) + KEY->connected_db.py bridge (I1's HUMAN_KEY
@@ -356,6 +361,61 @@ def notice(line: str):
             f.write(f"{ts} {line}\n")
     except Exception:
         pass  # best-effort logging must never crash the engine
+
+
+def notice_dedup(incident_id: str, reason: str, line: str,
+                  interval_s: int = NOTICE_DEDUP_INTERVAL_S) -> None:
+    """T-07/A7 (2026-09-05, Fable ruling-1): some "молчу:" reasons repeat
+    every ~10-minute tick for the SAME incident for hours or days — measured
+    live on 2026-09-04: two reasons alone (I1's >24h age gate,
+    DAILY_TASK_CAP reached) produced 1963 + 914 of the day's 3845 notices.log
+    lines. The notice is correct every time it fires, but at that volume it
+    buries everything else in the same file, including things a human
+    actually needs to see (T-07 brief §1: a launch guard's REFUSE text was
+    lost in exactly this kind of noise elsewhere in the fleet).
+
+    Writes `line` once the first time `reason` is seen for `incident_id`,
+    then at most once per `interval_s` while the SAME reason keeps
+    recurring. A DIFFERENT reason for the same incident (e.g. it clears the
+    age gate and then immediately hits the cap) fires immediately — that's
+    new information, not a repeat. Never suppressed forever: an incident
+    still stuck an hour later still gets a fresh line, this only kills the
+    "every 10 minutes" cadence, not the alert itself.
+
+    Fail-OPEN on any read/write problem (corrupt state file, permission
+    error): falls back to writing `line` every call, i.e. the pre-A7
+    behavior — the failure direction that matters here is "too noisy",
+    never "silently deduped a notice nobody asked to suppress".
+    """
+    now = datetime.now(timezone.utc)
+    state = {}
+    try:
+        if os.path.exists(NOTICE_DEDUP_FILE):
+            state = json.loads(open(NOTICE_DEDUP_FILE, encoding="utf-8").read())
+        if not isinstance(state, dict):
+            state = {}
+    except Exception:
+        state = {}
+
+    fire = True
+    entry = state.get(incident_id)
+    if isinstance(entry, dict) and entry.get("reason") == reason:
+        try:
+            last_ts = datetime.fromisoformat(entry["last_ts"])
+            fire = (now - last_ts).total_seconds() >= interval_s
+        except Exception:
+            fire = True  # unparseable timestamp -> treat as never-fired, fail toward noisy
+
+    if fire:
+        notice(line)
+
+    state[incident_id] = {"reason": reason, "last_ts": now.isoformat()}
+    try:
+        os.makedirs(os.path.dirname(NOTICE_DEDUP_FILE), exist_ok=True)
+        with open(NOTICE_DEDUP_FILE, "w", encoding="utf-8") as f:
+            json.dump(state, f)
+    except Exception:
+        pass  # best-effort — a failed write here just means the NEXT call also fires (fail-open)
 
 
 # T-07/A5: computed here (not at _compute_daily_task_cap's own definition

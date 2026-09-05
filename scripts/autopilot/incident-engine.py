@@ -234,8 +234,14 @@ def _provider_down_ready(incident_id, provider, created_at) -> bool:
         return False
     age = datetime.now(timezone.utc) - ts
     if age < timedelta(seconds=ap.PROVIDER_DOWN_MIN_AGE_SECONDS):
-        ap.notice(f"молчу: {incident_id} ({provider}/PROVIDER_DOWN) — only {age} old, "
-                  f"I1 requires >24h before a fleet task (backoff may still self-heal), staying OPEN")
+        # T-07/A7: this reason alone was 1963 of 3845 notices.log lines/day
+        # (measured 2026-09-04) — same incident, same reason, every ~10-min
+        # tick for up to 24h. Deduped to once/hour; see notice_dedup().
+        ap.notice_dedup(
+            incident_id, "I1_AGE_GATE",
+            f"молчу: {incident_id} ({provider}/PROVIDER_DOWN) — only {age} old, "
+            f"I1 requires >24h before a fleet task (backoff may still self-heal), staying OPEN",
+        )
         return False
     return True
 
@@ -276,8 +282,15 @@ def route_auto_incidents():
         if kind == "PROVIDER_DOWN" and not _provider_down_ready(incident_id, provider, created_at):
             continue
         if not ap.consume_daily_task_slot():
-            ap.notice(f"молчу: {incident_id} ({provider}/{kind}) — daily fleet-task cap "
-                      f"({ap.DAILY_TASK_CAP}) reached, staying OPEN")
+            # T-07/A7: 914 of 3845 notices.log lines/day (measured
+            # 2026-09-04) were this exact reason repeating for whichever
+            # incidents kept losing the cap race, tick after tick. Deduped
+            # to once/hour per incident; see notice_dedup().
+            ap.notice_dedup(
+                incident_id, "DAILY_CAP",
+                f"молчу: {incident_id} ({provider}/{kind}) — daily fleet-task cap "
+                f"({ap.DAILY_TASK_CAP}) reached, staying OPEN",
+            )
             continue
         try:
             evidence = json.loads(evidence_raw)
@@ -423,9 +436,16 @@ def advance_waiting_human():
                     # slot first makes this branch run at most once per
                     # incident.
                     if not ap.consume_daily_task_slot():
-                        ap.notice(f"молчу: {incident_id} ({provider}/{kind}) — human-done follow-up "
-                                  f"blocked, daily fleet-task cap ({ap.DAILY_TASK_CAP}) reached; "
-                                  f"file left in {ap.HUMAN_DONE_DIR}/ for a later tick")
+                        # T-07/A7: same DAILY_CAP reason/dedup key as
+                        # route_auto_incidents() — the cap is one shared
+                        # resource, no reason to track it as a different
+                        # "reason" just because this call site is different.
+                        ap.notice_dedup(
+                            incident_id, "DAILY_CAP",
+                            f"молчу: {incident_id} ({provider}/{kind}) — human-done follow-up "
+                            f"blocked, daily fleet-task cap ({ap.DAILY_TASK_CAP}) reached; "
+                            f"file left in {ap.HUMAN_DONE_DIR}/ for a later tick",
+                        )
                         continue  # do NOT archive the file — retry on a future tick once budget frees up
                     ap.note_incident(incident_id, "operator", "human-done", result[:2000])
                     inc = ap.get_incident(incident_id)
