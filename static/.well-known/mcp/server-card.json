@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1342 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1345 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -63159,6 +63159,129 @@
         },
         "required": [
           "id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "semanticscholar.papers.search",
+      "description": "Search 200M+ academic papers by title and abstract text across all fields of study. Returns Semantic Scholar paper ID, DOI, title, year, venue, authors, citation count, and open-access PDF link when available. Complements openalex.works_search (broader topic classification) with Semantic Scholar's AI-driven relevance ranking and TLDR summaries. Call semanticscholar.get_paper with a result paper_id, DOI, or ArXiv ID for full detail including abstract and TLDR. Data: api.semanticscholar.org, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query across paper title and abstract (e.g. \"transformer attention\")",
+            "minLength": 1
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 25,
+            "description": "Number of results to return (1-25, default 10)"
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "semanticscholar.authors.search",
+      "description": "Search researcher/author records by display name. Returns Semantic Scholar author ID, name, institutional affiliations, total paper count, total citation count, and h-index. Useful for identifying a researcher before filtering semanticscholar.papers_search results by author, or for author-level impact metrics. Data: api.semanticscholar.org, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query for researcher/author name (e.g. \"geoffrey hinton\")",
+            "minLength": 1
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 25,
+            "description": "Number of results to return (1-25, default 10)"
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "semanticscholar.papers.get",
+      "description": "Fetch full details for one academic paper by Semantic Scholar paper ID, DOI (e.g. \"10.1038/nature14539\"), or ArXiv ID (e.g. \"ARXIV:1706.03762\"). Returns title, full abstract, an AI-generated one-sentence TLDR summary, all authors, venue, fields of study, citation and reference counts, and open-access PDF link when available. Call semanticscholar.papers_search first to discover a paper_id from a text query. Data: api.semanticscholar.org, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "paper_id": {
+            "type": "string",
+            "description": "Semantic Scholar paper ID (40-char hash), DOI (e.g. \"10.1038/nature14539\"), or ArXiv ID (e.g. \"ARXIV:1706.03762\") to fetch full details for",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "paper_id"
         ]
       },
       "outputSchema": {
