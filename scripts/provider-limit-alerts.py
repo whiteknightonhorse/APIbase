@@ -426,17 +426,33 @@ def load_billing_config():
     return {p: c["billing"] for p, c in cfg.items() if isinstance(c.get("billing"), dict)}
 
 
+ZYTE_STATS_API_KEY_VAR = "PROVIDER_KEY_ZYTE_STATS"
+
+
 def fetch_zyte_stats_spend(organization_id):
     """GET zyte-api-stats.zyte.com — real cumulative spend for this billing
     period. Returns cost_microusd_total/1e6 (USD) or None on ANY failure
-    (wrong key, network, bad JSON) — Zyte's dashboard/Stats-API key is
-    confirmed (2026-09-05, see provider-limits.json zyte.billing.stats_api)
-    to be DIFFERENT from the extraction key this account has — a 403 here is
-    the expected, honest MANUAL_REQUIRED-pending state, never coerced to 0
-    spend (which would read as "cap is fine" — exactly the NOINFO-vs-0 bug
-    this whole file's docstring is about, just for dollars instead of call
-    counts)."""
-    key = get_provider_key("PROVIDER_KEY_ZYTE")
+    (missing/wrong key, network, bad JSON).
+
+    Fable ruling-4 REJECT: this used to read PROVIDER_KEY_ZYTE (the
+    EXTRACTION key) here, and that key is confirmed (2026-09-05 probe, see
+    provider-limits.json zyte.billing.stats_api) to 403 against the Stats
+    API — Zyte's own docs call this a separate "dashboard API key". Reading
+    the wrong variable meant the escalation this file opens (see
+    maybe_escalate_billing_cap_noinfo below) was asking a human for a key
+    with nowhere to land: even a correct dashboard key set as
+    PROVIDER_KEY_ZYTE would have broken the scrape.* adapter, which DOES use
+    that name for extraction calls. Fix: a DEDICATED variable name
+    (ZYTE_STATS_API_KEY_VAR = "PROVIDER_KEY_ZYTE_STATS", read from the api
+    container's own env exactly like every other provider key here) that
+    exists ONLY for this Stats API call and nothing else reads or writes —
+    the escalation text and provider-limits.json both name this constant
+    literally, so "which variable" is never a second question the operator
+    has to guess at. Still None (never coerced to 0 spend, which would read
+    as "cap is fine" — the NOINFO-vs-0 bug this whole file's docstring is
+    about, just for dollars instead of call counts) until that variable is
+    actually set."""
+    key = get_provider_key(ZYTE_STATS_API_KEY_VAR)
     if not key:
         return None
     auth = base64.b64encode(f"{key}:".encode()).decode()
@@ -509,28 +525,44 @@ def check_billing_cap_risk():
 
 # ---------------------------------------------------------------------------
 # T-11 (2026-09-05) / Fable ruling-3 REJECT: check_billing_cap_risk() above
-# already refuses to fabricate a 0/NORMAL when the spend fetch fails (Zyte's
-# Stats API key is confirmed a different key than PROVIDER_KEY_ZYTE — see
-# provider-limits.json zyte.billing.stats_api, MANUAL_REQUIRED) — but it wrote
-# NOINFO to provider_status and a probe_log row and stopped there. Ruling-3
-# caught this live in prod: the ONE dollar cap this system tracks had been
-# blind every single run since ruling-1, and nothing had ever told a human —
-# "MANUAL_REQUIRED" sitting inside a JSON string and a journal entry is not a
-# door, it's a note nobody was asked to read. This is the fix: a PERSISTENT
-# (not one-off — a single network blip must not page anyone) NOINFO streak on
-# a billing-cap provider opens through the SAME door email-intake.py's own
-# N.18 "3 consecutive NOINFO days" already uses — kind=UNKNOWN, route_class
-# HUMAN_GENERIC (config/autopilot/routing.json) — which is WAITING_HUMAN plus
-# a REAL operator file (open_or_merge_incident's own OPERATOR_FILE_ROUTE_CLASSES
-# path), not a GitHub issue nobody is on the hook to check.
+# already refuses to fabricate a 0/NORMAL when the spend fetch fails — but it
+# wrote NOINFO to provider_status and a probe_log row and stopped there.
+# Ruling-3 caught this live in prod: the ONE dollar cap this system tracks
+# had been blind every single run since ruling-1, and nothing had ever told
+# a human — "MANUAL_REQUIRED" sitting inside a JSON string and a journal
+# entry is not a door, it's a note nobody was asked to read. This is the fix:
+# a PERSISTENT (not one-off — a single network blip must not page anyone)
+# NOINFO streak on a billing-cap provider opens through the SAME door
+# email-intake.py's own N.18 "3 consecutive NOINFO days" already uses —
+# kind=UNKNOWN, route_class HUMAN_GENERIC (config/autopilot/routing.json) —
+# which is WAITING_HUMAN plus a REAL operator file (open_or_merge_incident's
+# own OPERATOR_FILE_ROUTE_CLASSES path), not a GitHub issue nobody is on the
+# hook to check.
 #
 # The streak is read from probe_log (kind='usage_api', already written every
 # run by check_billing_cap_risk() above) rather than a second JSON state file
 # — this project's own "не изобретай новую кассу" (C0.1) applies here exactly
 # like it did to AP-9's daily-marker choice earlier in this file: the durable
 # history this needs to count already exists.
+#
+# Fable ruling-4 REJECT: the FIRST version of this escalation asked the
+# operator for "a working key" without saying where it goes — and the code
+# only ever read PROVIDER_KEY_ZYTE (the extraction key, confirmed 403 against
+# Stats API), so a correct dashboard key had nowhere to land except a
+# variable that would break scrape.* if overwritten. STATS_API_KEY_VAR_BY_PROVIDER
+# below maps each billing-cap provider to the DEDICATED variable name its
+# fetch function actually reads (see ZYTE_STATS_API_KEY_VAR next to
+# fetch_zyte_stats_spend) — the escalation text quotes that literal name, so
+# the door this opens has a lock the operator's key actually fits.
 # ---------------------------------------------------------------------------
 BILLING_CAP_NOINFO_ESCALATION_RUNS = 6  # hourly cron -> ~6h of persistent failure before paging a human
+
+# provider -> the env var name (read via get_provider_key from the api
+# container's own env) its spend-fetch function actually uses. A provider
+# with a cap_usd_month but no entry here has no known fetch method AT ALL
+# yet (not just a missing key) — the escalation text below says that instead
+# of naming a variable that doesn't exist.
+STATS_API_KEY_VAR_BY_PROVIDER = {"zyte": ZYTE_STATS_API_KEY_VAR}
 
 
 def billing_cap_noinfo_streak(provider):
@@ -561,6 +593,22 @@ def maybe_escalate_billing_cap_noinfo(provider, billing, streak):
     (⛔ boundary, T-11) — this only asks; ap.open_or_merge_incident's own
     dedup_key(kind, provider) makes re-running this every hour while the
     streak holds a no-op past the first WAITING_HUMAN + operator file."""
+    key_var = STATS_API_KEY_VAR_BY_PROVIDER.get(provider)
+    if key_var:
+        reason = (f"billing-cap spend query has no working credential in {key_var} — see "
+                  f"provider-limits.json {provider}.billing.stats_api for the specific 403/detail")
+        what_ask = (f"Нужен рабочий ключ для Stats API — положите его в переменную окружения "
+                    f"**{key_var}** в контейнере api (docker exec / .env), это ОТДЕЛЬНАЯ от "
+                    f"PROVIDER_KEY_{provider.upper()} переменная. PROVIDER_KEY_{provider.upper()} — "
+                    f"ключ извлечения, он уже подтверждённо не подходит (403 от Stats API), менять "
+                    f"его не нужно. См. provider-limits.json {provider}.billing.stats_api.")
+    else:
+        reason = (f"billing-cap spend query has no known fetch method implemented for {provider} "
+                  f"yet (not just a missing key) — see provider-limits.json {provider}.billing "
+                  f"if a stats_api URL is documented there")
+        what_ask = (f"Для потолка {provider} ещё не реализован способ получить фактический "
+                    f"расход в коде (usage_api). Нужна ручная проверка на стороне разработки, "
+                    f"не только ключ.")
     try:
         ap.open_or_merge_incident(
             kind="UNKNOWN", provider=provider, detected_by="limits",
@@ -569,16 +617,13 @@ def maybe_escalate_billing_cap_noinfo(provider, billing, streak):
                 "escalation_threshold_runs": BILLING_CAP_NOINFO_ESCALATION_RUNS,
                 "cap_usd_month": billing.get("cap_usd_month"),
                 "organization_id": billing.get("organization_id"),
-                "reason": "billing-cap spend query has no working credential — see "
-                          "provider-limits.json billing.stats_api for the specific 403/detail",
+                "reason": reason,
             },
             what=(f"{provider}: единственный долларовый потолок (${billing.get('cap_usd_month')}/мес) "
                   f"в системе не измеряется {streak} проходов подряд (usage_api probe_log). "
-                  f"Нужен рабочий ключ для Stats API — см. provider-limits.json "
-                  f"{provider}.billing.stats_api, это подтверждённо ДРУГОЙ ключ, не PROVIDER_KEY_"
-                  f"{provider.upper()}."),
+                  f"{what_ask}"),
             system_did="риск по этому потолку пишется как NOINFO каждый час (не NORMAL, не 0) — "
-                       "но до этого инцидента никто не был явно спрошен за ключом (T-11 ruling-3)",
+                       "но до этого инцидента никто не был явно спрошен за ключом (T-11 ruling-3/4)",
             actor="provider-limit-alerts",
         )
     except (AssertionError, RuntimeError) as e:
@@ -626,6 +671,12 @@ def check_auto_recharge_spend():
         recharge_amount = float(recharge.get("amount_usd", 0))
         trigger_below = float(recharge.get("trigger_below_usd", 0))
         max_per_month = int(recharge.get("max_per_month", 0))
+        # Fable ruling-4 (minor, non-REJECT point #3): execution_ledger.upstream_cost_usd
+        # only ever holds PER-CALL cost the provider reported (api2pdf's `cost` field) —
+        # it never includes the flat monthly_fee_usd account charge, which is real spend
+        # too. Adding it here means the threshold/recharge-count math sees the same total
+        # the card actually gets billed, not an amount silently short by $1/mo.
+        monthly_fee = float(b.get("monthly_fee_usd", 0))
 
         rows, rc = ap.psql(
             f"""SELECT COALESCE(SUM(el.upstream_cost_usd), 0) FROM execution_ledger el
@@ -636,7 +687,8 @@ def check_auto_recharge_spend():
         if rc != 0:
             ap.notice(f"provider-limit-alerts: spend_mtd query failed for {prov}: {rows!r} — skipping this run")
             continue
-        spend_mtd = float(rows) if rows else 0.0
+        spend_mtd_ledger = float(rows) if rows else 0.0
+        spend_mtd = spend_mtd_ledger + monthly_fee
 
         over_policy_threshold = starting_balance + recharge_amount * max_per_month
         recharges = compute_recharge_count(spend_mtd, starting_balance, recharge_amount, trigger_below)
@@ -658,8 +710,9 @@ def check_auto_recharge_spend():
             print(f"skip (already open): {title}")
             continue
         body = (
-            f"Provider `{prov}`'s spend this month (from `execution_ledger.upstream_cost_usd`, real "
-            f"per-call data the provider itself reported) is **${spend_mtd:.4f}** against a "
+            f"Provider `{prov}`'s spend this month is **${spend_mtd:.4f}** — "
+            f"${spend_mtd_ledger:.4f} per-call (`execution_ledger.upstream_cost_usd`, real cost "
+            f"the provider itself reported) + ${monthly_fee:.2f}/mo flat account fee — against a "
             f"starting balance of ${starting_balance:.2f} + auto-recharge of ${recharge_amount:.2f} "
             f"per ${trigger_below:.2f}-balance trigger (policy: {max_per_month}/month).\n\n"
             f"Estimated recharges this month: **{recharges}** (derived from spend, NOT observed — "
@@ -1107,6 +1160,31 @@ def selftest():
     # confirms this isn't secretly always CRITICAL regardless of input.
     *_, risk_usd_ok = compute_risk_for_usage(100.0, 10.0, 0)
     assert risk_usd_ok == "NORMAL", f"10% of a dollar cap used (90% remaining) must be NORMAL, got {risk_usd_ok}"
+
+    # --- T-11 / Fable ruling-4 REJECT: fetch_zyte_stats_spend() must read the
+    # DEDICATED Stats API variable (ZYTE_STATS_API_KEY_VAR), never the
+    # extraction key PROVIDER_KEY_ZYTE that's confirmed to 403 against that
+    # endpoint — ruling-4 rejected a prior version that asked the operator
+    # for a key with nowhere to land. get_provider_key monkeypatched to
+    # record which env var name it was actually called with, no docker/
+    # network I/O needed for this assertion.
+    global get_provider_key
+    real_get_provider_key = get_provider_key
+    seen_var_names = []
+    get_provider_key = lambda name: (seen_var_names.append(name), None)[1]  # noqa: E731
+    try:
+        assert fetch_zyte_stats_spend("999") is None, "no key configured -> None, never a fabricated spend"
+        assert seen_var_names == ["PROVIDER_KEY_ZYTE_STATS"], (
+            f"fetch_zyte_stats_spend must read the dedicated PROVIDER_KEY_ZYTE_STATS variable, "
+            f"not PROVIDER_KEY_ZYTE (confirmed wrong/403) or anything else — got {seen_var_names!r}"
+        )
+    finally:
+        get_provider_key = real_get_provider_key
+    assert ZYTE_STATS_API_KEY_VAR == "PROVIDER_KEY_ZYTE_STATS" != "PROVIDER_KEY_ZYTE", (
+        "the Stats API key variable must stay a distinct name from the extraction key's "
+        "PROVIDER_KEY_ZYTE — overwriting that one would break the scrape.* adapter"
+    )
+    print("provider-limit-alerts --selftest: fetch_zyte_stats_spend reads PROVIDER_KEY_ZYTE_STATS: OK")
 
     # --- T-11 decision C: compute_recharge_count (api2pdf-style auto-recharge,
     # "derived, not observed"). Fixture matches the ruling's own literal numbers:

@@ -1271,7 +1271,7 @@
       "period_start": "2026-08-30",
       "monthly_fee_usd": 0,
       "volume_discount": "none on this plan -- starts at $100/mo commitment (-25%), $200 (-40%), $350 (-48%), $500 (-52%); not opted into any commitment",
-      "stats_api": "GET https://zyte-api-stats.zyte.com/api/stats?organization_id=937578 -- 2026-09-05 probe with the extraction API key (PROVIDER_KEY_ZYTE) returned 403 Forbidden; Zyte's own docs call this a separate \"dashboard API key\" -- MANUAL_REQUIRED: operator needs to issue/locate that key before cost_microusd_total/avg can be polled automatically",
+      "stats_api": "GET https://zyte-api-stats.zyte.com/api/stats?organization_id=937578 -- 2026-09-05 probe with the extraction API key (PROVIDER_KEY_ZYTE) returned 403 Forbidden; Zyte's own docs call this a separate \"dashboard API key\". MANUAL_REQUIRED (T-11 ruling-4): operator needs to issue/locate that dashboard key and set it as PROVIDER_KEY_ZYTE_STATS in the api container's env -- a DEDICATED variable name (see scripts/provider-limit-alerts.py ZYTE_STATS_API_KEY_VAR), never overwrite PROVIDER_KEY_ZYTE itself (that stays the extraction key the scrape.* adapter needs) -- before cost_microusd_total/avg can be polled automatically",
       "measured_at": "2026-09-05",
       "remeasure_by": "2026-09-30"
     }
