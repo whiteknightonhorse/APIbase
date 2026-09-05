@@ -1,17 +1,17 @@
 {
   "_comment": "AP-6 (815-autopilot-remediation-router.md) — I1's routing table, literal, as the design doc's own words name it: 'маршрутная таблица (детерминированная, config/autopilot/routing.json)'. Single source of truth for scripts/autopilot/autopilot_common.py's ROUTE_CLASS/ROUTING (loaded at import, never re-typed as a second dict). LAW (C0.6, M, J1): no kind may carry route_class AUTO or AUTO_NO_MODEL for a money-shaped fact — enforced at LOAD TIME in _load_routing() (fails closed, not just checked once in a test) and again in incident-cli.py --selftest as a test on ABSENCE.",
-  "_fields": "route_class: AUTO (fleet task, model spend, REVIEW as given) | AUTO_NO_MODEL (engine self-action, zero model, zero fleet task) | MIXED (engine self-action + a diagnostic-only fleet task) | HUMAN_KEY (WAITING_HUMAN via the existing connected_db.py key contour, bridged by AP-6) | HUMAN_ONLY (money/CAPTCHA/etc — WAITING_HUMAN + operator file, no autobranch ever) | HUMAN_GENERIC (WAITING_HUMAN + operator file, unclassifiable). review: fable|none|null (null = no fleet task is ever generated for this kind, so REVIEW is meaningless). fleet_task: whether route_auto_incidents() ever files a taskloop/queue/ file for this kind.",
+  "_fields": "route_class: AUTO (fleet task, model spend, REVIEW as given) | AUTO_NO_MODEL (engine self-action, zero model, zero fleet task) | MIXED (engine self-action + a diagnostic-only fleet task) | HUMAN_KEY (WAITING_HUMAN via the existing connected_db.py key contour, bridged by AP-6) | HUMAN_ONLY (money/CAPTCHA/etc — WAITING_HUMAN + operator file, no autobranch ever) | HUMAN_GENERIC (WAITING_HUMAN + operator file, unclassifiable). review: fable|none|null (null = no fleet task is ever generated for this kind, so REVIEW is meaningless). fleet_task: whether route_auto_incidents() ever files a taskloop/queue/ file for this kind. model: haiku|sonnet, REQUIRED iff fleet_task is true, FORBIDDEN on every HUMAN_* route_class (enforced at load time, T-07/B2, Fable ruling-1) — which model taskloop.sh's MODEL: header tells the exec/arbiter step to run. haiku: the task is read-only diagnosis (curl a probe URL, read probe_log/next_recheck_at, verdict is 'still waiting on the provider', no code changes). sonnet: the task edits an adapter/parser and needs tests. fable is never assigned here — it is the arbiter/reviewer (REVIEW: field), never the executor of a fleet task.",
 
-  "PROVIDER_DOWN":      {"route_class": "AUTO",          "review": "fable", "fleet_task": true},
-  "API_CHANGED":        {"route_class": "AUTO",          "review": "fable", "fleet_task": true},
-  "ENDPOINT_CHANGED":   {"route_class": "AUTO",          "review": "fable", "fleet_task": true},
-  "DEGRADED_QUALITY":   {"route_class": "AUTO",          "review": "fable", "fleet_task": true},
-  "EMAIL_NOTICE":       {"route_class": "AUTO",          "review": "fable", "fleet_task": true},
+  "PROVIDER_DOWN":      {"route_class": "AUTO",          "review": "fable", "fleet_task": true, "model": "haiku"},
+  "API_CHANGED":        {"route_class": "AUTO",          "review": "fable", "fleet_task": true, "model": "sonnet"},
+  "ENDPOINT_CHANGED":   {"route_class": "AUTO",          "review": "fable", "fleet_task": true, "model": "sonnet"},
+  "DEGRADED_QUALITY":   {"route_class": "AUTO",          "review": "fable", "fleet_task": true, "model": "haiku"},
+  "EMAIL_NOTICE":       {"route_class": "AUTO",          "review": "fable", "fleet_task": true, "model": "sonnet"},
 
   "RATE_LIMITED":       {"route_class": "AUTO_NO_MODEL", "review": "none",  "fleet_task": false},
 
-  "QUOTA_LOW":          {"route_class": "MIXED",         "review": "none",  "fleet_task": true},
-  "QUOTA_EXHAUSTED":    {"route_class": "MIXED",         "review": "none",  "fleet_task": true},
+  "QUOTA_LOW":          {"route_class": "MIXED",         "review": "none",  "fleet_task": true, "model": "haiku"},
+  "QUOTA_EXHAUSTED":    {"route_class": "MIXED",         "review": "none",  "fleet_task": true, "model": "haiku"},
 
   "AUTH_FAILED":        {"route_class": "HUMAN_KEY",     "review": null,    "fleet_task": false},
   "CREDENTIAL_EXPIRED": {"route_class": "HUMAN_KEY",     "review": null,    "fleet_task": false},

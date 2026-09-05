@@ -303,7 +303,28 @@ ROUTE_CLASS = {k: v["route_class"] for k, v in ROUTING.items()}
 # never do (see build_remediation_task_body's callers).
 FLEET_TASK_KINDS = frozenset(k for k, v in ROUTING.items() if v.get("fleet_task"))
 REVIEW_FOR_KIND = {k: v.get("review") for k, v in ROUTING.items()}
+# T-07/B2 (2026-09-05, Fable ruling-1): which model executes this kind's
+# fleet task — haiku for read-only diagnosis (curl a probe URL, read
+# probe_log/next_recheck_at, verdict is "still waiting"), sonnet where a
+# fleet task edits an adapter/parser and needs tests. fable is never a
+# value here — it is the arbiter/reviewer (REVIEW_FOR_KIND), never the
+# executor. build_remediation_task_body() writes this into the task's own
+# MODEL: header; taskloop.sh reads it the same way it already reads REVIEW:.
+MODEL_FOR_KIND = {k: v.get("model") for k, v in ROUTING.items()}
 assert set(ROUTE_CLASS) == KINDS, "ROUTE_CLASS (routing.json) must cover every incident kind"
+for _k in FLEET_TASK_KINDS:
+    assert MODEL_FOR_KIND.get(_k) in ("haiku", "sonnet"), (
+        f"LAW violation: {_k} has fleet_task=true in routing.json but no valid model "
+        f"(T-07/B2) — every fleet task must declare which model executes it"
+    )
+for _k, _v in ROUTING.items():
+    if str(_v.get("route_class", "")).startswith("HUMAN"):
+        assert "model" not in _v, (
+            f"LAW violation: {_k} is a {_v.get('route_class')} kind but declares a model in "
+            f"routing.json (T-07/B2) — a HUMAN_* kind never spends model budget on a fleet "
+            f"task, there is nothing here for a model to execute"
+        )
+del _k, _v
 
 # Route classes that go straight to WAITING_HUMAN on open (J1's closed list +
 # I1). Everything else stays OPEN (parked, pending AP-6 or a self-action).
@@ -1044,6 +1065,11 @@ def build_remediation_task_body(incident: dict) -> tuple:
     severity = incident["severity"]
     sid = short_id(incident["incident_id"])
     review = REVIEW_FOR_KIND.get(kind) or "none"
+    # T-07/B2: MODEL_FOR_KIND is populated for every FLEET_TASK_KINDS entry
+    # (asserted at load time above) — the "sonnet" fallback here only
+    # protects against this function somehow being called for a kind
+    # outside that set; it should never actually trigger in production.
+    model = MODEL_FOR_KIND.get(kind) or "sonnet"
     what = _AUTO_TASK_WHAT.get(kind, f"{kind}: диагностировать и починить в границах ниже.")
     cfg = _provider_limits().get(provider, {})
     docs_line = f"\n- docs: {cfg['docs_url']}" if cfg.get("docs_url") else ""
@@ -1051,6 +1077,7 @@ def build_remediation_task_body(incident: dict) -> tuple:
     attempts_md = json.dumps(incident.get("attempts", []), ensure_ascii=False, indent=2)
     filename = next_task_filename(kind, provider, severity)
     content = f"""REVIEW: {review}
+MODEL: {model}
 MAX_ATTEMPTS: 2
 
 # INC-{sid} — {kind} — {provider} (autopilot remediation, AP-6 remediation-router)
@@ -1097,7 +1124,11 @@ def build_human_followup_task_body(incident: dict, operator_result: str) -> tupl
     absolutely end up touching src/ or config/ once the operator's answer is
     read (I2's own rule: 'REVIEW: fable для всего, что трогает src/ или
     config/'), so this never falls back to 'none' the way an AUTO task's
-    lookup does."""
+    lookup does. MODEL is likewise always 'sonnet', unconditionally, for the
+    same reason (T-07/B2) — routing.json's per-kind `model` is meaningless
+    here too (HUMAN_* kinds never carry one, by construction), and an
+    operator's free-text answer might need real code changes regardless of
+    which kind originally opened the incident."""
     kind = incident["kind"]
     provider = incident["provider"]
     severity = incident["severity"]
@@ -1108,6 +1139,7 @@ def build_human_followup_task_body(incident: dict, operator_result: str) -> tupl
     attempts_md = json.dumps(incident.get("attempts", []), ensure_ascii=False, indent=2)
     filename = next_task_filename(kind, provider, severity)
     content = f"""REVIEW: fable
+MODEL: sonnet
 MAX_ATTEMPTS: 2
 
 # INC-{sid} — {kind} — {provider} (human-done follow-up, AP-6 remediation-router)
