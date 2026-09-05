@@ -401,6 +401,7 @@ import { hathitrustDigitalSchemas } from './hathitrust-digital.schema';
 import { netherlandsPdokKadasterSchemas } from './netherlands-pdok-kadaster.schema';
 import { norwayKartverketStedsnavnSchemas } from './norway-kartverket-stedsnavn.schema';
 import { ukEaFloodMonitoringSchemas } from './uk-ea-flood-monitoring.schema';
+import { dogceoSchemas } from './dogceo.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -805,4 +806,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...netherlandsPdokKadasterSchemas,
   ...norwayKartverketStedsnavnSchemas,
   ...ukEaFloodMonitoringSchemas,
+  ...dogceoSchemas,
 };

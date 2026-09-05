@@ -126804,6 +126804,250 @@
         ]
       }
     },
+    "/api/v1/tools/dogceo.random_image/call": {
+      "post": {
+        "operationId": "dogceo_random_image",
+        "summary": "Random Dog Image",
+        "description": "Get one or more random dog images, optionally filtered by breed and sub-breed (e.g. \"hound\" + \"afghan\"). Returns direct image URLs from the Dog CEO open-source image database. No auth required, MIT licensed.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "dogceo.random_image"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "breed": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 50,
+                    "description": "Filter by dog breed (e.g. \"hound\", \"labrador\"). Omit for a random breed."
+                  },
+                  "sub_breed": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 50,
+                    "description": "Filter by sub-breed within the given breed (e.g. \"afghan\" for breed \"hound\"). Requires breed to also be set."
+                  },
+                  "count": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Number of random images to return (1-50, default 1)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/dogceo.breeds_list/call": {
+      "post": {
+        "operationId": "dogceo_breeds_list",
+        "summary": "List All Dog Breeds",
+        "description": "List every dog breed in the Dog CEO database, each with its known sub-breeds (e.g. \"bulldog\" → [\"boston\", \"english\", \"french\"]). Set include_sub_breeds=false for a flat list of breed names only. No auth required, MIT licensed.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "dogceo.breeds_list"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "include_sub_breeds": {
+                    "type": "boolean",
+                    "description": "Include the nested sub-breeds array for each breed (default true). Set false for a flat list of breed names only."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/dogceo.sub_breeds/call": {
+      "post": {
+        "operationId": "dogceo_sub_breeds",
+        "summary": "List Sub-Breeds For A Breed",
+        "description": "List the known sub-breeds for a single dog breed (e.g. breed=\"terrier\" → [\"american\", \"australian\", \"bedlington\", ...]). Returns an empty list if the breed has no recognized sub-breeds. No auth required, MIT licensed.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "dogceo.sub_breeds"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "breed": {
+                    "type": "string",
+                    "description": "Dog breed to look up sub-breeds for (e.g. \"bulldog\", \"terrier\")",
+                    "minLength": 1,
+                    "maxLength": 50
+                  }
+                },
+                "required": [
+                  "breed"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/device.list/call": {
       "post": {
         "operationId": "device_list",

@@ -17043,6 +17043,40 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'weather',
     annotations: READ_ONLY,
   },
+  // Dog CEO API — dog.ceo (3) — UC-685
+  {
+    toolId: 'dogceo.random_image',
+    mcpName: 'dogceo.breeds.random_image',
+    title: 'Random Dog Image',
+    description:
+      'Get one or more random dog images, optionally filtered by breed and sub-breed (e.g. ' +
+      '"hound" + "afghan"). Returns direct image URLs from the Dog CEO open-source image ' +
+      'database. No auth required, MIT licensed.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'dogceo.breeds_list',
+    mcpName: 'dogceo.breeds.list',
+    title: 'List All Dog Breeds',
+    description:
+      'List every dog breed in the Dog CEO database, each with its known sub-breeds (e.g. ' +
+      '"bulldog" → ["boston", "english", "french"]). Set include_sub_breeds=false for a flat ' +
+      'list of breed names only. No auth required, MIT licensed.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'dogceo.sub_breeds',
+    mcpName: 'dogceo.breeds.sub_breeds',
+    title: 'List Sub-Breeds For A Breed',
+    description:
+      'List the known sub-breeds for a single dog breed (e.g. breed="terrier" → ' +
+      '["american", "australian", "bedlington", ...]). Returns an empty list if the breed ' +
+      'has no recognized sub-breeds. No auth required, MIT licensed.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
   // ---------------------------------------------------------------------------
   // Ф5 physical-device MCP layer -- device.list/state/command (2026-09-02)
   // Generic vendor-agnostic projection; Tuya is the only connected vendor

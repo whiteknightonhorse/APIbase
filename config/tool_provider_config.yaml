@@ -8923,3 +8923,25 @@ tools:
     provider: uk-ea-flood-monitoring
     price_usd: "0.002"
     cache_ttl: 300
+
+  # --- UC-685: Dog CEO API (3 tools) ---
+  - tool_id: dogceo.random_image
+    name: Random Dog Image
+    provider: dogceo
+    price_usd: "0.001"
+    upstream_cost_usd: "0"
+    cache_ttl: 0
+
+  - tool_id: dogceo.breeds_list
+    name: List All Dog Breeds
+    provider: dogceo
+    price_usd: "0.001"
+    upstream_cost_usd: "0"
+    cache_ttl: 86400
+
+  - tool_id: dogceo.sub_breeds
+    name: List Sub-Breeds For A Breed
+    provider: dogceo
+    price_usd: "0.001"
+    upstream_cost_usd: "0"
+    cache_ttl: 86400

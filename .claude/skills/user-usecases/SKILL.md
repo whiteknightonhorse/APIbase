@@ -66,6 +66,7 @@ Use these examples as reference patterns when:
 | UC-042 | BarcodeAPI | Barcode Generation | Candidate | Fully free | `usecases/UC-042-barcodeapi.md` |
 | UC-043 | Rakuten Web Service | Japan / E-commerce | Candidate | Fully free | `usecases/UC-043-rakuten-web-service.md` |
 | UC-044 | e-Stat Japan | Japan / Government Stats | Candidate | Fully free | `usecases/UC-044-e-stat-japan.md` |
+| UC-054 | Open Library | Education / Books / ISBN Lookup | LIVE | Fully free, no auth (CC0) | `usecases/UC-054-open-library.md` |
 | UC-192 | disease.sh | Health / Disease Data | LIVE | No auth, MIT, 4 tools | `usecases/UC-192-disease-sh.md` |
 | UC-213 | PubChem | Chemistry / Compound Data | Candidate | Free (US Gov) | `usecases/UC-213-pubchem.md` |
 | UC-214 | Open Charge Map | EV / Charging Stations | Candidate | Free (open data) | `usecases/UC-214-openchargemap.md` |
@@ -370,6 +371,7 @@ Use these examples as reference patterns when:
 | UC-681 | Kartverket Stedsnavn -- Norwegian Place Names API (ws.geonorge.no) | Kartverket (Norwegian Mapping Authority) -- official national register of place names; no auth; NLOD 2.0; text search (by name, optional county/municipality filter), reverse lookup near a coordinate (radius in metres), and full place record by stedsnummer id incl. all written name forms (e.g. Sámi) and geometry; `/sted/{id}` path form does not exist, correct form is query param `/sted?stedsnummer=` | LIVE (local) | No auth, 3 tools | `usecases/UC-681-norway-kartverket-stedsnavn.md` |
 | UC-682 | BIS Statistics -- Bank for International Settlements SDMX API (stats.bis.org) | BIS -- central bank for central banks; no auth; SDMX v2 REST API, 29 dataflows; central bank policy rates (WS_CBPOL), nominal/real effective exchange rates (WS_EER, narrow/broad basket), selected residential property prices (WS_SPP); Accept header must be application/vnd.sdmx.data+json;version=1.0.0 (v2.0.0 and plain json both 406); data.structure is a singular object (not an array like the OECD adapter); unfiltered wildcard queries return tens of MB, so every tool scopes a specific FREQ.REF_AREA[...] key + lastNObservations=24 default | LIVE (local) | No auth, 3 tools | `usecases/UC-682-bis-stats.md` |
 | UC-683 | UK Environment Agency Flood Monitoring (environment.data.gov.uk/flood-monitoring) | UK Environment Agency; no auth; OGL v3.0; sibling of ea-hydrology (UC-654) same publisher but distinct live dataset; active flood warnings/alerts filterable by min-severity (inverted: 1=most severe)/county/geo-radius, station search by town/river/catchment/parameter, latest reading for every measure at a station in one call (no separate station_measures step needed) | LIVE (local) | No auth, 3 tools | `usecases/UC-683-uk-ea-flood-monitoring.md` |
+| UC-685 | Dog CEO (dog.ceo) | Free, open-source (MIT) dog image database; no auth; random image(s) filterable by breed/sub-breed with count 1-50, full breed+sub-breed list (or flat breed-name list), sub-breeds for one breed | LOCALLY COMMITTED (local) | No auth, 3 tools | `usecases/UC-685-dog-ceo.md` |
 
 ## How to Use
 

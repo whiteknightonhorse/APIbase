@@ -401,6 +401,7 @@ import { HathiTrustDigitalAdapter } from './hathitrust-digital';
 import { NetherlandsPdokKadasterAdapter } from './netherlands-pdok-kadaster';
 import { NorwayKartverketStedsnavnAdapter } from './norway-kartverket-stedsnavn';
 import { UkEaFloodMonitoringAdapter } from './uk-ea-flood-monitoring';
+import { DogCeoAdapter } from './dogceo';
 import { config } from '../config';
 
 /**
@@ -2205,6 +2206,10 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // ea-hydrology (UC-654), same publisher. No auth, no key. Open
       // Government Licence v3.0.
       return getOrCreate('uk-ea-flood-monitoring', () => new UkEaFloodMonitoringAdapter());
+    case 'dogceo':
+      // Dog CEO API (dog.ceo) — random dog images, breed list, sub-breed
+      // lookup. No auth, no key. MIT-licensed open source image database.
+      return getOrCreate('dogceo', () => new DogCeoAdapter());
     default:
       return undefined;
   }
