@@ -57,6 +57,12 @@ model ExecutionLedger {
   status             String    // pending|running|provider_success|success|failed|timeout|shared_success|error
   billing_status     String    // RESERVED|PAID|REFUNDED|FREE
   cost_usd           Decimal   @default(0) @db.Decimal(18, 8)
+  // T-11 (2026-09-05): what the UPSTREAM PROVIDER itself reported this call cost us,
+  // when it self-reports one (currently only api2pdf's `cost` field). NULL = the
+  // provider didn't self-report (most tools) -- distinct from cost_usd above, which is
+  // what WE charged the agent. Not the same column as tools.upstream_cost_usd (a
+  // per-tool estimate feeding the margin gate) -- this is per-execution, real, measured.
+  upstream_cost_usd  Decimal?  @db.Decimal(18, 8)
   payer              String?   @db.VarChar(64) // on-chain payer wallet (x402/MPP); null for free/cache/escrow (T6 2026-06-29)
   latency_ms         Int?
   provider_called    Boolean   @default(false)

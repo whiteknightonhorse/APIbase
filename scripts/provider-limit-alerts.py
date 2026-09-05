@@ -78,10 +78,13 @@ in this sandbox either, same boundary every AP-1..AP-8 knowledge entry already d
 finite-limit providers) — this pass runs for every one of the ~386 configured providers, and O's
 own "≤5k probe_log rows/day" budget would not survive a 386-row-per-run addition on top of it.
 """
+import base64
 import json
 import os
 import subprocess
 import sys
+import urllib.error
+import urllib.request
 from datetime import datetime, timedelta, timezone
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "autopilot"))
@@ -387,6 +390,204 @@ def advance_quota_incidents_if_recovered(provider, risk):
 
 
 # ---------------------------------------------------------------------------
+# T-11 (2026-09-05) / Fable ruling-1 decision D: a provider whose free tier is
+# gone (free_limit=0, paid_balance=true) but who carries a real dollar cap
+# (`billing.cap_usd_month` in provider-limits.json, e.g. Zyte's $100/mo PAYG
+# plan) is invisible to the free_limit≤0-skips-entirely loop in main() below.
+# This is the same risk machinery (compute_risk_for_usage/classify_risk,
+# open_quota_incident/advance_quota_incidents_if_recovered), just fed dollars
+# spent-vs-capped instead of calls used-vs-free_limit — classify_risk is unit-
+# agnostic (a fraction is a fraction), so nothing about the classification
+# itself needed to change, only what feeds it.
+# ---------------------------------------------------------------------------
+API_CONTAINER = os.environ.get("AUTOPILOT_API_CONTAINER", "apibase-api-1")
+
+
+def get_provider_key(env_var_name):
+    """Reads a provider API key from the running api container's OWN
+    environment via `docker exec` — same "never read/print a secret in this
+    script's own text" boundary as psql-over-docker-exec already applies to
+    DB credentials in this file. Returns None (NOINFO upstream, never a
+    fabricated empty-string call) if the container isn't running or the var
+    isn't set there."""
+    out = subprocess.run(
+        ["docker", "exec", API_CONTAINER, "sh", "-c", f'printf %s "${env_var_name}"'],
+        capture_output=True, text=True,
+    )
+    val = out.stdout.strip()
+    return val or None
+
+
+def load_billing_config():
+    """provider -> billing dict, for providers whose provider-limits.json
+    entry carries one (T-11 decision A) — pure file read, no DB."""
+    with open(f"{os.path.dirname(os.path.abspath(__file__))}/../src/config/provider-limits.json") as f:
+        cfg = json.load(f)
+    return {p: c["billing"] for p, c in cfg.items() if isinstance(c.get("billing"), dict)}
+
+
+def fetch_zyte_stats_spend(organization_id):
+    """GET zyte-api-stats.zyte.com — real cumulative spend for this billing
+    period. Returns cost_microusd_total/1e6 (USD) or None on ANY failure
+    (wrong key, network, bad JSON) — Zyte's dashboard/Stats-API key is
+    confirmed (2026-09-05, see provider-limits.json zyte.billing.stats_api)
+    to be DIFFERENT from the extraction key this account has — a 403 here is
+    the expected, honest MANUAL_REQUIRED-pending state, never coerced to 0
+    spend (which would read as "cap is fine" — exactly the NOINFO-vs-0 bug
+    this whole file's docstring is about, just for dollars instead of call
+    counts)."""
+    key = get_provider_key("PROVIDER_KEY_ZYTE")
+    if not key:
+        return None
+    auth = base64.b64encode(f"{key}:".encode()).decode()
+    req = urllib.request.Request(
+        f"https://zyte-api-stats.zyte.com/api/stats?organization_id={organization_id}",
+        headers={"Authorization": f"Basic {auth}"},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = json.loads(resp.read())
+    except (urllib.error.URLError, urllib.error.HTTPError, json.JSONDecodeError, OSError, ValueError):
+        return None
+    total_microusd = data.get("cost_microusd_total")
+    if total_microusd is None:
+        return None
+    return total_microusd / 1_000_000.0
+
+
+def check_billing_cap_risk():
+    """For every provider with `billing.cap_usd_month` (a real dollar spending
+    cap, not a free-call-count limit): fetch spend, classify risk via the
+    SAME compute_risk_for_usage/classify_risk main() uses for free tiers, and
+    write/incident exactly like main()'s own per-provider loop — this is
+    intentionally the same machinery, just a different `used`/`lim` source."""
+    billing = load_billing_config()
+    cap_providers = {p: b for p, b in billing.items() if b.get("cap_usd_month")}
+    if not cap_providers:
+        return
+
+    schema_ok, missing = ap.schema_present()
+    if not schema_ok:
+        ap.notice(f"provider-limit-alerts: autopilot schema not deployed yet (missing {missing}) — "
+                  f"skipping billing-cap risk writes this run")
+        return
+
+    for prov, b in cap_providers.items():
+        lim_usd = float(b["cap_usd_month"])
+        spend_usd = None
+        if prov == "zyte" and b.get("organization_id"):
+            spend_usd = fetch_zyte_stats_spend(b["organization_id"])
+        # Future providers with cap_usd_month but no known fetch method: spend_usd
+        # stays None -> NOINFO below, never fabricated as 0.
+
+        if spend_usd is None:
+            update_provider_status_risk(prov, None, None, None, "NOINFO")
+            # kind='usage_api': probe_log's CHECK constraint (migration 0009) doesn't
+            # have a 'billing_cap' kind and this isn't worth its own migration -- this
+            # IS a usage-vs-limit measurement, just dollars instead of call counts.
+            log_probe(prov, "usage_api", "NOINFO", "billing-cap spend query failed/unavailable this run")
+            continue
+
+        _remaining, _exact, pct_remaining, burn_per_hour, eta_hours, risk = (
+            compute_risk_for_usage(lim_usd, spend_usd, 0)  # no 3h-window spend signal yet -> burn/eta unknown, not 0
+        )
+        update_provider_status_risk(prov, pct_remaining, burn_per_hour, eta_hours, risk)
+        log_probe(prov, "usage_api", "OK",
+                  f"billing-cap spend_usd={spend_usd:.4f}/{lim_usd} pct_remaining={pct_remaining} risk={risk}")
+        if risk in ("CRITICAL", "EXHAUSTED"):
+            open_quota_incident(prov, risk, pct_remaining, None, burn_per_hour, eta_hours,
+                                 lim_usd, "monthly_usd_cap", spend_usd)
+        else:
+            advance_quota_incidents_if_recovered(prov, risk)
+
+
+# ---------------------------------------------------------------------------
+# T-11 (2026-09-05) / Fable ruling-1 decision C: api2pdf-style auto-recharge —
+# real money leaves the card with NO human in the loop each time. The balance
+# itself isn't observable (no such endpoint in api2pdf's API/docs), so this
+# derives spend from what OUR OWN execution_ledger.upstream_cost_usd captured
+# (T-11 decision C.1, provider-call.stage.ts) — "derived, not observed",
+# documented as such in every issue this opens. Issue-only: this never touches
+# the provider's auto-recharge setting (⛔ boundary), it only tells a human
+# spend looks higher than the recharge policy implies is normal.
+# ---------------------------------------------------------------------------
+def compute_recharge_count(spend_mtd_usd, starting_balance_usd, recharge_amount_usd, trigger_below_usd):
+    """floor((spend - starting_balance + 2*trigger_below) / recharge_amount),
+    floored at 0. The `2*trigger_below` fudge exists because a recharge fires
+    when balance crosses BELOW trigger_below, not at exactly 0 — so the
+    balance actually consumed per recharge cycle is `recharge_amount +
+    trigger_below` give or take, and this stays a conservative (undercounts
+    rather than overcounts) approximation. Never negative — spend below the
+    starting balance means zero recharges, not a fabricated negative count."""
+    if recharge_amount_usd <= 0:
+        return 0
+    raw = (spend_mtd_usd - starting_balance_usd + 2 * trigger_below_usd) / recharge_amount_usd
+    return max(0, int(raw // 1))
+
+
+def check_auto_recharge_spend():
+    """For every provider with `billing.auto_recharge` (T-11 decision C.3):
+    spend_mtd from real ledger data, two thresholds (imminent / over-policy),
+    issue only — never an incident kind (no new enum value, per this task's
+    own boundary), never a provider-side action."""
+    billing = load_billing_config()
+    recharge_providers = {p: b for p, b in billing.items() if isinstance(b.get("auto_recharge"), dict)}
+    if not recharge_providers:
+        return
+
+    for prov, b in recharge_providers.items():
+        recharge = b["auto_recharge"]
+        starting_balance = float(b.get("starting_balance_usd", 0))
+        recharge_amount = float(recharge.get("amount_usd", 0))
+        trigger_below = float(recharge.get("trigger_below_usd", 0))
+        max_per_month = int(recharge.get("max_per_month", 0))
+
+        rows, rc = ap.psql(
+            f"""SELECT COALESCE(SUM(el.upstream_cost_usd), 0) FROM execution_ledger el
+                JOIN tools t ON t.tool_id = el.tool_id
+                WHERE t.provider = {ap.sql_literal(prov)}
+                  AND el.created_at >= date_trunc('month', now() at time zone 'UTC')"""
+        )
+        if rc != 0:
+            ap.notice(f"provider-limit-alerts: spend_mtd query failed for {prov}: {rows!r} — skipping this run")
+            continue
+        spend_mtd = float(rows) if rows else 0.0
+
+        over_policy_threshold = starting_balance + recharge_amount * max_per_month
+        recharges = compute_recharge_count(spend_mtd, starting_balance, recharge_amount, trigger_below)
+
+        if spend_mtd >= over_policy_threshold:
+            title = f"Spend: {prov} over policy"
+        elif spend_mtd >= starting_balance:
+            title = f"Spend: {prov} first recharge imminent"
+        else:
+            continue
+
+        r = gh("issue", "list", "--repo", REPO, "--state", "open", "--search", f"Spend: {prov} in:title",
+               "--limit", "20", "--json", "number,title")
+        try:
+            existing = {i["title"] for i in json.loads(r.stdout or "[]")}
+        except Exception:
+            existing = set()
+        if title in existing:
+            print(f"skip (already open): {title}")
+            continue
+        body = (
+            f"Provider `{prov}`'s spend this month (from `execution_ledger.upstream_cost_usd`, real "
+            f"per-call data the provider itself reported) is **${spend_mtd:.4f}** against a "
+            f"starting balance of ${starting_balance:.2f} + auto-recharge of ${recharge_amount:.2f} "
+            f"per ${trigger_below:.2f}-balance trigger (policy: {max_per_month}/month).\n\n"
+            f"Estimated recharges this month: **{recharges}** (derived from spend, NOT observed — "
+            f"there is no balance-read endpoint). Auto-recharge is real money leaving the card "
+            f"with no human in the loop each time; this issue does not and will not change that "
+            f"setting (operator-only). Auto-detected by provider-limit-alerts (hourly)."
+        )
+        r = gh("issue", "create", "--repo", REPO, "--title", title, "--body", body)
+        ok = r.returncode == 0
+        print(f"{'created' if ok else 'FAILED'}: {title} -> {(r.stdout or r.stderr).strip().splitlines()[-1] if (r.stdout or r.stderr) else ''}")
+
+
+# ---------------------------------------------------------------------------
 # AP-9 (§20): reliability score — durable write. Driven off `provider_status`
 # (not `tools`/`probe_log`/`incidents` directly) because that's the row this
 # writes into, and AP-3's `ensureSeeded()` already guarantees every
@@ -651,6 +852,13 @@ def main():
     else:
         print("reliability-score: autopilot schema not deployed yet — skipped")
 
+    # T-11 (2026-09-05) / Fable ruling-1 decision D + C: providers whose free
+    # tier is gone (skipped by the free_limit<=0 guard above) but who carry a
+    # real dollar cap or an auto-recharge policy. Independent of schema_ok's
+    # earlier value up top — each function re-checks it / degrades on its own.
+    check_billing_cap_risk()
+    check_auto_recharge_spend()
+
     return 0
 
 
@@ -761,6 +969,29 @@ def selftest():
         f"generic renormalization (latency dropped, gate satisfied by probe_uptime) computed wrong: "
         f"got {score_partial}"
     )
+
+    # --- T-11 (2026-09-05) / Fable ruling-1 D.1: classify_risk is unit-agnostic —
+    # a $100/mo dollar cap classifies exactly like a 100-call free tier at the
+    # same fraction spent. Real numbers: zyte cap_usd_month=100, spend=$95 ->
+    # remaining=$5 -> 5% remaining -> CRITICAL (pct<10), same as the call-count case.
+    _remaining_usd, exact_usd, _rounded_usd, _burn_usd, _eta_usd, risk_usd = (
+        compute_risk_for_usage(100.0, 95.0, 0)
+    )
+    assert exact_usd == 5.0
+    assert risk_usd == "CRITICAL", f"dollar-denominated cap at 5% remaining must be CRITICAL, got {risk_usd}"
+    # Comfortable spend (50% of cap used) -> ATTENTION boundary, not NORMAL/CRITICAL —
+    # confirms this isn't secretly always CRITICAL regardless of input.
+    *_, risk_usd_ok = compute_risk_for_usage(100.0, 10.0, 0)
+    assert risk_usd_ok == "NORMAL", f"10% of a dollar cap used (90% remaining) must be NORMAL, got {risk_usd_ok}"
+
+    # --- T-11 decision C: compute_recharge_count (api2pdf-style auto-recharge,
+    # "derived, not observed"). Fixture matches the ruling's own literal numbers:
+    # starting_balance=$5, recharge_amount=$10, trigger_below=$0.50 (fudge=$1).
+    assert compute_recharge_count(4.0, 5.0, 10.0, 0.5) == 0, "spend below starting balance -> 0 recharges"
+    assert compute_recharge_count(5.0, 5.0, 10.0, 0.5) == 0, "spend==starting balance, not yet into a recharge cycle"
+    assert compute_recharge_count(15.0, 5.0, 10.0, 0.5) == 1, "one full $10 recharge cycle consumed -> 1"
+    assert compute_recharge_count(25.0, 5.0, 10.0, 0.5) == 2, "two full recharge cycles consumed -> 2"
+    assert compute_recharge_count(100.0, 5.0, 0.0, 0.5) == 0, "recharge_amount=0 (misconfigured) -> 0, never a division error"
 
     print("provider-limit-alerts --selftest: OK")
 
@@ -1057,6 +1288,42 @@ def selftest_db():
         _mark_reliability_score_ran_today()
         assert _reliability_score_already_ran_today() is True, "world 5c: marker must read back true same-day"
         print("world 5c (same-UTC-day marker read-back): OK")
+
+        # World 6 (T-11 decision D): check_billing_cap_risk() end-to-end against the
+        # real schema, calling the REAL function (not a re-implementation) with its
+        # two I/O seams monkeypatched -- proves a dollar-cap provider hitting CRITICAL
+        # opens a real QUOTA_LOW incident (and that the 'usage_api' probe_log kind fix
+        # actually lands a row under the real CHECK constraint), then a recovery moves
+        # it to VERIFYING, exactly like the call-count path worlds 3/4a above.
+        ap.psql(
+            "INSERT INTO provider_status (provider, state, state_since, next_probe_at, "
+            "probe_interval_s) VALUES ('zyte', 'HEALTHY', now(), now(), 3600) "
+            "ON CONFLICT (provider) DO NOTHING"
+        )
+        global load_billing_config, fetch_zyte_stats_spend
+        real_load_billing_config = load_billing_config
+        real_fetch_zyte_stats_spend = fetch_zyte_stats_spend
+        load_billing_config = lambda: {"zyte": {"cap_usd_month": 100.0, "organization_id": "999"}}  # noqa: E731
+        fetch_zyte_stats_spend = lambda org_id: 95.0  # noqa: E731 -- 5% remaining -> CRITICAL
+        try:
+            check_billing_cap_risk()
+            inc_row6, _ = ap.psql(
+                "SELECT incident_id, state FROM incidents WHERE provider = 'zyte' AND kind = 'QUOTA_LOW'"
+            )
+            assert inc_row6, "world 6: expected a QUOTA_LOW incident for zyte at 5% remaining"
+            inc_id6, inc_state6 = inc_row6.split(ap.SEP)
+            assert inc_state6 == "OPEN"
+            print("world 6a (dollar-cap CRITICAL -> real QUOTA_LOW incident, OPEN): OK")
+
+            # Recovery: spend drops (or cap effectively raised) -> risk NORMAL -> OPEN moves to VERIFYING
+            fetch_zyte_stats_spend = lambda org_id: 10.0  # noqa: E731 -- 90% remaining -> NORMAL
+            check_billing_cap_risk()
+            state_row6, _ = ap.psql(f"SELECT state FROM incidents WHERE incident_id = {ap.sql_literal(inc_id6)}")
+            assert state_row6 == "VERIFYING", f"world 6b: expected VERIFYING after dollar-cap recovery, got {state_row6!r}"
+            print("world 6b (dollar-cap risk recovers -> OPEN QUOTA_LOW moves to VERIFYING): OK")
+        finally:
+            load_billing_config = real_load_billing_config
+            fetch_zyte_stats_spend = real_fetch_zyte_stats_spend
 
         print("selftest-db: ALL WORLDS OK")
         return 0

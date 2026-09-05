@@ -2457,20 +2457,40 @@ tools:
     cache_ttl: 0
 
   # --- UC-146: API2PDF (PDF Generation) ---
+  # T-11 (2026-09-05) / Fable ruling-1 decision C.4: api2pdf moved WAITING_HUMAN -> paid
+  # pay-per-use (INC-8e77a4). Cost is load-dependent ($0.001/MB output + $0.00019551/sec
+  # compute + $1/mo flat fee, per portal.api2pdf.com/Billing "How billing works" screen)
+  # -- NOT a fixed per-call number, so no single upstream_cost_usd is written here yet.
+  # One real reference call was made 2026-09-05 (pdf.from_url, https://example.com,
+  # <$0.001 total) to confirm the adapter's self-reported `cost` field actually works:
+  # cost=$0.00058256, mbOut=0.0163 MB -- now captured server-side into
+  # execution_ledger.upstream_cost_usd on every real call (src/pipeline/stages/
+  # provider-call.stage.ts). Once 30 days of real traffic exist, recompute
+  # upstream_cost_usd as the p80 of that column per tool_id (upstream_cost_basis:
+  # measured_p80) -- until then this stays NOT_MEASURED, never a guessed flat number.
   - tool_id: pdf.from_html
     name: HTML to PDF
     provider: api2pdf
     price_usd: "0.005"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_note: "load-dependent (size+compute time); formula: $0.001/MB + $0.00019551/s + $1/mo flat; needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-10-05"
     cache_ttl: 0
   - tool_id: pdf.from_url
     name: URL to PDF
     provider: api2pdf
     price_usd: "0.005"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_note: "load-dependent (size+compute time); formula: $0.001/MB + $0.00019551/s + $1/mo flat; one reference call 2026-09-05 measured cost=$0.00058256 (example.com); needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-10-05"
     cache_ttl: 0
   - tool_id: pdf.merge
     name: Merge PDFs
     provider: api2pdf
     price_usd: "0.005"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_note: "load-dependent (size+compute time); formula: $0.001/MB + $0.00019551/s + $1/mo flat; needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-10-05"
     cache_ttl: 0
 
   # --- UC-141: PodcastIndex (Podcast Directory) ---
@@ -2916,20 +2936,53 @@ tools:
     cache_ttl: 86400
 
   # --- UC-233: Zyte API (Web Scraping) ---
+  # T-11 (2026-09-05) / Fable ruling-1: zyte moved WAITING_HUMAN -> paid Pay-as-you-go
+  # (INC-564ce1). Real tiered pricing snapshotted from zyte.com/pricing via playwright
+  # (this repo's own native-tool allowlist) 2026-09-05: PAYG plan, no volume discount
+  # (starts only at $100+/mo commitment). Costs vary by site complexity Zyte itself
+  # classifies per-request -- we cannot know which tier a given call lands in, so
+  # `upstream_cost_usd` uses the DOCUMENTED MAXIMUM of the PAYG tier
+  # (`upstream_cost_basis: per_call_documented_max`) as the safe (never-too-low) input
+  # to the runtime margin gate (tool-status.stage.ts F1/C-4) -- real cost is <= this.
   - tool_id: scrape.extract
     name: Extract Web Page HTML
     provider: zyte
     price_usd: "0.003"
+    upstream_cost_usd: "0.00127"
+    upstream_cost_basis: per_call_documented_max
+    upstream_cost_source: "zyte.com/pricing (playwright snapshot 2026-09-05): PAYG plan, HTTP response body $0.13-$1.27/1,000 responses = $0.00013-$0.00127/request; documented max used"
+    upstream_cost_measured_at: "2026-09-05"
+    upstream_cost_remeasure_by: "2026-09-30"
     cache_ttl: 3600
   - tool_id: scrape.browser
     name: Browser-Rendered Page HTML
     provider: zyte
     price_usd: "0.015"
+    upstream_cost_usd: "0.01608"
+    upstream_cost_basis: per_call_documented_max
+    upstream_cost_source: "zyte.com/pricing (playwright snapshot 2026-09-05): PAYG plan, Browser rendered $1.01-$16.08/1,000 responses = $0.00101-$0.01608/request; documented max used"
+    upstream_cost_measured_at: "2026-09-05"
+    upstream_cost_remeasure_by: "2026-09-30"
+    # NOTE for the operator (not this migration's call to make): at the documented
+    # max tier, required minimum = 0.01608 * 1.3 (MARGIN_MULTIPLIER) = 0.020904 >
+    # price_usd 0.015 -- this WILL fail the runtime margin gate once seeded to a DB,
+    # 503-ing real calls to this tool at its worst-case cost tier. Flagged, not fixed
+    # here (price/disable decision belongs to the operator, see T-11 journal).
     cache_ttl: 3600
   - tool_id: scrape.screenshot
     name: Web Page Screenshot
     provider: zyte
     price_usd: "0.005"
+    # Zyte publishes no distinct screenshot rate -- it bills as Browser rendered
+    # (same render path as scrape.browser) plus an undocumented "additional costs
+    # for some features" surcharge (zyte.com/pricing, playwright snapshot
+    # 2026-09-05). Real cost is >= scrape.browser's own documented max
+    # ($0.01608/request) and priced 3x lower ($0.005 vs $0.015) for a
+    # structurally equal-or-greater cost -- a finding for the operator (see T-11
+    # journal), NOT a number to invent here (⛔ no fabricated prices).
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_note: "no published per-screenshot rate; billed as Browser rendered (>= $0.01608/req documented max) + undocumented feature surcharge"
+    upstream_cost_remeasure_by: "2026-09-30"
     cache_ttl: 3600
 
   # --- UC-231: MarketCheck (Car Listings) ---

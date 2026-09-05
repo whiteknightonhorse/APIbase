@@ -50,6 +50,9 @@ export interface DirectChargeEntry extends LedgerEntryBase {
 export interface FreeEntry extends LedgerEntryBase {
   providerCalled: boolean;
   providerLatencyMs?: number;
+  /** T-11 (2026-09-05): real per-call cost the provider itself reported, when
+   *  it does (see execution_ledger.upstream_cost_usd doc comment). */
+  upstreamCostUsd?: number;
 }
 
 export interface SharedEntry extends LedgerEntryBase {
@@ -69,6 +72,10 @@ export interface X402Entry extends LedgerEntryBase {
   /** F2/C-3 settle-on-block: set when this x402/MPP-paid call was blocked
    *  by content moderation rather than actually reaching the provider. */
   moderation?: { ruleId: string; category: string; appealId?: string };
+  /** T-11 (2026-09-05): real per-call cost the provider itself reported, when
+   *  it does (see execution_ledger.upstream_cost_usd doc comment). Only
+   *  meaningful on a cache-miss, non-blocked call (provider actually ran). */
+  upstreamCostUsd?: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -167,6 +174,7 @@ export async function writeFreeEntry(entry: FreeEntry): Promise<void> {
       cache_status: 'MISS',
       provider_latency_ms: entry.providerLatencyMs ?? null,
       idempotency_key: entry.idempotencyKey ?? null,
+      upstream_cost_usd: entry.upstreamCostUsd ?? null,
     },
   });
 
@@ -246,6 +254,7 @@ export async function writeX402Entry(entry: X402Entry): Promise<void> {
       moderation_rule_id: blocked?.ruleId ?? null,
       moderation_category: blocked?.category ?? null,
       moderation_appeal_id: blocked?.appealId ?? null,
+      upstream_cost_usd: isCacheHit || blocked ? null : (entry.upstreamCostUsd ?? null),
     },
   });
 

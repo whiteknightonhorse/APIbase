@@ -59,6 +59,17 @@ export const providerCallStage: Stage = {
         },
       };
 
+      // T-11 (2026-09-05) / Fable ruling-1 C.1: capture a provider-self-reported
+      // per-call cost when the adapter's parsed body happens to carry one
+      // (currently only api2pdf's `cost_usd`, see src/adapters/api2pdf/index.ts).
+      // Generic duck-typed read on purpose — no per-adapter branching needed
+      // here, and adapters that don't report a cost simply leave this unset
+      // (never defaulted to 0; see execution_ledger.upstream_cost_usd doc).
+      const body = raw.body as Record<string, unknown> | undefined;
+      if (body && typeof body.cost_usd === 'number' && Number.isFinite(body.cost_usd)) {
+        ctx.upstreamCostUsd = body.cost_usd;
+      }
+
       logger.info(
         {
           request_id: ctx.requestId,

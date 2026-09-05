@@ -33,6 +33,23 @@ export class ZyteAdapter extends BaseAdapter {
     this.apiKey = apiKey;
   }
 
+  /**
+   * T-11 (2026-09-05) / Fable ruling-1 D.3: Zyte's spending-cap rejection is a
+   * real HTTP 403 with body `{"type": "/auth/account-suspended", ...}` —
+   * otherwise indistinguishable from a dead/rotated key once base.adapter.ts
+   * collapses both into "rejected our credentials". Confirmed by the
+   * Pay-as-you-go plan's own $100/month cap (measured 2026-09-05, see
+   * provider-limits.json zyte.billing) being the only way this account can
+   * ever see a 403 again with a live key.
+   */
+  protected describeAuthError(status: number, bodyText: string): string | undefined {
+    if (status === 403 && bodyText.includes('/auth/account-suspended')) {
+      const detail = bodyText.length > 0 ? `: ${bodyText.slice(0, 300)}` : '';
+      return `Zyte spending cap reached (HTTP 403)${detail}`;
+    }
+    return undefined;
+  }
+
   protected buildRequest(req: ProviderRequest): {
     url: string;
     method: string;

@@ -1021,11 +1021,25 @@
     "display_name": "API2PDF",
     "health_url": "https://v2.api2pdf.com",
     "limit_type": "credits",
-    "free_limit": 100,
+    "free_limit": 0,
     "reset_period": "none",
     "paid_balance": true,
     "docs_url": "https://www.api2pdf.com/documentation/v2",
-    "limit_proof": "$1.00 starting balance, ~$0.0003/page generation, $1/month base fee"
+    "limit_proof": "T-11 2026-09-05 (INC-8e77a4, portal.api2pdf.com/Billing): pay-per-use, $1/mo account fee, $0.001/MB output, $0.00019551/s compute. Balance topped up $5.00, card on file. free_limit=0 because there is no free tier left to count against -- see billing below, not a documented rate ceiling",
+    "billing": {
+      "plan": "pay_per_use",
+      "monthly_fee_usd": 1,
+      "rate_per_mb_usd": 0.001,
+      "rate_per_second_usd": 0.00019551,
+      "starting_balance_usd": 5.0,
+      "auto_recharge": {
+        "trigger_below_usd": 0.5,
+        "amount_usd": 10,
+        "max_per_month": 1
+      },
+      "measured_at": "2026-09-05",
+      "remeasure_by": "2026-09-30"
+    }
   },
   "podcastindex": {
     "display_name": "PodcastIndex",
@@ -1245,10 +1259,22 @@
     "display_name": "Zyte API",
     "health_url": "https://api.zyte.com/v1/extract",
     "limit_type": "credits",
-    "free_limit": 5,
+    "free_limit": 0,
     "reset_period": "none",
+    "paid_balance": true,
     "docs_url": "https://docs.zyte.com/zyte-api/",
-    "limit_proof": "Trial: $5 free credit (30 days). PAYG: $0.00013\u2013$0.01608/request. No subscription required."
+    "limit_proof": "T-11 2026-09-05 (INC-564ce1, app.zyte.com org 937578): Pay as you go plan active, $100/mo spending cap, standard rate (no volume discount -- starts only at $100+/mo commitment), billing period 2026-08-30..2026-09-30, due today $0. free_limit=0 because there is no free tier left to count against -- see billing below for the real cap",
+    "billing": {
+      "plan": "pay_as_you_go",
+      "organization_id": "937578",
+      "cap_usd_month": 100,
+      "period_start": "2026-08-30",
+      "monthly_fee_usd": 0,
+      "volume_discount": "none on this plan -- starts at $100/mo commitment (-25%), $200 (-40%), $350 (-48%), $500 (-52%); not opted into any commitment",
+      "stats_api": "GET https://zyte-api-stats.zyte.com/api/stats?organization_id=937578 -- 2026-09-05 probe with the extraction API key (PROVIDER_KEY_ZYTE) returned 403 Forbidden; Zyte's own docs call this a separate \"dashboard API key\" -- MANUAL_REQUIRED: operator needs to issue/locate that key before cost_microusd_total/avg can be polled automatically",
+      "measured_at": "2026-09-05",
+      "remeasure_by": "2026-09-30"
+    }
   },
   "marketcheck": {
     "display_name": "MarketCheck",

@@ -136,6 +136,11 @@ export interface PipelineContext {
   providerResponse?: NormalizedResponse;
   providerDurationMs?: number;
   providerCalled?: boolean;
+  /** T-11 (2026-09-05): real per-call cost the upstream provider itself
+   *  reported in its parsed response body (currently only api2pdf's `cost`
+   *  field). undefined when the provider didn't self-report one — never
+   *  defaulted to 0, see execution_ledger.upstream_cost_usd doc comment. */
+  upstreamCostUsd?: number;
 
   // ESCROW_FINALIZE stage
   billingStatus?: string;

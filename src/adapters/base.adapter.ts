@@ -97,6 +97,20 @@ export abstract class BaseAdapter {
   protected abstract parseResponse(raw: ProviderRawResponse, req: ProviderRequest): unknown;
 
   /**
+   * T-11 (2026-09-05) / Fable ruling-1 D.3: optional per-adapter override for
+   * the 401/402/403 error message. Default (undefined) keeps the generic
+   * "rejected our credentials" message. A provider whose spending-cap
+   * rejection is distinguishable in the response body (e.g. Zyte's
+   * `/auth/account-suspended` type field) should override this so the
+   * incident evidence says "spending cap reached", not a false "bad key"
+   * reading — the error CODE stays PROVIDER_AUTH either way (pipeline
+   * behavior is unchanged), only the human/incident-facing text sharpens.
+   */
+  protected describeAuthError(_status: number, _bodyText: string): string | undefined {
+    return undefined;
+  }
+
+  /**
    * Execute a provider call with timeout, retries, and size enforcement.
    * Returns either a ProviderRawResponse or throws a structured ProviderError.
    *
@@ -244,10 +258,20 @@ export abstract class BaseAdapter {
     // out of quota/credits), NOT the caller's fault and not retryable.
     if (response.status === 401 || response.status === 402 || response.status === 403) {
       const detail = bodyText.length > 0 ? `: ${bodyText.slice(0, 300)}` : '';
+      // T-11 (2026-09-05) / Fable ruling-1 D.3: a real spending-cap hit and a
+      // dead/rotated key both land here as an indistinguishable "rejected our
+      // credentials" message once real money is involved (e.g. Zyte's PAYG
+      // cap: same HTTP 403 as an invalid key). Code stays PROVIDER_AUTH (this
+      // is still "we can't call the provider right now", the pipeline
+      // shouldn't branch on it) but the message subclasses can sharpen via
+      // describeAuthError() so the incident evidence is unambiguous.
+      const message =
+        this.describeAuthError(response.status, bodyText) ??
+        `Provider rejected our credentials (HTTP ${response.status})${detail}`;
       throw createProviderError({
         code: ProviderErrorCode.PROVIDER_AUTH,
         httpStatus: 503,
-        message: `Provider rejected our credentials (HTTP ${response.status})${detail}`,
+        message,
         provider: this.provider,
         toolId: req.toolId,
         durationMs,

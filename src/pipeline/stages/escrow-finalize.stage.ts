@@ -136,6 +136,7 @@ export const escrowFinalizeStage: Stage = {
               appealId: ctx.moderationAppealId,
             }
           : undefined,
+        ctx.upstreamCostUsd,
       );
 
       ctx.billingStatus = 'PAID';

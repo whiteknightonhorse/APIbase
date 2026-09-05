@@ -1,0 +1,14 @@
+-- T-11 (2026-09-05) / Fable ruling-1 C.1: real per-call upstream cost, captured
+-- ONLY when the provider adapter itself reported one in its parsed response
+-- body (currently api2pdf's `cost` field -> ParsedResponse.cost_usd; Zyte's
+-- /v1/extract response has no such field -- confirmed, see
+-- src/adapters/zyte/types.ts, its own cost lives only behind the separate
+-- Stats API). Additive, nullable -- NULL means "this call's provider didn't
+-- self-report a cost" (the vast majority of tools), never a fabricated 0.
+-- This is a DIFFERENT column from tools.upstream_cost_usd (migration 0004,
+-- Tool-level, hand/script-migrated estimate feeding the runtime margin gate):
+-- this one is per-EXECUTION, real measured spend, feeding
+-- scripts/provider-limit-alerts.py's spend_mtd computation (C.2) and the
+-- future p80 recompute for load-dependent tools like pdf.* (Fable ruling-1
+-- decision C.4).
+ALTER TABLE "execution_ledger" ADD COLUMN IF NOT EXISTS "upstream_cost_usd" DECIMAL(18,8);

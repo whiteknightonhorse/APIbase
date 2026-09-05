@@ -44,6 +44,7 @@ export const ledgerWriteStage: Stage = {
           cost: ctx.finalCost ?? ctx.toolPrice ?? 0,
           payer: ctx.mppPaid ? (ctx.mppPayer ?? 'tempo-agent') : (ctx.x402Payer ?? 'unknown'),
           providerLatencyMs: ctx.providerDurationMs,
+          upstreamCostUsd: ctx.upstreamCostUsd,
           cacheHit: ctx.cacheHit === true,
           moderation: ctx.moderationBlocked
             ? {
@@ -131,6 +132,7 @@ export const ledgerWriteStage: Stage = {
         ...baseEntry,
         providerCalled: ctx.providerCalled ?? false,
         providerLatencyMs: ctx.providerDurationMs,
+        upstreamCostUsd: ctx.upstreamCostUsd,
       });
 
       ctx.billingStatus = 'FREE';

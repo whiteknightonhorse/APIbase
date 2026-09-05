@@ -125,6 +125,7 @@ export async function finalize(
   createdAt: Date,
   providerLatencyMs?: number,
   moderation?: ModerationBlockInfo,
+  upstreamCostUsd?: number,
 ): Promise<number> {
   const db = getPrisma();
 
@@ -157,6 +158,7 @@ export async function finalize(
          moderation_rule_id = $6,
          moderation_category = $7,
          moderation_appeal_id = $8::uuid,
+         upstream_cost_usd = $9,
          updated_at = NOW()
      WHERE execution_id = $1::uuid
        AND created_at = $2
@@ -169,6 +171,10 @@ export async function finalize(
     moderation?.ruleId ?? null,
     moderation?.category ?? null,
     moderation?.appealId ?? null,
+    // T-11 (2026-09-05): real per-call cost the provider self-reported (see
+    // execution_ledger.upstream_cost_usd doc comment) — undefined for the
+    // vast majority of adapters, never defaulted to 0.
+    upstreamCostUsd ?? null,
   );
 
   if (updatedCount > 0) {
