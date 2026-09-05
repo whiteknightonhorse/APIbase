@@ -350,9 +350,19 @@ API_URL=http://localhost:80 bash scripts/smoke-test.sh
 
 ### 6.2 TLS Certificate
 
-Auto-renewed 2x/day (03:00, 15:00 UTC) via host cron.
+Auto-renewed via the **systemd timer `certbot.timer`** (not a cron job — verified 2026-09-05,
+there is no `/etc/cron.d/apibase` on this box). `OnCalendar=*-*-* 00,12:00:00` with
+`RandomizedDelaySec=43200` (up to 12h jitter), so it fires twice a day but not at a fixed
+clock time — e.g. observed run 2026-09-04 14:23 UTC, next due 2026-09-05 ~11:33-14:23 UTC.
+`apibase.pro` expiry sits at ~30 days remaining right after each successful renewal (Let's
+Encrypt certs are issued for 90 days and certbot's default renew window is "<30 days left");
+that is the expected steady state, not a problem — see `CertExpiring` note below.
 
 ```bash
+# Check the timer itself (last/next run, enabled state)
+systemctl status certbot.timer
+systemctl list-timers certbot.timer
+
 # Check cert expiry
 echo | openssl s_client -connect apibase.pro:443 2>/dev/null | openssl x509 -noout -dates
 
@@ -360,6 +370,11 @@ echo | openssl s_client -connect apibase.pro:443 2>/dev/null | openssl x509 -noo
 certbot renew --quiet
 $COMPOSE exec nginx nginx -s reload
 ```
+
+`CertExpiring` (§3.4) fires at < 14 days remaining. Since renewal keeps the cert hovering
+around ~30 days, `CertExpiring` firing means renewal has already failed for ~16+ days — by
+the time it's red, `certbot.timer` has missed several scheduled runs, not just the most
+recent one. A single day slipping from ~30 to ~29 days remaining is not yet that signal.
 
 ### 6.3 Container Security Matrix
 
@@ -417,11 +432,21 @@ Phase 1: single server. Scale triggers for Phase 2:
 | Partition Cleanup | Daily 04:00 UTC | node-cron (API) | PartitionCleanupFailed alert |
 | Reconciliation | Every 60s | node-cron (Worker) | EscrowLeak alert |
 | PG Backup | Daily 03:00 UTC | postgres_backup container | BackupMissing alert |
-| Certbot Renewal | 03:00, 15:00 UTC | Host cron | CertExpiring alert |
+| Certbot Renewal | 2x/day, `OnCalendar=00,12:00 UTC` + up to 12h jitter | systemd timer (`certbot.timer`) | CertExpiring alert |
 | Docker Prune | Weekly Sun 04:00 UTC | Host cron | Disk usage alert |
 | SecurityAudit | Weekly Sun 02:00 UTC | node-cron (Worker) | Manual review |
 
-Host cron file: `/etc/cron.d/apibase`
+There is no single "host cron file" — host-level jobs above split across two real, different
+mechanisms, verified live on the box rather than assumed:
+- **Host cron** rows (e.g. Docker Prune): the `apibase` user's crontab. Inspect with
+  `crontab -l` (not a directly-readable file for this user — `/var/spool/cron/crontabs/apibase`
+  exists but is root/`crontab`-group only; use the command, not the path).
+- **Certbot Renewal**: `certbot.timer`, a systemd timer unit, not cron at all. Inspect with
+  `systemctl list-timers certbot.timer` or `systemctl cat certbot.timer`.
+
+(Previously this claimed a single host cron file at `/etc/cron.d` + `apibase` — that path has
+never existed on this box; whoever wrote it named the intended mechanism, not the one actually
+deployed. Fixed 2026-09-05 after the tester's internal-truth drift check caught it.)
 
 ---
 
