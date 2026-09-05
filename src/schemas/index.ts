@@ -402,6 +402,7 @@ import { netherlandsPdokKadasterSchemas } from './netherlands-pdok-kadaster.sche
 import { norwayKartverketStedsnavnSchemas } from './norway-kartverket-stedsnavn.schema';
 import { ukEaFloodMonitoringSchemas } from './uk-ea-flood-monitoring.schema';
 import { dogceoSchemas } from './dogceo.schema';
+import { nominatimOsmSchemas } from './nominatim-osm.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -807,4 +808,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...norwayKartverketStedsnavnSchemas,
   ...ukEaFloodMonitoringSchemas,
   ...dogceoSchemas,
+  ...nominatimOsmSchemas,
 };

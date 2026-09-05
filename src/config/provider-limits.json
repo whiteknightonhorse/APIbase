@@ -3623,5 +3623,14 @@
     "reset_period": "none",
     "docs_url": "https://dog.ceo/dog-api/documentation/",
     "limit_proof": "Free, open-source (MIT) dog image API; documentation states no API key or registration required and documents no request quota or rate limit for any endpoint."
+  },
+  "nominatim-osm": {
+    "display_name": "Nominatim (OpenStreetMap)",
+    "health_url": "https://nominatim.openstreetmap.org/status.php?format=json",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://operations.osmfoundation.org/policies/nominatim/",
+    "limit_proof": "Free, no-auth OSMF service; usage policy asks for max ~1 request/sec and a descriptive User-Agent rather than a numeric quota — no API key, registration, or hard call cap documented."
   }
 }

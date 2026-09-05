@@ -402,6 +402,7 @@ import { NetherlandsPdokKadasterAdapter } from './netherlands-pdok-kadaster';
 import { NorwayKartverketStedsnavnAdapter } from './norway-kartverket-stedsnavn';
 import { UkEaFloodMonitoringAdapter } from './uk-ea-flood-monitoring';
 import { DogCeoAdapter } from './dogceo';
+import { NominatimOsmAdapter } from './nominatim-osm';
 import { config } from '../config';
 
 /**
@@ -2210,6 +2211,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // Dog CEO API (dog.ceo) — random dog images, breed list, sub-breed
       // lookup. No auth, no key. MIT-licensed open source image database.
       return getOrCreate('dogceo', () => new DogCeoAdapter());
+    case 'nominatim-osm':
+      // Nominatim (OpenStreetMap) geocoding (UC-734) — forward search,
+      // reverse geocoding, batch OSM-id lookup. No auth, no key. ODbL
+      // licensed, subject to the OSMF Nominatim usage policy (see adapter).
+      return getOrCreate('nominatim-osm', () => new NominatimOsmAdapter());
     default:
       return undefined;
   }

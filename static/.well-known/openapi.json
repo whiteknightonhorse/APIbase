@@ -127048,6 +127048,290 @@
         ]
       }
     },
+    "/api/v1/tools/nominatim-osm.search/call": {
+      "post": {
+        "operationId": "nominatim-osm_search",
+        "summary": "Geocode Address Or Place (Nominatim)",
+        "description": "Forward geocode a free-form address or place name (e.g. \"Eiffel Tower\", \"1600 Amphitheatre Parkway, Mountain View\") into coordinates and structured address data, using OpenStreetMap data via Nominatim. Optionally restrict to specific countries. No auth required; ODbL licensed, © OpenStreetMap contributors.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nominatim-osm.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Free-form search text (e.g. \"1600 Amphitheatre Parkway, Mountain View\" or \"Eiffel Tower\")",
+                    "minLength": 1,
+                    "maxLength": 255
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of matches to return (1-50, default 5)"
+                  },
+                  "country_codes": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "description": "Comma-separated ISO 3166-1 alpha-2 country codes to restrict the search to (e.g. \"us,ca\")"
+                  },
+                  "language": {
+                    "type": "string",
+                    "maxLength": 35,
+                    "description": "Preferred response language as an Accept-Language value (e.g. \"en\", \"de-DE\")"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/nominatim-osm.reverse/call": {
+      "post": {
+        "operationId": "nominatim-osm_reverse",
+        "summary": "Reverse Geocode Coordinates (Nominatim)",
+        "description": "Reverse geocode a latitude/longitude pair into the nearest address or place using OpenStreetMap data via Nominatim. Optional zoom controls the level of detail, from country down to individual building. No auth required; ODbL licensed, © OpenStreetMap contributors.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nominatim-osm.reverse"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "lat": {
+                    "type": "number",
+                    "description": "Latitude of the point to resolve to an address",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "lon": {
+                    "type": "number",
+                    "description": "Longitude of the point to resolve to an address",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  "zoom": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18,
+                    "description": "Level of detail for the resolved address (0=country, 10=city, 18=building, default varies by feature)"
+                  },
+                  "language": {
+                    "type": "string",
+                    "maxLength": 35,
+                    "description": "Preferred response language as an Accept-Language value (e.g. \"en\", \"de-DE\")"
+                  }
+                },
+                "required": [
+                  "lat",
+                  "lon"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/nominatim-osm.lookup/call": {
+      "post": {
+        "operationId": "nominatim-osm_lookup",
+        "summary": "Look Up Places By OSM ID (Nominatim)",
+        "description": "Look up up to 50 specific OpenStreetMap objects by ID (node/way/relation, e.g. \"R146656\") and return their addresses and coordinates via Nominatim. Useful for resolving OSM IDs returned by other OSM-based tools. No auth required; ODbL licensed, © OpenStreetMap contributors.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nominatim-osm.lookup"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "osm_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 2,
+                      "maxLength": 20
+                    },
+                    "description": "OSM object IDs to resolve, each prefixed with its type: N (node), W (way), or R (relation) — e.g. [\"R146656\", \"W284493291\"]. Max 50.",
+                    "minItems": 1,
+                    "maxItems": 50
+                  },
+                  "language": {
+                    "type": "string",
+                    "maxLength": 35,
+                    "description": "Preferred response language as an Accept-Language value (e.g. \"en\", \"de-DE\")"
+                  }
+                },
+                "required": [
+                  "osm_ids"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/device.list/call": {
       "post": {
         "operationId": "device_list",

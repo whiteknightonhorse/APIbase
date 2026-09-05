@@ -8945,3 +8945,25 @@ tools:
     price_usd: "0.001"
     upstream_cost_usd: "0"
     cache_ttl: 86400
+
+  # --- UC-734: Nominatim (OpenStreetMap) (3 tools) ---
+  - tool_id: nominatim-osm.search
+    name: Geocode Address Or Place (Nominatim)
+    provider: nominatim-osm
+    price_usd: "0.002"
+    upstream_cost_usd: "0"
+    cache_ttl: 3600
+
+  - tool_id: nominatim-osm.reverse
+    name: Reverse Geocode Coordinates (Nominatim)
+    provider: nominatim-osm
+    price_usd: "0.002"
+    upstream_cost_usd: "0"
+    cache_ttl: 3600
+
+  - tool_id: nominatim-osm.lookup
+    name: Look Up Places By OSM ID (Nominatim)
+    provider: nominatim-osm
+    price_usd: "0.002"
+    upstream_cost_usd: "0"
+    cache_ttl: 3600

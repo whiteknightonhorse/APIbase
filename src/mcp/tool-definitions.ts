@@ -17077,6 +17077,43 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+  // Nominatim (OpenStreetMap) geocoding — nominatim.openstreetmap.org (3) — UC-734
+  {
+    toolId: 'nominatim-osm.search',
+    mcpName: 'nominatim.geocode.search',
+    title: 'Geocode Address Or Place (Nominatim)',
+    description:
+      'Forward geocode a free-form address or place name (e.g. "Eiffel Tower", "1600 ' +
+      'Amphitheatre Parkway, Mountain View") into coordinates and structured address data, ' +
+      'using OpenStreetMap data via Nominatim. Optionally restrict to specific countries. ' +
+      'No auth required; ODbL licensed, © OpenStreetMap contributors.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nominatim-osm.reverse',
+    mcpName: 'nominatim.geocode.reverse',
+    title: 'Reverse Geocode Coordinates (Nominatim)',
+    description:
+      'Reverse geocode a latitude/longitude pair into the nearest address or place using ' +
+      'OpenStreetMap data via Nominatim. Optional zoom controls the level of detail, from ' +
+      'country down to individual building. No auth required; ODbL licensed, © ' +
+      'OpenStreetMap contributors.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'nominatim-osm.lookup',
+    mcpName: 'nominatim.geocode.lookup',
+    title: 'Look Up Places By OSM ID (Nominatim)',
+    description:
+      'Look up up to 50 specific OpenStreetMap objects by ID (node/way/relation, e.g. ' +
+      '"R146656") and return their addresses and coordinates via Nominatim. Useful for ' +
+      'resolving OSM IDs returned by other OSM-based tools. No auth required; ODbL ' +
+      'licensed, © OpenStreetMap contributors.',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
   // ---------------------------------------------------------------------------
   // Ф5 physical-device MCP layer -- device.list/state/command (2026-09-02)
   // Generic vendor-agnostic projection; Tuya is the only connected vendor
