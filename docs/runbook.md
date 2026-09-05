@@ -371,10 +371,24 @@ certbot renew --quiet
 $COMPOSE exec nginx nginx -s reload
 ```
 
-`CertExpiring` (§3.4) fires at < 14 days remaining. Since renewal keeps the cert hovering
-around ~30 days, `CertExpiring` firing means renewal has already failed for ~16+ days — by
-the time it's red, `certbot.timer` has missed several scheduled runs, not just the most
-recent one. A single day slipping from ~30 to ~29 days remaining is not yet that signal.
+`CertExpiring` (§3.4) fires at < 14 days remaining — too late to be the primary signal for a
+missed renewal: by the time it's red, `certbot.timer` has already missed many scheduled runs,
+not just the most recent one. The renewal window opens at `notAfter - 30d` (certbot's default
+`renew_before_expiry`), and inside that window `certbot.timer` fires at least once every ~24h
+(`OnCalendar=*-*-* 00,12:00:00` + up to 12h jitter — worst-case gap between two firings is just
+under 24h, never a full day with zero attempts). That gives an earlier, sharper signal than
+`CertExpiring`:
+
+- Remaining days slipping from 30 to 29 is, **by itself, not yet a failure** — the window has
+  only just opened and the timer may simply not have fired inside it yet (e.g. a tester run early
+  in the window can legitimately observe 29-point-something days with no renewal attempt made).
+- Remaining days at **29 or fewer IS a renewal failure** once `systemctl status certbot.service`
+  shows a run that happened *after* the window opened (i.e. after `notAfter - 30d`) and the cert
+  is still unrenewed — that run attempted the renewal and it did not take effect. Treat this as an
+  incident and act immediately; do not wait ~16 more days for `CertExpiring` to go red.
+- If `certbot.service` shows **no run at all** more than ~24h after the window opened, that's a
+  *different* failure — the timer itself isn't firing. Check `systemctl list-timers certbot.timer`
+  and `systemctl status certbot.timer` for `enabled`/`active` state, not `certbot.service` history.
 
 ### 6.3 Container Security Matrix
 
