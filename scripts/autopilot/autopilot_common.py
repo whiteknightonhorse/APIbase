@@ -44,6 +44,7 @@ actually needs rotating, so this now falls back to a generic J3 operator
 file instead of recording a false "queued".
 """
 import json
+import math
 import os
 import re
 import subprocess
@@ -78,7 +79,70 @@ TASKLOOP_QUEUE_DIR = os.environ.get("AUTOPILOT_TASKLOOP_QUEUE_DIR", f"{TASKLOOP_
 DAILY_TASK_COUNTER_FILE = os.environ.get(
     "AUTOPILOT_DAILY_TASK_COUNTER", f"{TASKLOOP_ROOT}/state/autopilot-router-daily.count"
 )
-DAILY_TASK_CAP = 3  # I2: "Потолок генерации: ≤3 новых задач/день от автопилота"
+# T-07/A5 (2026-09-05, Fable ruling-1): DAILY_TASK_CAP used to be a bare
+# literal (3), justified only by I2's own worked example — with zero
+# relationship to taskloop's DAILY_CAP (the fleet's actual model-call
+# budget), which has moved 15 -> 30 -> 300 since I2 was written while this
+# number never moved. Computed below (_compute_daily_task_cap, called after
+# notice() exists) instead of restated as a second literal — see that
+# function for the formula and why 3 is now a floor derived from config.env,
+# not the ceiling itself.
+_AUTOPILOT_BUDGET_SHARE = 0.25  # autopilot's own slice of the fleet's daily
+# model-call budget — the rest is reserved for operator tasks, which always
+# sort first anyway (9xxx task filenames vs 8xx/named operator tasks).
+_CALLS_PER_TASK = 4  # I2's own worst case: 2 attempts + 1 arbiter review + 1
+# knowledge-repair pass.
+_DAILY_TASK_CAP_FLOOR = 3  # never below this — a degraded/missing config.env
+# must fail CLOSED to the historical value, never to "generate nothing" or
+# an unbounded guess.
+_DAILY_TASK_CAP_CEIL = 12  # deliberate, not "whatever the formula gives":
+# T-06 measured the real bottleneck as signal quality (4 of 13 probed-DOWN
+# providers were false, see provider-health.job.ts's T-07/A6 HEAD/
+# next_probe_at fixes), not model budget. Scaling task generation before
+# that fix is measured to have actually improved the false-DOWN rate just
+# scales the false-positive rate too. Revisit after a week of A6 data.
+
+
+def _compute_daily_task_cap(config_path: str | None = None) -> int:
+    """floor(DAILY_CAP * _AUTOPILOT_BUDGET_SHARE / _CALLS_PER_TASK), clamped
+    to [_DAILY_TASK_CAP_FLOOR, _DAILY_TASK_CAP_CEIL]. DAILY_CAP is read from
+    taskloop's own config.env (LAW #ONE-PLACE — the fleet's actual model
+    budget lives there, this must never restate it as an independent
+    number). Fail-CLOSED to the floor on ANY read/parse problem — same
+    contract as consume_daily_task_slot's own fail-closed counter read; a
+    missing or malformed config.env must never look like "go ahead,
+    generate more", and the failure is logged, not silent.
+
+    `config_path` is a test-only override (see incident-cli.py --selftest);
+    production always reads {TASKLOOP_ROOT}/config.env.
+    """
+    path = config_path or os.path.join(TASKLOOP_ROOT, "config.env")
+    try:
+        raw = open(path, encoding="utf-8").read()
+    except OSError:
+        notice(f"молчу: {path} missing — DAILY_TASK_CAP falling back to floor ({_DAILY_TASK_CAP_FLOOR})")
+        return _DAILY_TASK_CAP_FLOOR
+    daily_cap = None
+    for line in raw.splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        k, v = line.split("=", 1)
+        if k.strip() == "DAILY_CAP":
+            v = v.strip()
+            if v.isdigit():
+                daily_cap = int(v)
+            break
+    if daily_cap is None:
+        notice(f"молчу: DAILY_CAP missing/invalid in {path} — DAILY_TASK_CAP falling back to floor ({_DAILY_TASK_CAP_FLOOR})")
+        return _DAILY_TASK_CAP_FLOOR
+    computed = math.floor(daily_cap * _AUTOPILOT_BUDGET_SHARE / _CALLS_PER_TASK)
+    return max(_DAILY_TASK_CAP_FLOOR, min(_DAILY_TASK_CAP_CEIL, computed))
+
+
+# Actual assignment happens after notice() is defined below (Python looks up
+# `notice` inside the function body at CALL time, not at def time, but this
+# call itself must textually come after notice() exists in this module).
 CONNECTED_DB_PY = os.environ.get("AUTOPILOT_CONNECTED_DB_PY", f"{ROOT}/scripts/night-orchestra/connected_db.py")
 # Same file connected_db.py's own ENV_FILE points at (read-only here — this
 # module never writes it, LAW #ONE-PLACE, connected_db.py is the only writer
@@ -292,6 +356,12 @@ def notice(line: str):
             f.write(f"{ts} {line}\n")
     except Exception:
         pass  # best-effort logging must never crash the engine
+
+
+# T-07/A5: computed here (not at _compute_daily_task_cap's own definition
+# site above) because it calls notice(), which must already exist in this
+# module's namespace by the time this line actually runs.
+DAILY_TASK_CAP = _compute_daily_task_cap()
 
 
 # ---------------------------------------------------------------------------

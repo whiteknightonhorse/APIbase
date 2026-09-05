@@ -169,6 +169,26 @@ def selftest():
     assert "AP-6" in msg2 and "Нужно от вас" not in msg2
     # human-done parsing: marker required, empty-after-marker is "not filled yet"
     assert ap.parse_human_done("/nonexistent/path") is None
+    # T-07/A5 (Fable ruling-1): DAILY_TASK_CAP is derived from taskloop's own
+    # DAILY_CAP (config.env), not a bare literal — floor(cap*0.25/4), clamped
+    # [3, 12]. A temp config.env per case, never the real one (LAW: this is a
+    # pure-logic selftest, no fleet state touched).
+    import tempfile as _tempfile
+    def _cfg(content):
+        fd, p = _tempfile.mkstemp(suffix=".cfg")
+        with os.fdopen(fd, "w") as f:
+            f.write(content)
+        return p
+    _p15 = _cfg("DAILY_CAP=15\n")
+    _p300 = _cfg("DAILY_CAP=300\n")
+    try:
+        assert ap._compute_daily_task_cap(_p15) == 3, "DAILY_CAP=15 must floor to the 3 minimum"
+        assert ap._compute_daily_task_cap(_p300) == 12, "DAILY_CAP=300 must ceiling-clamp to 12"
+        assert ap._compute_daily_task_cap("/nonexistent/config-missing") == 3, \
+            "missing config.env must fail CLOSED to the floor, never an open/unbounded guess"
+    finally:
+        os.unlink(_p15)
+        os.unlink(_p300)
     print("incident-cli --selftest: OK")
 
 
