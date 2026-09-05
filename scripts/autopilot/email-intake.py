@@ -473,7 +473,79 @@ def match_provider(from_domain, domain_map):
 # wins. Ordered most-specific/most-dangerous-to-miss first (key/payment
 # classes) so a message mentioning both, say, "security" and "payment
 # failed" lands on the class that actually needs a human, not a softer one.
+# One exception to "cascade order never changes" (T-14, ruling-1/ruling-2):
+# DEPRECATION/SUNSET/ENDPOINT_CHANGE go through _demote_to_marketing_if_noise()
+# AFTER the cascade already picked one of them — a bare "deprecated" mention
+# inside a newsletter is not a real notice, but a dated per-parameter fact
+# delivered via a newsletter still is (see the two helper functions below).
 # ---------------------------------------------------------------------------
+_MARKETING_PATTERNS = [
+    r"\bunsubscribe\b", r"\bnewsletter\b", r"%\s*off\b", r"\bwebinar\b",
+    r"\bcase\s+study\b", r"\bpromo(tion)?\b",
+]
+
+# Words naming an actual API surface — a "deprecat*" mention only counts as
+# a real deprecation notice when one of these sits within _RESOURCE_WINDOW
+# chars of it (either direction). Plural forms included: real deprecation
+# mail says "parameters", not "parameter" (assemblyai 2026-07/08 mail, T-14).
+_RESOURCE_WORD_RE = re.compile(
+    r"\b(apis?|endpoints?|versions?|v\d+s?|integrations?|sdks?|"
+    r"librar(?:y|ies)|methods?|parameters?|fields?|plans?|features?)\b",
+    re.IGNORECASE,
+)
+_DEPRECAT_RE = re.compile(r"\bdeprecat(?:e|ed|ing|ion)\b", re.IGNORECASE)
+_RESOURCE_WINDOW = 60
+
+_MONTH_RE = r"(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)"
+_DATE_TOKEN_RE = (
+    r"(?:\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?"          # 09/25/2026
+    r"|\d{4}-\d{2}-\d{2}"                              # 2026-09-25
+    rf"|{_MONTH_RE}\s+\d{{1,2}}(?:st|nd|rd|th)?(?:,?\s*\d{{4}})?"  # August 7, September 15
+    rf"|\d{{1,2}}\s+{_MONTH_RE}(?:\s+\d{{4}})?)"        # 25 September 2026
+)
+# A real "this is going away" notice names WHEN, anywhere in the body — not
+# necessarily right next to the resource word (ruling-2: restricting this to
+# the resource window would silence the exact real notices it must catch,
+# e.g. "deprecated parameters ... will be ... deprecated on 09/25/2026").
+_DEADLINE_MARKERS = [
+    rf"\b(?:by|on|before|until|effective|starting)\s+{_DATE_TOKEN_RE}\b",
+    r"\bdeadline\b",
+    r"\bend\s+of\s+support\b",
+    r"\bwill\s+(?:be\s+)?(?:removed|no\s+longer\s+(?:be\s+)?(?:available|supported))\b",
+    r"\bshut\s*down\b",
+    r"\bturned\s+off\b",
+]
+
+_DEMOTABLE_CLASSES = {"DEPRECATION", "SUNSET", "ENDPOINT_CHANGE"}
+
+
+def _has_resource_window(text):
+    """True iff some 'deprecat*' occurrence has a resource word within
+    _RESOURCE_WINDOW chars either side — see _RESOURCE_WORD_RE above."""
+    for m in _DEPRECAT_RE.finditer(text):
+        lo = max(0, m.start() - _RESOURCE_WINDOW)
+        hi = min(len(text), m.end() + _RESOURCE_WINDOW)
+        if _RESOURCE_WORD_RE.search(text[lo:hi]):
+            return True
+    return False
+
+
+def _demote_to_marketing_if_noise(cls, text):
+    """T-14 ruling-1 P.2 / ruling-2 P.2: a DEPRECATION/SUNSET/ENDPOINT_CHANGE
+    match is only newsletter noise — not a real notice — when the body also
+    matches a marketing pattern AND names no deadline anywhere. Real, dated
+    per-parameter/per-model notices (assemblyai 2026-07/08 mail, T-14) stay
+    their real class even when delivered inside a newsletter — the deadline
+    match is the rescue clause and must not be narrowed to a local window."""
+    if cls not in _DEMOTABLE_CLASSES:
+        return cls
+    has_marketing = any(re.search(p, text, re.IGNORECASE) for p in _MARKETING_PATTERNS)
+    has_deadline = any(re.search(p, text, re.IGNORECASE) for p in _DEADLINE_MARKERS)
+    if has_marketing and not has_deadline:
+        return "MARKETING"
+    return cls
+
+
 _RULES = [
     ("KEY_REVOKED", [
         r"\b(api\s*key|token|credential)s?\b[^.\n]{0,60}\b(revoked|disabled|deactivated|invalidated|suspended)\b",
@@ -501,6 +573,9 @@ _RULES = [
         r"\bEOL\b",
         r"\bretir(e|ed|ing|ement)\b[^.\n]{0,40}\b(api|endpoint|service|version)\b",
     ]),
+    # NOTE: matched via _has_resource_window() in classify_by_rules(), not
+    # via this bare pattern — see _has_resource_window()'s docstring. The
+    # pattern stays here only as the trigger classify_by_rules() looks for.
     ("DEPRECATION", [r"\bdeprecat(e|ed|ing|ion)\b"]),
     ("ENDPOINT_CHANGE", [
         r"\bendpoint\s+(change|update|migrat\w*)\b",
@@ -526,10 +601,7 @@ _RULES = [
         r"\baccount\s+(suspended|action\s+required|verification\s+required)\b",
         r"\baction\s+required\s+on\s+your\s+account\b",
     ]),
-    ("MARKETING", [
-        r"\bunsubscribe\b", r"\bnewsletter\b", r"%\s*off\b", r"\bwebinar\b",
-        r"\bcase\s+study\b", r"\bpromo(tion)?\b",
-    ]),
+    ("MARKETING", _MARKETING_PATTERNS),
 ]
 
 _ACTION_MARKERS = [
@@ -542,8 +614,16 @@ _ACTION_MARKERS = [
 def classify_by_rules(subject, body):
     text = f"{subject}\n{body[:4000]}".lower()
     for cls, patterns in _RULES:
-        if any(re.search(pat, text, re.IGNORECASE) for pat in patterns):
-            return cls
+        if cls == "DEPRECATION":
+            # Bare-word match replaced by the resource-window gate (T-14
+            # ruling-1 P.2): no resource word nearby -> this rule doesn't
+            # fire at all, cascade keeps going (may still land on MARKETING
+            # via its own patterns further down).
+            matched = _has_resource_window(text)
+        else:
+            matched = any(re.search(pat, text, re.IGNORECASE) for pat in patterns)
+        if matched:
+            return _demote_to_marketing_if_noise(cls, text)
     return None
 
 
@@ -897,6 +977,8 @@ def drain_deferred_budget(env, domain_map, whitelist, haiku_invoke=_default_haik
     if not queued:
         return 0, 0
 
+    import imaplib
+
     n_drained = 0
     n_remaining = len(queued)
     try:
@@ -909,10 +991,28 @@ def drain_deferred_budget(env, domain_map, whitelist, haiku_invoke=_default_haik
         for msg_id, received_at in queued:
             try:
                 fetched = fetch_by_id_fn(conn, msg_id)
+            except (imaplib.IMAP4.abort, OSError, ConnectionError) as e:
+                # T-14 ruling-2 P.5: a connection-level failure taints the
+                # WHOLE session, not just this one message — stop draining
+                # here, leave this row and everything after it exactly as
+                # queued (never UNMATCHED for a transient error).
+                ap.notice(
+                    f"молчу: email-intake DEFERRED_BUDGET drain aborted "
+                    f"(connection failure at {msg_id}): {e}"
+                )
+                break
             except Exception as e:
+                # Some other per-message glitch (bad RFC822 parse, etc.) —
+                # this says nothing about whether the message still exists,
+                # so it must NOT become UNMATCHED. Leave it queued, try the
+                # next one; it gets another chance on tomorrow's drain.
                 ap.notice(f"молчу: email-intake DEFERRED_BUDGET drain fetch failed for {msg_id}: {e}")
-                fetched = None
+                continue
             if fetched is None:
+                # The only honest case for UNMATCHED (T-14 ruling-2 P.5):
+                # fetch_by_id_fn ran cleanly and told us, explicitly, that
+                # the SEARCH came back empty — the message is genuinely
+                # gone from the mailbox, not a transient hiccup.
                 _update_deferred_row_unmatched(msg_id)
                 n_remaining -= 1
                 continue
@@ -1332,6 +1432,69 @@ def selftest():
         got = classify_by_rules(subject, body)
         assert got == expected, f"rules: subject={subject!r} expected {expected}, got {got}"
     assert classify_by_rules("hello", "just saying hi, nothing here") is None
+
+    # --- T-14 ruling-2 P.3: DEPRECATION-vs-MARKETING mechanism, tested on the
+    # REAL fragments (UNTRUSTED-EMAIL-QUOTE class data, read by Message-ID,
+    # unsubscribe tokens/links stripped) that made the classifier open two
+    # incidents on 2026-09-05, not on invented text. ---
+    deprecation_demotion_cases = [
+        # 1. Twilio 07-07 — the one real false positive: "deprecated" has no
+        # resource word within 60 chars (only "console", not in the list),
+        # so the window gate never even lets DEPRECATION fire; falls through
+        # to MARKETING on "webinar". This is the ONLY one of the four that
+        # flips (ruling-2 P.1: 1 false positive, not 4).
+        (
+            "MARKETING",
+            "Spend less time in the dashboard, more time in the code",
+            "Don't wait until the old console is deprecated to start learning "
+            "the new environment. Join us for a webinar and get ahead of the curve.",
+        ),
+        # 2. Assemblyai 14-08 — the rescue clause: newsletter footer present
+        # (unsubscribe/newsletter -> marketing=True) but a real dated fact
+        # ("until September 15") -> deadline=True -> stays DEPRECATION. This
+        # is a REAL notice (summary_model/summary_type/auto_chapters go away
+        # on Universal-2), just delivered inside a newsletter; ruling-2 P.4:
+        # assessed as no code impact (assemblyai.ts uses speech_models
+        # plural, not these params) but that is a resolution note, not a
+        # reason to reclassify it as noise.
+        (
+            "DEPRECATION",
+            "Sync API is here | August Newsletter",
+            "Deprecation - September 15, 2026 - The legacy summarization, "
+            "summary_model, and top-level summary_type parameters are "
+            "deprecated, along with auto_chapters. They keep working on "
+            "Universal-2 until September 15 and are not supported on our "
+            "latest Universal models. unsubscribe from this newsletter.",
+        ),
+        # 3. Synthetic empty newsletter — the case the original bug report
+        # ASSUMED was real: resource word near "deprecated", a newsletter
+        # footer, but no date/deadline anywhere. This is the one fixture
+        # that exercises the demotion path actually flipping to noise.
+        (
+            "MARKETING",
+            "Monthly product newsletter",
+            "As part of our regular updates, some parameters are deprecated "
+            "in this release. Read our newsletter for more product news. "
+            "Unsubscribe anytime.",
+        ),
+        # 4. "Endpoint /v1/foo is deprecated." (case list above, unchanged)
+        # already proves the rescue is not needed when there's no marketing
+        # pattern at all — not repeated here.
+    ]
+    for expected, subject, body in deprecation_demotion_cases:
+        got = classify_by_rules(subject, body)
+        assert got == expected, f"demotion: subject={subject!r} expected {expected}, got {got}"
+
+    # deprecat* with NO resource word nearby never becomes DEPRECATION at all
+    # (window gate denies the rule, cascade falls through to no match).
+    assert classify_by_rules("Notice", "Our legacy tool is deprecated now.") is None
+
+    # cascade order still holds: KEY_REVOKED beats MARKETING even when the
+    # same email also carries a newsletter footer.
+    assert classify_by_rules(
+        "Weekly newsletter",
+        "Your API key has been revoked. Unsubscribe from this newsletter anytime.",
+    ) == "KEY_REVOKED"
 
     # --- action markers gate the haiku step ---
     assert has_action_marker("subject line", "Please confirm your account details immediately.")
@@ -1830,6 +1993,62 @@ def selftest_db():
         )
         print("selftest-db: world 7 (DEFERRED_BUDGET drain: oldest-first, gone-from-mailbox "
               "-> UNMATCHED, budget-exhausted -> stays queued) OK")
+
+        # World 7b (T-14 ruling-2 P.5 amendment): a fetch that RAISES (a
+        # transient IMAP hiccup — timeout, bad parse, connection reset) is
+        # NOT the same fact as "SEARCH came back empty". It must leave the
+        # row queued for tomorrow, never UNMATCHED, and must not stop the
+        # rest of the drain from proceeding.
+        # msg-drain-3 (world 7) legitimately stayed DEFERRED_BUDGET on
+        # purpose (budget-exhausted case) -- clear it so world 7b starts
+        # from an empty queue and isn't cross-contaminated by a leftover row.
+        ap.psql(
+            "DELETE FROM email_events WHERE msg_id = '<msg-drain-3@testprov.example>'"
+        )
+        for mid, dom, cls0 in (
+            ("<msg-drain-4@testprov.example>", "testprov.example", "DEFERRED_BUDGET"),
+            ("<msg-drain-5@testprov.example>", "testprov.example", "DEFERRED_BUDGET"),
+        ):
+            ap.psql(
+                "INSERT INTO email_events (msg_id, received_at, from_domain, provider_match, "
+                "class, action_required, summary) VALUES ("
+                f"{ap.sql_literal(mid)}, {ap.sql_literal(ap.now_iso())}, {ap.sql_literal(dom)}, "
+                f"{ap.sql_literal('testprov')}, {ap.sql_literal(cls0)}, FALSE, "
+                f"{ap.sql_literal('UNTRUSTED-EMAIL-QUOTE: old deferred quote')})"
+            )
+        for i, mid in enumerate((
+            "<msg-drain-4@testprov.example>", "<msg-drain-5@testprov.example>",
+        ), start=1):
+            ap.psql(
+                f"UPDATE email_events SET received_at = now() - interval '{2 - i} minutes' "
+                f"WHERE msg_id = {ap.sql_literal(mid)}"
+            )
+
+        def _fake_fetch_by_id_flaky(_conn, msg_id):
+            if msg_id == "<msg-drain-4@testprov.example>":
+                raise ValueError("simulated transient parse/timeout glitch")
+            subject, body, from_addr = "Quota notice", "Your monthly quota is nearly exceeded.", "notices@testprov.example"
+            return subject, body, from_addr.split("@")[-1]
+
+        n_drained_b, n_remaining_b = drain_deferred_budget(
+            {"IMAP_HOST": "unused", "IMAP_USER": "unused", "IMAP_APP_PASSWORD": "unused"},
+            domain_map, whitelist,
+            imap_open_fn=_fake_imap_open, fetch_by_id_fn=_fake_fetch_by_id_flaky,
+        )
+        assert (n_drained_b, n_remaining_b) == (1, 1), f"got {(n_drained_b, n_remaining_b)}"
+
+        row4, _ = ap.psql(
+            "SELECT class FROM email_events WHERE msg_id = '<msg-drain-4@testprov.example>'"
+        )
+        assert row4.strip() == "DEFERRED_BUDGET", (
+            "a transient fetch exception must leave the row queued, never UNMATCHED"
+        )
+        row5, _ = ap.psql(
+            "SELECT class FROM email_events WHERE msg_id = '<msg-drain-5@testprov.example>'"
+        )
+        assert row5.strip() == "QUOTA", "the flaky row must not block the rest of the drain"
+        print("selftest-db: world 7b (transient fetch failure stays queued, "
+              "does not block the rest of the drain) OK")
 
         print("selftest-db: ALL WORLDS OK")
         return 0
