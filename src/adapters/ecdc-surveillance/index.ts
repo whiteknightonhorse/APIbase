@@ -35,7 +35,7 @@ export class EcdcSurveillanceAdapter extends BaseAdapter {
     super({
       provider: 'ecdc-surveillance',
       baseUrl: 'https://opendata.ecdc.europa.eu',
-      timeoutMs: 15_000,
+      timeoutMs: 25_000,
       maxResponseBytes: 6_500_000,
     });
   }
