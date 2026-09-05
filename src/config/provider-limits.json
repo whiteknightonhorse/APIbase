@@ -196,7 +196,9 @@
     "reset_period": "none",
     "docs_url": "https://www.epa.gov/enviro/envirofacts-data-service-api",
     "limit_proof": "US Government open data. No auth, no rate limits. 600K+ regulated facilities.",
-    "probe": { "method": "GET" }
+    "probe": {
+      "method": "GET"
+    }
   },
   "ncei": {
     "display_name": "NOAA NCEI",
@@ -739,7 +741,9 @@
     "reset_period": "none",
     "docs_url": "https://www.gdeltproject.org/data.html",
     "limit_proof": "100% free and open. No auth, no documented rate limits.",
-    "probe": { "timeout_ms": 10000 }
+    "probe": {
+      "timeout_ms": 10000
+    }
   },
   "firms": {
     "display_name": "NASA FIRMS",
@@ -1049,7 +1053,9 @@
     "reset_period": "monthly",
     "docs_url": "https://docs.auto.dev/v2/products/vin-decode",
     "limit_proof": "Starter plan: 1,000 free API calls/month, 5 req/sec, usage-based data fees after",
-    "probe": { "method": "GET" }
+    "probe": {
+      "method": "GET"
+    }
   },
   "hunter": {
     "display_name": "Hunter.io",
@@ -1131,7 +1137,10 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://www.who.int/data/gho/info/gho-odata-api",
-    "limit_proof": "UN/WHO open data, no auth required, Azure CDN-backed, no documented rate limits"
+    "limit_proof": "UN/WHO open data, no auth required, Azure CDN-backed, no documented rate limits",
+    "probe": {
+      "timeout_ms": 15000
+    }
   },
   "disease": {
     "display_name": "disease.sh (COVID/Influenza)",
@@ -2063,7 +2072,9 @@
     "reset_period": "none",
     "docs_url": "https://www.epa.gov/enviro/sdwis-model",
     "limit_proof": "EPA EFSERVICE is US Gov public domain with no documented rate limits. No authentication required. SDWIS data under Safe Drinking Water Act mandatory public disclosure.",
-    "probe": { "method": "GET" }
+    "probe": {
+      "method": "GET"
+    }
   },
   "bls-macro": {
     "display_name": "BLS Macro (Bureau of Labor Statistics)",
@@ -3387,7 +3398,9 @@
     "reset_period": "none",
     "docs_url": "https://www.ine.pt/xportal/xmain?xpid=INE&xpgid=ine_api_v2",
     "limit_proof": "Public Statistics Portugal (INE) JSON indicator API (www.ine.pt/ine/json_indicador); no authentication or API key required, described as free of charge and publicly available, no specific request-rate quota published on the official API documentation pages (ine_api_v2/ine_api_db).",
-    "probe": { "method": "GET" }
+    "probe": {
+      "method": "GET"
+    }
   },
   "bundesbank-timeseries": {
     "display_name": "Deutsche Bundesbank SDMX",
@@ -3514,7 +3527,9 @@
     "reset_period": "none",
     "docs_url": "https://www.semanticscholar.org/product/api",
     "limit_proof": "No authentication or API key required for public endpoints. Docs (2026-09-03, 'Do I need an API Key?' section): 'Most Semantic Scholar endpoints are available to the public without authentication, but they are rate-limited to 1000 requests per second shared among all unauthenticated users' \u2014 a shared global pool, not a per-caller quota; observed live 429 with a shared-pool message during testing, confirming the throttle is real and shared.",
-    "probe": { "timeout_ms": 10000 }
+    "probe": {
+      "timeout_ms": 10000
+    }
   },
   "sepa-scotland": {
     "display_name": "SEPA Scotland Rainfall",
@@ -3550,7 +3565,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://www.hathitrust.org/member-libraries/resources-for-librarians/data-resources/bibliographic-api/",
-    "limit_proof": "No API key or registration required. Docs state the API 'is intended for use to retrieve information about small numbers of items at a time' and point bulk retrieval to OAI/hathifiles instead, but document no specific numeric rate limit (verified via archived copy of the docs page, 2026-09-04 — www.hathitrust.org itself returns Cloudflare 403 to non-browser clients including this check). No 429s or rate-limit headers observed across repeated live test queries."
+    "limit_proof": "No API key or registration required. Docs state the API 'is intended for use to retrieve information about small numbers of items at a time' and point bulk retrieval to OAI/hathifiles instead, but document no specific numeric rate limit (verified via archived copy of the docs page, 2026-09-04 \u2014 www.hathitrust.org itself returns Cloudflare 403 to non-browser clients including this check). No 429s or rate-limit headers observed across repeated live test queries."
   },
   "netherlands-pdok-kadaster": {
     "display_name": "PDOK Kadaster Kadastrale Kaart",
@@ -3559,7 +3574,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://www.pdok.nl/introductie/-/article/kadastrale-kaart",
-    "limit_proof": "PDOK (Publieke Dienstverlening Op de Kaart) is the Dutch national open-data geo platform; the OGC API's own OpenAPI document declares license CC BY 4.0 (commercial reuse permitted with attribution). No API key, signup, or documented rate limit — verified live: repeated queries returned no 429s or rate-limit headers, and the only 400s observed were from unsupported query params (skipGeometry, properties), not throttling."
+    "limit_proof": "PDOK (Publieke Dienstverlening Op de Kaart) is the Dutch national open-data geo platform; the OGC API's own OpenAPI document declares license CC BY 4.0 (commercial reuse permitted with attribution). No API key, signup, or documented rate limit \u2014 verified live: repeated queries returned no 429s or rate-limit headers, and the only 400s observed were from unsupported query params (skipGeometry, properties), not throttling."
   },
   "norway-kartverket-stedsnavn": {
     "display_name": "Kartverket Stedsnavn (Norwegian Place Names)",
@@ -3568,7 +3583,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://ws.geonorge.no/stedsnavn/v1/",
-    "limit_proof": "Kartverket (Norwegian Mapping Authority) publishes stedsnavn under NLOD 2.0 (Norsk lisens for offentlige data), Norway's standard open-government-data licence — free reuse incl. commercial, attribution required. No API key or registration required. No documented rate limit in the service's own OpenAPI/Swagger doc — verified live: repeated queries returned no 429s or rate-limit headers."
+    "limit_proof": "Kartverket (Norwegian Mapping Authority) publishes stedsnavn under NLOD 2.0 (Norsk lisens for offentlige data), Norway's standard open-government-data licence \u2014 free reuse incl. commercial, attribution required. No API key or registration required. No documented rate limit in the service's own OpenAPI/Swagger doc \u2014 verified live: repeated queries returned no 429s or rate-limit headers."
   },
   "bis-stats": {
     "display_name": "BIS Statistics",
@@ -3577,7 +3592,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://www.bis.org/statistics/dsd_dissem.htm",
-    "limit_proof": "BIS Statistics SDMX API is a public open-access service maintained by the Bank for International Settlements; no API key, signup, or documented rate limit — verified live: repeated queries returned no 429s or rate-limit headers."
+    "limit_proof": "BIS Statistics SDMX API is a public open-access service maintained by the Bank for International Settlements; no API key, signup, or documented rate limit \u2014 verified live: repeated queries returned no 429s or rate-limit headers."
   },
   "uk-ea-flood-monitoring": {
     "display_name": "UK EA Flood Monitoring",
