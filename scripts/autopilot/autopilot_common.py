@@ -429,8 +429,21 @@ def notice_dedup(incident_id: str, reason: str, line: str,
 
     if fire:
         notice(line)
-
-    state[incident_id] = {"reason": reason, "last_ts": now.isoformat()}
+        # T-03: only stamp last_ts when we actually fired. Stamping it on
+        # EVERY call (fired or not) resets the interval clock on every
+        # 10-minute tick, so `(now - last_ts) >= interval_s` compares
+        # against a last_ts that's always ~10 minutes old -- never >=
+        # interval_s -- meaning the "at most once per interval_s" contract
+        # this docstring promises degrades into "exactly once, ever, then
+        # permanent silence for that (incident_id, reason) pair for as long
+        # as the SAME reason keeps recurring. Measured live: DAILY_CAP for
+        # INC-564ce1/INC-8e77a4 fired once at 2026-09-05T07:50:34Z and never
+        # again for the rest of that day despite the condition recurring
+        # every tick (confirmed via consume_daily_task_slot()'s own counter
+        # file still pegged at the cap) -- exactly the "tишина" this
+        # function exists to prevent, just on a 1-hour cadence instead of a
+        # 10-minute one.
+        state[incident_id] = {"reason": reason, "last_ts": now.isoformat()}
     try:
         os.makedirs(os.path.dirname(NOTICE_DEDUP_FILE), exist_ok=True)
         with open(NOTICE_DEDUP_FILE, "w", encoding="utf-8") as f:

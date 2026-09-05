@@ -250,6 +250,27 @@ def selftest():
             json.dump(_state, f)
         ap.notice_dedup("inc-1", "DAILY_CAP", "same reason, interval elapsed")
         assert _log_line_count() == 3, "same reason but the interval elapsed -> must fire again, not stay suppressed forever"
+
+        # T-03: a SUPPRESSED call must not reset the interval clock. Caught
+        # live 2026-09-05 — every 10-minute tick that hit the same reason
+        # kept stamping last_ts to "now" even when it didn't fire, so the
+        # interval-elapsed check (now - last_ts >= interval_s) was compared
+        # against a last_ts that was always ~10 minutes old and NEVER
+        # actually reached interval_s: DAILY_CAP for INC-564ce1/INC-8e77a4
+        # fired once at 07:50:34Z and then went silent for the rest of that
+        # day despite the condition recurring every tick. The pre-existing
+        # "interval elapsed" case above force-backdates last_ts right before
+        # the firing call, which masks this bug entirely (it overwrites
+        # whatever an intervening suppressed call already wrote) — this
+        # asserts the stored last_ts directly instead of backdating it.
+        ap.notice_dedup("inc-2", "DAILY_CAP", "inc-2 first sighting")
+        _ts_after_first = json.loads(open(_dedup_path, encoding="utf-8").read())["inc-2"]["last_ts"]
+        ap.notice_dedup("inc-2", "DAILY_CAP", "inc-2 suppressed, same reason, within interval")
+        _ts_after_suppressed = json.loads(open(_dedup_path, encoding="utf-8").read())["inc-2"]["last_ts"]
+        assert _ts_after_suppressed == _ts_after_first, (
+            "a suppressed call must not touch last_ts -- doing so resets the interval clock on "
+            "every tick, degrading 'at most once per interval_s' into 'once, ever, then silence'"
+        )
     finally:
         ap.NOTICES_LOG, ap.NOTICE_DEDUP_FILE = _orig_notices_log, _orig_dedup_file
         for _p in (_log_path, _dedup_path):

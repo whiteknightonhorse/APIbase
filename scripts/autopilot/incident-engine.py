@@ -808,10 +808,32 @@ def run():
         return 0
     opened = detect_from_provider_status()
     sync_tool_status()
+    # T-03: advance_waiting_human() now runs BEFORE route_auto_incidents().
+    # Both spend the SAME shared consume_daily_task_slot() budget (I2's
+    # ≤N/day cap). route_auto_incidents() already orders its own OPEN
+    # candidates `severity, created_at` so "SEV1 never loses a slot to an
+    # older SEV3" -- but that ordering only ever covered candidates within
+    # THAT function's own query. A WAITING_HUMAN incident whose operator has
+    # already answered (human-done watcher, F2/J3) is a DIFFERENT query,
+    # called after route_auto_incidents() in tick order, so a day's worth of
+    # freshly-OPENED AUTO incidents (SEV1 or not, including repeat
+    # QUOTA_EXHAUSTED noise for a provider whose own PAYMENT_REQUIRED
+    # incident is the very thing waiting) could burn the entire daily cap
+    # before the human-done branch ever got a look-in -- measured live
+    # 2026-09-04/05: INC-564ce1 (zyte) and INC-8e77a4 (api2pdf), both SEV1
+    # with a filled-in operator answer sitting in HUMAN_DONE_DIR since the
+    # morning of 09-05, never got a slot for the rest of that day because
+    # autopilot-router-daily.count had already hit the cap by 07:50 UTC --
+    # the reader ran every tick, found and parsed the marker correctly, and
+    # was starved every single time (see incidents.md journal T-03). A
+    # human's answer represents work already done and should never lose the
+    # cap race to a machine-detected incident nobody has looked at yet, so
+    # this branch now claims its slot(s) first; route_auto_incidents() gets
+    # whatever the day's budget has left over.
+    advance_waiting_human()
     route_auto_incidents()
     bridge_key_incidents()
     advance_remediation_queued()
-    advance_waiting_human()
     advance_verifying()
     write_heartbeat()
     print(f"incident-engine: tick complete, {opened} new incident(s) opened")
