@@ -73,6 +73,16 @@ Cascade (H3, cheapest first, $0 until step 4):
      model invocation — the taskloop protocol's own LAW ("Потолок расхода
      стоит в ТОЙ ЖЕ строке, что и вызов модели").
 
+DEFERRED_BUDGET is a queue, not a terminal state (T-14 ruling-1, P.5): once
+today's 3 haiku calls are spent, run() drains the backlog (drain_deferred_
+budget(), called AFTER new mail) by re-reading each queued msg_id from the
+mailbox by Message-ID and re-running the SAME cascade, UPDATE-ing the
+existing email_events row in place. A message that has aged out of the
+mailbox lands honestly on UNMATCHED ("no longer in mailbox"), never
+silently disappears; a message still stuck behind the cap stays
+DEFERRED_BUDGET, unchanged, for tomorrow. See drain_deferred_budget()'s own
+docstring.
+
 Email class -> incident kind: H3's 12 classes are NOT E3's 12 incident
 kinds (different enums, different tables) — CLASS_TO_KIND below is this
 task's own mapping, chosen to match I1's routing table and N's worked
@@ -700,6 +710,58 @@ def _tool_context(provider):
     return tool_count, revenue_pct
 
 
+def _classify_message(from_domain, provider, whitelist, subject, body,
+                       haiku_invoke=_default_haiku_invoke):
+    """The three-tier decision (rules -> action-marker gate -> haiku) shared
+    by BOTH the normal new-mail path (process_message) and the
+    DEFERRED_BUDGET drain step (ruling-1 on T-14, P.5) — extracted so a rule
+    change (e.g. ruling-1 P.2's DEPRECATION-vs-MARKETING fix) is exercised
+    identically by whichever caller re-runs it, never duplicated and left to
+    drift. Returns (class, action_required, source)."""
+    if provider is None:
+        source = "whitelist" if _base_domain(from_domain) in whitelist else "unmatched-domain"
+        return "UNMATCHED", False, source
+    cls = classify_by_rules(subject, body)
+    if cls is not None:
+        return cls, ACTION_REQUIRED_DEFAULT.get(cls, True), "rules"
+    if has_action_marker(subject, body):
+        return classify_with_haiku(subject, body, invoke_fn=haiku_invoke)
+    return "UNMATCHED", False, "no-action-marker"
+
+
+def _maybe_open_incident(cls, action_required, provider, msg_id, from_domain, received_at,
+                          summary, source):
+    """Opens/merges an incident iff this class+action_required combination
+    warrants one (CLASS_TO_KIND/ACTION_REQUIRED_DEFAULT's own contract).
+    Extracted alongside _classify_message so the drain step (P.5) reuses the
+    EXACT same incident-opening path a fresh email would get — a reclassified
+    backlog email is not a second-class citizen. Returns incident_id or
+    None."""
+    if not (action_required and cls in CLASS_TO_KIND):
+        return None
+    kind = CLASS_TO_KIND[cls]
+    tool_count, revenue_pct = _tool_context(provider)
+    evidence = {
+        "email": {
+            "msg_id": msg_id, "from_domain": from_domain, "class": cls,
+            "received_at": received_at, "quote": summary,
+        },
+    }
+    try:
+        incident_id, _created = ap.open_or_merge_incident(
+            kind=kind, provider=provider, evidence=evidence, detected_by="email",
+            tool_count=tool_count, revenue_pct=revenue_pct,
+            what=f"письмо от провайдера, класс {cls} (источник: {source})",
+            system_did="классификатор без инструментов, выход — enum со схема-валидацией (H4)",
+            actor="email-intake",
+        )
+        return incident_id
+    except (AssertionError, RuntimeError) as e:
+        ap.notice(f"молчу: email-intake failed to open/merge incident for {msg_id} "
+                  f"({provider}/{kind}): {e}")
+        return None
+
+
 def process_message(msg_id, received_at, from_addr, subject, body, domain_map, whitelist,
                      haiku_invoke=_default_haiku_invoke):
     """Idempotent on msg_id (Message-ID). Returns the final class string."""
@@ -709,21 +771,9 @@ def process_message(msg_id, received_at, from_addr, subject, body, domain_map, w
 
     from_domain = from_addr.split("@")[-1].lower() if "@" in from_addr else (from_addr or "").lower()
     provider = match_provider(from_domain, domain_map)
-    source = None
-    if provider is None:
-        cls = "UNMATCHED"
-        action_required = False
-        source = "whitelist" if _base_domain(from_domain) in whitelist else "unmatched-domain"
-    else:
-        cls = classify_by_rules(subject, body)
-        if cls is not None:
-            action_required = ACTION_REQUIRED_DEFAULT.get(cls, True)
-            source = "rules"
-        elif has_action_marker(subject, body):
-            cls, action_required, source = classify_with_haiku(subject, body, invoke_fn=haiku_invoke)
-        else:
-            cls, action_required = "UNMATCHED", False
-            source = "no-action-marker"
+    cls, action_required, source = _classify_message(
+        from_domain, provider, whitelist, subject, body, haiku_invoke
+    )
 
     # H4: the ONLY place the email's own text is stored — a truncated,
     # explicitly-labeled quote. Every downstream consumer (incident evidence,
@@ -733,27 +783,8 @@ def process_message(msg_id, received_at, from_addr, subject, body, domain_map, w
     quote = f"{subject.strip()} — {body.strip()}"[:460]
     summary = f"UNTRUSTED-EMAIL-QUOTE: {quote}"[:500]
 
-    incident_id = None
-    if action_required and cls in CLASS_TO_KIND:
-        kind = CLASS_TO_KIND[cls]
-        tool_count, revenue_pct = _tool_context(provider)
-        evidence = {
-            "email": {
-                "msg_id": msg_id, "from_domain": from_domain, "class": cls,
-                "received_at": received_at, "quote": summary,
-            },
-        }
-        try:
-            incident_id, _created = ap.open_or_merge_incident(
-                kind=kind, provider=provider, evidence=evidence, detected_by="email",
-                tool_count=tool_count, revenue_pct=revenue_pct,
-                what=f"письмо от провайдера, класс {cls} (источник: {source})",
-                system_did="классификатор без инструментов, выход — enum со схема-валидацией (H4)",
-                actor="email-intake",
-            )
-        except (AssertionError, RuntimeError) as e:
-            ap.notice(f"молчу: email-intake failed to open/merge incident for {msg_id} "
-                      f"({provider}/{kind}): {e}")
+    incident_id = _maybe_open_incident(cls, action_required, provider, msg_id, from_domain,
+                                        received_at, summary, source)
 
     _, rc2 = ap.psql(
         "INSERT INTO email_events (msg_id, received_at, from_domain, provider_match, class, "
@@ -767,6 +798,157 @@ def process_message(msg_id, received_at, from_addr, subject, body, domain_map, w
     if rc2 != 0:
         ap.notice(f"молчу: email-intake could not record email_events row for {msg_id}: {_}")
     return cls
+
+
+# ---------------------------------------------------------------------------
+# DEFERRED_BUDGET drain (ruling-1 on T-14, P.5) — DEFERRED_BUDGET is a queue,
+# not a terminal state. IMAP_LOOKBACK_DAYS (default 2, H1) means
+# fetch_messages() alone would never see a deferred email again once it
+# scrolls out of that window, and process_message()'s own dedup-by-msg_id
+# means a re-fetched copy of the SAME email is a silent no-op — so without
+# this step, "3 calls/day" silently became "3 emails/day, ever" (T-14's own
+# finding: "отложенное без очереди — это выброшенное"). The email_events row
+# IS the queue: re-read each queued msg_id from the mailbox by Message-ID,
+# re-run the FULL cascade (rules may have changed since the email was
+# deferred — exactly what ruling-1 P.2's fix does for some of the real
+# backlog), and UPDATE the row in place instead of INSERTing a new one. No
+# new table, no email bodies persisted, the 3/day haiku cap is untouched
+# (classify_with_haiku's own consume_daily_haiku_slot() is still the only
+# thing that spends it) — new mail is always processed FIRST (run() calls
+# this only after the fetch_messages() loop), then the backlog, oldest
+# queued first, stopping the instant the day's budget is gone again.
+# ---------------------------------------------------------------------------
+def _open_imap_readonly(env):
+    import imaplib
+
+    conn = imaplib.IMAP4_SSL(env["IMAP_HOST"], int(env.get("IMAP_PORT", "993")))
+    conn.login(env["IMAP_USER"], env["IMAP_APP_PASSWORD"])
+    typ, _ = conn.select(env.get("IMAP_FOLDER", "INBOX"), readonly=True)  # never mark-as-read/delete
+    if typ != "OK":
+        raise RuntimeError(f"IMAP SELECT {env.get('IMAP_FOLDER', 'INBOX')!r} failed for drain")
+    return conn
+
+
+def _fetch_one_by_message_id(conn, msg_id):
+    """Returns (subject, body, from_domain) or None if the message no longer
+    exists in the (read-only) mailbox — e.g. it aged out / was moved by the
+    human. Same RFC822 parse as fetch_messages() itself, kept separate
+    because fetch_messages() pulls a whole SINCE-window batch while this
+    needs exactly one already-known Message-ID."""
+    import email as email_lib
+
+    typ, data = conn.search(None, f'(HEADER Message-ID "{msg_id}")')
+    if typ != "OK" or not data or not data[0]:
+        return None
+    nums = data[0].split()
+    if not nums:
+        return None
+    typ2, msgdata = conn.fetch(nums[0], "(RFC822)")
+    if typ2 != "OK" or not msgdata or not msgdata[0]:
+        return None
+    m = email_lib.message_from_bytes(msgdata[0][1])
+    subject = _decode_header_str(m.get("Subject", ""))
+    body = _extract_body(m)
+    from_addr = email_lib.utils.parseaddr(m.get("From", ""))[1]
+    from_domain = from_addr.split("@")[-1].lower() if "@" in from_addr else (from_addr or "").lower()
+    return subject, body, from_domain
+
+
+def _update_deferred_row(msg_id, provider, cls, action_required, incident_id, summary):
+    _, rc = ap.psql(
+        "UPDATE email_events SET "
+        f"provider_match = {ap.sql_literal(provider)}, class = {ap.sql_literal(cls)}, "
+        f"action_required = {'TRUE' if action_required else 'FALSE'}, "
+        f"incident_id = {ap.sql_literal(incident_id)}, summary = {ap.sql_literal(summary)} "
+        f"WHERE msg_id = {ap.sql_literal(msg_id)}"
+    )
+    if rc != 0:
+        ap.notice(f"молчу: email-intake DEFERRED_BUDGET drain could not update {msg_id}")
+
+
+def _update_deferred_row_unmatched(msg_id):
+    """The message is gone from the mailbox — an honest terminal, not a
+    silent loss (T-14: 'отложенное без очереди — это выброшенное', this is
+    the one case where there is genuinely nothing left to reclassify)."""
+    _, rc = ap.psql(
+        "UPDATE email_events SET class = 'UNMATCHED', action_required = FALSE, "
+        "summary = COALESCE(summary, '') || ' (deferred, no longer in mailbox)' "
+        f"WHERE msg_id = {ap.sql_literal(msg_id)}"
+    )
+    if rc != 0:
+        ap.notice(f"молчу: email-intake DEFERRED_BUDGET drain could not mark {msg_id} UNMATCHED")
+
+
+def drain_deferred_budget(env, domain_map, whitelist, haiku_invoke=_default_haiku_invoke,
+                           imap_open_fn=_open_imap_readonly, fetch_by_id_fn=_fetch_one_by_message_id):
+    """Returns (n_drained, n_remaining). Called from run() AFTER new mail is
+    processed. Never raises — a mailbox that can't be opened for the drain
+    leaves the whole queue exactly where it was (email_events rows are
+    untouched, nothing lost), same fail-soft spirit as the rest of this
+    module."""
+    rows, rc = ap.psql(
+        "SELECT msg_id, received_at::text FROM email_events WHERE class = 'DEFERRED_BUDGET' "
+        "ORDER BY received_at"
+    )
+    if rc != 0:
+        ap.notice(f"молчу: email-intake could not read DEFERRED_BUDGET queue: {rows}")
+        return 0, 0
+    queued = [line.split(ap.SEP) for line in rows.splitlines() if line.strip()]
+    if not queued:
+        return 0, 0
+
+    n_drained = 0
+    n_remaining = len(queued)
+    try:
+        conn = imap_open_fn(env)
+    except Exception as e:
+        ap.notice(f"молчу: email-intake DEFERRED_BUDGET drain could not open mailbox: {e}")
+        return 0, n_remaining
+
+    try:
+        for msg_id, received_at in queued:
+            try:
+                fetched = fetch_by_id_fn(conn, msg_id)
+            except Exception as e:
+                ap.notice(f"молчу: email-intake DEFERRED_BUDGET drain fetch failed for {msg_id}: {e}")
+                fetched = None
+            if fetched is None:
+                _update_deferred_row_unmatched(msg_id)
+                n_remaining -= 1
+                continue
+
+            subject, body, from_domain = fetched
+            provider = match_provider(from_domain, domain_map)
+            cls, action_required, source = _classify_message(
+                from_domain, provider, whitelist, subject, body, haiku_invoke
+            )
+            if cls == "DEFERRED_BUDGET":
+                break  # today's budget is gone again — rest waits for tomorrow, untouched
+
+            quote = f"{subject.strip()} — {body.strip()}"[:460]
+            summary = f"UNTRUSTED-EMAIL-QUOTE: {quote}"[:500]
+            incident_id = _maybe_open_incident(cls, action_required, provider, msg_id, from_domain,
+                                                received_at, summary, source)
+            _update_deferred_row(msg_id, provider, cls, action_required, incident_id, summary)
+            n_drained += 1
+            n_remaining -= 1
+    finally:
+        try:
+            conn.close()
+        except Exception:
+            pass
+        try:
+            conn.logout()
+        except Exception:
+            pass
+
+    # One deduplicated note per run with the queue depth (T-14 P.5's own
+    # acceptance bar) — never one line per drained message, that would be
+    # exactly the "молчу:" volume problem A7/notice_dedup already exists to
+    # avoid, just for a class of event that didn't have it yet.
+    ap.notice(f"email-intake: DEFERRED_BUDGET drain — {n_drained} reclassified this run, "
+              f"{n_remaining} still queued")
+    return n_drained, n_remaining
 
 
 # ---------------------------------------------------------------------------
@@ -1033,9 +1215,15 @@ def run():
             # the run (N: "один 500 не роняет", same spirit here).
             ap.notice(f"молчу: email-intake failed to process message {m.get('msg_id')}: {e}")
 
+    # P.5 (ruling-1 on T-14): drain the DEFERRED_BUDGET backlog AFTER new
+    # mail — new mail always wins a haiku-budget race, the backlog is
+    # strictly lower priority than today's own inbox.
+    n_drained, n_deferred_remaining = drain_deferred_budget(env, domain_map, whitelist)
+
     record_run_result("OK", n_read=n_processed)  # OK even if n_processed == 0 — "0 писем" is a real answer
     write_heartbeat()
-    print(f"email-intake: run complete, {n_processed} message(s) processed")
+    print(f"email-intake: run complete, {n_processed} message(s) processed, "
+          f"{n_drained} DEFERRED_BUDGET drained ({n_deferred_remaining} still queued)")
     return 0  # N.18: only a run that actually read the mailbox (even to 0 messages) is rc=0
 
 
@@ -1542,6 +1730,106 @@ def selftest_db():
             if os.path.exists(imap_ok_path):
                 os.remove(imap_ok_path)
         print("selftest-db: world 6 (N.18: rc distinguishes NOINFO from a completed 0-message OK run) OK")
+
+        # World 7 (ruling-1 on T-14, P.5): DEFERRED_BUDGET is a queue, drained
+        # oldest-first, on the SAME email_events row (UPDATE, never a second
+        # INSERT), stopping the instant the day's haiku budget is gone again
+        # — a message whose mailbox copy is gone lands honestly on UNMATCHED,
+        # never silently vanishes. imap_open_fn/fetch_by_id_fn are injected
+        # fakes (same pattern as haiku_invoke elsewhere in this file) so this
+        # never opens a real socket.
+        for mid, dom, cls0 in (
+            ("<msg-drain-1@testprov.example>", "testprov.example", "DEFERRED_BUDGET"),
+            ("<msg-drain-2@testprov.example>", "testprov.example", "DEFERRED_BUDGET"),
+            ("<msg-drain-3@testprov.example>", "testprov.example", "DEFERRED_BUDGET"),
+        ):
+            ap.psql(
+                "INSERT INTO email_events (msg_id, received_at, from_domain, provider_match, "
+                "class, action_required, summary) VALUES ("
+                f"{ap.sql_literal(mid)}, {ap.sql_literal(ap.now_iso())}, {ap.sql_literal(dom)}, "
+                f"{ap.sql_literal('testprov')}, {ap.sql_literal(cls0)}, FALSE, "
+                f"{ap.sql_literal('UNTRUSTED-EMAIL-QUOTE: old deferred quote')})"
+            )
+        # received_at above is ~now for all three -- force the ORDER BY
+        # received_at drain order deterministically (1, 2, 3) rather than
+        # relying on sub-millisecond insert timing.
+        for i, mid in enumerate((
+            "<msg-drain-1@testprov.example>", "<msg-drain-2@testprov.example>",
+            "<msg-drain-3@testprov.example>",
+        ), start=1):
+            ap.psql(
+                f"UPDATE email_events SET received_at = now() - interval '{3 - i} minutes' "
+                f"WHERE msg_id = {ap.sql_literal(mid)}"
+            )
+        # Pre-exhaust today's haiku budget (3/day) so msg-drain-3 — which
+        # needs haiku (has an action-marker, matches no rule) — genuinely
+        # re-defers instead of spending a real (fake) call, proving the
+        # "stop at the cap, rest waits for tomorrow" half of P.5.
+        assert consume_daily_haiku_slot() and consume_daily_haiku_slot() and consume_daily_haiku_slot()
+
+        _DRAIN_FIXTURES = {
+            "<msg-drain-1@testprov.example>": (
+                "Quota notice", "Your monthly quota is nearly exceeded.", "notices@testprov.example",
+            ),
+            "<msg-drain-3@testprov.example>": (
+                "Action required", "Please confirm your account details immediately, nothing else here.",
+                "notices@testprov.example",
+            ),
+            # msg-drain-2 deliberately absent: simulates "no longer in the mailbox".
+        }
+
+        class _FakeImapConn:
+            def close(self):
+                pass
+
+            def logout(self):
+                pass
+
+        def _fake_imap_open(_env):
+            return _FakeImapConn()
+
+        def _fake_fetch_by_id(_conn, msg_id):
+            fx = _DRAIN_FIXTURES.get(msg_id)
+            if fx is None:
+                return None
+            subject, body, from_addr = fx
+            from_domain = from_addr.split("@")[-1]
+            return subject, body, from_domain
+
+        n_drained, n_remaining = drain_deferred_budget(
+            {"IMAP_HOST": "unused", "IMAP_USER": "unused", "IMAP_APP_PASSWORD": "unused"},
+            domain_map, whitelist,
+            imap_open_fn=_fake_imap_open, fetch_by_id_fn=_fake_fetch_by_id,
+        )
+        assert (n_drained, n_remaining) == (1, 1), f"got {(n_drained, n_remaining)}"
+
+        row1, _ = ap.psql(
+            "SELECT class, action_required, incident_id FROM email_events "
+            "WHERE msg_id = '<msg-drain-1@testprov.example>'"
+        )
+        f1 = row1.split(ap.SEP)
+        assert f1[0] == "QUOTA" and f1[1] == "t", f"got {f1}"
+        assert f1[2], "msg-drain-1 (QUOTA, action_required) must open/merge an incident"
+        inc1 = ap.get_incident(f1[2])
+        assert inc1["kind"] == "QUOTA_LOW"
+
+        row2, _ = ap.psql(
+            "SELECT class, action_required, summary FROM email_events "
+            "WHERE msg_id = '<msg-drain-2@testprov.example>'"
+        )
+        f2 = row2.split(ap.SEP)
+        assert f2[0] == "UNMATCHED" and f2[1] == "f", f"got {f2}"
+        assert "no longer in mailbox" in f2[2], "gone-from-mailbox must say so, not vanish silently"
+
+        row3, _ = ap.psql(
+            "SELECT class FROM email_events WHERE msg_id = '<msg-drain-3@testprov.example>'"
+        )
+        assert row3.strip() == "DEFERRED_BUDGET", (
+            "msg-drain-3 must stay DEFERRED_BUDGET when the daily haiku cap is exhausted "
+            "again mid-drain -- it waits for tomorrow, it is not lost"
+        )
+        print("selftest-db: world 7 (DEFERRED_BUDGET drain: oldest-first, gone-from-mailbox "
+              "-> UNMATCHED, budget-exhausted -> stays queued) OK")
 
         print("selftest-db: ALL WORLDS OK")
         return 0
