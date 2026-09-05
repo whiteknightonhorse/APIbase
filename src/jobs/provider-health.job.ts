@@ -712,6 +712,21 @@ async function recordEmergencySuppressed(
 // Active probe execution
 // ---------------------------------------------------------------------------
 
+/**
+ * UC-682: is this health-check URL BIS Statistics' SDMX endpoint?
+ * Parses the URL and compares the exact hostname (or an exact `stats.bis.org`
+ * subdomain) instead of a raw substring check, which a crafted health_url
+ * like `https://evil.example/?x=stats.bis.org` could otherwise slip past.
+ */
+function isBisStatsHost(url: string): boolean {
+  try {
+    const { hostname } = new URL(url);
+    return hostname === 'stats.bis.org' || hostname.endsWith('.stats.bis.org');
+  } catch {
+    return false;
+  }
+}
+
 async function probeHead(
   db: PrismaClient,
   redis: Redis,
@@ -735,7 +750,7 @@ async function probeHead(
   // UC-682: BIS Statistics SDMX API requires specific Accept header (406 without it).
   // Include it in all probe headers for SDMX endpoints.
   const probeHeaders: Record<string, string> = { 'User-Agent': 'APIbase-HealthCheck/2.0' };
-  if (provider === 'bis-stats' || healthUrl.includes('stats.bis.org')) {
+  if (provider === 'bis-stats' || isBisStatsHost(healthUrl)) {
     probeHeaders['Accept'] = 'application/vnd.sdmx.data+json;version=1.0.0';
   }
 
@@ -747,7 +762,7 @@ async function probeHead(
       Range: 'bytes=0-0',
     };
     // UC-682: preserve SDMX Accept header in GET retry as well
-    if (provider === 'bis-stats' || healthUrl.includes('stats.bis.org')) {
+    if (provider === 'bis-stats' || isBisStatsHost(healthUrl)) {
       getHeaders['Accept'] = 'application/vnd.sdmx.data+json;version=1.0.0';
     }
     const getResult = await fetchOutcome(healthUrl, 'GET', getHeaders, HEALTH_CHECK_GET_TIMEOUT_MS);
