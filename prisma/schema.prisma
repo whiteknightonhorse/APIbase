@@ -182,6 +182,18 @@ model Tool {
   // config/tool_provider_config.yaml + scripts/migrate-upstream-cost.py) — the TOOL_STATUS
   // margin gate only enforces price_usd >= upstream_cost_usd * 1.3 where this is set.
   upstream_cost_usd Decimal? @db.Decimal(18, 8)
+  // T-01 (2026-09-05, Fable ruling-1 decision C): price floor, NOT the same fact as
+  // upstream_cost_usd above. upstream_cost_usd is a cost MEASUREMENT (NULL = not measured,
+  // never a guess); price_floor_usd is the lowest price_usd this tool may legally carry —
+  // written ONLY when that floor came from a measured cost (basis='measured') or from an
+  // explicit operator order to price off the documented-max fallback
+  // (basis='documented_max', e.g. scrape.screenshot). NULL floor never blocks, exactly like
+  // NULL upstream_cost_usd today. This is the C1 lock: it keeps failsMarginGate() true even
+  // after a provider-wide manual `UPDATE tools SET status='healthy'` bypasses the normal
+  // reconciler (see sync_tool_status()'s own status_source gate) and revives a tool whose
+  // price was never fixed.
+  price_floor_usd   Decimal? @db.Decimal(18, 8)
+  price_floor_basis String? // measured | documented_max
   // AP-1 (2026-09-03, autopilot E5): audit trail for `status`. NULL status_source means
   // pre-autopilot / hand-set — no drive-by write ever loses "who changed this and why".
   // A `status` write with status_source='autopilot' must always set the other two together

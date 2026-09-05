@@ -18,6 +18,15 @@ occurrences), independent of src/pipeline/stages/tool-status.stage.ts's own
 link between them. Now read from src/config/margin.json, the one file both the
 TS runtime gate and this alert cron load.
 
+T-01 (2026-09-05) / Fable ruling-1 (dispute 01-law-never-sell-below-cost) decision C — a
+fourth check, same cron, same dedup-by-title-prefix idempotence, READ-ONLY:
+
+  - "Price below floor: <tool_id>" — tools.price_floor_usd (migration 0013) is a DIFFERENT
+    fact from upstream_cost_usd: it's the lowest price_usd a tool may legally carry, written
+    only when an operator order or a documented-max fallback set it without necessarily also
+    setting a matching cost measurement. A row can be here with upstream_cost_usd still NULL
+    (check 1 above would stay silent on it) — this check exists precisely for that gap.
+
 T-11 (2026-09-05) / Fable ruling-1 decision A/B — two more checks, same cron,
 same dedup-by-title-prefix idempotence, both READ-ONLY (never write price_usd,
 never touch a provider, per this task's own boundary):
@@ -48,6 +57,7 @@ REPO = "whiteknightonhorse/APIbase"
 TITLE_PREFIX = "Margin gate blocking: "
 STALE_PREFIX = "Cost model stale: "
 MISSING_PREFIX = "Cost model missing: "
+FLOOR_PREFIX = "Price below floor: "
 
 
 with open(f"{ROOT}/src/config/margin.json") as f:
@@ -116,6 +126,20 @@ def find_stale_tools(tools, today):
         if is_stale(remeasure_by, today):
             stale.append((t.get("tool_id"), t.get("provider"), remeasure_by))
     return stale
+
+
+def find_floor_violations(rows):
+    """rows: list of (tool_id, provider, price_usd, price_floor_usd) tuples (already filtered
+    to price_floor_usd IS NOT NULL by the caller's SQL). Pure re-check of the SAME inequality
+    failsMarginGate() enforces via price_floor_usd (tool-status.stage.ts, T-01 decision C1),
+    so --selftest can assert this script agrees with the runtime gate's own math without a
+    DB. Deliberately separate from find_margin_violations above -- a floor violation can exist
+    with upstream_cost_usd still NULL, which that function never sees."""
+    violations = []
+    for tool_id, provider, price, floor in rows:
+        if float(price) < float(floor):
+            violations.append((tool_id, provider, price, floor))
+    return violations
 
 
 def find_margin_violations(rows):
@@ -268,10 +292,59 @@ def check_missing_cost_models():
     print(f"margin-gate-alerts: {len(missing)} billed provider(s) with missing cost model, {created} new issue(s) filed")
 
 
+# ---------------------------------------------------------------------------
+# Check 4 (T-01 decision C): a tool is priced below its own price floor
+# ---------------------------------------------------------------------------
+def check_price_below_floor():
+    rows_raw = psql(
+        """
+        SELECT tool_id, provider, price_usd, price_floor_usd
+        FROM tools
+        WHERE price_floor_usd IS NOT NULL
+        ORDER BY tool_id
+        """
+    )
+    rows = []
+    if rows_raw:
+        for line in rows_raw.splitlines():
+            tool_id, provider, price, floor = line.split("\t")
+            rows.append((tool_id, provider, price, floor))
+
+    violations = find_floor_violations(rows)
+    if not violations:
+        print("margin-gate-alerts: 0 tools priced below their floor — nothing to do")
+        return
+
+    existing_titles = open_issues_with_prefix(FLOOR_PREFIX)
+    created = 0
+    for tool_id, provider, price, floor in violations:
+        title = f"{FLOOR_PREFIX}{tool_id}"
+        if title in existing_titles:
+            print(f"skip (already open): {tool_id}")
+            continue
+        body = (
+            f"**`{tool_id}`** (provider `{provider}`) is priced at `price_usd` = {price}, "
+            f"below its own `price_floor_usd` = {floor} (`tools` table, migration 0013). "
+            f"The runtime margin gate (TOOL_STATUS stage) is refusing to serve it if it's in a "
+            f"selling status, and `sync_tool_status()` will not auto-promote it if it isn't. "
+            f"Fix by raising `price_usd` to at least {floor} in `config/tool_provider_config.yaml` "
+            f"and re-seeding, per the T-01 law (never sell below cost). "
+            f"Auto-detected by margin-gate-alerts (hourly)."
+        )
+        r = gh("issue", "create", "--repo", REPO, "--title", title, "--body", body)
+        ok = r.returncode == 0
+        print(f"{'created' if ok else 'FAILED'}: {title} -> {(r.stdout or r.stderr).strip().splitlines()[-1] if (r.stdout or r.stderr) else ''}")
+        if ok:
+            created += 1
+
+    print(f"margin-gate-alerts: {len(violations)} tool(s) below floor, {created} new issue(s) filed")
+
+
 def main():
     check_margin_violations()
     check_stale_cost_models()
     check_missing_cost_models()
+    check_price_below_floor()
     return 0
 
 
@@ -307,6 +380,16 @@ def selftest():
     violations = find_margin_violations(rows)
     assert violations == [("scrape.browser", "zyte", "0.015", "0.01608")], (
         f"expected only scrape.browser to violate, got {violations}"
+    )
+
+    # --- find_floor_violations (agrees with tool-status.stage.ts's failsMarginGate) ---
+    floor_rows = [
+        ("scrape.screenshot", "zyte", "0.005", "0.024"),  # 0.005 < 0.024 -> violation
+        ("scrape.browser", "zyte", "0.015", "0.01"),      # 0.015 >= 0.01 -> OK
+    ]
+    floor_violations = find_floor_violations(floor_rows)
+    assert floor_violations == [("scrape.screenshot", "zyte", "0.005", "0.024")], (
+        f"expected only scrape.screenshot to violate its floor, got {floor_violations}"
     )
 
     print("margin-gate-alerts --selftest: OK")

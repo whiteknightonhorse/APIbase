@@ -2969,7 +2969,7 @@ tools:
   - tool_id: scrape.screenshot
     name: Web Page Screenshot
     provider: zyte
-    price_usd: "0.005"
+    price_usd: "0.024"
     # Zyte publishes no distinct screenshot rate -- it bills as Browser rendered
     # (same render path as scrape.browser) plus an undocumented "additional costs
     # for some features" surcharge (zyte.com/pricing, playwright snapshot
@@ -2980,6 +2980,26 @@ tools:
     upstream_cost_status: NOT_MEASURED
     upstream_cost_note: "no published per-screenshot rate; billed as Browser rendered (>= $0.01608/req documented max) + undocumented feature surcharge"
     upstream_cost_remeasure_by: "2026-09-30"
+    # T-01 (2026-09-05), law "не торговать в минус" (dispute 01-law-never-sell-below-cost,
+    # Fable ruling-1 decisions A + C2). NOT read by scripts/seed.ts (unknown key, inert) --
+    # this is the audit trail, not a machine-read field.
+    price_note: >
+      Было 0.005, стало 0.024, 2026-09-05.
+      Основание (запасной путь, документированный максимум -- измерения нет):
+      browser max 0.01608 (zyte.com/pricing snapshot 2026-09-05) + надбавка 0.002
+      (T-11 оценка "additional costs for some features", не измерено) = 0.01808;
+      требуемый минимум = 0.01808 * 1.3 (config/margin.json MARGIN_MULTIPLIER) =
+      0.023504, округлено ВВЕРХ до сетки 0.001 (запасной путь округляется вверх,
+      измеренный -- до 0.0001, вниз никогда) = 0.024.
+      Распоряжение оператора 2026-09-05: "поднимай цену на screenshot, работать в
+      минус нельзя" -- покрывает публикацию именно этой цены для этого инструмента,
+      не переносится на другие тулы.
+      Задача: T-01 (закон "не торговать в минус"), диспут
+      01-law-never-sell-below-cost, ruling-1 decision A. tools.price_floor_usd =
+      0.023504 (basis=documented_max) written the same run -- see migration 0013.
+      Пересмотреть после реального измерения себестоимости screenshot (Zyte Stats
+      API, PROVIDER_KEY_ZYTE_STATS, см. upstream_cost_remeasure_by выше); до тех
+      пор цена стоит на запасном пути и обязана остаться >= scrape.browser.
     cache_ttl: 3600
 
   # --- UC-231: MarketCheck (Car Listings) ---

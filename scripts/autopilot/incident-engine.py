@@ -631,7 +631,12 @@ def sync_tool_status():
     for this provider — best-effort (P-table: "журнал в attempts"): the
     status write above has already happened and must not be undone just
     because no incident exists yet or note_incident errors, so this half is
-    wrapped separately and never re-raises."""
+    wrapped separately and never re-raises.
+
+    T-01 (2026-09-05, Fable ruling-1 decision C1): a row promoted toward a selling status
+    (healthy/degraded) is also gated on tools.price_floor_usd -- a row priced below its own
+    floor is left exactly as-is (not promoted, not rewritten) and journaled instead. See the
+    floor_guard comment inline below for why."""
     out, rc = ap.psql(
         "SELECT provider, state, state_reason FROM provider_status "
         "WHERE state IN ('HEALTHY','DEGRADED','DOWN')"
@@ -659,13 +664,29 @@ def sync_tool_status():
         if target is None:
             continue
         reason_text = f"autopilot: provider_status.state={state}" + (f" ({reason})" if reason else "")
-        sql = (
-            "WITH changed AS ("
-            f"SELECT tool_id, status FROM tools WHERE provider = {ap.sql_literal(provider)} "
+        base_where = (
+            f"provider = {ap.sql_literal(provider)} "
             f"AND status_source IS DISTINCT FROM 'manual' "
             f"AND (status_source IS NOT NULL OR status = 'healthy') "
             f"AND status <> {ap.sql_literal(target)}"
-            ") "
+        )
+        # T-01 (2026-09-05, Fable ruling-1 decision C1): a row priced below its own
+        # price_floor_usd must never be auto-promoted to a selling status (healthy/degraded)
+        # by this reconciler -- that would silently put a manually-underpriced tool back in
+        # front of real clients (e.g. after a provider-wide manual `UPDATE tools SET
+        # status='healthy'` that this function's own status_source gate would otherwise let
+        # through). Demotion to 'unavailable' is never blocked -- a floor protects revenue,
+        # not availability. NULL floor never blocks, same posture as NULL upstream_cost_usd
+        # everywhere else in this codebase. Held-back rows are NOT rewritten (status stays
+        # exactly as-is) — only journaled, same "best-effort, never undo the write" posture
+        # as the note_incident call below.
+        floor_guard = (
+            "AND (price_floor_usd IS NULL OR price_usd >= price_floor_usd) "
+            if target in ("healthy", "degraded")
+            else ""
+        )
+        sql = (
+            f"WITH changed AS (SELECT tool_id, status FROM tools WHERE {base_where} {floor_guard}) "
             f"UPDATE tools t SET status = {ap.sql_literal(target)}, status_source = 'autopilot', "
             f"status_changed_at = now(), status_reason = {ap.sql_literal(reason_text)} "
             "FROM changed WHERE t.tool_id = changed.tool_id "
@@ -675,17 +696,42 @@ def sync_tool_status():
         if rc2 != 0:
             ap.notice(f"tool-status-sync: update failed for {provider} -> {target}: {out2}")
             continue
+
+        inc_row, inc_rc = ap.psql(
+            f"SELECT incident_id FROM incidents WHERE provider = {ap.sql_literal(provider)} "
+            f"AND state != 'RESOLVED' ORDER BY created_at DESC LIMIT 1"
+        )
+        has_incident = inc_rc == 0 and bool(inc_row)
+
+        if floor_guard:
+            held_out, held_rc = ap.psql(
+                f"SELECT tool_id, price_usd, price_floor_usd FROM tools WHERE {base_where} "
+                f"AND price_floor_usd IS NOT NULL AND price_usd < price_floor_usd"
+            )
+            if held_rc == 0 and held_out:
+                for hline in held_out.splitlines():
+                    h_tool_id, h_price, h_floor = hline.split(ap.SEP)
+                    ap.notice(
+                        f"tool-status-sync: held {h_tool_id} at current status — price_usd="
+                        f"{h_price} below price_floor_usd={h_floor}, not promoting to {target}"
+                    )
+                    if has_incident:
+                        try:
+                            ap.note_incident(
+                                inc_row, "tool-status-sync", "price-floor-held",
+                                f"{h_tool_id} not promoted to {target}: price_usd={h_price} "
+                                f"< price_floor_usd={h_floor}",
+                            )
+                        except Exception as e:
+                            ap.notice(f"tool-status-sync: note_incident failed for held {h_tool_id}: {e}")
+
         if not out2:
             continue  # already converged — nothing eligible needed a change
         rows = [r.split(ap.SEP) for r in out2.splitlines()]
         old_statuses = [r[1] for r in rows]
         ap.notice(f"tool-status-sync: {provider} -> {target} ({len(rows)} tool(s))")
 
-        inc_row, inc_rc = ap.psql(
-            f"SELECT incident_id FROM incidents WHERE provider = {ap.sql_literal(provider)} "
-            f"AND state != 'RESOLVED' ORDER BY created_at DESC LIMIT 1"
-        )
-        if inc_rc == 0 and inc_row:
+        if has_incident:
             try:
                 ap.note_incident(inc_row, "tool-status-sync", "status-changed",
                                   f"{len(rows)} tool(s) -> {target} (status_source=autopilot)")
@@ -890,11 +936,18 @@ def selftest_db():
         # the real path, not just the fallback).
         # AP-8's own columns (E5, migration 0009) added to this minimal stand-in
         # too -- status defaults 'healthy' exactly like the real tools table.
+        # T-01 (2026-09-05, migration 0013): price_usd/price_floor_usd added too --
+        # sync_tool_status()'s floor guard queries both unconditionally now, and without
+        # them here the UPDATE errors (rc2 != 0), silently `continue`s, and World 13's own
+        # recovery assertion fails even though nothing about World 13 itself changed (caught
+        # live: this exact stand-in gap broke world 13c the first time this column was added).
         subprocess.run(
             ["docker", "exec", "-i", name, "psql", "-U", "apibase", "-d", "apibase"],
             input="CREATE TABLE tools (tool_id text primary key, provider text, "
                   "status text not null default 'healthy', status_source text, "
-                  "status_changed_at timestamptz, status_reason text); "
+                  "status_changed_at timestamptz, status_reason text, "
+                  "price_usd numeric default 0, price_floor_usd numeric, "
+                  "price_floor_basis text); "
                   "CREATE TABLE execution_ledger (tool_id text, cost_usd numeric default 0, "
                   "billing_status text, created_at timestamptz default now());",
             capture_output=True, text=True,
@@ -1782,6 +1835,84 @@ def selftest_db():
         assert any(a["action"] == "fleet-stuck" for a in inc15d["attempts"]), inc15d["attempts"]
         print("world 15 (resolve-request no longer self-transitions a fleet-owned incident; "
               "advance_verifying() safety-nets a pre-fix stranded VERIFYING -> STUCK): OK")
+
+        # World 16 (T-01, 2026-09-05, Fable ruling-1 decision C1): a row priced below its
+        # own price_floor_usd must never be auto-PROMOTED to a selling status (healthy),
+        # but a floor never blocks DEMOTION to unavailable -- a floor protects revenue, not
+        # availability. Mutation control: dropping the new floor_guard clause from the WHERE
+        # (or dropping the `target in ("healthy", "degraded")` condition that scopes it to
+        # promotions only) makes ap16floor-tool1 wrongly flip to 'healthy' below and this
+        # assertion fails; scoping it to promotions only is what lets ap16floor-tool3's
+        # demotion proceed unblocked despite also being below its floor.
+        #
+        # Incident opened directly via open_or_merge_incident() (World 15's own pattern),
+        # NOT via detect_from_provider_status() -- by this point in the shared selftest-db
+        # session several earlier worlds' own DOWN/DEGRADED provider_status fixtures
+        # (ap8multi1/2 from World 14, ap8degradedonly from World 13d) are still sitting
+        # un-incidented on purpose (those worlds test sync_tool_status() in isolation and
+        # never call detect themselves) -- a detect_from_provider_status() call here would
+        # sweep those up too and inflate the "opened" count for reasons that have nothing
+        # to do with this world.
+        ap.psql(
+            "INSERT INTO tools (tool_id, provider, status, status_source, price_usd, "
+            "price_floor_usd, price_floor_basis) VALUES "
+            # below its own floor (the scrape.screenshot shape: 0.005 priced, 0.024 floor)
+            "('ap16floor-tool1', 'ap16floor', 'unavailable', 'autopilot', 0.005, 0.024, 'documented_max'), "
+            # adequately priced -- must promote normally, proving the guard isn't over-broad
+            "('ap16floor-tool2', 'ap16floor', 'unavailable', 'autopilot', 0.03, 0.024, 'documented_max')"
+        )
+        ap.psql(
+            "INSERT INTO provider_status (provider, state, state_since, next_probe_at, "
+            "probe_interval_s, last_probe_result, last_probe_at, state_reason) VALUES "
+            "('ap16floor', 'HEALTHY', now(), now(), 3600, 'OK', now(), NULL)"
+        )
+        inc16_id, created16 = ap.open_or_merge_incident(
+            kind="PROVIDER_DOWN", provider="ap16floor",
+            evidence={"probe": "was down, now recovering"}, detected_by="probe",
+        )
+        assert created16, "world 16 setup: expected a fresh PROVIDER_DOWN incident for ap16floor"
+        sync_tool_status()
+        row16a, _ = ap.psql(
+            "SELECT status, status_source FROM tools WHERE tool_id = 'ap16floor-tool1'"
+        )
+        assert row16a == "unavailable" + ap.SEP + "autopilot", (
+            f"world 16: a tool priced below its own price_floor_usd must NOT be promoted to "
+            f"healthy even though the provider recovered, got {row16a}"
+        )
+        row16b, _ = ap.psql(
+            "SELECT status, status_source FROM tools WHERE tool_id = 'ap16floor-tool2'"
+        )
+        assert row16b == "healthy" + ap.SEP + "autopilot", (
+            f"world 16: an adequately-priced sibling tool on the SAME recovering provider "
+            f"must still promote normally, got {row16b}"
+        )
+        inc16 = ap.get_incident(inc16_id)
+        assert any(
+            a["actor"] == "tool-status-sync" and a["action"] == "price-floor-held"
+            and "ap16floor-tool1" in a["result"] for a in inc16["attempts"]
+        ), f"world 16: the held-back promotion must be journaled, got {inc16['attempts']}"
+        print("world 16a (promotion blocked for a tool priced below its own price_floor_usd, "
+              "sibling tool still promotes, held-back promotion journaled): OK")
+
+        # Now prove a floor never blocks DEMOTION: a below-floor tool that's currently
+        # healthy (e.g. the floor was set mid-flight, after the tool was already serving)
+        # must still demote to unavailable when its provider goes down.
+        ap.psql(
+            "INSERT INTO tools (tool_id, provider, status, status_source, price_usd, "
+            "price_floor_usd, price_floor_basis) VALUES "
+            "('ap16floor-tool3', 'ap16floordown', 'healthy', 'autopilot', 0.005, 0.024, 'documented_max')"
+        )
+        ap.psql(
+            "INSERT INTO provider_status (provider, state, state_since, next_probe_at, "
+            "probe_interval_s, last_probe_result, last_probe_at, state_reason) VALUES "
+            "('ap16floordown', 'DOWN', now(), now(), 3600, 'FAIL_TRANSIENT', now(), '5 подряд неудачных проб')"
+        )
+        sync_tool_status()
+        row16c, _ = ap.psql("SELECT status FROM tools WHERE tool_id = 'ap16floor-tool3'")
+        assert row16c == "unavailable", (
+            f"world 16: a price floor must NEVER block demotion to unavailable, got {row16c}"
+        )
+        print("world 16b (a price floor never blocks demotion to unavailable): OK")
 
         print("selftest-db: ALL WORLDS OK")
         return 0
