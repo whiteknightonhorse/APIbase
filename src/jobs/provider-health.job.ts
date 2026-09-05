@@ -58,17 +58,25 @@ import {
  */
 
 const HEALTH_CHECK_TIMEOUT_MS = 5000;
+// T-07/A6 (2026-09-05, Fable ruling-1): a HEAD that times out, network-errors,
+// or answers 405/501 is genuinely ambiguous between "down" and "doesn't like
+// HEAD" — one same-tick GET retry at this longer timeout settles it before
+// the state machine ever sees the HEAD failure. Measured live: autodev's GET
+// answered in ~0.1s against a HEAD that took ~8.4s (over the 5s ceiling);
+// gdelt and semanticscholar are similarly alive-but-slow. AP-3's own
+// principle applies here too — a slow-but-answering probe is OK with a
+// larger latencyMs, not a state change; a genuinely unreachable host still
+// times out at this longer ceiling too, so nothing here waits unbounded.
+const HEALTH_CHECK_GET_TIMEOUT_MS = 12000;
+// E5's provider-limits.json `probe.timeout_ms` may raise ONE provider's
+// initial-probe timeout above the 5s default (gdelt/semanticscholar below),
+// but never past this ceiling — an unbounded per-provider override would
+// turn one slow provider into a tick that never finishes.
+const MAX_PROBE_TIMEOUT_MS = 15000;
 const REDIS_HEALTH_TTL = 7200; // 2 hours
 const REDIS_LIMITS_TTL = 7200;
 
 interface ProbeConfig {
-  // The design's provider-limits.json shape (E5) lists a `method` field, but
-  // this job only ever needs two shapes — achievability-only HEAD (no
-  // auth_env) or an authenticated GET (auth_env set) — and picks between
-  // them by auth_env's presence alone (see probeOne). A configured `method`
-  // is intentionally NOT read here: a half-wired "GET without auth" mode
-  // would share HEAD's own achievability-only semantics anyway, so there is
-  // nothing for a third value to do yet. If that changes, this is the spot.
   url?: string;
   auth_env?: string;
   /** how `auth_env`'s value is sent (AP-3 review fix, Fable — minor #2: the
@@ -83,6 +91,21 @@ interface ProbeConfig {
   /** overrides the cost_class default cap (budgetMaxForCostClass) — see
    *  checkAndConsumeBudget's caller in probeOne. */
   max_per_day?: number;
+  /** T-07/A6: overrides probeHead's default HEAD-first behavior for a
+   *  provider whose HEAD is not the problem being probed for (e.g. HEAD
+   *  returns 405 on an endpoint that only implements GET). Applies only to
+   *  the achievability-only path (no auth_env) — probeAuth always uses GET
+   *  regardless of this field. Do NOT set this for more than the handful of
+   *  providers actually measured to need it (LAW: ≤50 provider-limits.json
+   *  entries carry a probe override before this needs its own audit) — most
+   *  providers are fine with the default HEAD + same-tick GET fallback. */
+  method?: 'HEAD' | 'GET';
+  /** T-07/A6: overrides HEALTH_CHECK_TIMEOUT_MS for this provider's initial
+   *  probe (HEAD or GET, whichever `method` above resolves to), capped at
+   *  MAX_PROBE_TIMEOUT_MS. For a provider that's genuinely just slow (not
+   *  down, not a method mismatch) rather than one needing the GET-retry
+   *  path. */
+  timeout_ms?: number;
 }
 
 interface ProviderLimitEntry {
@@ -135,6 +158,27 @@ export function classifyHeadResult(outcome: ProbeOutcome): 'OK' | 'FAIL_TRANSIEN
   if (outcome.kind === 'timeout' || outcome.kind === 'network_error') return 'FAIL_TRANSIENT';
   if (outcome.status >= 500) return 'FAIL_TRANSIENT';
   return 'OK';
+}
+
+/**
+ * T-07/A6: is a HEAD outcome ambiguous enough to deserve one same-tick GET
+ * retry before being trusted? Timeout/network_error and 405/501 all mean
+ * "this attempt didn't answer the question", not "the provider is down" —
+ * 405 in particular is a server saying "I don't do HEAD", not "I'm dead"
+ * (measured live: sdwis/ine-portugal/epa all 405 on HEAD, 200 on GET). A
+ * plain 5xx is deliberately EXCLUDED here — that's an answer (the server IS
+ * up, it returned an error), not unreachability, and classifyHeadResult
+ * already scores it FAIL_TRANSIENT correctly on its own.
+ */
+export function shouldRetryWithGet(outcome: ProbeOutcome): boolean {
+  if (outcome.kind === 'timeout' || outcome.kind === 'network_error') return true;
+  return outcome.kind === 'status' && (outcome.status === 405 || outcome.status === 501);
+}
+
+/** T-07/A6: provider-limits.json `probe.timeout_ms` override, capped. */
+function probeTimeoutMs(probeCfg: ProbeConfig | undefined): number {
+  if (!probeCfg?.timeout_ms) return HEALTH_CHECK_TIMEOUT_MS;
+  return Math.min(probeCfg.timeout_ms, MAX_PROBE_TIMEOUT_MS);
 }
 
 /**
@@ -337,13 +381,14 @@ async function fetchOutcome(
   url: string,
   method: 'HEAD' | 'GET',
   headers: Record<string, string>,
+  timeoutMs: number = HEALTH_CHECK_TIMEOUT_MS,
 ): Promise<{ outcome: ProbeOutcome; latencyMs: number; httpStatus?: number }> {
   const start = performance.now();
   try {
     const response = await fetch(url, {
       method,
       headers,
-      signal: AbortSignal.timeout(HEALTH_CHECK_TIMEOUT_MS),
+      signal: AbortSignal.timeout(timeoutMs),
     });
     const latencyMs = Math.round(performance.now() - start);
     return {
@@ -679,11 +724,40 @@ async function probeHead(
     healthUrl = healthUrl.replace('TOKEN_FROM_ENV', token);
   }
 
-  const { outcome, latencyMs, httpStatus } = await fetchOutcome(healthUrl, 'HEAD', {
-    'User-Agent': 'APIbase-HealthCheck/2.0',
+  // T-07/A6: a provider's `probe.method: "GET"` (provider-limits.json) skips
+  // the HEAD attempt entirely — for a provider already proven to answer HEAD
+  // with 405/a slow response and GET cleanly (sdwis/ine-portugal/epa/
+  // autodev), there is no point spending a probe on the attempt known to
+  // need the fallback every single time.
+  const initialMethod: 'HEAD' | 'GET' = cfg.probe?.method === 'GET' ? 'GET' : 'HEAD';
+  const timeoutMs = probeTimeoutMs(cfg.probe);
+  const initial = await fetchOutcome(
+    healthUrl,
+    initialMethod,
+    { 'User-Agent': 'APIbase-HealthCheck/2.0' },
+    timeoutMs,
+  );
+
+  if (initialMethod === 'HEAD' && shouldRetryWithGet(initial.outcome)) {
+    const getResult = await fetchOutcome(
+      healthUrl,
+      'GET',
+      { 'User-Agent': 'APIbase-HealthCheck/2.0', Range: 'bytes=0-0' },
+      HEALTH_CHECK_GET_TIMEOUT_MS,
+    );
+    const result = classifyHeadResult(getResult.outcome);
+    await recordProbeResult(db, redis, provider, 'get', result, {
+      httpStatus: getResult.httpStatus,
+      latencyMs: getResult.latencyMs,
+    });
+    return;
+  }
+
+  const result = classifyHeadResult(initial.outcome);
+  await recordProbeResult(db, redis, provider, initialMethod === 'GET' ? 'get' : 'head', result, {
+    httpStatus: initial.httpStatus,
+    latencyMs: initial.latencyMs,
   });
-  const result = classifyHeadResult(outcome);
-  await recordProbeResult(db, redis, provider, 'head', result, { httpStatus, latencyMs });
 }
 
 /**
@@ -911,8 +985,19 @@ export async function run(redis: Redis): Promise<void> {
   await ensureSeeded(db);
 
   const asapProviders = await scanAsapFlags(redis);
+  // T-07 (2026-09-05, Fable ruling-1): this used to have no `next_probe_at`
+  // upper bound at all — ORDER BY ascending + take K meant a provider whose
+  // next_probe_at is still hours out could still be pulled into the top-K
+  // just for sorting ahead of everything else not-yet-due, re-probing it
+  // every ~2-6 minutes instead of respecting its actual computed interval
+  // (measured: a fivefold-too-fast recheck rate, shrinking the window a
+  // flapping provider has to prove it's alive before the next probe fires).
+  // asapProviders (above) deliberately bypasses this filter by design — see
+  // isDeterministicallyPaused's own comment for why the asap path must be
+  // allowed to ignore next_probe_at ordering.
+  const now = new Date();
   const queueRows = await db.providerStatus.findMany({
-    where: { provider: { in: providerNames } },
+    where: { provider: { in: providerNames }, next_probe_at: { lte: now } },
     orderBy: { next_probe_at: 'asc' },
     select: { provider: true },
     take: PROBE_K + asapProviders.length,

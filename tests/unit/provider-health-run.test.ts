@@ -86,7 +86,7 @@ function createFakeDb(seedRows: Record<string, Record<string, unknown>> = {}) {
         orderBy,
         take,
       }: {
-        where?: { provider?: { in?: string[] } };
+        where?: { provider?: { in?: string[] }; next_probe_at?: { lte?: Date } };
         orderBy?: { next_probe_at?: 'asc' | 'desc' };
         take?: number;
       }) {
@@ -94,6 +94,14 @@ function createFakeDb(seedRows: Record<string, Record<string, unknown>> = {}) {
         if (where?.provider?.in) {
           const allow = new Set(where.provider.in);
           rows = rows.filter((r) => allow.has(r.provider as string));
+        }
+        // T-07/A6: mirrors the real `next_probe_at: { lte: now }` filter added
+        // to run()'s findMany call — without this the fake db would silently
+        // keep passing every "not yet due" test fixture regardless of what
+        // the real WHERE clause does.
+        if (where?.next_probe_at?.lte) {
+          const cutoff = where.next_probe_at.lte.getTime();
+          rows = rows.filter((r) => new Date(r.next_probe_at as string).getTime() <= cutoff);
         }
         if (orderBy?.next_probe_at === 'asc') {
           rows = rows.sort(
@@ -258,6 +266,49 @@ describe('run() — priority queue + asap out-of-turn (G2)', () => {
     // the asap flag is consumed once handled, so it doesn't loop forever
     expect(redis.deleted).toContain('probe:asap:golf');
     expect(redis.strings.has('probe:asap:golf')).toBe(false);
+  });
+
+  it('T-07/A6: a provider not yet due (next_probe_at in the future) is NOT probed, even with free K slots', async () => {
+    globalThis.fetch = jest.fn().mockResolvedValue(new Response(null, { status: 200 }));
+    pinSystemTime(new Date('2026-09-05T12:00:00Z'));
+
+    const now = Date.now();
+    const seed: Record<string, Record<string, unknown>> = {
+      // one genuinely overdue provider...
+      alpha: {
+        provider: 'alpha',
+        state: 'HEALTHY',
+        state_since: new Date(now - 3600_000),
+        next_probe_at: new Date(now - 1000),
+        probe_interval_s: 21600,
+        consecutive_failures: 0,
+      },
+    };
+    // ...and the rest of SEVEN_PROVIDERS NOT yet due (next_probe_at hours in
+    // the future, seeded explicitly so ensureSeeded's own "missing provider
+    // -> next_probe_at: now" bootstrap doesn't quietly make golf due too) —
+    // before this fix these would still fill the other 4 of K=5 free slots
+    // purely by sorting ahead of "nothing due at all", re-probing them far
+    // sooner than their own computed interval.
+    ['bravo', 'charlie', 'delta', 'echo', 'foxtrot', 'golf'].forEach((name, i) => {
+      seed[name] = {
+        provider: name,
+        state: 'HEALTHY',
+        state_since: new Date(now - 3600_000),
+        next_probe_at: new Date(now + (i + 1) * 3600_000),
+        probe_interval_s: 21600,
+        consecutive_failures: 0,
+      };
+    });
+
+    const db = createFakeDb(seed);
+    const redis = createFakeRedis();
+    const { run } = loadJobModule(db, mockProviderLimits());
+
+    await run(redis as never);
+
+    const probedProviders = db.probeLogs.map((l) => l.provider);
+    expect(probedProviders).toEqual(['alpha']);
   });
 
   it('seeds provider_status for every configured provider on first run (bootstraps the queue)', async () => {
@@ -614,5 +665,68 @@ describe('AP-3 review fix (Fable, attempt 1) — the FAIL_DETERMINISTIC pause su
 
     const alphaCalled = fetchMock.mock.calls.some(([url]) => String(url).includes('alpha'));
     expect(alphaCalled).toBe(false);
+  });
+});
+
+describe('probeHead — T-07/A6: same-tick GET fallback for an ambiguous HEAD failure', () => {
+  it('HEAD times out, GET answers 200 fast -> OK, kind=get (measured: autodev HEAD ~8.4s, GET ~0.1s)', async () => {
+    const fetchMock = jest.fn().mockImplementation((_url: string, init?: RequestInit) => {
+      if (init?.method === 'HEAD') {
+        return Promise.reject(Object.assign(new DOMException('aborted', 'TimeoutError')));
+      }
+      return Promise.resolve(new Response(null, { status: 200 }));
+    });
+    globalThis.fetch = fetchMock as never;
+
+    const db = createFakeDb();
+    const redis = createFakeRedis();
+    const { run } = loadJobModule(db, mockProviderLimits());
+
+    await run(redis as never);
+
+    // Both a HEAD attempt and a GET retry happened, same tick.
+    const methods = fetchMock.mock.calls.map(([, init]: [string, RequestInit]) => init?.method);
+    expect(methods).toContain('HEAD');
+    expect(methods).toContain('GET');
+
+    const alphaLog = db.probeLogs.find((l) => l.provider === 'alpha');
+    expect(alphaLog).toMatchObject({ kind: 'get', result: 'OK' });
+    expect(db.statuses.get('alpha')).toMatchObject({ state: 'HEALTHY' });
+  });
+
+  it('HEAD answers 500 -> FAIL_TRANSIENT immediately, NO GET retry (a 5xx is an answer, not unreachability)', async () => {
+    const fetchMock = jest.fn().mockResolvedValue(new Response(null, { status: 500 }));
+    globalThis.fetch = fetchMock as never;
+
+    const db = createFakeDb();
+    const redis = createFakeRedis();
+    const { run } = loadJobModule(db, mockProviderLimits());
+
+    await run(redis as never);
+
+    // PROBE_K=5 providers probed per tick (not all SEVEN_PROVIDERS) — exactly
+    // one HEAD call each, no GET retry for any of them.
+    expect(fetchMock).toHaveBeenCalledTimes(5);
+    const methods = fetchMock.mock.calls.map(([, init]: [string, RequestInit]) => init?.method);
+    expect(methods.every((m) => m === 'HEAD')).toBe(true);
+
+    const alphaLog = db.probeLogs.find((l) => l.provider === 'alpha');
+    expect(alphaLog).toMatchObject({ kind: 'head', result: 'FAIL_TRANSIENT' });
+  });
+
+  it('probe.method="GET" (provider-limits.json) skips the HEAD attempt entirely', async () => {
+    const fetchMock = jest.fn().mockResolvedValue(new Response(null, { status: 200 }));
+    globalThis.fetch = fetchMock as never;
+
+    const db = createFakeDb();
+    const redis = createFakeRedis();
+    const { run } = loadJobModule(db, mockProviderLimits({ alpha: { probe: { method: 'GET' } } }));
+
+    await run(redis as never);
+
+    const alphaCall = fetchMock.mock.calls.find(([url]: [string]) => url.includes('alpha'));
+    expect(alphaCall?.[1]?.method).toBe('GET');
+    const alphaLog = db.probeLogs.find((l) => l.provider === 'alpha');
+    expect(alphaLog).toMatchObject({ kind: 'get', result: 'OK' });
   });
 });

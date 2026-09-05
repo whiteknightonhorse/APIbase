@@ -195,7 +195,8 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://www.epa.gov/enviro/envirofacts-data-service-api",
-    "limit_proof": "US Government open data. No auth, no rate limits. 600K+ regulated facilities."
+    "limit_proof": "US Government open data. No auth, no rate limits. 600K+ regulated facilities.",
+    "probe": { "method": "GET" }
   },
   "ncei": {
     "display_name": "NOAA NCEI",
@@ -737,7 +738,8 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://www.gdeltproject.org/data.html",
-    "limit_proof": "100% free and open. No auth, no documented rate limits."
+    "limit_proof": "100% free and open. No auth, no documented rate limits.",
+    "probe": { "timeout_ms": 10000 }
   },
   "firms": {
     "display_name": "NASA FIRMS",
@@ -1046,7 +1048,8 @@
     "free_limit": 1000,
     "reset_period": "monthly",
     "docs_url": "https://docs.auto.dev/v2/products/vin-decode",
-    "limit_proof": "Starter plan: 1,000 free API calls/month, 5 req/sec, usage-based data fees after"
+    "limit_proof": "Starter plan: 1,000 free API calls/month, 5 req/sec, usage-based data fees after",
+    "probe": { "method": "GET" }
   },
   "hunter": {
     "display_name": "Hunter.io",
@@ -2059,7 +2062,8 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://www.epa.gov/enviro/sdwis-model",
-    "limit_proof": "EPA EFSERVICE is US Gov public domain with no documented rate limits. No authentication required. SDWIS data under Safe Drinking Water Act mandatory public disclosure."
+    "limit_proof": "EPA EFSERVICE is US Gov public domain with no documented rate limits. No authentication required. SDWIS data under Safe Drinking Water Act mandatory public disclosure.",
+    "probe": { "method": "GET" }
   },
   "bls-macro": {
     "display_name": "BLS Macro (Bureau of Labor Statistics)",
@@ -3382,7 +3386,8 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://www.ine.pt/xportal/xmain?xpid=INE&xpgid=ine_api_v2",
-    "limit_proof": "Public Statistics Portugal (INE) JSON indicator API (www.ine.pt/ine/json_indicador); no authentication or API key required, described as free of charge and publicly available, no specific request-rate quota published on the official API documentation pages (ine_api_v2/ine_api_db)."
+    "limit_proof": "Public Statistics Portugal (INE) JSON indicator API (www.ine.pt/ine/json_indicador); no authentication or API key required, described as free of charge and publicly available, no specific request-rate quota published on the official API documentation pages (ine_api_v2/ine_api_db).",
+    "probe": { "method": "GET" }
   },
   "bundesbank-timeseries": {
     "display_name": "Deutsche Bundesbank SDMX",
@@ -3508,7 +3513,8 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://www.semanticscholar.org/product/api",
-    "limit_proof": "No authentication or API key required for public endpoints. Docs (2026-09-03, 'Do I need an API Key?' section): 'Most Semantic Scholar endpoints are available to the public without authentication, but they are rate-limited to 1000 requests per second shared among all unauthenticated users' \u2014 a shared global pool, not a per-caller quota; observed live 429 with a shared-pool message during testing, confirming the throttle is real and shared."
+    "limit_proof": "No authentication or API key required for public endpoints. Docs (2026-09-03, 'Do I need an API Key?' section): 'Most Semantic Scholar endpoints are available to the public without authentication, but they are rate-limited to 1000 requests per second shared among all unauthenticated users' \u2014 a shared global pool, not a per-caller quota; observed live 429 with a shared-pool message during testing, confirming the throttle is real and shared.",
+    "probe": { "timeout_ms": 10000 }
   },
   "sepa-scotland": {
     "display_name": "SEPA Scotland Rainfall",

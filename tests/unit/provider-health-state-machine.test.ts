@@ -17,6 +17,7 @@ import {
   budgetMaxForCostClass,
   checkAndConsumeBudget,
   recordProbeResult,
+  shouldRetryWithGet,
   type TransitionInput,
 } from '../../src/jobs/provider-health.job';
 
@@ -198,6 +199,27 @@ describe('classifyHeadResult — achievability only, never authorization', () =>
     expect(classifyHeadResult({ kind: 'timeout' })).toBe('FAIL_TRANSIENT');
     expect(classifyHeadResult({ kind: 'network_error' })).toBe('FAIL_TRANSIENT');
   });
+});
+
+describe('shouldRetryWithGet — T-07/A6: ambiguous HEAD failures deserve one GET retry', () => {
+  it('timeout and network_error are retry-worthy (measured: autodev HEAD ~8.4s > 5s ceiling)', () => {
+    expect(shouldRetryWithGet({ kind: 'timeout' })).toBe(true);
+    expect(shouldRetryWithGet({ kind: 'network_error' })).toBe(true);
+  });
+
+  it.each([405, 501])(
+    'status %d is retry-worthy (server refuses HEAD, not necessarily down — measured: sdwis/ine-portugal/epa all 405 on HEAD, 200 on GET)',
+    (status) => {
+      expect(shouldRetryWithGet({ kind: 'status', status })).toBe(true);
+    },
+  );
+
+  it.each([200, 301, 401, 403, 404, 500, 502, 503])(
+    'status %d is NOT retried — a real answer (including 5xx) is not the ambiguity this exists for',
+    (status) => {
+      expect(shouldRetryWithGet({ kind: 'status', status })).toBe(false);
+    },
+  );
 });
 
 describe('classifyAuthResult — real key, so 401/403 IS deterministic', () => {
