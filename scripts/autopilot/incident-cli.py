@@ -22,10 +22,22 @@ Commands:
 
   incident-cli.py resolve-request --id ID --actor A --result "..."
       Fleet agent's ONLY path toward closing an incident. Does NOT set
-      RESOLVED — moves REMEDIATION_QUEUED -> VERIFYING. The engine closes
-      it after a green re-probe (I4: "Prune only after the consumer").
-      Refuses (exit 1) if the incident isn't in a state a fleet agent could
-      legitimately be finishing work on.
+      RESOLVED — and, as of T-09 ruling-1, does NOT itself set VERIFYING
+      either when the incident has a fleet_task_id: this call happens
+      INSIDE the fleet task's own run, before taskloop.sh's knowledge-gate
+      check has decided whether that same task lands in done/ or stuck/.
+      Trusting this self-report to flip the state let a task that later
+      died in stuck/ leave its incident stranded in VERIFYING forever
+      (nothing ever re-checked it). So for a fleet-owned incident this only
+      records the note; the transition to VERIFYING happens exclusively in
+      advance_remediation_queued() once it sees the REAL outcome in done/.
+      For an incident with no fleet_task_id (I4's manual path: a human
+      resolved an OPEN incident by hand before AP-6 existed) this remains
+      the only way out of OPEN, so it still transitions straight to
+      VERIFYING there. The engine closes VERIFYING after a green re-probe
+      (I4: "Prune only after the consumer"). Refuses (exit 1) if the
+      incident isn't in a state a fleet agent could legitimately be
+      finishing work on.
 
   incident-cli.py list [--state S] [--severity S] [--provider P]
       Read-only, tab-separated.
@@ -96,6 +108,19 @@ def cmd_resolve_request(a):
               f"a fleet agent's resolve-request can act on", file=sys.stderr)
         return 1
     ap.note_incident(a.id, a.actor, "resolve-request", a.result)
+    if inc["fleet_task_id"]:
+        # T-09 ruling-1: this call runs INSIDE the fleet task, before
+        # taskloop.sh's own knowledge-gate check has run -- the task can
+        # still die into stuck/ after this returns, self-reporting "done"
+        # that never actually completed. The only place allowed to move a
+        # fleet-owned incident into VERIFYING is advance_remediation_queued(),
+        # reading the REAL outcome (done/ vs stuck/) taskloop.sh produces.
+        print(f"{a.id}: note recorded, state unchanged ({inc['state']}) — "
+              f"engine will transition once it sees this fleet task's real outcome in done/")
+        return 0
+    # No fleet_task_id: I4's manual path (a human resolved an OPEN incident
+    # by hand before AP-6 existed) -- nothing else watches this incident, so
+    # resolve-request is the only way it ever leaves OPEN.
     ap.transition_state(a.id, "VERIFYING")
     print(f"{a.id} -> VERIFYING (engine will confirm on next tick's re-probe)")
     return 0

@@ -406,6 +406,19 @@ def advance_waiting_human():
         # incident's own operator_file column, not just its macro route
         # class, is what makes that fallback actually resolvable instead of
         # a WAITING_HUMAN incident nothing ever watches again.
+        if (route in ap.OPERATOR_FILE_ROUTE_CLASSES or operator_file) and not os.path.isdir(ap.HUMAN_DONE_DIR):
+            # T-09 ruling-1: run() now mkdir -p's this at the top of every
+            # tick, so this should be unreachable — but "unreachable" was
+            # exactly the old bug (isdir gated the whole branch with no
+            # notice), so keep this loud rather than silently falling
+            # through a second time if directory creation ever fails again
+            # (e.g. permissions, disk full).
+            ap.notice_dedup(
+                incident_id, "HUMAN_DONE_DIR_MISSING",
+                f"молчу: {incident_id} ({provider}/{kind}) — HUMAN_DONE_DIR "
+                f"({ap.HUMAN_DONE_DIR}) не существует, ответ оператора по "
+                f"INC-{sid} физически негде принять",
+            )
         if (route in ap.OPERATOR_FILE_ROUTE_CLASSES or operator_file) and os.path.isdir(ap.HUMAN_DONE_DIR):
             match = None
             for fn in os.listdir(ap.HUMAN_DONE_DIR):
@@ -500,13 +513,34 @@ def advance_waiting_human():
 
 def advance_verifying():
     out, rc = ap.psql(
-        f"SELECT incident_id, provider, kind, {UTC_TS_EXPR('updated_at')} "
+        f"SELECT incident_id, provider, kind, {UTC_TS_EXPR('updated_at')}, fleet_task_id "
         f"FROM incidents WHERE state = 'VERIFYING'"
     )
     if rc != 0 or not out:
         return
     for line in out.splitlines():
-        incident_id, provider, kind, updated_at = line.split(ap.SEP)
+        incident_id, provider, kind, updated_at, fleet_task_id = line.split(ap.SEP)
+        # T-09 ruling-1: cmd_resolve_request() used to move a fleet-owned
+        # incident into VERIFYING on the fleet's own self-report, before
+        # taskloop.sh's knowledge-gate check ran -- so a task that then died
+        # into stuck/ left its incident stranded here forever, nothing ever
+        # re-checked it (fixed at the source now, see cmd_resolve_request).
+        # This is the one-time safety net for incidents that got stuck that
+        # way BEFORE the fix shipped: if the fleet task is sitting in
+        # stuck/, this incident's "VERIFYING" was never a real verification,
+        # so it goes to STUCK -- a human needs to look, not a probe that may
+        # have coincidentally gone healthy since.
+        if fleet_task_id and os.path.isfile(os.path.join(ap.TASKLOOP_ROOT, "stuck", fleet_task_id)):
+            ap.transition_state(incident_id, "STUCK")
+            ap.note_incident(incident_id, "incident-engine", "fleet-stuck",
+                              f"fleet task {fleet_task_id} found in stuck/ while incident was "
+                              f"VERIFYING (pre-fix self-reported resolve-request, never confirmed "
+                              f"by a re-probe) -> STUCK")
+            ap.tg_send(f"[apibase] \U0001F534 STUCK INC-{ap.short_id(incident_id)} {kind} "
+                       f"({provider}) — fleet task {fleet_task_id} is stuck, needs a human now")
+            ap.notice(f"incident-engine: {incident_id} ({provider}/{kind}) fleet task "
+                      f"{fleet_task_id} found in stuck/ during VERIFYING -> STUCK")
+            continue
         pv, rc2 = ap.psql(
             f"SELECT state, last_probe_result, {UTC_TS_EXPR('last_probe_at')} FROM provider_status "
             f"WHERE provider = {ap.sql_literal(provider)}"
@@ -710,6 +744,16 @@ def write_heartbeat():
 
 
 def run():
+    # T-09 ruling-1: advance_waiting_human()'s human-done watcher was
+    # entirely gated on os.path.isdir(ap.HUMAN_DONE_DIR) with no fallback and
+    # no notice when it's false -- the directory never existed on this box,
+    # so the branch silently never ran, ever. Creating it is cheap and safe
+    # (mkdir -p, no data touched) and belongs at the top of every tick, not
+    # as a one-off manual step someone has to remember.
+    try:
+        os.makedirs(ap.HUMAN_DONE_DIR, exist_ok=True)
+    except Exception as e:
+        ap.notice(f"WARN: could not create HUMAN_DONE_DIR ({ap.HUMAN_DONE_DIR}): {e}")
     ok, missing = ap.schema_present()
     if not ok:
         print(f"incident-engine: schema not deployed yet (missing: {missing}) — "
@@ -1656,6 +1700,77 @@ def selftest_db():
             row, _ = ap.psql(f"SELECT status FROM tools WHERE tool_id = {ap.sql_literal(tid)}")
             assert row == "unavailable", f"world 14: {tid} expected unavailable, got {row}"
         print("world 14 (two providers crossing availability in ONE tick -> sync-counts triggered exactly once): OK")
+
+        # World 15 (T-09, ruling-1): cmd_resolve_request() must NOT transition a
+        # fleet-owned incident straight to VERIFYING on the fleet's own self-
+        # report -- that was exactly what let a task that DIED into stuck/
+        # AFTER calling resolve-request leave its incident stranded in
+        # VERIFYING forever (advance_remediation_queued only ever looked at
+        # REMEDIATION_QUEUED, advance_verifying only ever looked at the
+        # probe). Exercises the real CLI entry point, not a hand-rolled
+        # equivalent.
+        import argparse
+        import importlib.util
+        _cli_spec = importlib.util.spec_from_file_location(
+            "incident_cli_selftest", os.path.join(os.path.dirname(os.path.abspath(__file__)), "incident-cli.py"))
+        _cli = importlib.util.module_from_spec(_cli_spec)
+        _cli_spec.loader.exec_module(_cli)
+
+        id15, _ = ap.open_or_merge_incident(
+            kind="DEGRADED_QUALITY", provider="ap9raceprov",
+            evidence={"probe": "quality degraded"}, detected_by="probe",
+        )
+        task15 = "9999-t09-selftest-race.md"
+        ap.transition_state(id15, "REMEDIATION_QUEUED",
+                             extra_set=f", fleet_task_id = {ap.sql_literal(task15)}")
+        rc15 = _cli.cmd_resolve_request(
+            argparse.Namespace(id=id15, actor="fleet", result="fixed it (self-report)"))
+        assert rc15 == 0, f"world 15: resolve-request should succeed (exit {rc15})"
+        inc15a = ap.get_incident(id15)
+        assert inc15a["state"] == "REMEDIATION_QUEUED", (
+            f"world 15: resolve-request on a fleet-owned incident must NOT change state by "
+            f"itself, got {inc15a['state']}"
+        )
+        assert any(a["action"] == "resolve-request" for a in inc15a["attempts"]), inc15a["attempts"]
+
+        # The task then actually dies (knowledge gate, exhausted attempts,
+        # whatever) -- lands in stuck/, never in done/. The NEXT tick's
+        # advance_remediation_queued() (still REMEDIATION_QUEUED, since
+        # resolve-request no longer moved it) must catch the REAL outcome.
+        stuck_dir15 = os.path.join(ap.TASKLOOP_ROOT, "stuck")
+        os.makedirs(stuck_dir15, exist_ok=True)
+        with open(os.path.join(stuck_dir15, task15), "w", encoding="utf-8") as f:
+            f.write("stuck: knowledge gate failed twice\n")
+        advance_remediation_queued()
+        inc15b = ap.get_incident(id15)
+        assert inc15b["state"] == "STUCK", (
+            f"world 15a: advance_remediation_queued() must catch the real stuck/ outcome "
+            f"even though resolve-request already ran, got {inc15b['state']}"
+        )
+
+        # Safety net for incidents that got stranded in VERIFYING under the
+        # OLD (pre-fix) behavior, whose fleet task is ALSO sitting in
+        # stuck/ -- simulate that pre-fix state directly with
+        # transition_state (the fixed CLI itself can no longer produce it)
+        # and confirm advance_verifying() still cleans it up.
+        id15c, _ = ap.open_or_merge_incident(
+            kind="DEGRADED_QUALITY", provider="ap9raceprov2",
+            evidence={"probe": "quality degraded"}, detected_by="probe",
+        )
+        task15c = "9998-t09-selftest-race-prefix.md"
+        ap.transition_state(id15c, "VERIFYING",
+                             extra_set=f", fleet_task_id = {ap.sql_literal(task15c)}")
+        with open(os.path.join(stuck_dir15, task15c), "w", encoding="utf-8") as f:
+            f.write("stuck: knowledge gate failed twice\n")
+        advance_verifying()
+        inc15d = ap.get_incident(id15c)
+        assert inc15d["state"] == "STUCK", (
+            f"world 15b: advance_verifying() must catch a pre-fix VERIFYING incident whose "
+            f"fleet task is in stuck/, got {inc15d['state']}"
+        )
+        assert any(a["action"] == "fleet-stuck" for a in inc15d["attempts"]), inc15d["attempts"]
+        print("world 15 (resolve-request no longer self-transitions a fleet-owned incident; "
+              "advance_verifying() safety-nets a pre-fix stranded VERIFYING -> STUCK): OK")
 
         print("selftest-db: ALL WORLDS OK")
         return 0
