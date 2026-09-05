@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1354 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1359 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -14095,6 +14095,44 @@
       }
     },
     {
+      "name": "vehicle.autodev.vin_decode",
+      "description": "Decode any VIN worldwide (100+ countries) — make, model, year, trim, engine, transmission, drive type, body style, origin country, manufacturer. Covers EU, Asia, and other markets beyond US-only NHTSA. Static data cached 24h (Auto.dev)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "vin": {
+            "type": "string",
+            "description": "17-character Vehicle Identification Number (e.g. \"WP0AF2A99KS165242\" for Porsche, \"WBAFR7C51BC603689\" for BMW)",
+            "minLength": 17,
+            "maxLength": 17
+          }
+        },
+        "required": [
+          "vin"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
       "name": "media.pexels.search_photos",
       "description": "Search curated free stock photos by keyword — filter by orientation (landscape/portrait/square), color, size. Returns multiple resolutions (original to tiny), photographer name, Pexels URL. Free for commercial use (Pexels)",
       "inputSchema": {
@@ -23660,6 +23698,98 @@
           "system",
           "package",
           "version"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "epa.environment.toxic_releases",
+      "description": "Search EPA Toxic Release Inventory (TRI) facilities by US state or ZIP code. Returns facility name, address, county, industry sector, and closed status. 600K+ regulated facilities. Source: EPA Envirofacts (US Gov open data).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string",
+            "description": "US state code (e.g. CA, TX, NY, FL)",
+            "minLength": 2,
+            "maxLength": 2
+          },
+          "zip_code": {
+            "type": "string",
+            "description": "ZIP code to filter (e.g. 90001). Overrides state filter if provided."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of results (1-50, default 10)"
+          }
+        },
+        "required": [
+          "state"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "epa.environment.water_systems",
+      "description": "Search public water systems by US state. Returns system name, PWSID, activity status, primacy agency, EPA region, population served, and service connections. Source: EPA Safe Drinking Water Act data.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string",
+            "description": "US state code (e.g. FL, CA, TX)",
+            "minLength": 2,
+            "maxLength": 2
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of results (1-50, default 10)"
+          }
+        },
+        "required": [
+          "state"
         ]
       },
       "outputSchema": {
@@ -61304,6 +61434,122 @@
             "description": "Max records to return (1-50). Defaults to 20."
           }
         }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ine-portugal.stats.indicator_data",
+      "description": "Get observation data for a Statistics Portugal (INE) indicator by its 7-digit varcd code (e.g. \"0008273\" for resident population by NUTS region, sex and age group). Optionally filter by up to 6 generic dimensions (Dim1 is usually the reference period, the rest are indicator-specific, e.g. geography/sex/age) — get valid codes first from ine-portugal.indicator_metadata. There is no upstream search/catalog endpoint, so the varcd must already be known. Data: www.ine.pt (Statistics Portugal open JSON indicator API), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "varcd": {
+            "type": "string",
+            "description": "INE (Statistics Portugal) 7-digit indicator code, zero-padded (e.g. \"0008273\" for resident population by NUTS/sex/age group). There is no upstream search/catalog endpoint — find valid codes via the official INE indicator database (www.ine.pt/xportal) or ine-portugal.indicator_metadata once you have a code.",
+            "minLength": 1,
+            "maxLength": 7
+          },
+          "dim1": {
+            "type": "string",
+            "description": "Filter code for Dimension 1 (usually the reference period, e.g. \"S7A2023\" for year 2023 or \"2023\" depending on the indicator). Get valid codes from ine-portugal.indicator_metadata before calling. Omit to fetch data across all periods."
+          },
+          "dim2": {
+            "type": "string",
+            "description": "Filter code for Dimension 2 (indicator-specific, e.g. a NUTS geography code). Get valid codes from ine-portugal.indicator_metadata. Omit to include all values of this dimension."
+          },
+          "dim3": {
+            "type": "string",
+            "description": "Filter code for Dimension 3 (indicator-specific, e.g. sex). Get valid codes from ine-portugal.indicator_metadata. Omit to include all values of this dimension."
+          },
+          "dim4": {
+            "type": "string",
+            "description": "Filter code for Dimension 4 (indicator-specific, e.g. age group). Get valid codes from ine-portugal.indicator_metadata. Omit to include all values of this dimension."
+          },
+          "dim5": {
+            "type": "string",
+            "description": "Filter code for Dimension 5, if the indicator has one. Get valid codes from ine-portugal.indicator_metadata. Omit to include all values of this dimension."
+          },
+          "dim6": {
+            "type": "string",
+            "description": "Filter code for Dimension 6, if the indicator has one. Get valid codes from ine-portugal.indicator_metadata. Omit to include all values of this dimension."
+          },
+          "lang": {
+            "type": "string",
+            "enum": [
+              "EN",
+              "PT"
+            ],
+            "description": "Response language for labels: \"EN\" (English, default) or \"PT\" (Portuguese)."
+          }
+        },
+        "required": [
+          "varcd"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "ine-portugal.stats.indicator_metadata",
+      "description": "Get metadata for a Statistics Portugal (INE) indicator by its 7-digit varcd code: full name, periodicity, unit, decimal precision, first/last available period, and every dimension with its valid filter codes. Call this BEFORE ine-portugal.indicator_data to discover which Dim1..Dim6 codes are valid for the indicator. Data: www.ine.pt (Statistics Portugal open JSON indicator API), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "varcd": {
+            "type": "string",
+            "description": "INE (Statistics Portugal) 7-digit indicator code, zero-padded (e.g. \"0008273\"). Returns the indicator name, periodicity, unit, first/last available period, and every dimension with its valid filter codes — call this BEFORE ine-portugal.indicator_data to discover valid Dim1..Dim6 values.",
+            "minLength": 1,
+            "maxLength": 7
+          },
+          "lang": {
+            "type": "string",
+            "enum": [
+              "EN",
+              "PT"
+            ],
+            "description": "Response language for labels: \"EN\" (English, default) or \"PT\" (Portuguese)."
+          }
+        },
+        "required": [
+          "varcd"
+        ]
       },
       "outputSchema": {
         "type": "object",
