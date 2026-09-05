@@ -731,20 +731,26 @@ async function probeHead(
   // need the fallback every single time.
   const initialMethod: 'HEAD' | 'GET' = cfg.probe?.method === 'GET' ? 'GET' : 'HEAD';
   const timeoutMs = probeTimeoutMs(cfg.probe);
-  const initial = await fetchOutcome(
-    healthUrl,
-    initialMethod,
-    { 'User-Agent': 'APIbase-HealthCheck/2.0' },
-    timeoutMs,
-  );
+
+  // UC-682: BIS Statistics SDMX API requires specific Accept header (406 without it).
+  // Include it in all probe headers for SDMX endpoints.
+  const probeHeaders: Record<string, string> = { 'User-Agent': 'APIbase-HealthCheck/2.0' };
+  if (provider === 'bis-stats' || healthUrl.includes('stats.bis.org')) {
+    probeHeaders['Accept'] = 'application/vnd.sdmx.data+json;version=1.0.0';
+  }
+
+  const initial = await fetchOutcome(healthUrl, initialMethod, probeHeaders, timeoutMs);
 
   if (initialMethod === 'HEAD' && shouldRetryWithGet(initial.outcome)) {
-    const getResult = await fetchOutcome(
-      healthUrl,
-      'GET',
-      { 'User-Agent': 'APIbase-HealthCheck/2.0', Range: 'bytes=0-0' },
-      HEALTH_CHECK_GET_TIMEOUT_MS,
-    );
+    const getHeaders: Record<string, string> = {
+      'User-Agent': 'APIbase-HealthCheck/2.0',
+      Range: 'bytes=0-0',
+    };
+    // UC-682: preserve SDMX Accept header in GET retry as well
+    if (provider === 'bis-stats' || healthUrl.includes('stats.bis.org')) {
+      getHeaders['Accept'] = 'application/vnd.sdmx.data+json;version=1.0.0';
+    }
+    const getResult = await fetchOutcome(healthUrl, 'GET', getHeaders, HEALTH_CHECK_GET_TIMEOUT_MS);
     const result = classifyHeadResult(getResult.outcome);
     await recordProbeResult(db, redis, provider, 'get', result, {
       httpStatus: getResult.httpStatus,
