@@ -2940,34 +2940,31 @@ tools:
   # (INC-564ce1). Real tiered pricing snapshotted from zyte.com/pricing via playwright
   # (this repo's own native-tool allowlist) 2026-09-05: PAYG plan, no volume discount
   # (starts only at $100+/mo commitment). Costs vary by site complexity Zyte itself
-  # classifies per-request -- we cannot know which tier a given call lands in, so
-  # `upstream_cost_usd` uses the DOCUMENTED MAXIMUM of the PAYG tier
-  # (`upstream_cost_basis: per_call_documented_max`) as the safe (never-too-low) input
-  # to the runtime margin gate (tool-status.stage.ts F1/C-4) -- real cost is <= this.
+  # classifies per-request -- we cannot know which tier a given call lands in, and
+  # the one channel that reports the REAL per-call/period spend (Zyte's Stats API,
+  # see provider-limits.json zyte.billing.stats_api) returned 403 on 2026-09-05
+  # (dashboard key != extraction key, MANUAL_REQUIRED). Fable ruling-1 is explicit:
+  # writing the documented-max tier into `upstream_cost_usd` (the field that feeds
+  # the runtime margin gate) when nothing was actually measured is "NOT_MEASURED
+  # under the mask of measurement" -- ruling-2 REJECTed this task's prior attempt
+  # for doing exactly that. The range stays here as a NOTE for the operator, not a
+  # number the gate acts on; it is NOT NULL + NOT_MEASURED until a real measurement
+  # (Stats API once the dashboard key exists, or a real ledger-cost signal) lands.
   - tool_id: scrape.extract
     name: Extract Web Page HTML
     provider: zyte
     price_usd: "0.003"
-    upstream_cost_usd: "0.00127"
-    upstream_cost_basis: per_call_documented_max
-    upstream_cost_source: "zyte.com/pricing (playwright snapshot 2026-09-05): PAYG plan, HTTP response body $0.13-$1.27/1,000 responses = $0.00013-$0.00127/request; documented max used"
-    upstream_cost_measured_at: "2026-09-05"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_note: "zyte.com/pricing (playwright snapshot 2026-09-05): PAYG plan, HTTP response body $0.13-$1.27/1,000 responses = $0.00013-$0.00127/request documented range; real per-call/period cost unmeasured, Stats API returned 403 (dashboard key MANUAL_REQUIRED, see provider-limits.json)"
     upstream_cost_remeasure_by: "2026-09-30"
     cache_ttl: 3600
   - tool_id: scrape.browser
     name: Browser-Rendered Page HTML
     provider: zyte
     price_usd: "0.015"
-    upstream_cost_usd: "0.01608"
-    upstream_cost_basis: per_call_documented_max
-    upstream_cost_source: "zyte.com/pricing (playwright snapshot 2026-09-05): PAYG plan, Browser rendered $1.01-$16.08/1,000 responses = $0.00101-$0.01608/request; documented max used"
-    upstream_cost_measured_at: "2026-09-05"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_note: "zyte.com/pricing (playwright snapshot 2026-09-05): PAYG plan, Browser rendered $1.01-$16.08/1,000 responses = $0.00101-$0.01608/request documented range; real per-call/period cost unmeasured, Stats API returned 403 (dashboard key MANUAL_REQUIRED, see provider-limits.json). NOTE for the operator: even at the low end of this range ($0.00101) margin is fine, but at the documented max ($0.01608) required minimum price = 0.01608 * 1.3 (MARGIN_MULTIPLIER) = 0.020904 > price_usd 0.015 -- worth knowing before a future measurement lands, not something this task decides."
     upstream_cost_remeasure_by: "2026-09-30"
-    # NOTE for the operator (not this migration's call to make): at the documented
-    # max tier, required minimum = 0.01608 * 1.3 (MARGIN_MULTIPLIER) = 0.020904 >
-    # price_usd 0.015 -- this WILL fail the runtime margin gate once seeded to a DB,
-    # 503-ing real calls to this tool at its worst-case cost tier. Flagged, not fixed
-    # here (price/disable decision belongs to the operator, see T-11 journal).
     cache_ttl: 3600
   - tool_id: scrape.screenshot
     name: Web Page Screenshot

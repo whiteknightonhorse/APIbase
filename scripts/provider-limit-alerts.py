@@ -588,6 +588,44 @@ def check_auto_recharge_spend():
 
 
 # ---------------------------------------------------------------------------
+# T-11 (2026-09-05) / Fable ruling-2 REJECT #1: a provider with a `billing`
+# block (T-11 decision A -- confirmed real paid billing, see provider-limits.json)
+# but NO `cap_usd_month` (e.g. api2pdf: pay-per-use + auto-recharge, no monthly
+# dollar ceiling at all) falls into a gap between the two loops above:
+#   - main()'s free-tier loop skips it (free_limit<=0, paid_balance=true), and
+#   - check_billing_cap_risk() only looks at providers WITH cap_usd_month.
+# So a QUOTA_EXHAUSTED incident / provider_status.risk=EXHAUSTED opened back
+# when the provider genuinely ran out of FREE calls (before the operator paid)
+# has no path out — ruling-2 caught this live in prod for api2pdf (1bb3d14d)
+# and zyte would have hit the identical gap were it not for cap_usd_month.
+# A provider with confirmed billing and no monthly cap cannot run out the way
+# a free-tier counter does — that absence-of-a-ceiling IS a real, current
+# measurement (not NOINFO), so it is safe to write risk=NORMAL and let the
+# EXISTING advance_quota_incidents_if_recovered/advance_verifying() path (F2)
+# close any stale QUOTA_* incident through the normal re-probe confirmation,
+# instead of touching incident rows directly here.
+# ---------------------------------------------------------------------------
+def check_uncapped_billing_recovery():
+    billing = load_billing_config()
+    uncapped = {p: b for p, b in billing.items() if not b.get("cap_usd_month")}
+    if not uncapped:
+        return
+
+    schema_ok, missing = ap.schema_present()
+    if not schema_ok:
+        ap.notice(f"provider-limit-alerts: autopilot schema not deployed yet (missing {missing}) — "
+                  f"skipping uncapped-billing recovery writes this run")
+        return
+
+    for prov in uncapped:
+        update_provider_status_risk(prov, 100, 0.0, None, "NORMAL")
+        log_probe(prov, "usage_api", "OK",
+                  "confirmed paid billing (provider-limits.json billing block present), "
+                  "no monthly $ cap configured -- quota risk NORMAL (T-11 ruling-2 #1)")
+        advance_quota_incidents_if_recovered(prov, "NORMAL")
+
+
+# ---------------------------------------------------------------------------
 # AP-9 (§20): reliability score — durable write. Driven off `provider_status`
 # (not `tools`/`probe_log`/`incidents` directly) because that's the row this
 # writes into, and AP-3's `ensureSeeded()` already guarantees every
@@ -858,6 +896,7 @@ def main():
     # earlier value up top — each function re-checks it / degrades on its own.
     check_billing_cap_risk()
     check_auto_recharge_spend()
+    check_uncapped_billing_recovery()
 
     return 0
 
@@ -1324,6 +1363,42 @@ def selftest_db():
         finally:
             load_billing_config = real_load_billing_config
             fetch_zyte_stats_spend = real_fetch_zyte_stats_spend
+
+        # World 7 (T-11 ruling-2 REJECT #1): check_uncapped_billing_recovery() —
+        # a provider with a `billing` block but NO cap_usd_month (api2pdf's real
+        # shape: pay-per-use + auto_recharge, no monthly $ ceiling) must NOT be
+        # stuck with a stale pre-payment QUOTA_EXHAUSTED incident / risk=EXHAUSTED
+        # forever, unlike the gap this world reproduces from prod (1bb3d14d).
+        ap.psql(
+            "INSERT INTO provider_status (provider, state, state_since, next_probe_at, "
+            "probe_interval_s, risk) VALUES ('uncappedtest', 'HEALTHY', now(), now(), 3600, "
+            "'EXHAUSTED') ON CONFLICT (provider) DO UPDATE SET risk = 'EXHAUSTED'"
+        )
+        open_quota_incident("uncappedtest", "EXHAUSTED", 0, 0, 0.0, None, 100, "credits", 100)
+        inc_row7, _ = ap.psql(
+            "SELECT incident_id, state FROM incidents WHERE provider = 'uncappedtest' "
+            "AND kind = 'QUOTA_EXHAUSTED'"
+        )
+        assert inc_row7, "world 7: setup failed, no QUOTA_EXHAUSTED incident seeded for uncappedtest"
+        inc_id7, inc_state7 = inc_row7.split(ap.SEP)
+        assert inc_state7 == "OPEN", f"world 7: setup expected OPEN, got {inc_state7!r}"
+
+        load_billing_config = lambda: {"uncappedtest": {  # noqa: E731
+            "auto_recharge": {"trigger_below_usd": 0.5, "amount_usd": 10, "max_per_month": 1}
+        }}
+        try:
+            check_uncapped_billing_recovery()
+            risk_row7, _ = ap.psql("SELECT risk FROM provider_status WHERE provider = 'uncappedtest'")
+            assert risk_row7 == "NORMAL", f"world 7a: expected risk=NORMAL, got {risk_row7!r}"
+            state_row7, _ = ap.psql(f"SELECT state FROM incidents WHERE incident_id = {ap.sql_literal(inc_id7)}")
+            assert state_row7 == "VERIFYING", (
+                f"world 7b: confirmed billing with no $ cap must move a stale OPEN QUOTA_EXHAUSTED "
+                f"to VERIFYING, got {state_row7!r}"
+            )
+            print("world 7 (uncapped billing, no cap_usd_month -> stale QUOTA_EXHAUSTED unstuck, "
+                  "risk NORMAL): OK")
+        finally:
+            load_billing_config = real_load_billing_config
 
         print("selftest-db: ALL WORLDS OK")
         return 0
