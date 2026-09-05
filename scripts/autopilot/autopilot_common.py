@@ -1018,7 +1018,7 @@ _AUTO_TASK_WHAT = {
 }
 
 
-def _task_boundaries_and_footer(provider: str, incident_id: str) -> str:
+def _task_boundaries_and_footer(provider: str, incident_id: str, task_num: str) -> str:
     """The ГРАНИЦЫ/Критерий проверки/По завершении sections are identical
     between an AUTO-routed fleet task (build_remediation_task_body) and a
     human-done follow-up task (build_human_followup_task_body) — same
@@ -1026,7 +1026,16 @@ def _task_boundaries_and_footer(provider: str, incident_id: str) -> str:
     contract (a real re-probe, never the fleet's own report, I4), same
     incident-cli.py commands. Factored out so the two callers can't drift on
     a copy-paste (the boundaries text especially — see _fix_boundaries's own
-    truncation-bug history)."""
+    truncation-bug history).
+
+    T-02: also emits the KNOWLEDGE anchor, as the LAST line of the file —
+    taskloop.sh's knowledge_gate_check greps the first `KNOWLEDGE:` line and
+    requires a `#T-*` tag on it (see taskloop.sh's own comment on the sed
+    pipeline). `task_num` is the SAME digits `next_task_filename()` put at
+    the front of the task's own filename (both callers derive it from the
+    filename they already generated), so the anchor's tag and the task's
+    identity cannot drift apart — a human reading the queue dir and a human
+    reading AUTOPILOT-PROGRESS.md land on the same task either way."""
     return f"""## ГРАНИЦЫ
 {_fix_boundaries()}
 - Не трогать .env, платёжные конфиги.
@@ -1044,6 +1053,12 @@ def _task_boundaries_and_footer(provider: str, incident_id: str) -> str:
 Закончив — запросить проверку (НЕ закрывать инцидент самому, движок закрывает после зелёной
 ре-пробы, I4):
 `python3 scripts/autopilot/incident-cli.py resolve-request --id {incident_id} --actor fleet --result "<итог>"`
+
+## Знание
+
+Запиши итог в /home/apibase/AUTOPILOT-PROGRESS.md под якорем `T-{task_num}` и назови его последней строкой отчёта ровно так:
+
+KNOWLEDGE: /home/apibase/AUTOPILOT-PROGRESS.md#T-{task_num}
 """
 
 
@@ -1076,6 +1091,7 @@ def build_remediation_task_body(incident: dict) -> tuple:
     evidence_md = json.dumps(incident.get("evidence", {}), ensure_ascii=False, indent=2)
     attempts_md = json.dumps(incident.get("attempts", []), ensure_ascii=False, indent=2)
     filename = next_task_filename(kind, provider, severity)
+    task_num = filename.split("-", 1)[0]
     content = f"""REVIEW: {review}
 MODEL: {model}
 MAX_ATTEMPTS: 2
@@ -1098,7 +1114,7 @@ severity: {severity}{docs_line}
 {attempts_md}
 ```
 
-{_task_boundaries_and_footer(provider, incident['incident_id'])}"""
+{_task_boundaries_and_footer(provider, incident['incident_id'], task_num)}"""
     return filename, content
 
 
@@ -1138,6 +1154,7 @@ def build_human_followup_task_body(incident: dict, operator_result: str) -> tupl
     evidence_md = json.dumps(incident.get("evidence", {}), ensure_ascii=False, indent=2)
     attempts_md = json.dumps(incident.get("attempts", []), ensure_ascii=False, indent=2)
     filename = next_task_filename(kind, provider, severity)
+    task_num = filename.split("-", 1)[0]
     content = f"""REVIEW: fable
 MODEL: sonnet
 MAX_ATTEMPTS: 2
@@ -1168,7 +1185,7 @@ severity: {severity}{docs_line}
 {attempts_md}
 ```
 
-{_task_boundaries_and_footer(provider, incident['incident_id'])}"""
+{_task_boundaries_and_footer(provider, incident['incident_id'], task_num)}"""
     return filename, content
 
 
