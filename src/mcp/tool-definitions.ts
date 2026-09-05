@@ -8099,6 +8099,49 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'health',
     annotations: READ_ONLY,
   },
+  // OpenFDA (UC-684) — 3 tools, drug recalls / NDC directory / food adverse events
+  {
+    toolId: 'fda_openfda.drug_recalls',
+    mcpName: 'fda_openfda.safety.drug_recalls',
+    title: 'FDA Drug Recall Enforcement Reports',
+    description:
+      'Search FDA drug recall enforcement records — 17,000+ drug recall actions. ' +
+      'Returns recall classification (Class I=serious/Class II/Class III), status (Ongoing/Terminated/Completed), ' +
+      'reason for recall, recalling firm, product description, distribution pattern, and recall initiation date. ' +
+      'Filter using Lucene syntax: recalling_firm:"Pfizer" or classification:"Class I". ' +
+      'Distinct from device recalls (openfda_devices.recalls) and food recalls (health.food_enforcement) — this covers drug products only. ' +
+      'Source: FDA drug enforcement database, US public domain.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'fda_openfda.ndc_directory',
+    mcpName: 'fda_openfda.reference.ndc_directory',
+    title: 'FDA National Drug Code (NDC) Directory',
+    description:
+      'Search the FDA National Drug Code Directory — 137,000+ marketed US drug products. ' +
+      'Returns product NDC, generic/brand name, labeler (manufacturer), active ingredients and strengths, ' +
+      'dosage form, route of administration, marketing category, pharm class, and DEA schedule. ' +
+      'Filter using Lucene syntax: generic_name:"ibuprofen" or product_ndc:"0069-2587". ' +
+      'Useful for drug identification, manufacturer lookup, and dosage-form/ingredient research by NDC code or name. ' +
+      'Source: FDA NDC Directory, US public domain.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'fda_openfda.food_adverse_events',
+    mcpName: 'fda_openfda.safety.food_adverse_events',
+    title: 'FDA Food & Supplement Adverse Event Reports (CAERS)',
+    description:
+      'Search the FDA CAERS database of consumer-reported adverse events for foods and dietary supplements. ' +
+      'Returns reported reactions, outcomes (hospitalization, death, etc.), implicated product names and industry, ' +
+      'and consumer demographics (age, gender). ' +
+      'Filter using Lucene syntax: products.industry_name:"Vit/Min/Prot/Unconv Diet(Human/Animal)" or reactions:"NAUSEA". ' +
+      'Distinct from food recall enforcement (health.food_enforcement) — this covers consumer-reported illness/injury, not manufacturer recalls. ' +
+      'Source: FDA CAERS database, US public domain.',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
   {
     toolId: 'opensensemap.sensor_timeseries',
     mcpName: 'opensensemap.sensors.timeseries',

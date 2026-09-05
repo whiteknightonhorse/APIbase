@@ -68538,6 +68538,267 @@
         ]
       }
     },
+    "/api/v1/tools/fda_openfda.drug_recalls/call": {
+      "post": {
+        "operationId": "fda_openfda_drug_recalls",
+        "summary": "FDA Drug Recall Enforcement Reports",
+        "description": "Search FDA drug recall enforcement records — 17,000+ drug recall actions. Returns recall classification (Class I=serious/Class II/Class III), status (Ongoing/Terminated/Completed), reason for recall, recalling firm, product description, distribution pattern, and recall initiation date. Filter using Lucene syntax: recalling_firm:\"Pfizer\" or classification:\"Class I\". Distinct from device recalls (openfda_devices.recalls) and food recalls (health.food_enforcement) — this covers drug products only. Source: FDA drug enforcement database, US public domain.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fda_openfda.drug_recalls"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "search": {
+                    "type": "string",
+                    "description": "OpenFDA search expression using Lucene syntax. Single field: brand_name:\"tylenol\" or classification:\"Class I\". Combined: generic_name:\"ibuprofen\"+AND+dosage_form:\"TABLET\". Omit to return recent records sorted by date."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 99,
+                    "description": "Number of records to return (1–99, default 10)."
+                  },
+                  "skip": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Number of records to skip for pagination (default 0)."
+                  }
+                },
+                "description": "Search FDA drug recall enforcement records. Useful fields to filter: recalling_firm, classification (Class I/II/III), status (Ongoing/Terminated/Completed), product_description, recall_initiation_date. Distinct from device recalls (openfda_devices.recalls) and food recalls (health.food_enforcement)."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/fda_openfda.ndc_directory/call": {
+      "post": {
+        "operationId": "fda_openfda_ndc_directory",
+        "summary": "FDA National Drug Code (NDC) Directory",
+        "description": "Search the FDA National Drug Code Directory — 137,000+ marketed US drug products. Returns product NDC, generic/brand name, labeler (manufacturer), active ingredients and strengths, dosage form, route of administration, marketing category, pharm class, and DEA schedule. Filter using Lucene syntax: generic_name:\"ibuprofen\" or product_ndc:\"0069-2587\". Useful for drug identification, manufacturer lookup, and dosage-form/ingredient research by NDC code or name. Source: FDA NDC Directory, US public domain.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fda_openfda.ndc_directory"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "search": {
+                    "type": "string",
+                    "description": "OpenFDA search expression using Lucene syntax. Single field: brand_name:\"tylenol\" or classification:\"Class I\". Combined: generic_name:\"ibuprofen\"+AND+dosage_form:\"TABLET\". Omit to return recent records sorted by date."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 99,
+                    "description": "Number of records to return (1–99, default 10)."
+                  },
+                  "skip": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Number of records to skip for pagination (default 0)."
+                  }
+                },
+                "description": "Search the FDA National Drug Code (NDC) Directory — 137,000+ marketed drug products. Useful fields: product_ndc, generic_name, brand_name, labeler_name, dosage_form, route, active_ingredients.name, pharm_class, dea_schedule. Look up manufacturer, active ingredients, dosage form, and packaging for any US drug product by name or NDC code."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/fda_openfda.food_adverse_events/call": {
+      "post": {
+        "operationId": "fda_openfda_food_adverse_events",
+        "summary": "FDA Food & Supplement Adverse Event Reports (CAERS)",
+        "description": "Search the FDA CAERS database of consumer-reported adverse events for foods and dietary supplements. Returns reported reactions, outcomes (hospitalization, death, etc.), implicated product names and industry, and consumer demographics (age, gender). Filter using Lucene syntax: products.industry_name:\"Vit/Min/Prot/Unconv Diet(Human/Animal)\" or reactions:\"NAUSEA\". Distinct from food recall enforcement (health.food_enforcement) — this covers consumer-reported illness/injury, not manufacturer recalls. Source: FDA CAERS database, US public domain.",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fda_openfda.food_adverse_events"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "search": {
+                    "type": "string",
+                    "description": "OpenFDA search expression using Lucene syntax. Single field: brand_name:\"tylenol\" or classification:\"Class I\". Combined: generic_name:\"ibuprofen\"+AND+dosage_form:\"TABLET\". Omit to return recent records sorted by date."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 99,
+                    "description": "Number of records to return (1–99, default 10)."
+                  },
+                  "skip": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Number of records to skip for pagination (default 0)."
+                  }
+                },
+                "description": "Search the FDA CAERS database of food and dietary supplement adverse event reports. Useful fields: products.name_brand, products.industry_name, reactions, outcomes, date_created. Distinct from food recall enforcement (health.food_enforcement) — this covers consumer-reported illness/injury events, not manufacturer recalls."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/opensensemap.sensor_timeseries/call": {
       "post": {
         "operationId": "opensensemap_sensor_timeseries",

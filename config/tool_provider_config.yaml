@@ -4858,6 +4858,25 @@ tools:
     price_usd: "0.001"
     cache_ttl: 86400
 
+  # --- UC-684: OpenFDA (drug recalls, NDC directory, food adverse events) ---
+  - tool_id: fda_openfda.drug_recalls
+    name: FDA Drug Recall Enforcement Reports
+    provider: fda_openfda
+    price_usd: "0.001"
+    cache_ttl: 3600
+
+  - tool_id: fda_openfda.ndc_directory
+    name: FDA National Drug Code (NDC) Directory
+    provider: fda_openfda
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: fda_openfda.food_adverse_events
+    name: FDA Food & Supplement Adverse Event Reports (CAERS)
+    provider: fda_openfda
+    price_usd: "0.002"
+    cache_ttl: 3600
+
   # --- UC-504: OpenSenseMap ---
   - tool_id: opensensemap.box_search
     name: OpenSenseMap Station Search

@@ -227,6 +227,7 @@ import { wormsSchemas } from './worms.schema';
 import { bankofcanadaSchemas } from './bankofcanada.schema';
 import { opensensemapSchemas } from './opensensemap.schema';
 import { openfdaDevicesSchemas } from './openfda-devices.schema';
+import { fdaOpenFdaSchemas } from './fda-openfda.schema';
 import { marineSchemas } from './marine.schema';
 import { mfapiSchemas } from './mfapi.schema';
 import { sdwisSchemas } from './sdwis.schema';
@@ -630,6 +631,7 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...bankofcanadaSchemas,
   ...opensensemapSchemas,
   ...openfdaDevicesSchemas,
+  ...fdaOpenFdaSchemas,
   ...marineSchemas,
   ...mfapiSchemas,
   ...sdwisSchemas,

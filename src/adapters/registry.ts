@@ -236,6 +236,7 @@ import { WormsAdapter } from './worms';
 import { BankOfCanadaAdapter } from './bankofcanada';
 import { OpenSenseMapAdapter } from './opensensemap';
 import { OpenFdaDevicesAdapter } from './openfda-devices';
+import { FdaOpenFdaAdapter } from './fda-openfda';
 import { MarineAdapter } from './marine';
 import { MfapiAdapter } from './mfapi';
 import { SdwisAdapter } from './sdwis';
@@ -1529,6 +1530,14 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // OpenFDA Devices (UC-505) — FDA medical device recalls, 510(k) clearances, MAUDE adverse events, classification
       const fdaKey = (config as Record<string, unknown>).PROVIDER_KEY_OPENFDA as string | undefined;
       return getOrCreate('openfda_devices', () => new OpenFdaDevicesAdapter(fdaKey || ''));
+    }
+    case 'fda_openfda': {
+      // OpenFDA (UC-684) — drug recall enforcement, NDC directory, food adverse events (CAERS).
+      // Reuses the shared PROVIDER_KEY_OPENFDA (same upstream domain as health + openfda_devices).
+      const fdaOpenFdaKey = (config as Record<string, unknown>).PROVIDER_KEY_OPENFDA as
+        | string
+        | undefined;
+      return getOrCreate('fda_openfda', () => new FdaOpenFdaAdapter(fdaOpenFdaKey || ''));
     }
     case 'marine':
       // Open-Meteo Marine (UC-506) — wave height/direction/period, swell, sea surface temperature; no auth
