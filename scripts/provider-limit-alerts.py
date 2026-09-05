@@ -486,6 +486,12 @@ def check_billing_cap_risk():
             # have a 'billing_cap' kind and this isn't worth its own migration -- this
             # IS a usage-vs-limit measurement, just dollars instead of call counts.
             log_probe(prov, "usage_api", "NOINFO", "billing-cap spend query failed/unavailable this run")
+            # Fable ruling-3: a PERSISTENT (not one-off) NOINFO streak on the one
+            # dollar cap this system tracks must reach a human, not just sit in
+            # provider_status.risk where nobody is watching for it going stale.
+            streak = billing_cap_noinfo_streak(prov)
+            if streak >= BILLING_CAP_NOINFO_ESCALATION_RUNS:
+                maybe_escalate_billing_cap_noinfo(prov, b, streak)
             continue
 
         _remaining, _exact, pct_remaining, burn_per_hour, eta_hours, risk = (
@@ -499,6 +505,85 @@ def check_billing_cap_risk():
                                  lim_usd, "monthly_usd_cap", spend_usd)
         else:
             advance_quota_incidents_if_recovered(prov, risk)
+
+
+# ---------------------------------------------------------------------------
+# T-11 (2026-09-05) / Fable ruling-3 REJECT: check_billing_cap_risk() above
+# already refuses to fabricate a 0/NORMAL when the spend fetch fails (Zyte's
+# Stats API key is confirmed a different key than PROVIDER_KEY_ZYTE — see
+# provider-limits.json zyte.billing.stats_api, MANUAL_REQUIRED) — but it wrote
+# NOINFO to provider_status and a probe_log row and stopped there. Ruling-3
+# caught this live in prod: the ONE dollar cap this system tracks had been
+# blind every single run since ruling-1, and nothing had ever told a human —
+# "MANUAL_REQUIRED" sitting inside a JSON string and a journal entry is not a
+# door, it's a note nobody was asked to read. This is the fix: a PERSISTENT
+# (not one-off — a single network blip must not page anyone) NOINFO streak on
+# a billing-cap provider opens through the SAME door email-intake.py's own
+# N.18 "3 consecutive NOINFO days" already uses — kind=UNKNOWN, route_class
+# HUMAN_GENERIC (config/autopilot/routing.json) — which is WAITING_HUMAN plus
+# a REAL operator file (open_or_merge_incident's own OPERATOR_FILE_ROUTE_CLASSES
+# path), not a GitHub issue nobody is on the hook to check.
+#
+# The streak is read from probe_log (kind='usage_api', already written every
+# run by check_billing_cap_risk() above) rather than a second JSON state file
+# — this project's own "не изобретай новую кассу" (C0.1) applies here exactly
+# like it did to AP-9's daily-marker choice earlier in this file: the durable
+# history this needs to count already exists.
+# ---------------------------------------------------------------------------
+BILLING_CAP_NOINFO_ESCALATION_RUNS = 6  # hourly cron -> ~6h of persistent failure before paging a human
+
+
+def billing_cap_noinfo_streak(provider):
+    """Trailing run of NOINFO `usage_api` probe_log rows for this provider,
+    most-recent-first (same shape as email-intake.py's noinfo_streak — N.18
+    — just read from the durable table this script already writes instead of
+    a second state file). Fails to 0 (not escalating) on a query failure —
+    an escalation is a real WAITING_HUMAN ask with an operator file, so the
+    safe failure direction here is under-counting, not over-alerting."""
+    rows, rc = ap.psql(
+        f"SELECT result FROM probe_log WHERE provider = {ap.sql_literal(provider)} "
+        f"AND kind = 'usage_api' ORDER BY ts DESC LIMIT {BILLING_CAP_NOINFO_ESCALATION_RUNS}"
+    )
+    if rc != 0 or not rows:
+        return 0
+    streak = 0
+    for line in rows.splitlines():
+        if line != "NOINFO":
+            break
+        streak += 1
+    return streak
+
+
+def maybe_escalate_billing_cap_noinfo(provider, billing, streak):
+    """Opens (or, idempotently, notes a recurrence on) a WAITING_HUMAN
+    incident asking the operator for whatever credential check_billing_cap_risk()
+    is missing. Never touches the provider's billing/spend settings itself
+    (⛔ boundary, T-11) — this only asks; ap.open_or_merge_incident's own
+    dedup_key(kind, provider) makes re-running this every hour while the
+    streak holds a no-op past the first WAITING_HUMAN + operator file."""
+    try:
+        ap.open_or_merge_incident(
+            kind="UNKNOWN", provider=provider, detected_by="limits",
+            evidence={
+                "noinfo_streak_runs": streak,
+                "escalation_threshold_runs": BILLING_CAP_NOINFO_ESCALATION_RUNS,
+                "cap_usd_month": billing.get("cap_usd_month"),
+                "organization_id": billing.get("organization_id"),
+                "reason": "billing-cap spend query has no working credential — see "
+                          "provider-limits.json billing.stats_api for the specific 403/detail",
+            },
+            what=(f"{provider}: единственный долларовый потолок (${billing.get('cap_usd_month')}/мес) "
+                  f"в системе не измеряется {streak} проходов подряд (usage_api probe_log). "
+                  f"Нужен рабочий ключ для Stats API — см. provider-limits.json "
+                  f"{provider}.billing.stats_api, это подтверждённо ДРУГОЙ ключ, не PROVIDER_KEY_"
+                  f"{provider.upper()}."),
+            system_did="риск по этому потолку пишется как NOINFO каждый час (не NORMAL, не 0) — "
+                       "но до этого инцидента никто не был явно спрошен за ключом (T-11 ruling-3)",
+            actor="provider-limit-alerts",
+        )
+    except (AssertionError, RuntimeError) as e:
+        ap.notice(f"provider-limit-alerts: failed to open billing-cap NOINFO-streak incident "
+                  f"for {provider}: {e}")
 
 
 # ---------------------------------------------------------------------------
@@ -1397,6 +1482,56 @@ def selftest_db():
             )
             print("world 7 (uncapped billing, no cap_usd_month -> stale QUOTA_EXHAUSTED unstuck, "
                   "risk NORMAL): OK")
+        finally:
+            load_billing_config = real_load_billing_config
+
+        # World 8 (Fable ruling-3 REJECT): a billing-cap provider whose spend
+        # fetch NEVER resolves (no fetch method known for it, same shape a
+        # wrong/missing Stats-API key produces for zyte) must escalate to a
+        # real WAITING_HUMAN incident + operator file once the NOINFO streak
+        # crosses BILLING_CAP_NOINFO_ESCALATION_RUNS -- and must NOT escalate
+        # (or duplicate) before/after that threshold.
+        # load_billing_config is already `global` in this function's scope (declared
+        # by world 6 above) -- redeclaring it here would itself be a SyntaxError
+        # ("used prior to global declaration") since world 7 already assigned it.
+        real_load_billing_config = load_billing_config
+        load_billing_config = lambda: {"noinfotest": {"cap_usd_month": 50.0}}  # noqa: E731 -- no zyte-only fetch path -> always NOINFO
+        try:
+            for i in range(BILLING_CAP_NOINFO_ESCALATION_RUNS - 1):
+                check_billing_cap_risk()
+                pre_row, _ = ap.psql(
+                    "SELECT incident_id FROM incidents WHERE provider = 'noinfotest' AND kind = 'UNKNOWN'"
+                )
+                assert not pre_row, (
+                    f"world 8: must NOT escalate before the streak threshold "
+                    f"(run {i + 1}/{BILLING_CAP_NOINFO_ESCALATION_RUNS - 1}), got incident {pre_row!r}"
+                )
+            print(f"world 8a ({BILLING_CAP_NOINFO_ESCALATION_RUNS - 1} NOINFO runs, no escalation yet): OK")
+
+            check_billing_cap_risk()  # the Nth run -> streak hits the threshold
+            inc_row8, _ = ap.psql(
+                "SELECT incident_id, state FROM incidents WHERE provider = 'noinfotest' AND kind = 'UNKNOWN'"
+            )
+            assert inc_row8, "world 8b: expected an UNKNOWN incident once the NOINFO streak crossed threshold"
+            inc_id8, inc_state8 = inc_row8.split(ap.SEP)
+            assert inc_state8 == "WAITING_HUMAN", (
+                f"world 8b: UNKNOWN is HUMAN_GENERIC (routing.json) -> must open straight into "
+                f"WAITING_HUMAN, got {inc_state8!r}"
+            )
+            op_file_row, _ = ap.psql(
+                f"SELECT operator_file FROM incidents WHERE incident_id = {ap.sql_literal(inc_id8)}"
+            )
+            assert op_file_row and os.path.isfile(op_file_row), (
+                f"world 8b: HUMAN_GENERIC must write a real operator file, got {op_file_row!r}"
+            )
+            print("world 8b (NOINFO streak crosses threshold -> WAITING_HUMAN + operator file): OK")
+
+            check_billing_cap_risk()  # one more tick with the streak still held
+            count_row8, _ = ap.psql(
+                "SELECT count(*) FROM incidents WHERE provider = 'noinfotest' AND kind = 'UNKNOWN'"
+            )
+            assert count_row8 == "1", f"world 8c: repeated NOINFO must merge, not duplicate, got count={count_row8}"
+            print("world 8c (streak holding -> merges into the same incident, no duplicate): OK")
         finally:
             load_billing_config = real_load_billing_config
 
