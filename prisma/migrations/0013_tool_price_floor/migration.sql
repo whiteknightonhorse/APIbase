@@ -18,3 +18,18 @@
 --      by the reconciler; demotion to unavailable is never blocked.
 ALTER TABLE "tools" ADD COLUMN IF NOT EXISTS "price_floor_usd" DECIMAL(18,8);
 ALTER TABLE "tools" ADD COLUMN IF NOT EXISTS "price_floor_basis" TEXT;
+
+-- Data step, T-01 ruling-2 REJECT #2: the column additions above are structure only --
+-- nothing else in the deploy path (scripts/seed.ts does not read a price_floor_usd key
+-- from config/tool_provider_config.yaml) would ever have written scrape.screenshot's floor,
+-- which would have left config/tool_provider_config.yaml's price_note claiming a fact that
+-- was never true. This UPDATE is the one write, idempotent (guarded on IS NULL so a
+-- deliberate future edit is never clobbered by a migration re-run), and covers exactly the
+-- single row T-01's operator order authorized: basis='documented_max', floor = browser
+-- documented max 0.01608 + 0.002 surcharge = 0.01808, x1.3 MARGIN_MULTIPLIER = 0.023504
+-- (see config/tool_provider_config.yaml price_note on this tool_id for the full derivation).
+UPDATE "tools"
+SET "price_floor_usd" = 0.023504,
+    "price_floor_basis" = 'documented_max'
+WHERE "tool_id" = 'scrape.screenshot'
+  AND "price_floor_usd" IS NULL;
