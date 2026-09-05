@@ -1137,7 +1137,18 @@ def selftest_db():
                 task_path = os.path.join(ap.TASKLOOP_QUEUE_DIR, task_id)
                 assert os.path.isfile(task_path), f"world 4: {task_path} was not actually written"
                 body = open(task_path, encoding="utf-8").read()
-                assert body.startswith("REVIEW: fable\nMAX_ATTEMPTS: 2\n"), body[:80]
+                # T-07/B2 inserted a MODEL: line between REVIEW: and
+                # MAX_ATTEMPTS: -- this stale literal broke silently until
+                # T-09 ruling-2 caught the drift; read the expected header
+                # from the same tables the generator uses instead of a
+                # frozen literal, so a future routing.json change can't
+                # silently invalidate this world again.
+                expected_header = (
+                    f"REVIEW: {ap.REVIEW_FOR_KIND.get('PROVIDER_DOWN') or 'none'}\n"
+                    f"MODEL: {ap.MODEL_FOR_KIND.get('PROVIDER_DOWN') or 'sonnet'}\n"
+                    f"MAX_ATTEMPTS: 2\n"
+                )
+                assert body.startswith(expected_header), (expected_header, body[:80])
                 assert "resolve-request" in body and "PROVIDER_DOWN" in body
             else:
                 assert not task_id, f"world 4: OPEN incident has a fleet_task_id: {task_id}"
