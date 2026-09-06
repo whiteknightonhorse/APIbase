@@ -553,7 +553,7 @@
   },
   "jikan": {
     "display_name": "Jikan / MyAnimeList",
-    "health_url": "https://api.jikan.moe/v4/anime?limit=1&q=test",
+    "health_url": "https://api.jikan.moe/v4/anime/1",
     "limit_type": "unlimited",
     "free_limit": 0,
     "reset_period": "none",
