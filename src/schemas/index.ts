@@ -406,6 +406,7 @@ import { nominatimOsmSchemas } from './nominatim-osm.schema';
 import { archiveorgSchemas } from './archiveorg.schema';
 import { openbrewerySchemas } from './openbrewery.schema';
 import { dataUsaSchemas } from './data-usa.schema';
+import { fbiwantedSchemas } from './fbiwanted.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -815,4 +816,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...archiveorgSchemas,
   ...openbrewerySchemas,
   ...dataUsaSchemas,
+  ...fbiwantedSchemas,
 };

@@ -17303,4 +17303,40 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // FBI Wanted API (UC-738, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'fbiwanted.search',
+    mcpName: 'fbiwanted.persons.search',
+    title: 'Search FBI Wanted Persons',
+    description:
+      'Search the FBI Wanted API for wanted persons, fugitives, and missing/victim listings. Filter by name, ' +
+      'FBI field office, sex, race, or person classification. Returns title, charges, physical description, ' +
+      'reward, field offices, and photos for each match (api.fbi.gov, public US Government data)',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'fbiwanted.by_category',
+    mcpName: 'fbiwanted.persons.by_category',
+    title: 'Browse FBI Wanted by Category',
+    description:
+      'Browse FBI wanted posters by category: Ten Most Wanted Fugitives, Most Wanted Fraudsters, kidnappings, ' +
+      'missing persons, seeking-information cases, Endangered Child Alert Program, or law-enforcement-assistance ' +
+      'requests. Returns the same subject detail as fbiwanted.persons.search (api.fbi.gov)',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'fbiwanted.recent',
+    mcpName: 'fbiwanted.persons.recent',
+    title: 'Recently Published FBI Wanted Posters',
+    description:
+      'Get the most recently published FBI wanted posters, newest first, optionally restricted to one FBI field ' +
+      'office. Useful for monitoring newly added subjects (api.fbi.gov, public US Government data)',
+    category: 'legal',
+    annotations: READ_ONLY,
+  },
 ];

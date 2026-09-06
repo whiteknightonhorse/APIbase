@@ -406,6 +406,7 @@ import { NominatimOsmAdapter } from './nominatim-osm';
 import { ArchiveOrgAdapter } from './archiveorg';
 import { OpenBreweryAdapter } from './openbrewery';
 import { DataUsaAdapter } from './data-usa';
+import { FbiWantedAdapter } from './fbiwanted';
 import { config } from '../config';
 
 /**
@@ -2233,6 +2234,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // (Census/ACS, BLS, IPEDS), cube schema browsing, dimension member
       // lookup (UC-737). No auth, no key. Public/free government-backed data.
       return getOrCreate('data-usa', () => new DataUsaAdapter());
+    case 'fbiwanted':
+      // FBI Wanted API (api.fbi.gov/wanted/v1) — Ten Most Wanted, fraudsters,
+      // kidnappings, missing persons, law-enforcement-assistance posters
+      // (UC-738). No auth, no key. Public US Government data.
+      return getOrCreate('fbiwanted', () => new FbiWantedAdapter());
     default:
       return undefined;
   }

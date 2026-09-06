@@ -128830,6 +128830,292 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/fbiwanted.search/call": {
+      "post": {
+        "operationId": "fbiwanted_search",
+        "summary": "Search FBI Wanted Persons",
+        "description": "Search the FBI Wanted API for wanted persons, fugitives, and missing/victim listings. Filter by name, FBI field office, sex, race, or person classification. Returns title, charges, physical description, reward, field offices, and photos for each match (api.fbi.gov, public US Government data)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fbiwanted.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "description": "Filter by name/title, partial case-insensitive match (e.g. \"smith\")."
+                  },
+                  "field_office": {
+                    "type": "string",
+                    "description": "Filter by FBI field office slug handling the case (e.g. \"seattle\", \"miami\", \"losangeles\")."
+                  },
+                  "sex": {
+                    "type": "string",
+                    "enum": [
+                      "male",
+                      "female"
+                    ],
+                    "description": "Filter by sex (lowercase values only)."
+                  },
+                  "race": {
+                    "type": "string",
+                    "description": "Filter by race, lowercase (e.g. \"white\", \"black\", \"hispanic\", \"asian\", \"native\")."
+                  },
+                  "person_classification": {
+                    "type": "string",
+                    "description": "Filter by classification, e.g. \"Main\" (the wanted subject) or \"Victim\"."
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Page number for pagination (default 1)."
+                  },
+                  "page_size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Results per page (default 20, max 50)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/fbiwanted.by_category/call": {
+      "post": {
+        "operationId": "fbiwanted_by_category",
+        "summary": "Browse FBI Wanted by Category",
+        "description": "Browse FBI wanted posters by category: Ten Most Wanted Fugitives, Most Wanted Fraudsters, kidnappings, missing persons, seeking-information cases, Endangered Child Alert Program, or law-enforcement-assistance requests. Returns the same subject detail as fbiwanted.persons.search (api.fbi.gov)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fbiwanted.by_category"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "category": {
+                    "type": "string",
+                    "enum": [
+                      "ten",
+                      "fraudster",
+                      "kidnapping",
+                      "missing",
+                      "information",
+                      "ecap",
+                      "law-enforcement-assistance",
+                      "default"
+                    ],
+                    "description": "Poster category: \"ten\" (Ten Most Wanted Fugitives), \"fraudster\" (Most Wanted Fraudsters), \"kidnapping\", \"missing\" (missing persons), \"information\" (seeking information), \"ecap\" (Endangered Child Alert Program), \"law-enforcement-assistance\", or \"default\" (general wanted)."
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Page number for pagination (default 1)."
+                  },
+                  "page_size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Results per page (default 20, max 50)."
+                  }
+                },
+                "required": [
+                  "category"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/fbiwanted.recent/call": {
+      "post": {
+        "operationId": "fbiwanted_recent",
+        "summary": "Recently Published FBI Wanted Posters",
+        "description": "Get the most recently published FBI wanted posters, newest first, optionally restricted to one FBI field office. Useful for monitoring newly added subjects (api.fbi.gov, public US Government data)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fbiwanted.recent"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "field_office": {
+                    "type": "string",
+                    "description": "Restrict to a specific FBI field office slug (e.g. \"seattle\", \"miami\", \"losangeles\")."
+                  },
+                  "page_size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Number of most recently published entries to return (default 20, max 50)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

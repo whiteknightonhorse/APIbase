@@ -9117,3 +9117,25 @@ tools:
     price_usd: "0.001"
     upstream_cost_usd: "0"
     cache_ttl: 86400
+
+  # --- UC-738: FBI Wanted API (Search / By Category / Recent) ---
+  - tool_id: fbiwanted.search
+    name: Search FBI Wanted Persons
+    provider: fbiwanted
+    price_usd: "0.002"
+    upstream_cost_usd: "0"
+    cache_ttl: 3600
+
+  - tool_id: fbiwanted.by_category
+    name: Browse FBI Wanted by Category
+    provider: fbiwanted
+    price_usd: "0.002"
+    upstream_cost_usd: "0"
+    cache_ttl: 3600
+
+  - tool_id: fbiwanted.recent
+    name: Recently Published FBI Wanted Posters
+    provider: fbiwanted
+    price_usd: "0.001"
+    upstream_cost_usd: "0"
+    cache_ttl: 900
