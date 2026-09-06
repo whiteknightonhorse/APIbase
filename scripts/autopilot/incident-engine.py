@@ -47,6 +47,11 @@ Each tick, in order:
      (F2) files a real follow-up fleet task (same generator/cap as #3) and
      moves the incident to REMEDIATION_QUEUED, never straight to VERIFYING.
   7. advance_verifying() — re-probe confirmation -> RESOLVED or STUCK.
+  7b. reconcile_stuck_incidents() (T-08) — STUCK is not a fact remembered
+      forever: re-derives it every tick from the fleet task's real location
+      (stuck/ stays STUCK; queue/ or active/ means the fleet revived it ->
+      REMEDIATION_QUEUED; done/ -> VERIFYING; nowhere -> stays STUCK but
+      says so loudly, never silently reads as "confirmed still stuck").
   8. write_heartbeat().
 
 Why this file does NOT touch crontab or fleet-check.sh/fleet-pulse.sh
@@ -568,6 +573,95 @@ def advance_verifying():
         # SKIPPED_BUDGET/NOINFO: genuinely no answer yet, leave in VERIFYING.
 
 
+def reconcile_stuck_incidents():
+    """T-08 (2026-09-06): STUCK is a decision this engine makes every tick
+    for REMEDIATION_QUEUED (advance_remediation_queued's fleet-stuck branch)
+    and VERIFYING (advance_verifying's pre-fix safety net) — but both of
+    those are ONE-WAY doors. Neither writes anything that ever gets
+    re-checked once the incident is sitting in STUCK, so a dispatcher who
+    revives the fleet task by hand (raises MAX_ATTEMPTS, resets the attempt
+    counter, moves the file back to queue/ or active/ — exactly what T-06
+    documents happening to real tasks) leaves the incident lying about its
+    own state forever: the fleet is working the problem again, and STUCK —
+    the one signal this system pages a human FOR — keeps insisting nobody
+    is.
+
+    This closes that gap by deriving STUCK from the SAME observable this
+    engine already trusts for every other fleet-task-driven transition — the
+    task's actual location on disk, not a value written once and left to
+    rot. Every incident with state='STUCK' and a fleet_task_id is re-checked
+    every tick:
+
+      - still in stuck/            -> genuinely still STUCK, no-op.
+      - back in queue/ or active/  -> the fleet is on it again ->
+                                       REMEDIATION_QUEUED (advance_
+                                       remediation_queued's own done/stuck
+                                       watcher picks it up again from there,
+                                       unmodified).
+      - landed in done/            -> the revived attempt actually finished
+                                       -> VERIFYING (same rule as advance_
+                                       remediation_queued's fleet-done
+                                       branch: never trust the fleet's own
+                                       verdict text alone, let the existing
+                                       re-probe confirm).
+      - in none of the four dirs   -> NOT the same as "queued" (task
+                                       deleted, moved outside taskloop, or a
+                                       typo'd fleet_task_id) — the only
+                                       honest move is to leave it STUCK
+                                       (never invent a good outcome from an
+                                       absence, C0.3), but say so loudly
+                                       and distinctly so this silent-no-op
+                                       world is never read back as "checked,
+                                       confirmed still stuck" by whoever
+                                       greps notices.log later.
+    """
+    out, rc = ap.psql(
+        "SELECT incident_id, provider, kind, fleet_task_id FROM incidents "
+        "WHERE state = 'STUCK' AND fleet_task_id IS NOT NULL"
+    )
+    if rc != 0 or not out:
+        return
+    for line in out.splitlines():
+        incident_id, provider, kind, fleet_task_id = line.split(ap.SEP)
+        queue_path = os.path.join(ap.TASKLOOP_QUEUE_DIR, fleet_task_id)
+        active_path = os.path.join(ap.TASKLOOP_ROOT, "active", fleet_task_id)
+        stuck_path = os.path.join(ap.TASKLOOP_ROOT, "stuck", fleet_task_id)
+        done_path = os.path.join(ap.TASKLOOP_ROOT, "done", fleet_task_id)
+        if os.path.isfile(stuck_path):
+            continue  # still genuinely stuck this tick — nothing changed
+        if os.path.isfile(done_path):
+            ap.transition_state(incident_id, "VERIFYING")
+            ap.note_incident(incident_id, "incident-engine", "fleet-revived-done",
+                              f"fleet task {fleet_task_id} left stuck/ and landed in done/ "
+                              f"-> VERIFYING (re-probe will confirm, same as any other fleet-done)")
+            ap.notice(f"incident-engine: {incident_id} ({provider}/{kind}) fleet task "
+                      f"{fleet_task_id} revived (done) -> VERIFYING")
+        elif os.path.isfile(queue_path) or os.path.isfile(active_path):
+            where = "queue/" if os.path.isfile(queue_path) else "active/"
+            ap.transition_state(incident_id, "REMEDIATION_QUEUED")
+            ap.note_incident(incident_id, "incident-engine", "fleet-revived",
+                              f"fleet task {fleet_task_id} left stuck/ and is back in {where} "
+                              f"-> REMEDIATION_QUEUED (dispatcher revived it; STUCK was a stale "
+                              f"one-time write, not a re-derived fact)")
+            ap.notice(f"incident-engine: {incident_id} ({provider}/{kind}) fleet task "
+                      f"{fleet_task_id} revived ({where}) -> REMEDIATION_QUEUED, no longer STUCK")
+        else:
+            # Third, distinct world: not "confirmed still stuck" (that's the
+            # stuck/ branch above) and not "confirmed working again" (that's
+            # queue/active/done) — genuinely no evidence either way. Leaving
+            # the incident STUCK is the fail-closed choice (a human already
+            # got paged; withdrawing that page on an absence would be the
+            # exact bug this task exists to close, just inverted), but
+            # notice_dedup() so this doesn't get lost among the routine
+            # "still stuck" world and doesn't spam every 10 minutes either.
+            ap.notice_dedup(
+                incident_id, "STUCK_TASK_MISSING",
+                f"WARN: {incident_id} ({provider}/{kind}) — fleet task {fleet_task_id} is in "
+                f"none of queue/active/stuck/done, cannot confirm STUCK is still accurate off "
+                f"the task's real location; leaving STUCK (fail closed, human already paged)",
+            )
+
+
 # ---------------------------------------------------------------------------
 # AP-8: Tool.status autodemotion/promotion. E5's own schema comment named
 # this task before it existed: "`status` не пишет НИКТО — это первый
@@ -835,6 +929,7 @@ def run():
     bridge_key_incidents()
     advance_remediation_queued()
     advance_verifying()
+    reconcile_stuck_incidents()
     write_heartbeat()
     print(f"incident-engine: tick complete, {opened} new incident(s) opened")
     return 0
@@ -2083,6 +2178,77 @@ def selftest_db():
         print("world 17 (tools_status_audit_required trigger: status change rejected without "
               "BOTH status_source and status_reason, accepted with both, status_changed_at "
               "always the trigger's own now(), non-status writes unaffected): OK")
+
+        # World 18 (T-08, 2026-09-06): STUCK must be RE-DERIVED from the fleet
+        # task's real location every tick, not remembered once. Four
+        # incidents, four fleet tasks, one each in stuck/, queue/, active/,
+        # done/, plus a fifth whose task file is in none of the four dirs —
+        # reconcile_stuck_incidents() must treat all five differently.
+        queue_dir18 = ap.TASKLOOP_QUEUE_DIR
+        active_dir18 = os.path.join(ap.TASKLOOP_ROOT, "active")
+        done_dir18 = os.path.join(ap.TASKLOOP_ROOT, "done")
+        stuck_dir18 = os.path.join(ap.TASKLOOP_ROOT, "stuck")
+        for d in (queue_dir18, active_dir18, done_dir18, stuck_dir18):
+            os.makedirs(d, exist_ok=True)
+
+        def _mk_stuck18(provider, task_name, put_in=None):
+            iid, _ = ap.open_or_merge_incident(
+                kind="PROVIDER_DOWN", provider=provider,
+                evidence={"probe": "was down"}, detected_by="probe",
+            )
+            ap.transition_state(iid, "STUCK", extra_set=f", fleet_task_id = {ap.sql_literal(task_name)}")
+            if put_in is not None:
+                with open(os.path.join(put_in, task_name), "w", encoding="utf-8") as f:
+                    f.write("stub\n")
+            return iid
+
+        id18_stillstuck = _mk_stuck18("ap18stillstuck", "9990-t08-stillstuck.md", stuck_dir18)
+        id18_queue = _mk_stuck18("ap18revived-queue", "9991-t08-revived-queue.md", queue_dir18)
+        id18_active = _mk_stuck18("ap18revived-active", "9992-t08-revived-active.md", active_dir18)
+        id18_done = _mk_stuck18("ap18revived-done", "9993-t08-revived-done.md", done_dir18)
+        id18_missing = _mk_stuck18("ap18missing", "9994-t08-missing.md", put_in=None)
+
+        reconcile_stuck_incidents()
+
+        assert ap.get_incident(id18_stillstuck)["state"] == "STUCK", (
+            "world 18: a task still sitting in stuck/ must stay STUCK"
+        )
+        inc18_queue = ap.get_incident(id18_queue)
+        assert inc18_queue["state"] == "REMEDIATION_QUEUED", (
+            f"world 18: a task revived back into queue/ must leave STUCK, "
+            f"got {inc18_queue['state']}"
+        )
+        assert any(a["action"] == "fleet-revived" for a in inc18_queue["attempts"]), inc18_queue["attempts"]
+        inc18_active = ap.get_incident(id18_active)
+        assert inc18_active["state"] == "REMEDIATION_QUEUED", (
+            f"world 18: a task revived back into active/ must leave STUCK, "
+            f"got {inc18_active['state']}"
+        )
+        inc18_done = ap.get_incident(id18_done)
+        assert inc18_done["state"] == "VERIFYING", (
+            f"world 18: a revived task that already finished (done/) must go to VERIFYING, "
+            f"not straight back to REMEDIATION_QUEUED, got {inc18_done['state']}"
+        )
+        assert any(a["action"] == "fleet-revived-done" for a in inc18_done["attempts"]), inc18_done["attempts"]
+        assert ap.get_incident(id18_missing)["state"] == "STUCK", (
+            "world 18: a fleet_task_id found in none of the four dirs must stay STUCK "
+            "(fail closed, absence is not a good outcome) rather than silently un-sticking"
+        )
+        with open(ap.NOTICES_LOG, encoding="utf-8") as f:
+            notices18 = f.read()
+        assert id18_missing in notices18 and "none of queue/active/stuck/done" in notices18, (
+            "world 18: the missing-task world must be logged distinctly, not silently treated "
+            "as either 'still stuck' or 'confirmed fine'"
+        )
+        # Re-run must be idempotent: still-stuck one stays put, revived ones
+        # (now REMEDIATION_QUEUED/VERIFYING) are no longer selected at all
+        # since the query itself is scoped to state = 'STUCK'.
+        reconcile_stuck_incidents()
+        assert ap.get_incident(id18_stillstuck)["state"] == "STUCK"
+        assert ap.get_incident(id18_queue)["state"] == "REMEDIATION_QUEUED"
+        print("world 18 (STUCK re-derived every tick from the fleet task's real location: "
+              "stuck/ stays STUCK, queue/active revives to REMEDIATION_QUEUED, done/ revives "
+              "to VERIFYING, absent-everywhere stays STUCK but is logged distinctly): OK")
 
         print("selftest-db: ALL WORLDS OK")
         return 0
