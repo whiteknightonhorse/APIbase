@@ -20,8 +20,17 @@ jest.mock('../../../src/adapters/registry', () => ({
 jest.mock('../../../src/jobs/provider-health.job', () => ({
   recordProbeResult: jest.fn().mockResolvedValue(undefined),
 }));
+// T-09b attempt 3 (ruling-2): recordProviderCallFailure now also gates on
+// `provider_status.next_probe_at` (the same column applyPassiveDegradation
+// uses) before writing — findUnique is a live jest.fn() per test so each
+// case can control whether the provider is "due" (null / past timestamp) or
+// not yet due (future timestamp), unlike the old static `{ __fake: 'prisma'
+// }` stub which had no providerStatus at all.
+let mockFindUnique: jest.Mock;
 jest.mock('../../../src/services/prisma.service', () => ({
-  getPrisma: jest.fn().mockReturnValue({ __fake: 'prisma' }),
+  getPrisma: jest.fn(() => ({
+    providerStatus: { findUnique: (...args: unknown[]) => mockFindUnique(...args) },
+  })),
 }));
 
 // Minimal fake redis supporting the NX/EX `set()` call
@@ -150,6 +159,10 @@ describe('providerCallStage passive health signal (T-09b)', () => {
     mockResolveAdapter.mockReset();
     mockedRecordProbeResult.mockClear();
     fakeRedisStore = new Map();
+    // Default: never probed before (null) -> always due, matching
+    // applyPassiveDegradation's own "null next_probe_at is always due" rule.
+    // Individual gate tests below override this per-call.
+    mockFindUnique = jest.fn().mockResolvedValue(null);
   });
 
   it('feeds FAIL_TRANSIENT for a classified TIMEOUT', async () => {
@@ -201,7 +214,13 @@ describe('providerCallStage passive health signal (T-09b)', () => {
     );
   });
 
-  it('feeds FAIL_DETERMINISTIC for a classified PROVIDER_AUTH (401/402/403)', async () => {
+  // Attempt-2 fed this to FAIL_DETERMINISTIC and Fable rejected it
+  // (ruling-2): a single WAF-triggered 403 from one bot's odd input — the
+  // heartbeat's own traffic shape — must not pause the whole provider for
+  // 24h off one request. BaseAdapter.call() already flags `probe:asap:
+  // {provider}` on every ProviderError including this one; the active
+  // probe's own probeAuth is the one place that gets to call a key dead.
+  it('does NOT feed a health signal for PROVIDER_AUTH (401/402/403) — no more passive FAIL_DETERMINISTIC', async () => {
     mockResolveAdapter.mockReturnValue({
       call: jest.fn().mockRejectedValue({
         code: ProviderErrorCode.PROVIDER_AUTH,
@@ -215,14 +234,7 @@ describe('providerCallStage passive health signal (T-09b)', () => {
 
     await providerCallStage.execute(makeCtx());
 
-    expect(mockedRecordProbeResult).toHaveBeenCalledWith(
-      expect.anything(),
-      expect.anything(),
-      'nrc',
-      'passive',
-      'FAIL_DETERMINISTIC',
-      expect.anything(),
-    );
+    expect(mockedRecordProbeResult).not.toHaveBeenCalled();
   });
 
   it('does NOT feed a health signal for INPUT_REJECTED (422 — caller input, not upstream health)', async () => {
@@ -334,6 +346,77 @@ describe('providerCallStage passive health signal (T-09b)', () => {
     await providerCallStage.execute(makeCtx());
 
     expect(mockedRecordProbeResult).toHaveBeenCalledTimes(2);
+  });
+
+  // F1 spacing gate (ruling-2): the debounce alone re-arms every
+  // PASSIVE_CALL_FAILURE_DEBOUNCE_S (30s) regardless of the interval the
+  // state machine's own last transition earned — attempt-2's simulation
+  // showed a sustained outage walking HEALTHY -> DOWN's 24h backoff cap in
+  // under 5 minutes of real traffic. The next_probe_at gate is what actually
+  // enforces "at most once per adaptive interval".
+  it('the next_probe_at gate BLOCKS a passive signal when the provider is not due yet', async () => {
+    mockFindUnique.mockResolvedValue({ next_probe_at: new Date(Date.now() + 60_000) });
+    mockResolveAdapter.mockReturnValue({
+      call: jest.fn().mockRejectedValue({
+        code: ProviderErrorCode.UNAVAILABLE,
+        httpStatus: 502,
+        message: 'Provider returned 500',
+        provider: 'nrc',
+        toolId: 'nrc.reactor_history',
+        durationMs: 500,
+      }),
+    });
+
+    await providerCallStage.execute(makeCtx());
+
+    expect(mockFindUnique).toHaveBeenCalledWith({
+      where: { provider: 'nrc' },
+      select: { next_probe_at: true },
+    });
+    expect(mockedRecordProbeResult).not.toHaveBeenCalled();
+  });
+
+  it('the next_probe_at gate ALLOWS a passive signal once the earned interval has elapsed', async () => {
+    mockFindUnique.mockResolvedValue({ next_probe_at: new Date(Date.now() - 60_000) });
+    mockResolveAdapter.mockReturnValue({
+      call: jest.fn().mockRejectedValue({
+        code: ProviderErrorCode.UNAVAILABLE,
+        httpStatus: 502,
+        message: 'Provider returned 500',
+        provider: 'nrc',
+        toolId: 'nrc.reactor_history',
+        durationMs: 500,
+      }),
+    });
+
+    await providerCallStage.execute(makeCtx());
+
+    expect(mockedRecordProbeResult).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.anything(),
+      'nrc',
+      'passive',
+      'FAIL_TRANSIENT',
+      expect.anything(),
+    );
+  });
+
+  it('the next_probe_at gate treats a never-probed provider (null row) as always due', async () => {
+    mockFindUnique.mockResolvedValue(null);
+    mockResolveAdapter.mockReturnValue({
+      call: jest.fn().mockRejectedValue({
+        code: ProviderErrorCode.UNAVAILABLE,
+        httpStatus: 502,
+        message: 'Provider returned 500',
+        provider: 'brandnew',
+        toolId: 'brandnew.tool',
+        durationMs: 500,
+      }),
+    });
+
+    await providerCallStage.execute(makeCtx());
+
+    expect(mockedRecordProbeResult).toHaveBeenCalledTimes(1);
   });
 
   it('never lets a recordProbeResult failure change the response returned to the client', async () => {

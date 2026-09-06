@@ -146,9 +146,15 @@ export const providerCallStage: Stage = {
  * Deliberately narrow about which failures count as a health signal:
  *   - TIMEOUT / UNAVAILABLE (BaseAdapter's own classification of a genuine
  *     transport/5xx failure) -> FAIL_TRANSIENT, same as an active probe.
- *   - PROVIDER_AUTH (401/402/403) -> FAIL_DETERMINISTIC, same as an active
- *     auth probe (dead key/blocked — not the caller's fault, not going to
- *     self-heal on the next attempt).
+ *   - PROVIDER_AUTH (401/402/403) is deliberately EXCLUDED here (attempt-2
+ *     wrote this to FAIL_DETERMINISTIC and Fable rejected it, ruling-2: two
+ *     WAF-triggered 403s 30s apart from ONE bot's odd input — exactly the
+ *     heartbeat's own traffic shape — would pause the whole provider for 24h
+ *     off nothing but that bot. `BaseAdapter.call()` already flags
+ *     `probe:asap:{provider}` on every ProviderError including this one
+ *     (G2); the active probe job's own `probeAuth` (a real auth-header check
+ *     against `auth_env`, not a guess from one request's status code) is the
+ *     one place that gets to call a key dead.
  *   - Everything else (INPUT_REJECTED, RATE_LIMIT, RESPONSE_TOO_LARGE,
  *     INVALID_RESPONSE, or a shape with no recognizable `.code` at all —
  *     e.g. our own "Unsupported tool" catalog/adapter mismatch) is
@@ -161,20 +167,37 @@ export const providerCallStage: Stage = {
  *     catalog/adapter level instead (see the adapter alias fixes and the
  *     manual `unavailable` migration in this same task).
  *
- * Debounced per-provider (PASSIVE_CALL_FAILURE_DEBOUNCE_S, config/
- * autopilot.ts) via a short-lived Redis SETNX-style flag — this runs on
- * EVERY failing request, not once per aggregation tick like the ledger-based
- * passive steps, so without a debounce a tool failing at high volume would
- * write a provider_status update + probe_log row per request. Only the
- * first failure in each window actually calls recordProbeResult; the rest
- * are skipped.
+ * Two independent throttles, not one — ruling-2 found the first alone still
+ * broke F1's "между замерами ≥ probe_interval" spacing:
+ *   1. A short (PASSIVE_CALL_FAILURE_DEBOUNCE_S) per-provider Redis SETNX —
+ *      this runs on EVERY failing request, not once per aggregation tick
+ *      like the ledger-based passive steps, so without ANY debounce a tool
+ *      failing at high volume would write a provider_status update +
+ *      probe_log row per request.
+ *   2. The SAME `provider_status.next_probe_at` gate applyPassiveDegradation
+ *      already uses — the debounce alone re-arms every
+ *      PASSIVE_CALL_FAILURE_DEBOUNCE_S regardless of what interval the state
+ *      machine's own last transition earned, so a sustained outage still
+ *      wrote a fresh FAIL_TRANSIENT every ~30s and walked HEALTHY -> DOWN's
+ *      24h backoff cap in well under 5 minutes of real traffic (ruling-2's
+ *      table: fail #10 at t=270s already at the 24h cap) — the "reactive
+ *      500 crushes down for a day" failure this whole task exists to avoid,
+ *      just via the fix instead of the bug. Gating on next_probe_at makes a
+ *      passive call-failure advance the state machine at most once per
+ *      adaptive interval, exactly like an active probe or the ledger-based
+ *      passive steps.
  *
  * Best-effort and awaited (mirrors BaseAdapter.flagAsapProbe's posture for
  * the identical class of problem): a Prisma/Redis hiccup here must never
  * change the client's response, so failures are caught and logged, never
  * rethrown.
  */
-async function recordProviderCallFailure(
+// Exported (not just internal to the catch block above) so the F1-gate
+// transition can be exercised directly — both by the unit suite
+// (tests/unit/pipeline/provider-call.stage.test.ts) and by a live
+// demonstration against a real database, without needing a fake adapter
+// wired through the registry just to reach this function.
+export async function recordProviderCallFailure(
   providerError: ProviderError,
   toolId: string,
 ): Promise<void> {
@@ -182,9 +205,7 @@ async function recordProviderCallFailure(
     providerError.code === ProviderErrorCode.TIMEOUT ||
     providerError.code === ProviderErrorCode.UNAVAILABLE
       ? 'FAIL_TRANSIENT'
-      : providerError.code === ProviderErrorCode.PROVIDER_AUTH
-        ? 'FAIL_DETERMINISTIC'
-        : null;
+      : null;
 
   if (result === null) {
     return;
@@ -203,7 +224,21 @@ async function recordProviderCallFailure(
       return; // another failure already recorded this provider within the window
     }
 
-    await recordProbeResult(getPrisma(), redis, provider, 'passive', result, {
+    const db = getPrisma();
+    const status = await db.providerStatus.findUnique({
+      where: { provider },
+      select: { next_probe_at: true },
+    });
+    // Same rule as applyPassiveDegradation (tool-quality.job.ts): a null
+    // next_probe_at (never probed) is always due; anything else must have
+    // elapsed. Skipping here — not just failing to acquire the debounce —
+    // is what keeps a sustained outage from advancing the state machine
+    // faster than the interval it already earned.
+    if (status && status.next_probe_at.getTime() > Date.now()) {
+      return;
+    }
+
+    await recordProbeResult(db, redis, provider, 'passive', result, {
       httpStatus:
         typeof providerError.httpStatus === 'number' ? providerError.httpStatus : undefined,
       detail: `passive: ${providerError.code} from ${toolId} call`,

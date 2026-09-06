@@ -133,6 +133,17 @@ export const PASSIVE_ERROR_RATE_THRESHOLD = 0.25;
  * one state-machine step, the same way the F1 counters already require
  * multiple SEPARATE measurements (not multiple retries of one request)
  * before escalating.
+ *
+ * Attempt-2 shipped with ONLY this debounce and Fable rejected it
+ * (ruling-2): re-arming every 30s regardless of the state machine's own
+ * adaptive interval still let a sustained outage write a fresh
+ * FAIL_TRANSIENT every ~30s and walk HEALTHY -> DOWN's 24h backoff cap in
+ * under 5 minutes. provider-call.stage.ts's recordProviderCallFailure now
+ * ALSO gates on `provider_status.next_probe_at`, the same column
+ * applyPassiveDegradation above already uses — this debounce is still the
+ * first line of defense against a single request burst (cheaper than a DB
+ * read), the next_probe_at check is what actually enforces F1 spacing
+ * across a whole incident.
  */
 export const PASSIVE_CALL_FAILURE_DEBOUNCE_S = 30;
 
