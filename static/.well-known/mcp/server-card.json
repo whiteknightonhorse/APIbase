@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1363 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1361 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -14686,7 +14686,61 @@
       "description": "Search 577,000+ clinical trials worldwide — filter by condition (cancer, diabetes), intervention (drug name), sponsor, status (recruiting/completed), phase. Returns NCT ID, title, status, conditions, interventions, sponsor, enrollment. US National Library of Medicine (ClinicalTrials.gov)",
       "inputSchema": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "condition": {
+            "type": "string",
+            "description": "Disease or condition to search for (e.g. \"diabetes\", \"breast cancer\", \"COVID-19\"). Searches the conditions field of registered trials."
+          },
+          "intervention": {
+            "type": "string",
+            "description": "Drug or intervention to search for (e.g. \"aspirin\", \"metformin\", \"CAR T-cell therapy\"). Searches the interventions field of registered trials."
+          },
+          "sponsor": {
+            "type": "string",
+            "description": "Sponsor or organization name to search for (e.g. \"Pfizer\", \"NIH\", \"Mayo Clinic\"). Searches the lead sponsor field."
+          },
+          "keyword": {
+            "type": "string",
+            "description": "Free-text keyword search across all text fields of the trial record (e.g. \"immunotherapy\", \"biomarker\", \"phase 3 randomized\")."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "RECRUITING",
+              "NOT_YET_RECRUITING",
+              "ACTIVE_NOT_RECRUITING",
+              "COMPLETED",
+              "TERMINATED",
+              "WITHDRAWN",
+              "SUSPENDED",
+              "UNKNOWN"
+            ],
+            "description": "Filter by overall trial status. Most useful values: \"RECRUITING\" (open enrollment), \"COMPLETED\" (finished), \"ACTIVE_NOT_RECRUITING\" (ongoing but closed to new participants)."
+          },
+          "phase": {
+            "type": "string",
+            "enum": [
+              "PHASE1",
+              "PHASE2",
+              "PHASE3",
+              "PHASE4",
+              "EARLY_PHASE1",
+              "NA"
+            ],
+            "description": "Filter by clinical trial phase. PHASE1=safety, PHASE2=efficacy, PHASE3=confirmatory, PHASE4=post-market, NA=not applicable (e.g. observational studies)."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Maximum number of results to return (1–50). Default: 10.",
+            "default": 10
+          },
+          "page_token": {
+            "type": "string",
+            "description": "Pagination token from a previous search response (next_page_token field). Omit for the first page."
+          }
+        }
       },
       "outputSchema": {
         "type": "object",
@@ -14714,7 +14768,15 @@
       "description": "Full details for a clinical trial by NCT ID — protocol, conditions, interventions with dosing, eligibility criteria (age, sex), primary/secondary outcomes, sponsor, enrollment, phase, study design, dates, results if available (ClinicalTrials.gov)",
       "inputSchema": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "nct_id": {
+            "type": "string",
+            "description": "ClinicalTrials.gov registry identifier in NCT format (e.g. \"NCT04368728\", \"NCT01454700\"). Must start with \"NCT\" followed by 8 digits."
+          }
+        },
+        "required": [
+          "nct_id"
+        ]
       },
       "outputSchema": {
         "type": "object",
@@ -14742,7 +14804,12 @@
       "description": "Total number of registered clinical studies in the ClinicalTrials.gov database (577,000+ as of March 2026) (ClinicalTrials.gov)",
       "inputSchema": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "dummy": {
+            "type": "string",
+            "description": "Unused parameter — included for schema compatibility. Leave empty. Returns total study count and average record size from ClinicalTrials.gov."
+          }
+        }
       },
       "outputSchema": {
         "type": "object",
@@ -25115,6 +25182,96 @@
       }
     },
     {
+      "name": "dblp.cs.search",
+      "description": "Search 7M+ computer science publications on DBLP by title, keyword, or topic. Returns title, authors, venue (NeurIPS, ICML, CVPR, ACL, etc.), year, DOI. The largest CS-specific bibliography — covers journals, conferences, and workshops (DBLP, CC0)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query — paper title, keyword, or topic (e.g. \"transformer attention\", \"graph neural network\", \"LLM reasoning\")",
+            "minLength": 1
+          },
+          "year": {
+            "type": "integer",
+            "description": "Filter by publication year (e.g. 2024)"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of results (1-50, default 20)"
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "dblp.cs.author",
+      "description": "Search 3M+ computer science authors on DBLP. Returns author name, DBLP PID, profile URL, aliases, affiliations. Use for finding researchers, checking publication records, or discovering collaborators (DBLP, CC0)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Author name to search (e.g. \"Geoffrey Hinton\", \"Yann LeCun\", \"Ilya Sutskever\")",
+            "minLength": 1
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30,
+            "description": "Number of results (1-30, default 10)"
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
       "name": "tides.noaa.predictions",
       "description": "Get tide predictions for a NOAA station — high/low tides, hourly, or 6-minute intervals. Returns predicted water level in feet or meters. Covers US coastlines, rivers, Great Lakes. Station IDs: 8518750 (NYC), 9414290 (SF), 8443970 (Boston) (NOAA, US Gov)",
       "inputSchema": {
@@ -25478,118 +25635,6 @@
         "required": [
           "object_id"
         ]
-      },
-      "outputSchema": {
-        "type": "object",
-        "properties": {
-          "result": {
-            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
-          },
-          "error": {
-            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
-          }
-        },
-        "required": [
-          "result"
-        ]
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      }
-    },
-    {
-      "name": "cma.artwork.search",
-      "description": "Search 64,000+ artworks at the Cleveland Museum of Art by keyword, artist, type, or culture. Returns title, artist, date, medium, image URLs, and CC0 license status. Use cma.artwork_detail for full record (CMA Open Access)",
-      "inputSchema": {
-        "type": "object",
-        "properties": {}
-      },
-      "outputSchema": {
-        "type": "object",
-        "properties": {
-          "result": {
-            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
-          },
-          "error": {
-            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
-          }
-        },
-        "required": [
-          "result"
-        ]
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      }
-    },
-    {
-      "name": "cma.artwork.detail",
-      "description": "Get complete metadata for a Cleveland Museum artwork by accession number — artist, date, medium, dimensions, culture, provenance, exhibition history, image URLs (web + print). Use cma.artwork_search to find accession numbers (CMA Open Access)",
-      "inputSchema": {
-        "type": "object",
-        "properties": {}
-      },
-      "outputSchema": {
-        "type": "object",
-        "properties": {
-          "result": {
-            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
-          },
-          "error": {
-            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
-          }
-        },
-        "required": [
-          "result"
-        ]
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      }
-    },
-    {
-      "name": "cma.creator.search",
-      "description": "Search artists, sculptors, and makers in the Cleveland Museum of Art collection. Returns creator name, nationality, birth/death dates, and count of works in the collection. Use accession numbers from results with cma.artwork_detail (CMA Open Access)",
-      "inputSchema": {
-        "type": "object",
-        "properties": {}
-      },
-      "outputSchema": {
-        "type": "object",
-        "properties": {
-          "result": {
-            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
-          },
-          "error": {
-            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
-          }
-        },
-        "required": [
-          "result"
-        ]
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      }
-    },
-    {
-      "name": "cma.exhibition.search",
-      "description": "Search past and current exhibitions at the Cleveland Museum of Art. Returns exhibition title, date range, description, and featured artworks. Use for art history research and provenance verification (CMA Open Access)",
-      "inputSchema": {
-        "type": "object",
-        "properties": {}
       },
       "outputSchema": {
         "type": "object",
