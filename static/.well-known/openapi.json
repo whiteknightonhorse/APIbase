@@ -129116,6 +129116,243 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/itistaxonomy.search_scientific_name/call": {
+      "post": {
+        "operationId": "itistaxonomy_search_scientific_name",
+        "summary": "Search Taxa by Scientific Name",
+        "description": "Search the ITIS (Integrated Taxonomic Information System) database by scientific name or partial name. Returns matching taxa with their TSN (Taxonomic Serial Number), full scientific name, author citation, and kingdom — the TSN can then be used with itistaxonomy.get_full_record for full classification detail (itis.gov, USGS public data)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "itistaxonomy.search_scientific_name"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Scientific name or partial name to search (e.g. \"Puma concolor\", \"Bison bison\", or genus only \"Ursus\").",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/itistaxonomy.search_common_name/call": {
+      "post": {
+        "operationId": "itistaxonomy_search_common_name",
+        "summary": "Search Taxa by Common Name",
+        "description": "Search the ITIS database by common (vernacular) name or partial name, e.g. \"cougar\" or \"grizzly bear\". Returns matching taxa with their TSN and the language of the common name (itis.gov, USGS public data)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "itistaxonomy.search_common_name"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Common (vernacular) name or partial name to search (e.g. \"cougar\", \"grizzly bear\").",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/itistaxonomy.get_full_record/call": {
+      "post": {
+        "operationId": "itistaxonomy_get_full_record",
+        "summary": "Get Full Taxonomic Record",
+        "description": "Get the full taxonomic record for a species by its ITIS TSN (Taxonomic Serial Number): accepted scientific name, author, kingdom, taxonomic rank, parent taxon, validity/usage status, known synonyms, and common names in multiple languages (itis.gov, USGS public data)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "itistaxonomy.get_full_record"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tsn": {
+                    "type": "string",
+                    "description": "Taxonomic Serial Number (TSN) — ITIS's unique numeric identifier for a taxon, e.g. \"180543\" for Ursus arctos. Obtain a TSN from itistaxonomy.search_scientific_name or itistaxonomy.search_common_name.",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "tsn"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

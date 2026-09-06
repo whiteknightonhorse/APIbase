@@ -407,6 +407,7 @@ import { ArchiveOrgAdapter } from './archiveorg';
 import { OpenBreweryAdapter } from './openbrewery';
 import { DataUsaAdapter } from './data-usa';
 import { FbiWantedAdapter } from './fbiwanted';
+import { ItisTaxonomyAdapter } from './itistaxonomy';
 import { config } from '../config';
 
 /**
@@ -2239,6 +2240,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // kidnappings, missing persons, law-enforcement-assistance posters
       // (UC-738). No auth, no key. Public US Government data.
       return getOrCreate('fbiwanted', () => new FbiWantedAdapter());
+    case 'itistaxonomy':
+      // ITIS (Integrated Taxonomic Information System, itis.gov) — search
+      // taxa by scientific/common name, full taxonomic record by TSN
+      // (UC-739). No auth, no key. Public USGS/US Government data.
+      return getOrCreate('itistaxonomy', () => new ItisTaxonomyAdapter());
     default:
       return undefined;
   }

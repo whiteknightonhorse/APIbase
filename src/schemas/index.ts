@@ -407,6 +407,7 @@ import { archiveorgSchemas } from './archiveorg.schema';
 import { openbrewerySchemas } from './openbrewery.schema';
 import { dataUsaSchemas } from './data-usa.schema';
 import { fbiwantedSchemas } from './fbiwanted.schema';
+import { itistaxonomySchemas } from './itistaxonomy.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -817,4 +818,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...openbrewerySchemas,
   ...dataUsaSchemas,
   ...fbiwantedSchemas,
+  ...itistaxonomySchemas,
 };

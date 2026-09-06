@@ -9139,3 +9139,25 @@ tools:
     price_usd: "0.001"
     upstream_cost_usd: "0"
     cache_ttl: 900
+
+  # --- UC-739: ITIS Taxonomy (Scientific Name / Common Name / Full Record) ---
+  - tool_id: itistaxonomy.search_scientific_name
+    name: Search Taxa by Scientific Name
+    provider: itistaxonomy
+    price_usd: "0.001"
+    upstream_cost_usd: "0"
+    cache_ttl: 86400
+
+  - tool_id: itistaxonomy.search_common_name
+    name: Search Taxa by Common Name
+    provider: itistaxonomy
+    price_usd: "0.001"
+    upstream_cost_usd: "0"
+    cache_ttl: 86400
+
+  - tool_id: itistaxonomy.get_full_record
+    name: Get Full Taxonomic Record
+    provider: itistaxonomy
+    price_usd: "0.002"
+    upstream_cost_usd: "0"
+    cache_ttl: 86400

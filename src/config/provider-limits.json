@@ -3703,5 +3703,14 @@
     "reset_period": "none",
     "docs_url": "https://www.fbi.gov/wanted/api",
     "limit_proof": "Free, no-auth US Government open data API (17 U.S.C. § 105); no API key or registration required. No documented numeric rate limit found in official docs — server may 429 on abuse, but no published threshold."
+  },
+  "itistaxonomy": {
+    "display_name": "ITIS Taxonomy",
+    "health_url": "https://www.itis.gov/ITISWebService/jsonservice/searchByScientificName?srchKey=Bison",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.itis.gov/ws_description.html",
+    "limit_proof": "Free, no-auth USGS/US Government taxonomic database; official web service description documents no API key, registration, or numeric rate limit for any endpoint."
   }
 }

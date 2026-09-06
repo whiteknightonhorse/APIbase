@@ -17339,4 +17339,41 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'legal',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // ITIS — Integrated Taxonomic Information System (UC-739, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'itistaxonomy.search_scientific_name',
+    mcpName: 'science.itistaxonomy.search_scientific',
+    title: 'Search Taxa by Scientific Name',
+    description:
+      'Search the ITIS (Integrated Taxonomic Information System) database by scientific name or partial name. ' +
+      'Returns matching taxa with their TSN (Taxonomic Serial Number), full scientific name, author citation, ' +
+      'and kingdom — the TSN can then be used with itistaxonomy.get_full_record for full classification detail ' +
+      '(itis.gov, USGS public data)',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'itistaxonomy.search_common_name',
+    mcpName: 'science.itistaxonomy.search_common',
+    title: 'Search Taxa by Common Name',
+    description:
+      'Search the ITIS database by common (vernacular) name or partial name, e.g. "cougar" or "grizzly bear". ' +
+      'Returns matching taxa with their TSN and the language of the common name (itis.gov, USGS public data)',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'itistaxonomy.get_full_record',
+    mcpName: 'science.itistaxonomy.full_record',
+    title: 'Get Full Taxonomic Record',
+    description:
+      'Get the full taxonomic record for a species by its ITIS TSN (Taxonomic Serial Number): accepted ' +
+      'scientific name, author, kingdom, taxonomic rank, parent taxon, validity/usage status, known synonyms, ' +
+      'and common names in multiple languages (itis.gov, USGS public data)',
+    category: 'health',
+    annotations: READ_ONLY,
+  },
 ];
