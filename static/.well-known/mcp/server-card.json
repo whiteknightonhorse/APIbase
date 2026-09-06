@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1366 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1364 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -40075,201 +40075,6 @@
       }
     },
     {
-      "name": "lmpr.cattle.slaughter_prices",
-      "description": "5-Area daily weighted-average direct slaughter cattle prices (LM_CT100). Returns head counts, price ranges ($/cwt), and weighted averages by class (steer/heifer) and selling basis (live FOB, dressed delivered, dressed FOB). Covers TX/OK/NM, Kansas, Nebraska, Colorado, and Iowa/Minnesota feedlot regions combined. Published daily on USDA business days. Source: USDA Livestock Mandatory Price Reporting Datamart, US Government public domain.",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "report_date": {
-            "type": "string",
-            "description": "Report date in YYYY-MM-DD or M/D/YYYY format (e.g. \"2026-06-27\"). Omit for the most recent published report."
-          },
-          "all_sections": {
-            "type": "boolean",
-            "description": "Return all report sections (price detail, primal values, etc.). Default true. Set false for summary only.",
-            "default": true
-          }
-        },
-        "description": "5-Area daily weighted-average direct slaughter cattle prices (LM_CT100). Returns head counts and price ranges by class (steer/heifer) and selling basis (live FOB, dressed delivered)."
-      },
-      "outputSchema": {
-        "type": "object",
-        "properties": {
-          "result": {
-            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
-          },
-          "error": {
-            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
-          }
-        },
-        "required": [
-          "result"
-        ]
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      }
-    },
-    {
-      "name": "lmpr.hog.slaughter_prices",
-      "description": "National daily prior-day slaughtered swine prices (LM_HG201). Returns barrows/gilts head counts, negotiated base prices ($/cwt), carcass weight ranges, net price distribution (lean value, fat, bone, yield adjustments), and 14-day scheduled swine commitments. Covers Corn Belt and national markets. Published daily on USDA business days. Source: USDA LMPR Datamart, US Government public domain.",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "report_date": {
-            "type": "string",
-            "description": "Report date in YYYY-MM-DD or M/D/YYYY format (e.g. \"2026-06-27\"). Omit for the most recent published report."
-          },
-          "all_sections": {
-            "type": "boolean",
-            "description": "Return all report sections (price detail, primal values, etc.). Default true. Set false for summary only.",
-            "default": true
-          }
-        },
-        "description": "National daily prior-day slaughtered swine prices (LM_HG201). Returns barrows/gilts head counts, negotiated prices, carcass measurements, and net price distribution."
-      },
-      "outputSchema": {
-        "type": "object",
-        "properties": {
-          "result": {
-            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
-          },
-          "error": {
-            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
-          }
-        },
-        "required": [
-          "result"
-        ]
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      }
-    },
-    {
-      "name": "lmpr.beef.boxed_cutout",
-      "description": "National weekly boxed beef cutout and individual cut prices (LM_XB459). Returns composite primal values (rib, chuck, round, loin, brisket, plate, flank), Choice and Select cutout values, individual box/cut prices by grade, ground beef, and trimming prices. Published Thursdays. Source: USDA LMPR Datamart, US Government public domain.",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "report_date": {
-            "type": "string",
-            "description": "Report date in YYYY-MM-DD or M/D/YYYY format (e.g. \"2026-06-27\"). Omit for the most recent published report."
-          },
-          "all_sections": {
-            "type": "boolean",
-            "description": "Return all report sections (price detail, primal values, etc.). Default true. Set false for summary only.",
-            "default": true
-          }
-        },
-        "description": "National weekly boxed beef cutout and individual cut prices (LM_XB459). Published Thursdays. Returns composite primal values, Choice/Select cutout, and detailed cut prices."
-      },
-      "outputSchema": {
-        "type": "object",
-        "properties": {
-          "result": {
-            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
-          },
-          "error": {
-            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
-          }
-        },
-        "required": [
-          "result"
-        ]
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      }
-    },
-    {
-      "name": "lmpr.dairy.product_prices",
-      "description": "National weekly dairy products sales prices (DYWDAIRYPRODUCTSSALES). Returns mandatory-reporting prices and volumes for butter, 40-lb block cheddar cheese, 500-lb barrel cheddar, dry whey, and nonfat dry milk. Includes preliminary and final weekly prices used in FMMO pricing formulas. Published weekly by USDA Agricultural Marketing Service. Source: USDA LMPR Datamart, US Government public domain.",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "report_date": {
-            "type": "string",
-            "description": "Report date in YYYY-MM-DD or M/D/YYYY format (e.g. \"2026-06-27\"). Omit for the most recent published report."
-          },
-          "all_sections": {
-            "type": "boolean",
-            "description": "Return all report sections (price detail, primal values, etc.). Default true. Set false for summary only.",
-            "default": true
-          }
-        },
-        "description": "National weekly dairy products sales prices (DYWDAIRYPRODUCTSSALES). Returns butter, cheddar block/barrel, dry whey, and nonfat dry milk prices and volumes."
-      },
-      "outputSchema": {
-        "type": "object",
-        "properties": {
-          "result": {
-            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
-          },
-          "error": {
-            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
-          }
-        },
-        "required": [
-          "result"
-        ]
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      }
-    },
-    {
-      "name": "lmpr.lamb.carcass_cutout",
-      "description": "National estimated lamb carcass cutout value (LM_XL502). Returns gross carcass value, foresaddle value (rib, shoulder, breast/neck), hindsaddle value (leg, loin), net carcass value, and other byproduct values (pelt, offal). Published daily on USDA business days. Source: USDA LMPR Datamart, US Government public domain.",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "report_date": {
-            "type": "string",
-            "description": "Report date in YYYY-MM-DD or M/D/YYYY format (e.g. \"2026-06-27\"). Omit for the most recent published report."
-          },
-          "all_sections": {
-            "type": "boolean",
-            "description": "Return all report sections (price detail, primal values, etc.). Default true. Set false for summary only.",
-            "default": true
-          }
-        },
-        "description": "National estimated lamb carcass cutout value (LM_XL502). Returns gross/net carcass values, foresaddle and hindsaddle values, and primal cut prices."
-      },
-      "outputSchema": {
-        "type": "object",
-        "properties": {
-          "result": {
-            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
-          },
-          "error": {
-            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
-          }
-        },
-        "required": [
-          "result"
-        ]
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      }
-    },
-    {
       "name": "treasurydirect.auction.results",
       "description": "Completed US Treasury security auction results by type and look-back period. Returns CUSIP, issue/maturity dates, high yield, high discount rate, bid-to-cover ratio, total accepted/tendered amounts, and auction format for Bills (4-52 week), Notes (2-10 year), Bonds (20-30 year), TIPS, FRN, and CMB. Source: TreasuryDirect TA_WS, US Government open data, no auth required.",
       "inputSchema": {
@@ -65913,6 +65718,166 @@
           "cube",
           "level"
         ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "fbiwanted.persons.search",
+      "description": "Search the FBI Wanted API for wanted persons, fugitives, and missing/victim listings. Filter by name, FBI field office, sex, race, or person classification. Returns title, charges, physical description, reward, field offices, and photos for each match (api.fbi.gov, public US Government data)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Filter by name/title, partial case-insensitive match (e.g. \"smith\")."
+          },
+          "field_office": {
+            "type": "string",
+            "description": "Filter by FBI field office slug handling the case (e.g. \"seattle\", \"miami\", \"losangeles\")."
+          },
+          "sex": {
+            "type": "string",
+            "enum": [
+              "male",
+              "female"
+            ],
+            "description": "Filter by sex (lowercase values only)."
+          },
+          "race": {
+            "type": "string",
+            "description": "Filter by race, lowercase (e.g. \"white\", \"black\", \"hispanic\", \"asian\", \"native\")."
+          },
+          "person_classification": {
+            "type": "string",
+            "description": "Filter by classification, e.g. \"Main\" (the wanted subject) or \"Victim\"."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number for pagination (default 1)."
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Results per page (default 20, max 50)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "fbiwanted.persons.by_category",
+      "description": "Browse FBI wanted posters by category: Ten Most Wanted Fugitives, Most Wanted Fraudsters, kidnappings, missing persons, seeking-information cases, Endangered Child Alert Program, or law-enforcement-assistance requests. Returns the same subject detail as fbiwanted.persons.search (api.fbi.gov)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": [
+              "ten",
+              "fraudster",
+              "kidnapping",
+              "missing",
+              "information",
+              "ecap",
+              "law-enforcement-assistance",
+              "default"
+            ],
+            "description": "Poster category: \"ten\" (Ten Most Wanted Fugitives), \"fraudster\" (Most Wanted Fraudsters), \"kidnapping\", \"missing\" (missing persons), \"information\" (seeking information), \"ecap\" (Endangered Child Alert Program), \"law-enforcement-assistance\", or \"default\" (general wanted)."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number for pagination (default 1)."
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Results per page (default 20, max 50)."
+          }
+        },
+        "required": [
+          "category"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "fbiwanted.persons.recent",
+      "description": "Get the most recently published FBI wanted posters, newest first, optionally restricted to one FBI field office. Useful for monitoring newly added subjects (api.fbi.gov, public US Government data)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "field_office": {
+            "type": "string",
+            "description": "Restrict to a specific FBI field office slug (e.g. \"seattle\", \"miami\", \"losangeles\")."
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Number of most recently published entries to return (default 20, max 50)."
+          }
+        }
       },
       "outputSchema": {
         "type": "object",
