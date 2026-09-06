@@ -974,6 +974,27 @@ def selftest_db():
                   "billing_status text, created_at timestamptz default now());",
             capture_output=True, text=True,
         )
+        # T-04 (2026-09-06): apply the REAL migration 0014 (not a hand-copied duplicate of its
+        # trigger SQL) against the stand-in table above, so World 17 below exercises the exact
+        # trigger that ships to production, not an approximation of it. Unlike 0009's ALTER
+        # TABLE (which targets a `tools` table that doesn't exist yet at that point and is
+        # allowed to fail silently, see comment above), this one must succeed -- the stand-in
+        # table already exists by now, and if the trigger fails to install, World 17's
+        # "rejected without a reason" assertion would pass for the wrong reason (no trigger at
+        # all, not a working one), silently proving nothing.
+        migration_0014_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "..", "..",
+            "prisma", "migrations", "0014_tool_status_audit_required", "migration.sql",
+        )
+        with open(migration_0014_path) as f:
+            migration_0014_sql = f.read()
+        apply14 = subprocess.run(
+            ["docker", "exec", "-i", name, "psql", "-U", "apibase", "-d", "apibase"],
+            input=migration_0014_sql, capture_output=True, text=True,
+        )
+        if apply14.returncode != 0:
+            print(f"selftest-db: migration 0014 apply failed: {apply14.stderr}")
+            return 1
 
         os.environ["AUTOPILOT_PG_CONTAINER"] = name
         os.environ["AUTOPILOT_HEARTBEAT_FILE"] = "/tmp/autopilot-ap4-selftest.hb"
@@ -1995,6 +2016,69 @@ def selftest_db():
             f"world 16: a price floor must NEVER block demotion to unavailable, got {row16c}"
         )
         print("world 16b (a price floor never blocks demotion to unavailable): OK")
+
+        # World 17 (T-04, 2026-09-06): the `tools_status_audit_required` trigger (migration
+        # 0014) is the DB-level lock closing the gap this task was opened over -- the zyte
+        # `scrape.*` rows (and 25 other legacy rows) sitting at status='unavailable' with
+        # status_source/status_reason both NULL, with nothing recording who did that or why.
+        # This is a genuine mutation control, not a check that passes either way: the SAME
+        # UPDATE must be rejected with the audit columns missing and succeed once they're
+        # supplied. Every earlier world in this same selftest-db run already exercised
+        # sync_tool_status()'s own writes (which always set both) under this trigger without
+        # a single failure -- that's the regression half; this world is the new-behaviour half.
+        ap.psql(
+            "INSERT INTO tools (tool_id, provider, status, status_source) VALUES "
+            "('ap17audit-tool1', 'ap17audit', 'healthy', NULL)"
+        )
+        # (a) neither column set -- must be rejected.
+        _, rc17a = ap.psql(
+            "UPDATE tools SET status = 'unavailable' WHERE tool_id = 'ap17audit-tool1'"
+        )
+        assert rc17a != 0, "world 17: a status change with NEITHER audit column set must be rejected"
+        # (b) only status_source set -- must still be rejected (status_reason also required).
+        _, rc17b = ap.psql(
+            "UPDATE tools SET status = 'unavailable', status_source = 'manual' "
+            "WHERE tool_id = 'ap17audit-tool1'"
+        )
+        assert rc17b != 0, "world 17: status_source alone must not be enough — status_reason is also required"
+        # (c) only status_reason set -- must still be rejected (status_source also required).
+        _, rc17c = ap.psql(
+            "UPDATE tools SET status = 'unavailable', status_reason = 'account suspended' "
+            "WHERE tool_id = 'ap17audit-tool1'"
+        )
+        assert rc17c != 0, "world 17: status_reason alone must not be enough — status_source is also required"
+        row17_untouched, _ = ap.psql(
+            "SELECT status, status_source, status_reason FROM tools WHERE tool_id = 'ap17audit-tool1'"
+        )
+        assert row17_untouched == "healthy" + ap.SEP + ap.SEP, (
+            f"world 17: all three rejected attempts above must be no-ops — the row must still "
+            f"read exactly as it was inserted, got {row17_untouched}"
+        )
+        # (d) both columns set -- must be accepted, and status_changed_at must be the
+        # trigger's own now(), not left NULL and not whatever the caller passed (it passed
+        # nothing here on purpose).
+        _, rc17d = ap.psql(
+            "UPDATE tools SET status = 'unavailable', status_source = 'manual', "
+            "status_reason = 'account suspended, confirmed live' "
+            "WHERE tool_id = 'ap17audit-tool1'"
+        )
+        assert rc17d == 0, "world 17: a status change with BOTH audit columns set must be accepted"
+        row17_after, _ = ap.psql(
+            "SELECT status, status_source, status_reason, "
+            f"({UTC_TS_EXPR('status_changed_at')} IS NOT NULL) FROM tools "
+            "WHERE tool_id = 'ap17audit-tool1'"
+        )
+        assert row17_after == ap.SEP.join(
+            ["unavailable", "manual", "account suspended, confirmed live", "t"]
+        ), f"world 17: accepted change must persist exactly as written plus a set status_changed_at, got {row17_after}"
+        # (e) regression: a write that never touches `status` at all needs no audit columns.
+        _, rc17e = ap.psql(
+            "UPDATE tools SET price_usd = 0.01 WHERE tool_id = 'ap17audit-tool1'"
+        )
+        assert rc17e == 0, "world 17: a write that does not change `status` must never require an audit reason"
+        print("world 17 (tools_status_audit_required trigger: status change rejected without "
+              "BOTH status_source and status_reason, accepted with both, status_changed_at "
+              "always the trigger's own now(), non-status writes unaffected): OK")
 
         print("selftest-db: ALL WORLDS OK")
         return 0

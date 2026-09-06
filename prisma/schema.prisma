@@ -198,6 +198,14 @@ model Tool {
   // pre-autopilot / hand-set — no drive-by write ever loses "who changed this and why".
   // A `status` write with status_source='autopilot' must always set the other two together
   // (see incidents.state F2 VERIFYING->RESOLVED / STUCK for the writer, AP-8).
+  // T-04 (2026-09-06, migration 0014): that "must" used to be prose only — a raw manual
+  // `UPDATE tools SET status = ...` (exactly how the 28 legacy status_source=NULL rows,
+  // incl. all 3 `zyte` scrape.* rows, got here) could and did leave status_source/
+  // status_reason NULL. Migration 0014's `tools_status_audit_required` trigger now REJECTS
+  // any UPDATE that changes `status` without both columns set — enforced in the database, so
+  // it holds even for writes that never go through TypeScript/Python at all.
+  // status_changed_at is always the trigger's own `now()`, never the caller's value. Scoped
+  // to UPDATE only — see migration 0014's own comment for why INSERT stays ungated.
   status_source     String?   // manual | autopilot | seed
   status_changed_at DateTime? @db.Timestamptz()
   status_reason     String?
