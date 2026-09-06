@@ -1531,6 +1531,66 @@ def selftest_db():
         print("world 11b (human-done follow-up respects the daily cap, no fabricated advance, "
               "no duplicate attempts across repeated ticks): OK")
 
+        # World 11c (T-03 required control): a human-done file that is
+        # PRESENT but has no usable РЕЗУЛЬТАТ ОПЕРАТОРА -- either the marker
+        # line is missing entirely, or it's there but empty -- must NOT
+        # advance the incident, must NOT archive the file (a later tick has
+        # to keep looking, in case the operator finishes editing it), and
+        # must NOT do this silently: parse_human_done() returning None hits
+        # the "молчу: ... not filled yet" notice, same логирование contract
+        # as every other "молчу:" branch in this engine (C0.5). Cap is reset
+        # first so this is isolated from world 11b's cap-exhaustion path --
+        # a marker-less file must fail for ITS OWN reason, not get
+        # (mis)attributed to the cap. Mutation control: this is exactly the
+        # T-03 brief's own required pair -- "файл с маркером -> уходит из
+        # WAITING_HUMAN; файл БЕЗ маркера -> ОСТАЁТСЯ, и это видно в журнале
+        # как отказ" -- a fix that only proves the marker'd half (world 11)
+        # without this half could ship a reader that advances on ANY file,
+        # marker or not.
+        if os.path.exists(ap.DAILY_TASK_COUNTER_FILE):
+            os.remove(ap.DAILY_TASK_COUNTER_FILE)
+        id11f, _ = ap.open_or_merge_incident(
+            kind="UNKNOWN", provider="ap6humandonenomarker", evidence={"probe": "?"},
+            detected_by="probe", what="unrecognized",
+        )
+        sid11f = ap.short_id(id11f)
+        no_marker_path = os.path.join(ap.HUMAN_DONE_DIR, f"INC-{sid11f}.md")
+        with open(no_marker_path, "w", encoding="utf-8") as f:
+            f.write(f"# INC-{sid11f}\noperator dropped this file but hasn't filled it in yet\n")
+        notices_before = (open(ap.NOTICES_LOG, encoding="utf-8").read()
+                           if os.path.exists(ap.NOTICES_LOG) else "")
+        advance_waiting_human()
+        inc11f = ap.get_incident(id11f)
+        assert inc11f["state"] == "WAITING_HUMAN", (
+            f"world 11c: a human-done file with no РЕЗУЛЬТАТ ОПЕРАТОРА marker must NOT advance "
+            f"the incident, got {inc11f['state']}"
+        )
+        assert os.path.isfile(no_marker_path), "world 11c: unfilled human-done file must NOT be archived"
+        assert not any(a["action"] == "human-done" for a in inc11f["attempts"]), (
+            f"world 11c: an unfilled human-done file must not be noted into attempts either, "
+            f"got {inc11f['attempts']}"
+        )
+        notices_after = open(ap.NOTICES_LOG, encoding="utf-8").read()
+        assert "not filled yet" in notices_after[len(notices_before):], (
+            "world 11c: a marker-less human-done file must fail LOUD -- 'not filled yet' must land "
+            "in notices.log, not silence"
+        )
+
+        # Same file, now with the marker present but nothing after it --
+        # treated identically per parse_human_done()'s own docstring ("or
+        # it's empty"). Re-uses the same incident/path.
+        with open(no_marker_path, "w", encoding="utf-8") as f:
+            f.write(f"# INC-{sid11f}\n---\n{ap._RESULT_MARKER}\n   \n")
+        advance_waiting_human()
+        inc11g = ap.get_incident(id11f)
+        assert inc11g["state"] == "WAITING_HUMAN", (
+            f"world 11c: a human-done file with an EMPTY РЕЗУЛЬТАТ ОПЕРАТОРА must also NOT advance "
+            f"the incident, got {inc11g['state']}"
+        )
+        assert os.path.isfile(no_marker_path), "world 11c: empty-marker human-done file must NOT be archived"
+        print("world 11c (human-done file present but unfilled/corrupted marker -> incident stays "
+              "WAITING_HUMAN, logged as a refusal not silence): OK")
+
         # World 12 (Fable ruling-1, point 3): KEY bridge two-worlds guard --
         # an AUTH_FAILED whose auth_env is ALREADY present in .env must NOT
         # be handed to connected_db.py add (which would silently become an
