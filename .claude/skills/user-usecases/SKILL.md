@@ -106,7 +106,7 @@ Use these examples as reference patterns when:
 | UC-408 | US FEC | US Campaign Finance | Candidate | 1K/hr free, US Gov | `usecases/UC-408-fec.md` |
 | UC-409 | US Library of Congress | US Cultural / Historical Archives | Candidate | Unlimited free, public domain | `usecases/UC-409-loc.md` |
 | UC-410 | Eurostat | EU Statistics / Macro | Candidate | Unlimited free, CC BY 4.0 | `usecases/UC-410-eurostat.md` |
-| UC-411 | UK Police | UK Crime Data | Candidate | Unlimited free, OGL v3.0 | `usecases/UC-411-uk-police.md` |
+| UC-411 | UK Police | UK Crime Data | LIVE | No auth, OGL v3.0, 3 tools | `usecases/UC-411-uk-police.md` |
 | UC-412 | Singapore data.gov.sg | SG Real-time Env + Transport | Candidate | Unlimited free | `usecases/UC-412-data-gov-sg.md` |
 | UC-413 | NIST NVD | Security / CVE Database | Candidate | 5/30s anon, 50/30s with key | `usecases/UC-413-nist-nvd.md` |
 | UC-414 | NREL AFDC + PVWatts | Energy / EV / Solar (US Gov) | Candidate | Unlimited free key | `usecases/UC-414-nrel-afdc.md` |
@@ -373,6 +373,7 @@ Use these examples as reference patterns when:
 | UC-683 | UK Environment Agency Flood Monitoring (environment.data.gov.uk/flood-monitoring) | UK Environment Agency; no auth; OGL v3.0; sibling of ea-hydrology (UC-654) same publisher but distinct live dataset; active flood warnings/alerts filterable by min-severity (inverted: 1=most severe)/county/geo-radius, station search by town/river/catchment/parameter, latest reading for every measure at a station in one call (no separate station_measures step needed) | LIVE (local) | No auth, 3 tools | `usecases/UC-683-uk-ea-flood-monitoring.md` |
 | UC-685 | Dog CEO (dog.ceo) | Free, open-source (MIT) dog image database; no auth; random image(s) filterable by breed/sub-breed with count 1-50, full breed+sub-breed list (or flat breed-name list), sub-breeds for one breed | LOCALLY COMMITTED (local) | No auth, 3 tools | `usecases/UC-685-dog-ceo.md` |
 | UC-734 | Nominatim / OpenStreetMap (nominatim.openstreetmap.org) | OSMF -- free, no-auth geocoding on OSM data; forward search (free-form text, optional country-code filter), reverse geocode (lat/lon with optional zoom detail level), batch lookup of up to 50 node/way/relation IDs; ODbL attribution passed through in every result; usage policy caps at ~1 req/sec, no bulk automated use | LOCALLY COMMITTED (local) | No auth, 3 tools | `usecases/UC-734-nominatim-osm.md` |
+| UC-735 | Internet Archive (archive.org) | Non-profit digital library -- free, no-auth access to 40M+ books, movies, audio, software, images, and archived web pages; full-text/faceted item search (query/mediatype/creator), full item metadata + file manifest by identifier, Wayback Machine closest-snapshot availability for a URL; supersedes 3 unimplemented duplicate candidate stubs (UC-322/722/728) | LOCALLY COMMITTED (local) | No auth, 3 tools | `usecases/UC-735-archiveorg.md` |
 
 ## How to Use
 
