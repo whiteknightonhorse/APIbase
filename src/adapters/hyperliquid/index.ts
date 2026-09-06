@@ -75,42 +75,73 @@ export class HyperliquidAdapter extends BaseAdapter {
         // Returns combined meta + allMids if called via the merged request,
         // or either meta or allMids individually
         if (typeof body !== 'object' || body === null) {
-          throw new Error('Expected object from Hyperliquid market data');
+          this.invalidResponse(req, 'Expected object from Hyperliquid market data');
         }
         return body;
       }
       case 'hyperliquid.order_book': {
-        const data = body as HyperliquidL2BookResponse;
-        if (!data.levels || !Array.isArray(data.levels)) {
-          throw new Error('Missing levels in order book response');
+        // T-09b: `body` can itself be `null` (Hyperliquid returning a bare
+        // JSON `null`) — `data.levels` on a null `data` throws a raw,
+        // unclassified TypeError ("Cannot read properties of null (reading
+        // 'levels')") BEFORE the `!data.levels` guard even runs, since the
+        // guard reads `data.levels` too. Checking `!data` first, and raising
+        // through invalidResponse() rather than a plain `throw new Error`,
+        // keeps this in the same classified ProviderError shape every other
+        // adapter's "malformed response" branch uses (provider/code/
+        // httpStatus set) instead of an unclassified Error the pipeline can
+        // only default-guess a message for.
+        const data = body as HyperliquidL2BookResponse | null;
+        if (!data || !Array.isArray(data.levels)) {
+          this.invalidResponse(req, 'Missing levels in order book response');
         }
         return data;
       }
       case 'hyperliquid.klines': {
-        const data = body as HyperliquidCandleResponse;
+        const data = body as HyperliquidCandleResponse | null;
         if (!Array.isArray(data)) {
-          throw new Error('Expected array from candle snapshot');
+          this.invalidResponse(req, 'Expected array from candle snapshot');
         }
         return data;
       }
       case 'hyperliquid.positions':
       case 'hyperliquid.account': {
-        const data = body as HyperliquidClearinghouseState;
-        if (!data.marginSummary) {
-          throw new Error('Missing marginSummary in clearinghouse state');
+        const data = body as HyperliquidClearinghouseState | null;
+        if (!data || !data.marginSummary) {
+          this.invalidResponse(req, 'Missing marginSummary in clearinghouse state');
         }
         return data;
       }
       case 'hyperliquid.vault': {
-        const data = body as HyperliquidVaultDetails;
-        if (!data.name && !data.vaultAddress) {
-          throw new Error('Missing vault details');
+        const data = body as HyperliquidVaultDetails | null;
+        if (!data || (!data.name && !data.vaultAddress)) {
+          this.invalidResponse(req, 'Missing vault details');
         }
         return data;
       }
       default:
         return body;
     }
+  }
+
+  /**
+   * T-09b: every "upstream returned a 2xx but the body doesn't have the
+   * shape we expect" case funnels through here instead of a bare
+   * `throw new Error(...)` — the latter has no `.provider`/`.code`/
+   * `.httpStatus`, so provider-call.stage.ts can only default-guess a 502
+   * with a generic message, and the passive health signal (recordProbeResult
+   * in provider-call.stage.ts) can't classify it at all. Marked `never` so
+   * TypeScript still narrows `data` as non-null after a guard clause calls
+   * this instead of `return`/`throw` directly.
+   */
+  private invalidResponse(req: ProviderRequest, message: string): never {
+    throw {
+      code: ProviderErrorCode.INVALID_RESPONSE,
+      httpStatus: 502,
+      message,
+      provider: this.provider,
+      toolId: req.toolId,
+      durationMs: 0,
+    };
   }
 
   // ---------------------------------------------------------------------------

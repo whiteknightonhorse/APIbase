@@ -7,6 +7,7 @@ import {
   ProviderErrorCode,
   PROVIDER_TIMEOUT_MS,
   PROVIDER_MAX_RETRIES,
+  PROVIDER_MAX_TIMEOUT_RETRIES,
   PROVIDER_BACKOFF_BASE_MS,
   PROVIDER_MAX_RESPONSE_BYTES,
 } from '../types/provider';
@@ -135,6 +136,10 @@ export abstract class BaseAdapter {
     // to a single attempt regardless of what this adapter configured. See
     // isConfirmedFreeUpstream() doc above.
     const effectiveMaxRetries = isConfirmedFreeUpstream(this.provider) ? this.maxRetries : 0;
+    // T-09b: TIMEOUT gets its own, smaller retry budget — see
+    // PROVIDER_MAX_TIMEOUT_RETRIES's doc for why a timing-out upstream must
+    // not burn the full PROVIDER_MAX_RETRIES budget the way a 5xx does.
+    let timeoutRetries = 0;
 
     for (let attempt = 0; attempt <= effectiveMaxRetries; attempt++) {
       if (attempt > 0) {
@@ -156,6 +161,13 @@ export abstract class BaseAdapter {
 
         if (!isRetryable(providerError)) {
           throw providerError;
+        }
+
+        if (providerError.code === ProviderErrorCode.TIMEOUT) {
+          timeoutRetries++;
+          if (timeoutRetries > PROVIDER_MAX_TIMEOUT_RETRIES) {
+            throw providerError;
+          }
         }
 
         logger.warn(

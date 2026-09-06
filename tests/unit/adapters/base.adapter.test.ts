@@ -154,9 +154,37 @@ describe('BaseAdapter', () => {
       expect(pe.code).toBe(ProviderErrorCode.TIMEOUT);
       expect(pe.httpStatus).toBe(504);
       expect(pe.provider).toBe('test_provider');
-      // Timeout is retryable, so 3 total attempts
-      expect(globalThis.fetch).toHaveBeenCalledTimes(3);
+      // T-09b: a TIMEOUT is retryable, but capped to
+      // PROVIDER_MAX_TIMEOUT_RETRIES (1) instead of the adapter's full
+      // configured maxRetries (2) — 2 total attempts, not 3. See the
+      // dedicated cap test below for the latency reasoning.
+      expect(globalThis.fetch).toHaveBeenCalledTimes(2);
     }
+  });
+
+  // T-09b: this is the fix for the loc.search incident's worst-case latency
+  // regression — a repeatedly-timing-out upstream must not burn the same
+  // 3-attempt budget a 5xx gets (that would be timeoutMs*3 + backoff, 33s at
+  // the default 10s timeout). The adapter here is configured with
+  // maxRetries: 2 (same as the suite's default `adapter`), so this proves
+  // the cap comes from PROVIDER_MAX_TIMEOUT_RETRIES, not from a smaller
+  // per-adapter maxRetries.
+  it('caps TIMEOUT retries independently of a higher configured maxRetries', async () => {
+    const cappedAdapter = new TestAdapter({
+      provider: 'test_provider',
+      baseUrl: 'https://api.test.com',
+      timeoutMs: 500,
+      maxRetries: 2,
+    });
+    globalThis.fetch = jest.fn().mockImplementation(() => {
+      return Promise.reject(new DOMException('The operation was aborted', 'AbortError'));
+    });
+
+    await expect(cappedAdapter.call(makeRequest())).rejects.toMatchObject({
+      code: ProviderErrorCode.TIMEOUT,
+    });
+
+    expect(globalThis.fetch).toHaveBeenCalledTimes(2);
   });
 
   it('throws UNAVAILABLE on connection error and retries', async () => {

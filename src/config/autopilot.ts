@@ -113,6 +113,29 @@ export const PASSIVE_ERROR_RATE_WINDOW_HOURS = 1;
 export const PASSIVE_ERROR_RATE_MIN_CALLS = 20;
 export const PASSIVE_ERROR_RATE_THRESHOLD = 0.25;
 
+/**
+ * T-09b (2026-09-06) — a THIRD passive path, fed directly from
+ * provider-call.stage.ts's own catch block rather than an execution_ledger
+ * aggregate: a failed PROVIDER_CALL never reaches LEDGER_WRITE (pipeline.ts
+ * stops on first error), so the two passive steps above — both ledger-
+ * query-based — are structurally blind to a provider whose every call fails
+ * before a ledger row can exist. Unlike those two (one aggregate write per
+ * 10-min tick, however many calls happened), this path is called from EVERY
+ * failing request, so it needs its own spacing guard or a tool suddenly
+ * failing at high request volume would write a provider_status update +
+ * probe_log row on every single failure — DB load piling on exactly when a
+ * real incident is already in progress, and a violation of F1's own
+ * "между замерами ≥ probe_interval" spacing rule (which
+ * applyPassiveDegradation already enforces for its own, less frequent,
+ * write path). This debounce is intentionally much shorter than any G2
+ * probe_interval — the point isn't to replace the adaptive interval, only to
+ * collapse a burst of identical failures within the same short window into
+ * one state-machine step, the same way the F1 counters already require
+ * multiple SEPARATE measurements (not multiple retries of one request)
+ * before escalating.
+ */
+export const PASSIVE_CALL_FAILURE_DEBOUNCE_S = 30;
+
 // ---------------------------------------------------------------------------
 // T-04 (2026-09-04) — engine heartbeat freshness, the dashboard's third state
 // ---------------------------------------------------------------------------

@@ -15,6 +15,18 @@ import type { CtSearchResponse, CtStudy, CtStatsResponse, CtProtocolSection } fr
  *   clinicaltrials.recruiting → GET /api/v2/studies (recruiting filter + condition)
  *   clinicaltrials.stats      → GET /api/v2/stats/size (database statistics)
  *
+ * T-09b (2026-09-06): `clinical.search`/`clinical.study`/`clinical.stats` are
+ * a SEPARATE, earlier catalog registration of the same ClinicalTrials.gov
+ * data (tool-definitions.ts, `health.clinical.*` mcpName) that registry.ts's
+ * `case 'clinical':` already routes to THIS adapter instance — but only the
+ * adapter instance, not the toolId string, so every call fell through to
+ * the switches' default "Unsupported tool" branch (100% failure, heartbeat-
+ * bot 502s traced in AUTOPILOT-PROGRESS.md#T-09b). Aliased here rather than
+ * removed from the catalog: it's real, working functionality once wired,
+ * just under an older name. See schemas/clinicaltrials.schema.ts for the
+ * matching `clinical.*` schema aliases — without those, schema-validation
+ * silently skips input validation for a toolId with no registered schema.
+ *
  * Auth: None (US Gov NIH, public domain, unlimited).
  */
 export class ClinicalTrialsAdapter extends BaseAdapter {
@@ -37,12 +49,15 @@ export class ClinicalTrialsAdapter extends BaseAdapter {
 
     switch (req.toolId) {
       case 'clinicaltrials.search':
+      case 'clinical.search':
         return this.buildSearch(params, headers);
       case 'clinicaltrials.study':
-        return this.buildStudy(params, headers);
+      case 'clinical.study':
+        return this.buildStudy(params, headers, req.toolId);
       case 'clinicaltrials.recruiting':
         return this.buildRecruiting(params, headers);
       case 'clinicaltrials.stats':
+      case 'clinical.stats':
         return {
           url: `${ClinicalTrialsAdapter.BASE}/stats/size`,
           method: 'GET',
@@ -65,11 +80,14 @@ export class ClinicalTrialsAdapter extends BaseAdapter {
 
     switch (req.toolId) {
       case 'clinicaltrials.search':
+      case 'clinical.search':
       case 'clinicaltrials.recruiting':
         return this.parseSearchResponse(body as unknown as CtSearchResponse);
       case 'clinicaltrials.study':
+      case 'clinical.study':
         return this.parseStudyResponse(body as unknown as CtStudy);
       case 'clinicaltrials.stats':
+      case 'clinical.stats':
         return this.parseStatsResponse(body as unknown as CtStatsResponse);
       default:
         return body;
@@ -114,6 +132,7 @@ export class ClinicalTrialsAdapter extends BaseAdapter {
   private buildStudy(
     params: Record<string, unknown>,
     headers: Record<string, string>,
+    toolId: string = 'clinicaltrials.study',
   ): { url: string; method: string; headers: Record<string, string> } {
     const nctId = String(params.nct_id ?? '')
       .trim()
@@ -124,7 +143,7 @@ export class ClinicalTrialsAdapter extends BaseAdapter {
         httpStatus: 422,
         message: 'nct_id must be a valid NCT identifier starting with "NCT" (e.g. "NCT04368728")',
         provider: this.provider,
-        toolId: 'clinicaltrials.study',
+        toolId,
         durationMs: 0,
       };
     }

@@ -134,4 +134,16 @@ export const clinicaltrialsSchemas: Record<string, ZodSchema> = {
   'clinicaltrials.study': study,
   'clinicaltrials.recruiting': recruiting,
   'clinicaltrials.stats': stats,
+  // T-09b (2026-09-06): `clinical.*` is the older catalog registration of
+  // this same provider (tool-definitions.ts, `health.clinical.*` mcpName) —
+  // aliased to the SAME schema objects, not duplicated, so validation rules
+  // can't drift between the two names. Without these, schema-validation.stage
+  // finds no schema for 'clinical.search' and silently skips validation
+  // entirely (toolSchemas[toolId] undefined -> ok(ctx)), which only didn't
+  // matter in practice because the adapter itself rejected every call with
+  // "Unsupported tool" before this task's matching adapter fix — see
+  // adapters/clinicaltrials/index.ts's alias case labels.
+  'clinical.search': search,
+  'clinical.study': study,
+  'clinical.stats': stats,
 };

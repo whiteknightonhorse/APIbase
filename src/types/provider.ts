@@ -97,6 +97,22 @@ export const PROVIDER_TIMEOUT_MS = 10_000;
 /** Max retry attempts: 2 retries = 3 total attempts (§12.40). */
 export const PROVIDER_MAX_RETRIES = 2;
 
+/**
+ * T-09b (2026-09-06): a TIMEOUT gets a SMALLER retry budget than other
+ * retryable failures, independent of PROVIDER_MAX_RETRIES. Repeating a call
+ * that already burned the full timeoutMs budget rarely succeeds on a 3rd
+ * identical attempt, and every extra attempt adds a full timeoutMs +
+ * backoff to the client's wall-clock wait — for a confirmed-free provider
+ * at the default 10s timeout, the full PROVIDER_MAX_RETRIES budget means a
+ * genuinely-down upstream makes the client wait 10s+1s+10s+2s+10s = 33s
+ * before a contractual 504, worse than the ~22s the loc.search incident
+ * actually measured (AUTOPILOT-PROGRESS.md#T-09b). Capping timeouts to 1
+ * retry (2 total attempts) bounds that to timeoutMs + 1s + timeoutMs = 21s
+ * at the default timeout, while 5xx/UNAVAILABLE — often a one-off blip more
+ * likely to succeed on a 2nd retry — keeps the full budget.
+ */
+export const PROVIDER_MAX_TIMEOUT_RETRIES = 1;
+
 /** Exponential backoff base: 1s → 2s → 4s (§12.40). */
 export const PROVIDER_BACKOFF_BASE_MS = 1_000;
 

@@ -14,10 +14,21 @@ const UA = 'APIbase.pro/1.0 (https://apibase.pro; mailto:contact@apibase.pro)';
  * CERN Open Data adapter (UC-475).
  *
  * Supported tools (read-only, no auth required):
- *   cernopendata.records.search   — Full-text search across 80K+ physics records
- *   cernopendata.records.detail   — Fetch full metadata for a record by ID
- *   cernopendata.datasets.browse  — Browse datasets by experiment, year, collision energy
- *   cernopendata.glossary.lookup  — Search the 1,000+ term HEP physics glossary
+ *   cernopendata.search    — Full-text search across 80K+ physics records
+ *   cernopendata.detail    — Fetch full metadata for a record by ID
+ *   cernopendata.datasets  — Browse datasets by experiment, year, collision energy
+ *   cernopendata.glossary  — Search the 1,000+ term HEP physics glossary
+ *
+ * T-09b (2026-09-06): these case labels used to be the long-form
+ * cernopendata.records.search/records.detail/datasets.browse/glossary.lookup
+ * — but tool-definitions.ts registers (and schemas/cernopendata.schema.ts
+ * validates) the SHORT-form tool_ids above; the pipeline dispatches on
+ * `toolId` (the short form), not the long-form `mcpName` display string
+ * (see src/mcp/tool-adapter.ts: "MCP clients see mcpName, pipeline uses
+ * toolId"). Every call to any of the 4 cernopendata tools was hitting this
+ * switch's default branch — "Unsupported tool: cernopendata.search" — a
+ * 100%-failure-rate naming mismatch, not a flaky upstream (heartbeat-bot
+ * 502s traced in AUTOPILOT-PROGRESS.md#T-09b).
  *
  * Auth: None (CERN Open Data portal is fully public, CC0/CC-BY licensed).
  * API: https://opendata.cern.ch/api
@@ -39,7 +50,7 @@ export class CernOpenDataAdapter extends BaseAdapter {
     };
 
     switch (req.toolId) {
-      case 'cernopendata.records.search': {
+      case 'cernopendata.search': {
         const qs = new URLSearchParams();
         if (p.q) qs.set('q', String(p.q));
         if (p.type) qs.set('type', String(p.type));
@@ -52,12 +63,12 @@ export class CernOpenDataAdapter extends BaseAdapter {
         return { url: `${API_BASE}/records/?${qs.toString()}`, method: 'GET', headers };
       }
 
-      case 'cernopendata.records.detail': {
+      case 'cernopendata.detail': {
         const id = encodeURIComponent(String(p.id));
         return { url: `${API_BASE}/records/${id}`, method: 'GET', headers };
       }
 
-      case 'cernopendata.datasets.browse': {
+      case 'cernopendata.datasets': {
         const qs = new URLSearchParams();
         qs.set('type', 'Dataset');
         if (p.experiment) qs.set('experiment', String(p.experiment));
@@ -72,7 +83,7 @@ export class CernOpenDataAdapter extends BaseAdapter {
         return { url: `${API_BASE}/records/?${qs.toString()}`, method: 'GET', headers };
       }
 
-      case 'cernopendata.glossary.lookup': {
+      case 'cernopendata.glossary': {
         const qs = new URLSearchParams();
         qs.set('type', 'Glossary');
         if (p.term) qs.set('q', String(p.term));
@@ -96,8 +107,8 @@ export class CernOpenDataAdapter extends BaseAdapter {
 
   protected parseResponse(raw: ProviderRawResponse, req: ProviderRequest): unknown {
     switch (req.toolId) {
-      case 'cernopendata.records.search':
-      case 'cernopendata.datasets.browse': {
+      case 'cernopendata.search':
+      case 'cernopendata.datasets': {
         const data = raw.body as CernSearchResponse;
         if (!data.hits) throw new Error('Missing hits in CERN search response');
         return {
@@ -107,7 +118,7 @@ export class CernOpenDataAdapter extends BaseAdapter {
         };
       }
 
-      case 'cernopendata.records.detail': {
+      case 'cernopendata.detail': {
         const data = raw.body as CernRecord;
         if (!data.id) throw new Error('Missing id in CERN record response');
         const m = data.metadata;
@@ -139,7 +150,7 @@ export class CernOpenDataAdapter extends BaseAdapter {
         };
       }
 
-      case 'cernopendata.glossary.lookup': {
+      case 'cernopendata.glossary': {
         const data = raw.body as CernSearchResponse;
         if (!data.hits) throw new Error('Missing hits in CERN glossary response');
         return {
