@@ -3667,5 +3667,14 @@
     "reset_period": "none",
     "docs_url": "https://archive.org/services/docs/api/",
     "limit_proof": "Free, no-auth public API (search, metadata, Wayback availability); non-profit's developer docs document no API key, registration, or numeric rate limit for these endpoints."
+  },
+  "openbrewery": {
+    "display_name": "Open Brewery DB",
+    "health_url": "https://api.openbrewerydb.org/v1/breweries?per_page=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.openbrewerydb.org/documentation",
+    "limit_proof": "Free, no-auth, MIT-licensed open source API; official documentation lists no API key, registration, or numeric rate limit for any endpoint."
   }
 }

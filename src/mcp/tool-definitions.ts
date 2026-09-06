@@ -17230,4 +17230,39 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'media',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // Open Brewery DB — Brewery Directory (UC-736, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'openbrewery.list',
+    mcpName: 'openbrewery.breweries.list',
+    title: 'List/Filter Breweries',
+    description:
+      'Browse the Open Brewery DB directory of 8,000+ breweries, cideries, and brewpubs. Filter by city, state, ' +
+      'country, postal code, brewery type, distance from a coordinate, or specific IDs. Returns name, address, ' +
+      'geo-coordinates, phone, and website for each match (Open Brewery DB, MIT-licensed open dataset)',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'openbrewery.search',
+    mcpName: 'openbrewery.breweries.search',
+    title: 'Search Breweries by Name',
+    description:
+      'Search breweries by name with partial, case-insensitive matching. Returns name, address, geo-coordinates, ' +
+      'phone, and website for each match (Open Brewery DB)',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'openbrewery.random',
+    mcpName: 'openbrewery.breweries.random',
+    title: 'Get Random Brewery',
+    description:
+      'Get one or more random breweries from the Open Brewery DB directory — useful for discovery, demos, or ' +
+      'sampling the dataset (Open Brewery DB)',
+    category: 'location',
+    annotations: READ_ONLY,
+  },
 ];

@@ -404,6 +404,7 @@ import { UkEaFloodMonitoringAdapter } from './uk-ea-flood-monitoring';
 import { DogCeoAdapter } from './dogceo';
 import { NominatimOsmAdapter } from './nominatim-osm';
 import { ArchiveOrgAdapter } from './archiveorg';
+import { OpenBreweryAdapter } from './openbrewery';
 import { config } from '../config';
 
 /**
@@ -2221,6 +2222,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // Internet Archive (archive.org) — item search, item metadata, Wayback
       // Machine availability check (UC-735). No auth, no key. Public/free API.
       return getOrCreate('archiveorg', () => new ArchiveOrgAdapter());
+    case 'openbrewery':
+      // Open Brewery DB (openbrewerydb.org) — brewery directory list/filter,
+      // name search, random brewery (UC-736). No auth, no key. MIT-licensed
+      // open source project, commercial reuse permitted.
+      return getOrCreate('openbrewery', () => new OpenBreweryAdapter());
     default:
       return undefined;
   }

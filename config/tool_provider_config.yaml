@@ -9073,3 +9073,25 @@ tools:
     price_usd: "0.001"
     upstream_cost_usd: "0"
     cache_ttl: 3600
+
+  # --- UC-736: Open Brewery DB (List / Search / Random) ---
+  - tool_id: openbrewery.list
+    name: List/Filter Breweries
+    provider: openbrewery
+    price_usd: "0.002"
+    upstream_cost_usd: "0"
+    cache_ttl: 86400
+
+  - tool_id: openbrewery.search
+    name: Search Breweries by Name
+    provider: openbrewery
+    price_usd: "0.002"
+    upstream_cost_usd: "0"
+    cache_ttl: 86400
+
+  - tool_id: openbrewery.random
+    name: Get Random Brewery
+    provider: openbrewery
+    price_usd: "0.001"
+    upstream_cost_usd: "0"
+    cache_ttl: 0
