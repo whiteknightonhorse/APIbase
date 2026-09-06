@@ -408,6 +408,7 @@ import { openbrewerySchemas } from './openbrewery.schema';
 import { dataUsaSchemas } from './data-usa.schema';
 import { fbiwantedSchemas } from './fbiwanted.schema';
 import { itistaxonomySchemas } from './itistaxonomy.schema';
+import { orcidSchemas } from './orcid.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -819,4 +820,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...dataUsaSchemas,
   ...fbiwantedSchemas,
   ...itistaxonomySchemas,
+  ...orcidSchemas,
 };

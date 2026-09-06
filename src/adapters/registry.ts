@@ -408,6 +408,7 @@ import { OpenBreweryAdapter } from './openbrewery';
 import { DataUsaAdapter } from './data-usa';
 import { FbiWantedAdapter } from './fbiwanted';
 import { ItisTaxonomyAdapter } from './itistaxonomy';
+import { OrcidAdapter } from './orcid';
 import { config } from '../config';
 
 /**
@@ -2245,6 +2246,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // taxa by scientific/common name, full taxonomic record by TSN
       // (UC-739). No auth, no key. Public USGS/US Government data.
       return getOrCreate('itistaxonomy', () => new ItisTaxonomyAdapter());
+    case 'orcid':
+      // ORCID Public API (pub.orcid.org) — search researchers by name/
+      // affiliation, get person profile, get published works (UC-740).
+      // No auth, no key. Fully public researcher registry.
+      return getOrCreate('orcid', () => new OrcidAdapter());
     default:
       return undefined;
   }

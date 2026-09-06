@@ -17376,4 +17376,42 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'health',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // ORCID — Researcher Identifier Registry (UC-740, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'orcid.search_researcher',
+    mcpName: 'orcid.researcher.search',
+    title: 'Search Researchers by Name or Affiliation',
+    description:
+      'Search the global ORCID registry for researchers by name or affiliation, using a plain name or a ' +
+      'Solr-style field query (e.g. "family-name:Smith", "affiliation-org-name:MIT"). Returns matching ' +
+      'researchers with their ORCID iD, name, and institution — the ORCID iD can then be used with ' +
+      'orcid.get_person or orcid.get_works (pub.orcid.org, public ORCID data)',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'orcid.get_person',
+    mcpName: 'orcid.researcher.profile',
+    title: 'Get Researcher Profile',
+    description:
+      "Get a researcher's public ORCID profile by their ORCID iD: name, other names, biography, keywords, " +
+      'country, researcher URLs, and linked external identifiers (e.g. Scopus Author ID, ResearcherID) ' +
+      '(pub.orcid.org, public ORCID data)',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'orcid.get_works',
+    mcpName: 'orcid.researcher.works',
+    title: 'Get Researcher Published Works',
+    description:
+      "Get the list of publications and other works recorded on a researcher's ORCID profile: title, work " +
+      'type, journal title, publication date, and DOI/other external identifiers (pub.orcid.org, public ' +
+      'ORCID data)',
+    category: 'education',
+    annotations: READ_ONLY,
+  },
 ];

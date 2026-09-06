@@ -9161,3 +9161,24 @@ tools:
     price_usd: "0.002"
     upstream_cost_usd: "0"
     cache_ttl: 86400
+
+  - tool_id: orcid.search_researcher
+    name: Search Researchers by Name or Affiliation
+    provider: orcid
+    price_usd: "0.001"
+    upstream_cost_usd: "0"
+    cache_ttl: 3600
+
+  - tool_id: orcid.get_person
+    name: Get Researcher Profile
+    provider: orcid
+    price_usd: "0.001"
+    upstream_cost_usd: "0"
+    cache_ttl: 3600
+
+  - tool_id: orcid.get_works
+    name: Get Researcher Published Works
+    provider: orcid
+    price_usd: "0.002"
+    upstream_cost_usd: "0"
+    cache_ttl: 3600

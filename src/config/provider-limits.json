@@ -3712,5 +3712,14 @@
     "reset_period": "none",
     "docs_url": "https://www.itis.gov/ws_description.html",
     "limit_proof": "Free, no-auth USGS/US Government taxonomic database; official web service description documents no API key, registration, or numeric rate limit for any endpoint."
+  },
+  "orcid": {
+    "display_name": "ORCID",
+    "health_url": "https://pub.orcid.org/v3.0/0000-0002-1825-0097/person",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://info.orcid.org/documentation/features/public-api/",
+    "limit_proof": "No-auth ORCID Public API (pub.orcid.org); official Public API documentation page describes no API key, registration, or numeric rate limit for these endpoints."
   }
 }

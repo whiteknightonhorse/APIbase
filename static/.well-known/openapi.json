@@ -129353,6 +129353,252 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/orcid.search_researcher/call": {
+      "post": {
+        "operationId": "orcid_search_researcher",
+        "summary": "Search Researchers by Name or Affiliation",
+        "description": "Search the global ORCID registry for researchers by name or affiliation, using a plain name or a Solr-style field query (e.g. \"family-name:Smith\", \"affiliation-org-name:MIT\"). Returns matching researchers with their ORCID iD, name, and institution — the ORCID iD can then be used with orcid.get_person or orcid.get_works (pub.orcid.org, public ORCID data)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "orcid.search_researcher"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Researcher search query — a plain name (e.g. \"Jane Smith\") or a Solr-style field query (e.g. \"family-name:Carberry\", \"affiliation-org-name:MIT AND given-names:Jane\").",
+                    "minLength": 1
+                  },
+                  "rows": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Number of results to return (1-50, default 10)."
+                  },
+                  "start": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Offset into the result set for pagination (default 0)."
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/orcid.get_person/call": {
+      "post": {
+        "operationId": "orcid_get_person",
+        "summary": "Get Researcher Profile",
+        "description": "Get a researcher's public ORCID profile by their ORCID iD: name, other names, biography, keywords, country, researcher URLs, and linked external identifiers (e.g. Scopus Author ID, ResearcherID) (pub.orcid.org, public ORCID data)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "orcid.get_person"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "orcid_id": {
+                    "type": "string",
+                    "description": "ORCID iD, e.g. \"0000-0002-1825-0097\". Obtain one from orcid.search_researcher."
+                  }
+                },
+                "required": [
+                  "orcid_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/orcid.get_works/call": {
+      "post": {
+        "operationId": "orcid_get_works",
+        "summary": "Get Researcher Published Works",
+        "description": "Get the list of publications and other works recorded on a researcher's ORCID profile: title, work type, journal title, publication date, and DOI/other external identifiers (pub.orcid.org, public ORCID data)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "orcid.get_works"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "orcid_id": {
+                    "type": "string",
+                    "description": "ORCID iD, e.g. \"0000-0002-1825-0097\". Obtain one from orcid.search_researcher."
+                  }
+                },
+                "required": [
+                  "orcid_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {
