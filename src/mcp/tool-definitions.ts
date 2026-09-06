@@ -17193,4 +17193,41 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // Internet Archive — Search, Metadata, Wayback Machine (UC-735, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'archiveorg.search',
+    mcpName: 'archiveorg.archive.search',
+    title: 'Search Internet Archive',
+    description:
+      'Search 40M+ items in the Internet Archive — books, movies, audio, software, images, and archived web pages. ' +
+      'Filter by mediatype (texts/movies/audio/software/image/data/web) and creator. Returns identifier, title, ' +
+      'creator, date, and description for each match (Internet Archive advancedsearch.php)',
+    category: 'media',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'archiveorg.metadata',
+    mcpName: 'archiveorg.archive.metadata',
+    title: 'Get Internet Archive Item Metadata',
+    description:
+      'Get full metadata for an Internet Archive item by identifier — title, creator, description, date, ' +
+      'mediatype, subjects, license, collection, and a list of downloadable files with format and size ' +
+      '(Internet Archive metadata API)',
+    category: 'media',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'archiveorg.wayback_check',
+    mcpName: 'archiveorg.wayback.check_availability',
+    title: 'Check Wayback Machine Availability',
+    description:
+      'Check whether a URL has an archived snapshot in the Wayback Machine, optionally closest to a given ' +
+      'timestamp. Returns availability, the archived snapshot URL, and its capture timestamp (Internet Archive ' +
+      'Wayback Availability API)',
+    category: 'media',
+    annotations: READ_ONLY,
+  },
 ];

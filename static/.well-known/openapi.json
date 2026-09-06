@@ -127968,6 +127968,271 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/archiveorg.search/call": {
+      "post": {
+        "operationId": "archiveorg_search",
+        "summary": "Search Internet Archive",
+        "description": "Search 40M+ items in the Internet Archive — books, movies, audio, software, images, and archived web pages. Filter by mediatype (texts/movies/audio/software/image/data/web) and creator. Returns identifier, title, creator, date, and description for each match (Internet Archive advancedsearch.php)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "archiveorg.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Full-text search query across title, description, and text (e.g. \"moon landing 1969\"). Omit to browse by mediatype/creator alone"
+                  },
+                  "mediatype": {
+                    "type": "string",
+                    "enum": [
+                      "texts",
+                      "movies",
+                      "audio",
+                      "software",
+                      "image",
+                      "data",
+                      "web",
+                      "collection",
+                      "account"
+                    ],
+                    "description": "Filter by item type: texts (books/docs), movies, audio, software, image, data, web (archived sites), collection"
+                  },
+                  "creator": {
+                    "type": "string",
+                    "description": "Filter by creator/author/uploader name (e.g. \"NASA\", \"mark twain\")"
+                  },
+                  "rows": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Number of results to return (default: 10, max: 50)"
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Page number for pagination (default: 1)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/archiveorg.metadata/call": {
+      "post": {
+        "operationId": "archiveorg_metadata",
+        "summary": "Get Internet Archive Item Metadata",
+        "description": "Get full metadata for an Internet Archive item by identifier — title, creator, description, date, mediatype, subjects, license, collection, and a list of downloadable files with format and size (Internet Archive metadata API)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "archiveorg.metadata"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "identifier": {
+                    "type": "string",
+                    "description": "archive.org item identifier, e.g. \"goodytwoshoes00newyiala\" (get from archiveorg.search results' identifier field, or the tail of an archive.org/details/{identifier} URL)"
+                  }
+                },
+                "required": [
+                  "identifier"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/archiveorg.wayback_check/call": {
+      "post": {
+        "operationId": "archiveorg_wayback_check",
+        "summary": "Check Wayback Machine Availability",
+        "description": "Check whether a URL has an archived snapshot in the Wayback Machine, optionally closest to a given timestamp. Returns availability, the archived snapshot URL, and its capture timestamp (Internet Archive Wayback Availability API)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "archiveorg.wayback_check"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "description": "The live URL to check for an archived snapshot in the Wayback Machine (e.g. \"example.com\" or \"https://example.com/page\")"
+                  },
+                  "timestamp": {
+                    "type": "string",
+                    "description": "Find the snapshot closest to this timestamp, format YYYYMMDDhhmmss (e.g. \"20260101\" for Jan 1 2026). Omit for the most recent snapshot"
+                  }
+                },
+                "required": [
+                  "url"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

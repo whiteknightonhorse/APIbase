@@ -9051,3 +9051,25 @@ tools:
     price_usd: "0.002"
     upstream_cost_usd: "0"
     cache_ttl: 3600
+
+  # --- UC-735: Internet Archive (Search / Metadata / Wayback Machine) ---
+  - tool_id: archiveorg.search
+    name: Search Internet Archive
+    provider: archiveorg
+    price_usd: "0.002"
+    upstream_cost_usd: "0"
+    cache_ttl: 3600
+
+  - tool_id: archiveorg.metadata
+    name: Get Internet Archive Item Metadata
+    provider: archiveorg
+    price_usd: "0.002"
+    upstream_cost_usd: "0"
+    cache_ttl: 86400
+
+  - tool_id: archiveorg.wayback_check
+    name: Check Wayback Machine Availability
+    provider: archiveorg
+    price_usd: "0.001"
+    upstream_cost_usd: "0"
+    cache_ttl: 3600

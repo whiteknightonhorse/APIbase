@@ -403,6 +403,7 @@ import { NorwayKartverketStedsnavnAdapter } from './norway-kartverket-stedsnavn'
 import { UkEaFloodMonitoringAdapter } from './uk-ea-flood-monitoring';
 import { DogCeoAdapter } from './dogceo';
 import { NominatimOsmAdapter } from './nominatim-osm';
+import { ArchiveOrgAdapter } from './archiveorg';
 import { config } from '../config';
 
 /**
@@ -2216,6 +2217,10 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // reverse geocoding, batch OSM-id lookup. No auth, no key. ODbL
       // licensed, subject to the OSMF Nominatim usage policy (see adapter).
       return getOrCreate('nominatim-osm', () => new NominatimOsmAdapter());
+    case 'archiveorg':
+      // Internet Archive (archive.org) — item search, item metadata, Wayback
+      // Machine availability check (UC-735). No auth, no key. Public/free API.
+      return getOrCreate('archiveorg', () => new ArchiveOrgAdapter());
     default:
       return undefined;
   }

@@ -403,6 +403,7 @@ import { norwayKartverketStedsnavnSchemas } from './norway-kartverket-stedsnavn.
 import { ukEaFloodMonitoringSchemas } from './uk-ea-flood-monitoring.schema';
 import { dogceoSchemas } from './dogceo.schema';
 import { nominatimOsmSchemas } from './nominatim-osm.schema';
+import { archiveorgSchemas } from './archiveorg.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -809,4 +810,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...ukEaFloodMonitoringSchemas,
   ...dogceoSchemas,
   ...nominatimOsmSchemas,
+  ...archiveorgSchemas,
 };

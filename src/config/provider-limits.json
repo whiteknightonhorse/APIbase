@@ -3658,5 +3658,14 @@
     "reset_period": "none",
     "docs_url": "https://operations.osmfoundation.org/policies/nominatim/",
     "limit_proof": "Free, no-auth OSMF service; usage policy asks for max ~1 request/sec and a descriptive User-Agent rather than a numeric quota — no API key, registration, or hard call cap documented."
+  },
+  "archiveorg": {
+    "display_name": "Internet Archive",
+    "health_url": "https://archive.org/advancedsearch.php?q=test&rows=1&output=json",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://archive.org/services/docs/api/",
+    "limit_proof": "Free, no-auth public API (search, metadata, Wayback availability); non-profit's developer docs document no API key, registration, or numeric rate limit for these endpoints."
   }
 }
