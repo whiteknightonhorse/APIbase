@@ -405,6 +405,7 @@ import { DogCeoAdapter } from './dogceo';
 import { NominatimOsmAdapter } from './nominatim-osm';
 import { ArchiveOrgAdapter } from './archiveorg';
 import { OpenBreweryAdapter } from './openbrewery';
+import { DataUsaAdapter } from './data-usa';
 import { config } from '../config';
 
 /**
@@ -2227,6 +2228,11 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       // name search, random brewery (UC-736). No auth, no key. MIT-licensed
       // open source project, commercial reuse permitted.
       return getOrCreate('openbrewery', () => new OpenBreweryAdapter());
+    case 'data-usa':
+      // Data USA (datausa.io) — Tesseract OLAP query over US public data
+      // (Census/ACS, BLS, IPEDS), cube schema browsing, dimension member
+      // lookup (UC-737). No auth, no key. Public/free government-backed data.
+      return getOrCreate('data-usa', () => new DataUsaAdapter());
     default:
       return undefined;
   }

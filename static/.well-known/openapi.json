@@ -128530,6 +128530,306 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/data-usa.query/call": {
+      "post": {
+        "operationId": "data-usa_query",
+        "summary": "Query US Public Data",
+        "description": "Query US government statistical data (Census/ACS, BLS, IPEDS, and more) from Data USA. Group by one or more dimensions (e.g. State, Year, Industry) and retrieve one or more measures (e.g. Population, Median Household Income), optionally restricted to specific member keys. Returns dataset source/citation plus the resulting rows (Data USA, Deloitte/Datawheel/MIT Media Lab, US government open data)",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "data-usa.query"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cube": {
+                    "type": "string",
+                    "description": "Data cube (dataset) name to query, e.g. \"acs_yg_total_population_1\". Look up names via datausa.reference.cubes.",
+                    "minLength": 1
+                  },
+                  "drilldowns": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Dimension level names to group the results by, e.g. [\"State\"] or [\"State\", \"Year\"]. Look up available levels for a cube via datausa.reference.cubes.",
+                    "minItems": 1
+                  },
+                  "measures": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Measure (metric) names to retrieve, e.g. [\"Population\"]. Look up available measures for a cube via datausa.reference.cubes.",
+                    "minItems": 1
+                  },
+                  "include": {
+                    "type": "string",
+                    "description": "Restrict results to specific member keys, formatted \"Level:key,key;Level2:key\" (e.g. \"State:04000US06\" for California only, or \"Year:2021,2022\"). Find member keys via datausa.reference.members."
+                  },
+                  "sort": {
+                    "type": "string",
+                    "description": "Sort order as \"field\" or \"field.order\" where order is asc/desc, e.g. \"Population.desc\"."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 1000,
+                    "description": "Maximum number of result rows to return (default 100, max 1000)."
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Number of result rows to skip, for pagination (default 0)."
+                  }
+                },
+                "required": [
+                  "cube",
+                  "drilldowns",
+                  "measures"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/data-usa.cubes/call": {
+      "post": {
+        "operationId": "data-usa_cubes",
+        "summary": "List/Describe Data USA Datasets",
+        "description": "Browse the 120+ data cubes (datasets) available on Data USA — population, income, education, employment, housing, and more. List cube names filterable by topic or keyword, or fetch full detail (available dimension levels and measures) for one specific cube by name, to plan a datausa.data.query call",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "data-usa.cubes"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cube": {
+                    "type": "string",
+                    "description": "Exact cube name to get full detail for (dimensions, levels, measures). Omit to list all available cubes instead."
+                  },
+                  "topic": {
+                    "type": "string",
+                    "description": "When listing cubes: filter by topic, case-insensitive substring match (e.g. \"Education\", \"Diversity\"). Ignored when cube is set."
+                  },
+                  "search": {
+                    "type": "string",
+                    "description": "When listing cubes: filter by cube name or dataset name, case-insensitive substring match. Ignored when cube is set."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 200,
+                    "description": "When listing cubes: maximum number of cubes to return (default 50, max 200)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/data-usa.members/call": {
+      "post": {
+        "operationId": "data-usa_members",
+        "summary": "Look Up Data USA Dimension Members",
+        "description": "Look up the member values (e.g. specific states, counties, industries, or years) available for a dimension level within a Data USA cube, optionally filtered by name — use this to find the exact key to pass into datausa.data.query's include filter",
+        "x-payment-info": {
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "protocols": [
+            "x402",
+            "mpp"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "data-usa.members"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cube": {
+                    "type": "string",
+                    "description": "Data cube (dataset) name, e.g. \"acs_yg_total_population_1\".",
+                    "minLength": 1
+                  },
+                  "level": {
+                    "type": "string",
+                    "description": "Dimension level name to list members for, e.g. \"State\" or \"County\".",
+                    "minLength": 1
+                  },
+                  "search": {
+                    "type": "string",
+                    "description": "Filter members by name, case-insensitive substring match (e.g. \"cali\")."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 1000,
+                    "description": "Maximum number of members to return."
+                  }
+                },
+                "required": [
+                  "cube",
+                  "level"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

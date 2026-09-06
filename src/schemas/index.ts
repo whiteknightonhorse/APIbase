@@ -405,6 +405,7 @@ import { dogceoSchemas } from './dogceo.schema';
 import { nominatimOsmSchemas } from './nominatim-osm.schema';
 import { archiveorgSchemas } from './archiveorg.schema';
 import { openbrewerySchemas } from './openbrewery.schema';
+import { dataUsaSchemas } from './data-usa.schema';
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -813,4 +814,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...nominatimOsmSchemas,
   ...archiveorgSchemas,
   ...openbrewerySchemas,
+  ...dataUsaSchemas,
 };

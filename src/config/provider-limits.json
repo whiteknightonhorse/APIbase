@@ -3676,5 +3676,14 @@
     "reset_period": "none",
     "docs_url": "https://www.openbrewerydb.org/documentation",
     "limit_proof": "Free, no-auth, MIT-licensed open source API; official documentation lists no API key, registration, or numeric rate limit for any endpoint."
+  },
+  "data-usa": {
+    "display_name": "Data USA",
+    "health_url": "https://api.datausa.io/_health",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://datausa.io/about/api/",
+    "limit_proof": "Free, no-auth public API over US government open data (Census/ACS, BLS, IPEDS); official API docs (Anatomy of a Request/Response) document no API key, registration, or numeric rate limit for any endpoint."
   }
 }

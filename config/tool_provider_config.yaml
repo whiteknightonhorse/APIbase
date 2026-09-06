@@ -9095,3 +9095,25 @@ tools:
     price_usd: "0.001"
     upstream_cost_usd: "0"
     cache_ttl: 0
+
+  # --- UC-737: Data USA (Query / Cubes / Members) ---
+  - tool_id: data-usa.query
+    name: Query US Public Data
+    provider: data-usa
+    price_usd: "0.003"
+    upstream_cost_usd: "0"
+    cache_ttl: 86400
+
+  - tool_id: data-usa.cubes
+    name: List/Describe Data USA Datasets
+    provider: data-usa
+    price_usd: "0.001"
+    upstream_cost_usd: "0"
+    cache_ttl: 86400
+
+  - tool_id: data-usa.members
+    name: Look Up Data USA Dimension Members
+    provider: data-usa
+    price_usd: "0.001"
+    upstream_cost_usd: "0"
+    cache_ttl: 86400

@@ -17265,4 +17265,42 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'location',
     annotations: READ_ONLY,
   },
+
+  // ---------------------------------------------------------------------------
+  // Data USA — US Public Data Explorer (UC-737, 3 tools)
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'data-usa.query',
+    mcpName: 'datausa.data.query',
+    title: 'Query US Public Data',
+    description:
+      'Query US government statistical data (Census/ACS, BLS, IPEDS, and more) from Data USA. Group by one or ' +
+      'more dimensions (e.g. State, Year, Industry) and retrieve one or more measures (e.g. Population, Median ' +
+      'Household Income), optionally restricted to specific member keys. Returns dataset source/citation plus ' +
+      'the resulting rows (Data USA, Deloitte/Datawheel/MIT Media Lab, US government open data)',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'data-usa.cubes',
+    mcpName: 'datausa.reference.cubes',
+    title: 'List/Describe Data USA Datasets',
+    description:
+      'Browse the 120+ data cubes (datasets) available on Data USA — population, income, education, employment, ' +
+      'housing, and more. List cube names filterable by topic or keyword, or fetch full detail (available ' +
+      'dimension levels and measures) for one specific cube by name, to plan a datausa.data.query call',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'data-usa.members',
+    mcpName: 'datausa.reference.members',
+    title: 'Look Up Data USA Dimension Members',
+    description:
+      'Look up the member values (e.g. specific states, counties, industries, or years) available for a ' +
+      'dimension level within a Data USA cube, optionally filtered by name — use this to find the exact key to ' +
+      "pass into datausa.data.query's include filter",
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
 ];
