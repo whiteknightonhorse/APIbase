@@ -1,8 +1,8 @@
 /**
  * NREL AFDC + PVWatts API response types (UC-414).
  *
- * AFDC — Alternative Fuels Station Locator (https://developer.nrel.gov/api/alt-fuel-stations/)
- * PVWatts — Solar PV Production Estimator (https://developer.nrel.gov/api/pvwatts/)
+ * AFDC — Alternative Fuels Station Locator (https://developer.nlr.gov/api/alt-fuel-stations/)
+ * PVWatts — Solar PV Production Estimator (https://developer.nlr.gov/api/pvwatts/)
  */
 
 // ---------------------------------------------------------------------------

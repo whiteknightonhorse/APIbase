@@ -1730,11 +1730,11 @@
   },
   "nrel": {
     "display_name": "NREL (Energy Lab)",
-    "health_url": "https://developer.nrel.gov/api/alt-fuel-stations/v1/nearest.json?api_key=DEMO_KEY&latitude=37.77&longitude=-122.41&limit=1",
+    "health_url": "https://developer.nlr.gov/api/alt-fuel-stations/v1/nearest.json?api_key=DEMO_KEY&latitude=37.77&longitude=-122.41&limit=1",
     "limit_type": "hourly",
     "free_limit": 1000,
     "reset_period": "hourly",
-    "docs_url": "https://developer.nrel.gov/docs/rate-limits/",
+    "docs_url": "https://developer.nlr.gov/docs/rate-limits/",
     "limit_proof": "Free developer key: 1000 requests/hour shared across all NREL APIs (AFDC + PVWatts). US Public Domain, commercial use OK."
   },
   "opendota": {

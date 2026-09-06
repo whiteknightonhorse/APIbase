@@ -11,8 +11,8 @@ import type {
   PVWattsResponse,
 } from './types';
 
-const AFDC_BASE = 'https://developer.nrel.gov/api/alt-fuel-stations/v1';
-const PVWATTS_BASE = 'https://developer.nrel.gov/api/pvwatts/v8';
+const AFDC_BASE = 'https://developer.nlr.gov/api/alt-fuel-stations/v1';
+const PVWATTS_BASE = 'https://developer.nlr.gov/api/pvwatts/v8';
 
 /**
  * NREL (National Renewable Energy Laboratory) adapter (UC-414).
