@@ -11,7 +11,7 @@ import type {
   PharmGkbDrugLabelResult,
 } from './types';
 
-const PHARMGKB_BASE = 'https://api.pharmgkb.org/v1';
+const PHARMGKB_BASE = 'https://api.clinpgx.org/v1';
 
 const _stripTags = (s: unknown): string => {
   let r = String(s ?? '');
