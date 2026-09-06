@@ -190,33 +190,7 @@ export abstract class BaseAdapter {
         signal: AbortSignal.timeout(this.timeoutMs),
       });
     } catch (error) {
-      const durationMs = Math.round(performance.now() - start);
-      const isTimeout =
-        error instanceof DOMException ||
-        (error instanceof Error && error.name === 'TimeoutError') ||
-        (error instanceof Error && error.name === 'AbortError');
-
-      if (isTimeout) {
-        throw createProviderError({
-          code: ProviderErrorCode.TIMEOUT,
-          httpStatus: 504,
-          message: `Provider call timed out after ${this.timeoutMs}ms`,
-          provider: this.provider,
-          toolId: req.toolId,
-          durationMs,
-          cause: error instanceof Error ? error : undefined,
-        });
-      }
-
-      throw createProviderError({
-        code: ProviderErrorCode.UNAVAILABLE,
-        httpStatus: 502,
-        message: `Provider connection failed: ${error instanceof Error ? error.message : 'unknown'}`,
-        provider: this.provider,
-        toolId: req.toolId,
-        durationMs,
-        cause: error instanceof Error ? error : undefined,
-      });
+      throw classifyTransportError(error, this.provider, req.toolId, start, this.timeoutMs);
     }
 
     // G3.1: capture upstream rate-limit signal before anything else can
@@ -224,8 +198,28 @@ export abstract class BaseAdapter {
     // are on every response regardless of status, so capture unconditionally.
     await this.captureUpstreamRateLimit(response);
 
-    // Read response body with size enforcement (§12.162)
-    const bodyText = await this.readResponseBody(response, req, start);
+    // Read response body with size enforcement (§12.162). The same
+    // AbortSignal.timeout() passed to fetch() above also aborts an
+    // in-progress body read (headers arrived inside the timeout, the body
+    // stream then stalls) — T-09b: that abort used to surface as a raw,
+    // unclassified DOMException (numeric `.code`, e.g. 23) instead of the
+    // same TIMEOUT/UNAVAILABLE ProviderError the fetch()-catch above
+    // produces, because only the fetch() call itself was wrapped. A raw
+    // DOMException isn't retryable (isRetryable() only recognizes the
+    // string ProviderErrorCode.TIMEOUT/UNAVAILABLE) and its numeric `.code`
+    // ended up written into the pipeline's string-typed error field,
+    // crashing `.toUpperCase()` in execute.router.ts with a bare 500
+    // instead of a contract 502/504 — see AUTOPILOT-PROGRESS.md#T-09b for
+    // the full trace (loc.search, 2026-09-06 04:39 UTC). readResponseBody's
+    // OWN RESPONSE_TOO_LARGE throw is already a proper ProviderError and
+    // must pass through unchanged, not be reclassified.
+    let bodyText: string;
+    try {
+      bodyText = await this.readResponseBody(response, req, start);
+    } catch (error) {
+      if (isProviderError(error)) throw error;
+      throw classifyTransportError(error, this.provider, req.toolId, start, this.timeoutMs);
+    }
     const durationMs = Math.round(performance.now() - start);
     const byteLength = Buffer.byteLength(bodyText, 'utf8');
 
@@ -434,6 +428,72 @@ export abstract class BaseAdapter {
 
 function createProviderError(fields: ProviderError): ProviderError {
   return fields;
+}
+
+/**
+ * T-09b: true only for an object this module itself built via
+ * createProviderError() (a proper `httpStatus: number` is only ever set
+ * there) — never true for a raw DOMException/Error escaping fetch() or a
+ * stream read, even though both shapes get force-cast to `ProviderError` at
+ * the call sites that catch them. Distinguishes "already classified,
+ * rethrow as-is" (e.g. readResponseBody's own RESPONSE_TOO_LARGE) from
+ * "raw exception, needs classifying" (e.g. an AbortSignal.timeout() firing
+ * mid body-read).
+ */
+function isProviderError(error: unknown): error is ProviderError {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    typeof (error as Partial<ProviderError>).httpStatus === 'number' &&
+    typeof (error as Partial<ProviderError>).code === 'string'
+  );
+}
+
+/**
+ * T-09b: classify a raw transport-level exception (fetch() itself failing,
+ * OR — since both paths hang off the same AbortSignal.timeout() — the
+ * response body stream aborting mid-read) into the same TIMEOUT/UNAVAILABLE
+ * ProviderError shape either way. Previously only fetch()'s own catch did
+ * this; a timeout firing while a stream reader's .read() was pending threw
+ * a raw, unclassified DOMException instead (numeric `.code`, not the string
+ * ProviderErrorCode), which was neither retryable nor safe to serialize
+ * into the pipeline's string-typed error field (see executeRequest's own
+ * comment for the concrete client-facing bug that caused).
+ */
+function classifyTransportError(
+  error: unknown,
+  provider: string,
+  toolId: string,
+  start: number,
+  timeoutMs: number,
+): ProviderError {
+  const durationMs = Math.round(performance.now() - start);
+  const isTimeout =
+    error instanceof DOMException ||
+    (error instanceof Error && error.name === 'TimeoutError') ||
+    (error instanceof Error && error.name === 'AbortError');
+
+  if (isTimeout) {
+    return createProviderError({
+      code: ProviderErrorCode.TIMEOUT,
+      httpStatus: 504,
+      message: `Provider call timed out after ${timeoutMs}ms`,
+      provider,
+      toolId,
+      durationMs,
+      cause: error instanceof Error ? error : undefined,
+    });
+  }
+
+  return createProviderError({
+    code: ProviderErrorCode.UNAVAILABLE,
+    httpStatus: 502,
+    message: `Provider connection failed: ${error instanceof Error ? error.message : 'unknown'}`,
+    provider,
+    toolId,
+    durationMs,
+    cause: error instanceof Error ? error : undefined,
+  });
 }
 
 /** Retryable: 5xx, timeout, connection reset. Not retryable: 4xx (§12.40). */

@@ -97,10 +97,25 @@ export const providerCallStage: Stage = {
         'Provider call failed',
       );
 
+      // T-09b: `error` is caught as `unknown` and force-cast to ProviderError
+      // above — a raw exception that slipped past BaseAdapter's own
+      // classification (e.g. a DOMException with a NUMERIC `.code`) would
+      // otherwise write that non-string value into this pipeline's
+      // string-typed error field, which then crashed
+      // `(result.error.error || '').toUpperCase()` in execute.router.ts —
+      // a bare, contract-less 500 instead of this stage's own clean 502/504
+      // (see AUTOPILOT-PROGRESS.md#T-09b, loc.search 2026-09-06 04:39 UTC).
+      // BaseAdapter no longer lets that shape through, but this stage is the
+      // one place ALL ~372 adapters funnel through — guarding here too means
+      // a future adapter with the same mistake fails into a generic 502,
+      // never an unhandled crash.
       return err({
-        code: providerError.httpStatus || 502,
-        error: providerError.code || 'bad_gateway',
-        message: providerError.message || 'Provider call failed',
+        code: typeof providerError.httpStatus === 'number' ? providerError.httpStatus : 502,
+        error: typeof providerError.code === 'string' ? providerError.code : 'bad_gateway',
+        message:
+          typeof providerError.message === 'string'
+            ? providerError.message
+            : 'Provider call failed',
         retryAfter: providerError.retryAfter,
       });
     }

@@ -300,6 +300,43 @@ describe('BaseAdapter', () => {
     }
   });
 
+  // T-09b (2026-09-06): the SAME AbortSignal.timeout() passed to fetch()
+  // also aborts an in-progress body read (headers arrived, then the stream
+  // stalls) — that used to throw the raw DOMException straight out of
+  // readResponseBody() uncaught, instead of the classified TIMEOUT
+  // ProviderError the fetch()-catch produces for a headers-phase timeout.
+  // Traced live to loc.search (AUTOPILOT-PROGRESS.md#T-09b): the raw
+  // DOMException's numeric `.code` (23) reached provider-call.stage's
+  // string-typed pipeline error field and crashed execute.router.ts's
+  // `.toUpperCase()`, surfacing as a bare 500 instead of a contract 504.
+  it('throws TIMEOUT (not a raw DOMException) when the response body stream aborts mid-read', async () => {
+    globalThis.fetch = jest.fn().mockResolvedValue(
+      new Response(
+        new ReadableStream({
+          start(controller) {
+            // Headers/status already resolved — simulate the body stream
+            // itself being aborted by the same timeout signal mid-read.
+            controller.error(
+              new DOMException('The operation was aborted due to timeout', 'TimeoutError'),
+            );
+          },
+        }),
+        { status: 200 },
+      ),
+    );
+
+    try {
+      await adapter.call(makeRequest());
+      fail('Expected ProviderError to be thrown');
+    } catch (error) {
+      const pe = error as ProviderError;
+      expect(pe.code).toBe(ProviderErrorCode.TIMEOUT);
+      expect(pe.httpStatus).toBe(504);
+      expect(typeof pe.code).toBe('string');
+      expect(typeof pe.httpStatus).toBe('number');
+    }
+  });
+
   it('retries on 5xx then succeeds on next attempt', async () => {
     let callCount = 0;
     globalThis.fetch = jest.fn().mockImplementation(() => {
@@ -394,15 +431,13 @@ describe('BaseAdapter signal capture (AP-2)', () => {
   });
 
   it('captures upstream rate-limit headers into Redis on a normal success', async () => {
-    globalThis.fetch = jest
-      .fn()
-      .mockResolvedValue(
-        mockFetchResponse({ result: 'ok' }, 200, {
-          'X-RateLimit-Limit': '100',
-          'X-RateLimit-Remaining': '7',
-          'X-RateLimit-Reset': '1700000000',
-        }),
-      );
+    globalThis.fetch = jest.fn().mockResolvedValue(
+      mockFetchResponse({ result: 'ok' }, 200, {
+        'X-RateLimit-Limit': '100',
+        'X-RateLimit-Remaining': '7',
+        'X-RateLimit-Reset': '1700000000',
+      }),
+    );
 
     await adapter.call(makeRequest());
 
