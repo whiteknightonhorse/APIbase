@@ -1105,9 +1105,17 @@ def build_remediation_task_body(incident: dict) -> tuple:
     attempts_md = json.dumps(incident.get("attempts", []), ensure_ascii=False, indent=2)
     filename = next_task_filename(kind, provider, severity)
     task_num = filename.split("-", 1)[0]
+    # T-06 (2026-09-06, Fable consult): a REVIEW: fable task pays a REJECT-cycle tax that a
+    # REVIEW: none task never sees -- fable ACCEPT/REJECT is one full model call per attempt on
+    # top of the executor's own, so a genuine "REJECT once, fix, re-review" round trip already
+    # spends 2 of the 2 attempts a flat ceiling gave it, with zero room left for anything else
+    # (measured: a merely-decorated `VERDICT: **DONE**` burned the second one). Fable's own
+    # ruling on this: 4 for review=fable (room for one real REJECT round plus one non-substantive
+    # miss), unchanged 2 for review=none (no REJECT cycle to budget for).
+    max_attempts = 4 if review == "fable" else 2
     content = f"""REVIEW: {review}
 MODEL: {model}
-MAX_ATTEMPTS: 2
+MAX_ATTEMPTS: {max_attempts}
 
 # INC-{sid} — {kind} — {provider} (autopilot remediation, AP-6 remediation-router)
 
@@ -1168,9 +1176,11 @@ def build_human_followup_task_body(incident: dict, operator_result: str) -> tupl
     attempts_md = json.dumps(incident.get("attempts", []), ensure_ascii=False, indent=2)
     filename = next_task_filename(kind, provider, severity)
     task_num = filename.split("-", 1)[0]
+    # T-06: always REVIEW: fable here (see the docstring above), so always the fable ceiling —
+    # same 4 as build_remediation_task_body's review=="fable" branch, same reasoning.
     content = f"""REVIEW: fable
 MODEL: sonnet
-MAX_ATTEMPTS: 2
+MAX_ATTEMPTS: 4
 
 # INC-{sid} — {kind} — {provider} (human-done follow-up, AP-6 remediation-router)
 

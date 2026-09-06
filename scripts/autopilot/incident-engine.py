@@ -1239,10 +1239,14 @@ def selftest_db():
                 # from the same tables the generator uses instead of a
                 # frozen literal, so a future routing.json change can't
                 # silently invalidate this world again.
+                # T-06: MAX_ATTEMPTS is 4 for review=="fable" (PROVIDER_DOWN's routing.json
+                # entry), 2 otherwise -- mirror build_remediation_task_body's own rule instead
+                # of a frozen literal, same reason the REVIEW/MODEL lines above already do this.
+                _review = ap.REVIEW_FOR_KIND.get('PROVIDER_DOWN') or 'none'
                 expected_header = (
-                    f"REVIEW: {ap.REVIEW_FOR_KIND.get('PROVIDER_DOWN') or 'none'}\n"
+                    f"REVIEW: {_review}\n"
                     f"MODEL: {ap.MODEL_FOR_KIND.get('PROVIDER_DOWN') or 'sonnet'}\n"
-                    f"MAX_ATTEMPTS: 2\n"
+                    f"MAX_ATTEMPTS: {4 if _review == 'fable' else 2}\n"
                 )
                 assert body.startswith(expected_header), (expected_header, body[:80])
                 assert "resolve-request" in body and "PROVIDER_DOWN" in body
