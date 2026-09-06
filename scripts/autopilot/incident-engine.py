@@ -50,8 +50,13 @@ Each tick, in order:
   7b. reconcile_stuck_incidents() (T-08) — STUCK is not a fact remembered
       forever: re-derives it every tick from the fleet task's real location
       (stuck/ stays STUCK; queue/ or active/ means the fleet revived it ->
-      REMEDIATION_QUEUED; done/ -> VERIFYING; nowhere -> stays STUCK but
-      says so loudly, never silently reads as "confirmed still stuck").
+      REMEDIATION_QUEUED; done/ -> VERIFYING, UNLESS this STUCK's last
+      logged cause was advance_verifying()'s verify-failed branch, in which
+      case the task was already in done/ when STUCK was set and staying put
+      there is not a revival (ruling-1 on attempt 1: skipping this check
+      re-pages a human every tick a still-down provider's re-probe fails,
+      an infinite STUCK<->VERIFYING loop); nowhere -> stays STUCK but says
+      so loudly, never silently reads as "confirmed still stuck").
   8. write_heartbeat().
 
 Why this file does NOT touch crontab or fleet-check.sh/fleet-pulse.sh
@@ -576,15 +581,15 @@ def advance_verifying():
 def reconcile_stuck_incidents():
     """T-08 (2026-09-06): STUCK is a decision this engine makes every tick
     for REMEDIATION_QUEUED (advance_remediation_queued's fleet-stuck branch)
-    and VERIFYING (advance_verifying's pre-fix safety net) — but both of
-    those are ONE-WAY doors. Neither writes anything that ever gets
-    re-checked once the incident is sitting in STUCK, so a dispatcher who
-    revives the fleet task by hand (raises MAX_ATTEMPTS, resets the attempt
-    counter, moves the file back to queue/ or active/ — exactly what T-06
-    documents happening to real tasks) leaves the incident lying about its
-    own state forever: the fleet is working the problem again, and STUCK —
-    the one signal this system pages a human FOR — keeps insisting nobody
-    is.
+    and VERIFYING (advance_verifying's pre-fix safety net AND its
+    verify-failed branch) — but all of those are ONE-WAY doors. Neither
+    writes anything that ever gets re-checked once the incident is sitting
+    in STUCK, so a dispatcher who revives the fleet task by hand (raises
+    MAX_ATTEMPTS, resets the attempt counter, moves the file back to queue/
+    or active/ — exactly what T-06 documents happening to real tasks) leaves
+    the incident lying about its own state forever: the fleet is working the
+    problem again, and STUCK — the one signal this system pages a human FOR
+    — keeps insisting nobody is.
 
     This closes that gap by deriving STUCK from the SAME observable this
     engine already trusts for every other fleet-task-driven transition — the
@@ -603,7 +608,34 @@ def reconcile_stuck_incidents():
                                        remediation_queued's fleet-done
                                        branch: never trust the fleet's own
                                        verdict text alone, let the existing
-                                       re-probe confirm).
+                                       re-probe confirm) — BUT ONLY if this
+                                       STUCK actually came from a task once
+                                       seen in stuck/ (last STUCK-setting
+                                       attempt logged 'fleet-stuck'). If the
+                                       last STUCK-setting attempt instead
+                                       logged 'verify-failed' (advance_
+                                       verifying()'s re-probe-still-failing
+                                       branch), the task was ALREADY sitting
+                                       in done/ the moment STUCK was set —
+                                       nothing about its location changed,
+                                       so finding it in done/ again is not
+                                       evidence of a revival. Fable's
+                                       ruling-1 on attempt 1 reproduced
+                                       exactly the loop that skipping this
+                                       distinction causes: VERIFYING (fail)
+                                       -> STUCK (page) -> [this branch,
+                                       unconditionally] -> VERIFYING -> same
+                                       probe fails again -> STUCK (page
+                                       again) -> ... forever, once per tick,
+                                       for as long as the provider stays
+                                       down. A verify-failed STUCK stays
+                                       STUCK until a human actually
+                                       intervenes (incident-cli) — same as
+                                       the design before this task existed;
+                                       this reconciler only re-derives STUCK
+                                       states that came out of a REAL stuck/
+                                       sighting, not ones that were always
+                                       sitting in done/.
       - in none of the four dirs   -> NOT the same as "queued" (task
                                        deleted, moved outside taskloop, or a
                                        typo'd fleet_task_id) — the only
@@ -616,13 +648,32 @@ def reconcile_stuck_incidents():
                                        greps notices.log later.
     """
     out, rc = ap.psql(
-        "SELECT incident_id, provider, kind, fleet_task_id FROM incidents "
+        "SELECT incident_id, provider, kind, fleet_task_id, attempts::text FROM incidents "
         "WHERE state = 'STUCK' AND fleet_task_id IS NOT NULL"
     )
     if rc != 0 or not out:
         return
     for line in out.splitlines():
-        incident_id, provider, kind, fleet_task_id = line.split(ap.SEP)
+        incident_id, provider, kind, fleet_task_id, attempts_raw = line.split(ap.SEP)
+        try:
+            attempts = json.loads(attempts_raw)
+        except Exception:
+            attempts = []
+        # Which of the two write-once STUCK sites actually set the state
+        # CURRENTLY on this row -- the most recent 'fleet-stuck' or
+        # 'verify-failed' entry in the log, read newest-first. Anything else
+        # in between (e.g. a human's incident-cli note) doesn't change how
+        # this incident arrived at STUCK, so it's skipped over, not treated
+        # as the deciding entry. No matching entry at all (e.g. STUCK set
+        # directly by an operator/older tooling with no attempts entry) is
+        # NOINFO, not 'assume verify-failed' -- falls through to the
+        # existing done/ -> VERIFYING behavior, the safer default (T-08
+        # attempt 1's own posture, unchanged for that case).
+        last_stuck_reason = None
+        for a in reversed(attempts):
+            if a.get("actor") == "incident-engine" and a.get("action") in ("fleet-stuck", "verify-failed"):
+                last_stuck_reason = a.get("action")
+                break
         queue_path = os.path.join(ap.TASKLOOP_QUEUE_DIR, fleet_task_id)
         active_path = os.path.join(ap.TASKLOOP_ROOT, "active", fleet_task_id)
         stuck_path = os.path.join(ap.TASKLOOP_ROOT, "stuck", fleet_task_id)
@@ -630,6 +681,19 @@ def reconcile_stuck_incidents():
         if os.path.isfile(stuck_path):
             continue  # still genuinely stuck this tick — nothing changed
         if os.path.isfile(done_path):
+            if last_stuck_reason == "verify-failed":
+                # Static world: done/ was already true before STUCK was set,
+                # so it is not evidence of a fresh revival. Stay STUCK,
+                # silently from reconcile's own point of view (dedup'd, not
+                # spammed every tick) -- no state change, no re-page.
+                ap.notice_dedup(
+                    incident_id, "STUCK_VERIFY_FAILED_STATIC",
+                    f"{incident_id} ({provider}/{kind}) — fleet task {fleet_task_id} is in done/, "
+                    f"but this STUCK came from a failed re-probe (verify-failed) while the task "
+                    f"was ALREADY in done/, not from a stuck/ sighting; not a revival, staying "
+                    f"STUCK (needs a human, not another VERIFYING cycle)",
+                )
+                continue
             ap.transition_state(incident_id, "VERIFYING")
             ap.note_incident(incident_id, "incident-engine", "fleet-revived-done",
                               f"fleet task {fleet_task_id} left stuck/ and landed in done/ "
@@ -2249,6 +2313,102 @@ def selftest_db():
         print("world 18 (STUCK re-derived every tick from the fleet task's real location: "
               "stuck/ stays STUCK, queue/active revives to REMEDIATION_QUEUED, done/ revives "
               "to VERIFYING, absent-everywhere stays STUCK but is logged distinctly): OK")
+
+        # World 19 (T-08 ruling-1, 2026-09-06): reproduces the exact defect Fable's ruling
+        # found in attempt 1 -- a STUCK set by advance_verifying()'s verify-failed branch
+        # (re-probe still failing, task ALREADY sitting in done/) must NOT be read by
+        # reconcile_stuck_incidents() as a "revival" just because done/ still holds the file.
+        # Without the last_stuck_reason gate, tick 1 sets STUCK (1 page), then reconcile
+        # unconditionally flips it back to VERIFYING; tick 2's advance_verifying() re-fails
+        # the same still-down probe and sets STUCK again (2nd page) -- an infinite
+        # STUCK<->VERIFYING loop, one Telegram page per tick, for as long as the provider
+        # stays down. Two full ticks here, same order run() uses (advance_verifying() then
+        # reconcile_stuck_incidents()), against a probe that never once recovers: must land
+        # on exactly ONE STUCK transition and ONE tg_send for id19, not two.
+        #
+        # Mutation control: deleting the `if last_stuck_reason == "verify-failed": ... continue`
+        # branch above (reverting to "any done/ hit -> VERIFYING", attempt 1's actual bug)
+        # makes tick 2 flip inc19 to VERIFYING and re-page -- this world's tick-2 assertions
+        # (state still STUCK, exactly 1 send) catch that; verified by hand, reverted after.
+        sent19 = []
+        _orig_tg_send19 = ap.tg_send
+        ap.tg_send = lambda text: (sent19.append(text) or True)
+        try:
+            task19 = "9995-t08-verifyfailed-static.md"
+            with open(os.path.join(done_dir18, task19), "w", encoding="utf-8") as f:
+                f.write("done: fixed (self-report)\n")
+            ap.psql(
+                "INSERT INTO provider_status (provider, state, state_since, next_probe_at, "
+                "probe_interval_s, last_probe_result, last_probe_at) VALUES "
+                "('ap19verifyfailed', 'DOWN', now(), now(), 3600, 'FAIL_TRANSIENT', now())"
+            )
+            id19, _ = ap.open_or_merge_incident(
+                kind="PROVIDER_DOWN", provider="ap19verifyfailed",
+                evidence={"probe": "was down"}, detected_by="probe",
+            )
+            ap.transition_state(id19, "VERIFYING",
+                                 extra_set=f", fleet_task_id = {ap.sql_literal(task19)}")
+            # advance_verifying() only acts on a probe SINCE this VERIFYING's
+            # own updated_at (no resolving on stale data, C0.3) -- refresh
+            # last_probe_at now, strictly after transition_state()'s now(),
+            # same "still failing" result.
+            ap.psql(
+                "UPDATE provider_status SET last_probe_at = now(), "
+                "last_probe_result = 'FAIL_TRANSIENT' WHERE provider = 'ap19verifyfailed'"
+            )
+
+            # Tick 1: fresh re-probe (just refreshed above, after
+            # transition_state()'s own updated_at) still FAIL_TRANSIENT ->
+            # advance_verifying() moves VERIFYING -> STUCK via verify-failed.
+            # The task never left done/ -- this IS a genuine, fresh STUCK,
+            # so it must page.
+            advance_verifying()
+            inc19a = ap.get_incident(id19)
+            assert inc19a["state"] == "STUCK", (
+                f"world 19: re-probe still FAIL_TRANSIENT must set STUCK, got {inc19a['state']}"
+            )
+            assert any(a["action"] == "verify-failed" for a in inc19a["attempts"]), inc19a["attempts"]
+            sent19_id19 = [t for t in sent19 if ap.short_id(id19) in t]
+            assert len(sent19_id19) == 1, (
+                f"world 19 tick 1: expected exactly 1 tg_send for {id19}, got {len(sent19_id19)}"
+            )
+
+            # reconcile_stuck_incidents() runs right after advance_verifying()
+            # every real tick (see run()) -- exercise the same order.
+            reconcile_stuck_incidents()
+            inc19b = ap.get_incident(id19)
+            assert inc19b["state"] == "STUCK", (
+                f"world 19: reconcile must NOT read a verify-failed STUCK's done/ task as a "
+                f"fresh revival -- it was already in done/ before STUCK was even set, "
+                f"got {inc19b['state']}"
+            )
+            assert not any(a["action"] == "fleet-revived-done" for a in inc19b["attempts"]), inc19b["attempts"]
+
+            # Tick 2: same still-failing probe, nothing about the task moved.
+            # Buggy behavior: reconcile already flipped this to VERIFYING
+            # after tick 1, so this tick's advance_verifying() would select
+            # it, re-fail it, and page a second time. Fixed behavior: the
+            # incident never left STUCK, advance_verifying()'s own query
+            # (WHERE state = 'VERIFYING') doesn't even select it.
+            ap.psql(
+                "UPDATE provider_status SET last_probe_at = now(), "
+                "last_probe_result = 'FAIL_TRANSIENT' WHERE provider = 'ap19verifyfailed'"
+            )
+            advance_verifying()
+            reconcile_stuck_incidents()
+            inc19c = ap.get_incident(id19)
+            assert inc19c["state"] == "STUCK", f"world 19 tick 2: must stay STUCK, got {inc19c['state']}"
+            sent19_id19 = [t for t in sent19 if ap.short_id(id19) in t]
+            assert len(sent19_id19) == 1, (
+                f"world 19: exactly ONE tg_send total across two full ticks of a static, "
+                f"never-changing failure -- got {len(sent19_id19)}, the STUCK<->VERIFYING page "
+                f"loop Fable's ruling-1 on attempt 1 found and this world guards against"
+            )
+            print("world 19 (a verify-failed STUCK whose task never left done/ is not mistaken "
+                  "for a fresh revival by reconcile_stuck_incidents() -- one STUCK, one page, "
+                  "across two full ticks of a provider that never recovers, Fable ruling-1): OK")
+        finally:
+            ap.tg_send = _orig_tg_send19
 
         print("selftest-db: ALL WORLDS OK")
         return 0
