@@ -9,7 +9,7 @@
 -- basis='measured', not 'documented_max' (unlike scrape.screenshot, migration 0013): the
 -- $0.0080 figure is the provider's own published per-call rate for the exact endpoint we
 -- call, not a fallback range picked because no exact rate was published.
---   floor = upstream_cost_usd 0.008 * config/margin.json MARGIN_MULTIPLIER 1.3 = 0.0104
+--   floor = upstream_cost_usd 0.008 * src/config/margin.json MARGIN_MULTIPLIER 1.3 = 0.0104
 --   0.0104 already sits on the 'measured' rounding grid (0.0001, round up, never down --
 --   same convention as migration 0013's price_note) -- no further rounding needed.
 -- price_usd for both tools is raised to 0.0104 in config/tool_provider_config.yaml (same

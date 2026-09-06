@@ -29934,7 +29934,62 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object"
+                "type": "object",
+                "properties": {
+                  "condition": {
+                    "type": "string",
+                    "description": "Disease or condition to search for (e.g. \"diabetes\", \"breast cancer\", \"COVID-19\"). Searches the conditions field of registered trials."
+                  },
+                  "intervention": {
+                    "type": "string",
+                    "description": "Drug or intervention to search for (e.g. \"aspirin\", \"metformin\", \"CAR T-cell therapy\"). Searches the interventions field of registered trials."
+                  },
+                  "sponsor": {
+                    "type": "string",
+                    "description": "Sponsor or organization name to search for (e.g. \"Pfizer\", \"NIH\", \"Mayo Clinic\"). Searches the lead sponsor field."
+                  },
+                  "keyword": {
+                    "type": "string",
+                    "description": "Free-text keyword search across all text fields of the trial record (e.g. \"immunotherapy\", \"biomarker\", \"phase 3 randomized\")."
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "RECRUITING",
+                      "NOT_YET_RECRUITING",
+                      "ACTIVE_NOT_RECRUITING",
+                      "COMPLETED",
+                      "TERMINATED",
+                      "WITHDRAWN",
+                      "SUSPENDED",
+                      "UNKNOWN"
+                    ],
+                    "description": "Filter by overall trial status. Most useful values: \"RECRUITING\" (open enrollment), \"COMPLETED\" (finished), \"ACTIVE_NOT_RECRUITING\" (ongoing but closed to new participants)."
+                  },
+                  "phase": {
+                    "type": "string",
+                    "enum": [
+                      "PHASE1",
+                      "PHASE2",
+                      "PHASE3",
+                      "PHASE4",
+                      "EARLY_PHASE1",
+                      "NA"
+                    ],
+                    "description": "Filter by clinical trial phase. PHASE1=safety, PHASE2=efficacy, PHASE3=confirmatory, PHASE4=post-market, NA=not applicable (e.g. observational studies)."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of results to return (1–50). Default: 10.",
+                    "default": 10
+                  },
+                  "page_token": {
+                    "type": "string",
+                    "description": "Pagination token from a previous search response (next_page_token field). Omit for the first page."
+                  }
+                }
               }
             }
           }
@@ -30003,7 +30058,16 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object"
+                "type": "object",
+                "properties": {
+                  "nct_id": {
+                    "type": "string",
+                    "description": "ClinicalTrials.gov registry identifier in NCT format (e.g. \"NCT04368728\", \"NCT01454700\"). Must start with \"NCT\" followed by 8 digits."
+                  }
+                },
+                "required": [
+                  "nct_id"
+                ]
               }
             }
           }
@@ -30072,7 +30136,13 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object"
+                "type": "object",
+                "properties": {
+                  "dummy": {
+                    "type": "string",
+                    "description": "Unused parameter — included for schema compatibility. Leave empty. Returns total study count and average record size from ClinicalTrials.gov."
+                  }
+                }
               }
             }
           }
@@ -40821,7 +40891,7 @@
         "description": "Search millions of active US car listings by make, model, year, price range, mileage, ZIP code, and radius. Returns VIN, price, miles, dealer info, Carfax status, and days on market. Filter by seller type (dealer/private) and color. Data from all major US marketplaces (MarketCheck)",
         "x-payment-info": {
           "pricingMode": "fixed",
-          "price": "0.003000",
+          "price": "0.010400",
           "protocols": [
             "x402",
             "mpp"
@@ -40948,7 +41018,7 @@
         "description": "Get full details for a specific car listing by ID — VIN, price, MSRP, mileage, full build specs (engine, transmission, drivetrain, fuel type), dealer contact, Carfax 1-owner status, days on market, photos. Get listing IDs from carmarket.search (MarketCheck)",
         "x-payment-info": {
           "pricingMode": "fixed",
-          "price": "0.002000",
+          "price": "0.010400",
           "protocols": [
             "x402",
             "mpp"
