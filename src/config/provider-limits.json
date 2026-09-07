@@ -19,7 +19,7 @@
   },
   "asterdex": {
     "display_name": "AsterDEX",
-    "health_url": "https://perp-api.asterfi.io/api/v1/public/tickers",
+    "health_url": "https://fapi.asterdex.com/fapi/v1/ping",
     "limit_type": "unlimited",
     "free_limit": 0,
     "reset_period": "none",
