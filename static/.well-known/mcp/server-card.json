@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1382 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1380 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -8657,109 +8657,6 @@
             "description": "Gender filter"
           }
         }
-      },
-      "outputSchema": {
-        "type": "object",
-        "properties": {
-          "result": {
-            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
-          },
-          "error": {
-            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
-          }
-        },
-        "required": [
-          "result"
-        ]
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      }
-    },
-    {
-      "name": "events.global.search",
-      "description": "Search global news articles across 65 languages from 300K+ sources worldwide. Filter by time, language, tone. Returns title, URL, domain, country. 100% free, no auth (GDELT Project)",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "query": {
-            "type": "string",
-            "description": "Search query — keywords, phrases, or boolean (e.g. \"climate change\", \"AI regulation\"). Min 3 chars.",
-            "minLength": 3
-          },
-          "limit": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 75,
-            "description": "Number of articles (default 10, max 75)"
-          },
-          "timespan": {
-            "type": "string",
-            "description": "Time window: \"15min\", \"1h\", \"4h\", \"1d\", \"7d\", \"30d\", \"3m\" (default: all recent)"
-          },
-          "sort": {
-            "type": "string",
-            "enum": [
-              "DateDesc",
-              "DateAsc",
-              "ToneDesc",
-              "ToneAsc",
-              "HybridRel"
-            ],
-            "description": "Sort order: DateDesc (newest), ToneDesc (most positive), HybridRel (relevance)"
-          },
-          "language": {
-            "type": "string",
-            "description": "Source language filter (e.g. \"english\", \"spanish\", \"chinese\")"
-          }
-        },
-        "required": [
-          "query"
-        ]
-      },
-      "outputSchema": {
-        "type": "object",
-        "properties": {
-          "result": {
-            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
-          },
-          "error": {
-            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
-          }
-        },
-        "required": [
-          "result"
-        ]
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      }
-    },
-    {
-      "name": "events.global.timeline",
-      "description": "Track mention volume of any topic over time — see when a keyword spikes in global news coverage. Up to 3 months of data (GDELT Project)",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "query": {
-            "type": "string",
-            "description": "Query to track mention volume over time (e.g. \"Bitcoin\", \"artificial intelligence\")",
-            "minLength": 3
-          },
-          "timespan": {
-            "type": "string",
-            "description": "Time window: \"1d\", \"7d\", \"30d\", \"3m\" (default: 3 months)"
-          }
-        },
-        "required": [
-          "query"
-        ]
       },
       "outputSchema": {
         "type": "object",
