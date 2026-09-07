@@ -36,6 +36,13 @@ redis_data/
 prisma/*.db
 prisma/*.db-journal
 
+# T-20 (2026-09-07): stray root-level apibase.db (0 bytes) found dirtying the
+# deploy tree, blocking deploy's uncommitted-changes guard. No code in this
+# repo reads/writes it (Prisma is postgresql-only, no knexfile/ormconfig,
+# no better-sqlite3 usage) -- author never identified, treat as junk from an
+# aborted command. Ignore so a repeat doesn't block deploy again.
+/apibase.db
+
 # TypeScript incremental
 *.tsbuildinfo
 
