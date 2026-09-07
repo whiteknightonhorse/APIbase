@@ -6,9 +6,8 @@ import {
 } from '../../types/provider';
 
 /**
- * Tatoeba adapter (UC-402) — 13M parallel sentences, 1M+ audio recordings, 429 languages.
+ * Tatoeba adapter (UC-402) — 13M parallel sentences, 429 languages.
  * CC-BY 2.0 FR. Unstable v0 API (https://api.tatoeba.org/openapi.json).
- * Fixed 2026-09-07: replaced tatoeba.languages (endpoint removed by provider) with tatoeba.audio.
  */
 export class TatoebaAdapter extends BaseAdapter {
   constructor() {
@@ -38,17 +37,12 @@ export class TatoebaAdapter extends BaseAdapter {
         const id = encodeURIComponent(String(p.sentence_id));
         return { url: `${this.baseUrl}/unstable/sentences/${id}`, method: 'GET', headers };
       }
-      case 'tatoeba.audio': {
-        const qs = new URLSearchParams();
-        qs.set('limit', String(Math.max(1, Math.min(50, Number(p.limit ?? 10)))));
-        if (p.language) qs.set('lang', String(p.language));
-        if (p.author) qs.set('author', String(p.author));
+      case 'tatoeba.languages':
         return {
-          url: `${this.baseUrl}/unstable/audios?${qs.toString()}`,
+          url: `${this.baseUrl}/unstable/languages?sort=name&limit=500`,
           method: 'GET',
           headers,
         };
-      }
       default:
         throw {
           code: ProviderErrorCode.INVALID_RESPONSE,
@@ -92,19 +86,14 @@ export class TatoebaAdapter extends BaseAdapter {
           audios: data.audios ?? [],
         };
       }
-      case 'tatoeba.audio': {
+      case 'tatoeba.languages': {
         const data = (body.data as Array<Record<string, unknown>>) ?? [];
-        const paging = (body.paging as Record<string, unknown>) ?? {};
         return {
-          total: paging.total ?? data.length,
-          has_next: paging.has_next ?? false,
-          audios: data.map((a) => ({
-            id: a.id,
-            sentence_id: a.sentence_id,
-            author: a.author,
-            uploader: a.uploader,
-            language: a.lang,
-            duration: a.duration,
+          total: data.length,
+          languages: data.map((l) => ({
+            code: l.code ?? l.iso639_3,
+            name: l.name,
+            sentences: l.sentences ?? l.numSentences,
           })),
         };
       }

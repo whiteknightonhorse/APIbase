@@ -2328,11 +2328,11 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     annotations: READ_ONLY,
   },
   {
-    toolId: 'tatoeba.audio',
-    mcpName: 'media.tatoeba.audio',
-    title: 'Search Tatoeba Audio Recordings',
+    toolId: 'tatoeba.languages',
+    mcpName: 'language.tatoeba.languages',
+    title: 'List Tatoeba Languages',
     description:
-      'Search audio recordings from Tatoeba by language or uploader. Returns metadata for 1M+ human-recorded pronunciation examples. Tatoeba CC-BY 2.0 FR',
+      'List all 429 supported languages on Tatoeba with ISO 639-3 codes and sentence counts. Tatoeba CC-BY 2.0 FR',
     category: 'education',
     annotations: READ_ONLY,
   },
