@@ -587,6 +587,27 @@ _REQUIRED_ACTIONS = {
 }
 
 
+def _attempts_md(incident: dict) -> str:
+    """Tail-20 view of incident['attempts'], for every place that used to
+    json.dumps() the whole array into a task/operator-file body (T-11,
+    ruling-1 §B). open_or_merge_incident()'s recurrence path (note_incident,
+    called every ~10min an incident stays open) appends one entry per call
+    with no ceiling — one incident (9519-...-gdelt) reached 400 near-identical
+    'recurrence' entries and a 121 333-byte task file BEFORE its first
+    attempt, entirely from this array. taskloop.sh's own argv fix (claude_print,
+    same ruling §A) removes the crash this caused, but the array itself still
+    has no cap, so this is the actual fix at the source, not a second place
+    papering over the first (LAW #ONE-PLACE) — every caller that used to dump
+    incident['attempts'] whole now goes through here instead."""
+    attempts = incident.get("attempts", [])
+    tail = attempts[-20:]
+    md = json.dumps(tail, ensure_ascii=False, indent=2)
+    if len(attempts) > 20:
+        md += (f"\n... показано 20 из {len(attempts)}, полный список: "
+               f"`python3 scripts/autopilot/incident-cli.py show {incident['incident_id']}`")
+    return md
+
+
 def build_operator_file(incident: dict, docs_url: str | None = None,
                          steps_override: list | None = None) -> str:
     """steps_override lets a caller outside OPERATOR_FILE_ROUTE_CLASSES's
@@ -605,7 +626,7 @@ def build_operator_file(incident: dict, docs_url: str | None = None,
     steps_md = "\n".join(f"{i + 1}. {s}" for i, s in enumerate(steps))
     docs_line = f"\n- docs: {docs_url}" if docs_url else ""
     evidence_md = json.dumps(incident.get("evidence", {}), ensure_ascii=False, indent=2)
-    attempts_md = json.dumps(incident.get("attempts", []), ensure_ascii=False, indent=2)
+    attempts_md = _attempts_md(incident)
     return f"""# INC-{sid} — {kind} — {incident['provider']}
 
 ## Incident
@@ -1059,6 +1080,10 @@ def _task_boundaries_and_footer(provider: str, incident_id: str, task_num: str) 
 ## Критерий проверки
 Активная проба для `{provider}` (probe_log/provider_status) снова `OK`/`HEALTHY`, ЛИБО явный
 обоснованный вердикт «ждём провайдера» с указанием `next_recheck_at`.
+Любое утверждение о провайдере или БД сопровождается СЫРЫМ выводом команды (`curl -si`, `psql`
+и т.п.) с `date -u` в ТОМ ЖЕ блоке — пересказ своими словами без сырого вывода считается
+недоказанным и равен REJECT (T-11, ruling-1 §D: три DONE по gdelt прошли ревью на пересказе,
+проверка постфактум нашла вымышленное время и факты против БД).
 
 ## По завершении
 Записать прогресс:
@@ -1102,7 +1127,7 @@ def build_remediation_task_body(incident: dict) -> tuple:
     cfg = _provider_limits().get(provider, {})
     docs_line = f"\n- docs: {cfg['docs_url']}" if cfg.get("docs_url") else ""
     evidence_md = json.dumps(incident.get("evidence", {}), ensure_ascii=False, indent=2)
-    attempts_md = json.dumps(incident.get("attempts", []), ensure_ascii=False, indent=2)
+    attempts_md = _attempts_md(incident)
     filename = next_task_filename(kind, provider, severity)
     task_num = filename.split("-", 1)[0]
     # T-06 (2026-09-06, Fable consult): a REVIEW: fable task pays a REJECT-cycle tax that a
@@ -1173,7 +1198,7 @@ def build_human_followup_task_body(incident: dict, operator_result: str) -> tupl
     cfg = _provider_limits().get(provider, {})
     docs_line = f"\n- docs: {cfg['docs_url']}" if cfg.get("docs_url") else ""
     evidence_md = json.dumps(incident.get("evidence", {}), ensure_ascii=False, indent=2)
-    attempts_md = json.dumps(incident.get("attempts", []), ensure_ascii=False, indent=2)
+    attempts_md = _attempts_md(incident)
     filename = next_task_filename(kind, provider, severity)
     task_num = filename.split("-", 1)[0]
     # T-06: always REVIEW: fable here (see the docstring above), so always the fable ceiling —

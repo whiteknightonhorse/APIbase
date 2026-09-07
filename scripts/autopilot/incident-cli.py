@@ -42,6 +42,26 @@ Commands:
   incident-cli.py list [--state S] [--severity S] [--provider P]
       Read-only, tab-separated.
 
+  incident-cli.py show ID
+      Read-only, full incident as JSON (unlike `list`'s summary row, this
+      includes the full `attempts` array). T-11: build_operator_file /
+      build_remediation_task_body / build_human_followup_task_body now embed
+      only the last 20 attempts (autopilot_common._attempts_md) and point
+      here for the rest — this command is what makes that pointer real.
+
+  incident-cli.py reopen --id ID --actor A --result "..."
+      T-11: hands a STUCK incident back to AP-6's route_auto_incidents() by
+      setting state=OPEN and clearing fleet_task_id (that function's own
+      WHERE clause is `state = 'OPEN' AND fleet_task_id IS NULL` — nothing
+      else in this file produces that pair; `resolve-request` both refuses
+      STUCK outright and, on its no-fleet_task_id path, lands on VERIFYING,
+      not OPEN). Added because none of the pre-existing verbs did this and
+      I4 makes this file the ONLY write handle — no caller may UPDATE
+      incidents.* directly, including to annul a poisoned fleet task's own
+      incident. Refuses (exit 1) outside STUCK: reopening a live incident
+      out from under whatever state machine already owns it is not this
+      command's job.
+
   incident-cli.py --selftest
       Pure-logic checks (enum validation, dedup_key shape, SQL-literal
       escaping). No DB needed — see incident-engine.py --selftest-db for the
@@ -147,6 +167,30 @@ def cmd_list(a):
         return 0
     for line in out.splitlines():
         print(line.replace(ap.SEP, "\t"))
+    return 0
+
+
+def cmd_show(a):
+    inc = ap.get_incident(a.id)
+    if inc is None:
+        print(f"no such incident: {a.id}", file=sys.stderr)
+        return 1
+    print(json.dumps(inc, ensure_ascii=False, indent=2))
+    return 0
+
+
+def cmd_reopen(a):
+    inc = ap.get_incident(a.id)
+    if inc is None:
+        print(f"no such incident: {a.id}", file=sys.stderr)
+        return 1
+    if inc["state"] != "STUCK":
+        print(f"refusing: incident {a.id} is in state {inc['state']}, not STUCK — reopen only "
+              f"hands a STUCK incident back to AP-6's route_auto_incidents()", file=sys.stderr)
+        return 1
+    ap.note_incident(a.id, a.actor, "reopen", a.result)
+    ap.transition_state(a.id, "OPEN", extra_set=", fleet_task_id = NULL")
+    print(f"{a.id} -> OPEN, fleet_task_id cleared — AP-6 will file a fresh fleet task next tick")
     return 0
 
 
@@ -317,6 +361,16 @@ def main():
     pl.add_argument("--severity", default=None)
     pl.add_argument("--provider", default=None)
     pl.set_defaults(func=cmd_list)
+
+    psh = sub.add_parser("show")
+    psh.add_argument("id")
+    psh.set_defaults(func=cmd_show)
+
+    pro = sub.add_parser("reopen")
+    pro.add_argument("--id", required=True)
+    pro.add_argument("--actor", required=True)
+    pro.add_argument("--result", required=True)
+    pro.set_defaults(func=cmd_reopen)
 
     args = p.parse_args()
     if args.selftest:
