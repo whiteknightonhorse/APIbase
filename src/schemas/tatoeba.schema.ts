@@ -6,7 +6,7 @@ const search = z
       .string()
       .optional()
       .describe(
-        'ISO 639-3 language code of the source sentence (default "eng"). Use tatoeba.languages to discover codes.',
+        'ISO 639-3 language code of the source sentence (default "eng"). Examples: eng (English), fra (French), deu (German), jpn (Japanese), cmn (Mandarin). See https://en.wikipedia.org/wiki/ISO_639-3 for codes.',
       ),
     query: z.string().optional().describe('Optional keyword search inside sentence text.'),
     translation_lang: z
@@ -47,19 +47,25 @@ const sentence = z
   })
   .strip();
 
-const languages = z
+const audio = z
   .object({
-    refresh: z
-      .boolean()
+    language: z
+      .string()
       .optional()
-      .describe(
-        'Set to true to bypass cache and fetch the latest list of supported languages with sentence counts.',
-      ),
+      .describe('ISO 639-3 language code to filter audio recordings by language.'),
+    author: z.string().optional().describe('Filter audio recordings by uploader username.'),
+    limit: z
+      .number()
+      .int()
+      .min(1)
+      .max(50)
+      .optional()
+      .describe('Max audio recordings to return (default 10, max 50).'),
   })
   .strip();
 
 export const tatoebaSchemas: Record<string, ZodSchema> = {
   'tatoeba.search': search,
   'tatoeba.sentence': sentence,
-  'tatoeba.languages': languages,
+  'tatoeba.audio': audio,
 };
