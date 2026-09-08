@@ -441,7 +441,14 @@ def advance_waiting_human():
         # incident's own operator_file column, not just its macro route
         # class, is what makes that fallback actually resolvable instead of
         # a WAITING_HUMAN incident nothing ever watches again.
-        if (route in ap.OPERATOR_FILE_ROUTE_CLASSES or operator_file) and not os.path.isdir(ap.HUMAN_DONE_DIR):
+        #
+        # T-0108 (2026-09-08): this exact expression also decides what the
+        # 72h-reminder mute in section 2 below is allowed to CLAIM (a file
+        # sitting behind a real cap slot vs. a file section 1 will never
+        # touch at all) — computed once here so the two sections can't drift
+        # (LAW #ONE-PLACE: one rule, not a second copy of it).
+        can_auto_consume = route in ap.OPERATOR_FILE_ROUTE_CLASSES or operator_file
+        if can_auto_consume and not os.path.isdir(ap.HUMAN_DONE_DIR):
             # T-09 ruling-1: run() now mkdir -p's this at the top of every
             # tick, so this should be unreachable — but "unreachable" was
             # exactly the old bug (isdir gated the whole branch with no
@@ -454,7 +461,7 @@ def advance_waiting_human():
                 f"({ap.HUMAN_DONE_DIR}) не существует, ответ оператора по "
                 f"INC-{sid} физически негде принять",
             )
-        if (route in ap.OPERATOR_FILE_ROUTE_CLASSES or operator_file) and os.path.isdir(ap.HUMAN_DONE_DIR):
+        if can_auto_consume and os.path.isdir(ap.HUMAN_DONE_DIR):
             match = human_done_match
             if match:
                 result = human_done_result
@@ -524,22 +531,49 @@ def advance_waiting_human():
         #
         # T-0108 (2026-09-08): "Нужно от вас: …" is false the moment a
         # human-done file with a filled РЕЗУЛЬТАТ ОПЕРАТОРА already exists for
-        # this incident — the incident is waiting on ITS OWN daily-cap budget
-        # to consume that answer (see section 1 above, and route_auto_
-        # incidents()'s identical cap), not on the operator. Muted here
-        # unconditionally (route class doesn't matter — see human_done_match/
-        # human_done_result computed above) and logged under its own reason,
-        # so "quiet" stays visibly different from "broken" in notices.log.
-        # Does NOT touch the daily cap, does NOT archive the file, does NOT
-        # advance the incident's state — section 1 above remains the only
-        # place that consumes/archives/transitions (boundary: a file is the
-        # operator's answer, not proof of a fix).
+        # this incident. Muted here unconditionally either way (route class
+        # doesn't gate the MUTE — see human_done_match/human_done_result
+        # computed above) and logged under its own reason, so "quiet" stays
+        # visibly different from "broken" in notices.log. Does NOT touch the
+        # daily cap, does NOT archive the file, does NOT advance the
+        # incident's state — section 1 above remains the only place that
+        # consumes/archives/transitions (boundary: a file is the operator's
+        # answer, not proof of a fix).
+        #
+        # Fable ruling-1 (2026-09-08): the FIRST version of this mute claimed
+        # "инцидент ждёт свой daily fleet-task cap" unconditionally — false
+        # for a route section 1 will never pick up in the first place. It's
+        # actually stronger than "false for one route": section 1 above
+        # ALWAYS `continue`s whenever it sees human_done_result truthy AND
+        # can_auto_consume True (both its consume-succeeded and cap-blocked
+        # sub-branches end in `continue`) — so this point can only ever be
+        # reached with can_auto_consume False. The assert makes that
+        # invariant loud instead of leaving a second, unreachable "waiting on
+        # the cap" message here that nothing would ever exercise or catch if
+        # section 1's control flow ever changed.
         if human_done_result:
+            assert not can_auto_consume, (
+                f"advance_waiting_human: {incident_id} reached section 2 with "
+                f"human_done_result truthy AND can_auto_consume True — section 1 above should "
+                f"have consumed/continued past this already; its control flow changed and this "
+                f"invariant is now stale"
+            )
+            # HUMAN_KEY whose bridge_key_incident() already ran once (idempotent
+            # guard, autopilot_common.py) never sets operator_file and is
+            # therefore permanently invisible to section 1's gate (`route in
+            # OPERATOR_FILE_ROUTE_CLASSES or operator_file`) — measured live:
+            # INC-fdac7d. There is no slot this file is queued for, so
+            # "waiting on the cap" would be a differently-shaped lie than
+            # "нужно от вас". Name the actual exit instead: resolve-request
+            # now accepts WAITING_HUMAN too (T-0108, incident-cli.py).
             ap.notice_dedup(
                 incident_id, "ANSWER_ALREADY_IN_HUMAN_DONE",
                 f"молчу: {incident_id} ({provider}/{kind}) — ответ оператора уже лежит в "
-                f"{human_done_match}, 72h-напоминание подавлено (инцидент ждёт свой "
-                f"daily fleet-task cap, не человека)",
+                f"{human_done_match}, 72h-напоминание подавлено, но маршрут {route} не входит "
+                f"в OPERATOR_FILE_ROUTE_CLASSES и operator_file для этого инцидента пуст — файл "
+                f"НИКОГДА не будет подхвачен секцией 1 (это не про cap, слота для него нет). "
+                f"Закрыть вручную: incident-cli.py resolve-request --id {incident_id} "
+                f"--actor operator --result \"...\"",
             )
             continue
         try:
@@ -1887,6 +1921,23 @@ def selftest_db():
             assert (f"{id20}" in new_notices20 and "напоминание подавлено" in new_notices20), (
                 f"world 20: the mute must be a LOGGED line (C0.5), not silence -- got:\n{new_notices20}"
             )
+            # Fable ruling-1 (2026-09-08): the mute's own text must be truthful
+            # about WHY it's quiet. HUMAN_KEY here never got the exception's
+            # operator_file (asserted above), so section 1 will never pick this
+            # file up -- claiming a "daily fleet-task cap" wait would be false;
+            # it must instead name the real (and, per world 20c below, actually
+            # working) exit.
+            id20_lines = "\n".join(
+                ln for ln in new_notices20.splitlines() if id20 in ln
+            )
+            assert "daily fleet-task cap" not in id20_lines, (
+                f"world 20: HUMAN_KEY-with-no-operator_file has no cap slot queued -- the mute "
+                f"must not claim one, got:\n{id20_lines}"
+            )
+            assert "resolve-request" in id20_lines and "--id" in id20_lines, (
+                f"world 20: the mute must name the real manual exit (incident-cli.py "
+                f"resolve-request), got:\n{id20_lines}"
+            )
 
             inc20c = ap.get_incident(id20b)
             assert any(a["action"] == "waiting-human-reminder" for a in inc20c["attempts"]), (
@@ -1900,6 +1951,59 @@ def selftest_db():
             print("world 20 (72h reminder muted once a human-done answer file exists for a HUMAN_KEY "
                   "incident, even though that route never consumes the file here; control incident "
                   "with no file still gets paged, T-0108/INC-fdac7d): OK")
+
+            # World 20c (Fable ruling-1, point 2): the mute above names an
+            # exit -- prove it actually closes the incident, since "the
+            # normal path with a probe" (boundary 2) doesn't exist for
+            # HUMAN_KEY in WAITING_HUMAN until this. Exercises the real CLI
+            # entry point (same pattern as world 15), not a hand-rolled
+            # equivalent.
+            import argparse as _argparse20
+            import importlib.util as _ilu20
+            _cli_spec20 = _ilu20.spec_from_file_location(
+                "incident_cli_selftest20",
+                os.path.join(os.path.dirname(os.path.abspath(__file__)), "incident-cli.py"))
+            _cli20 = _ilu20.module_from_spec(_cli_spec20)
+            _cli_spec20.loader.exec_module(_cli20)
+
+            inc20_pre = ap.get_incident(id20)
+            assert inc20_pre["fleet_task_id"] is None, (
+                "world 20c setup: id20 must have no fleet_task_id -- otherwise this exercises "
+                "the fleet-owned note-only branch (world 15), not the manual-close branch"
+            )
+            rc20c = _cli20.cmd_resolve_request(_argparse20.Namespace(
+                id=id20, actor="operator", result="ключ перевыпущен, human-done подтверждён"))
+            assert rc20c == 0, f"world 20c: resolve-request should succeed on WAITING_HUMAN (exit {rc20c})"
+            inc20d = ap.get_incident(id20)
+            assert inc20d["state"] == "VERIFYING", (
+                f"world 20c: resolve-request on a fleet_task_id-less WAITING_HUMAN incident must "
+                f"transition straight to VERIFYING (same manual path as OPEN), got {inc20d['state']}"
+            )
+            assert any(a["action"] == "resolve-request" for a in inc20d["attempts"]), inc20d["attempts"]
+
+            # advance_verifying() still requires a REAL probe from AFTER the
+            # VERIFYING transition (boundary 2: a file is not proof of a fix) --
+            # a probe from before it must not resolve anything.
+            advance_verifying()
+            inc20e = ap.get_incident(id20)
+            assert inc20e["state"] == "VERIFYING", (
+                f"world 20c: no fresh probe yet -- must still be VERIFYING, got {inc20e['state']}"
+            )
+            ap.psql(
+                "INSERT INTO provider_status (provider, state, state_since, next_probe_at, "
+                "probe_interval_s, last_probe_result, last_probe_at) VALUES "
+                "('keyprovreminder', 'HEALTHY', now(), now(), 300, 'OK', now()) "
+                "ON CONFLICT (provider) DO UPDATE SET state = 'HEALTHY', last_probe_result = 'OK', "
+                "last_probe_at = now()"
+            )
+            advance_verifying()
+            inc20f = ap.get_incident(id20)
+            assert inc20f["state"] == "RESOLVED", (
+                f"world 20c: a fresh healthy probe after resolve-request's VERIFYING must close "
+                f"INC-fdac7d's real-world equivalent, got {inc20f['state']}"
+            )
+            print("world 20c (resolve-request now closes a HUMAN_KEY WAITING_HUMAN incident the "
+                  "mute names as its exit -- INC-fdac7d's actual closing path, T-0108): OK")
         finally:
             ap.tg_send = _orig_tg_send20
 

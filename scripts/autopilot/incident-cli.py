@@ -32,12 +32,22 @@ Commands:
       records the note; the transition to VERIFYING happens exclusively in
       advance_remediation_queued() once it sees the REAL outcome in done/.
       For an incident with no fleet_task_id (I4's manual path: a human
-      resolved an OPEN incident by hand before AP-6 existed) this remains
-      the only way out of OPEN, so it still transitions straight to
-      VERIFYING there. The engine closes VERIFYING after a green re-probe
-      (I4: "Prune only after the consumer"). Refuses (exit 1) if the
-      incident isn't in a state a fleet agent could legitimately be
-      finishing work on.
+      resolved an OPEN or, as of T-0108, WAITING_HUMAN incident by hand)
+      this remains the only way out of that state, so it still transitions
+      straight to VERIFYING there. The engine closes VERIFYING after a
+      green re-probe (I4: "Prune only after the consumer"). Refuses (exit
+      1) if the incident isn't in a state a fleet agent could legitimately
+      be finishing work on.
+      T-0108 (2026-09-08): WAITING_HUMAN added because a HUMAN_KEY incident
+      whose bridge_key_incident() already ran once (idempotent guard,
+      autopilot_common.py) never gets a generic operator_file and is
+      therefore permanently invisible to incident-engine.py's
+      advance_waiting_human() human-done watcher (that gate is `route in
+      OPERATOR_FILE_ROUTE_CLASSES or operator_file`, neither true here) —
+      without this, such an incident (measured live: INC-fdac7d) had NO
+      path out of WAITING_HUMAN at all, ever, even after the operator
+      answered. Same manual "a human resolved it by hand" story as OPEN,
+      reused rather than duplicated (LAW #ONE-PLACE).
 
   incident-cli.py list [--state S] [--severity S] [--provider P]
       Read-only, tab-separated.
@@ -123,7 +133,9 @@ def cmd_resolve_request(a):
     # normal "I did the fix" case) or from OPEN (an AUTO-classified incident
     # someone worked by hand before AP-6 existed — still a legitimate path,
     # not a state a fleet agent can invent its way INTO, only finish FROM).
-    if inc["state"] not in ("REMEDIATION_QUEUED", "OPEN"):
+    # T-0108 (2026-09-08): also from WAITING_HUMAN — see this file's module
+    # docstring for why (INC-fdac7d had no other way out).
+    if inc["state"] not in ("REMEDIATION_QUEUED", "OPEN", "WAITING_HUMAN"):
         print(f"refusing: incident {a.id} is in state {inc['state']}, not something "
               f"a fleet agent's resolve-request can act on", file=sys.stderr)
         return 1
@@ -139,8 +151,10 @@ def cmd_resolve_request(a):
               f"engine will transition once it sees this fleet task's real outcome in done/")
         return 0
     # No fleet_task_id: I4's manual path (a human resolved an OPEN incident
-    # by hand before AP-6 existed) -- nothing else watches this incident, so
-    # resolve-request is the only way it ever leaves OPEN.
+    # by hand before AP-6 existed, or — T-0108 — a WAITING_HUMAN incident a
+    # normal automated route can never pick back up) -- nothing else watches
+    # this incident, so resolve-request is the only way it ever leaves
+    # that state.
     ap.transition_state(a.id, "VERIFYING")
     print(f"{a.id} -> VERIFYING (engine will confirm on next tick's re-probe)")
     return 0
