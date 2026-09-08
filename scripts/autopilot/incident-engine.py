@@ -406,6 +406,31 @@ def advance_waiting_human():
         sid = ap.short_id(incident_id)
         route = ap.ROUTE_CLASS[kind]
 
+        # T-0108 (2026-09-08): match+parse is now done ONCE here, route-
+        # independent, instead of only inside the OPERATOR_FILE_ROUTE_CLASSES
+        # branch below. Reason: HUMAN_KEY incidents (AUTH_FAILED/
+        # CREDENTIAL_EXPIRED — J3's own law says these do NOT get a generic
+        # operator file, connected_db.py's email contour is the one place for
+        # keys) were never scanned for a human-done file at all, so an
+        # operator who dropped one anyway (matching the SAME "INC-{sid} in
+        # filename" convention every other route uses — LAW #ONE-PLACE, no
+        # second naming rule invented here) got completely ignored: the 72h
+        # reminder below kept firing on a schedule with zero awareness the
+        # answer already existed (measured live: INC-fdac7d, operator file
+        # since 2026-09-06, reminder still fired 2026-09-08T09:41Z). The
+        # match/result themselves don't change what gets CONSUMED — that
+        # stays gated on route below, unchanged — only whether the 72h
+        # reminder (section 2) still has grounds to claim "нужно от вас".
+        human_done_match = None
+        human_done_result = None
+        if os.path.isdir(ap.HUMAN_DONE_DIR):
+            for fn in os.listdir(ap.HUMAN_DONE_DIR):
+                if f"INC-{sid}" in fn and os.path.isfile(os.path.join(ap.HUMAN_DONE_DIR, fn)):
+                    human_done_match = os.path.join(ap.HUMAN_DONE_DIR, fn)
+                    break
+            if human_done_match:
+                human_done_result = ap.parse_human_done(human_done_match)
+
         # 1. human-done watcher (J3/F2: "human-done файл -> REMEDIATION_QUEUED
         # (follow-up)"). Watches for a generic operator file either because
         # this kind's route normally gets one (HUMAN_ONLY/HUMAN_GENERIC), OR
@@ -430,13 +455,9 @@ def advance_waiting_human():
                 f"INC-{sid} физически негде принять",
             )
         if (route in ap.OPERATOR_FILE_ROUTE_CLASSES or operator_file) and os.path.isdir(ap.HUMAN_DONE_DIR):
-            match = None
-            for fn in os.listdir(ap.HUMAN_DONE_DIR):
-                if f"INC-{sid}" in fn and os.path.isfile(os.path.join(ap.HUMAN_DONE_DIR, fn)):
-                    match = os.path.join(ap.HUMAN_DONE_DIR, fn)
-                    break
+            match = human_done_match
             if match:
-                result = ap.parse_human_done(match)
+                result = human_done_result
                 if result:
                     # F2: this does NOT go straight to VERIFYING — there is no
                     # fix yet to verify, only the operator's answer. It goes
@@ -500,6 +521,27 @@ def advance_waiting_human():
 
         # 2. 72h reminder edge (F2: "напоминание раз в 72ч", C0.5: suppressed
         # reminder is a logged line, not silence).
+        #
+        # T-0108 (2026-09-08): "Нужно от вас: …" is false the moment a
+        # human-done file with a filled РЕЗУЛЬТАТ ОПЕРАТОРА already exists for
+        # this incident — the incident is waiting on ITS OWN daily-cap budget
+        # to consume that answer (see section 1 above, and route_auto_
+        # incidents()'s identical cap), not on the operator. Muted here
+        # unconditionally (route class doesn't matter — see human_done_match/
+        # human_done_result computed above) and logged under its own reason,
+        # so "quiet" stays visibly different from "broken" in notices.log.
+        # Does NOT touch the daily cap, does NOT archive the file, does NOT
+        # advance the incident's state — section 1 above remains the only
+        # place that consumes/archives/transitions (boundary: a file is the
+        # operator's answer, not proof of a fix).
+        if human_done_result:
+            ap.notice_dedup(
+                incident_id, "ANSWER_ALREADY_IN_HUMAN_DONE",
+                f"молчу: {incident_id} ({provider}/{kind}) — ответ оператора уже лежит в "
+                f"{human_done_match}, 72h-напоминание подавлено (инцидент ждёт свой "
+                f"daily fleet-task cap, не человека)",
+            )
+            continue
         try:
             attempts = json.loads(attempts_raw)
         except Exception:
@@ -1774,6 +1816,92 @@ def selftest_db():
         assert os.path.isfile(no_marker_path), "world 11c: empty-marker human-done file must NOT be archived"
         print("world 11c (human-done file present but unfilled/corrupted marker -> incident stays "
               "WAITING_HUMAN, logged as a refusal not silence): OK")
+
+        # World 20 (T-0108, 2026-09-08): the 72h "Нужно от вас" reminder must
+        # NOT fire for a HUMAN_KEY-routed incident (AUTH_FAILED/
+        # CREDENTIAL_EXPIRED) once an operator has dropped a matching
+        # human-done/INC-{sid}*.md file, even though HUMAN_KEY is NOT in
+        # OPERATOR_FILE_ROUTE_CLASSES and never gets the file CONSUMED here
+        # (J3's law: connected_db.py's email contour is the one place for
+        # keys, not a fleet-task follow-up). Reproduces INC-fdac7d live
+        # (marketcheck/AUTH_FAILED, operator file since 2026-09-06, reminder
+        # still fired 2026-09-08T09:41Z with the file sitting right there).
+        # Control (world 20b): an identical HUMAN_KEY incident with NO file
+        # must still get its reminder -- the fix must mute on evidence the
+        # operator answered, not on route class alone, or this would have
+        # just turned off HUMAN_KEY reminders entirely.
+        if os.path.exists(ap.DAILY_TASK_COUNTER_FILE):
+            os.remove(ap.DAILY_TASK_COUNTER_FILE)
+        sent20 = []
+        _orig_tg_send20 = ap.tg_send
+        ap.tg_send = lambda text: (sent20.append(text) or True)
+        try:
+            id20, _ = ap.open_or_merge_incident(
+                kind="AUTH_FAILED", provider="keyprovreminder", evidence={"probe": "401"},
+                detected_by="probe", what="key revoked",
+            )
+            inc20a = ap.get_incident(id20)
+            assert inc20a["state"] == "WAITING_HUMAN", f"world 20 setup: expected WAITING_HUMAN, got {inc20a['state']}"
+            assert not inc20a["operator_file"], (
+                "world 20 setup: AUTH_FAILED/HUMAN_KEY must NOT get a generic operator file (J3) "
+                "-- if it does, this world is testing world 11's path, not the HUMAN_KEY gap"
+            )
+            sid20 = ap.short_id(id20)
+            os.makedirs(ap.HUMAN_DONE_DIR, exist_ok=True)
+            human_done_path_20 = os.path.join(ap.HUMAN_DONE_DIR, f"INC-{sid20}-keyprovreminder-rotated.md")
+            with open(human_done_path_20, "w", encoding="utf-8") as f:
+                f.write(f"# INC-{sid20}\nРЕЗУЛЬТАТ ОПЕРАТОРА:\nключ перевыпущен, проверено 200 OK\n")
+            ap.psql(f"UPDATE incidents SET created_at = now() - interval '73 hours' "
+                    f"WHERE incident_id = '{id20}'")
+
+            id20b, _ = ap.open_or_merge_incident(
+                kind="AUTH_FAILED", provider="keyprovreminderctrl", evidence={"probe": "401"},
+                detected_by="probe", what="key revoked",
+            )
+            ap.psql(f"UPDATE incidents SET created_at = now() - interval '73 hours' "
+                    f"WHERE incident_id = '{id20b}'")
+
+            notices_before20 = (open(ap.NOTICES_LOG, encoding="utf-8").read()
+                                 if os.path.exists(ap.NOTICES_LOG) else "")
+            advance_waiting_human()
+            notices_after20 = open(ap.NOTICES_LOG, encoding="utf-8").read()
+            new_notices20 = notices_after20[len(notices_before20):]
+
+            inc20b = ap.get_incident(id20)
+            assert inc20b["state"] == "WAITING_HUMAN", (
+                f"world 20: a human-done file for a HUMAN_KEY incident must NOT be consumed/advanced "
+                f"here (that stays connected_db.py's job) -- got {inc20b['state']}"
+            )
+            assert not any(a["action"] == "waiting-human-reminder" for a in inc20b["attempts"]), (
+                f"world 20: reminder must be MUTED once the answer file exists, got {inc20b['attempts']}"
+            )
+            assert os.path.isfile(human_done_path_20), (
+                "world 20: the human-done file must NOT be archived by the mute path -- it isn't "
+                "consumed, only referenced"
+            )
+            assert not any(ap.short_id(id20) in t and "напоминание" in t for t in sent20), (
+                f"world 20: the [напоминание] tg_send must NOT fire for INC-{sid20} once its "
+                f"answer file exists (the OPEN-time SEV2 page from open_or_merge_incident is a "
+                f"separate, legitimate send and is excluded from this check), sent={sent20}"
+            )
+            assert (f"{id20}" in new_notices20 and "напоминание подавлено" in new_notices20), (
+                f"world 20: the mute must be a LOGGED line (C0.5), not silence -- got:\n{new_notices20}"
+            )
+
+            inc20c = ap.get_incident(id20b)
+            assert any(a["action"] == "waiting-human-reminder" for a in inc20c["attempts"]), (
+                f"world 20b (control): a HUMAN_KEY incident with NO answer file must still get its "
+                f"72h reminder -- got {inc20c['attempts']}"
+            )
+            assert any(ap.short_id(id20b) in t and "напоминание" in t for t in sent20), (
+                f"world 20b (control): the [напоминание] tg_send must fire for the file-less "
+                f"control incident, sent={sent20}"
+            )
+            print("world 20 (72h reminder muted once a human-done answer file exists for a HUMAN_KEY "
+                  "incident, even though that route never consumes the file here; control incident "
+                  "with no file still gets paged, T-0108/INC-fdac7d): OK")
+        finally:
+            ap.tg_send = _orig_tg_send20
 
         # World 12 (Fable ruling-1, point 3): KEY bridge two-worlds guard --
         # an AUTH_FAILED whose auth_env is ALREADY present in .env must NOT
