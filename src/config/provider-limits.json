@@ -3162,7 +3162,10 @@
     "free_limit": 6000,
     "reset_period": "hourly",
     "docs_url": "https://v6.bvg.transport.rest/",
-    "limit_proof": "Docs state: 'You can just use the API without authentication. There's a rate limit of 100 requests/minute set up.' (100/min == 6000/hour). Community-run, publicly available, no API key."
+    "limit_proof": "Docs state: 'You can just use the API without authentication. There's a rate limit of 100 requests/minute set up.' (100/min == 6000/hour). Community-run, publicly available, no API key.",
+    "probe": {
+      "method": "GET"
+    }
   },
   "meteostat": {
     "display_name": "Meteostat Weather Data",
