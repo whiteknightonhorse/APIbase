@@ -3281,7 +3281,8 @@
     "docs_url": "https://open.canada.ca/data/api/3/action/help_show?name=package_search",
     "limit_proof": "Public CKAN Action API (open.canada.ca/data/api/3/action) run by the Government of Canada; no authentication or API key required, no rate-limit headers returned in observed responses, no documented request quota.",
     "probe": {
-      "timeout_ms": 12000
+      "method": "GET",
+      "timeout_ms": 15000
     }
   },
   "data-europa": {
