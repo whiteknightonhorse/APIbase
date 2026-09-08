@@ -15,7 +15,7 @@ import type {
   BioModelsModelSummary,
 } from './types';
 
-const BIOMODELS_BASE = 'https://biomodels.org';
+const BIOMODELS_BASE = 'https://www.biomodels.org';
 
 export class BioModelsAdapter extends BaseAdapter {
   constructor() {
