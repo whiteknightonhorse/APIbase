@@ -2865,7 +2865,10 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://www.destatis.de/EN/Service/OpenData/api-webservice.html",
-    "limit_proof": "German Federal Statistical Office open data API; free account, no documented rate limit or quota \u2014 'All users have access to the same range of data'"
+    "limit_proof": "German Federal Statistical Office open data API; free account, no documented rate limit or quota \u2014 'All users have access to the same range of data'",
+    "probe": {
+      "timeout_ms": 12000
+    }
   },
   "ecb-rates": {
     "display_name": "ECB Data Portal",
