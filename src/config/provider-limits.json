@@ -1144,6 +1144,7 @@
     "docs_url": "https://www.gdacs.org/Knowledge/api.aspx",
     "limit_proof": "UN/EC open data, no auth required, no documented rate limits",
     "probe": {
+      "method": "GET",
       "timeout_ms": 15000
     }
   },
