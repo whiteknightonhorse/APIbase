@@ -1142,7 +1142,10 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://www.gdacs.org/Knowledge/api.aspx",
-    "limit_proof": "UN/EC open data, no auth required, no documented rate limits"
+    "limit_proof": "UN/EC open data, no auth required, no documented rate limits",
+    "probe": {
+      "timeout_ms": 15000
+    }
   },
   "who": {
     "display_name": "WHO Global Health Observatory",
