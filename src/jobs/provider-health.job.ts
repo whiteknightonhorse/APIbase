@@ -734,13 +734,9 @@ async function probeHead(
   cfg: ProviderLimitEntry,
 ): Promise<void> {
   let healthUrl = cfg.health_url;
-  // Replace TOKEN_FROM_ENV_* patterns with actual environment variables
-  // e.g., TOKEN_FROM_ENV_PROVIDER_KEY_AIRNOW → process.env.PROVIDER_KEY_AIRNOW
-  const tokenMatch = healthUrl.match(/TOKEN_FROM_ENV_([A-Z0-9_]+)/);
-  if (tokenMatch) {
-    const envVarName = tokenMatch[1];
-    const tokenValue = process.env[envVarName] ?? '';
-    healthUrl = healthUrl.replace(tokenMatch[0], tokenValue);
+  if (healthUrl.includes('TOKEN_FROM_ENV') && provider === 'telegram') {
+    const token = process.env.TELEGRAM_BOT_TOKEN ?? '';
+    healthUrl = healthUrl.replace('TOKEN_FROM_ENV', token);
   }
 
   // T-07/A6: a provider's `probe.method: "GET"` (provider-limits.json) skips
