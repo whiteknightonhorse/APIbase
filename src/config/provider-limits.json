@@ -1739,7 +1739,7 @@
   },
   "opendota": {
     "display_name": "OpenDota",
-    "health_url": "https://api.opendota.com/api/health",
+    "health_url": "https://api.opendota.com/api/constants/heroes",
     "limit_type": "unlimited",
     "free_limit": 0,
     "reset_period": "none",
