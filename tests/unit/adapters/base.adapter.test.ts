@@ -237,6 +237,35 @@ describe('BaseAdapter', () => {
     }
   });
 
+  // T-0111 (2026-09-10): a bare "Provider returned 504" reads as "our
+  // gateway timed out" even when the upstream itself answered fast with its
+  // own 5xx and a body explaining why (jikan's UC-051 case: a real, fast
+  // "MyAnimeList may be down/unavailable" from api.jikan.moe). The message
+  // must carry that upstream body, same as the 401/403/other-4xx branches
+  // already do, so the on-call trail says what actually happened.
+  it('includes the upstream response body in the message on 5xx', async () => {
+    globalThis.fetch = jest
+      .fn()
+      .mockImplementation(() =>
+        Promise.resolve(
+          mockFetchResponse(
+            { status: 504, type: 'BadResponseException', message: 'MyAnimeList may be down' },
+            504,
+          ),
+        ),
+      );
+
+    try {
+      await adapter.call(makeRequest());
+      fail('Expected ProviderError to be thrown');
+    } catch (error) {
+      const pe = error as ProviderError;
+      expect(pe.code).toBe(ProviderErrorCode.UNAVAILABLE);
+      expect(pe.message).toContain('Provider returned 504');
+      expect(pe.message).toContain('MyAnimeList may be down');
+    }
+  });
+
   it.each([400, 404, 409, 422])(
     'throws INPUT_REJECTED (HTTP 422) on upstream %s without retry',
     async (status) => {

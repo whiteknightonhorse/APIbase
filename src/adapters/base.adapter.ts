@@ -250,10 +250,22 @@ export abstract class BaseAdapter {
     }
 
     if (response.status >= 500) {
+      // T-0111 (2026-09-10): a bare "Provider returned 504" reads as if OUR
+      // gateway timed out waiting on the upstream — it doesn't. This branch
+      // fires on the upstream's OWN 5xx status, arriving well inside our
+      // timeoutMs (jikan's UC-051 case: real, reproducible, response-body
+      // 504s from api.jikan.moe in 170-600ms, over a minute of spaced
+      // probing — never anywhere near our 10s budget). Append the upstream's
+      // own error body (already read into bodyText above) the same way the
+      // 401/403 and other-4xx branches below already do, so the on-call
+      // trail carries the actual upstream diagnostic (e.g. jikan's own
+      // `"MyAnimeList may be down/unavailable or refuses to connect"`)
+      // instead of a number that gets misread as "our fault".
+      const detail = bodyText.length > 0 ? `: ${bodyText.slice(0, 300)}` : '';
       throw createProviderError({
         code: ProviderErrorCode.UNAVAILABLE,
         httpStatus: 502,
-        message: `Provider returned ${response.status}`,
+        message: `Provider returned ${response.status}${detail}`,
         provider: this.provider,
         toolId: req.toolId,
         durationMs,
