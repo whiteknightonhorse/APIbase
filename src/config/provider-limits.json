@@ -743,7 +743,7 @@
     "limit_proof": "100% free and open. API enforces rate limit: 1 request per 5 seconds (returns HTTP 429 if exceeded). Response time ~10.7-11s due to rate-limit throttling.",
     "probe": {
       "method": "GET",
-      "timeout_ms": 15000
+      "timeout_ms": 25000
     }
   },
   "firms": {
