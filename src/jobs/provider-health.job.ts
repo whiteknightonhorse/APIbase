@@ -72,7 +72,9 @@ const HEALTH_CHECK_GET_TIMEOUT_MS = 12000;
 // initial-probe timeout above the 5s default (gdelt/semanticscholar below),
 // but never past this ceiling — an unbounded per-provider override would
 // turn one slow provider into a tick that never finishes.
-const MAX_PROBE_TIMEOUT_MS = 15000;
+// INC-b0353f: uk-ea-flood-monitoring requires 25s (HEAD/GET can take 20+s due to
+// slow TLS handshake). Measured latency: up to 21.8s for HEAD, 15-20s for GET.
+const MAX_PROBE_TIMEOUT_MS = 25000;
 const REDIS_HEALTH_TTL = 7200; // 2 hours
 const REDIS_LIMITS_TTL = 7200;
 
