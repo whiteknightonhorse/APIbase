@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1388 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1391 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -65774,6 +65774,167 @@
           "place_id"
         ],
         "description": "Get the full record for a single Norwegian place by its stedsnummer id, including all written name forms, status, location and geometry"
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "uk-ea-flood-monitoring.warnings.current",
+      "description": "Get currently active flood warnings and alerts for England from the UK Environment Agency, filterable by minimum severity (1=Severe Flood Warning down to 4=Warning no longer in force), county, or a geographic radius (lat/long/dist). Returns each warning's flood area, county, affected river or sea, severity, tidal flag, public message, and when it was raised/last changed. Data: environment.data.gov.uk/flood-monitoring, UK Open Government Licence v3.0, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "min_severity": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4,
+            "description": "Filter to warnings at this severity or more severe (lower number = more severe): 1=Severe Flood Warning (danger to life), 2=Flood Warning (immediate action), 3=Flood Alert (be prepared), 4=Warning no longer in force. Omit for all active items."
+          },
+          "county": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Filter by county name of the affected flood area (e.g. \"Devon\", \"North Yorkshire\")."
+          },
+          "lat": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90,
+            "description": "Latitude for a geographic radius filter — use with `long` and `dist`."
+          },
+          "long": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180,
+            "description": "Longitude for a geographic radius filter — use with `lat` and `dist`."
+          },
+          "dist": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Search radius in kilometres around `lat`/`long` — use with both."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "uk-ea-flood-monitoring.stations.search",
+      "description": "Search the UK Environment Agency real-time river/tidal monitoring network for stations, filterable by town, river name, catchment name, measured parameter (level, flow, rainfall, wind, temperature), or freetext label search. Returns station_id, name, river/catchment, coordinates, and the measures each station records — use station_id with uk-ea-flood-monitoring.station_readings to get its latest values. Data: environment.data.gov.uk/flood-monitoring, UK Open Government Licence v3.0, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "town": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Filter stations by nearest town (e.g. \"Shrewsbury\")."
+          },
+          "river_name": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "Filter stations by river name, partial match (e.g. \"River Severn\")."
+          },
+          "catchment_name": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "Filter stations by river catchment name (e.g. \"Cotswolds\")."
+          },
+          "parameter": {
+            "type": "string",
+            "enum": [
+              "level",
+              "flow",
+              "rainfall",
+              "wind",
+              "temperature"
+            ],
+            "description": "Filter stations by the type of measurement they record."
+          },
+          "search": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "Freetext search matching the station label/name."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "description": "Max stations to return (default 20, max 200)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "uk-ea-flood-monitoring.stations.readings",
+      "description": "Get the latest reading for every measure (e.g. water level, flow) recorded at one UK Environment Agency monitoring station, identified by the station_id from uk-ea-flood-monitoring.station_search. Returns each measure_id with its most recent date/time and value. Data: environment.data.gov.uk/flood-monitoring, UK Open Government Licence v3.0, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "station_id": {
+            "type": "string",
+            "description": "Station identifier — the `station_id` (notation) returned by uk-ea-flood-monitoring.station_search, e.g. \"1029TH\".",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "required": [
+          "station_id"
+        ]
       },
       "outputSchema": {
         "type": "object",
