@@ -1,6 +1,6 @@
 # Autopilot Incident Remediation Progress
 
-## T-9577 — openlibrary DEGRADED_QUALITY incident (2026-09-14) {#T-9577}
+## T-9577 — openlibrary DEGRADED_QUALITY incident (2026-09-14)
 
 **Incident ID:** 610e9c93-0d70-41e2-8d04-038fef0f464c
 
