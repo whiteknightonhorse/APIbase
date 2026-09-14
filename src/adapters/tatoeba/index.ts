@@ -37,6 +37,12 @@ export class TatoebaAdapter extends BaseAdapter {
         const id = encodeURIComponent(String(p.sentence_id));
         return { url: `${this.baseUrl}/unstable/sentences/${id}`, method: 'GET', headers };
       }
+      case 'tatoeba.languages':
+        return {
+          url: `${this.baseUrl}/unstable/languages?sort=name&limit=500`,
+          method: 'GET',
+          headers,
+        };
       default:
         throw {
           code: ProviderErrorCode.INVALID_RESPONSE,
@@ -78,6 +84,17 @@ export class TatoebaAdapter extends BaseAdapter {
           owner: data.owner,
           translations: data.translations ?? [],
           audios: data.audios ?? [],
+        };
+      }
+      case 'tatoeba.languages': {
+        const data = (body.data as Array<Record<string, unknown>>) ?? [];
+        return {
+          total: data.length,
+          languages: data.map((l) => ({
+            code: l.code ?? l.iso639_3,
+            name: l.name,
+            sentences: l.sentences ?? l.numSentences,
+          })),
         };
       }
       default:
