@@ -2386,6 +2386,7 @@
     "docs_url": "https://www.statcan.gc.ca/en/developers/wds/user-guide",
     "limit_proof": "Statistics Canada WDS: 25 req/s per IP, 50 req/s per server; no documented daily/monthly quota. Canada Open Licence permits commercial use.",
     "probe": {
+      "method": "GET",
       "timeout_ms": 25000
     }
   },
