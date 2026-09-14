@@ -90,6 +90,19 @@ def UTC_TS_EXPR(col: str) -> str:
     return f"to_char({col} AT TIME ZONE 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS.US')"
 
 
+# T-0123: cron (*/10, see run()'s docstring) redirects this module's stdout
+# straight into logs/incident-engine.log with a bare `>>`, no `ts`/logger in
+# the middle — every run()-path print() landed in that file with NO
+# timestamp at all (unlike ap.notice()'s notices.log, which has stamped
+# every line since it was written). A log a human can't date is a log that
+# answers "0 lines" to "what happened on the 12th" even on a fully healthy
+# day — a false zero, not a true one (C0.3). Same stamp format ap.notice()
+# already uses (notices.log), so the two logs read as one timeline, not two.
+def _log(line: str) -> None:
+    ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    print(f"{ts} {line}")
+
+
 def _parse_ts(s):
     """Parses the UTC_TS_EXPR() shape only. Returns a tz-AWARE (UTC) datetime,
     or None for NULL/unparseable -- callers must treat None as NOINFO, not
@@ -1003,7 +1016,7 @@ def write_heartbeat():
         # don't crash the tick over it either (best-effort, matches every
         # other heartbeat write in this codebase, e.g. fleet-check.sh's own
         # /tmp/fleet-CHECK.hb).
-        print(f"incident-engine: WARNING could not write heartbeat file: {e}")
+        _log(f"incident-engine: WARNING could not write heartbeat file: {e}")
 
     # now() (Postgres's own clock), not a Python-formatted literal — one
     # fewer place for a TZ/format mismatch between this script's clock and
@@ -1020,7 +1033,7 @@ def write_heartbeat():
         # "state unknown" until this succeeds again (T-04's whole point:
         # not_measured != 0, so a failed heartbeat write must never be
         # silently swallowed into looking like a healthy one).
-        print(f"incident-engine: WARNING could not write heartbeat row: {out}")
+        _log(f"incident-engine: WARNING could not write heartbeat row: {out}")
 
 
 def run():
@@ -1036,8 +1049,8 @@ def run():
         ap.notice(f"WARN: could not create HUMAN_DONE_DIR ({ap.HUMAN_DONE_DIR}): {e}")
     ok, missing = ap.schema_present()
     if not ok:
-        print(f"incident-engine: schema not deployed yet (missing: {missing}) — "
-              f"nothing to do this tick, NOT an error (see module docstring)")
+        _log(f"incident-engine: schema not deployed yet (missing: {missing}) — "
+             f"nothing to do this tick, NOT an error (see module docstring)")
         write_heartbeat()  # the ENGINE ran; the schema being absent is a separate fact
         return 0
     opened = detect_from_provider_status()
@@ -1071,7 +1084,7 @@ def run():
     advance_verifying()
     reconcile_stuck_incidents()
     write_heartbeat()
-    print(f"incident-engine: tick complete, {opened} new incident(s) opened")
+    _log(f"incident-engine: tick complete, {opened} new incident(s) opened")
     return 0
 
 
