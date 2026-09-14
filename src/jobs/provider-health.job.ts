@@ -110,6 +110,23 @@ interface ProbeConfig {
   timeout_ms?: number;
 }
 
+/**
+ * T-0129: machine-readable sibling to the prose `limit_proof` fact "API key
+ * expires every N days" — a fact needs a place a MACHINE reads, not just a
+ * string a human has to notice. Keyed by the exact env var name (an entry
+ * can bundle several keys, e.g. 'health' holds both PROVIDER_KEY_USDA and
+ * PROVIDER_KEY_OPENFDA) so "which key" is never ambiguous.
+ */
+interface KeyExpiryFact {
+  /** ISO date (YYYY-MM-DD) this credential expires, or the literal string
+   *  "unknown" — never fabricated. "unknown" and a real date are two
+   *  different facts and must never collapse into the same blank/absent
+   *  field (T-0129). */
+  date: string;
+  /** Where `date` came from. "unknown" iff `date` is "unknown". */
+  source: 'provider_email' | 'api_response' | 'operator_announcement' | 'docs' | 'unknown';
+}
+
 interface ProviderLimitEntry {
   display_name: string;
   health_url: string;
@@ -121,6 +138,7 @@ interface ProviderLimitEntry {
   docs_url?: string;
   limit_proof?: string;
   probe?: ProbeConfig;
+  key_expiry?: Record<string, KeyExpiryFact>;
 }
 
 const limitsConfig = providerLimitsConfig as Record<string, ProviderLimitEntry>;
