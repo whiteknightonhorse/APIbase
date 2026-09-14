@@ -3647,7 +3647,7 @@
   },
   "uk-ea-flood-monitoring": {
     "display_name": "UK EA Flood Monitoring",
-    "health_url": "https://environment.data.gov.uk/flood-monitoring/id/floods.json",
+    "health_url": "https://environment.data.gov.uk/flood-monitoring/id/stations.json?_limit=1",
     "limit_type": "unlimited",
     "free_limit": 0,
     "reset_period": "none",
