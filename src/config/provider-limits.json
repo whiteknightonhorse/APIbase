@@ -3722,5 +3722,32 @@
     "reset_period": "none",
     "docs_url": "https://info.orcid.org/documentation/features/public-api/",
     "limit_proof": "No-auth ORCID Public API (pub.orcid.org); official Public API documentation page describes no API key, registration, or numeric rate limit for these endpoints."
+  },
+  "oilprice": {
+    "display_name": "OilPriceAPI",
+    "health_url": "https://api.oilpriceapi.com/v1/prices/latest",
+    "limit_type": "monthly",
+    "free_limit": 120,
+    "reset_period": "monthly",
+    "docs_url": "https://www.oilpriceapi.com/register",
+    "limit_proof": "Operator's own registration notes (2026-09-14): Free plan = 120 requests/month, with a 50 requests/day sub-limit throttle. Auth verified with a differentiating control: `Authorization: Token <key>` -> HTTP 200 live data (BRENT_CRUDE_USD); bad/missing key -> HTTP 401."
+  },
+  "tidesatlas": {
+    "display_name": "TidesAtlas",
+    "health_url": "https://tidesatlas.com/api/v1/tides",
+    "limit_type": "credits",
+    "free_limit": 50,
+    "reset_period": "none",
+    "docs_url": "https://www.tidesatlas.com/register",
+    "limit_proof": "Operator's own registration notes (2026-09-14): Free plan = 50 credits ONE-TIME (not monthly) — operator's explicit instruction is to expand only if real demand appears. Auth verified with a differentiating control: header `X-API-Key` -> HTTP 200 live tide data, `x-ratelimit-remaining` decremented (confirms the one-shot credit pool); bad/missing key -> HTTP 401 `{\"message\":\"Invalid API key.\"}` with no credit spent."
+  },
+  "censusmapper": {
+    "display_name": "CensusMapper",
+    "health_url": "https://censusmapper.ca/api/v1/data.csv",
+    "limit_type": "daily",
+    "free_limit": 10000,
+    "reset_period": "daily",
+    "docs_url": "https://censusmapper.ca/users/sign_up",
+    "limit_proof": "Operator's own registration notes (2026-09-14): 1,000 requests/hour, 10,000 requests/day. Auth verified with a differentiating control on POST /api/v1/data.csv (and other /api/v1/ endpoints, form param `api_key`): real key -> HTTP 200 text/csv; bad key -> HTTP 401 'Access denied, invalid API key'. `list_datasets` alone is a public-no-key endpoint and must not be used as proof."
   }
 }
