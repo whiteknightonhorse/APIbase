@@ -451,7 +451,21 @@ def fetch_zyte_stats_spend(organization_id):
     has to guess at. Still None (never coerced to 0 spend, which would read
     as "cap is fine" — the NOINFO-vs-0 bug this whole file's docstring is
     about, just for dollars instead of call counts) until that variable is
-    actually set."""
+    actually set.
+
+    T-0124 ruling-1 (2026-09-14) correction: "dashboard API key" is NOT
+    anything on the Zyte API "API Access" page — that page only issues
+    extraction-class keys, and docs.zyte.com/zyte-api/usage/stats says this
+    call needs the credential from the organization's Settings page,
+    https://app.zyte.com/o/<org_id>/settings, verbatim "your Zyte dashboard
+    API key (not your Zyte API key)". A 2026-09-14 probe tried three
+    different API-Access-page keys (ours, the account owner's, garbage) and
+    got an identical 403 from all three — that only proves 403 doesn't
+    discriminate within that wrong key class, it does NOT mean the endpoint
+    refuses every credential. Nobody has yet tried a key copied from
+    Settings. See provider-limits.json zyte.billing.stats_api for the full
+    trail and the fallback (spend_source: "unmeasurable_external") if a
+    genuine Settings-page key also 403s."""
     key = get_provider_key(ZYTE_STATS_API_KEY_VAR)
     if not key:
         return None
@@ -597,11 +611,30 @@ def maybe_escalate_billing_cap_noinfo(provider, billing, streak):
     if key_var:
         reason = (f"billing-cap spend query has no working credential in {key_var} — see "
                   f"provider-limits.json {provider}.billing.stats_api for the specific 403/detail")
-        what_ask = (f"Нужен рабочий ключ для Stats API — положите его в переменную окружения "
-                    f"**{key_var}** в контейнере api (docker exec / .env), это ОТДЕЛЬНАЯ от "
-                    f"PROVIDER_KEY_{provider.upper()} переменная. PROVIDER_KEY_{provider.upper()} — "
-                    f"ключ извлечения, он уже подтверждённо не подходит (403 от Stats API), менять "
-                    f"его не нужно. См. provider-limits.json {provider}.billing.stats_api.")
+        if provider == "zyte":
+            # T-0124 ruling-1 (2026-09-14): the prior wording just said "a
+            # working key" and the operator understandably issued another
+            # key from the Zyte API "API Access" page — that page only ever
+            # issues extraction-class keys and none of them can work here
+            # (docs.zyte.com/zyte-api/usage/stats requires the "dashboard
+            # API key" from the ORGANIZATION SETTINGS page instead, a
+            # different object). Name the exact page so this doesn't repeat.
+            org_id = billing.get("organization_id", "")
+            what_ask = (f"Нужен рабочий ключ для Stats API — положите его в переменную окружения "
+                        f"**{key_var}** в контейнере api (docker exec / .env), это ОТДЕЛЬНАЯ от "
+                        f"PROVIDER_KEY_ZYTE переменная. PROVIDER_KEY_ZYTE — ключ извлечения, менять "
+                        f"его не нужно. ВАЖНО (T-0124): это НЕ ключ со страницы API Access "
+                        f"(app.zyte.com/o/{org_id}/api-access) — оттуда пробовали уже два разных ключа, "
+                        f"оба дали 403. Нужно значение поля API key со страницы Settings организации: "
+                        f"**https://app.zyte.com/o/{org_id}/settings** (документация Zyte называет это "
+                        f"\"Zyte dashboard API key\", в отличие от \"Zyte API key\"). См. "
+                        f"provider-limits.json {provider}.billing.stats_api за деталями и историей проверки.")
+        else:
+            what_ask = (f"Нужен рабочий ключ для Stats API — положите его в переменную окружения "
+                        f"**{key_var}** в контейнере api (docker exec / .env), это ОТДЕЛЬНАЯ от "
+                        f"PROVIDER_KEY_{provider.upper()} переменная. PROVIDER_KEY_{provider.upper()} — "
+                        f"ключ извлечения, он уже подтверждённо не подходит (403 от Stats API), менять "
+                        f"его не нужно. См. provider-limits.json {provider}.billing.stats_api.")
     else:
         reason = (f"billing-cap spend query has no known fetch method implemented for {provider} "
                   f"yet (not just a missing key) — see provider-limits.json {provider}.billing "
