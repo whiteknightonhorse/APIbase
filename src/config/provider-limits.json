@@ -2820,10 +2820,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://data.europarl.europa.eu/api/v2/",
-    "limit_proof": "No cumulative quota; rate limit only: 500 requests per 5 minutes per endpoint. EU open data, CC BY 4.0, no auth required.",
-    "probe": {
-      "timeout_ms": 15000
-    }
+    "limit_proof": "No cumulative quota; rate limit only: 500 requests per 5 minutes per endpoint. EU open data, CC BY 4.0, no auth required."
   },
   "ukleg": {
     "display_name": "UK Legislation (legislation.gov.uk)",
