@@ -1276,8 +1276,8 @@
       "period_start": "2026-08-30",
       "monthly_fee_usd": 0,
       "volume_discount": "none on this plan -- starts at $100/mo commitment (-25%), $200 (-40%), $350 (-48%), $500 (-52%); not opted into any commitment",
-      "stats_api": "GET https://zyte-api-stats.zyte.com/api/stats?organization_id=937578 -- 2026-09-05 probe with the extraction API key (PROVIDER_KEY_ZYTE) returned 403 Forbidden; Zyte's own docs call this a separate \"dashboard API key\". MANUAL_REQUIRED (T-11 ruling-4): operator needs to issue/locate that dashboard key and set it as PROVIDER_KEY_ZYTE_STATS in the api container's env -- a DEDICATED variable name (see scripts/provider-limit-alerts.py ZYTE_STATS_API_KEY_VAR), never overwrite PROVIDER_KEY_ZYTE itself (that stays the extraction key the scrape.* adapter needs) -- before cost_microusd_total/avg can be polled automatically",
-      "measured_at": "2026-09-05",
+      "stats_api": "GET https://zyte-api-stats.zyte.com/api/stats?organization_id=937578 -- T-11 ruling-4 (2026-09-05) diagnosed 403 from PROVIDER_KEY_ZYTE as 'needs a separate dashboard API key' and asked the operator to issue one into PROVIDER_KEY_ZYTE_STATS. FALSIFIED 2026-09-14 (INC-1a390694, T-0124): tested the account-owner's own dashboard key AND a deliberately-garbage key against this endpoint -- both also returned the identical 403 {\"detail\":{},\"message\":\"Forbidden\"}. 403 does not discriminate any credential from any other here, so no API-Access key (ours, owner's, or a hypothetical new one) can open this path -- auth scheme is confirmed HTTP Basic (no-header/Bearer/X-API-Key/ApiKey all give 401 'No apikey supplied' instead), the endpoint likely reads a dashboard session/internal token, not a client API key. Do NOT re-attempt PROVIDER_KEY_ZYTE_STATS via a newly issued key on this diagnosis -- see disputes/0124-zyte-stats-endpoint-refuses-every-key.q-1.md for the open ruling on how the $100/mo cap gets monitored instead. PROVIDER_KEY_ZYTE itself is fine and unaffected (scrape.* extraction calls verified 200).",
+      "measured_at": "2026-09-14",
       "remeasure_by": "2026-09-30"
     }
   },
