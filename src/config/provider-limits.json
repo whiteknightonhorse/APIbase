@@ -2384,7 +2384,10 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://www.statcan.gc.ca/en/developers/wds/user-guide",
-    "limit_proof": "Statistics Canada WDS: 25 req/s per IP, 50 req/s per server; no documented daily/monthly quota. Canada Open Licence permits commercial use."
+    "limit_proof": "Statistics Canada WDS: 25 req/s per IP, 50 req/s per server; no documented daily/monthly quota. Canada Open Licence permits commercial use.",
+    "probe": {
+      "timeout_ms": 25000
+    }
   },
   "fbi": {
     "display_name": "FBI Crime Data Explorer (UCR)",
