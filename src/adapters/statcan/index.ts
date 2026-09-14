@@ -63,12 +63,7 @@ export class StatCanAdapter extends BaseAdapter {
   private cubeList: StatCanCubeListItem[] | null = null;
 
   constructor() {
-    super({
-      provider: 'statcan',
-      baseUrl: API_BASE,
-      maxResponseBytes: 8_000_000,
-      timeoutMs: 30_000, // T-9562: getAllCubesListLite endpoint takes 19-20s; increased from 10s default
-    });
+    super({ provider: 'statcan', baseUrl: API_BASE, maxResponseBytes: 8_000_000 });
   }
 
   protected buildRequest(req: ProviderRequest): {
