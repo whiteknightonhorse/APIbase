@@ -751,13 +751,8 @@ async function probeHead(
 
   // UC-682: BIS Statistics SDMX API requires specific Accept header (406 without it).
   // Include it in all probe headers for SDMX endpoints.
-  let probeHeaders: Record<string, string> = { 'User-Agent': 'APIbase-HealthCheck/2.0' };
-
-  // INC-477356: MusicBrainz requires application-identifying User-Agent (1 req/sec rate limit).
-  // Generic User-Agent causes transient rate-limit issues; use the proper app identifier.
-  if (provider === 'music') {
-    probeHeaders['User-Agent'] = 'APIbase/1.0 (https://apibase.pro; contact@apibase.pro)';
-  } else if (provider === 'bis-stats' || isBisStatsHost(healthUrl)) {
+  const probeHeaders: Record<string, string> = { 'User-Agent': 'APIbase-HealthCheck/2.0' };
+  if (provider === 'bis-stats' || isBisStatsHost(healthUrl)) {
     probeHeaders['Accept'] = 'application/vnd.sdmx.data+json;version=1.0.0';
   }
 
@@ -768,10 +763,6 @@ async function probeHead(
       'User-Agent': 'APIbase-HealthCheck/2.0',
       Range: 'bytes=0-0',
     };
-    // INC-477356: preserve MusicBrainz User-Agent in GET retry
-    if (provider === 'music') {
-      getHeaders['User-Agent'] = 'APIbase/1.0 (https://apibase.pro; contact@apibase.pro)';
-    }
     // UC-682: preserve SDMX Accept header in GET retry as well
     if (provider === 'bis-stats' || isBisStatsHost(healthUrl)) {
       getHeaders['Accept'] = 'application/vnd.sdmx.data+json;version=1.0.0';
