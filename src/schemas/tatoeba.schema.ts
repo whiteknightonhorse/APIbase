@@ -6,7 +6,7 @@ const search = z
       .string()
       .optional()
       .describe(
-        'ISO 639-3 language code of the source sentence (default "eng"). Use tatoeba.languages to discover codes.',
+        'ISO 639-3 language code of the source sentence (default "eng"). Tatoeba supports 429 languages.',
       ),
     query: z.string().optional().describe('Optional keyword search inside sentence text.'),
     translation_lang: z
@@ -47,19 +47,7 @@ const sentence = z
   })
   .strip();
 
-const languages = z
-  .object({
-    refresh: z
-      .boolean()
-      .optional()
-      .describe(
-        'Set to true to bypass cache and fetch the latest list of supported languages with sentence counts.',
-      ),
-  })
-  .strip();
-
 export const tatoebaSchemas: Record<string, ZodSchema> = {
   'tatoeba.search': search,
   'tatoeba.sentence': sentence,
-  'tatoeba.languages': languages,
 };

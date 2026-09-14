@@ -2327,15 +2327,6 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'education',
     annotations: READ_ONLY,
   },
-  {
-    toolId: 'tatoeba.languages',
-    mcpName: 'language.tatoeba.languages',
-    title: 'List Tatoeba Languages',
-    description:
-      'List all 429 supported languages on Tatoeba with ISO 639-3 codes and sentence counts. Tatoeba CC-BY 2.0 FR',
-    category: 'education',
-    annotations: READ_ONLY,
-  },
 
   // ---------------------------------------------------------------------------
   // US Library of Congress (UC-409, 3 tools)
