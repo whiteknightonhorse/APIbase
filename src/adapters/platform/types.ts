@@ -2,15 +2,15 @@
  * Platform adapter response types (F5: Tool Quality + F1: Batch).
  */
 
-export interface ToolQualityData {
+import type { ToolQualityResult } from '../../services/tool-quality.service';
+
+/** `platform.tool_quality` response — `tool` is `null` when the tool has no
+ *  measurement at all (T-2/Q-1: never a fabricated 0). See
+ *  `services/tool-quality.service.ts` for what "no measurement" vs.
+ *  "not enough calls yet" mean. */
+export interface ToolQualityResponse {
   tool_id: string;
-  uptime_pct: number;
-  p50_ms: number | null;
-  p95_ms: number | null;
-  error_rate: number;
-  total_calls: number;
-  success_calls: number;
-  last_updated: string;
+  tool: ToolQualityResult | null;
 }
 
 export interface ToolRankingEntry {

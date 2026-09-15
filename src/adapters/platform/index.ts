@@ -2,10 +2,17 @@ import { BaseAdapter } from '../base.adapter';
 import { type ProviderRequest, type ProviderRawResponse } from '../../types/provider';
 import { ensureRedisConnected } from '../../services/redis.service';
 import { runBatch, type BatchOptions } from '../../services/batch.service';
+import { buildToolQuality } from '../../services/tool-quality.service';
+import { TOOL_DEFINITIONS } from '../../mcp/tool-definitions';
 import { logger } from '../../config/logger';
-import type { ToolQualityData, ToolRankingEntry, BatchCallInput } from './types';
+import type { ToolQualityResponse, ToolRankingEntry, BatchCallInput } from './types';
 
-const QUALITY_KEY_PREFIX = 'tool:quality:';
+// Candidate tool_ids for platform.tool_rankings — the full active catalog,
+// deduped (TOOL_DEFINITIONS is pure data, no side-effect imports, safe here).
+// Paged through buildToolQuality below: one MGET per page, never
+// `redis.keys()` (T-2: forbidden pattern on the shared prod instance).
+const ALL_TOOL_IDS: string[] = Array.from(new Set(TOOL_DEFINITIONS.map((def) => def.toolId)));
+const RANKINGS_PAGE_SIZE = 500;
 
 /**
  * Platform adapter (F5: Tool Quality Index + F1: Batch API).
@@ -64,29 +71,19 @@ export class PlatformAdapter extends BaseAdapter {
     };
   }
 
-  private async getToolQuality(params: Record<string, unknown>): Promise<ToolQualityData | { error: string }> {
+  private async getToolQuality(
+    params: Record<string, unknown>,
+  ): Promise<ToolQualityResponse | { error: string }> {
     const toolId = params.tool_id as string;
     if (!toolId) {
       return { error: 'tool_id is required' };
     }
 
     const redis = await ensureRedisConnected();
-    const raw = await redis.get(`${QUALITY_KEY_PREFIX}${toolId}`);
+    const quality = await buildToolQuality(redis, [toolId]);
 
-    if (!raw) {
-      return {
-        tool_id: toolId,
-        uptime_pct: 0,
-        p50_ms: null,
-        p95_ms: null,
-        error_rate: 0,
-        total_calls: 0,
-        success_calls: 0,
-        last_updated: '',
-      };
-    }
-
-    return JSON.parse(raw) as ToolQualityData;
+    // `tool: null` means no measurement at all — never a fabricated 0 (T-2).
+    return { tool_id: toolId, tool: quality[toolId] };
   }
 
   private async getToolRankings(params: Record<string, unknown>): Promise<ToolRankingEntry[]> {
@@ -94,37 +91,36 @@ export class PlatformAdapter extends BaseAdapter {
     const limit = Math.min(Math.max(Number(params.limit) || 20, 1), 100);
     const category = params.category as string | undefined;
 
-    const redis = await ensureRedisConnected();
-    const keys = await redis.keys(`${QUALITY_KEY_PREFIX}*`);
+    const candidateIds = category
+      ? ALL_TOOL_IDS.filter((id) => id.startsWith(`${category}.`))
+      : ALL_TOOL_IDS;
 
-    if (keys.length === 0) {
+    if (candidateIds.length === 0) {
       return [];
     }
 
-    const pipeline = redis.pipeline();
-    for (const key of keys) {
-      pipeline.get(key);
-    }
-    const results = await pipeline.exec();
-
+    const redis = await ensureRedisConnected();
     const entries: ToolRankingEntry[] = [];
-    if (results) {
-      for (let i = 0; i < results.length; i++) {
-        const [redisErr, val] = results[i];
-        if (redisErr || !val) continue;
 
-        const quality = JSON.parse(val as string) as ToolQualityData;
+    for (let i = 0; i < candidateIds.length; i += RANKINGS_PAGE_SIZE) {
+      const page = candidateIds.slice(i, i + RANKINGS_PAGE_SIZE);
+      const quality = await buildToolQuality(redis, page);
 
-        // Filter by category prefix if specified
-        if (category && !quality.tool_id.startsWith(category + '.')) continue;
+      for (const toolId of page) {
+        const q = quality[toolId];
+        // No measurement, or not enough calls yet to trust a rate/percentile
+        // (buildToolQuality nulls those below QUALITY_MIN_CALLS) — neither
+        // can be meaningfully ranked, so skip rather than show a fabricated
+        // number.
+        if (!q || q.success_rate === null) continue;
 
         entries.push({
-          tool_id: quality.tool_id,
-          uptime_pct: quality.uptime_pct,
-          p50_ms: quality.p50_ms,
-          p95_ms: quality.p95_ms,
-          error_rate: quality.error_rate,
-          total_calls: quality.total_calls,
+          tool_id: toolId,
+          uptime_pct: q.success_rate,
+          p50_ms: q.p50_ms,
+          p95_ms: q.p95_ms,
+          error_rate: Math.round((100 - q.success_rate) * 100) / 100,
+          total_calls: q.calls,
         });
       }
     }
