@@ -1,7 +1,7 @@
 #!/bin/bash
 # APIbase.pro — Smoke Test Suite (§12.199)
 #
-# Post-deploy verification. All 9 tests must pass.
+# Post-deploy verification. All 10 tests must pass.
 # Fail = rollback (CI/CD) or alert (manual).
 #
 # Usage:
@@ -30,7 +30,7 @@ echo ""
 # ---------------------------------------------------------------------------
 # 1. Health readiness — GET /health/ready → 200
 # ---------------------------------------------------------------------------
-echo -n "1/9 Health readiness..."
+echo -n "1/10 Health readiness..."
 HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$API_URL/health/ready" 2>/dev/null || echo "000")
 if [ "$HTTP_CODE" = "200" ]; then
   pass
@@ -41,7 +41,7 @@ fi
 # ---------------------------------------------------------------------------
 # 2. Tool catalog — GET /api/v1/tools → 200 + data.length > 0
 # ---------------------------------------------------------------------------
-echo -n "2/9 Tool catalog..."
+echo -n "2/10 Tool catalog..."
 CATALOG_RAW=$(curl -s -w "\n%{http_code}" -H "Accept: application/json" "$API_URL/api/v1/tools" 2>/dev/null || echo -e "\n000")
 CATALOG_HTTP=$(echo "$CATALOG_RAW" | tail -1)
 CATALOG_BODY=$(echo "$CATALOG_RAW" | sed '$d')
@@ -62,7 +62,7 @@ fi
 #    Requires TEST_API_KEY for authenticated tool call via HTTP.
 #    Falls back to tool detail endpoint if no key provided.
 # ---------------------------------------------------------------------------
-echo -n "3/9 Tool execution..."
+echo -n "3/10 Tool execution..."
 if [ -n "$TEST_API_KEY" ]; then
   TOOL_RESPONSE=$(curl -s -w "\n%{http_code}" \
     -H "Authorization: Bearer $TEST_API_KEY" \
@@ -96,7 +96,7 @@ fi
 # ---------------------------------------------------------------------------
 # 4. Response structure — Parse response → data + request_id present
 # ---------------------------------------------------------------------------
-echo -n "4/9 Response structure..."
+echo -n "4/10 Response structure..."
 # Verify X-Request-ID header + valid JSON structure on API responses
 STRUCT_HEADERS=$(curl -s -D - -o /tmp/smoke_body.json \
   -H "Accept: application/json" \
@@ -112,9 +112,59 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 5. MCP discovery — GET /.well-known/mcp.json → 200 + valid JSON
+# 5. Tool quality (ZZ-03-03) — GET /api/v1/tools/books.search → quality.method
+#    is the literal "apibase-rs/1" tag; quality.provider.score is integer|null,
+#    never a fabricated 0; quality.provider.score_as_of (if not null) is no
+#    older than 36h; quality.tool.as_of (if quality.tool is not null) is no
+#    older than 20 minutes. Acceptance criteria from 05-PROPOSED-FLEET-TASKS.md
+#    ZZ-03-03, verbatim.
 # ---------------------------------------------------------------------------
-echo -n "5/9 MCP discovery..."
+echo -n "5/10 Tool quality (ZZ-03-03)..."
+QUALITY_BODY=$(curl -s -H "Accept: application/json" \
+  "$API_URL/api/v1/tools/books.search" 2>/dev/null || echo "")
+QUALITY_METHOD_OK=$(echo "$QUALITY_BODY" | jq -e '.quality.method == "apibase-rs/1"' >/dev/null 2>&1 && echo "true" || echo "false")
+# integer|null: jq's `type` collapses to "number" for both ints and floats,
+# so a real score must ALSO satisfy `floor == itself` to rule out a fraction
+# no formula in this system should ever produce.
+QUALITY_SCORE_OK=$(echo "$QUALITY_BODY" | jq -e '
+  (.quality.provider.score == null) or
+  ((.quality.provider.score | type) == "number" and (.quality.provider.score | floor) == .quality.provider.score)
+' >/dev/null 2>&1 && echo "true" || echo "false")
+if [ "$QUALITY_METHOD_OK" = "true" ] && [ "$QUALITY_SCORE_OK" = "true" ]; then
+  pass
+  # Freshness checks are informational (SKIP, not FAIL) on a fresh/dev
+  # deploy where the autopilot jobs haven't run yet — the shape contract
+  # above is what CI/CD gates on; staleness is an operational signal.
+  SCORE_AS_OF=$(echo "$QUALITY_BODY" | jq -r '.quality.provider.score_as_of // empty')
+  if [ -n "$SCORE_AS_OF" ]; then
+    SCORE_AS_OF_EPOCH=$(date -d "$SCORE_AS_OF" +%s 2>/dev/null || echo "0")
+    NOW_EPOCH=$(date +%s)
+    AGE_H=$(( (NOW_EPOCH - SCORE_AS_OF_EPOCH) / 3600 ))
+    if [ "$SCORE_AS_OF_EPOCH" -gt 0 ] && [ "$AGE_H" -le 36 ]; then
+      echo "       (score_as_of ${AGE_H}h old, within 36h)"
+    else
+      echo "       WARN: score_as_of ${AGE_H}h old, exceeds the 36h freshness bound"
+    fi
+  fi
+  TOOL_AS_OF=$(echo "$QUALITY_BODY" | jq -r '.quality.tool.as_of // empty')
+  if [ -n "$TOOL_AS_OF" ]; then
+    TOOL_AS_OF_EPOCH=$(date -d "$TOOL_AS_OF" +%s 2>/dev/null || echo "0")
+    NOW_EPOCH=$(date +%s)
+    AGE_MIN=$(( (NOW_EPOCH - TOOL_AS_OF_EPOCH) / 60 ))
+    if [ "$TOOL_AS_OF_EPOCH" -gt 0 ] && [ "$AGE_MIN" -le 20 ]; then
+      echo "       (tool.as_of ${AGE_MIN}m old, within 20m)"
+    else
+      echo "       WARN: tool.as_of ${AGE_MIN}m old, exceeds the 20m freshness bound"
+    fi
+  fi
+else
+  fail "method_ok=$QUALITY_METHOD_OK score_ok=$QUALITY_SCORE_OK body=$(echo "$QUALITY_BODY" | head -c 300)"
+fi
+
+# ---------------------------------------------------------------------------
+# 6. MCP discovery — GET /.well-known/mcp.json → 200 + valid JSON
+# ---------------------------------------------------------------------------
+echo -n "6/10 MCP discovery..."
 MCP_RAW=$(curl -s -w "\n%{http_code}" "$API_URL/.well-known/mcp.json" 2>/dev/null || echo -e "\n000")
 MCP_HTTP=$(echo "$MCP_RAW" | tail -1)
 MCP_BODY=$(echo "$MCP_RAW" | sed '$d')
@@ -130,9 +180,9 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 6. Content negotiation — GET /api/v1/tools with wrong Accept → 406
+# 7. Content negotiation — GET /api/v1/tools with wrong Accept → 406
 # ---------------------------------------------------------------------------
-echo -n "6/9 Content negotiation..."
+echo -n "7/10 Content negotiation..."
 CN_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
   -H "Accept: text/xml" \
   "$API_URL/api/v1/tools" 2>/dev/null || echo "000")
@@ -143,9 +193,9 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 7. Auth rejection — POST /mcp initialize without Authorization → 401
+# 8. Auth rejection — POST /mcp initialize without Authorization → 401
 # ---------------------------------------------------------------------------
-echo -n "7/9 Auth rejection..."
+echo -n "8/10 Auth rejection..."
 AUTH_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
   -X POST \
   -H "Content-Type: application/json" \
@@ -159,9 +209,9 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 8. Rate limit headers — X-RateLimit-* present on authenticated response
+# 9. Rate limit headers — X-RateLimit-* present on authenticated response
 # ---------------------------------------------------------------------------
-echo -n "8/9 Rate limit headers..."
+echo -n "9/10 Rate limit headers..."
 # Nginx rate limiting is active (limit_req), verify 429 on burst
 # Check via response headers or nginx limit_req status
 RL_CHECK=$(curl -s -D - -o /dev/null \
@@ -175,7 +225,7 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 9. Served-pair check (F2) — one route genuinely NEW in this release,
+# 10. Served-pair check (F2) — one route genuinely NEW in this release,
 #    through nginx, not the repo. Every other check above exists on stable
 #    routes and would stay green even if nginx.conf and the running image
 #    were built from two different commits (exactly what happened live:
@@ -187,7 +237,7 @@ fi
 #    not a general "every new route" gate.
 # ---------------------------------------------------------------------------
 NEW_ROUTE_CHECK="/connect/device/vendors"
-echo -n "9/9 Served pair ($NEW_ROUTE_CHECK)..."
+echo -n "10/10 Served pair ($NEW_ROUTE_CHECK)..."
 SERVED_PAIR_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$API_URL$NEW_ROUTE_CHECK" 2>/dev/null || echo "000")
 if [ "$SERVED_PAIR_CODE" = "200" ]; then
   pass

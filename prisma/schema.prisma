@@ -319,6 +319,17 @@ model ProviderStatus {
   exhaustion_eta       DateTime? @db.Timestamptz()
   risk                 String    @default("NOINFO") // NOINFO|NORMAL|ATTENTION|WARNING|CRITICAL|EXHAUSTED
   reliability_score    Int?      // 0-100, daily (§20)
+  // ZZ-03-03: when reliability_score was last (re)computed by
+  // provider-limit-alerts.py's compute_and_write_reliability_scores() — the
+  // SAME UPDATE that writes reliability_score sets this, every run, whether
+  // the result was a real number or NULL (nothing measurable that window is
+  // still a completed calculation, not a missing one). Surfaces as
+  // `quality.provider.score_as_of` on the tool catalog (03-SPECIFICATION.md
+  // Q-1) so a caller can tell a genuinely-null score apart from a stale one
+  // nobody has recomputed in days. null = the job has never run for this
+  // provider at all, distinct from "ran and found nothing" (real timestamp +
+  // null score).
+  reliability_calculated_at  DateTime? @db.Timestamptz()
   next_probe_at        DateTime  @db.Timestamptz() // priority queue key for active probe (AP-3)
   probe_interval_s     Int       // current adaptive interval
   // AP-3 review fix (Fable, 2026-09-03): the "401 — zero retries" pause anchor,

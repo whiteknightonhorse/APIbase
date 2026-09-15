@@ -988,8 +988,15 @@ def compute_and_write_reliability_scores():
 
         score = compute_reliability_score(availability, probe_uptime, latency, auth_ok, rl_ok, incident_free)
         score_sql = str(score) if score is not None else "NULL"
+        # ZZ-03-03: reliability_calculated_at is set in this SAME UPDATE, every
+        # run, whether score_sql came out NULL or a real number -- "we just
+        # computed it (and found nothing measurable)" is still a completed
+        # calculation, not a missing one, and quality.provider.score_as_of
+        # (03-SPECIFICATION.md Q-1) needs to say so rather than staying stuck
+        # on whenever this provider last had SOME other column touched.
         _out, urc = ap.psql(
-            f"UPDATE provider_status SET reliability_score = {score_sql}, updated_at = now() "
+            f"UPDATE provider_status SET reliability_score = {score_sql}, "
+            f"reliability_calculated_at = now(), updated_at = now() "
             f"WHERE provider = {ap.sql_literal(provider)}"
         )
         if urc != 0:
@@ -1378,19 +1385,24 @@ def selftest_db():
             print("selftest-db: postgres never became ready")
             return 1
 
-        migration_path = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "..",
-            "prisma", "migrations", "0009_autopilot_schema", "migration.sql",
+        migrations_dir = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "..", "prisma", "migrations",
         )
-        with open(migration_path) as f:
-            migration_sql = f.read()
-        apply = subprocess.run(
-            ["docker", "exec", "-i", name, "psql", "-U", "apibase", "-d", "apibase"],
-            input=migration_sql, capture_output=True, text=True,
-        )
-        if apply.returncode != 0:
-            print(f"selftest-db: migration apply failed: {apply.stderr}")
-            return 1
+        # AP-1's base schema plus every later migration that touches
+        # provider_status -- ZZ-03-03 adds reliability_calculated_at on top
+        # of 0009's CREATE TABLE, so world 5's assertions on that column need
+        # it applied too, same as 0009 itself.
+        for mig_dir in ("0009_autopilot_schema", "0018_provider_status_reliability_calculated_at"):
+            migration_path = os.path.join(migrations_dir, mig_dir, "migration.sql")
+            with open(migration_path) as f:
+                migration_sql = f.read()
+            apply = subprocess.run(
+                ["docker", "exec", "-i", name, "psql", "-U", "apibase", "-d", "apibase"],
+                input=migration_sql, capture_output=True, text=True,
+            )
+            if apply.returncode != 0:
+                print(f"selftest-db: migration {mig_dir} apply failed: {apply.stderr}")
+                return 1
 
         # AP-9: reliability-score's own RELIABILITY_SQL joins tools/execution_ledger
         # (real availability/latency), same minimal stand-ins incident-engine.py's own
@@ -1566,6 +1578,19 @@ def selftest_db():
         assert rsprov_score == 95, f"world 5a: expected 95, got {rsprov_score}"
         print(f"world 5a (real traffic+probes -> reliability_score={rsprov_score}, not NULL): OK")
 
+        # ZZ-03-03: reliability_calculated_at must land in the SAME UPDATE as
+        # the score itself, not stay NULL/stale — quality.provider.score_as_of
+        # reads this column directly.
+        calc_at_row, _ = ap.psql(
+            "SELECT (reliability_calculated_at > now() - interval '1 minute') "
+            "FROM provider_status WHERE provider = 'rsprov'"
+        )
+        assert calc_at_row == "t", (
+            f"world 5a: reliability_calculated_at must be set to ~now() alongside a real "
+            f"score, got {calc_at_row!r}"
+        )
+        print("world 5a (reliability_calculated_at set alongside a real score): OK")
+
         # 5a2 (Fable ruling-1 REJECT #2): the complementary case -- an
         # incident that was open for real days INSIDE the window and only
         # resolves partway through it. Its CURRENT state is RESOLVED, same
@@ -1625,6 +1650,22 @@ def selftest_db():
         ghost_row, _ = ap.psql("SELECT reliability_score FROM provider_status WHERE provider = 'ghostrsprov'")
         assert ghost_row == "", f"world 5b: expected NULL (empty), got {ghost_row!r}"
         print("world 5b (nothing measurable -> reliability_score stays NULL): OK")
+
+        # ZZ-03-03 MUTATION CONTROL: a NULL score is still a COMPLETED
+        # calculation ("we checked, nothing to measure"), not a missing one —
+        # reliability_calculated_at must be set to ~now() here too, the exact
+        # twin-worlds distinction quality.provider.score_as_of exists to
+        # preserve (score=NULL + score_as_of=null would misreport this
+        # provider as "never even attempted").
+        ghost_calc_at_row, _ = ap.psql(
+            "SELECT (reliability_calculated_at > now() - interval '1 minute') "
+            "FROM provider_status WHERE provider = 'ghostrsprov'"
+        )
+        assert ghost_calc_at_row == "t", (
+            f"world 5b: reliability_calculated_at must be set to ~now() even when the score "
+            f"itself is NULL, got {ghost_calc_at_row!r}"
+        )
+        print("world 5b (reliability_calculated_at set to ~now() even for a NULL score): OK")
 
         # 5c: the daily marker makes a second call within the same UTC day a
         # no-op — flip rsprov's real traffic to nothing and confirm the

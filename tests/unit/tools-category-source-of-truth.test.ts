@@ -10,6 +10,12 @@
 const findManyMock = jest.fn();
 const countMock = jest.fn();
 const findUniqueMock = jest.fn();
+// ZZ-03-03: toEntries() now also batches provider_status + open-incidents
+// per catalog request -- defaulted to "nothing on record" below so every
+// pre-existing test in this file, none of which cares about quality, keeps
+// working unchanged.
+const providerStatusFindManyMock = jest.fn();
+const incidentGroupByMock = jest.fn();
 
 jest.mock('@prisma/client', () => ({
   PrismaClient: jest.fn().mockImplementation(() => ({
@@ -18,7 +24,20 @@ jest.mock('@prisma/client', () => ({
       count: countMock,
       findUnique: findUniqueMock,
     },
+    providerStatus: {
+      findMany: providerStatusFindManyMock,
+    },
+    incident: {
+      groupBy: incidentGroupByMock,
+    },
   })),
+}));
+
+// ZZ-03-03: toEntries() tries Redis for quality.tool -- reject it the same
+// way dashboard-autopilot-status.test.ts does, so this file's tests never
+// depend on (or hang on) a real Redis connection.
+jest.mock('../../src/services/redis.service', () => ({
+  ensureRedisConnected: jest.fn().mockRejectedValue(new Error('no redis in this test')),
 }));
 
 import { TOOL_DEFINITIONS } from '../../src/mcp/tool-definitions';
@@ -51,6 +70,8 @@ beforeEach(() => {
   findManyMock.mockReset();
   countMock.mockReset();
   findUniqueMock.mockReset();
+  providerStatusFindManyMock.mockReset().mockResolvedValue([]);
+  incidentGroupByMock.mockReset().mockResolvedValue([]);
 });
 
 describe('ZZ-03-01: REST tool entries carry TOOL_DEFINITIONS[].category, never a recomputed guess', () => {
@@ -121,6 +142,19 @@ describe('ZZ-03-01 regression: /api/v1/tools entry shape unchanged for pre-exist
       // new fields, additive only:
       category: def.category,
       namespace: expect.any(String),
+      // ZZ-03-03, additive: no provider_status row and no Redis in this test
+      // -> genuinely null/zero, never fabricated.
+      quality: {
+        method: 'apibase-rs/1',
+        provider: {
+          score: null,
+          state: null,
+          open_incidents: 0,
+          last_probe_at: null,
+          score_as_of: null,
+        },
+        tool: null,
+      },
     });
   });
 

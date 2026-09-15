@@ -12,7 +12,11 @@ import { TOOL_DEFINITIONS } from '../mcp/tool-definitions';
  *
  * GET /api/tools             — public catalog, no auth, Cache-Control: public, max-age=3600
  * GET /api/v1/tools          — full tool catalog (default 1000, cursor pagination available)
- * GET /api/v1/tools/:toolId  — single tool details
+ * GET /api/v1/tools/:toolId  — single tool details, Cache-Control: public, max-age=300 (ZZ-03-03:
+ *                              lowered from 3600 — this entry carries live quality.* data)
+ *
+ * All three entries additionally carry `quality` (ZZ-03-03: provider_status + per-tool Redis
+ * quality, additive, never breaking a pre-existing consumer).
  *
  * Empty catalog → 503 (never return empty tool list silently).
  */
@@ -105,7 +109,11 @@ toolsRouter.get(
       if (!tool) {
         throw new AppError(ErrorCode.NOT_FOUND, `Tool not found: ${toolId}`);
       }
-      res.setHeader('Cache-Control', 'public, max-age=3600');
+      // ZZ-03-03: this response now carries live quality.tool/quality.provider
+      // data (provider_status + Redis, both far fresher than an hour) — the
+      // catalog-wide 3600s max-age above would let it go stale well past
+      // what a quality-aware caller expects.
+      res.setHeader('Cache-Control', 'public, max-age=300');
       res.status(200).json(tool);
     } catch (err) {
       next(err);

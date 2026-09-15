@@ -1,0 +1,17 @@
+-- ZZ-03-03 (2026-09-15): provider_status.reliability_calculated_at.
+--
+-- 03-SPECIFICATION.md Q-1's `quality.provider.score_as_of` (GET /api/v1/tools,
+-- /api/v1/tools/{id}, /api/tools) needs to say WHEN reliability_score was last
+-- computed, not just what it is -- a real score from 40 days ago and one from
+-- 4 hours ago must not look identical. provider_status had no such timestamp:
+-- `updated_at` is touched by every write to the row (probe results, risk,
+-- pause anchor...), not just the reliability-score step, so it can't answer
+-- "how stale is the SCORE specifically".
+--
+-- Nullable, no backfill, no default -- same posture as reliability_score
+-- itself (migration 0009): a provider whose score has never been computed
+-- gets NULL here too, never a fabricated "just now". scripts/provider-limit-
+-- alerts.py's compute_and_write_reliability_scores() sets this in the SAME
+-- UPDATE that writes reliability_score, so the two columns can never drift
+-- out of sync with each other.
+ALTER TABLE "provider_status" ADD COLUMN "reliability_calculated_at" TIMESTAMPTZ;
