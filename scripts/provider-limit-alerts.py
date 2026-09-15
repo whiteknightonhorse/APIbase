@@ -79,6 +79,7 @@ finite-limit providers) — this pass runs for every one of the ~386 configured 
 own "≤5k probe_log rows/day" budget would not survive a 386-row-per-run addition on top of it.
 """
 import base64
+import calendar
 import json
 import os
 import subprocess
@@ -429,7 +430,36 @@ def load_billing_config():
 ZYTE_STATS_API_KEY_VAR = "PROVIDER_KEY_ZYTE_STATS"
 
 
-def fetch_zyte_stats_spend(organization_id):
+def zyte_billing_period_start(period_start_str, now=None):
+    """Given provider-limits.json zyte.billing.period_start (an ISO date from
+    the FIRST observed billing period, e.g. "2026-08-30") and the current
+    time, return the start date of the billing period `now` falls in.
+
+    Zyte's billing period rolls monthly on the same day-of-month as
+    `period_start_str` (the "anchor day"), not on the 1st -- this org's
+    period runs 2026-08-30..2026-09-30, so on 2026-09-15 the correct window
+    start is still 2026-08-30, and only from 2026-09-30 onward does it become
+    2026-09-30. Anchor days beyond a given month's length (e.g. anchor=30,
+    February) clamp to that month's last day via calendar.monthrange, same
+    as most billing systems -- untested against a real such month for this
+    org (anchor=30 is at most 1 day off calendar-end anyway), but it is the
+    documented, unsurprising behavior rather than a crash on invalid dates."""
+    anchor_day = datetime.fromisoformat(period_start_str).day
+    today = (now or datetime.now(timezone.utc)).date()
+
+    def anchor_for(year, month):
+        last_day = calendar.monthrange(year, month)[1]
+        return datetime(year, month, min(anchor_day, last_day)).date()
+
+    this_month_anchor = anchor_for(today.year, today.month)
+    if today >= this_month_anchor:
+        return this_month_anchor
+    prev_month = today.month - 1 or 12
+    prev_year = today.year if today.month > 1 else today.year - 1
+    return anchor_for(prev_year, prev_month)
+
+
+def fetch_zyte_stats_spend(organization_id, period_start=None):
     """GET zyte-api-stats.zyte.com — real cumulative spend for this billing
     period. Returns cost_microusd_total/1e6 (USD) or None on ANY failure
     (missing/wrong key, network, bad JSON).
@@ -488,17 +518,24 @@ def fetch_zyte_stats_spend(organization_id):
     traffic has never produced one), but `page` is the field name the API
     itself already reports, not a guessed parameter.
 
-    Still UNKNOWN, deliberately NOT addressed here: which query parameter (if
-    any) scopes the response to the `cap_usd_month` billing period
-    (`period_start` 2026-08-30) rather than all-time or some other window.
-    Five candidate parameters were tried live and gave byte-identical
-    responses to each other AND to a garbage parameter -- the endpoint
-    appears to silently ignore unknown query params, so that probe could not
-    tell a working window parameter from a no-op one. Until a parameter is
-    found that actually CHANGES the response relative to a garbage control,
-    this function reports cumulative spend for whatever window the API
-    defaults to, which may not equal the calendar-month spend the $100 cap
-    applies to -- see provider-limits.json zyte.billing.stats_api."""
+    T-11 Fable ruling-1 REJECT of the 2026-09-15 attempt (D3): the "5
+    candidate parameters gave byte-identical responses" probe never tried the
+    documented name. docs.zyte.com/zyte-api/usage/stats says the endpoint
+    accepts `start_time`/`end_time` (ISO 8601) and "start_time ... defaults
+    to 7 days in the past" -- that default is exactly why every guessed name
+    (start_date, date_from, start, ...) looked like a no-op: the response
+    genuinely doesn't change for THOSE names, but `start_time` does. Live
+    differentiating control 2026-09-15 (same key, same org, same call):
+    start_time=2026-08-30T00:00:00Z -> cost_microusd_total="932.00"/4 rows,
+    no start_time (implicit 7-day default) -> "233.00"/1 row,
+    start_time=garbage -> HTTP 422
+    {"detail":{"query":{"start_time":["Not a valid datetime."]}}}. That is a
+    real, working, differentiated parameter, not a guess. Fixed here: pass
+    `start_time` = the start of the CURRENT monthly billing period, computed
+    from `billing.period_start`'s day-of-month anchor (see
+    zyte_billing_period_start below), so spend reported here always matches
+    the window `cap_usd_month` applies to -- not the undocumented rolling
+    7-day default, which would silently undercount against a monthly cap."""
     key = get_provider_key(ZYTE_STATS_API_KEY_VAR)
     if not key:
         return None
@@ -506,9 +543,13 @@ def fetch_zyte_stats_spend(organization_id):
     total_usd = 0.0
     page = 1
     rows_seen = 0
+    start_time_param = ""
+    if period_start:
+        period_start_dt = zyte_billing_period_start(period_start)
+        start_time_param = f"&start_time={period_start_dt.isoformat()}T00:00:00Z"
     while True:
         req = urllib.request.Request(
-            f"https://zyte-api-stats.zyte.com/api/stats?organization_id={organization_id}&page={page}",
+            f"https://zyte-api-stats.zyte.com/api/stats?organization_id={organization_id}&page={page}{start_time_param}",
             headers={"Authorization": f"Basic {auth}"},
         )
         try:
@@ -561,7 +602,7 @@ def check_billing_cap_risk():
         lim_usd = float(b["cap_usd_month"])
         spend_usd = None
         if prov == "zyte" and b.get("organization_id"):
-            spend_usd = fetch_zyte_stats_spend(b["organization_id"])
+            spend_usd = fetch_zyte_stats_spend(b["organization_id"], b.get("period_start"))
         # Future providers with cap_usd_month but no known fetch method: spend_usd
         # stays None -> NOINFO below, never fabricated as 0.
 
@@ -1273,6 +1314,23 @@ def selftest():
         "PROVIDER_KEY_ZYTE — overwriting that one would break the scrape.* adapter"
     )
     print("provider-limit-alerts --selftest: fetch_zyte_stats_spend reads PROVIDER_KEY_ZYTE_STATS: OK")
+
+    # --- INC-1a390694 (2026-09-15) D3: zyte_billing_period_start must roll on the
+    # ANCHOR DAY from provider-limits.json billing.period_start (2026-08-30), not
+    # the 1st of the month, and must clamp for months shorter than the anchor.
+    # Fixture dates chosen to hit all three branches: still-in-period, exactly-on
+    # rollover, and post-rollover-into-next-period.
+    assert zyte_billing_period_start("2026-08-30", now=datetime(2026, 9, 15, tzinfo=timezone.utc)) == \
+        datetime(2026, 8, 30).date(), "mid-period date must resolve to the still-open period's start"
+    assert zyte_billing_period_start("2026-08-30", now=datetime(2026, 9, 30, tzinfo=timezone.utc)) == \
+        datetime(2026, 9, 30).date(), "date exactly on the anchor must roll into the new period"
+    assert zyte_billing_period_start("2026-08-30", now=datetime(2026, 10, 1, tzinfo=timezone.utc)) == \
+        datetime(2026, 9, 30).date(), "day after rollover must stay in the new period, not regress"
+    # Anchor day 30 has no Feb equivalent — must clamp to Feb's real last day (28,
+    # 2027 is not a leap year), never raise ValueError('day is out of range for month').
+    assert zyte_billing_period_start("2026-08-30", now=datetime(2027, 3, 1, tzinfo=timezone.utc)) == \
+        datetime(2027, 2, 28).date(), "anchor day 30 in February must clamp to Feb's last real day"
+    print("provider-limit-alerts --selftest: zyte_billing_period_start anchor-day rollover: OK")
 
     # --- T-11 decision C: compute_recharge_count (api2pdf-style auto-recharge,
     # "derived, not observed"). Fixture matches the ruling's own literal numbers:
