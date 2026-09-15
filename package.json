@@ -1,6 +1,6 @@
 {
   "name": "apibase",
-  "version": "1.0.0",
+  "version": "2.1.0",
   "description": "APIbase.pro — The API Hub for AI Agents",
   "private": true,
   "engines": {

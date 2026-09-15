@@ -15,6 +15,8 @@
  */
 
 import express from 'express';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { X_REQUEST_ID, X_PAYMENT } from '../config/http-headers';
 import { randomUUID } from 'node:crypto';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
@@ -99,13 +101,35 @@ export async function shutdownMcpSessions(): Promise<void> {
 // Server config
 // ---------------------------------------------------------------------------
 
-/** Server metadata passed to McpServer constructor */
+/**
+ * Package version, read at runtime rather than hardcoded (T-ZZ-03-04): `package.json`
+ * is the single source of truth so `serverInfo.version` can't drift from the shipped
+ * build the way the old literal '1.0.0' did.
+ *
+ * Read via fs, not `import`/`require('../../package.json')`: that path sits outside
+ * tsconfig's `rootDir: "./src"`, which `tsc` rejects (TS6059). readFileSync + JSON.parse
+ * resolves relative to __dirname, which keeps the same depth under both `dist/mcp/` (built)
+ * and `src/mcp/` (tsx dev), so `../../package.json` lands on the repo root either way.
+ */
+const { version: PACKAGE_VERSION } = JSON.parse(
+  readFileSync(join(__dirname, '../../package.json'), 'utf8'),
+) as { version: string };
+
+/**
+ * Server metadata passed to McpServer constructor.
+ *
+ * `description` intentionally carries no tool/provider counts (T-ZZ-03-04): a hardcoded
+ * count goes stale the moment onboarding adds another provider, and this string is echoed
+ * verbatim into every MCP client's `initialize` response — including registry crawlers like
+ * Glama, which had been showing a frozen "618/191" widget long after the live catalog moved on.
+ * Live counts belong at https://apibase.pro/llms.txt, not here.
+ */
 const SERVER_INFO = {
   name: 'APIbase',
-  version: '1.0.0',
+  version: PACKAGE_VERSION,
   title: 'APIbase — The API Hub for AI Agents',
   description:
-    'Unified MCP gateway to 618 tools across 191 providers. Pay-per-call via x402 (USDC on Base) or MPP (USDC on Tempo). Self-hosted on-chain settlement — no third-party facilitator. Compatible side-by-side with Base MCP — pay APIbase calls directly from your Base Account in Claude, ChatGPT, or Cursor.',
+    'Unified MCP gateway to hundreds of API providers. Pay-per-call via on-chain USDC micropayments (Base and Tempo networks) — self-hosted settlement, no third-party facilitator. Compatible side-by-side with Base MCP — pay APIbase calls directly from your Base Account in Claude, ChatGPT, or Cursor.',
   websiteUrl: 'https://apibase.pro',
   icons: [
     {
