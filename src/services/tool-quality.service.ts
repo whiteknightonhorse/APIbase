@@ -37,8 +37,11 @@ export const QUALITY_MIN_CALLS = 10;
 
 /** Matches the aggregation window `tool-quality.job.ts` queries
  *  (`execution_ledger` last 24h) — kept here too so a result carries its own
- *  window without the caller having to know the job's internals. */
-const QUALITY_WINDOW_HOURS = 24;
+ *  window without the caller having to know the job's internals.
+ *  Exported (ZZ-03-05) so a caller that only sees a `null` result (no Redis
+ *  key at all) can still report the right `window_h` on a `no_data` entry
+ *  without duplicating this number. */
+export const QUALITY_WINDOW_HOURS = 24;
 
 /** Shape `tool-quality.job.ts` writes to Redis. */
 interface StoredToolQuality {

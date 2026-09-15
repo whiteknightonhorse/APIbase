@@ -8,14 +8,24 @@
 import { z } from 'zod';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { TOOL_DEFINITIONS } from './tool-definitions';
-import { toolSchemas } from '../schemas';
+import { discover, type DiscoverResult } from '../services/discovery.service';
 import type { McpToolDefinition } from './types';
 
 /* ------------------------------------------------------------------ */
 /*  discover_tools — progressive disclosure helper                    */
+/*                                                                     */
+/*  ZZ-03-05 (zz-03 Q1 ruling-1): this prompt is now a thin wrapper    */
+/*  around discovery.service.ts's discover() — same ranking, same     */
+/*  quality/availability data as the apibase.discover MCP tool and    */
+/*  GET /api/v1/discover, rendered as text instead of JSON. Kept       */
+/*  registered for backward compatibility (existing clients that      */
+/*  already call this prompt); it is no longer the only discovery     */
+/*  surface an agent can reach — see apibase.discover.                */
 /* ------------------------------------------------------------------ */
 
-/** Build category → tool[] index once at startup. Categories auto-derived from tool definitions. */
+/** Build category → tool[] index once at startup. Categories auto-derived from tool definitions.
+ *  Used only for the "no args" category listing and to validate an unknown ?category= up front
+ *  — the actual ranking/filtering below all goes through discover(). */
 function buildCategoryIndex(): Map<string, McpToolDefinition[]> {
   const idx = new Map<string, McpToolDefinition[]>();
   for (const t of TOOL_DEFINITIONS) {
@@ -35,253 +45,84 @@ const categoryIndex = buildCategoryIndex();
 /** Sorted category names — auto-derived, no hardcoded list. */
 const CATEGORIES = [...categoryIndex.keys()].sort();
 
-/** Minimal stemmer — strip common English suffixes for search matching. */
-function stem(word: string): string {
-  if (word.endsWith('ies') && word.length > 4) return word.slice(0, -3) + 'y';
-  if (word.endsWith('es') && word.length > 3) return word.slice(0, -2);
-  if (word.endsWith('s') && !word.endsWith('ss') && word.length > 3) return word.slice(0, -1);
-  if (word.endsWith('ing') && word.length > 5) return word.slice(0, -3);
-  if (word.endsWith('ed') && word.length > 4) return word.slice(0, -2);
-  return word;
-}
-
-/** Weighted keyword scoring: title=3, toolId/mcpName=2, description=1, category=1. */
-function scoreByTask(tool: McpToolDefinition, keywords: string[]): number {
-  const title = (tool.title ?? '').toLowerCase();
-  const toolId = tool.toolId.toLowerCase();
-  const mcpName = (tool.mcpName ?? '').toLowerCase();
-  const desc = tool.description.toLowerCase();
-  const cat = (tool.category ?? '').toLowerCase();
-
-  let score = 0;
-  for (const kw of keywords) {
-    const stemmed = stem(kw);
-    if (title.includes(kw) || title.includes(stemmed)) score += 3;
-    if (
-      toolId.includes(kw) ||
-      toolId.includes(stemmed) ||
-      mcpName.includes(kw) ||
-      mcpName.includes(stemmed)
-    )
-      score += 2;
-    if (desc.includes(kw) || desc.includes(stemmed)) score += 1;
-    if (cat.includes(kw) || cat.includes(stemmed)) score += 1;
-  }
-  return score;
-}
-
-/** Extract meaningful keywords from a task description. Returns both original and stemmed forms. */
-function extractKeywords(task: string): string[] {
-  const stopwords = new Set([
-    'a',
-    'an',
-    'the',
-    'is',
-    'are',
-    'was',
-    'were',
-    'be',
-    'been',
-    'to',
-    'of',
-    'in',
-    'for',
-    'on',
-    'with',
-    'at',
-    'by',
-    'from',
-    'and',
-    'or',
-    'not',
-    'no',
-    'but',
-    'if',
-    'so',
-    'as',
-    'it',
-    'do',
-    'does',
-    'did',
-    'will',
-    'would',
-    'can',
-    'could',
-    'should',
-    'has',
-    'have',
-    'had',
-    'i',
-    'me',
-    'my',
-    'we',
-    'our',
-    'you',
-    'your',
-    'he',
-    'she',
-    'they',
-    'them',
-    'this',
-    'that',
-    'what',
-    'which',
-    'how',
-    'get',
-    'find',
-    'search',
-    'look',
-    'up',
-    'about',
-    'some',
-    'any',
-    'all',
-    'want',
-    'need',
-    'near',
-  ]);
-  const words = task
-    .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, ' ')
-    .split(/\s+/)
-    .filter((w) => w.length > 1 && !stopwords.has(w));
-  // Deduplicate: include both original and stemmed forms
-  const unique = new Set<string>();
-  for (const w of words) {
-    unique.add(w);
-    const s = stem(w);
-    if (s !== w) unique.add(s);
-  }
-  return [...unique];
-}
-
 const MAX_RESULTS = 18;
 
-/** Format a tool entry for text output, with optional related tools and required params. */
-function formatTool(t: McpToolDefinition, showRelated = false): string {
-  const name = t.mcpName ?? t.toolId;
-  const desc = t.description.length > 120 ? t.description.slice(0, 117) + '...' : t.description;
-  // Show required params so agents know what to send
-  const schema = toolSchemas[t.toolId] as { shape?: Record<string, unknown> } | undefined;
-  const params = schema?.shape ? Object.keys(schema.shape) : [];
-  const paramHint = params.length > 0 ? ` (params: ${params.join(', ')})` : '';
-  let line = `- ${name}: ${desc}${paramHint}`;
-  if (showRelated && t.relatedTools && t.relatedTools.length > 0) {
-    const hints = t.relatedTools
+/** Format a discover() result for text output, with related tools and required params. */
+function formatDiscoverResult(r: DiscoverResult): string {
+  const paramHint = r.input_required.length > 0 ? ` (params: ${r.input_required.join(', ')})` : '';
+  let line = `- ${r.mcp_name}: ${r.title}${paramHint} [$${r.price.price_usd}, ${r.category}]`;
+  if (r.related.length > 0) {
+    const hints = r.related
       .slice(0, 3)
-      .map((r) => `${r.toolId} (${r.reason})`)
+      .map((rel) => `${rel.tool_id} (${rel.reason})`)
       .join(', ');
     line += `\n  → Related: ${hints}`;
   }
   return line;
 }
 
-/** Produce the discover_tools response text. */
-function discoverTools(args: { task?: string; category?: string }): string {
+/** Produce the discover_tools response text — renders discover()'s JSON, doesn't rank on its own. */
+async function discoverTools(args: { task?: string; category?: string }): Promise<string> {
   const task = args.task?.trim() || undefined;
   const category = args.category?.trim().toLowerCase() || undefined;
 
-  // --- Category + task: filter by category, then rank by task ---
-  if (category && task) {
-    const tools = categoryIndex.get(category);
-    if (!tools || tools.length === 0) {
-      return [
-        `No tools found for category "${category}".`,
-        '',
-        `Available categories: ${CATEGORIES.join(', ')}`,
-      ].join('\n');
-    }
-    const keywords = extractKeywords(task);
-    if (keywords.length === 0) {
-      // Fall through to category-only display
-      return formatCategoryResult(category, tools);
-    }
-    const scored = tools
-      .map((t) => ({ tool: t, score: scoreByTask(t, keywords) }))
-      .filter((s) => s.score > 0)
-      .sort(
-        (a, b) => b.score - a.score || (a.tool.title?.length ?? 99) - (b.tool.title?.length ?? 99),
-      )
-      .slice(0, MAX_RESULTS);
+  if (category && !categoryIndex.has(category)) {
+    return [
+      `No tools found for category "${category}".`,
+      '',
+      `Available categories: ${CATEGORIES.join(', ')}`,
+    ].join('\n');
+  }
 
-    if (scored.length === 0) {
-      return [
-        `No tools in "${category}" matched "${task}".`,
-        '',
-        `All ${tools.length} tools in this category:`,
-        ...tools.slice(0, MAX_RESULTS).map((t) => formatTool(t)),
-        ...(tools.length > MAX_RESULTS ? [`... and ${tools.length - MAX_RESULTS} more`] : []),
-      ].join('\n');
+  // --- No args: return category index (pure browsing aid, no ranking involved) ---
+  if (!task && !category) {
+    const lines = [
+      `APIbase Tool Catalog — ${TOOL_DEFINITIONS.length} tools across ${CATEGORIES.length} categories:`,
+      '',
+    ];
+    for (const cat of CATEGORIES) {
+      const count = categoryIndex.get(cat)?.length ?? 0;
+      if (count > 0) lines.push(`- ${cat}: ${count} tools`);
     }
-    const lines = [`Tools in "${category}" for "${task}" (${scored.length}):`, ''];
-    for (const s of scored) lines.push(formatTool(s.tool, true));
+    lines.push(
+      '',
+      'Use discover_tools with category="<name>" or task="<description>" to find relevant tools,',
+      'or call the apibase.discover tool directly for the full JSON contract (pricing, payment',
+      'rails, live availability, quality).',
+      'All tools remain callable via tools/call regardless of discovery.',
+      '',
+      'APIbase provides real-world API data (flights, stocks, weather, jobs, products).',
+      'Pair with Playwright (browser) and Context7 (docs) for a complete agent toolkit.',
+    );
     return lines.join('\n');
   }
 
-  // --- Category only ---
-  if (category) {
-    const tools = categoryIndex.get(category);
-    if (!tools || tools.length === 0) {
-      return [
-        `No tools found for category "${category}".`,
-        '',
-        `Available categories: ${CATEGORIES.join(', ')}`,
-      ].join('\n');
-    }
-    return formatCategoryResult(category, tools);
+  const resp = await discover({ intent: task, category, limit: MAX_RESULTS });
+
+  if (resp.results.length === 0) {
+    return [
+      category && task
+        ? `No tools in "${category}" matched "${task}".`
+        : category
+          ? `No tools found for category "${category}".`
+          : `No tools matched "${task}".`,
+      '',
+      `Try browsing by category: ${CATEGORIES.join(', ')}`,
+    ].join('\n');
   }
 
-  // --- Task only: keyword search across all tools ---
-  if (task) {
-    const keywords = extractKeywords(task);
-    if (keywords.length === 0) {
-      return 'Could not extract keywords from task. Try a more specific description or use category filter.';
-    }
-    const scored = TOOL_DEFINITIONS.map((t) => ({ tool: t, score: scoreByTask(t, keywords) }))
-      .filter((s) => s.score > 0)
-      .sort(
-        (a, b) => b.score - a.score || (a.tool.title?.length ?? 99) - (b.tool.title?.length ?? 99),
-      )
-      .slice(0, MAX_RESULTS);
+  const header =
+    category && task
+      ? `Tools in "${category}" for "${task}" (${resp.results.length}):`
+      : category
+        ? `Tools in "${category}" (${resp.results.length}):`
+        : `Tools for "${task}" (top ${resp.results.length}):`;
 
-    if (scored.length === 0) {
-      return [
-        `No tools matched "${task}".`,
-        '',
-        `Try browsing by category: ${CATEGORIES.join(', ')}`,
-      ].join('\n');
-    }
-    const lines = [`Tools for "${task}" (top ${scored.length}):`, ''];
-    for (const s of scored) lines.push(formatTool(s.tool, true));
-    return lines.join('\n');
-  }
-
-  // --- No args: return category index ---
-  const lines = [
-    `APIbase Tool Catalog — ${TOOL_DEFINITIONS.length} tools across ${CATEGORIES.length} categories:`,
-    '',
-  ];
-  for (const cat of CATEGORIES) {
-    const count = categoryIndex.get(cat)?.length ?? 0;
-    if (count > 0) lines.push(`- ${cat}: ${count} tools`);
-  }
-  lines.push(
-    '',
-    'Use discover_tools with category="<name>" or task="<description>" to find relevant tools.',
-    'All tools remain callable via tools/call regardless of discovery.',
-    '',
-    'APIbase provides real-world API data (flights, stocks, weather, jobs, products).',
-    'Pair with Playwright (browser) and Context7 (docs) for a complete agent toolkit.',
-  );
-  return lines.join('\n');
-}
-
-/** Format category listing with truncation hint. */
-function formatCategoryResult(category: string, tools: McpToolDefinition[]): string {
-  const lines = [`Tools in "${category}" (${tools.length}):`, ''];
-  for (const t of tools.slice(0, MAX_RESULTS)) lines.push(formatTool(t));
-  if (tools.length > MAX_RESULTS) {
-    lines.push(`... and ${tools.length - MAX_RESULTS} more — combine with task= to narrow results`);
+  const lines = [header, '', ...resp.results.map(formatDiscoverResult)];
+  if (resp.truncated) {
+    lines.push(
+      `... and ${resp.total_matches - resp.results.length} more — combine with category= or narrow the intent`,
+    );
   }
   return lines.join('\n');
 }
@@ -392,13 +233,13 @@ export function registerPrompts(server: McpServer): void {
         .optional()
         .describe(`Filter by category: ${CATEGORIES.join(', ')}`),
     },
-    (args: { task?: string; category?: string }) => ({
+    async (args: { task?: string; category?: string }) => ({
       messages: [
         {
           role: 'user' as const,
           content: {
             type: 'text' as const,
-            text: discoverTools(args),
+            text: await discoverTools(args),
           },
         },
       ],

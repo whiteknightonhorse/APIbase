@@ -119,6 +119,7 @@ import { openchargemapSchemas } from './openchargemap.schema';
 import { ipqsSchemas } from './ipqs.schema';
 import { accountSchemas } from './account.schema';
 import { platformSchemas } from './platform.schema';
+import { apibaseSchemas } from './apibase.schema';
 import { rcsbSchemas } from './rcsb.schema';
 import { nhtsaSafetySchemas } from './nhtsa-safety.schema';
 import { cactusSchemas } from './cactus.schema';
@@ -821,4 +822,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...fbiwantedSchemas,
   ...itistaxonomySchemas,
   ...orcidSchemas,
+  ...apibaseSchemas,
 };

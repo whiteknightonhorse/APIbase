@@ -1,4 +1,5 @@
 import { type BaseAdapter } from './base.adapter';
+import { ApibaseAdapter } from './apibase';
 import { DeviceAdapter } from './device-tuya';
 import { JmaBosaiAdapter } from './jma-bosai';
 import { DestatisAdapter } from './destatis';
@@ -1076,6 +1077,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'platform':
       // Internal adapter — tool quality index + batch API (F1, F5)
       return getOrCreate('platform', () => new PlatformAdapter());
+    case 'apibase':
+      // Internal adapter — discovery contract, apibase.discover (ZZ-03-05)
+      return getOrCreate('apibase', () => new ApibaseAdapter());
     case 'pdb':
       // RCSB Protein Data Bank — open access, no API key (UC-218)
       return getOrCreate('rcsb', () => new RcsbAdapter());

@@ -14,7 +14,9 @@ import { buildToolQuality, type ToolQualityResult } from './tool-quality.service
  * Single tool: GET /api/v1/tools/:toolId (Cache-Control max-age lowered to 300 — ZZ-03-03).
  */
 
-const CACHE_HIT_PRICE_RATIO = 0.1; // 10% of full price (§12.173)
+// Exported (ZZ-03-05): discovery.service.ts's `discover()` prices results the same way this
+// catalog does — one ratio/tier formula, not two that can silently drift apart.
+export const CACHE_HIT_PRICE_RATIO = 0.1; // 10% of full price (§12.173)
 
 // ZZ-03-03: the version tag on every `quality.method` this service produces —
 // bump it if the scoring formula or the shape it emits ever changes, so a
@@ -179,7 +181,7 @@ function toEntry(
   };
 }
 
-function priceTier(p: number): 'micro' | 'standard' | 'premium' {
+export function priceTier(p: number): 'micro' | 'standard' | 'premium' {
   if (p < 0.01) return 'micro';
   if (p < 1) return 'standard';
   return 'premium';

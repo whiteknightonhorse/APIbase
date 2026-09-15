@@ -4,6 +4,7 @@ import {
   getToolsPaginated,
   getToolById,
 } from '../services/tool-registry.service';
+import { discover } from '../services/discovery.service';
 import { AppError, ErrorCode } from '../types/errors';
 import { TOOL_DEFINITIONS } from '../mcp/tool-definitions';
 
@@ -14,9 +15,13 @@ import { TOOL_DEFINITIONS } from '../mcp/tool-definitions';
  * GET /api/v1/tools          — full tool catalog (default 1000, cursor pagination available)
  * GET /api/v1/tools/:toolId  — single tool details, Cache-Control: public, max-age=300 (ZZ-03-03:
  *                              lowered from 3600 — this entry carries live quality.* data)
+ * GET /api/v1/discover       — ranked discovery contract (ZZ-03-05), no auth, same
+ *                              no-rate-limit posture as /api/tools, Cache-Control: max-age=60
+ *                              (shorter than the catalog above — ranking depends on live
+ *                              quality/availability, not just the static catalog).
  *
- * All three entries additionally carry `quality` (ZZ-03-03: provider_status + per-tool Redis
- * quality, additive, never breaking a pre-existing consumer).
+ * All three catalog entries additionally carry `quality` (ZZ-03-03: provider_status + per-tool
+ * Redis quality, additive, never breaking a pre-existing consumer).
  *
  * Empty catalog → 503 (never return empty tool list silently).
  */
@@ -120,3 +125,50 @@ toolsRouter.get(
     }
   },
 );
+
+// --- Discovery contract (ZZ-03-05, 03-SPECIFICATION.md P-1/M-1) ---
+// Query params:
+//   ?intent=<text>              — free-text task description, ranked by keyword match
+//   ?category=<name>            — one of TOOL_DEFINITIONS[].category's values (ZZ-03-01)
+//   ?max_price_usd=N            — only tools priced at or below N
+//   ?limit=N                    — max results (1..50, default 10)
+//   ?include_unavailable=true   — include tools currently marked unavailable (default: excluded)
+toolsRouter.get('/api/v1/discover', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const intent = typeof req.query.intent === 'string' ? req.query.intent : undefined;
+    const category = typeof req.query.category === 'string' ? req.query.category : undefined;
+
+    let maxPriceUsd: number | undefined;
+    if (typeof req.query.max_price_usd === 'string') {
+      const parsed = Number(req.query.max_price_usd);
+      if (!isFinite(parsed) || parsed < 0) {
+        throw new AppError(ErrorCode.BAD_REQUEST, 'max_price_usd must be a non-negative number');
+      }
+      maxPriceUsd = parsed;
+    }
+
+    let limit: number | undefined;
+    if (typeof req.query.limit === 'string') {
+      const parsed = parseInt(req.query.limit, 10);
+      if (isNaN(parsed) || parsed < 1 || parsed > 50) {
+        throw new AppError(ErrorCode.BAD_REQUEST, 'limit must be between 1 and 50');
+      }
+      limit = parsed;
+    }
+
+    const includeUnavailable = req.query.include_unavailable === 'true';
+
+    const result = await discover({
+      intent,
+      category,
+      max_price_usd: maxPriceUsd,
+      limit,
+      include_unavailable: includeUnavailable,
+    });
+
+    res.setHeader('Cache-Control', 'public, max-age=60');
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+});

@@ -4824,6 +4824,21 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     },
   },
 
+  // Discovery contract (ZZ-03-05, 03-SPECIFICATION.md P-1/M-1) — the one MCP tool an agent
+  // can actually reach (discover_tools was a *prompt*, a user-controlled primitive most
+  // autonomous agents never call — zz-03 Q1 ruling-1 poправка 1). Separate provider
+  // ('apibase', not 'platform') on purpose: this is the discovery surface, not another
+  // platform-introspection tool alongside platform.tool_quality/platform.tool_rankings.
+  {
+    toolId: 'apibase.discover',
+    mcpName: 'apibase.discovery.search',
+    title: 'Discover Tools',
+    description:
+      'Find callable tools by intent, category, or max price — ranked by relevance, then measured quality, then price. Returns pricing, payment rails, live availability, and quality for each match; unavailable tools are excluded unless include_unavailable=true. Free, no charge (APIbase)',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
+
   // ---------------------------------------------------------------------------
   // TheirStack — Job Market Intelligence (UC-254, 2 tools)
   // ---------------------------------------------------------------------------

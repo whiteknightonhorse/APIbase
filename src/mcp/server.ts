@@ -140,13 +140,25 @@ const SERVER_INFO = {
   ],
 };
 
-/** Server options with capabilities and instructions */
+/**
+ * Server options with capabilities and instructions.
+ *
+ * ZZ-03-05 (zz-03 Q1 ruling-1, "SERVER_OPTIONS.instructions переписать: первая инструкция —
+ * вызвать apibase.discover"): `tools/list` alone returns every active tool's full definition
+ * in one shot — with the catalog at hundreds of tools, that is the "load everything into
+ * context" outcome discovery exists to avoid. apibase.discover (free, ranked, filterable) is
+ * now the first thing an agent is told to reach for; tools/list is the fallback for a caller
+ * that already knows its tool_id.
+ */
 const SERVER_OPTIONS = {
   capabilities: { tools: {}, prompts: {} },
   instructions:
     'APIbase is an MCP gateway for AI agents. Authenticate with Bearer <api_key> header. ' +
-    'All tools are pay-per-call via x402 micropayments (USDC). ' +
-    'Use tools/list to discover available tools. Use prompts/list for workflow templates.',
+    'Start by calling the apibase.discover tool with your intent (or category/max_price_usd) ' +
+    'to find relevant tools — it is free and returns pricing, payment rails, live ' +
+    'availability, and quality for each match. Use tools/list only once you already know ' +
+    'which tool_id you need. All tools are pay-per-call via x402 micropayments (USDC). ' +
+    'Use prompts/list for workflow templates.',
 } as const;
 
 /**
