@@ -465,24 +465,79 @@ def fetch_zyte_stats_spend(organization_id):
     refuses every credential. Nobody has yet tried a key copied from
     Settings. See provider-limits.json zyte.billing.stats_api for the full
     trail and the fallback (spend_source: "unmeasurable_external") if a
-    genuine Settings-page key also 403s."""
+    genuine Settings-page key also 403s.
+
+    INC-1a390694 human-done follow-up (2026-09-15): ruling-4 CONFIRMED live — a
+    key copied from the Settings page (not API Access) got a real 200. That
+    exposed this function was STILL wrong, just differently: it read
+    `cost_microusd_total` off the response ROOT, but a live 200 body has root
+    keys `["page", "page_size", "results", "total_result_count"]` and no
+    `cost_microusd_total` at that level at all -- `data.get(...)` silently
+    returned None on every real success too, same as every 403 before it, so
+    the NOINFO streak would have continued even after auth started working.
+    The real field lives at `results[N]["cost_microusd_total"]`, and it is a
+    STRING ("233.00"), not a number -- dividing that directly would have
+    raised TypeError from inside the try/except above, which only wraps
+    urlopen()/json.loads(), not the arithmetic after it, so the first real
+    200 would have crashed this whole run instead of degrading to NOINFO.
+    Fixed here: sum `float(cost_microusd_total)` over every row in
+    `results[]` (organization_id=937578 has returned exactly one row so far,
+    but nothing in the docs promises that stays true), and page through
+    `page`/`page_size`/`total_result_count` if a response ever spans more
+    than one page -- untested against a real multi-page response (this org's
+    traffic has never produced one), but `page` is the field name the API
+    itself already reports, not a guessed parameter.
+
+    Still UNKNOWN, deliberately NOT addressed here: which query parameter (if
+    any) scopes the response to the `cap_usd_month` billing period
+    (`period_start` 2026-08-30) rather than all-time or some other window.
+    Five candidate parameters were tried live and gave byte-identical
+    responses to each other AND to a garbage parameter -- the endpoint
+    appears to silently ignore unknown query params, so that probe could not
+    tell a working window parameter from a no-op one. Until a parameter is
+    found that actually CHANGES the response relative to a garbage control,
+    this function reports cumulative spend for whatever window the API
+    defaults to, which may not equal the calendar-month spend the $100 cap
+    applies to -- see provider-limits.json zyte.billing.stats_api."""
     key = get_provider_key(ZYTE_STATS_API_KEY_VAR)
     if not key:
         return None
     auth = base64.b64encode(f"{key}:".encode()).decode()
-    req = urllib.request.Request(
-        f"https://zyte-api-stats.zyte.com/api/stats?organization_id={organization_id}",
-        headers={"Authorization": f"Basic {auth}"},
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            data = json.loads(resp.read())
-    except (urllib.error.URLError, urllib.error.HTTPError, json.JSONDecodeError, OSError, ValueError):
-        return None
-    total_microusd = data.get("cost_microusd_total")
-    if total_microusd is None:
-        return None
-    return total_microusd / 1_000_000.0
+    total_usd = 0.0
+    page = 1
+    rows_seen = 0
+    while True:
+        req = urllib.request.Request(
+            f"https://zyte-api-stats.zyte.com/api/stats?organization_id={organization_id}&page={page}",
+            headers={"Authorization": f"Basic {auth}"},
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                data = json.loads(resp.read())
+        except (urllib.error.URLError, urllib.error.HTTPError, json.JSONDecodeError, OSError, ValueError):
+            return None
+        results = data.get("results")
+        if not isinstance(results, list):
+            return None
+        for row in results:
+            raw = row.get("cost_microusd_total") if isinstance(row, dict) else None
+            if raw is None:
+                return None
+            try:
+                total_usd += float(raw) / 1_000_000.0
+            except (TypeError, ValueError):
+                return None
+        rows_seen += len(results)
+        total_count = data.get("total_result_count")
+        page_size = data.get("page_size")
+        more_pages = (
+            results and isinstance(total_count, int) and isinstance(page_size, int)
+            and rows_seen < total_count
+        )
+        if not more_pages:
+            break
+        page += 1
+    return total_usd
 
 
 def check_billing_cap_risk():
