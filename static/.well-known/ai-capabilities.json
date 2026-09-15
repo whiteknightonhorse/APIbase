@@ -2,13 +2,13 @@
   "platform": "APIbase",
   "version": "2.1.0",
   "updated_at": "2026-09-15T00:00:00Z",
-  "tools_count": 1386,
-  "providers_count": 396,
+  "tools_count": 1387,
+  "providers_count": 397,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
     "prompt_name": "discover_tools",
-    "description": "Call discover_tools to browse 1386 tools by category or task instead of loading all schemas into context.",
+    "description": "Call discover_tools to browse 1387 tools by category or task instead of loading all schemas into context.",
     "examples": [
       {
         "args": {},
@@ -31,8 +31,8 @@
   "categories": [
     {
       "name": "world",
-      "tools": 245,
-      "providers": "Abs, Africa, Au Data Gov, Bgs Ogcapi, Brasilapi, Bts Transport, Calendarific, Carbon Intensity Uk, Cbs, Census, Col, Comtrade, Cpsc, Data Europa, Datagovsg, Dogceo, Echo, Emsc, Enviroatlas, Eonet, EPA, Eurostat, Eurostat2, Faostat, Fema, GDACS, Gebco, Geodiva, Geonet Nz, Gfw, Gus Poland, Hdx, Hdx Hapi, Ibge, Inaturalist, Ine Portugal, Irena, Lmpr, Macrostrat, Mbta Transit, Nagerdate, Ncbi Eutils, NOAA Tides, Nrc, NREL, Oecd Stats, Ons Uk Stats, Open Canada, Openfoodfacts, Opentopography, P2pquake, Randomuser, Restcountries, Samuni, SCB, Socrata, Soil, Spending, Ssbnorway, Statbel, Statcan, Statfin, Statistics Denmark, Swissfso, Unhabitat, Unhcr, Unsdg, Usdamars, USGS Earthquake, USGS Hans Volcano, USGS Nwis, USGS Water, VATCOMPLY, Wikimedia Analytics, Wikimedia Rest",
+      "tools": 246,
+      "providers": "Abs, Africa, Au Data Gov, Bgs Ogcapi, Brasilapi, Bts Transport, Calendarific, Carbon Intensity Uk, Cbs, Census, Col, Comtrade, Cpsc, Data Europa, Datagovsg, Dogceo, Echo, Emsc, Enviroatlas, Eonet, EPA, Eurostat, Eurostat2, Faostat, Fema, GDACS, Gebco, Geodiva, Geonet Nz, Gfw, Gus Poland, Hdx, Hdx Hapi, Ibge, Inaturalist, Ine Portugal, Irena, Lmpr, Macrostrat, Mbta Transit, Nagerdate, Ncbi Eutils, NOAA Tides, Nrc, NREL, Oecd Stats, Ons Uk Stats, Open Canada, Openfoodfacts, Opentopography, P2pquake, Randomuser, Restcountries, Samuni, SCB, Socrata, Soil, Spending, Ssbnorway, Statbel, Statcan, Statfin, Statistics Denmark, Swissfso, Unhabitat, Unhcr, Unsdg, Usdamars, USGS Earthquake, USGS Hans Volcano, USGS Mrds, USGS Nwis, USGS Water, VATCOMPLY, Wikimedia Analytics, Wikimedia Rest",
       "examples": "Call discover_tools with category=\"world\" for the current tool list and descriptions."
     },
     {
