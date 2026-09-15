@@ -61,10 +61,34 @@ UPDATE tools SET namespace = split_part(tool_id, '.', 1) WHERE namespace IS NULL
 
 -- Any row a future re-run of this migration file would find already covered by (a)/(b) is left
 -- alone (guarded by 'IS NULL' above) — safe to re-apply. Any row NOT covered by (a) at this
--- point means a tool_id exists in the DB with no TOOL_DEFINITIONS entry, which the two SET NOT
--- NULL below turn into a hard migration failure instead of a silent NULL/guessed category —
--- deliberate: that state means the catalog is already broken (a sellable tool_id with no
--- TOOL_DEFINITIONS registration) and must be fixed at the source, not papered over here.
+-- point means a tool_id exists in the DB with no TOOL_DEFINITIONS entry.
+--
+-- (c) T-ZZ-03-01 ruling-1 (2026-09-15): the prod tool_id set has 7 such rows —
+-- cso-ireland.{cpi,population,trade,unemployment}, oecd-sdmx.{data,dataflows,structure} —
+-- dead debris from an abandoned onboarding attempt: never in TOOL_DEFINITIONS or
+-- config/tool_provider_config.yaml, status='unavailable' since creation, and (verified
+-- 2026-09-15 against apibase-postgres-1) zero rows in execution_ledger, request_metrics or
+-- moderation_appeals reference them — nothing else in the schema has an FK on tools.tool_id
+-- (only execution_ledger does; see prisma/schema.prisma). Not sellable, not referenced: safe to
+-- drop rather than invent a fake category for them. Anything left NULL that is NOT already
+-- status='unavailable' is a live/sellable tool_id with no TOOL_DEFINITIONS entry — that is a
+-- real catalog bug, kept as a hard failure (the original "deliberate" design), just with the
+-- offending IDs surfaced instead of Postgres's generic "contains null values".
+DO $$
+DECLARE
+  orphaned_live TEXT;
+BEGIN
+  DELETE FROM tools WHERE category IS NULL AND status = 'unavailable';
+
+  SELECT string_agg(tool_id, ', ' ORDER BY tool_id) INTO orphaned_live
+    FROM tools WHERE category IS NULL;
+  IF orphaned_live IS NOT NULL THEN
+    RAISE EXCEPTION 'tools.category backfill: % has no TOOL_DEFINITIONS entry and is not '
+      'status=unavailable — register it in TOOL_DEFINITIONS or mark it unavailable before '
+      're-running this migration', orphaned_live;
+  END IF;
+END $$;
+
 ALTER TABLE tools ALTER COLUMN category SET NOT NULL;
 ALTER TABLE tools ALTER COLUMN namespace SET NOT NULL;
 

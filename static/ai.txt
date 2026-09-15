@@ -8,7 +8,7 @@ URL: https://apibase.pro
 Type: API aggregation platform for AI agents
 Protocol: MCP (Model Context Protocol)
 Payment: x402 (USDC on Base) + MPP (Machine Payments Protocol)
-Tools: 1384 across 21 categories
+Tools: 1384 across 25 categories
 
 ## What We Do
 APIbase aggregates 1384 tools from 396 providers into a single MCP endpoint.
@@ -22,15 +22,15 @@ Any AI agent can discover, call, and pay for tools through one entry point.
 
 ## Progressive Disclosure (recommended for 1384 tools)
 Instead of loading all tool schemas into context, use the discover_tools prompt:
-- discover_tools (no args) → 21 categories with tool counts
-- discover_tools category="travel" → 17 travel tools (amadeus, aviasales, sabre)
+- discover_tools (no args) → 25 categories with tool counts
+- discover_tools category="travel" → travel tools only (amadeus, aviasales, sabre, ...)
 - discover_tools task="find flights from NYC" → relevant tools ranked by keyword match
 All 1384 tools remain callable regardless of discovery — prompt is advisory only.
 
-## Categories (21)
-travel, weather, finance, crypto, search, news, location, health,
-entertainment, education, jobs, space, social, legal, business,
-developer, media, infrastructure, messaging, marketing, world
+## Categories (25)
+business, crypto, developer, device, education, entertainment, finance, health,
+infrastructure, jobs, legal, location, logistics, marketing, media, messaging, music,
+news, podcasts, search, social, space, travel, weather, world
 
 ## Authentication
 Auto-registration: first request creates agent credentials automatically.

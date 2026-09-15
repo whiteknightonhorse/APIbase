@@ -11,16 +11,18 @@
 - OpenAPI spec: GET https://apibase.pro/.well-known/openapi.json
 
 ## Progressive Disclosure
-1384 tools across 21 categories. Use discover_tools prompt to find relevant tools:
-- No args → category index (21 categories with counts)
-- category="finance" → 27 finance tools
+1384 tools across 25 categories (TOOL_DEFINITIONS[].category — the single source of truth
+shared by MCP discover_tools, the REST ?category= filter, and this file, ZZ-03-01). Use
+discover_tools prompt to find relevant tools:
+- No args → category index (25 categories with counts)
+- category="finance" → finance tools only
 - task="search flights" → amadeus, aviasales, sabre tools ranked by relevance
 All tools remain callable via tools/call regardless of discovery.
 
-## Categories (21)
-travel, weather, finance, crypto, search, news, location, health,
-entertainment, education, jobs, space, social, legal, business,
-developer, media, infrastructure, messaging, marketing, world
+## Categories (25)
+business, crypto, developer, device, education, entertainment, finance, health,
+infrastructure, jobs, legal, location, logistics, marketing, media, messaging, music,
+news, podcasts, search, social, space, travel, weather, world
 
 ## Payment
 - Protocol: x402 (HTTP 402 Payment Required) or MPP (Authorization: Payment)
