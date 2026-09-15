@@ -6,18 +6,22 @@
 
 ## Quick Start for Agents
 - Connect: POST https://apibase.pro/mcp (MCP Streamable HTTP)
-- Discover tools: Call prompt "discover_tools" with task or category
+- Discover tools: call the apibase.discover tool (mcpName apibase.discovery.search) with
+  intent/category/max_price_usd — free ($0), ranked by relevance then quality then price,
+  returns pricing/payment rails/availability/quality per match (ZZ-03-05)
+- Discover tools (REST, no auth): GET https://apibase.pro/api/v1/discover?intent=&category=&max_price_usd=&limit=
 - Full catalog: GET https://apibase.pro/api/v1/tools (all 1384 tools, JSON schemas)
 - OpenAPI spec: GET https://apibase.pro/.well-known/openapi.json
 
 ## Progressive Disclosure
 1384 tools across 25 categories (TOOL_DEFINITIONS[].category — the single source of truth
-shared by MCP discover_tools, the REST ?category= filter, and this file, ZZ-03-01). Use
-discover_tools prompt to find relevant tools:
-- No args → category index (25 categories with counts)
+shared by MCP apibase.discover, the REST ?category= filter, and this file, ZZ-03-01). Call
+apibase.discover (or GET /api/v1/discover) to find relevant tools:
+- No args → best/most-relevant matches across the whole catalog
 - category="finance" → finance tools only
-- task="search flights" → amadeus, aviasales, sabre tools ranked by relevance
-All tools remain callable via tools/call regardless of discovery.
+- intent="search flights" → amadeus, aviasales, sabre tools ranked by relevance
+All tools remain callable via tools/call regardless of discovery. The discover_tools prompt
+still works (kept for backward compatibility) — it now renders apibase.discover's own JSON.
 
 ## Categories (25)
 business, crypto, developer, device, education, entertainment, finance, health,

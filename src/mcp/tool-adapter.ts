@@ -146,6 +146,15 @@ export function registerTools(
                 text: JSON.stringify(result.value.responseBody),
               },
             ],
+            // Every tool registers with DEFAULT_OUTPUT_SHAPE ({ result, error? }) below.
+            // The SDK's registerTool (>=1.2x) enforces structuredContent on any non-error
+            // result once outputSchema is declared — omitting this throws "Output validation
+            // error: ... has an output schema but no structured content was provided" for
+            // EVERY tool on EVERY successful call, caught live 2026-09-15 (T-ZZ-03-05
+            // attempt 2) because tests/integration/adversarial-payment-e2e.test.ts's
+            // makeFakeMcpServer() stubs registerTool and never exercises the real SDK's
+            // validateToolOutput path.
+            structuredContent: { result: result.value.responseBody },
           };
         }
 

@@ -16,6 +16,13 @@ jest.mock('../../src/services/tool-registry.service', () => ({
   getToolById: jest.fn(),
 }));
 
+// ZZ-03-05: tools.router.ts now imports discover() from discovery.service.ts, which pulls in
+// redis.service.ts -> config/index.ts (process.exit(1) without a validated env). Mock it out
+// the same way discover-route.test.ts does, so this file stays env-independent.
+jest.mock('../../src/services/discovery.service', () => ({
+  discover: jest.fn(),
+}));
+
 import { toolsRouter } from '../../src/routes/tools.router';
 import { getPublicCatalog, getToolsPaginated } from '../../src/services/tool-registry.service';
 import { AppError, ErrorCode } from '../../src/types/errors';

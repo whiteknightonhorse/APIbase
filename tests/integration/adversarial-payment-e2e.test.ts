@@ -471,14 +471,18 @@ function fullPaymentCtx(overrides: Partial<PaymentContext> = {}): PaymentContext
 async function callMcpTool(
   requestId: string,
   paymentCtx: PaymentContext,
-): Promise<{ isError: boolean; text: string }> {
+): Promise<{ isError: boolean; text: string; structuredContent: unknown }> {
   const { server, callbacks } = makeFakeMcpServer();
   registerTools(server, API_KEY, requestId, paymentCtx);
   const cb = callbacks.get(MCP_NAME);
   if (!cb) throw new Error(`MCP tool ${MCP_NAME} was not registered — check tool cache seed`);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const result = (await cb(VALID_PARAMS)) as any;
-  return { isError: !!result.isError, text: result.content[0].text as string };
+  return {
+    isError: !!result.isError,
+    text: result.content[0].text as string,
+    structuredContent: result.structuredContent,
+  };
 }
 
 describe('MCP entry point (registerTools callback) — real tool-adapter code', () => {
@@ -493,6 +497,28 @@ describe('MCP entry point (registerTools callback) — real tool-adapter code', 
     );
     expect(r.isError).toBe(false);
     expect(mockAdapterCall).toHaveBeenCalledTimes(1);
+  });
+
+  // T-ZZ-03-05 attempt 2 (2026-09-15): every tool registers with DEFAULT_OUTPUT_SHAPE
+  // ({ result, error? }), and the real @modelcontextprotocol/sdk McpServer (>=1.2x) throws
+  // "Output validation error: ... has an output schema but no structured content was
+  // provided" for ANY successful call that omits structuredContent — reproduced live via a
+  // real McpServer + tools/call against apibase.discover AND a pre-existing tool
+  // (platform.quality.tool), so this was never apibase.discover-specific. makeFakeMcpServer()
+  // above stubs registerTool and never exercised the SDK's validateToolOutput, which is why
+  // this went undetected. Pin structuredContent's presence/shape here since it's real SDK
+  // behavior this suite otherwise can't see.
+  it('CONTROL: a successful call includes structuredContent matching DEFAULT_OUTPUT_SHAPE ({ result })', async () => {
+    const r = await callMcpTool(
+      'mcp-structured-content',
+      fullPaymentCtx({
+        mppPaid: true,
+        mppPayer: '0xMCPPAYER',
+        mppPaymentHeader: mppHeader('mcp-structured-content-challenge'),
+      }),
+    );
+    expect(r.isError).toBe(false);
+    expect(r.structuredContent).toEqual({ result: JSON.parse(r.text) });
   });
 
   it('ADVERSARIAL: no payment at all → error response, provider never called', async () => {

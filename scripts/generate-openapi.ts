@@ -16,7 +16,10 @@ import { zodToJsonSchema } from '../src/utils/zod-to-json-schema';
 import { parse } from 'yaml';
 
 // Load tool prices from config
-const yamlContent = readFileSync(resolve(__dirname, '..', 'config', 'tool_provider_config.yaml'), 'utf-8');
+const yamlContent = readFileSync(
+  resolve(__dirname, '..', 'config', 'tool_provider_config.yaml'),
+  'utf-8',
+);
 const toolConfigs: Array<{ tool_id: string; price_usd: string }> = parse(yamlContent)?.tools ?? [];
 const priceMap = new Map<string, number>();
 for (const tc of toolConfigs) {
@@ -32,7 +35,12 @@ interface OpenApiPath {
     operationId: string;
     summary: string;
     description: string;
-    parameters: Array<{ name: string; in: string; required: boolean; schema: Record<string, unknown> }>;
+    parameters: Array<{
+      name: string;
+      in: string;
+      required: boolean;
+      schema: Record<string, unknown>;
+    }>;
     requestBody?: {
       required: boolean;
       content: {
@@ -62,13 +70,69 @@ function generate(): void {
     },
   };
 
+  // ZZ-03-05: ranked discovery contract — thin REST wrapper over the same discover() that
+  // backs the apibase.discover MCP tool and the discover_tools prompt. No auth, no charge.
+  paths['/api/v1/discover'] = {
+    get: {
+      operationId: 'discoverTools',
+      summary: 'Discover tools by intent, category, or max price',
+      description:
+        'Ranked discovery contract (ZZ-03-05) — the same implementation as the apibase.discover MCP tool. Free, no auth. Ranks by keyword match, then measured quality, then price; excludes unavailable tools unless include_unavailable=true.',
+      parameters: [
+        {
+          name: 'intent',
+          in: 'query',
+          required: false,
+          schema: {
+            type: 'string',
+            description:
+              'Free-text description of the task, e.g. "find current hotel prices in Tokyo"',
+          },
+        },
+        {
+          name: 'category',
+          in: 'query',
+          required: false,
+          schema: {
+            type: 'string',
+            description: 'Filter by category (TOOL_DEFINITIONS[].category)',
+          },
+        },
+        {
+          name: 'max_price_usd',
+          in: 'query',
+          required: false,
+          schema: {
+            type: 'number',
+            minimum: 0,
+            description: 'Only return tools priced at or below this amount (USD)',
+          },
+        },
+        {
+          name: 'limit',
+          in: 'query',
+          required: false,
+          schema: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
+        },
+        {
+          name: 'include_unavailable',
+          in: 'query',
+          required: false,
+          schema: { type: 'boolean', default: false },
+        },
+      ],
+      responses: {
+        '200': { description: 'Ranked discovery results' },
+      },
+    },
+  };
+
   // Agent registration
   paths['/api/v1/agents/register'] = {
     post: {
       operationId: 'registerAgent',
       summary: 'Register an AI agent',
-      description:
-        'Register a new agent and receive API credentials (api_key and agent_id).',
+      description: 'Register a new agent and receive API credentials (api_key and agent_id).',
       requestBody: {
         required: true,
         content: {
@@ -107,9 +171,10 @@ function generate(): void {
     const priceStr = price.toFixed(6);
 
     // x-payment-info for MPPScan/AgentCash discovery
-    const xPaymentInfo: Record<string, unknown> = price > 0
-      ? { pricingMode: 'fixed', price: priceStr, protocols: ['x402', 'mpp'] }
-      : { pricingMode: 'fixed', price: '0.000000', protocols: ['x402', 'mpp'] };
+    const xPaymentInfo: Record<string, unknown> =
+      price > 0
+        ? { pricingMode: 'fixed', price: priceStr, protocols: ['x402', 'mpp'] }
+        : { pricingMode: 'fixed', price: '0.000000', protocols: ['x402', 'mpp'] };
 
     const pathEntry: OpenApiPath = {
       post: {
@@ -157,7 +222,8 @@ function generate(): void {
       version: '1.0.0',
       description:
         'APIbase aggregates, normalizes, and provides APIs from hundreds of businesses in a unified format optimized for AI agent consumption. Search flights, trade prediction markets, check weather, and more — all via a single REST API or MCP endpoint. Supports dual-rail payments: x402 (USDC on Base) and MPP (USDC on Tempo).',
-      'x-guidance': 'Use POST /api/v1/tools/{tool_id}/call to invoke any tool. Send Authorization: Bearer <api_key> header. Tool catalog at GET /api/v1/tools. MCP endpoint at /mcp. Payment: 402 responses include both x402 body and WWW-Authenticate: Payment header (MPP). Agent auto-registers on first request.',
+      'x-guidance':
+        'Use POST /api/v1/tools/{tool_id}/call to invoke any tool. Send Authorization: Bearer <api_key> header. Tool catalog at GET /api/v1/tools. MCP endpoint at /mcp. Payment: 402 responses include both x402 body and WWW-Authenticate: Payment header (MPP). Agent auto-registers on first request.',
       contact: {
         name: 'APIbase',
         url: 'https://apibase.pro',
