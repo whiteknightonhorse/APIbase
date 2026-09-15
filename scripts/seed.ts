@@ -16,8 +16,26 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { parse } from 'yaml';
+import { TOOL_DEFINITIONS } from '../src/mcp/tool-definitions';
 
 const prisma = new PrismaClient();
+
+// ZZ-03-01 (2026-09-15): TOOL_DEFINITIONS[].category is the single source of truth for
+// tools.category (migration 0017) — config/tool_provider_config.yaml carries no category
+// field of its own. Built once at module load, same pattern as
+// src/services/tool-registry.service.ts's TOOL_DESCRIPTIONS map.
+const TOOL_CATEGORIES: ReadonlyMap<string, string> = new Map(
+  TOOL_DEFINITIONS.map((def) => [def.toolId, def.category]),
+);
+
+/**
+ * namespace = old prefix-derived value (tool_id.split('.')[0], falling back to provider for
+ * a dot-less tool_id) that REST used to call 'category' — see migration 0017 for why this
+ * stays a real column instead of a read-time computation.
+ */
+function namespaceOf(toolId: string, provider: string): string {
+  return toolId.includes('.') ? toolId.split('.')[0] : provider;
+}
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -68,6 +86,18 @@ async function seedTools(): Promise<number> {
 
   let count = 0;
   for (const tool of config.tools) {
+    // ZZ-03-01: category has no NULL fallback (migration 0017 made it NOT NULL) — a
+    // tool_id in the yaml with no TOOL_DEFINITIONS entry is a broken catalog, not a value
+    // to guess at. Fail the whole seed loudly instead of writing a wrong/empty category.
+    const category = TOOL_CATEGORIES.get(tool.tool_id);
+    if (!category) {
+      throw new Error(
+        `seedTools: '${tool.tool_id}' is in config/tool_provider_config.yaml but has no ` +
+          `TOOL_DEFINITIONS entry (src/mcp/tool-definitions.ts) — cannot derive category.`,
+      );
+    }
+    const namespace = namespaceOf(tool.tool_id, tool.provider);
+
     await prisma.tool.upsert({
       where: { tool_id: tool.tool_id },
       create: {
@@ -78,6 +108,8 @@ async function seedTools(): Promise<number> {
         price_usd: tool.price_usd,
         cache_ttl: tool.cache_ttl,
         upstream_cost_usd: tool.upstream_cost_usd ?? null,
+        category,
+        namespace,
       },
       update: {
         name: tool.name,
@@ -87,6 +119,8 @@ async function seedTools(): Promise<number> {
         ...(tool.upstream_cost_usd !== undefined
           ? { upstream_cost_usd: tool.upstream_cost_usd }
           : {}),
+        category,
+        namespace,
       },
     });
     count++;

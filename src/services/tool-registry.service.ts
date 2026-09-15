@@ -61,7 +61,14 @@ export interface ToolCatalogEntry {
   description: string;
   endpoint: string;
   method: string;
+  /** ZZ-03-01: single source of truth is TOOL_DEFINITIONS[].category (25 values). */
   category: string;
+  /**
+   * ZZ-03-01: the OLD prefix-derived value (tool_id.split('.')[0]) this field used to
+   * report as `category` — kept under its own name so no existing consumer loses access
+   * to it (see migration 0017, prisma/schema.prisma's Tool.namespace).
+   */
+  namespace: string;
   provider: string;
   pricing: { price_usd: number; cache_hit_price_usd: number };
   /**
@@ -109,6 +116,8 @@ function toEntry(tool: {
   provider: string;
   status: string;
   price_usd: unknown;
+  category: string;
+  namespace: string;
 }): ToolCatalogEntry {
   const priceUsd = Number(tool.price_usd);
   const cacheHitPrice =
@@ -120,7 +129,8 @@ function toEntry(tool: {
     description: TOOL_DESCRIPTIONS.get(tool.tool_id) ?? tool.name,
     endpoint: `/api/v1/tools/${tool.tool_id}`,
     method: 'POST',
-    category: tool.tool_id.includes('.') ? tool.tool_id.split('.')[0] : tool.provider,
+    category: tool.category,
+    namespace: tool.namespace,
     provider: tool.provider,
     pricing: {
       price_usd: priceUsd,
@@ -166,7 +176,11 @@ export async function getPublicCatalog(): Promise<PublicCatalog> {
 export async function getToolsPaginated(
   cursor: string | null,
   limit: number,
-  filters: { maxPrice?: number; tier?: 'micro' | 'standard' | 'premium' } = {},
+  filters: {
+    maxPrice?: number;
+    tier?: 'micro' | 'standard' | 'premium';
+    category?: string;
+  } = {},
 ): Promise<PaginatedTools> {
   const db = getPrisma();
   const take = Math.min(Math.max(limit, 1), 2000);
@@ -189,6 +203,7 @@ export async function getToolsPaginated(
 
   const statusFilter: Record<string, unknown> = { status: { not: 'unavailable' } };
   if (priceFilter) statusFilter.price_usd = priceFilter;
+  if (filters.category) statusFilter.category = filters.category;
 
   const [tools, total] = await Promise.all([
     db.tool.findMany({

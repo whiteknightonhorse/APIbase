@@ -209,9 +209,26 @@ model Tool {
   status_source     String?   // manual | autopilot | seed
   status_changed_at DateTime? @db.Timestamptz()
   status_reason     String?
+  // ZZ-03-01 (2026-09-15): single source of truth for category, replacing three
+  // incompatible systems (TOOL_DEFINITIONS[].category 25 values, hand-maintained
+  // static/llms.txt 21 values, REST's old tool_id-prefix guess — GitHub issue #282).
+  // Backfilled from TOOL_DEFINITIONS[].category (src/mcp/tool-definitions.ts) in migration
+  // 0017; kept in sync going forward by scripts/seed.ts on every upsert. NOT NULL: every
+  // tool_id seeded here already has a TOOL_DEFINITIONS entry (seed only inserts from
+  // config/tool_provider_config.yaml, itself a subset of TOOL_DEFINITIONS — 0 gaps verified
+  // 2026-09-15), so a missing category means the catalog is inconsistent and must fail
+  // loud (seed throws) rather than seed a guess. No CHECK constraint: unlike `status`'s
+  // fixed 3-value enum, category is open-ended (new providers add new values over time).
+  // namespace: the OLD prefix-derived value (`tool_id.split('.')[0]`, falling back to
+  // `provider` for a dot-less tool_id — none exist today) that REST used to call
+  // `category`. Existing consumers reading that field must not lose it outright — it moves
+  // here under its own name instead.
+  category  String
+  namespace String
 
   executions ExecutionLedger[]
 
+  @@index([category])
   @@map("tools")
 }
 

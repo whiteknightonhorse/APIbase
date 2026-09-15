@@ -5,6 +5,7 @@ import {
   getToolById,
 } from '../services/tool-registry.service';
 import { AppError, ErrorCode } from '../types/errors';
+import { TOOL_DEFINITIONS } from '../mcp/tool-definitions';
 
 /**
  * Tool catalog routes (§6.15, §12.39, §12.114).
@@ -16,6 +17,10 @@ import { AppError, ErrorCode } from '../types/errors';
  * Empty catalog → 503 (never return empty tool list silently).
  */
 export const toolsRouter = Router();
+
+// ZZ-03-01: valid ?category= values, auto-derived from TOOL_DEFINITIONS — same source of
+// truth the migration backfilled tools.category from, never a hardcoded list that drifts.
+const VALID_CATEGORIES = new Set(TOOL_DEFINITIONS.map((def) => def.category));
 
 // --- Public catalog (§6.15) ---
 toolsRouter.get('/api/tools', async (_req: Request, res: Response, next: NextFunction) => {
@@ -37,6 +42,7 @@ toolsRouter.get('/api/tools', async (_req: Request, res: Response, next: NextFun
 // Optional filters:
 //   ?max_price=N        — only tools with price_usd <= N (e.g. "0.01")
 //   ?tier=micro|standard|premium — bucketed price tier (tier wins over max_price)
+//   ?category=<name>    — one of TOOL_DEFINITIONS[].category's 25 values (ZZ-03-01)
 //   ?limit=N            — page size (1..1000, default 1000)
 //   ?cursor=<b64>       — pagination cursor from previous response
 toolsRouter.get('/api/v1/tools', async (req: Request, res: Response, next: NextFunction) => {
@@ -65,9 +71,20 @@ toolsRouter.get('/api/v1/tools', async (req: Request, res: Response, next: NextF
       tier = req.query.tier as 'micro' | 'standard' | 'premium';
     }
 
-    const result = await getToolsPaginated(cursor, rawLimit, { maxPrice, tier });
+    let category: string | undefined;
+    if (typeof req.query.category === 'string') {
+      if (!VALID_CATEGORIES.has(req.query.category)) {
+        throw new AppError(
+          ErrorCode.BAD_REQUEST,
+          `category must be one of: ${[...VALID_CATEGORIES].sort().join(', ')}`,
+        );
+      }
+      category = req.query.category;
+    }
 
-    if (result.data.length === 0 && !cursor && !maxPrice && !tier) {
+    const result = await getToolsPaginated(cursor, rawLimit, { maxPrice, tier, category });
+
+    if (result.data.length === 0 && !cursor && !maxPrice && !tier && !category) {
       throw new AppError(ErrorCode.SERVICE_UNAVAILABLE, 'No tools available');
     }
 
