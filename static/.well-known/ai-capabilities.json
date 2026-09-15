@@ -1,24 +1,24 @@
 {
   "platform": "APIbase",
-  "version": "2.0",
-  "updated_at": "2026-04-01T00:00:00Z",
-  "tools_count": 1227,
-  "providers_count": 347,
+  "version": "2.1.0",
+  "updated_at": "2026-09-15T00:00:00Z",
+  "tools_count": 1386,
+  "providers_count": 396,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
     "prompt_name": "discover_tools",
-    "description": "Call discover_tools to browse 409+ tools by category or task instead of loading all schemas into context.",
+    "description": "Call discover_tools to browse 1386 tools by category or task instead of loading all schemas into context.",
     "examples": [
       {
         "args": {},
-        "result": "21 categories with tool counts"
+        "result": "25 categories with tool counts"
       },
       {
         "args": {
           "category": "travel"
         },
-        "result": "17 travel tools (amadeus, aviasales, sabre)"
+        "result": "37 travel tools (adsbdb, aviasales, irail)"
       },
       {
         "args": {
@@ -30,130 +30,154 @@
   },
   "categories": [
     {
-      "name": "travel",
-      "tools": 39,
-      "providers": "Amadeus, Aviasales, Sabre, IRCTC Indian Railways, OpenSky ADS-B, transport.rest",
-      "examples": "flight search, pricing, airport lookup, Indian train schedules, live train status, live aircraft tracking, ADS-B states"
-    },
-    {
-      "name": "weather",
-      "tools": 54,
-      "providers": "OpenWeatherMap, NWS, IQAir, NOAA, NOAA AWC, CheckWX, AVWX, US Drought Monitor, OpenSenseMap, Open-Meteo Marine, MET Norway",
-      "examples": "current weather, forecast, alerts, air quality, aviation METAR/TAF/SIGMET (raw + decoded JSON), parsed NOTAMs and PIREPs, drought severity statistics, crowdsourced IoT sensor data (PM2.5/temp/humidity/UV), ocean wave/swell/sea-surface-temperature forecast"
+      "name": "world",
+      "tools": 245,
+      "providers": "Abs, Africa, Au Data Gov, Bgs Ogcapi, Brasilapi, Bts Transport, Calendarific, Carbon Intensity Uk, Cbs, Census, Col, Comtrade, Cpsc, Data Europa, Datagovsg, Dogceo, Echo, Emsc, Enviroatlas, Eonet, EPA, Eurostat, Eurostat2, Faostat, Fema, GDACS, Gebco, Geodiva, Geonet Nz, Gfw, Gus Poland, Hdx, Hdx Hapi, Ibge, Inaturalist, Ine Portugal, Irena, Lmpr, Macrostrat, Mbta Transit, Nagerdate, Ncbi Eutils, NOAA Tides, Nrc, NREL, Oecd Stats, Ons Uk Stats, Open Canada, Openfoodfacts, Opentopography, P2pquake, Randomuser, Restcountries, Samuni, SCB, Socrata, Soil, Spending, Ssbnorway, Statbel, Statcan, Statfin, Statistics Denmark, Swissfso, Unhabitat, Unhcr, Unsdg, Usdamars, USGS Earthquake, USGS Hans Volcano, USGS Nwis, USGS Water, VATCOMPLY, Wikimedia Analytics, Wikimedia Rest",
+      "examples": "Call discover_tools with category=\"world\" for the current tool list and descriptions."
     },
     {
       "name": "finance",
-      "tools": 71,
-      "providers": "Finnhub, FRED, FDIC, ECB, RateAPI, IBAN, World Bank, Razorpay IFSC, Bank of Canada, MFAPI, BLS, Frankfurter.dev, Bank of England",
-      "examples": "stock quotes, FX rates, economic data, CPI inflation, unemployment rate, nonfarm payrolls, global indicators, India mutual fund NAV, UK Bank Rate, SONIA, M4 money supply, UK mortgage rates"
+      "tools": 190,
+      "providers": "Abs, Adbkidb, Africa, Bank Of England, Bankofcanada, Banxico, Bcb, Bea, Bis Stats, BLS Macro, Brasilapi, Bundesbank Timeseries, Cfpb Complaints, Czso, Data Usa, Dbnomics, Denmark Energidataservice, ECB Rates, Edgar, Eia, Estat Japan Dashboard, Estonia Statistics, Eurostat, Exchangerate, FDIC, Figi, Finance, Finnhub, Frankfurter, Hungary Ksh, Ibanapi, Iceland Statistics, Imf, Ine, Ine Chile, Ine Spain, Istat, Latvia Statistics, Mfapi, Norgesbank, Oecd Data, Oecd Stats, Ons Uk Stats, Rateapi, Razorpayifsc, SEC Edgar, Slovakia Statistics, Statfin, Statistik Austria, Swissfso, Swissnbm, Treasurydirect, Treasuryfiscal, Worldbank, Wto",
+      "examples": "Call discover_tools with category=\"finance\" for the current tool list and descriptions."
+    },
+    {
+      "name": "health",
+      "tools": 151,
+      "providers": "Biomodels, Cactus, CDC, CDC Chronic, Chembl, Clinicaltrials, Cms, Delphi, Disease, Ebi Metagenomics, Ecdc Surveillance, Ensembl, Europepmc, Fatsecret, FDA OPENFDA, Global Health Covid, Health, Malaria Atlas, Materials Project, Medlineplus, Mychem, Mygene, Myvariant, Nihreporter, Nlm Icd11, Openbeautyfacts, OPENFDA Devices, Orphadata, Pharmgkb, Pubchem, Rcsb, Rxnorm, SDWIS, Spoonacular, Ukfsa, Ukhsa Dashboard, Uniprot, Wger, WHO, WHO GHO",
+      "examples": "Call discover_tools with category=\"health\" for the current tool list and descriptions."
+    },
+    {
+      "name": "weather",
+      "tools": 106,
+      "providers": "Airnow, Aviationweather, Avwx, Awc, Brightsky, Checkwx, Climate, Coops, Currentuvindex, Datagovsg, Drought Monitor, Ea Hydrology, IQAIR, Jma Bosai, Marine, Met Norway, Meteostat, Msc Geomet, Ncei, NOAA, NWS, Openmeteoaq, Opensensemap, Openweathermap, Paleoclimate, Sepa Scotland, Smhi, Uk Ea Flood Monitoring, Wmo Weather, World Bank Cckp",
+      "examples": "Call discover_tools with category=\"weather\" for the current tool list and descriptions."
+    },
+    {
+      "name": "education",
+      "tools": 103,
+      "providers": "Bhl, Bible, Cordis, Crossref, Crossref Datacitations, Datacite, Dblp, Doaj, Education, Figshare, GBIF, Gutendex, Librivox, Nsf Awards, Obis, Openaire, Openalex, Opencontext, Openlibrary, Plos Search, Ror, Semanticscholar, Standard Ebooks, Tatoeba, Unesco Data, Unpaywall, Wikidata, Wikipedia, Worms, Zenodo",
+      "examples": "Call discover_tools with category=\"education\" for the current tool list and descriptions."
+    },
+    {
+      "name": "entertainment",
+      "tools": 95,
+      "providers": "Apisports, Balldontlie, Canopy, Chesscom, Cocktaildb, F1, Freetogame, Igdb, Jikan, Lichess, Met Museum, Music, Opendota, Opentdb, Podcastindex, Pokeapi, Rawg, Rijksmuseum, Smithsonian, Thesportsdb, Ticketmaster, Tmdb, Tvmaze",
+      "examples": "Call discover_tools with category=\"entertainment\" for the current tool list and descriptions."
+    },
+    {
+      "name": "developer",
+      "tools": 81,
+      "providers": "Account, Autodev, Chart, Convertapi, Cve Mitre, Depsdev, Github Api, Hf, Hf Inference, Ipapi, Ipqs, Judge0, Langbly, Marketcheck, NHTSA, NHTSA Safety, Npm, NVD, Osv, Platform, Postcodes Io, Pypi, Qrserver, Shortio, Timeapi, Upcitemdb, Weatherapi, Whoisjson, Whoisxml, Zippopotamus",
+      "examples": "Call discover_tools with category=\"developer\" for the current tool list and descriptions."
+    },
+    {
+      "name": "location",
+      "tools": 60,
+      "providers": "Brasilapi, FCC, Geo, Geoboundaries, Geocodio, Geonames, Indec Georef, Netherlands Pdok Kadaster, Nominatim Osm, Norway Kartverket Stedsnavn, Openbrewery, Openchargemap, Opentopodata, Overpass, Postcode Japan, Uk Landregistry Pricepaid, USGS Epqs, USGS Nationalmap, Usrealestate, Walkscore",
+      "examples": "Call discover_tools with category=\"location\" for the current tool list and descriptions."
+    },
+    {
+      "name": "legal",
+      "tools": 55,
+      "providers": "Congress, Courtlistener, Eu Parliament, Eurlex, Fbi, Fbiwanted, FCC, Fec, Federalregister, Fedregister, Govuk, Ofac, Openstates, Regulations, Ukleg, Ukpolice",
+      "examples": "Call discover_tools with category=\"legal\" for the current tool list and descriptions."
+    },
+    {
+      "name": "space",
+      "tools": 52,
+      "providers": "Celestrak, Cernopendata, Copernicus Sentinel, Firms, Iss, Jpl, Launch Library 2, NASA, NASA Cmr, Nasaexoplanet, Nasantrs, Solar, Sunrisesunset, Swpc, Usno",
+      "examples": "Call discover_tools with category=\"space\" for the current tool list and descriptions."
+    },
+    {
+      "name": "travel",
+      "tools": 37,
+      "providers": "Adsbdb, Aviasales, Irail, IRCTC, Nps, Opensky, Sabre, Tfl, Transport Rest",
+      "examples": "Call discover_tools with category=\"travel\" for the current tool list and descriptions."
+    },
+    {
+      "name": "media",
+      "tools": 37,
+      "providers": "Apiflash, Archiveorg, Artic, Assemblyai, Dpla, Europeana, Hathitrust Digital, Imgflip, Loc, Ocrspace, Pexels, Stability, Vam, Wikimedia Commons",
+      "examples": "Call discover_tools with category=\"media\" for the current tool list and descriptions."
     },
     {
       "name": "crypto",
       "tools": 30,
-      "providers": "CoinGecko, Polymarket, Hyperliquid, AsterDEX",
-      "examples": "prices, markets, prediction markets, DeFi"
-    },
-    {
-      "name": "search",
-      "tools": 9,
-      "providers": "Serper, Tavily, Exa",
-      "examples": "web search, news search, semantic search"
-    },
-    {
-      "name": "news",
-      "tools": 8,
-      "providers": "NewsData, GDELT, Currents",
-      "examples": "latest news, global events, crypto news"
-    },
-    {
-      "name": "location",
-      "tools": 38,
-      "providers": "Geoapify, GeoNames, Geocodio, Foursquare, Walk Score, Realtor, Open Charge Map, Japan Postal Codes",
-      "examples": "geocoding, place search, postal codes, country info, timezone lookup, routing, real estate"
-    },
-    {
-      "name": "health",
-      "tools": 79,
-      "providers": "USDA, OpenFDA, WHO, FatSecret, Spoonacular, ClinicalTrials, PubChem, CDC, UK FSA, RxNorm, MyGene.info, MyVariant.info, OpenFDA Devices, EPA SDWIS, WHO GHO",
-      "examples": "nutrition, drug safety, clinical trials, recipes, UK food hygiene ratings, drug nomenclature, gene annotation, variant annotation, FDA device recalls, 510k clearances, MAUDE adverse events, drinking water systems, violations"
-    },
-    {
-      "name": "entertainment",
-      "tools": 74,
-      "providers": "TMDB, Ticketmaster, RAWG, IGDB, Jikan, Lichess, Chess.com, MusicBrainz, PodcastIndex, API-Sports, Met Museum, Rijksmuseum, Cleveland Museum, OpenDota, PokéAPI",
-      "examples": "movies, events, games, anime, chess/esports, music, podcasts, sports, art collections, Dota 2 stats, Pokemon data"
-    },
-    {
-      "name": "education",
-      "tools": 46,
-      "providers": "OpenAlex, arXiv, PubMed, Open Library, College Scorecard, DBLP, BHL, DOAJ",
-      "examples": "papers, books, colleges, biodiversity literature"
+      "providers": "Asterdex, Coingecko, Hyperliquid, Polymarket",
+      "examples": "Call discover_tools with category=\"crypto\" for the current tool list and descriptions."
     },
     {
       "name": "jobs",
-      "tools": 9,
-      "providers": "BLS, O*NET, ESCO, CareerJet, USAJOBS",
-      "examples": "salary data, occupations, job listings, US federal civil-service"
+      "tools": 22,
+      "providers": "Adzuna, Arbeitnow, Ilostat, Jobs, Jooble, Reed, Remotive, Theirstack, Usajobs",
+      "examples": "Call discover_tools with category=\"jobs\" for the current tool list and descriptions."
     },
     {
-      "name": "space",
-      "tools": 26,
-      "providers": "NASA, JPL, FIRMS, SunriseSunset.io",
-      "examples": "astronomy, asteroids, fire detection"
+      "name": "business",
+      "tools": 21,
+      "providers": "Abr, Brasilapi, Brreg, Companieshouse, GLEIF, Hunter, Ibge, Insee, Sam",
+      "examples": "Call discover_tools with category=\"business\" for the current tool list and descriptions."
+    },
+    {
+      "name": "messaging",
+      "tools": 18,
+      "providers": "Email Verify, Resend, Telegram, Telnyx, Twilio, Zerobounce",
+      "examples": "Call discover_tools with category=\"messaging\" for the current tool list and descriptions."
+    },
+    {
+      "name": "news",
+      "tools": 18,
+      "providers": "Currents, GDELT, Hackernews, Hnalgolia, Newsdata",
+      "examples": "Call discover_tools with category=\"news\" for the current tool list and descriptions."
+    },
+    {
+      "name": "infrastructure",
+      "tools": 15,
+      "providers": "Browserbase, Cloudflare, Namesilo",
+      "examples": "Call discover_tools with category=\"infrastructure\" for the current tool list and descriptions."
+    },
+    {
+      "name": "marketing",
+      "tools": 13,
+      "providers": "Aipush, Diffbot",
+      "examples": "Call discover_tools with category=\"marketing\" for the current tool list and descriptions."
+    },
+    {
+      "name": "search",
+      "tools": 13,
+      "providers": "Duckduckgo, Exa, Serper, Spider, Tavily",
+      "examples": "Call discover_tools with category=\"search\" for the current tool list and descriptions."
     },
     {
       "name": "social",
       "tools": 9,
-      "providers": "Mastodon, Bluesky, Twitter/X",
-      "examples": "trending posts, profiles, search"
+      "providers": "Bluesky, Mastodon, Twitterapi",
+      "examples": "Call discover_tools with category=\"social\" for the current tool list and descriptions."
     },
     {
-      "name": "legal",
-      "tools": 34,
-      "providers": "Regulations.gov, Federal Register, CourtListener, GOV.UK Content API, FCC Open Data, OpenStates",
-      "examples": "regulations, court opinions, federal rules, UK government documents, FCC filings, US state bills and legislators"
+      "name": "logistics",
+      "tools": 7,
+      "providers": "17track, Dhl, Shipengine",
+      "examples": "Call discover_tools with category=\"logistics\" for the current tool list and descriptions."
     },
     {
-      "name": "business",
-      "tools": 19,
-      "providers": "GLEIF, Companies House, Hunter.io, INSEE Sirene, Brreg, ABR",
-      "examples": "LEI lookup, UK companies, email enrichment, French SIREN/SIRET lookup, Norway company registry, Australian ABN/ACN lookup"
+      "name": "podcasts",
+      "tools": 3,
+      "providers": "Listennotes",
+      "examples": "Call discover_tools with category=\"podcasts\" for the current tool list and descriptions."
     },
     {
-      "name": "developer",
-      "tools": 39,
-      "providers": "QRServer, WhoisXML, TimeAPI, NHTSA, Langbly, ConvertAPI, API2PDF, IPQualityScore, NIST NVD",
-      "examples": "QR codes, WHOIS, VIN decode, translation, PDF generation, CVE vulnerabilities"
+      "name": "device",
+      "tools": 3,
+      "providers": "Device",
+      "examples": "Call discover_tools with category=\"device\" for the current tool list and descriptions."
     },
     {
-      "name": "media",
-      "tools": 21,
-      "providers": "Pexels, Stability AI, OCR.space, ARTIC, Europeana, AssemblyAI, V&A Museum",
-      "examples": "stock photos, image generation, OCR, art, transcription"
-    },
-    {
-      "name": "infrastructure",
-      "tools": 19,
-      "providers": "Cloudflare, NameSilo, Browserbase, NBI",
-      "examples": "DNS, domains, browser automation, US bridge inspection"
-    },
-    {
-      "name": "messaging",
-      "tools": 17,
-      "providers": "Telegram, Twilio, Resend, ZeroBounce",
-      "examples": "SMS, email, chat, email validation"
-    },
-    {
-      "name": "marketing",
-      "tools": 11,
-      "providers": "AIPush, Diffbot",
-      "examples": "AI marketing pages, web extraction"
-    },
-    {
-      "name": "world",
-      "tools": 74,
-      "providers": "REST Countries, Nager.Date, GDACS, VATcomply, Open Food Facts, USGS Water, NOAA Tides, Statistics Sweden (SCB), Statistics Norway (SSB), NREL AFDC, NREL PVWatts, Global Fishing Watch, UK Carbon Intensity, SA National Treasury, Statistics Canada WDS",
-      "examples": "countries, holidays, disasters, VAT, food products, streamflow, water quality, tides & currents, Sweden statistics, Norway statistics, US alt-fuel stations, solar PV output estimation, fishing vessel tracking, AIS events, fishing effort, UK carbon intensity gCO2/kWh, SA municipal finance, Canada economic and demographic time-series"
+      "name": "music",
+      "tools": 2,
+      "providers": "Audd",
+      "examples": "Call discover_tools with category=\"music\" for the current tool list and descriptions."
     }
   ]
 }

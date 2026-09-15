@@ -4,7 +4,10 @@
     "version": "1.0"
   },
   "api_base_url": "https://apibase.pro",
-  "transports": ["http", "mcp"],
+  "transports": [
+    "http",
+    "mcp"
+  ],
   "capabilities": {
     "services": [
       "api-aggregation",
@@ -17,7 +20,7 @@
     "checkout": false,
     "product_catalog": {
       "url": "https://apibase.pro/api/v1/tools",
-      "count": 502,
+      "count": 1386,
       "type": "api-tool-catalog"
     },
     "supported_payment_methods": [
@@ -41,5 +44,5 @@
     "agent_card": "https://apibase.pro/.well-known/agent.json"
   },
   "contact": "https://github.com/whiteknightonhorse/APIbase",
-  "updated_at": "2026-04-22"
+  "updated_at": "2026-09-15"
 }

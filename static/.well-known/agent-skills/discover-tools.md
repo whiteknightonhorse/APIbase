@@ -1,19 +1,19 @@
 ---
 name: discover-tools
-description: Progressive-disclosure workflow for finding relevant tools in APIbase's 502-tool catalog without loading every schema into the agent context.
+description: Progressive-disclosure workflow for finding relevant tools in APIbase's 1386-tool catalog without loading every schema into the agent context.
 ---
 
 # Skill: Discover tools on APIbase
 
-APIbase exposes 502 tools across 21 categories. Loading all schemas into context
-costs ~300K tokens, which is wasteful. Use the `discover_tools` prompt to find
-only the tools relevant to the current task.
+APIbase exposes 1386 tools across 25 categories. Loading all schemas into context
+costs hundreds of thousands of tokens, which is wasteful. Use the `discover_tools` prompt to
+find only the tools relevant to the current task.
 
 ## When to use
 
 - The agent has a fresh goal and does not yet know which tool(s) to call.
 - The agent's system prompt should not preload the full catalog.
-- The MCP server has more than ~50 tools (APIbase has 502).
+- The MCP server has more than ~50 tools (APIbase has 1386).
 
 ## Steps
 
@@ -29,14 +29,14 @@ only the tools relevant to the current task.
 
    | Call | Returns |
    |---|---|
-   | `discover_tools` (no args) | 21 categories with tool counts |
-   | `discover_tools category="travel"` | ~17 travel tools with descriptions |
+   | `discover_tools` (no args) | 25 categories with tool counts |
+   | `discover_tools category="travel"` | 37 travel tools with descriptions |
    | `discover_tools task="find flights from NYC to Tokyo"` | Top tools ranked by keyword relevance |
 
 3. **Inspect the returned tool names and descriptions.** Pick the 1–3 tools that
    match the agent's goal.
 
-4. **Call the chosen tool via `tools/call`.** All 502 tools are always callable —
+4. **Call the chosen tool via `tools/call`.** All 1386 tools are always callable —
    the `discover_tools` prompt is advisory, not a gate.
 
    ```json
@@ -59,11 +59,11 @@ If the agent really needs every tool (e.g., for offline indexing), use:
 GET https://apibase.pro/api/v1/tools
 ```
 
-Returns all 502 tools with full JSON Schemas. Use sparingly — the response is
+Returns all 1386 tools with full JSON Schemas. Use sparingly — the response is
 large.
 
 ## Why this exists
 
-Agents that preload 500+ tool schemas waste context and latency. Progressive
+Agents that preload hundreds of tool schemas waste context and latency. Progressive
 disclosure keeps the agent fast and focused while preserving full catalog
 access for the rare cases that need it.

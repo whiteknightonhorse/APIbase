@@ -1,7 +1,7 @@
 # APIbase — Universal API Hub for AI Agents
 # https://apibase.pro
 
-> 1387 tools from 397 providers via one MCP endpoint.
+> 1386 tools from 396 providers via one MCP endpoint.
 > Supports x402 (USDC on Base) and MPP payments.
 
 ## Quick Start for Agents
@@ -10,11 +10,11 @@
   intent/category/max_price_usd — free ($0), ranked by relevance then quality then price,
   returns pricing/payment rails/availability/quality per match (ZZ-03-05)
 - Discover tools (REST, no auth): GET https://apibase.pro/api/v1/discover?intent=&category=&max_price_usd=&limit=
-- Full catalog: GET https://apibase.pro/api/v1/tools (all 1387 tools, JSON schemas)
+- Full catalog: GET https://apibase.pro/api/v1/tools (all 1386 tools, JSON schemas)
 - OpenAPI spec: GET https://apibase.pro/.well-known/openapi.json
 
 ## Progressive Disclosure
-1387 tools across 25 categories (TOOL_DEFINITIONS[].category — the single source of truth
+1386 tools across 25 categories (TOOL_DEFINITIONS[].category — the single source of truth
 shared by MCP apibase.discover, the REST ?category= filter, and this file, ZZ-03-01). Call
 apibase.discover (or GET /api/v1/discover) to find relevant tools:
 - No args → best/most-relevant matches across the whole catalog
