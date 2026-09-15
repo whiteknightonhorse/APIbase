@@ -1,8 +1,8 @@
 /**
- * ZZ-03-05 (03-SPECIFICATION.md P-1/M-1, zz-03 Q1 ruling-1): `discover()` is the ONE ranking
- * implementation behind `apibase.discover` (MCP tool), `GET /api/v1/discover` (REST), and the
- * `discover_tools` prompt (now a thin wrapper). This file pins the six acceptance criteria the
- * ruling lists verbatim:
+ * ZZ-03-05 (03-SPECIFICATION.md P-1/M-1, zz-03 Q1 ruling-1 + ruling-2): `discover()` is the ONE
+ * ranking implementation behind `apibase.discover` (MCP tool), `GET /api/v1/discover` (REST),
+ * and the `discover_tools` prompt (now a thin wrapper). This file pins the six acceptance
+ * criteria the ruling lists verbatim, plus ruling-2 §5's hot-path contract:
  *   (a) `no_data` quality never serializes a fabricated number
  *   (b) `unavailable` excluded by default, included (and marked) with include_unavailable=true
  *   (c) `category` matches TOOL_DEFINITIONS[toolId].category (same source as MCP/REST) and is a
@@ -10,6 +10,8 @@
  *   (d) result order is stable between two identical calls
  *   (e) `apibase.discover` is wired into the normal $0 pipeline path (one ledger row, price 0)
  *   (f) no `redis.keys(` in the discovery code path
+ *   (g, ruling-2 §5): candidates come from the in-memory tool cache
+ *       (tool-status.stage.ts), never a fresh `db.tool.findMany` in the hot path
  */
 
 // Codebase convention (see tests/unit/escrow-payment-replay.test.ts): mock config/index
@@ -20,12 +22,12 @@ jest.mock('../../src/config/index', () => ({
   },
 }));
 
-const findManyMock = jest.fn();
+const toolFindManyMock = jest.fn();
 const providerStatusFindManyMock = jest.fn();
 
 jest.mock('@prisma/client', () => ({
   PrismaClient: jest.fn().mockImplementation(() => ({
-    tool: { findMany: findManyMock },
+    tool: { findMany: toolFindManyMock },
     providerStatus: { findMany: providerStatusFindManyMock },
   })),
 }));
@@ -60,7 +62,11 @@ jest.mock('../../src/config/mpp.config', () => ({
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { parse } from 'yaml';
-import { discover } from '../../src/services/discovery.service';
+import { discover, __resetProviderStateCacheForTest } from '../../src/services/discovery.service';
+import {
+  __setToolCacheEntryForTest,
+  __clearToolCacheForTest,
+} from '../../src/pipeline/stages/tool-status.stage';
 import { TOOL_DEFINITIONS } from '../../src/mcp/tool-definitions';
 import { toolSchemas } from '../../src/schemas/index';
 
@@ -69,22 +75,22 @@ import { toolSchemas } from '../../src/schemas/index';
 // this file never imports registry.ts at runtime, and checks the 'apibase' wiring from its source
 // text instead (same "shape-proof from real source" convention as incidents-router.test.ts).
 
-function rowFor(
+/** Seeds one tool-status.stage.ts cache entry from a real TOOL_DEFINITIONS row — the same shape
+ *  tool-status.stage.ts's own loadToolCache() would produce from a DB row, minus the DB round
+ *  trip (ZZ-03-05 ruling-2 §5). */
+function seedEntry(
   def: (typeof TOOL_DEFINITIONS)[number],
-  overrides: Partial<{
-    status: string;
-    price_usd: string;
-  }> = {},
+  overrides: Partial<{ status: string; price_usd: number }> = {},
 ) {
-  return {
+  __setToolCacheEntryForTest({
     tool_id: def.toolId,
-    name: def.title ?? def.toolId,
-    provider: def.toolId.split('.')[0],
     status: overrides.status ?? 'healthy',
-    price_usd: overrides.price_usd ?? '0.01',
-    category: def.category,
-    namespace: def.toolId.split('.')[0],
-  };
+    price_usd: overrides.price_usd ?? 0.01,
+    cache_ttl: 0,
+    upstream_cost_usd: null,
+    price_floor_usd: null,
+    provider: def.toolId.split('.')[0],
+  });
 }
 
 // Same deterministic-stride sampling as tests/unit/tools-category-source-of-truth.test.ts —
@@ -99,7 +105,12 @@ function sampleDefinitions(n: number) {
 }
 
 beforeEach(() => {
-  findManyMock.mockReset();
+  // Every test owns a clean cache — discover() reads the SAME shared toolCache Map that
+  // margin-gate.test.ts etc. also seed, and this file is the one suite that needs "only what
+  // I just seeded is in there" (e.g. acceptance (d)'s exact-length checks).
+  __clearToolCacheForTest();
+  __resetProviderStateCacheForTest();
+  toolFindManyMock.mockReset();
   providerStatusFindManyMock.mockReset().mockResolvedValue([]);
   redisMgetMock.mockReset().mockImplementation(async (...keys: string[]) => keys.map(() => null));
   redisKeysMock.mockReset();
@@ -116,10 +127,29 @@ beforeEach(() => {
   });
 });
 
+describe('ZZ-03-05 ruling-2 §5: candidates come from the in-memory tool cache, never a fresh DB read', () => {
+  it('discover() never calls prisma.tool.findMany', async () => {
+    seedEntry(TOOL_DEFINITIONS[0]);
+
+    await discover({});
+
+    expect(toolFindManyMock).not.toHaveBeenCalled();
+  });
+
+  it('a tool absent from the cache is absent from results, with no query issued to find it', async () => {
+    seedEntry(TOOL_DEFINITIONS[0]);
+
+    const resp = await discover({ limit: 50 });
+
+    expect(resp.results.map((r) => r.tool_id)).toEqual([TOOL_DEFINITIONS[0].toolId]);
+    expect(toolFindManyMock).not.toHaveBeenCalled();
+  });
+});
+
 describe('ZZ-03-05 acceptance (a): no_data quality never serializes a fabricated number', () => {
   it('a tool with no Redis key and no provider_status row gets exactly {status, window_h, provider_reliability_score}', async () => {
     const def = TOOL_DEFINITIONS[0];
-    findManyMock.mockResolvedValueOnce([rowFor(def)]);
+    seedEntry(def);
     redisMgetMock.mockResolvedValueOnce([null]);
 
     const resp = await discover({});
@@ -140,29 +170,23 @@ describe('ZZ-03-05 acceptance (a): no_data quality never serializes a fabricated
 });
 
 describe('ZZ-03-05 acceptance (b): unavailable excluded by default, included when asked', () => {
-  it('default call filters status != unavailable at the DB layer', async () => {
-    findManyMock.mockResolvedValueOnce([]);
+  it('default call filters out a cached "unavailable" tool in-memory', async () => {
+    const [healthy, unavailable] = TOOL_DEFINITIONS;
+    seedEntry(healthy);
+    seedEntry(unavailable, { status: 'unavailable' });
 
-    await discover({});
+    const resp = await discover({ limit: 50 });
 
-    expect(findManyMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({ status: { not: 'unavailable' } }),
-      }),
-    );
+    expect(resp.results.map((r) => r.tool_id)).toEqual([healthy.toolId]);
+    expect(toolFindManyMock).not.toHaveBeenCalled();
   });
 
-  it('include_unavailable=true drops the status filter and the tool comes back marked unavailable', async () => {
+  it('include_unavailable=true keeps the tool and marks it unavailable', async () => {
     const def = TOOL_DEFINITIONS[1];
-    findManyMock.mockResolvedValueOnce([rowFor(def, { status: 'unavailable' })]);
+    seedEntry(def, { status: 'unavailable' });
 
     const resp = await discover({ include_unavailable: true });
 
-    expect(findManyMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.not.objectContaining({ status: expect.anything() }),
-      }),
-    );
     expect(resp.results).toHaveLength(1);
     expect(resp.results[0].availability.tool_status).toBe('unavailable');
   });
@@ -193,12 +217,12 @@ describe('ZZ-03-05 acceptance (c): category is the same source everywhere, for 5
   it.each(sampleDefinitions(5).map((def) => [def.toolId, def]))(
     'discover() reports %s.category == TOOL_DEFINITIONS[].category, and it is a published category',
     async (_toolId, def) => {
-      findManyMock.mockResolvedValueOnce([rowFor(def as (typeof TOOL_DEFINITIONS)[number])]);
+      const d = def as (typeof TOOL_DEFINITIONS)[number];
+      seedEntry(d);
 
       const resp = await discover({});
 
       expect(resp.results).toHaveLength(1);
-      const d = def as (typeof TOOL_DEFINITIONS)[number];
       expect(d.category).toBeDefined();
       expect(resp.results[0].category).toBe(d.category);
       expect(publishedCategories.has(d.category as string)).toBe(true);
@@ -209,8 +233,7 @@ describe('ZZ-03-05 acceptance (c): category is the same source everywhere, for 5
 describe('ZZ-03-05 acceptance (d): result order is stable between two identical calls', () => {
   it('same input + same underlying data -> same tool_id order twice', async () => {
     const defs = sampleDefinitions(6);
-    const rows = defs.map((d) => rowFor(d));
-    findManyMock.mockResolvedValue(rows);
+    for (const d of defs) seedEntry(d);
     redisMgetMock.mockImplementation(async (...keys: string[]) => keys.map(() => null));
 
     const first = await discover({ limit: 10 });
@@ -261,12 +284,22 @@ describe('ZZ-03-05 acceptance (f): no redis.keys( in the discovery code path', (
   });
 
   it('a real discover() call never invokes redis.keys, only mget', async () => {
-    const def = TOOL_DEFINITIONS[0];
-    findManyMock.mockResolvedValueOnce([rowFor(def)]);
+    seedEntry(TOOL_DEFINITIONS[0]);
 
     await discover({});
 
     expect(redisKeysMock).not.toHaveBeenCalled();
+  });
+});
+
+describe('provider_state comes from a cached provider_status read, not a per-request query', () => {
+  it('two calls within the same process issue at most one providerStatus.findMany', async () => {
+    seedEntry(TOOL_DEFINITIONS[0]);
+
+    await discover({});
+    await discover({});
+
+    expect(providerStatusFindManyMock).toHaveBeenCalledTimes(1);
   });
 });
 

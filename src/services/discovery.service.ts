@@ -12,6 +12,7 @@ import { getMppConfig } from '../config/mpp.config';
 import { TOOL_DEFINITIONS } from '../mcp/tool-definitions';
 import { toolSchemas } from '../schemas/index';
 import { extractKeywords, scoreTool } from '../mcp/keyword-match';
+import { getToolCacheEntries } from '../pipeline/stages/tool-status.stage';
 import type { McpToolDefinition } from '../mcp/types';
 
 /**
@@ -43,6 +44,14 @@ const MAX_LIMIT = 50;
 const TOOL_DEF_BY_ID: ReadonlyMap<string, McpToolDefinition> = new Map(
   TOOL_DEFINITIONS.map((def) => [def.toolId, def]),
 );
+
+/** Same rule scripts/seed.ts's namespaceOf() writes to tools.namespace at seed time — kept in
+ *  sync here rather than imported because seed.ts is a standalone script, not a module other
+ *  code depends on (ZZ-03-05 ruling-2 §5: namespace/category/title come from TOOL_DEFINITIONS,
+ *  not a DB read, in the hot path). */
+function namespaceOf(toolId: string, provider: string): string {
+  return toolId.includes('.') ? toolId.split('.')[0] : provider;
+}
 
 // ---------------------------------------------------------------------------
 // Types
@@ -174,8 +183,11 @@ function normalize(raw: DiscoverQueryInput): NormalizedQuery {
 }
 
 // ---------------------------------------------------------------------------
-// Provider state (one batched read per call, never per-row — same posture
-// tool-registry.service.ts's buildProviderQualityMap takes)
+// Provider state — module-level cache, TTL 60s (ZZ-03-05 ruling-2 §5: same posture
+// tool-status.stage.ts's toolCache takes, not a per-request DB round-trip). Loads every
+// provider_status row (a few hundred, not per-tool) and refreshes lazily on next access once
+// stale — no background timer needed since a request always follows, unlike the tool cache
+// which the pipeline hits even with no traffic.
 // ---------------------------------------------------------------------------
 
 interface ProviderState {
@@ -185,15 +197,12 @@ interface ProviderState {
   reliability_score: number | null;
 }
 
-async function buildProviderStateMap(providerNames: string[]): Promise<Map<string, ProviderState>> {
-  const map = new Map<string, ProviderState>();
-  if (providerNames.length === 0) {
-    return map;
-  }
+const PROVIDER_STATE_TTL_MS = 60_000;
+let providerStateCache: { loadedAt: number; map: Map<string, ProviderState> } | null = null;
 
+async function loadProviderStateMap(): Promise<Map<string, ProviderState>> {
   const db = getPrisma();
   const rows = await db.providerStatus.findMany({
-    where: { provider: { in: providerNames } },
     select: {
       provider: true,
       state: true,
@@ -202,18 +211,46 @@ async function buildProviderStateMap(providerNames: string[]): Promise<Map<strin
       reliability_score: true,
     },
   });
-  const byProvider = new Map(rows.map((r) => [r.provider, r]));
 
+  const map = new Map<string, ProviderState>();
+  for (const r of rows) {
+    map.set(r.provider, {
+      state: r.state ?? null,
+      state_since: r.state_since?.toISOString() ?? null,
+      last_ok_at: r.last_ok_at?.toISOString() ?? null,
+      reliability_score: r.reliability_score ?? null,
+    });
+  }
+  return map;
+}
+
+async function getProviderStateMap(): Promise<Map<string, ProviderState>> {
+  const now = Date.now();
+  if (providerStateCache === null || now - providerStateCache.loadedAt > PROVIDER_STATE_TTL_MS) {
+    providerStateCache = { loadedAt: now, map: await loadProviderStateMap() };
+  }
+  return providerStateCache.map;
+}
+
+/** Test-only: force the next getProviderStateMap() call to reload. */
+export function __resetProviderStateCacheForTest(): void {
+  providerStateCache = null;
+}
+
+function buildProviderStateMap(
+  providerNames: string[],
+  allProviders: Map<string, ProviderState>,
+): Map<string, ProviderState> {
+  const map = new Map<string, ProviderState>();
   for (const name of providerNames) {
-    const r = byProvider.get(name);
+    const r = allProviders.get(name);
     map.set(name, {
       state: r?.state ?? null,
-      state_since: r?.state_since?.toISOString() ?? null,
-      last_ok_at: r?.last_ok_at?.toISOString() ?? null,
+      state_since: r?.state_since ?? null,
+      last_ok_at: r?.last_ok_at ?? null,
       reliability_score: r?.reliability_score ?? null,
     });
   }
-
   return map;
 }
 
@@ -239,7 +276,6 @@ interface Candidate {
   status: string;
   category: string;
   namespace: string;
-  name: string;
   priceUsd: number;
   def: McpToolDefinition;
   score: number;
@@ -293,7 +329,7 @@ function toDiscoverResult(
   return {
     tool_id: c.tool_id,
     mcp_name: c.def.mcpName ?? c.def.toolId,
-    title: c.def.title ?? c.name,
+    title: c.def.title ?? c.def.toolId,
     category: c.category,
     namespace: c.namespace,
     provider: c.provider,
@@ -330,51 +366,42 @@ function toDiscoverResult(
 
 export async function discover(raw: DiscoverQueryInput): Promise<DiscoverResponse> {
   const q = normalize(raw);
-  const db = getPrisma();
 
-  const where: Record<string, unknown> = q.include_unavailable
-    ? {}
-    : { status: { not: 'unavailable' } };
-  if (q.category) where.category = q.category;
-  if (typeof q.max_price_usd === 'number') where.price_usd = { lte: q.max_price_usd };
-
-  const rows = await db.tool.findMany({
-    where,
-    select: {
-      tool_id: true,
-      provider: true,
-      status: true,
-      price_usd: true,
-      category: true,
-      namespace: true,
-      name: true,
-    },
-  });
-
+  // ZZ-03-05 ruling-2 §5: candidates come from the in-memory tool cache (60s-refreshed,
+  // already loaded for the hot pipeline path) plus TOOL_DEFINITIONS for
+  // category/namespace/title — zero db.tool.findMany here, unlike the 66f526a3/0ad41c87
+  // attempts this replaces.
+  const entries = await getToolCacheEntries();
   const keywords = q.intent ? extractKeywords(q.intent) : [];
 
   const candidates: Candidate[] = [];
-  for (const row of rows) {
-    const def = TOOL_DEF_BY_ID.get(row.tool_id);
+  for (const entry of entries) {
+    if (!q.include_unavailable && entry.status === 'unavailable') continue;
+
+    const def = TOOL_DEF_BY_ID.get(entry.tool_id);
     // A yaml/DB row with no matching TOOL_DEFINITIONS entry is a broken catalog (same
     // invariant scripts/seed.ts's category backfill enforces at seed time) — skip rather
     // than guess a title/mcpName for it here.
     if (!def) continue;
 
+    const category = def.category ?? 'uncategorized';
+    if (q.category && category !== q.category) continue;
+    if (typeof q.max_price_usd === 'number' && entry.price_usd > q.max_price_usd) continue;
+
     const { score, matchedOn } =
       keywords.length > 0 ? scoreTool(def, keywords) : { score: 0, matchedOn: [] as string[] };
     // With an intent given, only genuine matches count; without one, this is category/price
-    // browsing and every row that passed the DB filters is a "match".
+    // browsing and every row that passed the filters above is a "match".
     if (keywords.length > 0 && score <= 0) continue;
 
+    const provider = entry.provider ?? '';
     candidates.push({
-      tool_id: row.tool_id,
-      provider: row.provider,
-      status: row.status,
-      category: row.category,
-      namespace: row.namespace,
-      name: row.name,
-      priceUsd: Number(row.price_usd),
+      tool_id: entry.tool_id,
+      provider,
+      status: entry.status,
+      category,
+      namespace: namespaceOf(entry.tool_id, provider),
+      priceUsd: entry.price_usd,
       def,
       score,
       matchedOn,
@@ -422,7 +449,8 @@ export async function discover(raw: DiscoverQueryInput): Promise<DiscoverRespons
   const sliced = candidates.slice(0, q.limit);
 
   const providerNames = Array.from(new Set(sliced.map((c) => c.provider)));
-  const providerStateMap = await buildProviderStateMap(providerNames);
+  const allProviderState = await getProviderStateMap();
+  const providerStateMap = buildProviderStateMap(providerNames, allProviderState);
 
   const results = sliced.map((c) =>
     toDiscoverResult(c, qualityMap[c.tool_id], providerStateMap.get(c.provider)),

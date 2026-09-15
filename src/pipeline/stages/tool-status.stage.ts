@@ -46,7 +46,7 @@ const MARGIN_MULTIPLIER: number = marginConfig.MARGIN_MULTIPLIER;
 // In-memory tool cache
 // ---------------------------------------------------------------------------
 
-interface ToolCacheEntry {
+export interface ToolCacheEntry {
   tool_id: string;
   status: string;
   price_usd: number;
@@ -141,6 +141,20 @@ export function getToolProvider(toolId: string): string | undefined {
 }
 
 /**
+ * Snapshot of every cached tool entry (ZZ-03-05 ruling-2 §5: `discover()` must build its
+ * candidate list from this in-memory cache, never a fresh `db.tool.findMany`). Read-only —
+ * callers get a new array each time but the entries themselves are the same objects the
+ * pipeline stage above already trusts, refreshed on the same 60s interval. Lazy-loads if the
+ * cache hasn't been initialized yet, same fallback execute() uses above.
+ */
+export async function getToolCacheEntries(): Promise<ToolCacheEntry[]> {
+  if (toolCache.size === 0) {
+    await loadToolCache();
+  }
+  return Array.from(toolCache.values());
+}
+
+/**
  * True if the tool fails the margin gate: either price_usd < upstream_cost_usd * 1.3 (the
  * original measured-cost check), OR price_usd < price_floor_usd (T-01, 2026-09-05, Fable
  * ruling-1 decision C1). The floor check is a SEPARATE lock, not a restatement of the cost
@@ -184,6 +198,12 @@ export function __setToolCacheEntryForTest(entry: ToolCacheEntry): void {
 /** Test-only: remove a cache entry. */
 export function __deleteToolCacheEntryForTest(toolId: string): void {
   toolCache.delete(toolId);
+}
+
+/** Test-only: wipe every cache entry (discovery-service.test.ts needs a clean cache per test,
+ *  unlike the other suites above which each own a small, disjoint set of tool_ids). */
+export function __clearToolCacheForTest(): void {
+  toolCache.clear();
 }
 
 /** Test-only (F6): expose the actual runtime value for the single-source cross-check. */
