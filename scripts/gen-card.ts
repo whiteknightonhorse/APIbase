@@ -6,6 +6,14 @@ import { writeFileSync, readFileSync } from 'fs';
 
 const prisma = new PrismaClient();
 
+// ZZ-03-06 (zz-03 Q7 ruling-1, item 3): one version, package.json, read into every generated
+// JSON surface -- this file used to hardcode '2.1.0' as its own literal, a 6th independent
+// place that would silently disagree the next time the version bumped and this file wasn't
+// remembered.
+const { version: PACKAGE_VERSION } = JSON.parse(readFileSync('package.json', 'utf8')) as {
+  version: string;
+};
+
 // T-05 (2026-09-04, ruling-1): when sync-counts.sh's self-heal runs this, it sets
 // SYNC_COUNTS_SNAPSHOT to a `tool_id<TAB>provider` file it dumped from ONE atomic query, so this
 // script and gen-catalog-page.ts both build off the exact same frozen set instead of each running
@@ -118,7 +126,7 @@ async function main() {
   const card = {
     name: 'APIbase — The API Hub for AI Agents',
     description: `Production MCP server providing ${toolCount} real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.`,
-    version: '2.1.0',
+    version: PACKAGE_VERSION,
     tools,
     prompts,
     resources: [

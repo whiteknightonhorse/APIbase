@@ -163,6 +163,10 @@ FILES=(
   static/llms.txt static/ai.txt static/policy-moderation.html README.md
   static/.well-known/api-catalog static/.well-known/mcp.json
   static/.well-known/mcp/server-card.json static/catalog.html static/sitemap.xml
+  static/.well-known/agent.json static/.well-known/ai-capabilities.json
+  static/.well-known/ucp static/.well-known/acp.json
+  static/.well-known/agent-skills/index.json static/.well-known/agent-skills/discover-tools.md
+  static/.well-known/openapi.json
 )
 
 PRE_DIRTY="$(git status --porcelain -- "${FILES[@]}")"

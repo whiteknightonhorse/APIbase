@@ -187,6 +187,7 @@ else
   # server-card.json is generated (scripts/gen-card.ts), never hand-edited. Regenerate it here so
   # it can never drift from the same DB truth as the text surfaces above.
   PG_IP=$(docker inspect apibase-postgres-1 2>/dev/null | python3 -c "import sys,json; c=json.load(sys.stdin)[0]; print(list(c['NetworkSettings']['Networks'].values())[0]['IPAddress'])")
+  declare -A MD5_BEFORE_DISCOVERY
   if [ -n "$PG_IP" ]; then
     b=$(md5sum static/.well-known/mcp/server-card.json 2>/dev/null | cut -d" " -f1 || echo "")
     DATABASE_URL="postgresql://apibase:$(grep -m1 '^POSTGRES_PASSWORD=' .env | cut -d= -f2-)@${PG_IP}:5432/apibase?schema=public" \
@@ -202,31 +203,54 @@ else
       npx tsx scripts/gen-catalog-page.ts > /tmp/gen-catalog-page.out 2>&1 \
       || { echo "sync-counts: gen-catalog-page.ts FAILED"; cat /tmp/gen-catalog-page.out; exit 1; }
     [ "$(md5sum static/catalog.html | cut -d" " -f1)" != "$b" ] && { echo "  updated static/catalog.html"; CHANGED=$((CHANGED+1)); }
+
+    # ZZ-03-06 (zz-03 Q7 ruling-1): scripts/gen-discovery.ts is now the ONLY writer of
+    # mcp.json, agent.json, ai-capabilities.json, ucp, acp.json, agent-skills/index.json,
+    # agent-skills/discover-tools.md — replaces the old inline python mcp.json sed/patch
+    # block that lived here (this was exactly the mechanism that let ai-capabilities.json,
+    # agent.json, ucp, acp.json, agent-skills/* drift for 5+ months: nothing ever wrote them
+    # at all, this gate only ever touched mcp.json). All seven are now generated wholesale
+    # from the same TOOL_DEFINITIONS ∩ active-DB-snapshot intersection gen-card.ts uses, via
+    # the same SYNC_COUNTS_SNAPSHOT so every generator in this run agrees exactly. Idempotent
+    # (see gen-discovery.ts's writeJsonIfChanged/writeTextIfChanged) -- a run with 0 real drift
+    # touches 0 bytes of these seven files, no daily date-churn commits.
+    for f in static/.well-known/mcp.json static/.well-known/agent.json \
+             static/.well-known/ai-capabilities.json static/.well-known/ucp \
+             static/.well-known/acp.json static/.well-known/agent-skills/index.json \
+             static/.well-known/agent-skills/discover-tools.md; do
+      [ -f "$f" ] && MD5_BEFORE_DISCOVERY["$f"]=$(md5sum "$f" | cut -d" " -f1)
+    done
+    DATABASE_URL="postgresql://apibase:$(grep -m1 '^POSTGRES_PASSWORD=' .env | cut -d= -f2-)@${PG_IP}:5432/apibase?schema=public" \
+      npx tsx scripts/gen-discovery.ts > /tmp/gen-discovery.out 2>&1 \
+      || { echo "sync-counts: gen-discovery.ts FAILED"; cat /tmp/gen-discovery.out; exit 1; }
+    cat /tmp/gen-discovery.out
+    for f in static/.well-known/mcp.json static/.well-known/agent.json \
+             static/.well-known/ai-capabilities.json static/.well-known/ucp \
+             static/.well-known/acp.json static/.well-known/agent-skills/index.json \
+             static/.well-known/agent-skills/discover-tools.md; do
+      [ -f "$f" ] && [ "$(md5sum "$f" | cut -d" " -f1)" != "${MD5_BEFORE_DISCOVERY[$f]:-}" ] \
+        && { echo "  updated $f"; CHANGED=$((CHANGED+1)); }
+    done
+
+    # generate-openapi.ts (ZZ-03-06): filters TOOL_DEFINITIONS to the same active-DB
+    # intersection (fixes the confirmed 52-path surplus, 1436 TOOL_DEFINITIONS vs 1384 live
+    # tools) and reads info.version from package.json instead of a hardcoded "1.0.0".
+    # Regenerated here so it can never drift from the same DB truth as the other six.
+    b=$(md5sum static/.well-known/openapi.json 2>/dev/null | cut -d" " -f1 || echo "")
+    DATABASE_URL="postgresql://apibase:$(grep -m1 '^POSTGRES_PASSWORD=' .env | cut -d= -f2-)@${PG_IP}:5432/apibase?schema=public" \
+      npx tsx scripts/generate-openapi.ts > /tmp/generate-openapi.out 2>&1 \
+      || { echo "sync-counts: generate-openapi.ts FAILED"; cat /tmp/generate-openapi.out; exit 1; }
+    cat /tmp/generate-openapi.out
+    [ "$(md5sum static/.well-known/openapi.json | cut -d" " -f1)" != "$b" ] && { echo "  updated static/.well-known/openapi.json"; CHANGED=$((CHANGED+1)); }
   else
     echo "sync-counts: could not resolve postgres container IP"; exit 1
   fi
 
-  # numeric/structured fields: mcp.json tools_count/providers + index.html JSON-LD offerCount
-  python3 - "$TOOLS" "$PROV" <<'PY'
-import json,sys,re,datetime
-t,p=int(sys.argv[1]),int(sys.argv[2])
-fp="static/.well-known/mcp.json"
-try:
-    d=json.load(open(fp)); ch=False
-    if d.get("tools_count")!=t: d["tools_count"]=t; ch=True
-    for k in ("providers_count","providers"):
-        if k in d and d[k]!=p: d[k]=p; ch=True
-    # F6 (2026-09-02): "description" is free prose the fields above never touched -- found
-    # live at "1227+ API tools from 347 providers" while tools_count/providers_count on the
-    # very next lines of the SAME file already said 1316/373. An agent reading this file for
-    # discovery (its own "documentation" field points AI agents here) saw two different tool
-    # counts three lines apart. Rewritten from the live numbers on every run, not hand-typed.
-    desc=re.sub(r"[0-9]+\+? API tools from [0-9]+\+? providers", "%d API tools from %d providers" % (t, p), d.get("description",""))
-    if desc != d.get("description"): d["description"]=desc; ch=True
-    if ch:
-        d["updated_at"]=datetime.date.today().isoformat()
-        json.dump(d,open(fp,"w"),ensure_ascii=False,indent=2); print("  updated",fp)
-except FileNotFoundError: pass
+  # index.html JSON-LD offerCount -- the one numeric field on a hand-maintained page this
+  # generic sed loop can't reach (it needs the "tools"/"providers" word adjacent, this doesn't).
+  python3 - "$TOOLS" <<'PY'
+import re,sys
+t=int(sys.argv[1])
 ih="static/index.html"
 try:
     s=open(ih).read(); s2=re.sub(r'"offerCount":"[0-9]+"', '"offerCount":"%d"'%t, s)
@@ -305,6 +329,201 @@ m=re.search(r'([0-9]+\+? API tools from [0-9]+\+? providers)', d.get('descriptio
 print(m.group(1) if m and m.group(1)!='${TOOLS} API tools from ${PROV} providers' else '')
 " 2>/dev/null || true)
 
+# ZZ-03-06 (zz-03 Q7 ruling-1): the five machine-readable surfaces gen-discovery.ts now owns
+# wholesale (agent.json, ai-capabilities.json, ucp, acp.json, agent-skills/index.json) plus
+# openapi.json's path-count and every generated JSON's version were, before this task, checked
+# by NOTHING -- this whole gate only ever looked at mcp.json/ai.txt/llms.txt/api-catalog/
+# server-card.json/README. ai-capabilities.json sat stale at "1227 tools / 347 providers" (dated
+# 2026-04-01) the entire time this script reported "0 drift". One consolidated check for all of
+# them, same "compare against the $TOOLS/$PROV baseline established above" semantics as every
+# other STALE_* check in this file (baseline in --check mode, fresh snapshot in self-heal mode).
+STALE_DISCOVERY=$(python3 - "$TOOLS" "$PROV" <<'PY' 2>&1
+import json, re, sys
+
+TOOLS, PROV = int(sys.argv[1]), int(sys.argv[2])
+with open('package.json') as f:
+    PKG_VERSION = json.load(f)['version']
+
+problems = []
+
+
+def load(path):
+    try:
+        return json.load(open(path))
+    except FileNotFoundError:
+        return None
+
+
+def check_counts_and_version(path, tools=None, providers=None, version=None):
+    d = load(path)
+    if d is None:
+        return
+    if tools is not None and tools(d) not in (None, TOOLS):
+        problems.append(f"{path}: tools_count {tools(d)} != baseline {TOOLS}")
+    if providers is not None and providers(d) not in (None, PROV):
+        problems.append(f"{path}: providers_count {providers(d)} != baseline {PROV}")
+    if version is not None and version(d) not in (None, PKG_VERSION):
+        problems.append(f"{path}: version {version(d)!r} != package.json {PKG_VERSION!r}")
+
+
+check_counts_and_version(
+    "static/.well-known/mcp.json",
+    lambda d: d.get("tools_count"),
+    lambda d: d.get("providers_count"),
+    lambda d: d.get("version"),
+)
+check_counts_and_version(
+    "static/.well-known/agent.json",
+    lambda d: d.get("tools_count"),
+    lambda d: d.get("providers_count"),
+    lambda d: d.get("version"),
+)
+check_counts_and_version(
+    "static/.well-known/ai-capabilities.json",
+    lambda d: d.get("tools_count"),
+    lambda d: d.get("providers_count"),
+    lambda d: d.get("version"),
+)
+
+# ucp's own "version"/"protocol_version" fields are the UCP PROTOCOL spec version ("1.0"),
+# not our software release -- same distinction as mcp.json's "protocolVersion" (MCP spec date)
+# vs its own "version" (ours). Nothing to check against package.json here by design.
+check_counts_and_version(
+    "static/.well-known/acp.json",
+    tools=lambda d: d.get("capabilities", {}).get("product_catalog", {}).get("count"),
+)
+
+# ucp/acp.json embed the tool/provider count only inside free prose, not a dedicated numeric
+# field -- same shape as mcp.json's own "description" field (see STALE_MCP_DESC above).
+ucp = load("static/.well-known/ucp")
+if ucp is not None:
+    desc = (ucp.get("ucp", {}).get("services") or [{}])[0].get("description", "")
+    m = re.search(r"([0-9]+) API tools from ([0-9]+) providers", desc)
+    if m and (int(m.group(1)) != TOOLS or int(m.group(2)) != PROV):
+        problems.append(f"static/.well-known/ucp: services[0].description embeds '{m.group(0)}', baseline is {TOOLS}/{PROV}")
+
+# openapi.json: path-count vs server-card.json tools length (Q7 ruling "Обязательный контроль"
+# #3 -- this is the exact shape of the confirmed 52-path surplus bug, 1436 TOOL_DEFINITIONS
+# entries vs 1384 active tools) + info.version.
+openapi = load("static/.well-known/openapi.json")
+server_card = load("static/.well-known/mcp/server-card.json")
+if openapi is not None and server_card is not None:
+    tool_paths = len(openapi.get("paths", {})) - 3  # listTools, discoverTools, registerAgent
+    card_tools = len(server_card.get("tools", []))
+    if tool_paths != card_tools:
+        problems.append(f"openapi.json has {tool_paths} tool paths, server-card.json has {card_tools} tools")
+    if openapi.get("info", {}).get("version") != PKG_VERSION:
+        problems.append(f"openapi.json info.version {openapi.get('info', {}).get('version')!r} != package.json {PKG_VERSION!r}")
+if server_card is not None and server_card.get("version") != PKG_VERSION:
+    problems.append(f"server-card.json version {server_card.get('version')!r} != package.json {PKG_VERSION!r}")
+
+print("\n".join(problems))
+PY
+)
+
+# agent-skills/index.json sha256 -- recomputed from the ACTUAL bytes on disk right now, for
+# all three referenced skill files, not just the one gen-discovery.ts itself writes. Catches a
+# human hand-editing x402-payment.md/auto-register.md without recomputing the hash (Q7 ruling
+# acceptance criterion: "one byte in discover-tools.md without recomputing sha256 -> red by hash").
+STALE_SKILLS_SHA=$(python3 - <<'PY' 2>&1
+import hashlib, json, os
+
+idx_path = "static/.well-known/agent-skills/index.json"
+try:
+    idx = json.load(open(idx_path))
+except FileNotFoundError:
+    raise SystemExit
+
+problems = []
+for skill in idx.get("skills", []):
+    url = skill.get("url", "")
+    fname = url.rsplit("/", 1)[-1]
+    local_path = os.path.join("static/.well-known/agent-skills", fname)
+    try:
+        actual = hashlib.sha256(open(local_path, "rb").read()).hexdigest()
+    except FileNotFoundError:
+        problems.append(f"{idx_path}: {skill.get('name')} references missing file {local_path}")
+        continue
+    if actual != skill.get("sha256"):
+        problems.append(f"{idx_path}: {skill.get('name')} sha256 {skill.get('sha256')} != actual {actual} ({local_path})")
+
+print("\n".join(problems))
+PY
+)
+
+# POS-1 (docs/03-SPECIFICATION.md §13, zz-03 Q5 ruling): a single canonical lead sentence,
+# "One MCP + REST endpoint to {TOOLS} tools from {PROV} providers. No signup, no subscription,
+# no API key to start...", is meant to replace README/llms.txt's first sentence -- but that
+# text landing is a SEPARATE fleet task (POS-1/POS-2, topologically AFTER this one per
+# 04-IMPLEMENTATION-PLAN.md's dependency table: "9. POS-1/POS-2 ... depends on (5)" where (5) is
+# this gate). Nothing in this repo carries the sentence yet. This check is therefore live but
+# vacuous today -- it activates the moment that task lands the sentence, with no further change
+# needed here: if the distinctive "No signup, no subscription, no API key to start" phrase is
+# found anywhere in README.md/static/llms.txt, its embedded {TOOLS}/{PROV} numbers must match
+# baseline, fatal if not. If the phrase isn't present anywhere yet, this reports clean (there is
+# nothing to be stale) rather than failing a task that hasn't shipped.
+STALE_POSITIONING=$(python3 - "$TOOLS" "$PROV" <<'PY' 2>&1
+import re, sys
+
+TOOLS, PROV = int(sys.argv[1]), int(sys.argv[2])
+problems = []
+for path in ("README.md", "static/llms.txt"):
+    try:
+        text = open(path).read()
+    except FileNotFoundError:
+        continue
+    for m in re.finditer(r"([0-9]+) tools from ([0-9]+) providers\. No signup, no subscription, no API key to start", text):
+        if int(m.group(1)) != TOOLS or int(m.group(2)) != PROV:
+            problems.append(f"{path}: canonical POS-1 sentence embeds {m.group(1)}/{m.group(2)}, baseline is {TOOLS}/{PROV}")
+print("\n".join(problems))
+PY
+)
+
+# POS-3 (docs/03-SPECIFICATION.md §13, zz-03 Q5 ruling Rule 4): docs/ROADMAP.md with strict
+# line format `- [PLANNED|IN PROGRESS T-NNNN|SHIPPED YYYY-MM-DD <sha>|DROPPED YYYY-MM-DD
+# <reason>] Q<N> — <one line>` is its OWN fleet task (ZZ-03-13, P1, not yet dispatched -- see
+# 05-PROPOSED-FLEET-TASKS.md). Same reasoning as STALE_POSITIONING above: live but vacuous until
+# docs/ROADMAP.md exists. Once it does, every line starting "- [" must match the strict format,
+# every SHIPPED sha must resolve in this repo, and "Last reviewed: YYYY-MM-DD" (if present) must
+# be <=45 days old.
+STALE_ROADMAP=$(python3 - <<'PY' 2>&1
+import re, subprocess
+from datetime import date, datetime
+
+path = "docs/ROADMAP.md"
+try:
+    lines = open(path).read().splitlines()
+except FileNotFoundError:
+    raise SystemExit
+
+problems = []
+line_re = re.compile(
+    r"^- \[(PLANNED|IN PROGRESS T-\d+|SHIPPED \d{4}-\d{2}-\d{2} [0-9a-f]{7,40}|DROPPED \d{4}-\d{2}-\d{2} .+)\] Q\d+ — .+$"
+)
+for i, line in enumerate(lines, 1):
+    if not line.startswith("- ["):
+        continue
+    if not line_re.match(line):
+        problems.append(f"{path}:{i}: malformed roadmap line: {line}")
+        continue
+    m = re.search(r"SHIPPED \d{4}-\d{2}-\d{2} ([0-9a-f]{7,40})", line)
+    if m:
+        sha = m.group(1)
+        rc = subprocess.run(["git", "cat-file", "-e", sha], capture_output=True)
+        if rc.returncode != 0:
+            problems.append(f"{path}:{i}: SHIPPED sha {sha} does not exist in this repo")
+
+m = re.search(r"Last reviewed:\s*(\d{4}-\d{2}-\d{2})", "\n".join(lines))
+if m:
+    reviewed = datetime.strptime(m.group(1), "%Y-%m-%d").date()
+    age = (date.today() - reviewed).days
+    if age > 45:
+        problems.append(f"{path}: Last reviewed {m.group(1)} is {age} days old (>45)")
+
+print("\n".join(problems))
+PY
+)
+
 FAIL=0
 [ -n "$STALE" ] && { echo "sync-counts: STALE text surfaces remain:"; echo "$STALE"; FAIL=1; }
 [ -n "$STALE_AI_TXT" ] && { echo "sync-counts: STALE ai.txt 'Tools: N across' remains: $STALE_AI_TXT"; FAIL=1; }
@@ -317,6 +536,10 @@ FAIL=0
 [ -n "$STALE_README_NUMBERS" ] && { echo "sync-counts: README.md has a number+tool/provider/schema/categor/integration/registr/stage/container phrase that isn't the two covered forms:"; echo "$STALE_README_NUMBERS"; FAIL=1; }
 [ -n "$STALE_README_BADGE_NUM" ] && { echo "sync-counts: README.md has a shields.io badge with a hand-typed number remaining:"; echo "$STALE_README_BADGE_NUM"; FAIL=1; }
 [ -n "$STALE_SITEMAP" ] && { echo "sync-counts: STALE static/sitemap.xml — differs from the generated URL set:"; echo "$STALE_SITEMAP"; FAIL=1; }
+[ -n "$STALE_DISCOVERY" ] && { echo "sync-counts: STALE discovery surface(s) remain:"; echo "$STALE_DISCOVERY"; FAIL=1; }
+[ -n "$STALE_SKILLS_SHA" ] && { echo "sync-counts: STALE agent-skills sha256 remain:"; echo "$STALE_SKILLS_SHA"; FAIL=1; }
+[ -n "$STALE_POSITIONING" ] && { echo "sync-counts: STALE_POSITIONING — canonical sentence disagrees with baseline:"; echo "$STALE_POSITIONING"; FAIL=1; }
+[ -n "$STALE_ROADMAP" ] && { echo "sync-counts: STALE_ROADMAP — docs/ROADMAP.md format/SHA/freshness violation(s):"; echo "$STALE_ROADMAP"; FAIL=1; }
 
 if [ "$FAIL" = "0" ]; then
   if [ "$CHECK" = "1" ]; then

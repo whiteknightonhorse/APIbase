@@ -10,6 +10,7 @@
 import { writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { readFileSync } from 'node:fs';
+import { PrismaClient } from '@prisma/client';
 import { TOOL_DEFINITIONS } from '../src/mcp/tool-definitions';
 import { toolSchemas } from '../src/schemas/index';
 import { zodToJsonSchema } from '../src/utils/zod-to-json-schema';
@@ -24,6 +25,31 @@ const toolConfigs: Array<{ tool_id: string; price_usd: string }> = parse(yamlCon
 const priceMap = new Map<string, number>();
 for (const tc of toolConfigs) {
   priceMap.set(tc.tool_id, parseFloat(tc.price_usd) || 0);
+}
+
+const { version: PACKAGE_VERSION } = JSON.parse(
+  readFileSync(resolve(__dirname, '..', 'package.json'), 'utf-8'),
+) as { version: string };
+
+// ZZ-03-06 (zz-03 Q7 ruling-1, item 1 of the "Обязательный контроль"): TOOL_DEFINITIONS alone
+// has ~50 more entries than are actually seeded/active (never-seeded or since-demoted tools) —
+// that gap was the exact cause of a confirmed 52-path surplus in this file (1436 paths vs 1384
+// live tools). Filter to the same TOOL_DEFINITIONS ∩ active-DB-snapshot intersection
+// gen-card.ts/gen-discovery.ts already use, via the same SYNC_COUNTS_SNAPSHOT convention (T-05,
+// 2026-09-04, ruling-1) so every generator in one sync-counts.sh self-heal run agrees exactly.
+const prisma = new PrismaClient();
+
+async function loadActiveToolIds(): Promise<Set<string>> {
+  const snapshotPath = process.env.SYNC_COUNTS_SNAPSHOT;
+  if (snapshotPath) {
+    const lines = readFileSync(snapshotPath, 'utf8').split('\n').filter(Boolean);
+    return new Set(lines.map((l) => l.split('\t')[0]));
+  }
+  const rows = await prisma.tool.findMany({
+    where: { status: { not: 'unavailable' } },
+    select: { tool_id: true },
+  });
+  return new Set(rows.map((r) => r.tool_id));
 }
 
 // ---------------------------------------------------------------------------
@@ -54,7 +80,10 @@ interface OpenApiPath {
   };
 }
 
-function generate(): void {
+async function generate(): Promise<void> {
+  const activeIds = await loadActiveToolIds();
+  const activeDefs = TOOL_DEFINITIONS.filter((d) => activeIds.has(d.toolId));
+
   const paths: Record<string, OpenApiPath | Record<string, unknown>> = {};
 
   // Tool catalog
@@ -161,8 +190,8 @@ function generate(): void {
     },
   };
 
-  // Per-tool execution paths
-  for (const def of TOOL_DEFINITIONS) {
+  // Per-tool execution paths — only for tools in the active intersection (see loadActiveToolIds).
+  for (const def of activeDefs) {
     const schema = toolSchemas[def.toolId];
     const operationId = def.toolId.replace(/\./g, '_');
     const inputSchema = schema ? zodToJsonSchema(schema) : { type: 'object' };
@@ -219,7 +248,7 @@ function generate(): void {
     openapi: '3.1.0',
     info: {
       title: 'APIbase — Universal API Hub for AI Agents',
-      version: '1.0.0',
+      version: PACKAGE_VERSION,
       description:
         'APIbase aggregates, normalizes, and provides APIs from hundreds of businesses in a unified format optimized for AI agent consumption. Search flights, trade prediction markets, check weather, and more — all via a single REST API or MCP endpoint. Supports dual-rail payments: x402 (USDC on Base) and MPP (USDC on Tempo).',
       'x-guidance':
@@ -257,10 +286,15 @@ function generate(): void {
   const outPath = resolve(__dirname, '..', 'static', '.well-known', 'openapi.json');
   writeFileSync(outPath, JSON.stringify(doc, null, 2) + '\n', 'utf-8');
 
-  const toolCount = TOOL_DEFINITIONS.length;
+  const toolCount = activeDefs.length;
   const pathCount = Object.keys(paths).length;
-  console.log(`OpenAPI spec generated: ${pathCount} paths (${toolCount} tools + 2 platform)`);
+  console.log(`OpenAPI spec generated: ${pathCount} paths (${toolCount} tools + 3 platform)`);
   console.log(`Output: ${outPath}`);
 }
 
-generate();
+generate()
+  .catch((err) => {
+    console.error('generate-openapi failed:', err);
+    process.exitCode = 1;
+  })
+  .finally(() => prisma.$disconnect());
