@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1379 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1386 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -3506,6 +3506,343 @@
         "required": [
           "iban"
         ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "music.artists.search",
+      "description": "Search for music artists by name across 2M+ artists — biography, country, tags, aliases (MusicBrainz)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query for artist name (e.g. \"Radiohead\", \"Miles Davis\")"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Max results to return (1-100, default 25)"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Pagination offset for results"
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "music.artists.details",
+      "description": "Get detailed artist info by MusicBrainz ID — tags, ratings, external links, life span, area (MusicBrainz)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "mbid": {
+            "type": "string",
+            "description": "MusicBrainz artist ID (UUID format, e.g. \"a74b1b7f-71a5-4011-9441-d0b5e4122711\")"
+          }
+        },
+        "required": [
+          "mbid"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "music.releases.search",
+      "description": "Search for albums, singles, and EPs across 50M+ recordings — title, artist, date (MusicBrainz)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query for release/album title (e.g. \"OK Computer\", \"Kind of Blue\"). Supports Lucene syntax: artist:\"Radiohead\" AND release:\"OK Computer\""
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Max results to return (1-100, default 25)"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Pagination offset for results"
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "music.releases.details",
+      "description": "Get full release details by MusicBrainz ID — artist credits, labels, media formats (MusicBrainz)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "mbid": {
+            "type": "string",
+            "description": "MusicBrainz release ID (UUID format). Returns artist credits and label info"
+          }
+        },
+        "required": [
+          "mbid"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "music.recordings.search",
+      "description": "Search for songs and recordings by title or artist — duration, release history, artist credits (MusicBrainz)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query for song/recording title (e.g. \"Creep\", \"So What\"). Supports Lucene syntax: artist:\"Radiohead\" AND recording:\"Creep\""
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Max results to return (1-100, default 25)"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Pagination offset for results"
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "music.discover.fresh",
+      "description": "Discover recently released albums and singles from the past N days — trending new music (ListenBrainz)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "days": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 90,
+            "description": "Number of days to look back for fresh releases (1-90, default 7)"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "description": "Max releases to return (1-200, default 50)"
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "music.radio.search",
+      "description": "Search 40K+ internet radio stations by name, genre, country, or language — streaming URLs, bitrate, codec (RadioBrowser)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Station name to search for (e.g. \"BBC Radio\", \"Jazz FM\")"
+          },
+          "tag": {
+            "type": "string",
+            "description": "Tag/genre filter (e.g. \"rock\", \"jazz\", \"classical\", \"news\")"
+          },
+          "country": {
+            "type": "string",
+            "description": "Country name filter (e.g. \"Germany\", \"United States\")"
+          },
+          "countrycode": {
+            "type": "string",
+            "description": "ISO 3166-1 alpha-2 country code (e.g. \"US\", \"DE\", \"GB\")"
+          },
+          "language": {
+            "type": "string",
+            "description": "Language filter (e.g. \"english\", \"german\", \"spanish\")"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Max stations to return (1-100, default 25)"
+          },
+          "order": {
+            "type": "string",
+            "enum": [
+              "name",
+              "url",
+              "homepage",
+              "favicon",
+              "tags",
+              "country",
+              "state",
+              "language",
+              "votes",
+              "codec",
+              "bitrate",
+              "lastcheckok",
+              "lastchecktime",
+              "clicktimestamp",
+              "clickcount",
+              "clicktrend",
+              "changetimestamp",
+              "random"
+            ],
+            "description": "Sort order for results"
+          },
+          "hidebroken": {
+            "type": "boolean",
+            "description": "Hide broken/offline stations (recommended: true)"
+          }
+        }
       },
       "outputSchema": {
         "type": "object",
