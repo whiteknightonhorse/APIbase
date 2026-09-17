@@ -1,5 +1,9 @@
 import { BaseAdapter } from '../base.adapter';
-import { type ProviderRequest, type ProviderRawResponse, ProviderErrorCode } from '../../types/provider';
+import {
+  type ProviderRequest,
+  type ProviderRawResponse,
+  ProviderErrorCode,
+} from '../../types/provider';
 
 /**
  * GDELT adapter (UC-107).
@@ -7,7 +11,7 @@ import { type ProviderRequest, type ProviderRawResponse, ProviderErrorCode } fro
  */
 export class GdeltAdapter extends BaseAdapter {
   constructor() {
-    super({ provider: 'gdelt', baseUrl: 'https://api.gdeltproject.org/api/v2' });
+    super({ provider: 'gdelt', baseUrl: 'https://api.gdeltproject.org/api/v2', timeoutMs: 25000 });
   }
 
   protected buildRequest(req: ProviderRequest) {
@@ -35,7 +39,14 @@ export class GdeltAdapter extends BaseAdapter {
         return { url: `${this.baseUrl}/doc/doc?${qs}`, method: 'GET', headers: h };
       }
       default:
-        throw { code: ProviderErrorCode.INVALID_RESPONSE, httpStatus: 502, message: `Unsupported: ${req.toolId}`, provider: this.provider, toolId: req.toolId, durationMs: 0 };
+        throw {
+          code: ProviderErrorCode.INVALID_RESPONSE,
+          httpStatus: 502,
+          message: `Unsupported: ${req.toolId}`,
+          provider: this.provider,
+          toolId: req.toolId,
+          durationMs: 0,
+        };
     }
   }
 
