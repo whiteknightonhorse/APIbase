@@ -40,7 +40,7 @@ const EBI_METAGENOMICS_BASE = 'https://www.ebi.ac.uk/metagenomics/api/v1';
  */
 export class EbiMetagenomicsAdapter extends BaseAdapter {
   constructor() {
-    super({ provider: 'ebi-metagenomics', baseUrl: EBI_METAGENOMICS_BASE });
+    super({ provider: 'ebi-metagenomics', baseUrl: EBI_METAGENOMICS_BASE, timeoutMs: 25000 });
   }
 
   protected buildRequest(req: ProviderRequest): {
