@@ -1,14 +1,14 @@
 {
   "platform": "APIbase",
   "version": "2.1.0",
-  "updated_at": "2026-09-16T00:00:00Z",
-  "tools_count": 1387,
-  "providers_count": 397,
+  "updated_at": "2026-09-17T00:00:00Z",
+  "tools_count": 1385,
+  "providers_count": 396,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
     "prompt_name": "discover_tools",
-    "description": "Call discover_tools to browse 1387 tools by category or task instead of loading all schemas into context.",
+    "description": "Call discover_tools to browse 1385 tools by category or task instead of loading all schemas into context.",
     "examples": [
       {
         "args": {},
@@ -127,8 +127,8 @@
     },
     {
       "name": "news",
-      "tools": 18,
-      "providers": "Currents, GDELT, Hackernews, Hnalgolia, Newsdata",
+      "tools": 16,
+      "providers": "Currents, Hackernews, Hnalgolia, Newsdata",
       "examples": "Call discover_tools with category=\"news\" for the current tool list and descriptions."
     },
     {
