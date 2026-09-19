@@ -20,7 +20,7 @@
     "checkout": false,
     "product_catalog": {
       "url": "https://apibase.pro/api/v1/tools",
-      "count": 1384,
+      "count": 1382,
       "type": "api-tool-catalog"
     },
     "supported_payment_methods": [
@@ -44,5 +44,5 @@
     "agent_card": "https://apibase.pro/.well-known/agent.json"
   },
   "contact": "https://github.com/whiteknightonhorse/APIbase",
-  "updated_at": "2026-09-18"
+  "updated_at": "2026-09-19"
 }
