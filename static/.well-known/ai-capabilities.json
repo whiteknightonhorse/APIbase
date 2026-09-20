@@ -2,13 +2,13 @@
   "platform": "APIbase",
   "version": "2.1.0",
   "updated_at": "2026-09-20T00:00:00Z",
-  "tools_count": 1380,
-  "providers_count": 395,
+  "tools_count": 1384,
+  "providers_count": 396,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
     "prompt_name": "discover_tools",
-    "description": "Call discover_tools to browse 1380 tools by category or task instead of loading all schemas into context.",
+    "description": "Call discover_tools to browse 1384 tools by category or task instead of loading all schemas into context.",
     "examples": [
       {
         "args": {},
@@ -85,8 +85,8 @@
     },
     {
       "name": "space",
-      "tools": 48,
-      "providers": "Celestrak, Cernopendata, Copernicus Sentinel, Firms, Iss, Launch Library 2, NASA, NASA Cmr, Nasaexoplanet, Nasantrs, Solar, Sunrisesunset, Swpc, Usno",
+      "tools": 52,
+      "providers": "Celestrak, Cernopendata, Copernicus Sentinel, Firms, Iss, Jpl, Launch Library 2, NASA, NASA Cmr, Nasaexoplanet, Nasantrs, Solar, Sunrisesunset, Swpc, Usno",
       "examples": "Call discover_tools with category=\"space\" for the current tool list and descriptions."
     },
     {
