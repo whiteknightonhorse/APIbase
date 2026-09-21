@@ -2110,11 +2110,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://docs.opensensemap.org/",
-    "limit_proof": "OpenSenseMap REST API v11: no authentication required for read endpoints, no documented rate limits. PDDL 1.0 public domain, 15K+ crowdsourced environmental sensor stations.",
-    "probe": {
-      "method": "GET",
-      "timeout_ms": 15000
-    }
+    "limit_proof": "OpenSenseMap REST API v11: no authentication required for read endpoints, no documented rate limits. PDDL 1.0 public domain, 15K+ crowdsourced environmental sensor stations."
   },
   "openfda_devices": {
     "display_name": "OpenFDA Medical Devices",
