@@ -48,7 +48,7 @@ export class NorgesBankAdapter extends BaseAdapter {
   } {
     const p = req.params as Record<string, unknown>;
     const headers: Record<string, string> = {
-      Accept: 'application/vnd.sdmx.data+json;version=1.0',
+      Accept: 'application/vnd.sdmx.data+json',
     };
 
     switch (req.toolId) {
