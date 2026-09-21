@@ -18,6 +18,7 @@ import {
   checkAndConsumeBudget,
   recordProbeResult,
   shouldRetryWithGet,
+  probeDetail,
   type TransitionInput,
 } from '../../src/jobs/provider-health.job';
 
@@ -295,6 +296,126 @@ describe("T-0141 mutation control — the 429 fix must actually change gdelt's o
 
   it('new classifier (429=FAIL_TRANSIENT) does NOT end the sequence HEALTHY on the same real data', () => {
     expect(replay(postT0141Classify)).not.toBe('HEALTHY');
+  });
+});
+
+describe('probeDetail — T-0143: a probe with no HTTP status still names a cause', () => {
+  it('timeout: names the ceiling that was hit', () => {
+    expect(probeDetail({ kind: 'timeout' }, 12000)).toContain('timeout after 12000ms');
+  });
+
+  it('network_error: leads with "network_error:" and the undici cause code', () => {
+    expect(probeDetail({ kind: 'network_error', cause: 'ECONNRESET' }, 5000)).toMatch(
+      /^network_error: ECONNRESET/,
+    );
+  });
+
+  it('network_error with no cause still returns a non-empty string, not undefined', () => {
+    expect(probeDetail({ kind: 'network_error' }, 5000)).toBe(
+      'network_error: unknown (no HTTP response)',
+    );
+  });
+
+  it('429 is unchanged from T-0141: exactly "429 rate-limited"', () => {
+    expect(probeDetail({ kind: 'status', status: 429 }, 5000)).toBe('429 rate-limited');
+  });
+
+  it.each([200, 503])('status %d with no rate-limit story stays undefined', (status) => {
+    expect(probeDetail({ kind: 'status', status }, 5000)).toBeUndefined();
+  });
+});
+
+describe('T-0143 mutation control — a probe with no HTTP status must stop leaving detail empty', () => {
+  // Real probe_log rows for nbi and sslchecker, every daily FAIL_TRANSIENT
+  // since their last OK (PROOF: taskloop/logs/0143-.../03-nbi-sslchecker-probe-log.txt),
+  // all eight with http_status and detail both empty in prod. Live replay from
+  // the production worker container (PROOF: 05-nbi-sslchecker-live-probe-from-worker.txt)
+  // identified which ProbeOutcome kind each host actually produces: nbi's
+  // HEAD/GET both hit the 12s ceiling (TimeoutError), sslchecker's connection
+  // never comes up at all (TypeError: fetch failed, ~350ms, undici ECONNRESET-class).
+  const NBI_SSLCHECKER_SEQUENCE: Array<{
+    provider: 'nbi' | 'sslchecker';
+    outcome: 'timeout' | 'network_error';
+  }> = [
+    { provider: 'sslchecker', outcome: 'network_error' },
+    { provider: 'nbi', outcome: 'timeout' },
+    { provider: 'sslchecker', outcome: 'network_error' },
+    { provider: 'nbi', outcome: 'timeout' },
+    { provider: 'sslchecker', outcome: 'network_error' },
+    { provider: 'nbi', outcome: 'timeout' },
+    { provider: 'sslchecker', outcome: 'network_error' },
+    { provider: 'nbi', outcome: 'timeout' },
+  ];
+
+  // Pre-T-0143 behavior (still today's `rateLimitDetail` pattern for the 429
+  // case, frozen here as a standalone copy — NOT an import — so this control
+  // keeps meaning "old vs new" even if probeDetail changes again later):
+  // only httpStatus===429 ever produced a detail string. Neither nbi nor
+  // sslchecker ever had an http_status at all, so this always returns undefined.
+  function preT0143Detail(httpStatus: number | undefined): string | undefined {
+    return httpStatus === 429 ? '429 rate-limited' : undefined;
+  }
+
+  function newDetail(outcome: 'timeout' | 'network_error'): string | undefined {
+    return outcome === 'timeout'
+      ? probeDetail({ kind: 'timeout' }, 12000)
+      : probeDetail({ kind: 'network_error', cause: 'ECONNRESET' }, 12000);
+  }
+
+  it('old logic: every one of the 8 real rows for both providers stays undefined — matches prod (empty detail column, PROOF: 03-nbi-sslchecker-probe-log.txt)', () => {
+    for (let i = 0; i < NBI_SSLCHECKER_SEQUENCE.length; i++) {
+      expect(preT0143Detail(undefined)).toBeUndefined();
+    }
+  });
+
+  it('new logic: every one of the 8 real rows gets a non-empty detail, and nbi/sslchecker read differently from each other', () => {
+    const nbiDetails = NBI_SSLCHECKER_SEQUENCE.filter((r) => r.provider === 'nbi').map((r) =>
+      newDetail(r.outcome),
+    );
+    const sslDetails = NBI_SSLCHECKER_SEQUENCE.filter((r) => r.provider === 'sslchecker').map((r) =>
+      newDetail(r.outcome),
+    );
+    for (const d of [...nbiDetails, ...sslDetails]) {
+      expect(d).toBeDefined();
+      expect(d).not.toBe('');
+    }
+    expect(nbiDetails[0]).not.toBe(sslDetails[0]);
+    expect(nbiDetails[0]).toContain('timeout');
+    expect(sslDetails[0]).toContain('network_error');
+  });
+
+  it('F1 state ends up identical under old and new detail logic — the fix changes what humans read, never what the state machine decides (T-0143 explicitly rejects any behavior change to F1)', () => {
+    function replay(
+      detailFn: (row: (typeof NBI_SSLCHECKER_SEQUENCE)[number]) => string | undefined,
+    ): string {
+      let state = 'DOWN'; // both providers were already DOWN going into this window
+      let failures = 17;
+      let intervalS = 86400;
+      let recoveryStreak = 0;
+      for (const row of NBI_SSLCHECKER_SEQUENCE) {
+        detailFn(row); // detail is a side-channel string, never fed into computeTransition
+        const out = computeTransition(
+          {
+            oldState: state,
+            oldFailures: failures,
+            oldIntervalS: intervalS,
+            result: 'FAIL_TRANSIENT',
+            recoveryStreak,
+          },
+          () => FIXED_JITTER_S,
+        );
+        state = out.newState;
+        failures = out.newFailures;
+        intervalS = out.newIntervalS;
+        recoveryStreak = out.newRecoveryStreak;
+      }
+      return state;
+    }
+
+    const oldEnd = replay((row) => preT0143Detail(undefined));
+    const newEnd = replay((row) => newDetail(row.outcome));
+    expect(newEnd).toBe(oldEnd);
+    expect(newEnd).toBe('DOWN');
   });
 });
 

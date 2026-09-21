@@ -536,6 +536,12 @@ there, neither hardcodes a number. AP-8 mirrors this state onto `tools.status`
 (healthy|degraded|unavailable, `status_source='autopilot'`) every incident-engine tick —
 `status_source='manual'` (or legacy NULL sitting at a non-healthy status) is never touched.
 
+`DOWN` — терминальное состояние F1 по замыслу; состояния после него и предела по возрасту в F1
+нет. Дальше — F2 (§10.2): `detect_from_provider_status()` открывает/сливает `PROVIDER_DOWN`
+каждый тик, пока строка в `DOWN`. `consecutive_failures` считает дальше порога; после порога его
+никто не читает — счётчик, не сигнал. Проба без HTTP-статуса пишет причину в
+`probe_log.detail`/`state_reason`: `timeout after Nms` или `network_error: <код>` (T-0143).
+
 ### 10.2 Incident lifecycle (F2)
 
 ```
@@ -546,6 +552,10 @@ OPEN --router--> REMEDIATION_QUEUED --fleet DONE--> VERIFYING --re-probe OK--> R
   +--money/unknown--> WAITING_HUMAN                                                          v
                                                                                             STUCK (human only)
 ```
+
+`STUCK` пейджит человека ровно один раз — на переходе. Периодического напоминания для STUCK нет
+(в отличие от 72 ч у `WAITING_HUMAN`) — по замыслу. Возраст: `incident-cli.py list --state STUCK`.
+Действие человека: `reopen` (обратно в AP-6) или `resolve-request` (T-0143).
 
 Route classes (`config/autopilot/routing.json`, one file, loaded once): `AUTO`/`MIXED` file a real
 fleet task (`≤3/day` cap, severity-ordered so SEV1 never loses a slot to an older SEV3);

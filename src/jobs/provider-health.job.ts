@@ -162,7 +162,7 @@ export type ProbeKind = 'head' | 'get' | 'auth' | 'usage_api' | 'passive' | 'sup
 
 export type ProbeOutcome =
   | { kind: 'timeout' }
-  | { kind: 'network_error' }
+  | { kind: 'network_error'; cause?: string }
   | { kind: 'status'; status: number };
 
 const STATE_RANK: Record<string, number> = { UNKNOWN: 0, HEALTHY: 0, DEGRADED: 1, DOWN: 2 };
@@ -430,10 +430,42 @@ async function fetchOutcome(
   } catch (err) {
     const latencyMs = Math.round(performance.now() - start);
     return {
-      outcome: isTimeoutError(err) ? { kind: 'timeout' } : { kind: 'network_error' },
+      outcome: isTimeoutError(err)
+        ? { kind: 'timeout' }
+        : { kind: 'network_error', cause: networkCause(err) },
       latencyMs,
     };
   }
+}
+
+/**
+ * T-0143: extract a diagnosable cause from a fetch() rejection that never
+ * produced an HTTP response — undici's error `code` (ECONNRESET/ENOTFOUND/
+ * ECONNREFUSED/CERT_HAS_EXPIRED/UND_ERR_*) when present, else the error
+ * message, truncated. Without this, `probe_log.detail` stayed empty for
+ * every network-level failure (nbi/sslchecker measured: 18 straight days).
+ */
+function networkCause(err: unknown): string | undefined {
+  const cause = (err as { cause?: unknown })?.cause;
+  const code = (cause as { code?: unknown })?.code;
+  if (typeof code === 'string') return code;
+  const msg =
+    cause instanceof Error ? cause.message : err instanceof Error ? err.message : undefined;
+  return msg ? msg.slice(0, 120) : undefined;
+}
+
+/**
+ * T-0143: the one place `detail`/`stateReason` are derived for an active
+ * probe outcome. `classifyHeadResult`/`classifyAuthResult` never see this —
+ * it only explains a result already classified, never changes it.
+ */
+export function probeDetail(outcome: ProbeOutcome, timeoutMs: number): string | undefined {
+  if (outcome.kind === 'timeout') return `timeout after ${timeoutMs}ms (no HTTP response)`;
+  if (outcome.kind === 'network_error') {
+    return `network_error: ${outcome.cause ?? 'unknown'} (no HTTP response)`;
+  }
+  if (outcome.kind === 'status' && outcome.status === 429) return '429 rate-limited';
+  return undefined;
 }
 
 /**
@@ -798,12 +830,12 @@ async function probeHead(
     }
     const getResult = await fetchOutcome(healthUrl, 'GET', getHeaders, HEALTH_CHECK_GET_TIMEOUT_MS);
     const result = classifyHeadResult(getResult.outcome);
-    const rateLimitDetail = getResult.httpStatus === 429 ? '429 rate-limited' : undefined;
+    const detail = probeDetail(getResult.outcome, HEALTH_CHECK_GET_TIMEOUT_MS);
     await recordProbeResult(db, redis, provider, 'get', result, {
       httpStatus: getResult.httpStatus,
       latencyMs: getResult.latencyMs,
-      detail: rateLimitDetail,
-      stateReason: rateLimitDetail,
+      detail,
+      stateReason: detail,
     });
     return;
   }
@@ -813,12 +845,13 @@ async function probeHead(
   // rather than a bare FAIL_TRANSIENT — incident-engine's RATE_LIMITED routing
   // (detect_from_provider_status) reads the recent probe_log http_status column
   // directly, but state_reason is what a human sees on the incident/dashboard.
-  const rateLimitDetail = initial.httpStatus === 429 ? '429 rate-limited' : undefined;
+  // T-0143: same treatment for outcomes that never got an HTTP status at all.
+  const detail = probeDetail(initial.outcome, timeoutMs);
   await recordProbeResult(db, redis, provider, initialMethod === 'GET' ? 'get' : 'head', result, {
     httpStatus: initial.httpStatus,
     latencyMs: initial.latencyMs,
-    detail: rateLimitDetail,
-    stateReason: rateLimitDetail,
+    detail,
+    stateReason: detail,
   });
 }
 
@@ -846,7 +879,10 @@ async function probeAuth(
     ...authHeaders(key, probeCfg.auth_header),
   });
   const result = classifyAuthResult(outcome, expectStatus);
-  const detail = result === 'FAIL_DETERMINISTIC' ? `${httpStatus} with configured key` : undefined;
+  const detail =
+    result === 'FAIL_DETERMINISTIC'
+      ? `${httpStatus} with configured key`
+      : probeDetail(outcome, HEALTH_CHECK_TIMEOUT_MS);
   await recordProbeResult(db, redis, provider, 'auth', result, {
     httpStatus,
     latencyMs,
