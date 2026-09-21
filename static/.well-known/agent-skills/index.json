@@ -10,9 +10,9 @@
     {
       "name": "discover-tools",
       "type": "skill",
-      "description": "Progressive-disclosure workflow for finding relevant tools in APIbase's 1381-tool catalog without loading every schema into the agent context.",
+      "description": "Progressive-disclosure workflow for finding relevant tools in APIbase's 1384-tool catalog without loading every schema into the agent context.",
       "url": "https://apibase.pro/.well-known/agent-skills/discover-tools.md",
-      "sha256": "d55db5bfe78ea06c06caab74c492655b899330dcb2b5a870b2f906b67a5b581c"
+      "sha256": "d18c2a4783b67d792ae62cebf212ddc2304825817b556fff6c9816dfc90f038d"
     },
     {
       "name": "x402-payment",

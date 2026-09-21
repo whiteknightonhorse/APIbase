@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1381 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1384 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -63226,6 +63226,141 @@
         "required": [
           "dataset_id",
           "distribution_id"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "slovakia-statistics.reference.dataset_search",
+      "description": "Search/browse the 675 statistical tables published by the Statistical Office of the Slovak Republic (\"DATAcube.\") — population, earnings, prices, labour market, households, and more. Optional query substring filters table labels and cube codes (no full-text search endpoint upstream — filtered client-side). Returns cube_code + dimension_codes for use in slovakia-statistics.dataset_metadata and slovakia-statistics.dataset_data. Data: data.statistics.sk (JSON-stat 2.0 REST API), no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Substring to search across table labels and cube codes, case-insensitive (e.g. \"population\", \"earnings\", \"GDP\"). Omit to list tables from the start of the catalog (675 tables total, no full-text search endpoint upstream — filtered client-side)."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Max tables to return (1-100, default 50)."
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of matching tables to skip, for paging through results (default 0)."
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "slovakia-statistics.reference.dataset_metadata",
+      "description": "Get the dimensions and valid value codes for one DATAcube table (cube_code from slovakia-statistics.dataset_search) — every dimension (e.g. year, region, indicator, sex) with its full list of selectable codes and labels, needed to build the \"selections\" object for slovakia-statistics.dataset_data. Data: data.statistics.sk, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "cube_code": {
+            "type": "string",
+            "description": "Table code from slovakia-statistics.dataset_search (e.g. \"as1001rs\" for \"Population and attributes of age\")."
+          }
+        },
+        "required": [
+          "cube_code"
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "slovakia-statistics.series.dataset_data",
+      "description": "Fetch data rows from one DATAcube table (cube_code + selections from slovakia-statistics.dataset_metadata — one value per dimension, supports single codes, comma lists, ranges, \"lastN\", and \"*\" wildcards). Returns one row per data point with each dimension's code + label and the value. Rows capped 1-1000 (default 200). Data: data.statistics.sk, no auth required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "cube_code": {
+            "type": "string",
+            "description": "Table code from slovakia-statistics.dataset_search (e.g. \"as1001rs\" for \"Population and attributes of age\")."
+          },
+          "selections": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "One value per dimension of this table — get the dimension codes and valid value codes from slovakia-statistics.dataset_metadata first. Every dimension of the table must be present. Each value may be a single code (\"2024\"), a comma list (\"2016,2017,2018\"), a range (\"2010:2015\", \"2010:\", \":2015\"), \"lastN\" (e.g. \"last5\" for the 5 most recent), or a \"*\" wildcard (e.g. \"SK04*\"). Example: {\"as1001rs_rok\": \"2024\", \"as1001rs_ukaz\": \"UKAZ01\", \"as1001rs_poh\": \"TOTAL\"}."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000,
+            "description": "Max data rows to return (1-1000, default 200)."
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of data rows to skip, for paging through a large selection (default 0)."
+          }
+        },
+        "required": [
+          "cube_code",
+          "selections"
         ]
       },
       "outputSchema": {
