@@ -782,6 +782,11 @@
     "probe": {
       "method": "GET",
       "timeout_ms": 35000
+    },
+    "retired": {
+      "since": "2026-09-21",
+      "task": "T-0152b",
+      "reason": "operator decision 2026-09-21 (\"Похоронить провайдера\"), see AUTOPILOT-PROGRESS.md#T-0152-gdelt-deprecation-assess-and-plan and #T-0141-gdelt-is-chronically-slow-and-rate-limited"
     }
   },
   "firms": {
