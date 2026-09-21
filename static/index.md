@@ -21,7 +21,7 @@ juggling, no per-provider billing.
 2. **Discover** — call the `discover_tools` prompt with a `category` or `task`
    argument. Instead of loading all 502 tool schemas into context, fetch only
    the tools relevant to the current agent goal.
-3. **Call** — `tools/call` with any tool name. The 13-stage pipeline handles
+3. **Call** — `tools/call` with any tool name. The multi-stage pipeline handles
    authentication, idempotency, schema validation, caching, rate limiting,
    escrow, the provider call, ledger write, and the response.
 

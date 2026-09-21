@@ -307,6 +307,15 @@ STALE_README_NUMBERS=$(grep -ohE '[0-9]{2,4}\+?[ -]?(tool|provider|schema|catego
 # holds the MCP Registry badge to the same bar instead of adding a version-specific gate
 # that would just be a fourth hand-typed regex to rot.
 STALE_README_BADGE_NUM=$(grep -oE 'shields\.io/badge/[^)]*' README.md 2>/dev/null | grep -E '[0-9]' || true)
+# ZZ-03-06 (zz-03 Q7 ruling-1, item 8 + subquestion 2): the README "no number" rule above
+# extends to static/*.md and agent-skills/*.md -- this is what caught static/index.md and
+# static/devto-article-1.md both claiming "13-stage pipeline" (real, runtime-verified count is
+# 14, see pipeline.ts's verifyStageOrder()) while nothing read either file. Scoped to the stage
+# COUNT claim specifically (not every historical number in devto-article-1.md's narrative,
+# which is a dated blog post, not a live-synced surface) -- same reasoning as README's own
+# "13-stage -> 14-stage" gap (T-40). Direction matters: matches "13-stage"/"13 stages" but not
+# "Stage 1: AUTH" (number follows the word there, not before it).
+STALE_STAGE_COUNT=$(grep -rnoE '[0-9]{1,2}[ -]stages?\b' static/*.md static/.well-known/agent-skills/*.md 2>/dev/null || true)
 # static/sitemap.xml must carry a <loc> for every static page + .well-known file we actually
 # serve -- this is what caught the sitemap sitting stale since 2026-04-22 missing /pricing,
 # /catalog, /connect, /policy/moderation (all shipped after that date). Read-only re-derivation
@@ -535,6 +544,7 @@ FAIL=0
 [ -n "$STALE_README_PROSE" ] && { echo "sync-counts: STALE README prose remains:"; echo "$STALE_README_PROSE"; FAIL=1; }
 [ -n "$STALE_README_NUMBERS" ] && { echo "sync-counts: README.md has a number+tool/provider/schema/categor/integration/registr/stage/container phrase that isn't the two covered forms:"; echo "$STALE_README_NUMBERS"; FAIL=1; }
 [ -n "$STALE_README_BADGE_NUM" ] && { echo "sync-counts: README.md has a shields.io badge with a hand-typed number remaining:"; echo "$STALE_README_BADGE_NUM"; FAIL=1; }
+[ -n "$STALE_STAGE_COUNT" ] && { echo "sync-counts: STALE stage-count number in static/*.md or agent-skills/*.md (remove the number, don't update it):"; echo "$STALE_STAGE_COUNT"; FAIL=1; }
 [ -n "$STALE_SITEMAP" ] && { echo "sync-counts: STALE static/sitemap.xml — differs from the generated URL set:"; echo "$STALE_SITEMAP"; FAIL=1; }
 [ -n "$STALE_DISCOVERY" ] && { echo "sync-counts: STALE discovery surface(s) remain:"; echo "$STALE_DISCOVERY"; FAIL=1; }
 [ -n "$STALE_SKILLS_SHA" ] && { echo "sync-counts: STALE agent-skills sha256 remain:"; echo "$STALE_SKILLS_SHA"; FAIL=1; }

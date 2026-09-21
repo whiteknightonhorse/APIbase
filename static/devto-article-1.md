@@ -39,9 +39,9 @@ Here's what a single tool call looks like from the agent's perspective:
 
 The response comes back with the stock price. Behind the scenes, $0.001 in USDC was escrowed, the Finnhub API was called, and the payment was settled — all in under 400ms.
 
-## The 13-Stage Pipeline
+## The Multi-Stage Pipeline
 
-Every tool call passes through 13 stages in strict order. No stage can be skipped or reordered:
+Every tool call passes through a fixed sequence of stages in strict order. No stage can be skipped or reordered:
 
 AUTH → IDEMPOTENCY → CONTENT_NEG → SCHEMA_VALIDATION → TOOL_STATUS → CACHE_OR_SINGLE_FLIGHT → RATE_LIMIT → ESCROW → PROVIDER_CALL → ESCROW_FINALIZE → LEDGER_WRITE → CACHE_SET → RESPONSE
 
@@ -160,7 +160,7 @@ Single-flight deduplication prevents thundering herd: concurrent identical reque
 
 **3. Fail-closed beats fail-open.** When Redis goes down, we reject all requests rather than disabling rate limits and caching. This sounds aggressive, but it prevents a single Redis restart from causing a cascade of unthrottled upstream calls.
 
-**4. 13 stages sounds like overhead, but each one prevents a real production bug.** We removed a stage once (content negotiation) and immediately got agents sending XML to JSON-only providers. Every stage exists because we hit the bug it prevents.
+**4. Every stage sounds like overhead, but each one prevents a real production bug.** We removed a stage once (content negotiation) and immediately got agents sending XML to JSON-only providers. Every stage exists because we hit the bug it prevents.
 
 ## Try It Yourself
 
