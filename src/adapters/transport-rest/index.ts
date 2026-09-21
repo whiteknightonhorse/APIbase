@@ -108,6 +108,7 @@ export class TransportRestAdapter extends BaseAdapter {
       provider: 'transport-rest',
       baseUrl: 'https://v6.bvg.transport.rest',
       maxResponseBytes: 3_000_000,
+      timeoutMs: 15000,
     });
   }
 
