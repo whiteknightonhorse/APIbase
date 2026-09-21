@@ -155,6 +155,25 @@ def _classify_deterministic_fail(state_reason: str):
     return "UNKNOWN"
 
 
+def _recent_429_count(provider) -> int:
+    """T-0141 (Fable ruling-1, Answer 4): how many of the last 10 active
+    probes (head/get/auth — passive traffic excluded, same probe_log rows
+    detect_from_provider_status already reasons about) came back HTTP 429.
+    429 is a DYNAMIC fact about provider health ("alive, refusing to serve
+    right now"), unlike the STATIC 401/403/404/405 request-shape facts —
+    src/jobs/provider-health.job.ts's classifyHeadResult now scores 429 as
+    FAIL_TRANSIENT so it actually trips DEGRADED/DOWN instead of being
+    silently folded into OK; this is the other half — telling THAT DEGRADED/
+    DOWN apart from a genuine outage before opening a fleet task for it."""
+    out, rc = ap.psql(
+        f"SELECT http_status::text FROM probe_log WHERE provider = {ap.sql_literal(provider)} "
+        f"AND kind IN ('head','get','auth') ORDER BY ts DESC LIMIT 10"
+    )
+    if rc != 0 or not out:
+        return 0
+    return sum(1 for row in out.splitlines() if row.strip() == "429")
+
+
 def detect_from_provider_status():
     """F1 -> F2: providers currently DEGRADED/DOWN or paused on a
     deterministic fail become incidents (dedup-safe — recurrences merge,
@@ -180,6 +199,20 @@ def detect_from_provider_status():
         else:
             continue
 
+        # T-0141 (Fable ruling-1, Answer 4): a PROVIDER_DOWN/DEGRADED_QUALITY
+        # candidate whose recent active probes are mostly 429s is rate-limited,
+        # not down — reroute BEFORE opening/merging so it never spends a fleet
+        # task (RATE_LIMITED is AUTO_NO_MODEL, fleet_task: false in
+        # config/autopilot/routing.json; _self_action_rate_limited handles it
+        # entirely inside route_auto_incidents()). FAIL_DETERMINISTIC kinds
+        # (AUTH_FAILED/ENDPOINT_CHANGED/UNKNOWN) are a different, static fact
+        # and are never rerouted here.
+        count_429 = 0
+        if kind in ("PROVIDER_DOWN", "DEGRADED_QUALITY"):
+            count_429 = _recent_429_count(provider)
+            if count_429 >= 3:
+                kind = "RATE_LIMITED"
+
         plog_out, plog_rc = ap.psql(
             f"SELECT kind FROM probe_log WHERE provider = {ap.sql_literal(provider)} "
             f"ORDER BY ts DESC LIMIT 1"
@@ -191,12 +224,15 @@ def detect_from_provider_status():
             "provider_status": {"state": state, "state_reason": reason,
                                  "last_probe_result": last_result, "last_probe_at": last_probe_at},
         }
+        if kind == "RATE_LIMITED":
+            evidence["recent_429_of_10"] = count_429
         what = {
             "AUTH_FAILED": f"проба вернула 401/403 при настроенном ключе ({reason or 'см. probe_log'})",
             "ENDPOINT_CHANGED": f"проба вернула 404/схема изменилась ({reason or 'см. probe_log'})",
             "PROVIDER_DOWN": f"{ap.FAIL_THRESHOLD_DOWN if hasattr(ap, 'FAIL_THRESHOLD_DOWN') else 5} "
                              f"подряд неудачных проб, провайдер недоступен",
             "DEGRADED_QUALITY": "деградация: транзиентные отказы или error_rate по реальному трафику",
+            "RATE_LIMITED": f"провайдер отвечает 429 на {count_429} из последних 10 проб — лимит, не падение",
             "UNKNOWN": f"детерминированный отказ, причина не распознана ({reason or 'нет деталей'})",
         }.get(kind, kind)
         system_did = "probe поставлена на паузу (FAIL_DETERMINISTIC, next_probe_at +24h)" \
@@ -1487,14 +1523,21 @@ def selftest_db():
                 # from the same tables the generator uses instead of a
                 # frozen literal, so a future routing.json change can't
                 # silently invalidate this world again.
-                # T-06: MAX_ATTEMPTS is 4 for review=="fable" (PROVIDER_DOWN's routing.json
-                # entry), 2 otherwise -- mirror build_remediation_task_body's own rule instead
-                # of a frozen literal, same reason the REVIEW/MODEL lines above already do this.
+                # T-06: MAX_ATTEMPTS is 4 for review in (fable, opus) (PROVIDER_DOWN's
+                # routing.json entry), 2 otherwise -- mirror build_remediation_task_body's own
+                # rule instead of a frozen literal, same reason the REVIEW/MODEL lines above
+                # already do this. Pre-existing drift found and fixed incidentally while
+                # verifying T-0141's World 21/21b: T-0140 Ч-3 (2026-09-21, same day) changed
+                # PROVIDER_DOWN's review to "opus" and updated the real generator's rule to
+                # `review in ("fable", "opus")`, but this test's own local mirror still said
+                # `review == "fable"` and broke world 4 the moment routing.json's review field
+                # changed -- unrelated to gdelt/RATE_LIMITED, fixed only because it silently
+                # blocked selftest-db from ever reaching a later world.
                 _review = ap.REVIEW_FOR_KIND.get('PROVIDER_DOWN') or 'none'
                 expected_header = (
                     f"REVIEW: {_review}\n"
                     f"MODEL: {ap.MODEL_FOR_KIND.get('PROVIDER_DOWN') or 'sonnet'}\n"
-                    f"MAX_ATTEMPTS: {4 if _review == 'fable' else 2}\n"
+                    f"MAX_ATTEMPTS: {4 if _review in ('fable', 'opus') else 2}\n"
                 )
                 assert body.startswith(expected_header), (expected_header, body[:80])
                 assert "resolve-request" in body and "PROVIDER_DOWN" in body
@@ -2654,6 +2697,80 @@ def selftest_db():
                   "across two full ticks of a provider that never recovers, Fable ruling-1): OK")
         finally:
             ap.tg_send = _orig_tg_send19
+
+        # World 21 (T-0141, Fable ruling-1, Answer 4): a DOWN provider whose
+        # recent active probes are mostly 429 must be classified RATE_LIMITED,
+        # not PROVIDER_DOWN -- and RATE_LIMITED is AUTO_NO_MODEL/fleet_task:
+        # false (config/autopilot/routing.json), so it must never reach a
+        # fleet task queue file, unlike a real PROVIDER_DOWN under the same
+        # state. Mirrors the gdelt measurement this task is about: 4 of the
+        # last 6 external probes were 429, not a timeout or a 5xx.
+        ap.psql(
+            "INSERT INTO provider_status (provider, state, state_since, next_probe_at, "
+            "probe_interval_s, last_probe_result, last_probe_at) VALUES "
+            "('ap21ratelimited', 'DOWN', now(), now(), 3600, 'FAIL_TRANSIENT', now())"
+        )
+        for i in range(10):
+            status = "429" if i < 4 else "200"
+            ap.psql(
+                f"INSERT INTO probe_log (provider, kind, result, http_status, latency_ms, ts) "
+                f"VALUES ('ap21ratelimited', 'head', 'FAIL_TRANSIENT', {status}, 10000, "
+                f"now() - interval '{i} minutes')"
+            )
+        # NOTE: detect_from_provider_status() scans every DEGRADED/DOWN
+        # provider in this shared selftest-db, including leftovers from
+        # earlier worlds -- its total return count is not this world's
+        # signal (unlike world 4, which controls the whole DB at that
+        # point); only the incident row for THIS world's own provider is.
+        detect_from_provider_status()
+        row21, rc21 = ap.psql(
+            "SELECT kind, fleet_task_id FROM incidents WHERE provider = 'ap21ratelimited' "
+            "ORDER BY created_at DESC LIMIT 1"
+        )
+        assert rc21 == 0 and row21, "world 21: incident not found for ap21ratelimited"
+        kind21, fleet_task21 = row21.split(ap.SEP)
+        assert kind21 == "RATE_LIMITED", (
+            f"world 21: 4/10 recent 429s must classify as RATE_LIMITED, not {kind21}"
+        )
+        route_auto_incidents()
+        row21b, rc21b = ap.psql(
+            "SELECT state, fleet_task_id FROM incidents WHERE provider = 'ap21ratelimited' "
+            "ORDER BY created_at DESC LIMIT 1"
+        )
+        state21b, fleet_task21b = row21b.split(ap.SEP)
+        assert fleet_task21b == "" or fleet_task21b is None, (
+            f"world 21: RATE_LIMITED must never get a fleet task (AUTO_NO_MODEL, fleet_task: "
+            f"false), got fleet_task_id={fleet_task21b!r}"
+        )
+        assert state21b == "VERIFYING", (
+            f"world 21: _self_action_rate_limited must move it straight to VERIFYING, "
+            f"got {state21b}"
+        )
+        print("world 21 (4/10 recent 429s -> RATE_LIMITED, self-action only, no fleet task, "
+              "T-0141 Fable ruling-1): OK")
+
+        # World 21b: same DOWN state, zero 429s among the last 10 probes --
+        # must classify PROVIDER_DOWN exactly as before this task's change
+        # (regression guard: the 429 carve-out must not swallow real outages).
+        ap.psql(
+            "INSERT INTO provider_status (provider, state, state_since, next_probe_at, "
+            "probe_interval_s, last_probe_result, last_probe_at) VALUES "
+            "('ap21down', 'DOWN', now(), now(), 3600, 'FAIL_TRANSIENT', now())"
+        )
+        for i in range(10):
+            ap.psql(
+                f"INSERT INTO probe_log (provider, kind, result, http_status, latency_ms, ts) "
+                f"VALUES ('ap21down', 'head', 'FAIL_TRANSIENT', NULL, 10000, "
+                f"now() - interval '{i} minutes')"
+            )
+        detect_from_provider_status()
+        row21c, rc21c = ap.psql(
+            "SELECT kind FROM incidents WHERE provider = 'ap21down' ORDER BY created_at DESC LIMIT 1"
+        )
+        assert rc21c == 0 and row21c == "PROVIDER_DOWN", (
+            f"world 21b: 0/10 recent 429s must stay PROVIDER_DOWN, got {row21c!r}"
+        )
+        print("world 21b (0/10 recent 429s -> PROVIDER_DOWN unchanged, regression guard): OK")
 
         print("selftest-db: ALL WORLDS OK")
         return 0

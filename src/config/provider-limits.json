@@ -778,7 +778,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://www.gdeltproject.org/data.html",
-    "limit_proof": "100% free and open. API enforces rate limit: 1 request per 5 seconds (returns HTTP 429 if exceeded). Response time ~10.7-11s due to rate-limit throttling. Occasional connection resets at ~10.5s (provider-side behavior during rate-limiting).",
+    "limit_proof": "T-0141 (2026-09-21, Fable ruling-1): measured passively, never by a burst (a burst would itself spend the limit and invalidate the next reading) -- probe_log at our steady cadence of 1 probe/30min over the preceding 48h showed 2/31 true 200s, 16/31 HTTP 429, 13/31 connection resets (~10.5s, no status). A second, independent measurement from an external address that had never called gdelt before (6 sequential curls, ~15-90s apart, i.e. slower than the vendor's own stated '1 request per 5 seconds' cooldown) still got 429 on 4 of 6. Conclusion: the 429 rate is NOT a function of our request frequency in any range we operate in -- lowering probe cadence further is not a lever. Provider is alive (both measurements got valid JSON on the 200s) but hard-limited by a rule stricter than documented. Owner contact from the 429 response body: kalev.leetaru5@gmail.com. See AUTOPILOT-PROGRESS.md#T-0141-gdelt-is-chronically-slow-and-rate-limited for the full incident-class rule this produced (429 on an active probe now scores FAIL_TRANSIENT, and a DEGRADED/DOWN provider with >=3/10 recent 429s opens RATE_LIMITED instead of PROVIDER_DOWN/DEGRADED_QUALITY -- a standing external blocker, not a ceiling to keep raising).",
     "probe": {
       "method": "GET",
       "timeout_ms": 35000

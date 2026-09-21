@@ -173,9 +173,20 @@ const STATE_RANK: Record<string, number> = { UNKNOWN: 0, HEALTHY: 0, DEGRADED: 1
  * kind='head' rather than passed off as proof the provider actually works
  * (G2: "не выдаём достижимость за работоспособность"). Only a genuine
  * transport failure or 5xx counts against the provider.
+ *
+ * T-0141 (Fable ruling-1, Answer 4): 429 is carved out of that 4xx-is-OK
+ * bucket. 401/403/404/405 are STATIC facts about our request (wrong
+ * credential/path/method) — the host answered the question and would answer
+ * the same way again right now. 429 is a DYNAMIC fact about the provider's
+ * health this instant ("alive, but refusing to serve") — exactly what a
+ * paying caller experiences as an outage. Measured on gdelt: 16/18 probes
+ * this job used to call OK were literally HTTP 429 (probe_log, 48h), while
+ * true content success was 2/31. Folding 429 into FAIL_TRANSIENT lets the F1
+ * state machine see the real failure rate instead of scoring it HEALTHY.
  */
 export function classifyHeadResult(outcome: ProbeOutcome): 'OK' | 'FAIL_TRANSIENT' {
   if (outcome.kind === 'timeout' || outcome.kind === 'network_error') return 'FAIL_TRANSIENT';
+  if (outcome.status === 429) return 'FAIL_TRANSIENT';
   if (outcome.status >= 500) return 'FAIL_TRANSIENT';
   return 'OK';
 }
@@ -787,17 +798,27 @@ async function probeHead(
     }
     const getResult = await fetchOutcome(healthUrl, 'GET', getHeaders, HEALTH_CHECK_GET_TIMEOUT_MS);
     const result = classifyHeadResult(getResult.outcome);
+    const rateLimitDetail = getResult.httpStatus === 429 ? '429 rate-limited' : undefined;
     await recordProbeResult(db, redis, provider, 'get', result, {
       httpStatus: getResult.httpStatus,
       latencyMs: getResult.latencyMs,
+      detail: rateLimitDetail,
+      stateReason: rateLimitDetail,
     });
     return;
   }
 
   const result = classifyHeadResult(initial.outcome);
+  // T-0141: surface the 429 fact in probe_log.detail / provider_status.state_reason
+  // rather than a bare FAIL_TRANSIENT — incident-engine's RATE_LIMITED routing
+  // (detect_from_provider_status) reads the recent probe_log http_status column
+  // directly, but state_reason is what a human sees on the incident/dashboard.
+  const rateLimitDetail = initial.httpStatus === 429 ? '429 rate-limited' : undefined;
   await recordProbeResult(db, redis, provider, initialMethod === 'GET' ? 'get' : 'head', result, {
     httpStatus: initial.httpStatus,
     latencyMs: initial.latencyMs,
+    detail: rateLimitDetail,
+    stateReason: rateLimitDetail,
   });
 }
 

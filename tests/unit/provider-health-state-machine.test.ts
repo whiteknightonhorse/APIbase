@@ -191,13 +191,110 @@ describe('classifyHeadResult — achievability only, never authorization', () =>
     expect(classifyHeadResult({ kind: 'status', status })).toBe('OK');
   });
 
-  it.each([500, 502, 503])('status %d is FAIL_TRANSIENT', (status) => {
+  it.each([429, 500, 502, 503])('status %d is FAIL_TRANSIENT', (status) => {
     expect(classifyHeadResult({ kind: 'status', status })).toBe('FAIL_TRANSIENT');
+  });
+
+  // T-0141 (Fable ruling-1): 429 is a dynamic health fact ("alive, refusing
+  // right now"), unlike the static 401/403/404/405 request-shape facts above
+  // — carved out of the 4xx-is-OK bucket even though it is still a 4xx.
+  it('429 is FAIL_TRANSIENT, not folded into the other 4xx = OK bucket', () => {
+    expect(classifyHeadResult({ kind: 'status', status: 429 })).toBe('FAIL_TRANSIENT');
   });
 
   it('timeout and network errors are FAIL_TRANSIENT', () => {
     expect(classifyHeadResult({ kind: 'timeout' })).toBe('FAIL_TRANSIENT');
     expect(classifyHeadResult({ kind: 'network_error' })).toBe('FAIL_TRANSIENT');
+  });
+});
+
+describe("T-0141 mutation control — the 429 fix must actually change gdelt's outcome", () => {
+  // Real gdelt probe_log, 2026-09-19 07:24 UTC -> 2026-09-21 06:40 UTC (31
+  // rows, PROOF: taskloop/logs/0141-.../01-probe-log-48h.txt), reordered
+  // ascending (oldest first) as the state machine actually saw them. 'reset'
+  // = connection reset ~10.5s / no http_status, already FAIL_TRANSIENT under
+  // both the old and new classifier — included so the sequence and its OK/
+  // FAIL_TRANSIENT counts (16x 429, 13x reset, 2x 200) match the proof file
+  // exactly rather than a hand-picked subset.
+  const GDELT_48H_SEQUENCE: Array<'429' | '200' | 'reset'> = [
+    '429',
+    '429',
+    '429',
+    'reset',
+    '429',
+    '200',
+    'reset',
+    '429',
+    '429',
+    '429',
+    'reset',
+    '429',
+    'reset',
+    '429',
+    'reset',
+    'reset',
+    '429',
+    'reset',
+    '429',
+    'reset',
+    '200',
+    'reset',
+    '429',
+    '429',
+    '429',
+    'reset',
+    'reset',
+    'reset',
+    'reset',
+    '429',
+    '429',
+  ];
+
+  // Pre-T-0141 behavior: classifyHeadResult treated every 4xx (429 included)
+  // as OK. This is intentionally NOT the current classifyHeadResult — it is
+  // frozen here so the mutation control keeps meaning "old vs new" even if
+  // classifyHeadResult changes again later for an unrelated reason.
+  function preT0141Classify(entry: '429' | '200' | 'reset'): 'OK' | 'FAIL_TRANSIENT' {
+    if (entry === 'reset') return 'FAIL_TRANSIENT';
+    return 'OK'; // both 429 and 200 scored OK before the fix
+  }
+
+  function postT0141Classify(entry: '429' | '200' | 'reset'): 'OK' | 'FAIL_TRANSIENT' {
+    if (entry === 'reset') return 'FAIL_TRANSIENT';
+    if (entry === '429') return 'FAIL_TRANSIENT';
+    return 'OK'; // 200
+  }
+
+  function replay(classify: (e: '429' | '200' | 'reset') => 'OK' | 'FAIL_TRANSIENT'): string {
+    let state = 'UNKNOWN';
+    let failures = 0;
+    let intervalS = 21600;
+    let recoveryStreak = 0;
+    for (const entry of GDELT_48H_SEQUENCE) {
+      const out = computeTransition(
+        {
+          oldState: state,
+          oldFailures: failures,
+          oldIntervalS: intervalS,
+          result: classify(entry),
+          recoveryStreak,
+        },
+        () => FIXED_JITTER_S,
+      );
+      state = out.newState;
+      failures = out.newFailures;
+      intervalS = out.newIntervalS;
+      recoveryStreak = out.newRecoveryStreak;
+    }
+    return state;
+  }
+
+  it('old classifier (429=OK) ends the sequence HEALTHY — matches prod (provider_status.gdelt was HEALTHY, PROOF: 03-provider-status-current.txt)', () => {
+    expect(replay(preT0141Classify)).toBe('HEALTHY');
+  });
+
+  it('new classifier (429=FAIL_TRANSIENT) does NOT end the sequence HEALTHY on the same real data', () => {
+    expect(replay(postT0141Classify)).not.toBe('HEALTHY');
   });
 });
 
