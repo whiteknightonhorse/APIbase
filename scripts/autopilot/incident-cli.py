@@ -72,10 +72,27 @@ Commands:
       out from under whatever state machine already owns it is not this
       command's job.
 
+  incident-cli.py retire --id ID --actor A --reason "..."
+      T-0152a (ruling-1 on 0152-gdelt-deprecation-assess-and-plan, Answer 2):
+      the only path that moves an incident to RESOLVED from ANY non-RESOLVED
+      state, including STUCK — deliberately wider than `resolve-request`
+      (OPEN/REMEDIATION_QUEUED/WAITING_HUMAN only), because the whole point
+      is closing STUCK incidents belonging to a provider that will never
+      probe green again on its own. Guarded: refuses (exit 1, no write at
+      all) unless provider-limits.json marks the incident's provider
+      `retired` — without that guard this would be a general, ungated STUCK
+      escape hatch for ANY incident, which is exactly the hole I3/I4 exist to
+      close. Records a `retire` attempts entry (via note_incident) before
+      transitioning, same order as resolve-request. Does not introduce a new
+      `incidents_state_check` value — "closed because the provider was
+      retired" lives entirely in RESOLVED + the attempts text.
+
   incident-cli.py --selftest
       Pure-logic checks (enum validation, dedup_key shape, SQL-literal
-      escaping). No DB needed — see incident-engine.py --selftest-db for the
-      3-world lifecycle test that DOES need a (disposable) Postgres.
+      escaping, and — T-0152a — the `retire` guard exercised in-process
+      against fake incident/DB functions). No DB needed — see
+      incident-engine.py --selftest-db for the 3-world lifecycle test that
+      DOES need a (disposable) Postgres.
 """
 import argparse
 import json
@@ -157,6 +174,36 @@ def cmd_resolve_request(a):
     # that state.
     ap.transition_state(a.id, "VERIFYING")
     print(f"{a.id} -> VERIFYING (engine will confirm on next tick's re-probe)")
+    return 0
+
+
+def cmd_retire(a):
+    """T-0152a: RESOLVE an incident because its provider was retired, from
+    ANY non-RESOLVED state (including STUCK — see module docstring). Guard
+    lives in the middle `if`: refuses unless provider-limits.json marks
+    `inc["provider"]` retired, using the SAME cached loader
+    (`ap._provider_limits()`) incident-engine.py's detect skip and
+    connected_db.py's other provider-limits.json readers already use — no
+    second loader to keep in sync (autopilot_common.py's own module
+    docstring: this file is safe to read directly, tracked, not a secret)."""
+    inc = ap.get_incident(a.id)
+    if inc is None:
+        print(f"no such incident: {a.id}", file=sys.stderr)
+        return 1
+    if inc["state"] == "RESOLVED":
+        print(f"refusing: incident {a.id} is already RESOLVED", file=sys.stderr)
+        return 1
+    if not ap._provider_limits().get(inc["provider"], {}).get("retired"):
+        print(
+            f"refusing: provider {inc['provider']!r} is not marked `retired` in "
+            f"provider-limits.json — retire only closes incidents for a provider the "
+            f"operator has actually retired, never a general STUCK escape hatch",
+            file=sys.stderr,
+        )
+        return 1
+    ap.note_incident(a.id, a.actor, "retire", a.reason)
+    ap.transition_state(a.id, "RESOLVED")
+    print(f"{a.id} -> RESOLVED (provider {inc['provider']} retired)")
     return 0
 
 
@@ -360,6 +407,83 @@ def selftest():
             if os.path.exists(_p):
                 os.unlink(_p)
 
+    # T-0152a: `retire`'s guard — refuses unless provider-limits.json marks
+    # the incident's provider `retired`. Exercised fully in-process:
+    # get_incident/note_incident/transition_state are monkeypatched to fake
+    # functions (same style as NOTICES_LOG/NOTICE_DEDUP_FILE above) so this
+    # needs no live Postgres, and PROVIDER_LIMITS_PATH points at a temp fixture
+    # (never the real provider-limits.json — LAW: this task ships zero
+    # changes to any real provider's entry).
+    import argparse as _argparse
+    _retired_limits_path = _cfg(json.dumps({
+        "retired-fixture-provider": {
+            "display_name": "Retired Fixture", "health_url": "https://example.test/health",
+            "limit_type": "unlimited", "free_limit": 0, "reset_period": "none",
+            "retired": {"since": "2026-09-21", "task": "T-0152a", "reason": "selftest fixture"},
+        },
+        "live-fixture-provider": {
+            "display_name": "Live Fixture", "health_url": "https://example2.test/health",
+            "limit_type": "unlimited", "free_limit": 0, "reset_period": "none",
+        },
+    }))
+    _orig_limits_path = ap.PROVIDER_LIMITS_PATH
+    _orig_limits_cache = ap._provider_limits_cache
+    _orig_get_incident, _orig_note_incident, _orig_transition_state = (
+        ap.get_incident, ap.note_incident, ap.transition_state,
+    )
+    _fake_incidents = {
+        "inc-retired": {"incident_id": "inc-retired", "provider": "retired-fixture-provider", "state": "STUCK"},
+        "inc-live": {"incident_id": "inc-live", "provider": "live-fixture-provider", "state": "STUCK"},
+        "inc-already-resolved": {
+            "incident_id": "inc-already-resolved", "provider": "retired-fixture-provider", "state": "RESOLVED",
+        },
+    }
+    _notes, _transitions = [], []
+    try:
+        ap.PROVIDER_LIMITS_PATH = _retired_limits_path
+        ap._provider_limits_cache = None
+        ap.get_incident = lambda iid: _fake_incidents.get(iid)
+        ap.note_incident = lambda iid, actor, action, result: _notes.append((iid, actor, action, result))
+        ap.transition_state = lambda iid, new_state, extra_set="": _transitions.append((iid, new_state))
+
+        # World (a) — success: retired provider's STUCK incident -> RESOLVED,
+        # with a 'retire' attempts entry recorded first.
+        rc_ok = cmd_retire(_argparse.Namespace(id="inc-retired", actor="selftest", reason="provider retired"))
+        assert rc_ok == 0, "retire on a retired provider's incident must succeed"
+        assert _transitions == [("inc-retired", "RESOLVED")], "must transition to RESOLVED, nothing else"
+        assert len(_notes) == 1 and _notes[0][:3] == ("inc-retired", "selftest", "retire"), (
+            "must record exactly one 'retire' attempts entry before transitioning"
+        )
+
+        # World (b) — refusal: same call shape, but the incident's provider is
+        # NOT marked retired. This is the guard itself — without it `retire`
+        # would be a general, ungated STUCK escape hatch for ANY incident.
+        _notes.clear()
+        _transitions.clear()
+        rc_refused = cmd_retire(
+            _argparse.Namespace(id="inc-live", actor="selftest", reason="trying to sneak out of STUCK")
+        )
+        assert rc_refused != 0, "retire on a NON-retired provider's incident must refuse"
+        assert _notes == [] and _transitions == [], (
+            "a refused retire must not write an attempts entry or move state at all"
+        )
+
+        # Bonus boundary (contract, not a separate "world"): already-RESOLVED
+        # refuses too, even for a retired provider — retire is an entry into
+        # RESOLVED, not a no-op re-affirmation of it.
+        rc_already = cmd_retire(
+            _argparse.Namespace(id="inc-already-resolved", actor="selftest", reason="double retire")
+        )
+        assert rc_already != 0, "retire on an already-RESOLVED incident must refuse"
+        assert _notes == [] and _transitions == [], "refusing an already-RESOLVED retire must not write anything"
+    finally:
+        ap.PROVIDER_LIMITS_PATH = _orig_limits_path
+        ap._provider_limits_cache = _orig_limits_cache
+        ap.get_incident, ap.note_incident, ap.transition_state = (
+            _orig_get_incident, _orig_note_incident, _orig_transition_state,
+        )
+        os.unlink(_retired_limits_path)
+
     print("incident-cli --selftest: OK")
 
 
@@ -410,6 +534,12 @@ def main():
     pro.add_argument("--actor", required=True)
     pro.add_argument("--result", required=True)
     pro.set_defaults(func=cmd_reopen)
+
+    pret = sub.add_parser("retire")
+    pret.add_argument("--id", required=True)
+    pret.add_argument("--actor", required=True)
+    pret.add_argument("--reason", required=True)
+    pret.set_defaults(func=cmd_retire)
 
     args = p.parse_args()
     if args.selftest:

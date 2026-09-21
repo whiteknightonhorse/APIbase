@@ -730,3 +730,86 @@ describe('probeHead — T-07/A6: same-tick GET fallback for an ambiguous HEAD fa
     expect(alphaLog).toMatchObject({ kind: 'get', result: 'OK' });
   });
 });
+
+/**
+ * T-0152a: the generic retired-provider mechanism (ruling-1 on
+ * 0152-gdelt-deprecation-assess-and-plan) — a provider marked `retired` in
+ * provider-limits.json must be skipped on all three paths AP-3 can reach a
+ * provider through: ensureSeeded's bootstrap, the priority-queue tick
+ * selection, and the asap out-of-turn flag path. No real provider is marked
+ * retired anywhere in this repo by this task — `alpha` here is purely a
+ * SEVEN_PROVIDERS test fixture (mockProviderLimits), never gdelt.
+ */
+describe('run() — retired provider is skipped on every path (T-0152a)', () => {
+  const RETIRED_ALPHA = {
+    alpha: { retired: { since: '2026-09-21', task: 'T-0152a', reason: 'selftest fixture' } },
+  };
+
+  it('ensureSeeded() does not create a provider_status row for a retired provider', async () => {
+    globalThis.fetch = jest.fn().mockResolvedValue(new Response(null, { status: 200 }));
+    const db = createFakeDb(); // empty — nothing seeded yet
+    const redis = createFakeRedis();
+    const { run } = loadJobModule(db, mockProviderLimits(RETIRED_ALPHA));
+
+    await run(redis as never);
+
+    expect(db.statuses.has('alpha')).toBe(false);
+    for (const name of SEVEN_PROVIDERS.filter((n) => n !== 'alpha')) {
+      expect(db.statuses.has(name)).toBe(true);
+    }
+  });
+
+  it('a retired provider with a pre-existing overdue row is never selected for a tick', async () => {
+    globalThis.fetch = jest.fn().mockResolvedValue(new Response(null, { status: 200 }));
+    const t0 = new Date('2026-09-03T00:00:00Z').getTime();
+    const seed: Record<string, Record<string, unknown>> = {};
+    // All 7 providers already seeded and overdue — 'alpha' (retired) is the
+    // MOST overdue of all, so if the retired-skip weren't wired into the
+    // queue's own provider list (not just ensureSeeded), it would still win
+    // a slot on overdue-ness alone.
+    SEVEN_PROVIDERS.forEach((name, i) => {
+      seed[name] = {
+        provider: name,
+        state: 'HEALTHY',
+        state_since: new Date(t0),
+        next_probe_at: new Date(t0 - 999_000 + i * 1000),
+        probe_interval_s: 21600,
+        consecutive_failures: 0,
+      };
+    });
+
+    const db = createFakeDb(seed);
+    const redis = createFakeRedis();
+    const { run } = loadJobModule(db, mockProviderLimits(RETIRED_ALPHA));
+
+    await run(redis as never);
+
+    const probedProviders = db.probeLogs.map((l) => l.provider);
+    expect(probedProviders).not.toContain('alpha');
+    // PROBE_K=5, and only 6 active providers compete for those slots now —
+    // still exactly 5, all from the non-retired pool.
+    expect(probedProviders).toHaveLength(5);
+    expect(probedProviders.every((p) => p !== 'alpha')).toBe(true);
+  });
+
+  it('a stale asap flag for a retired provider is dropped silently — never probed, flag deleted, no crash', async () => {
+    const fetchMock = jest.fn().mockResolvedValue(new Response(null, { status: 200 }));
+    globalThis.fetch = fetchMock;
+    // Flag was set (e.g. by BaseAdapter on a live ProviderError) BEFORE
+    // 'alpha' was retired — this simulates it still sitting in Redis after.
+    const db = createFakeDb();
+    const redis = createFakeRedis(['alpha']);
+    const { run } = loadJobModule(db, mockProviderLimits(RETIRED_ALPHA));
+
+    await run(redis as never);
+
+    const probedProviders = db.probeLogs.map((l) => l.provider);
+    expect(probedProviders).not.toContain('alpha');
+    const alphaCalled = fetchMock.mock.calls.some(([url]) => String(url).includes('alpha'));
+    expect(alphaCalled).toBe(false);
+    // the stale flag must not survive the tick (would otherwise re-trigger
+    // every 2-minute tick forever, never actually doing anything)
+    expect(redis.deleted).toContain('probe:asap:alpha');
+    expect(redis.strings.has('probe:asap:alpha')).toBe(false);
+  });
+});

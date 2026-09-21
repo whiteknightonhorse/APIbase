@@ -127,6 +127,26 @@ interface KeyExpiryFact {
   source: 'provider_email' | 'api_response' | 'operator_announcement' | 'docs' | 'unknown';
 }
 
+/**
+ * T-0152a (ruling-1 on 0152-gdelt-deprecation-assess-and-plan, Answer 1):
+ * "снят с каталога, код остаётся" needs a lock on the probe scheduler too —
+ * without this, a provider whose key is present in `provider-limits.json`
+ * keeps getting probed by AP-3 forever, which keeps writing DEGRADED/DOWN
+ * `provider_status` rows, which keeps re-opening incidents (see
+ * incident-engine.py's `detect_from_provider_status()` skip for the other
+ * half). This field is provider-level, not probe-level — a retired provider
+ * has no probe at all, so it lives beside `probe: ProbeConfig`, not inside
+ * it. Optional and additive only: no existing provider-limits.json entry's
+ * other fields change shape because this field exists.
+ */
+interface RetiredFact {
+  /** ISO date (YYYY-MM-DD) the operator decided to retire this provider. */
+  since: string;
+  /** taskloop task id that applied the retirement, e.g. "T-0152b". */
+  task: string;
+  reason: string;
+}
+
 interface ProviderLimitEntry {
   display_name: string;
   health_url: string;
@@ -139,10 +159,20 @@ interface ProviderLimitEntry {
   limit_proof?: string;
   probe?: ProbeConfig;
   key_expiry?: Record<string, KeyExpiryFact>;
+  retired?: RetiredFact;
 }
 
 const limitsConfig = providerLimitsConfig as Record<string, ProviderLimitEntry>;
-const providerNames = Object.keys(limitsConfig).sort();
+// T-0152a: retired providers are filtered out AT THIS SINGLE DEFINITION
+// POINT rather than in each of ensureSeeded()/the queue `findMany` below —
+// both of those already only ever look at `providerNames`, so filtering
+// here covers both without duplicating the `.retired` check. The asap path
+// (`scanAsapFlags`) is the one consumer that does NOT go through
+// `providerNames` (it reads Redis flags directly, which can be set before a
+// provider is retired) — see its own retired-skip in `run()` below.
+const providerNames = Object.keys(limitsConfig)
+  .filter((p) => !limitsConfig[p].retired)
+  .sort();
 
 let prisma: PrismaClient | null = null;
 function getPrisma(): PrismaClient {
@@ -1082,7 +1112,23 @@ export async function run(redis: Redis): Promise<void> {
 
   await ensureSeeded(db);
 
-  const asapProviders = await scanAsapFlags(redis);
+  // T-0152a: scanAsapFlags reads `probe:asap:{provider}` directly off Redis
+  // (BaseAdapter, AP-2), independent of `providerNames` — a flag can already
+  // be sitting there from BEFORE the provider was retired. A retired
+  // provider must never be probed via this out-of-turn path either, and the
+  // stale flag must not be left to accumulate/re-trigger every tick, so it's
+  // dropped here, immediately, rather than threaded through
+  // selectProbeTargets and relying on the loop below's finally-block cleanup
+  // (that cleanup only runs for providers that end up in `targets`).
+  const scannedAsapProviders = await scanAsapFlags(redis);
+  const asapProviders: string[] = [];
+  for (const p of scannedAsapProviders) {
+    if (limitsConfig[p]?.retired) {
+      await redis.del(`probe:asap:${p}`).catch(() => {});
+      continue;
+    }
+    asapProviders.push(p);
+  }
   // T-07 (2026-09-05, Fable ruling-1): this used to have no `next_probe_at`
   // upper bound at all — ORDER BY ascending + take K meant a provider whose
   // next_probe_at is still hours out could still be pulled into the top-K

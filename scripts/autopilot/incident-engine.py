@@ -190,6 +190,18 @@ def detect_from_provider_status():
     n = 0
     for line in out.splitlines():
         provider, state, reason, last_result, last_probe_at = (line.split(ap.SEP) + [None] * 5)[:5]
+        # T-0152a: this query reads `provider_status` directly by SQL (not
+        # through provider-health.job.ts), so it never sees that job's own
+        # `providerNames` retired-filter — a retired provider's row (never
+        # deleted, it's history) would otherwise keep reopening an incident
+        # every tick forever, since nothing ever probes it again to clear
+        # DEGRADED/DOWN. `_provider_limits()` is the same cached
+        # provider-limits.json loader the rest of this module already uses
+        # (autopilot_common.py) — filtering happens here, in Python, after
+        # the SQL rows come back, per the brief: the SELECT itself is
+        # unchanged.
+        if ap._provider_limits().get(provider, {}).get("retired"):
+            continue
         if last_result == "FAIL_DETERMINISTIC":
             kind = _classify_deterministic_fail(reason)
         elif state == "DOWN":
@@ -1168,6 +1180,88 @@ def selftest():
     assert _availability_crossed(["healthy"], "degraded") is False, "healthy<->degraded never changes the count"
     assert _availability_crossed(["degraded"], "healthy") is False, "healthy<->degraded never changes the count"
     assert _availability_crossed([], "degraded") is False, "no rows changed at all"
+
+    # T-0152a (ruling-1 on 0152-gdelt-deprecation-assess-and-plan, Answer 2):
+    # detect_from_provider_status() must skip a provider provider-limits.json
+    # marks `retired` -- its own SQL SELECT never sees that field (it reads
+    # provider_status directly, unchanged per the brief), so the skip has to
+    # happen here in Python, after the rows come back. Exercised fully
+    # in-process: ap.psql and ap.open_or_merge_incident are monkeypatched to
+    # fakes (no live Postgres touched, consistent with this function's own
+    # "Fast, no DB" docstring), and PROVIDER_LIMITS_PATH points at a temp
+    # fixture with one retired + one live DOWN provider — never the real
+    # provider-limits.json (LAW: this task ships zero changes to any real
+    # provider's entry).
+    import tempfile as _tempfile3
+
+    def _fake_psql(query):
+        if "FROM provider_status WHERE state IN" in query:
+            rows = [
+                ap.SEP.join([
+                    "t0152a-retired-fixture", "DOWN", "probe failing",
+                    "FAIL_TRANSIENT", "2026-09-21T00:00:00Z",
+                ]),
+                ap.SEP.join([
+                    "t0152a-live-fixture", "DOWN", "probe failing",
+                    "FAIL_TRANSIENT", "2026-09-21T00:00:00Z",
+                ]),
+            ]
+            return "\n".join(rows), 0
+        if "kind IN ('head','get','auth')" in query:
+            return "", 0  # _recent_429_count: no 429s, never reroutes to RATE_LIMITED
+        if "SELECT kind FROM probe_log WHERE provider" in query:
+            return "probe", 0
+        if "SELECT count(*) FROM tools WHERE provider" in query:
+            return "3", 0
+        if "COALESCE(SUM(cost_usd)" in query:
+            return ap.SEP.join(["0", "0"]), 0
+        raise AssertionError(f"unexpected psql query in T-0152a detect-skip selftest: {query}")
+
+    _opened = []
+
+    def _fake_open_or_merge(**kwargs):
+        _opened.append((kwargs["kind"], kwargs["provider"]))
+        return f"00000000-0000-0000-0000-{len(_opened):012d}", True
+
+    _detect_limits_fd, _detect_limits_path = _tempfile3.mkstemp(suffix=".json")
+    with os.fdopen(_detect_limits_fd, "w") as f:
+        json.dump({
+            "t0152a-retired-fixture": {
+                "display_name": "Retired Fixture", "health_url": "https://example.test/health",
+                "limit_type": "unlimited", "free_limit": 0, "reset_period": "none",
+                "retired": {"since": "2026-09-21", "task": "T-0152a", "reason": "selftest fixture"},
+            },
+            "t0152a-live-fixture": {
+                "display_name": "Live Fixture", "health_url": "https://example2.test/health",
+                "limit_type": "unlimited", "free_limit": 0, "reset_period": "none",
+            },
+        }, f)
+
+    _orig_psql, _orig_open_or_merge = ap.psql, ap.open_or_merge_incident
+    _orig_limits_path, _orig_limits_cache = ap.PROVIDER_LIMITS_PATH, ap._provider_limits_cache
+    try:
+        ap.psql = _fake_psql
+        ap.open_or_merge_incident = _fake_open_or_merge
+        ap.PROVIDER_LIMITS_PATH = _detect_limits_path
+        ap._provider_limits_cache = None
+
+        n_created = detect_from_provider_status()
+
+        assert "t0152a-retired-fixture" not in [p for _, p in _opened], (
+            "detect_from_provider_status() must never open/merge an incident for a "
+            "provider marked `retired` in provider-limits.json"
+        )
+        assert ("PROVIDER_DOWN", "t0152a-live-fixture") in _opened, (
+            "the retired-skip must not accidentally swallow the NON-retired provider "
+            "in the same query result — this is the regression check that the skip is "
+            "targeted, not a blanket short-circuit"
+        )
+        assert n_created == 1, "exactly one incident created — the retired provider contributes zero"
+    finally:
+        ap.psql, ap.open_or_merge_incident = _orig_psql, _orig_open_or_merge
+        ap.PROVIDER_LIMITS_PATH, ap._provider_limits_cache = _orig_limits_path, _orig_limits_cache
+        os.unlink(_detect_limits_path)
+
     print("incident-engine --selftest: OK")
 
 
