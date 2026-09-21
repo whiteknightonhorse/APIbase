@@ -11,7 +11,7 @@ import {
  */
 export class GdeltAdapter extends BaseAdapter {
   constructor() {
-    super({ provider: 'gdelt', baseUrl: 'https://api.gdeltproject.org/api/v2', timeoutMs: 25000 });
+    super({ provider: 'gdelt', baseUrl: 'https://api.gdeltproject.org/api/v2', timeoutMs: 35000 });
   }
 
   protected buildRequest(req: ProviderRequest) {
