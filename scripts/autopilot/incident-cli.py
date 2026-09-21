@@ -212,6 +212,31 @@ def selftest():
     # dedup_key shape
     assert ap.dedup_key("PROVIDER_DOWN", "openweathermap") == "PROVIDER_DOWN:openweathermap"
     assert ap.dedup_key("AUTH_FAILED", "x", "tool.y") == "AUTH_FAILED:x:tool.y"
+    # T-0140 Ч-3 (2026-09-21, Fable ruling-1): the opus tier is wired for exactly the kinds the
+    # ruling named — read-only diagnosis (PROVIDER_DOWN/DEGRADED_QUALITY) and narrow adapter/
+    # probe-config edits (API_CHANGED/ENDPOINT_CHANGED) — and EMAIL_NOTICE stays on fable
+    # unconditionally (untrusted inbound text that can claim a price/ToS change is money-and-
+    # public-claims-shaped, never the cheap tier's job). Locks the routing.json values in code,
+    # not just prose, so a future edit that silently reverts one kind fails THIS assertion.
+    for _k in ("PROVIDER_DOWN", "API_CHANGED", "ENDPOINT_CHANGED", "DEGRADED_QUALITY"):
+        assert ap.REVIEW_FOR_KIND[_k] == "opus", f"{_k} must route to the opus tier (T-0140 Ч-3)"
+    assert ap.REVIEW_FOR_KIND["EMAIL_NOTICE"] == "fable", \
+        "EMAIL_NOTICE must stay on fable unconditionally (T-0140 Ч-3: untrusted inbound text)"
+    # build_remediation_task_body's own MAX_ATTEMPTS must give review=opus the SAME ceiling as
+    # review=fable (ruling-1: "цикл REJECT есть и у яруса") -- checked on the actual generated
+    # task body, not just the formula, so a refactor that forgets the "opus" branch is caught.
+    _opus_incident = {
+        "kind": "PROVIDER_DOWN", "provider": "__t0140_selftest_provider__", "severity": "SEV3",
+        "incident_id": "00000000-0000-0000-0000-00000000t140", "evidence": {}, "attempts": [],
+    }
+    _fname, _content = ap.build_remediation_task_body(_opus_incident)
+    assert "REVIEW: opus" in _content, "PROVIDER_DOWN task body must carry REVIEW: opus"
+    assert "MAX_ATTEMPTS: 4" in _content, "review=opus must get the same MAX_ATTEMPTS: 4 ceiling as review=fable (T-0140 Ч-3)"
+    _email_incident = dict(_opus_incident, kind="EMAIL_NOTICE")
+    _fname2, _content2 = ap.build_remediation_task_body(_email_incident)
+    assert "REVIEW: fable" in _content2, "EMAIL_NOTICE task body must still carry REVIEW: fable"
+    assert "MAX_ATTEMPTS: 4" in _content2
+
     # every kind classified, no silent gaps
     assert set(ap.ROUTE_CLASS) == ap.KINDS
     # closed HUMAN-ONLY list per J1 — payment is never AUTO, by construction

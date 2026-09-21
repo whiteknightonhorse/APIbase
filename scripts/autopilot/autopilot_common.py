@@ -1137,7 +1137,13 @@ def build_remediation_task_body(incident: dict) -> tuple:
     # (measured: a merely-decorated `VERDICT: **DONE**` burned the second one). Fable's own
     # ruling on this: 4 for review=fable (room for one real REJECT round plus one non-substantive
     # miss), unchanged 2 for review=none (no REJECT cycle to budget for).
-    max_attempts = 4 if review == "fable" else 2
+    # T-0140 Ч-3 (2026-09-21, Fable ruling-1): review=opus (the tier taskloop.sh's REVIEW: opus
+    # branch reads) pays the SAME REJECT-cycle tax -- a tier REJECT round trip is exactly as
+    # costly in attempts as a fable REJECT round trip, and an opus-tier task can itself escalate
+    # to a real fable call mid-attempt (review_tier_should_escalate() in taskloop.sh), which pays
+    # fable's own tax on top. "MAX_ATTEMPTS для opus = 4, как для fable: цикл REJECT есть и у
+    # яруса." (ruling-1, Ч-3).
+    max_attempts = 4 if review in ("fable", "opus") else 2
     content = f"""REVIEW: {review}
 MODEL: {model}
 MAX_ATTEMPTS: {max_attempts}
