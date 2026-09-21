@@ -32,6 +32,90 @@ cd "$APP_DIR"
 echo "[deploy] Starting deploy: sha-${NEW_SHA}"
 
 # ---------------------------------------------------------------------------
+# T-0139: page immediately when F2 aborts, instead of relying on
+# deploy-tree-dirty-alert.py's 30min grace-period cron -- that window exists
+# to protect a legitimate long-lived hotfix (nginx.conf) from false alarms,
+# but it is also the exact window a deploy can land in and abort silently
+# (2026-09-17, run 35186972660: dirty at 05:30, ABORT at 05:45:10, watchdog
+# wouldn't have paged until 06:00). The watchdog stays owner of long-lived
+# dirt; this is the immediate signal for the moment F2 actually bites.
+# No git operation here touches the working tree: fetch/rev-parse/hash-object
+# only. Never auto-revert, never auto-commit (T-20 prohibition still stands).
+f2_alert() {
+  local tg_env="${APP_DIR}/scripts/night-orchestra/state/tg.env"
+  if [ ! -f "$tg_env" ]; then
+    echo "[deploy] F2 alert: tg.env missing, no page sent"
+    return
+  fi
+
+  local token="" chat_id="" line k v
+  while IFS= read -r line || [ -n "$line" ]; do
+    case "$line" in
+      ""|"#"*) continue ;;
+    esac
+    case "$line" in
+      *=*) ;;
+      *) continue ;;
+    esac
+    k="${line%%=*}"
+    v="${line#*=}"
+    v="${v%\"}"; v="${v#\"}"
+    v="${v%\'}"; v="${v#\'}"
+    case "$k" in
+      TG_BOT_TOKEN) token="$v" ;;
+      TG_CHAT_ID) chat_id="$v" ;;
+    esac
+  done < "$tg_env"
+
+  if [ -z "$token" ] || [ -z "$chat_id" ]; then
+    echo "[deploy] F2 alert: tg.env missing, no page sent"
+    return
+  fi
+
+  local run_id="${GITHUB_RUN_ID:-unknown}"
+  local text="[apibase] 🔴 deploy sha-${NEW_SHA} ABORTED at F2: deploy tree dirty (run ${run_id})"
+  local porcelain status path incoming current
+  porcelain="$(git status --porcelain)"
+  git fetch origin main --quiet >/dev/null 2>&1 || true
+
+  while IFS= read -r line; do
+    [ -z "$line" ] && continue
+    text="${text}
+${line}"
+    status="${line:0:2}"
+    path="${line:3}"
+    if [ "$status" = " M" ]; then
+      incoming="$(git rev-parse "${NEW_SHA}:${path}" 2>/dev/null)" || incoming="n/a"
+      current="$(git hash-object "$path" 2>/dev/null)" || current="n/a"
+      if [ "$incoming" = "n/a" ] || [ "$current" = "n/a" ]; then
+        text="${text}
+compare: n/a"
+      elif [ "$incoming" = "$current" ]; then
+        text="${text}
+identical to incoming commit -- safe: git checkout -- ${path}"
+      else
+        text="${text}
+DIFFERS -- do not discard, land it in apibase-fleet first"
+      fi
+    fi
+  done <<EOF
+${porcelain}
+EOF
+
+  text="${text}
+then: gh run rerun ${run_id} --failed"
+
+  local http_body="" curl_rc=0
+  http_body="$(curl -sS --max-time 10 -F "chat_id=${chat_id}" -F "text=${text}" \
+    "https://api.telegram.org/bot${token}/sendMessage")" || curl_rc=$?
+  if [ "$curl_rc" -eq 0 ] && printf '%s' "$http_body" | grep -q '"ok":true'; then
+    echo "[deploy] F2 alert: sent"
+  else
+    echo "[deploy] F2 alert: send FAILED (rc=${curl_rc})"
+  fi
+}
+
+# ---------------------------------------------------------------------------
 # F2 guard: never touch a dirty working tree
 # ---------------------------------------------------------------------------
 # This directory doubles as a live hands-on development workspace between
@@ -43,6 +127,7 @@ echo "[deploy] Starting deploy: sha-${NEW_SHA}"
 if [ -n "$(git status --porcelain)" ]; then
   echo "[deploy] ABORT: working tree has uncommitted changes -- refusing to touch it" >&2
   git status --porcelain >&2
+  f2_alert
   exit 1
 fi
 

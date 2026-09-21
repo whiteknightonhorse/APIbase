@@ -56,6 +56,7 @@ tracked tree is `git status --porcelain` -- no tracked file is ever touched.
 import os
 import subprocess
 import time
+from datetime import datetime, timezone
 
 DEPLOY_TREE = "/home/apibase/apibase"
 STATE_DIR = f"{DEPLOY_TREE}/scripts/night-orchestra/state"
@@ -63,6 +64,14 @@ STATE_FILE = f"{STATE_DIR}/deploy-tree-dirty-since.txt"
 ALERTED_FILE = f"{STATE_DIR}/deploy-tree-dirty-alerted.txt"
 TG_ENV_PATH = f"{STATE_DIR}/tg.env"
 DIRTY_GRACE_MINUTES = 30
+
+
+def _ts() -> str:
+    # T-0139: every log line gets a UTC timestamp -- without one, "when did
+    # this happen" could only be reconstructed by cross-referencing other
+    # logs' clocks. datetime.now(timezone.utc), not utcnow() (deprecated
+    # since 3.12).
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def load_tg_env():
@@ -82,7 +91,7 @@ def tg_send(text: str) -> bool:
     env = load_tg_env()
     token, chat_id = env.get("TG_BOT_TOKEN"), env.get("TG_CHAT_ID")
     if not token or not chat_id:
-        print("deploy-tree-dirty-alert: no tg.env configured -- would have sent:\n" + text)
+        print(f"{_ts()} deploy-tree-dirty-alert: no tg.env configured -- would have sent:\n" + text)
         return False
     r = subprocess.run(
         ["curl", "-sS", "--max-time", "30", "-F", f"chat_id={chat_id}", "-F", f"text={text}",
@@ -111,25 +120,25 @@ def main():
             if os.path.exists(f):
                 os.remove(f)
                 removed = True
-        print("deploy-tree-dirty-alert: clean" + (" (reset markers)" if removed else ""))
+        print(f"{_ts()} deploy-tree-dirty-alert: clean" + (" (reset markers)" if removed else ""))
         return
 
     now = time.time()
     if not os.path.exists(STATE_FILE):
         with open(STATE_FILE, "w") as f:
             f.write(str(now))
-        print(f"deploy-tree-dirty-alert: dirty, first seen now -- grace period started ({DIRTY_GRACE_MINUTES}min)")
+        print(f"{_ts()} deploy-tree-dirty-alert: dirty, first seen now -- grace period started ({DIRTY_GRACE_MINUTES}min)")
         return
 
     first_seen = float(open(STATE_FILE).read().strip())
     elapsed_min = (now - first_seen) / 60
 
     if elapsed_min < DIRTY_GRACE_MINUTES:
-        print(f"deploy-tree-dirty-alert: dirty for {elapsed_min:.1f}min, within grace period, not yet alerting")
+        print(f"{_ts()} deploy-tree-dirty-alert: dirty for {elapsed_min:.1f}min, within grace period, not yet alerting")
         return
 
     if os.path.exists(ALERTED_FILE):
-        print(f"deploy-tree-dirty-alert: dirty for {elapsed_min:.1f}min, already alerted this episode, staying quiet")
+        print(f"{_ts()} deploy-tree-dirty-alert: dirty for {elapsed_min:.1f}min, already alerted this episode, staying quiet")
         return
 
     files = "\n".join(f"  {line}" for line in status.strip().splitlines())
@@ -144,9 +153,9 @@ def main():
     if ok:
         with open(ALERTED_FILE, "w") as f:
             f.write(str(now))
-        print(f"deploy-tree-dirty-alert: ALERTED (dirty {elapsed_min:.0f}min)")
+        print(f"{_ts()} deploy-tree-dirty-alert: ALERTED (dirty {elapsed_min:.0f}min)")
     else:
-        print(f"deploy-tree-dirty-alert: dirty {elapsed_min:.0f}min, alert send FAILED -- will retry next tick")
+        print(f"{_ts()} deploy-tree-dirty-alert: dirty {elapsed_min:.0f}min, alert send FAILED -- will retry next tick")
 
 
 if __name__ == "__main__":
