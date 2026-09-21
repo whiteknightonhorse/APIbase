@@ -1,14 +1,14 @@
 {
   "platform": "APIbase",
   "version": "2.1.0",
-  "updated_at": "2026-09-20T00:00:00Z",
-  "tools_count": 1384,
-  "providers_count": 396,
+  "updated_at": "2026-09-21T00:00:00Z",
+  "tools_count": 1381,
+  "providers_count": 395,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
     "prompt_name": "discover_tools",
-    "description": "Call discover_tools to browse 1384 tools by category or task instead of loading all schemas into context.",
+    "description": "Call discover_tools to browse 1381 tools by category or task instead of loading all schemas into context.",
     "examples": [
       {
         "args": {},
@@ -37,8 +37,8 @@
     },
     {
       "name": "finance",
-      "tools": 190,
-      "providers": "Abs, Adbkidb, Africa, Bank Of England, Bankofcanada, Banxico, Bcb, Bea, Bis Stats, BLS Macro, Brasilapi, Bundesbank Timeseries, Cfpb Complaints, Czso, Data Usa, Dbnomics, Denmark Energidataservice, ECB Rates, Edgar, Eia, Estat Japan Dashboard, Estonia Statistics, Eurostat, Exchangerate, FDIC, Figi, Finance, Finnhub, Frankfurter, Hungary Ksh, Ibanapi, Iceland Statistics, Imf, Ine, Ine Chile, Ine Spain, Istat, Latvia Statistics, Mfapi, Norgesbank, Oecd Data, Oecd Stats, Ons Uk Stats, Rateapi, Razorpayifsc, SEC Edgar, Slovakia Statistics, Statfin, Statistik Austria, Swissfso, Swissnbm, Treasurydirect, Treasuryfiscal, Worldbank, Wto",
+      "tools": 187,
+      "providers": "Abs, Adbkidb, Africa, Bank Of England, Bankofcanada, Banxico, Bcb, Bea, Bis Stats, BLS Macro, Brasilapi, Bundesbank Timeseries, Cfpb Complaints, Czso, Data Usa, Dbnomics, Denmark Energidataservice, ECB Rates, Edgar, Eia, Estat Japan Dashboard, Estonia Statistics, Eurostat, Exchangerate, FDIC, Figi, Finance, Finnhub, Frankfurter, Hungary Ksh, Ibanapi, Iceland Statistics, Imf, Ine, Ine Chile, Ine Spain, Istat, Latvia Statistics, Mfapi, Norgesbank, Oecd Data, Oecd Stats, Ons Uk Stats, Rateapi, Razorpayifsc, SEC Edgar, Statfin, Statistik Austria, Swissfso, Swissnbm, Treasurydirect, Treasuryfiscal, Worldbank, Wto",
       "examples": "Call discover_tools with category=\"finance\" for the current tool list and descriptions."
     },
     {
