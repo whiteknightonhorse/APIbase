@@ -1,6 +1,6 @@
 {
   "name": "APIbase — The API Hub for AI Agents",
-  "description": "Production MCP server providing 1382 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
+  "description": "Production MCP server providing 1380 real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.",
   "version": "2.1.0",
   "tools": [
     {
@@ -26056,127 +26056,6 @@
         },
         "required": [
           "object_id"
-        ]
-      },
-      "outputSchema": {
-        "type": "object",
-        "properties": {
-          "result": {
-            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
-          },
-          "error": {
-            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
-          }
-        },
-        "required": [
-          "result"
-        ]
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      }
-    },
-    {
-      "name": "smithsonian.collection.search",
-      "description": "Full-text search across 11M+ records from 19 Smithsonian museums — art, artifacts, scientific specimens, archives. Filter by type (objects/species/archives/books/online_media/events/places), sort by relevancy/newest/updated/random, and CC0-only by default. Covers National Museum of Natural History, Air and Space, American Art, Portrait Gallery, Freer|Sackler, and more (Smithsonian Open Access, CC0 subset)",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "q": {
-            "type": "string",
-            "description": "Full-text search query. Example: \"dinosaur\", \"picasso\", \"apollo 11\". Supports EDAN query syntax (field:value, AND/OR).",
-            "minLength": 1
-          },
-          "rows": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 100,
-            "description": "Number of results to return (1-100, default 10)."
-          },
-          "start": {
-            "type": "integer",
-            "minimum": 0,
-            "description": "Offset for pagination (default 0). Useful with rowCount from previous call."
-          },
-          "sort": {
-            "type": "string",
-            "enum": [
-              "relevancy",
-              "newest",
-              "updated",
-              "random"
-            ],
-            "description": "Sort order for results. Default: relevancy."
-          },
-          "type": {
-            "type": "string",
-            "enum": [
-              "archives",
-              "books",
-              "online_media",
-              "objects",
-              "events",
-              "places",
-              "species"
-            ],
-            "description": "Filter by record type. E.g. \"objects\" for 3D objects, \"species\" for scientific specimens."
-          },
-          "online_media_type": {
-            "type": "string",
-            "enum": [
-              "Images",
-              "Sound recordings",
-              "Videos"
-            ],
-            "description": "Filter to items that have media of a specific type."
-          },
-          "cc0_only": {
-            "type": "boolean",
-            "description": "Filter results to CC0-licensed records only (default true). Set false to include all records with their license field."
-          }
-        },
-        "required": [
-          "q"
-        ]
-      },
-      "outputSchema": {
-        "type": "object",
-        "properties": {
-          "result": {
-            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
-          },
-          "error": {
-            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
-          }
-        },
-        "required": [
-          "result"
-        ]
-      },
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "idempotentHint": true,
-        "openWorldHint": true
-      }
-    },
-    {
-      "name": "smithsonian.collection.record",
-      "description": "Get full record for a Smithsonian Open Access item by ID — title, unit code (which of 19 museums), license (CC0 flag), record_link (canonical URL), data_source, online media (images/audio/video), freetext metadata, indexed structured fields. Use smithsonian.search to find IDs first (Smithsonian, CC0 subset)",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Smithsonian record ID from a previous search result (e.g. \"edanmdm-nmnhvz_5068559\" or \"ld1-*\"). Use smithsonian.search first to find IDs.",
-            "minLength": 1
-          }
-        },
-        "required": [
-          "id"
         ]
       },
       "outputSchema": {
