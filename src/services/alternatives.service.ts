@@ -65,24 +65,31 @@ export function computeAlternatives(
 ): AlternativeTool[] {
   if (!requesting.capability) return [];
 
-  return candidates
-    .filter((c) => c.tool_id !== requesting.tool_id)
-    .filter((c) => c.capability === requesting.capability)
-    .filter((c) => c.status !== 'unavailable') // Критерий готовности: unavailable никогда не предлагается
-    .filter((c) => !sameUpstreamIds.has(c.tool_id)) // Критерий готовности: same_upstream_as никогда не предлагается
-    .filter((c) => isScopeCompatible(requesting.scope, c.scope))
-    .sort((a, b) => {
-      if (a.status !== b.status) return a.status === 'healthy' ? -1 : 1;
-      if (a.price_usd !== b.price_usd) return a.price_usd - b.price_usd;
-      return a.tool_id.localeCompare(b.tool_id); // deterministic tiebreak
-    })
-    .map((c) => ({
-      tool_id: c.tool_id,
-      provider: c.provider,
-      price_usd: c.price_usd,
-      status: c.status,
-      scope: c.scope,
-    }));
+  return (
+    candidates
+      .filter((c) => c.tool_id !== requesting.tool_id)
+      .filter((c) => c.capability === requesting.capability)
+      .filter((c) => c.status !== 'unavailable') // Критерий готовности: unavailable никогда не предлагается
+      .filter((c) => !sameUpstreamIds.has(c.tool_id)) // Критерий готовности: same_upstream_as никогда не предлагается
+      // Same provider = same adapter = same upstream host in this codebase (one adapter per
+      // provider, src/adapters/registry.ts) — a mechanical backstop for T-0207 ruling-1's "same
+      // upstream duplicates never proposed" beyond the cases a human remembered to mark
+      // same_upstream_as for. If the provider is down, every tool_id under it is down too.
+      .filter((c) => c.provider !== requesting.provider)
+      .filter((c) => isScopeCompatible(requesting.scope, c.scope))
+      .sort((a, b) => {
+        if (a.status !== b.status) return a.status === 'healthy' ? -1 : 1;
+        if (a.price_usd !== b.price_usd) return a.price_usd - b.price_usd;
+        return a.tool_id.localeCompare(b.tool_id); // deterministic tiebreak
+      })
+      .map((c) => ({
+        tool_id: c.tool_id,
+        provider: c.provider,
+        price_usd: c.price_usd,
+        status: c.status,
+        scope: c.scope,
+      }))
+  );
 }
 
 /**

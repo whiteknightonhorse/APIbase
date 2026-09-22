@@ -1095,8 +1095,6 @@ tools:
   - tool_id: ip.bulk_lookup
     name: Bulk IP Lookup
     provider: ipapi
-    capability: geo.ip_lookup
-    scope: global
     price_usd: "0.005"
     cache_ttl: 3600
 
@@ -1113,8 +1111,6 @@ tools:
   - tool_id: earthquake.feed
     name: Earthquake Real-Time Feed
     provider: usgs-earthquake
-    capability: geo.earthquakes
-    scope: global
     price_usd: "0.001"
     upstream_cost_usd: "0"
     cache_ttl: 60
@@ -1122,8 +1118,6 @@ tools:
   - tool_id: earthquake.count
     name: Earthquake Count
     provider: usgs-earthquake
-    capability: geo.earthquakes
-    scope: global
     price_usd: "0.001"
     upstream_cost_usd: "0"
     cache_ttl: 60
@@ -1265,8 +1259,6 @@ tools:
   - tool_id: holidays.next
     name: Next Public Holidays
     provider: nagerdate
-    capability: holidays.public
-    scope: global
     price_usd: "0.001"
     upstream_cost_usd: "0"
     cache_ttl: 3600
@@ -1845,15 +1837,11 @@ tools:
   - tool_id: airnow.forecast_zip
     name: AQI Forecast by ZIP (AirNow)
     provider: airnow
-    capability: air_quality
-    scope: regional:US
     price_usd: "0.002"
     cache_ttl: 3600
   - tool_id: airnow.forecast_latlng
     name: AQI Forecast by Coordinate (AirNow)
     provider: airnow
-    capability: air_quality
-    scope: regional:US
     price_usd: "0.002"
     cache_ttl: 3600
 
@@ -2367,8 +2355,6 @@ tools:
   - tool_id: vatcomply.currencies
     name: ECB Exchange Rates
     provider: vatcomply
-    capability: fx.latest
-    scope: global
     price_usd: "0.001"
     upstream_cost_usd: "0"
     cache_ttl: 3600
@@ -2544,8 +2530,6 @@ tools:
   - tool_id: pdf.from_html
     name: HTML to PDF
     provider: api2pdf
-    capability: document.pdf_generate
-    scope: global
     price_usd: "0.005"
     upstream_cost_status: NOT_MEASURED
     upstream_cost_note: "load-dependent (size+compute time); formula: $0.001/MB + $0.00019551/s + $1/mo flat; needs 30d real traffic for p80"
@@ -5322,8 +5306,6 @@ tools:
   - tool_id: opentopodata.batch
     name: Open Topo Data — Batch Elevation Query
     provider: opentopodata
-    capability: geo.elevation
-    scope: global
     price_usd: "0.002"
     cache_ttl: 86400
 
@@ -5961,8 +5943,6 @@ tools:
   - tool_id: opentopo.elevation_area
     name: OpenTopography Area Elevation Stats
     provider: opentopography
-    capability: geo.elevation
-    scope: global
     price_usd: "0.003"
     cache_ttl: 86400
 
@@ -6463,16 +6443,12 @@ tools:
   - tool_id: openmeteoaq.forecast
     name: Open-Meteo — Air Quality Forecast
     provider: openmeteoaq
-    capability: air_quality
-    scope: global
     price_usd: "0.002"
     cache_ttl: 1800
 
   - tool_id: openmeteoaq.historical
     name: Open-Meteo — Historical Air Quality
     provider: openmeteoaq
-    capability: air_quality
-    scope: global
     price_usd: "0.002"
     cache_ttl: 86400
 
@@ -7826,8 +7802,6 @@ tools:
   - tool_id: emsc.event_detail
     name: Get EMSC Earthquake Event Detail
     provider: emsc
-    capability: geo.earthquakes
-    scope: global
     price_usd: "0.001"
     cache_ttl: 3600
 
@@ -7934,8 +7908,6 @@ tools:
   - tool_id: gebco.elevation_profile
     name: Get GEBCO Elevation Profile
     provider: gebco
-    capability: geo.elevation
-    scope: global
     price_usd: "0.002"
     cache_ttl: 2592000
 

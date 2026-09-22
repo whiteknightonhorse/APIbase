@@ -33,9 +33,21 @@ function candidate(overrides: Partial<AlternativeCandidate> = {}): AlternativeCa
 
 describe('computeAlternatives — pure matching rules (synthetic fixtures)', () => {
   it('Критерий 1: does not suggest a regional equivalent for a global request', () => {
-    const requesting = candidate({ tool_id: 'weather.global_tool', scope: 'global' });
-    const regional = candidate({ tool_id: 'weather.us_only', scope: 'regional:US' });
-    const otherGlobal = candidate({ tool_id: 'weather.other_global', scope: 'global' });
+    const requesting = candidate({
+      tool_id: 'weather.global_tool',
+      provider: 'provider-a',
+      scope: 'global',
+    });
+    const regional = candidate({
+      tool_id: 'weather.us_only',
+      provider: 'provider-b',
+      scope: 'regional:US',
+    });
+    const otherGlobal = candidate({
+      tool_id: 'weather.other_global',
+      provider: 'provider-c',
+      scope: 'global',
+    });
 
     const result = computeAlternatives(requesting, [regional, otherGlobal], new Set());
 
@@ -43,10 +55,26 @@ describe('computeAlternatives — pure matching rules (synthetic fixtures)', () 
   });
 
   it('a regional request MAY be offered a global alternative (global covers it) but not a different region', () => {
-    const requesting = candidate({ tool_id: 'weather.us_tool', scope: 'regional:US' });
-    const global = candidate({ tool_id: 'weather.global_tool', scope: 'global' });
-    const otherRegion = candidate({ tool_id: 'weather.sg_tool', scope: 'regional:SG' });
-    const sameRegion = candidate({ tool_id: 'weather.us_tool_2', scope: 'regional:US' });
+    const requesting = candidate({
+      tool_id: 'weather.us_tool',
+      provider: 'provider-a',
+      scope: 'regional:US',
+    });
+    const global = candidate({
+      tool_id: 'weather.global_tool',
+      provider: 'provider-b',
+      scope: 'global',
+    });
+    const otherRegion = candidate({
+      tool_id: 'weather.sg_tool',
+      provider: 'provider-c',
+      scope: 'regional:SG',
+    });
+    const sameRegion = candidate({
+      tool_id: 'weather.us_tool_2',
+      provider: 'provider-d',
+      scope: 'regional:US',
+    });
 
     const result = computeAlternatives(requesting, [global, otherRegion, sameRegion], new Set());
 
@@ -56,19 +84,29 @@ describe('computeAlternatives — pure matching rules (synthetic fixtures)', () 
   });
 
   it('Критерий 2: same_upstream_as is never suggested, even though it matches capability+scope', () => {
-    const requesting = candidate({ tool_id: 'fx.a' });
-    const sameUpstream = candidate({ tool_id: 'fx.b' });
-    const real = candidate({ tool_id: 'fx.c' });
+    const requesting = candidate({ tool_id: 'fx.a', provider: 'provider-a' });
+    const sameUpstream = candidate({ tool_id: 'fx.b', provider: 'provider-b' });
+    const real = candidate({ tool_id: 'fx.c', provider: 'provider-c' });
 
     const result = computeAlternatives(requesting, [sameUpstream, real], new Set(['fx.b']));
 
     expect(result.map((r) => r.tool_id)).toEqual(['fx.c']);
   });
 
+  it('a same-provider candidate is never suggested, even when not declared same_upstream_as (T-0207 ruling-1: same adapter = same upstream)', () => {
+    const requesting = candidate({ tool_id: 'earthquake.search', provider: 'usgs-earthquake' });
+    const sameProvider = candidate({ tool_id: 'earthquake.count', provider: 'usgs-earthquake' });
+    const otherProvider = candidate({ tool_id: 'emsc.search_earthquakes', provider: 'emsc' });
+
+    const result = computeAlternatives(requesting, [sameProvider, otherProvider], new Set());
+
+    expect(result.map((r) => r.tool_id)).toEqual(['emsc.search_earthquakes']);
+  });
+
   it('Критерий 3: an unavailable tool is never suggested', () => {
-    const requesting = candidate({ tool_id: 'search.a' });
-    const down = candidate({ tool_id: 'search.b', status: 'unavailable' });
-    const healthy = candidate({ tool_id: 'search.c' });
+    const requesting = candidate({ tool_id: 'search.a', provider: 'provider-a' });
+    const down = candidate({ tool_id: 'search.b', provider: 'provider-b', status: 'unavailable' });
+    const healthy = candidate({ tool_id: 'search.c', provider: 'provider-c' });
 
     const result = computeAlternatives(requesting, [down, healthy], new Set());
 
@@ -76,9 +114,19 @@ describe('computeAlternatives — pure matching rules (synthetic fixtures)', () 
   });
 
   it('a degraded (not unavailable) alternative IS still suggested, ranked after healthy', () => {
-    const requesting = candidate({ tool_id: 'search.a' });
-    const degraded = candidate({ tool_id: 'search.b', status: 'degraded', price_usd: 0.0001 });
-    const healthy = candidate({ tool_id: 'search.c', status: 'healthy', price_usd: 0.5 });
+    const requesting = candidate({ tool_id: 'search.a', provider: 'provider-a' });
+    const degraded = candidate({
+      tool_id: 'search.b',
+      provider: 'provider-b',
+      status: 'degraded',
+      price_usd: 0.0001,
+    });
+    const healthy = candidate({
+      tool_id: 'search.c',
+      provider: 'provider-c',
+      status: 'healthy',
+      price_usd: 0.5,
+    });
 
     const result = computeAlternatives(requesting, [degraded, healthy], new Set());
 
@@ -101,9 +149,13 @@ describe('computeAlternatives — pure matching rules (synthetic fixtures)', () 
   });
 
   it('sorts by price ascending among equally-healthy candidates', () => {
-    const requesting = candidate({ tool_id: 'req' });
-    const expensive = candidate({ tool_id: 'pricey', price_usd: 0.05 });
-    const cheap = candidate({ tool_id: 'cheap', price_usd: 0.001 });
+    const requesting = candidate({ tool_id: 'req', provider: 'provider-req' });
+    const expensive = candidate({
+      tool_id: 'pricey',
+      provider: 'provider-pricey',
+      price_usd: 0.05,
+    });
+    const cheap = candidate({ tool_id: 'cheap', provider: 'provider-cheap', price_usd: 0.001 });
 
     const result = computeAlternatives(requesting, [expensive, cheap], new Set());
 
@@ -276,6 +328,37 @@ describe('getAlternativesForTool — real capability/scope registry + controlled
     const alternatives = await getAlternativesForTool('finance.ecb_rates');
 
     expect(alternatives.map((a) => a.tool_id)).toEqual(['exchangerate.latest']);
+  });
+
+  it('a same-provider candidate is honored end-to-end on real tool_ids (airnow.current_zip never suggests airnow.current_latlng)', async () => {
+    __setToolCacheEntryForTest({
+      tool_id: 'airnow.current_zip',
+      status: 'healthy',
+      price_usd: 0.002,
+      cache_ttl: 0,
+      upstream_cost_usd: null,
+      provider: 'airnow',
+    });
+    __setToolCacheEntryForTest({
+      tool_id: 'airnow.current_latlng',
+      status: 'healthy',
+      price_usd: 0.002,
+      cache_ttl: 0,
+      upstream_cost_usd: null,
+      provider: 'airnow',
+    });
+    __setToolCacheEntryForTest({
+      tool_id: 'airquality.city',
+      status: 'healthy',
+      price_usd: 0.001,
+      cache_ttl: 0,
+      upstream_cost_usd: null,
+      provider: 'iqair',
+    });
+
+    const alternatives = await getAlternativesForTool('airnow.current_zip');
+
+    expect(alternatives.map((a) => a.tool_id)).toEqual(['airquality.city']);
   });
 
   it('returns [] for a real tool_id that has no declared capability', async () => {
