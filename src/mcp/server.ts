@@ -295,14 +295,18 @@ export function createMcpRouter(): express.Router {
         return;
       }
 
-      const apiKey = extractApiKey(req);
-      if (!apiKey) {
-        res.status(401).json({
-          error: 'unauthorized',
-          message: 'Missing or invalid Authorization header. Expected: Bearer <api_key>',
-        });
-        return;
-      }
+      // No hard-401 here: an absent/invalid key is not actually checked against
+      // anything at this point — it is only captured to be replayed as an
+      // `authorization` header on each tool call (tool-adapter.ts), where the
+      // pipeline's AUTH stage validates it and returns a normal JSON-RPC tool
+      // error for a bad key (see e.g. "Invalid API key format"). Rejecting the
+      // handshake itself here breaks unauthenticated discovery (tools/list,
+      // prompts/list, apibase.discover), which this server's own `instructions`
+      // field advertises as free — and it makes mcp-proxy (used by Glama's
+      // health check, among others) fail before it ever opens its listening
+      // port, since mcp-proxy performs this same initialize handshake against
+      // the spawned server before serving any client.
+      const apiKey = extractApiKey(req) ?? '';
 
       const requestId = (req.headers[X_REQUEST_ID] as string) || randomUUID();
 
