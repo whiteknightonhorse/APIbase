@@ -518,7 +518,10 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://ssd-api.jpl.nasa.gov/doc/",
-    "limit_proof": "US Government open data, no auth required, no documented rate limits"
+    "limit_proof": "US Government open data, no auth required, no documented rate limits",
+    "probe": {
+      "method": "GET"
+    }
   },
   "soil": {
     "display_name": "USDA Soil Data Access",
