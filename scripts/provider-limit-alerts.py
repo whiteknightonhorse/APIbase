@@ -581,12 +581,18 @@ def fetch_zyte_stats_spend(organization_id, period_start=None):
     return total_usd
 
 
-def check_billing_cap_risk():
+def check_billing_cap_risk(now=None):
     """For every provider with `billing.cap_usd_month` (a real dollar spending
     cap, not a free-call-count limit): fetch spend, classify risk via the
     SAME compute_risk_for_usage/classify_risk main() uses for free tiers, and
     write/incident exactly like main()'s own per-provider loop — this is
-    intentionally the same machinery, just a different `used`/`lim` source."""
+    intentionally the same machinery, just a different `used`/`lim` source.
+
+    `now` (zz03-15/T-0215): forwarded untouched to
+    maybe_apply_billing_cap_fallback_deadline's live-clock gate. Injectable
+    ONLY for tests (main()'s real cron call leaves it None -> the actual
+    current UTC time) — same convention as zyte_billing_period_start's own
+    `now=None` a few functions up."""
     billing = load_billing_config()
     cap_providers = {p: b for p, b in billing.items() if b.get("cap_usd_month")}
     if not cap_providers:
@@ -608,15 +614,29 @@ def check_billing_cap_risk():
 
         if spend_usd is None:
             update_provider_status_risk(prov, None, None, None, "NOINFO")
+            # zz03-15 / T-0215: distinguishes "the credential was never even
+            # supplied, so no HTTP call happened" (no_key) from "a call ran
+            # with a real credential and still failed" (attempted) -- see
+            # maybe_apply_billing_cap_fallback_deadline below, which must
+            # never read silence as a refusal.
+            key_var = STATS_API_KEY_VAR_BY_PROVIDER.get(prov)
+            probe_state = "attempted" if (key_var and get_provider_key(key_var)) else "no_key"
             # kind='usage_api': probe_log's CHECK constraint (migration 0009) doesn't
             # have a 'billing_cap' kind and this isn't worth its own migration -- this
             # IS a usage-vs-limit measurement, just dollars instead of call counts.
-            log_probe(prov, "usage_api", "NOINFO", "billing-cap spend query failed/unavailable this run")
+            log_probe(prov, "usage_api", "NOINFO",
+                      f"billing-cap spend query failed/unavailable this run ({probe_state})")
             # Fable ruling-3: a PERSISTENT (not one-off) NOINFO streak on the one
             # dollar cap this system tracks must reach a human, not just sit in
             # provider_status.risk where nobody is watching for it going stale.
             streak = billing_cap_noinfo_streak(prov)
-            if streak >= BILLING_CAP_NOINFO_ESCALATION_RUNS:
+            # zz03-15: a named ruling deadline (provider-limits.json
+            # billing.spend_source_fallback) fires BEFORE the streak check
+            # below re-opens/renews the same WAITING_HUMAN ask forever --
+            # once applied, the reason is recorded in code/probe_log, not by
+            # silently switching off the reminder.
+            fallback_applied = maybe_apply_billing_cap_fallback_deadline(prov, b, probe_state, streak, now=now)
+            if streak >= BILLING_CAP_NOINFO_ESCALATION_RUNS and not fallback_applied:
                 maybe_escalate_billing_cap_noinfo(prov, b, streak)
             continue
 
@@ -758,6 +778,124 @@ def maybe_escalate_billing_cap_noinfo(provider, billing, streak):
     except (AssertionError, RuntimeError) as e:
         ap.notice(f"provider-limit-alerts: failed to open billing-cap NOINFO-streak incident "
                   f"for {provider}: {e}")
+
+
+# ---------------------------------------------------------------------------
+# zz03-15 / T-0215: T-0124 ruling-1 named a hard deadline (2026-09-21) after
+# which a billing-cap provider whose Stats API still refuses every credential
+# should stop sitting in WAITING_HUMAN forever and flip to a declared
+# `unmeasurable_external` state on its own. Fable's review of 0124 flagged
+# that nothing was ever assigned to actually DO that flip once the date
+# arrived -- maybe_escalate_billing_cap_noinfo above only ever ASKS a human,
+# on a loop, with no exit. This is that executor.
+#
+# Two refusals are load-bearing here, both required by the brief that opened
+# this task:
+#   - The deadline lives in provider-limits.json as DATA (billing.
+#     spend_source_fallback.deadline), and billing_cap_fallback_should_apply
+#     below compares it against a LIVE read of the clock at call time
+#     (`now=None` defaults to datetime.now(timezone.utc)) -- same injectable-
+#     for-tests-only convention as zyte_billing_period_start(now=None)
+#     earlier in this file. The gate re-evaluates every hourly run; it never
+#     remembers a verdict decided when this code (or the config note) was
+#     written ("ворота требуют живых часов").
+#   - It only fires when `probe_state == "attempted"` -- an authenticated
+#     call ran THIS run and still failed. A credential that was simply never
+#     supplied ("no_key") produces the exact same NOINFO/None spend_usd as a
+#     403 one line up in check_billing_cap_risk, so without this distinction
+#     "nobody has answered yet" and "we asked and got refused" would be the
+#     same input to this gate -- and silence would eventually roll the
+#     billing-measurement state over by default, at any date, which is
+#     exactly the failure mode boundary #4 of the brief forbids.
+#
+# Money-shaped facts may never get an AUTO/AUTO_NO_MODEL incident route
+# (config/autopilot/routing.json's own LAW, enforced at load time) -- so this
+# is deliberately NOT a new incident kind or a fleet task. It is reviewed,
+# committed code (REVIEW: fable, same as every other zyte-specific branch in
+# this file) taking a single, fully-pre-specified action, the same pattern
+# advance_quota_incidents_if_recovered() above already uses to move an
+# incident toward VERIFYING on its own recognizance -- never straight to
+# RESOLVED (C0.3: a classification pass is not itself a measurement; the
+# next real probe earns that).
+#
+# `spend_source` itself is NOT written into provider-limits.json at runtime.
+# That file is human/fable-reviewed source (grep the repo: no script anywhere
+# writes to it -- config/autopilot/routing.json's LAW exists for exactly this
+# reason, keep money-shaped state out of anything an unattended cron can
+# silently rewrite in the deployed tree without a commit). Instead the
+# "applied" fact is recorded the same durable, no-new-table way probe_log
+# already carries every other measurement (C0.1, "не изобретай новую
+# кассу"): a marker string in `detail` that zyte_fallback_marker_applied()
+# greps for, making the whole thing idempotent across every run after the
+# first.
+# ---------------------------------------------------------------------------
+def billing_cap_fallback_should_apply(fb, probe_state, now=None):
+    """Pure gate, no DB -- kept separate from the incident/probe_log side
+    effects in maybe_apply_billing_cap_fallback_deadline so the three worlds
+    the brief's acceptance criteria names are plain asserts in selftest():
+    deadline passed + a real attempted failure -> True; deadline not yet
+    reached -> False (regardless of probe_state); no credential ever
+    supplied -> False regardless of date. `fb` is the
+    billing.spend_source_fallback dict from provider-limits.json (or None/
+    absent, e.g. every provider except zyte today) -- no config for this
+    provider means this never applies to it."""
+    if not fb:
+        return False
+    if probe_state != "attempted":
+        return False
+    deadline = datetime.fromisoformat(fb["deadline"]).date()
+    today = (now or datetime.now(timezone.utc)).date()
+    return today >= deadline
+
+
+def zyte_fallback_marker_applied(provider):
+    """True once maybe_apply_billing_cap_fallback_deadline has already fired
+    for this provider in some prior run -- read from probe_log (durable,
+    already written every run by check_billing_cap_risk; no new table/column,
+    C0.1) rather than a second state file. Fails to False (not idempotent) on
+    a query failure, same "safe failure direction is under-counting, not a
+    wrong skip" stance billing_cap_noinfo_streak already takes above --
+    worst case this re-notes an already-open incident, it never re-fabricates
+    a resolved one."""
+    rows, rc = ap.psql(
+        f"SELECT 1 FROM probe_log WHERE provider = {ap.sql_literal(provider)} "
+        f"AND kind = 'usage_api' AND detail LIKE 'spend_source=%' LIMIT 1"
+    )
+    return rc == 0 and bool(rows.strip())
+
+
+def maybe_apply_billing_cap_fallback_deadline(provider, billing, probe_state, streak, now=None):
+    """Applies T-0124 ruling-1's deadline fallback exactly once, moving the
+    provider's open billing-cap incident toward VERIFYING (never straight to
+    RESOLVED -- see module comment above) and returning True so the caller
+    skips re-opening/re-noting the ask-a-human escalation for a condition
+    that's now handled a different way. Returns False whenever the gate
+    doesn't apply (no config, deadline not reached, or a bare 'no_key' run) —
+    the caller's normal escalation path runs unchanged in that case."""
+    fb = billing.get("spend_source_fallback")
+    if not billing_cap_fallback_should_apply(fb, probe_state, now):
+        return False
+    if zyte_fallback_marker_applied(provider):
+        return True  # already applied in a prior run -- idempotent, no re-fire
+    today = (now or datetime.now(timezone.utc)).date()
+    reason = (f"{fb.get('ruling', 'deadline ruling')}: deadline {fb['deadline']} passed (observed "
+              f"UTC {today.isoformat()}) with an authenticated Stats API call still failing this "
+              f"run ({streak}-run NOINFO streak) -- spend_source={fb['target']} applied "
+              f"automatically per the ruling, no human in the loop (zz03-15/T-0215).")
+    log_probe(provider, "usage_api", "NOINFO", f"spend_source={fb['target']} {reason}")
+    dk = ap.dedup_key("UNKNOWN", provider)
+    row, rc = ap.psql(
+        f"SELECT incident_id FROM incidents WHERE dedup_key = {ap.sql_literal(dk)} "
+        f"AND state IN ('OPEN', 'WAITING_HUMAN')"
+    )
+    if rc == 0 and row:
+        try:
+            ap.transition_state(row, "VERIFYING")
+            ap.note_incident(row, "provider-limit-alerts", "fallback-deadline-applied", reason)
+        except Exception as e:
+            ap.notice(f"provider-limit-alerts: failed to advance {provider} fallback incident "
+                      f"{row} to VERIFYING: {e}")
+    return True
 
 
 # ---------------------------------------------------------------------------
@@ -1348,6 +1486,61 @@ def selftest():
     assert compute_recharge_count(25.0, 5.0, 10.0, 0.5) == 2, "two full recharge cycles consumed -> 2"
     assert compute_recharge_count(100.0, 5.0, 0.0, 0.5) == 0, "recharge_amount=0 (misconfigured) -> 0, never a division error"
 
+    # --- zz03-15 / T-0215: billing_cap_fallback_should_apply -- the pure gate
+    # behind maybe_apply_billing_cap_fallback_deadline. Three worlds the task's
+    # own acceptance criteria names, plus the differentiating controls proving
+    # each clause is load-bearing (flip ONE input, verdict must flip).
+    fb = {"deadline": "2026-09-21", "target": "unmeasurable_external", "ruling": "T-0124 ruling-1"}
+
+    # World A: deadline passed (today > deadline) + a real attempted failure -> fires.
+    assert billing_cap_fallback_should_apply(
+        fb, "attempted", now=datetime(2026, 9, 22, tzinfo=timezone.utc)
+    ) is True, "world A: deadline passed + attempted failure must fire"
+    # Differentiating control: EXACTLY on the deadline date must also fire
+    # (brief says "к 2026-09-21" -- that day counts, not only strictly after it).
+    assert billing_cap_fallback_should_apply(
+        fb, "attempted", now=datetime(2026, 9, 21, tzinfo=timezone.utc)
+    ) is True, "world A2: deadline day itself must fire (boundary is inclusive)"
+
+    # World B: one day BEFORE the deadline, same probe_state -- must NOT fire.
+    # Proves world A isn't vacuously true regardless of date.
+    assert billing_cap_fallback_should_apply(
+        fb, "attempted", now=datetime(2026, 9, 20, tzinfo=timezone.utc)
+    ) is False, "world B: deadline not yet reached must not fire"
+
+    # World C: probe was never attempted (credential never supplied) -- must NOT
+    # fire even LONG after the deadline. Proves date alone can't trigger this;
+    # "couldn't ask" must never read as "asked and got refused" (boundary #4).
+    assert billing_cap_fallback_should_apply(
+        fb, "no_key", now=datetime(2026, 9, 22, tzinfo=timezone.utc)
+    ) is False, "world C: never-probed must not fire regardless of date"
+    assert billing_cap_fallback_should_apply(
+        fb, "no_key", now=datetime(2099, 1, 1, tzinfo=timezone.utc)
+    ) is False, "world C2: never-probed must not fire even years past the deadline"
+
+    # World D: no fallback config at all for this provider (every provider
+    # except zyte today) -- must never fire, no matter what probe_state/now are.
+    assert billing_cap_fallback_should_apply(None, "attempted", now=datetime(2026, 9, 22, tzinfo=timezone.utc)) is False
+    assert billing_cap_fallback_should_apply({}, "attempted", now=datetime(2026, 9, 22, tzinfo=timezone.utc)) is False
+
+    # Live-clock control (⛔ boundary #3): calling with now=None must read the
+    # ACTUAL current clock, not silently return a fixed answer -- proven by
+    # getting opposite verdicts for a deadline placed before vs after a real
+    # datetime.now(timezone.utc) call made right here, no `now=` override on
+    # either side.
+    live_now = datetime.now(timezone.utc)
+    past_deadline_cfg = {**fb, "deadline": (live_now.date().replace(
+        year=live_now.year - 1)).isoformat()}
+    future_deadline_cfg = {**fb, "deadline": "2099-01-01"}
+    assert billing_cap_fallback_should_apply(past_deadline_cfg, "attempted") is True, (
+        "live-clock control: a deadline a year in the past must fire when now= is NOT overridden "
+        "(i.e. the function actually reads the real clock, not a value fixed at import time)"
+    )
+    assert billing_cap_fallback_should_apply(future_deadline_cfg, "attempted") is False, (
+        "live-clock control: a deadline decades in the future must not fire against the real clock"
+    )
+    print("provider-limit-alerts --selftest: billing_cap_fallback_should_apply (zz03-15): OK")
+
     print("provider-limit-alerts --selftest: OK")
 
 
@@ -1693,7 +1886,7 @@ def selftest_db():
         real_load_billing_config = load_billing_config
         real_fetch_zyte_stats_spend = fetch_zyte_stats_spend
         load_billing_config = lambda: {"zyte": {"cap_usd_month": 100.0, "organization_id": "999"}}  # noqa: E731
-        fetch_zyte_stats_spend = lambda org_id: 95.0  # noqa: E731 -- 5% remaining -> CRITICAL
+        fetch_zyte_stats_spend = lambda org_id, period_start=None: 95.0  # noqa: E731 -- 5% remaining -> CRITICAL
         try:
             check_billing_cap_risk()
             inc_row6, _ = ap.psql(
@@ -1705,7 +1898,7 @@ def selftest_db():
             print("world 6a (dollar-cap CRITICAL -> real QUOTA_LOW incident, OPEN): OK")
 
             # Recovery: spend drops (or cap effectively raised) -> risk NORMAL -> OPEN moves to VERIFYING
-            fetch_zyte_stats_spend = lambda org_id: 10.0  # noqa: E731 -- 90% remaining -> NORMAL
+            fetch_zyte_stats_spend = lambda org_id, period_start=None: 10.0  # noqa: E731 -- 90% remaining -> NORMAL
             check_billing_cap_risk()
             state_row6, _ = ap.psql(f"SELECT state FROM incidents WHERE incident_id = {ap.sql_literal(inc_id6)}")
             assert state_row6 == "VERIFYING", f"world 6b: expected VERIFYING after dollar-cap recovery, got {state_row6!r}"
@@ -1799,6 +1992,117 @@ def selftest_db():
             print("world 8c (streak holding -> merges into the same incident, no duplicate): OK")
         finally:
             load_billing_config = real_load_billing_config
+
+        # World 9 (zz03-15 / T-0215): the deadline-fallback executor end-to-end
+        # against the real incidents/probe_log tables -- one incident, walked
+        # through every world the task's acceptance criteria names plus the
+        # differentiating controls that prove each clause is load-bearing
+        # (flip ONE input at a time; the verdict must flip only for the input
+        # that clause actually gates on).
+        # load_billing_config/fetch_zyte_stats_spend are already `global` in
+        # this function's scope (declared by world 6 above) -- redeclaring
+        # them here would itself be a SyntaxError, same gotcha world 8's own
+        # comment already names. get_provider_key is new to this function.
+        global get_provider_key
+        real_get_provider_key = get_provider_key
+        real_load_billing_config = load_billing_config
+        real_fetch_zyte_stats_spend = fetch_zyte_stats_spend
+        fallback_cfg = {
+            "cap_usd_month": 100.0, "organization_id": "999",
+            "spend_source_fallback": {
+                "deadline": "2026-09-21", "target": "unmeasurable_external",
+                "ruling": "T-0124 ruling-1 (selftest fixture)",
+            },
+        }
+        load_billing_config = lambda: {"zyte": fallback_cfg}  # noqa: E731
+        fetch_zyte_stats_spend = lambda org_id, period_start=None: None  # noqa: E731 -- always failing this world
+        before_deadline = datetime(2026, 9, 20, tzinfo=timezone.utc)
+        try:
+            # 9a: credential never supplied (probe_state='no_key') -- build the
+            # streak up to WAITING_HUMAN exactly like world 8, but for zyte
+            # (which DOES have a spend_source_fallback configured, unlike
+            # world 8's noinfotest) so this world proves the ABSENCE of a key
+            # blocks the fallback even when a fallback rule genuinely exists.
+            get_provider_key = lambda name: None  # noqa: E731 -- 'no_key' every call
+            for _ in range(BILLING_CAP_NOINFO_ESCALATION_RUNS):
+                check_billing_cap_risk(now=before_deadline)
+            inc_row9, _ = ap.psql(
+                "SELECT incident_id, state FROM incidents WHERE provider = 'zyte' AND kind = 'UNKNOWN'"
+            )
+            assert inc_row9, "world 9a: expected an UNKNOWN incident once the streak crossed threshold"
+            inc_id9, inc_state9 = inc_row9.split(ap.SEP)
+            assert inc_state9 == "WAITING_HUMAN", f"world 9a: expected WAITING_HUMAN, got {inc_state9!r}"
+            print("world 9a (no_key streak crosses threshold -> WAITING_HUMAN, same as world 8): OK")
+
+            # 9b (boundary #4 control): jump `now` to decades past the
+            # deadline, credential STILL never supplied -- must stay
+            # WAITING_HUMAN. If this control were absent, a bug that fires on
+            # date alone would pass every other world in this file undetected.
+            far_future = datetime(2099, 1, 1, tzinfo=timezone.utc)
+            check_billing_cap_risk(now=far_future)
+            state_row9b, _ = ap.psql(f"SELECT state FROM incidents WHERE incident_id = {ap.sql_literal(inc_id9)}")
+            assert state_row9b == "WAITING_HUMAN", (
+                f"world 9b: no_key must not fire the fallback even 70+ years past the deadline, "
+                f"got {state_row9b!r}"
+            )
+            no_marker_row9b, _ = ap.psql(
+                "SELECT count(*) FROM probe_log WHERE provider = 'zyte' AND kind = 'usage_api' "
+                "AND detail LIKE 'spend_source=%'"
+            )
+            assert no_marker_row9b == "0", (
+                f"world 9b: no_key must never write the fallback marker, got count={no_marker_row9b}"
+            )
+            print("world 9b (no_key + far-future date -> still WAITING_HUMAN, no marker written): OK")
+
+            # 9c (differentiating control for 9d): a credential now present
+            # ('attempted') but the deadline NOT yet reached -- must also
+            # stay WAITING_HUMAN. Proves 9d below fires because the date
+            # crossed, not merely because the credential started existing.
+            get_provider_key = lambda name: "fake-stats-key-for-selftest"  # noqa: E731 -- probe_state='attempted'
+            check_billing_cap_risk(now=before_deadline)
+            state_row9c, _ = ap.psql(f"SELECT state FROM incidents WHERE incident_id = {ap.sql_literal(inc_id9)}")
+            assert state_row9c == "WAITING_HUMAN", (
+                f"world 9c: attempted-but-failing BEFORE the deadline must not fire yet, got {state_row9c!r}"
+            )
+            print("world 9c (attempted failure, deadline not yet reached -> still WAITING_HUMAN): OK")
+
+            # 9d: cross the deadline with the SAME still-failing 'attempted'
+            # probe -- must now move WAITING_HUMAN to VERIFYING (never
+            # straight to RESOLVED -- C0.3, same pattern
+            # advance_quota_incidents_if_recovered uses above: this function
+            # only proposes the recheck, the next real probe earns RESOLVED)
+            # and leave exactly one durable probe_log marker.
+            after_deadline = datetime(2026, 9, 22, tzinfo=timezone.utc)
+            check_billing_cap_risk(now=after_deadline)
+            state_row9d, _ = ap.psql(f"SELECT state FROM incidents WHERE incident_id = {ap.sql_literal(inc_id9)}")
+            assert state_row9d == "VERIFYING", (
+                f"world 9d: deadline passed + attempted failure -> expected VERIFYING, got {state_row9d!r}"
+            )
+            marker_row9d, _ = ap.psql(
+                "SELECT count(*) FROM probe_log WHERE provider = 'zyte' AND kind = 'usage_api' "
+                "AND detail LIKE 'spend_source=unmeasurable_external%'"
+            )
+            assert marker_row9d == "1", f"world 9d: expected exactly one fallback marker row, got {marker_row9d}"
+            print("world 9d (deadline crossed, still-attempted failure -> WAITING_HUMAN moves to "
+                  "VERIFYING, probe_log marker written): OK")
+
+            # 9e: idempotency -- another run well past the deadline must not
+            # duplicate the marker (the incident is no longer OPEN/
+            # WAITING_HUMAN, and zyte_fallback_marker_applied() short-circuits
+            # before even looking at incidents again).
+            check_billing_cap_risk(now=after_deadline)
+            marker_row9e, _ = ap.psql(
+                "SELECT count(*) FROM probe_log WHERE provider = 'zyte' AND kind = 'usage_api' "
+                "AND detail LIKE 'spend_source=unmeasurable_external%'"
+            )
+            assert marker_row9e == "1", (
+                f"world 9e: repeat run past the deadline must not duplicate the marker, got {marker_row9e}"
+            )
+            print("world 9e (repeat run past deadline -> idempotent, no duplicate marker/note): OK")
+        finally:
+            get_provider_key = real_get_provider_key
+            load_billing_config = real_load_billing_config
+            fetch_zyte_stats_spend = real_fetch_zyte_stats_spend
 
         print("selftest-db: ALL WORLDS OK")
         return 0
