@@ -354,9 +354,35 @@ model ProviderStatus {
   // and cleared ONLY by another active result — recordProbeResult's passive
   // path (kind='passive') never touches it, by construction, not by ordering.
   deterministic_paused_until DateTime? @db.Timestamptz()
+  // T-0160 (FT-7): when this provider's pricing/limits were last checked
+  // against a live source, and which source that was. Written by
+  // scripts/pricing-recheck.py (monthly cron), never by anything else — see
+  // migration 0021 for the full rationale. null = never checked, distinct
+  // from "checked, nothing to diff against yet" (real timestamp).
+  pricing_checked_at   DateTime? @db.Timestamptz()
+  pricing_source       String?
   updated_at           DateTime  @updatedAt @db.Timestamptz()
 
   @@map("provider_status")
+}
+
+// price_history — structured trail for an automatic tool price change, required
+// (01-law-never-sell-below-cost ruling-1 point F) BEFORE any such automation is
+// allowed to write. Deliberately empty/unread as of migration 0021 — see that
+// migration for the field-by-field rationale. No writer or reader exists yet.
+model PriceHistory {
+  id             BigInt    @id @default(autoincrement())
+  tool_id        String
+  price_old_usd  Decimal?  @db.Decimal(18, 8)
+  price_new_usd  Decimal   @db.Decimal(18, 8)
+  changed_at     DateTime  @default(now()) @db.Timestamptz()
+  basis          String
+  directive      String
+  fleet_task_id  String?
+  revisit_at     DateTime? @db.Timestamptz()
+  created_at     DateTime  @default(now()) @db.Timestamptz()
+
+  @@map("price_history")
 }
 
 // probe_log — append-only record of every measurement attempt, INCLUDING the ones
