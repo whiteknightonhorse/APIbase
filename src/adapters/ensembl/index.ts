@@ -37,7 +37,10 @@ export class EnsemblAdapter extends BaseAdapter {
     headers: Record<string, string>;
   } {
     const params = req.params as Record<string, unknown>;
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    };
 
     switch (req.toolId) {
       case 'ensembl.gene_lookup':
