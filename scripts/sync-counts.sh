@@ -297,7 +297,7 @@ try:
 except FileNotFoundError: pass
 PY
 
-  DESC="Universal MCP gateway for AI agents — ${TOOLS} tools, ${PROV} providers. One endpoint (https://apibase.pro/mcp), pay-per-call with x402 USDC on Base + MPP USDC on Tempo."
+  DESC="One MCP + REST endpoint to ${TOOLS} tools from ${PROV} providers. No signup, no subscription, no API key to start — pay per call in USDC (x402 on Base or MPP on Tempo)."
   gh repo edit whiteknightonhorse/APIbase --description "$DESC" >/dev/null 2>&1 && echo "  updated GitHub About" || echo "  (GitHub About skipped)"
 fi
 
@@ -412,15 +412,11 @@ PY
 
 # POS-1 (docs/03-SPECIFICATION.md §13, zz-03 Q5 ruling): a single canonical lead sentence,
 # "One MCP + REST endpoint to {TOOLS} tools from {PROV} providers. No signup, no subscription,
-# no API key to start...", is meant to replace README/llms.txt's first sentence -- but that
-# text landing is a SEPARATE fleet task (POS-1/POS-2, topologically AFTER this one per
-# 04-IMPLEMENTATION-PLAN.md's dependency table: "9. POS-1/POS-2 ... depends on (5)" where (5) is
-# this gate). Nothing in this repo carries the sentence yet. This check is therefore live but
-# vacuous today -- it activates the moment that task lands the sentence, with no further change
-# needed here: if the distinctive "No signup, no subscription, no API key to start" phrase is
-# found anywhere in README.md/static/llms.txt, its embedded {TOOLS}/{PROV} numbers must match
-# baseline, fatal if not. If the phrase isn't present anywhere yet, this reports clean (there is
-# nothing to be stale) rather than failing a task that hasn't shipped.
+# no API key to start...", replaces README/llms.txt's first sentence as of ZZ-03-09. If the
+# distinctive "No signup, no subscription, no API key to start" phrase is found anywhere in
+# README.md/static/llms.txt, its embedded {TOOLS}/{PROV} numbers must match baseline, fatal if
+# not. If the phrase isn't present in a given file, that file reports clean (nothing to be
+# stale there) rather than failing.
 STALE_POSITIONING=$(python3 - "$TOOLS" "$PROV" <<'PY' 2>&1
 import re, sys
 
@@ -437,6 +433,15 @@ for path in ("README.md", "static/llms.txt"):
 print("\n".join(problems))
 PY
 )
+
+# POS-2 (docs/03-SPECIFICATION.md §13, zz-03 Q5 Rule 1, ZZ-03-09): explicit deny-list of
+# unshipped-capability phrases across every lead surface. "best provider" is banned, but bare
+# "Best" is not (POS-4 is a separate, operator-gated decision about the index.html title/h1 —
+# not this regex). Fatal the moment any of these lands in copy, so a future edit can't
+# reintroduce an overclaim silently; mutation-tested by inserting one of these phrases into
+# README.md and confirming this goes red.
+STALE_FORBIDDEN_POSITIONING=$(grep -rniE 'capability layer|intelligent routing|smart routing|automatic failover|fallback|execution layer|best provider' \
+  README.md static/llms.txt static/ai.txt static/index.md static/index.html 2>/dev/null || true)
 
 # POS-3 (docs/03-SPECIFICATION.md §13, zz-03 Q5 ruling Rule 4): docs/ROADMAP.md with strict
 # line format `- [PLANNED|IN PROGRESS T-NNNN|SHIPPED YYYY-MM-DD <sha>|DROPPED YYYY-MM-DD
@@ -497,6 +502,7 @@ FAIL=0
 [ -n "$STALE_SITEMAP" ] && { echo "sync-counts: STALE static/sitemap.xml — differs from the generated URL set:"; echo "$STALE_SITEMAP"; FAIL=1; }
 [ -n "$STALE_DISCOVERY" ] && { echo "sync-counts: STALE discovery surface(s) remain:"; echo "$STALE_DISCOVERY"; FAIL=1; }
 [ -n "$STALE_POSITIONING" ] && { echo "sync-counts: STALE_POSITIONING — canonical sentence disagrees with baseline:"; echo "$STALE_POSITIONING"; FAIL=1; }
+[ -n "$STALE_FORBIDDEN_POSITIONING" ] && { echo "sync-counts: STALE_FORBIDDEN_POSITIONING — banned unshipped-capability phrase found:"; echo "$STALE_FORBIDDEN_POSITIONING"; FAIL=1; }
 [ -n "$STALE_ROADMAP" ] && { echo "sync-counts: STALE_ROADMAP — docs/ROADMAP.md format/SHA/freshness violation(s):"; echo "$STALE_ROADMAP"; FAIL=1; }
 if [ "$CHECK" = "1" ]; then
   [ "$GEN_DISCOVERY_CHECK_RC" != "0" ] && { echo "sync-counts: STALE — gen-discovery.ts --check found byte-for-byte drift:"; echo "$GEN_DISCOVERY_CHECK_OUT"; FAIL=1; }

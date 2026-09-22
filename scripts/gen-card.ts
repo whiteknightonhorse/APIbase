@@ -125,7 +125,7 @@ async function main() {
   const toolCount = tools.length;
   const card = {
     name: 'APIbase — The API Hub for AI Agents',
-    description: `Production MCP server providing ${toolCount} real-world API tools across 30+ categories. One endpoint, pay-per-call via x402 USDC micropayments on Base.`,
+    description: `One MCP + REST endpoint to APIbase's live tool catalog (counts: https://apibase.pro/llms.txt).`,
     version: PACKAGE_VERSION,
     tools,
     prompts,

@@ -1,6 +1,6 @@
 # APIbase.pro — The API Hub for AI Agents
 
-Production MCP server: one endpoint gives AI agents access to 1380 tools from 394 providers, pay-per-call via x402 (USDC on Base) or MPP (USDC on Tempo).
+One MCP + REST endpoint to 1380 tools from 394 providers. No signup, no subscription, no API key to start — pay per call in USDC (x402 on Base or MPP on Tempo).
 
 [![Security Audit](https://github.com/whiteknightonhorse/APIbase/actions/workflows/security.yml/badge.svg)](https://github.com/whiteknightonhorse/APIbase/actions/workflows/security.yml)
 [![Deploy](https://github.com/whiteknightonhorse/APIbase/actions/workflows/deploy.yml/badge.svg)](https://github.com/whiteknightonhorse/APIbase/actions/workflows/deploy.yml)
@@ -32,6 +32,7 @@ That's the Claude Desktop config. Cursor, Windsurf, OpenAI Agents SDK, LangChain
 - **[mcp.json](https://apibase.pro/.well-known/mcp.json)** — MCP server metadata
 - **[openapi.json](https://apibase.pro/.well-known/openapi.json)** — OpenAPI 3.1 spec
 - **[api-catalog](https://apibase.pro/.well-known/api-catalog)** — RFC 9727 discovery linkset
+- **[Roadmap](docs/ROADMAP.md)** — planned/shipped changes that affect what an agent can do or see
 
 ---
 
