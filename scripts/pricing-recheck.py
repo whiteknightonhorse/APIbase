@@ -31,6 +31,42 @@ purely this script's own working state.
 Run monthly via cron (0 5 1 * *) against apibase-postgres-1 (autopilot_common's
 own default PG_CONTAINER) — NOT apibase-orchestra-postgres-1, a different
 database entirely.
+
+Two fixes from ruling-2 (live re-check of attempt-2's normalized-hash fix):
+
+1. Redirect following. `urllib.request.HTTPRedirectHandler` follows 301/302/
+   303/307 but NOT 308 (Permanent Redirect) — a stdlib gap, not a network
+   failure. 10 of 77 attempt-2 `fetch_failed` providers, several paid, were
+   pure 308s that `curl -L` resolves fine. `_Opener308` below overrides
+   `redirect_request()` to remap a 308 to 307 before deferring to the
+   stdlib implementation — see its own docstring for why aliasing just
+   `http_error_308` alone does not work.
+
+2. Vote every fetch, not just a post-baseline mismatch. attempt-2 treated a
+   brand-new provider's FIRST successful fetch as ground truth outright —
+   but a handful of pages (celestrak request counters, worms/hunter build
+   timestamps, rotating "you may also like" widgets) carry per-request noise
+   IN THE VISIBLE TEXT itself, which normalize_body cannot and should not
+   strip (it's real page content, not markup). For those pages no single
+   fetch is representative, baseline or otherwise, and a naive first-fetch
+   baseline would either (a) never match again, escalating every month on
+   pure noise, or worse (b) happen to coincidentally re-match sometimes,
+   masking a REAL price change as "just more noise" forever. fetch_hash_voted
+   below refetches every provider up to 3x and requires 2-of-3 agreement
+   before treating any hash as trustworthy — for baseline establishment same
+   as for a later mismatch, both now go through the identical vote. A page
+   that never reaches 2-of-3 agreement is written to `pricing_source` as
+   `unstable:<url>`, distinct from a plain successful `<url>`, precisely so
+   the DB does not claim a verified check happened where the page's own
+   noise made verification impossible — and the run's summary line reports
+   how many providers landed there, so this doesn't silently point-solve
+   itself away in `WHERE pricing_source NOT LIKE 'fetch_failed:%'` reporting
+   that a human might later write assuming a bare URL always means "checked
+   clean". A provider that only *sometimes* lands here (e.g. it's a busy
+   page that just happened to be volatile this particular month) is coded
+   correctly: `unstable:` for that month, but its OLD known-hash baseline
+   is left untouched (see write-phase comment) so a later stable month can
+   still compare fresh against the same trusted value instead of drifting.
 """
 import hashlib
 import json
@@ -39,6 +75,7 @@ import re
 import sys
 import urllib.error
 import urllib.request
+from collections import Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "autopilot"))
@@ -57,6 +94,7 @@ FETCH_CONCURRENCY = 20  # network-bound, independent per-provider GETs, no
 # (providers / concurrency) * worst-case timeout instead of their sum.
 NO_SOURCE = "no_docs_url_configured"
 FETCH_FAILED_PREFIX = "fetch_failed:"
+UNSTABLE_PREFIX = "unstable:"
 
 
 def load_provider_config():
@@ -105,7 +143,7 @@ _COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
 # below, generic tag-stripping does NOT remove it, because the digit itself
 # is "content" to a naive stripper. Confirmed via 4 back-to-back live fetches
 # of eurostat's docs_url: only this span's digits differed (1ms vs 2ms),
-# which would have re-triggered confirm_hash_change's 2-of-3 vote on every
+# which would have re-triggered fetch_hash_voted's 2-of-3 vote on every
 # monthly run indefinitely (attempt-3 fresh 30-provider sample, ruling-1
 # follow-up: this was the one unstable result of 30). The span's own inner
 # markup is a FIXED, non-nested set of sub-spans (verified against the live
@@ -143,6 +181,31 @@ def normalize_body(body: bytes) -> str:
     return _WHITESPACE_RE.sub(" ", text).strip()
 
 
+class _Opener308(urllib.request.HTTPRedirectHandler):
+    """stdlib's HTTPRedirectHandler follows 301/302/303/307 but not 308
+    (Permanent Redirect) — RFC 7538 postdates the handler's last update.
+    308 behaves identically to 307 (method+body preserved). Aliasing
+    http_error_308 alone is NOT enough: http_error_307 defers to
+    redirect_request(), which has its own hardcoded `code in (301, 302,
+    303, 307)` allow-list that 308 fails regardless of which http_error_*
+    method dispatched into it (verified by inspecting the stdlib source —
+    a first attempt at this fix aliased only http_error_308 and still
+    raised HTTPError 308 on a live redirect). Remapping 308 -> 307 before
+    deferring to the parent implementation is the actual fix; only GET/HEAD
+    are remapped since that's this script's only method and 307/308 both
+    forbid resending a POST body without confirmation anyway."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        if code == 308 and req.get_method() in ("GET", "HEAD"):
+            code = 307
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+    http_error_308 = urllib.request.HTTPRedirectHandler.http_error_307
+
+
+_OPENER = urllib.request.build_opener(_Opener308)
+
+
 def fetch_hash(url):
     """sha256 hex digest of the fetched body's normalized visible text, or
     None on ANY failure (network, timeout, non-2xx, bad url) — None means
@@ -150,11 +213,30 @@ def fetch_hash(url):
     read as "changed" on the next run that succeeds."""
     try:
         req = urllib.request.Request(url, headers={"User-Agent": "APIbase-pricing-recheck/1.0"})
-        with urllib.request.urlopen(req, timeout=FETCH_TIMEOUT_S) as resp:
+        with _OPENER.open(req, timeout=FETCH_TIMEOUT_S) as resp:
             body = resp.read()
     except (urllib.error.URLError, urllib.error.HTTPError, OSError, ValueError):
         return None
     return hashlib.sha256(normalize_body(body).encode("utf-8")).hexdigest()
+
+
+def fetch_hash_voted(url):
+    """Fetch up to 3 times and return (hash, stable). `stable` is True only
+    if some hash value was seen at least twice across the (up to) 3 fetches
+    — the same 2-of-3 vote attempt-2 already used for a post-baseline
+    mismatch, now run for EVERY provider on EVERY pass, baseline included
+    (ruling-2: a first-ever fetch is not inherently more trustworthy than a
+    later one; the page's own noise doesn't care which month it is).
+    Returns (None, False) if every fetch failed."""
+    counts = Counter()
+    for _ in range(3):
+        h = fetch_hash(url)
+        if h is not None:
+            counts[h] += 1
+    if not counts:
+        return None, False
+    hash_val, freq = counts.most_common(1)[0]
+    return hash_val, freq >= 2
 
 
 def list_providers_in_status():
@@ -174,30 +256,6 @@ def update_pricing_checked(provider, source):
         ap.notice(f"pricing-recheck: pricing_checked_at write failed for {provider}: {out}")
         return False
     return True
-
-
-def confirm_hash_change(url, first_hash, known_hashes):
-    """Called only when first_hash is not already in known_hashes (the
-    provider's small set of previously-confirmed stable renderings — see
-    load_hash_state's docstring). A single new value can still be transient
-    per-request noise (a slow-loading fragment, a one-off error snippet)
-    rather than a real content change. Refetches up to 2 more times and
-    reports the new hash confirmed only if it (or another value also absent
-    from known_hashes) is seen at least twice across the up to 3 total
-    fetches — still purely a vote over sha256 values, no model. A mismatch
-    that never repeats is noise: the caller leaves known_hashes untouched so
-    next month compares against the same trusted set instead of drifting to
-    a one-off fluke."""
-    from collections import Counter
-    counts = Counter([first_hash])
-    for _ in range(2):
-        h = fetch_hash(url)
-        if h is not None:
-            counts[h] += 1
-    hash_val, freq = counts.most_common(1)[0]
-    if freq >= 2 and hash_val not in known_hashes:
-        return hash_val
-    return None
 
 
 def escalate_pricing_changed(provider, url, old_hash, new_hash):
@@ -229,10 +287,14 @@ def main():
 
     # Fetch phase: concurrent, network-only, no DB/incident side effects — a
     # plain dict collects results as futures complete, so a slow/hung URL
-    # only holds up its own future, never the whole batch.
+    # only holds up its own future, never the whole batch. Each task is
+    # fetch_hash_voted (up to 3 sequential fetches of ONE provider's url),
+    # not a single fetch — the vote (ruling-2) applies uniformly to baseline
+    # and re-check alike, so it has to happen before the write phase knows
+    # whether a given provider is "new" or "known".
     fetched = {}
     with ThreadPoolExecutor(max_workers=FETCH_CONCURRENCY) as pool:
-        futures = {pool.submit(fetch_hash, url): provider for provider, url in fetch_targets.items()}
+        futures = {pool.submit(fetch_hash_voted, url): provider for provider, url in fetch_targets.items()}
         for future in as_completed(futures):
             fetched[futures[future]] = future.result()
 
@@ -240,11 +302,11 @@ def main():
     escalated = 0
     fetch_failures = 0
     no_source = 0
+    unstable = 0
 
-    # Write phase: sequential, DB + incident side effects only. The one
-    # exception is confirm_hash_change()'s up-to-2 refetches, but those only
-    # fire on an actual hash mismatch — rare in steady state — so this stays
-    # fast regardless of fetch latency above.
+    # Write phase: sequential, DB + incident side effects only — all fetching
+    # (including the vote's refetches) already happened above, so this loop
+    # is just bookkeeping and stays fast regardless of network latency.
     for provider in providers:
         url = plan[provider]
         if not url:
@@ -253,7 +315,7 @@ def main():
             checked += 1
             continue
 
-        new_hash = fetched.get(provider)
+        new_hash, stable = fetched.get(provider, (None, False))
         if new_hash is None:
             update_pricing_checked(provider, f"{FETCH_FAILED_PREFIX}{url}")
             fetch_failures += 1
@@ -261,17 +323,27 @@ def main():
             continue  # stored hash untouched: a transient fetch failure must
             # never look like "the page changed" on the next successful run.
 
+        if not stable:
+            # No hash reached 2-of-3 agreement: the page's own visible text
+            # carries per-request noise (ruling-2), so nothing fetched this
+            # pass is trustworthy as a diff target. Recorded distinctly from
+            # a plain "<url>" so `pricing_source` never implies a clean
+            # verified check where the page itself made verification
+            # impossible. hash_state is left untouched (not cleared, not
+            # written) so a later stable month still compares against the
+            # last value that WAS trustworthy instead of drifting to noise.
+            update_pricing_checked(provider, f"{UNSTABLE_PREFIX}{url}")
+            unstable += 1
+            checked += 1
+            continue
+
         known = hash_state.get(provider, [])
         if not known:
             hash_state[provider] = [new_hash]
         elif new_hash not in known:
-            confirmed = confirm_hash_change(url, new_hash, known)
-            if confirmed is not None:
-                escalate_pricing_changed(provider, url, known[-1], confirmed)
-                escalated += 1
-                hash_state[provider] = (known + [confirmed])[-MAX_KNOWN_HASHES:]
-            # else: mismatch didn't repeat — per-request noise, leave
-            # hash_state[provider] (== known) untouched.
+            escalate_pricing_changed(provider, url, known[-1], new_hash)
+            escalated += 1
+            hash_state[provider] = (known + [new_hash])[-MAX_KNOWN_HASHES:]
         # else: new_hash already a known stable rendering, nothing to update.
 
         update_pricing_checked(provider, url)
@@ -281,8 +353,8 @@ def main():
         # baselines — each provider's own DB write + hash write land together.
 
     print(f"pricing-recheck: {checked}/{len(providers)} providers checked "
-          f"({no_source} no_docs_url, {fetch_failures} fetch_failed, {escalated} escalated) "
-          f"at {ap.now_iso()}")
+          f"({no_source} no_docs_url, {fetch_failures} fetch_failed, "
+          f"{unstable} unstable, {escalated} escalated) at {ap.now_iso()}")
 
 
 if __name__ == "__main__":
