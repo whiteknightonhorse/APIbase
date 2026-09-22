@@ -2794,7 +2794,10 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://www.ebi.ac.uk/chembl/api/data/",
-    "limit_proof": "EMBL-EBI ChEMBL REST API: no authentication required, no documented rate limits. CC BY-SA 3.0 license, freely redistributable."
+    "limit_proof": "EMBL-EBI ChEMBL REST API: no authentication required, no documented rate limits. CC BY-SA 3.0 license, freely redistributable.",
+    "probe": {
+      "method": "HEAD"
+    }
   },
   "medlineplus": {
     "display_name": "MedlinePlus Connect",
