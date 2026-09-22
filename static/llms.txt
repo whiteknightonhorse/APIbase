@@ -44,7 +44,8 @@ news, podcasts, search, social, space, travel, weather, world
      GET /api/v1/tools?tier=premium       # $1+ (only 3 tools: domain reg, ad spend)
 2. Each tool entry includes:
      pricing.price_usd       — sticker price per call
-     pricing.cache_hit_price_usd — discounted balance-tier rate (10% of price)
+     pricing.cache_hit_price_usd — balance tier only; balances are credited by refunds
+       only. Paying via x402/MPP per call is always billed price_usd, cache hit or not.
      tier                    — micro | standard | premium
      min_balance_usd         — minimum on-chain USDC the wallet should hold
      input_schema            — JSON Schema for the call's body
