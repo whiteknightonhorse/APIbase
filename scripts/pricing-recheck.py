@@ -98,6 +98,24 @@ def save_hash_state(state):
 
 _SCRIPT_OR_STYLE_RE = re.compile(r"<(script|style)\b[^>]*>.*?</\1>", re.IGNORECASE | re.DOTALL)
 _COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
+# Atlassian Confluence's shared header/footer template (seen live on
+# wikis.ec.europa.eu, i.e. eurostat's docs_url) renders a live "<version> |
+# <N> ms" server-render-time badge inside <span class="server-information">
+# as literal VISIBLE TEXT, not markup — unlike the Cloudflare nonce/RUM noise
+# below, generic tag-stripping does NOT remove it, because the digit itself
+# is "content" to a naive stripper. Confirmed via 4 back-to-back live fetches
+# of eurostat's docs_url: only this span's digits differed (1ms vs 2ms),
+# which would have re-triggered confirm_hash_change's 2-of-3 vote on every
+# monthly run indefinitely (attempt-3 fresh 30-provider sample, ruling-1
+# follow-up: this was the one unstable result of 30). The span's own inner
+# markup is a FIXED, non-nested set of sub-spans (verified against the live
+# page), so a bounded "self-contained inner span OR non-tag char" repetition
+# safely matches the true balanced close instead of stopping at the first
+# nested </span>.
+_SERVER_INFO_RE = re.compile(
+    r'<span\s+class="server-information"[^>]*>(?:<span[^>]*>[^<]*</span>|[^<])*</span>',
+    re.IGNORECASE,
+)
 _TAG_RE = re.compile(r"<[^>]+>")
 _WHITESPACE_RE = re.compile(r"\s+")
 
@@ -111,13 +129,16 @@ def normalize_body(body: bytes) -> str:
     bodies, never in the text a human actually reads. Stripping scripts,
     styles, comments, and all tags (attributes included) before hashing
     means only an actual content change moves the hash; a raw-body hash
-    was ~23% false-positive per FT-7 attempt-1 review (ruling-1)."""
+    was ~23% false-positive per FT-7 attempt-1 review (ruling-1). A second,
+    narrower noise source lives in visible text itself — see _SERVER_INFO_RE
+    above — and is stripped separately before the generic tag strip."""
     try:
         text = body.decode("utf-8")
     except UnicodeDecodeError:
         text = body.decode("latin-1", errors="replace")
     text = _SCRIPT_OR_STYLE_RE.sub(" ", text)
     text = _COMMENT_RE.sub(" ", text)
+    text = _SERVER_INFO_RE.sub(" ", text)
     text = _TAG_RE.sub(" ", text)
     return _WHITESPACE_RE.sub(" ", text).strip()
 
