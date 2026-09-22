@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why APIbase — DISCOVER, EVALUATE, PAY, EXECUTE</title>
+<meta name="description" content="Why an AI agent would use APIbase: one MCP + REST endpoint to reach many providers, no per-provider signup, pay per call in USDC (x402 or MPP).">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="shortcut icon" href="/favicon.png">
+<link rel="canonical" href="https://apibase.pro/why">
+<meta property="og:title" content="Why APIbase">
+<meta property="og:description" content="One MCP + REST endpoint. No signup. Pay per call in USDC. See how discovery, evaluation, payment, and execution actually work.">
+<meta property="og:url" content="https://apibase.pro/why">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'JetBrains Mono','Fira Code','Cascadia Code','Courier New',monospace;background:#1a1a2e;color:#b0ffb0;line-height:1.7;padding:1.5rem;min-height:100vh;display:flex;justify-content:center;align-items:flex-start}
+.window{max-width:880px;width:100%;background:#0c0c0c;border-radius:10px 10px 8px 8px;border:1px solid #444;box-shadow:0 20px 60px rgba(0,0,0,0.6),0 0 80px rgba(0,255,65,0.04),inset 0 0 80px rgba(0,255,65,0.01);overflow:hidden;position:relative}
+.window::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,0.06) 0px,rgba(0,0,0,0.06) 1px,transparent 1px,transparent 3px);pointer-events:none;z-index:2}
+.window::before{content:'';position:absolute;top:-100%;left:0;right:0;height:60px;background:linear-gradient(180deg,transparent 0%,rgba(0,255,65,0.03) 50%,transparent 100%);pointer-events:none;z-index:3;animation:scanline 8s linear infinite}
+@keyframes scanline{0%{top:-60px}100%{top:100%}}
+.titlebar{background:linear-gradient(180deg,#3d3d3d 0%,#2a2a2a 100%);padding:10px 14px;display:flex;align-items:center;border-bottom:1px solid #1a1a1a;position:relative;z-index:4}
+.dots{display:flex;gap:7px;flex-shrink:0}
+.dot{width:13px;height:13px;border-radius:50%;border:1px solid rgba(0,0,0,0.2)}
+.dot-red{background:#ff5f56;border-color:#e0443e}
+.dot-yellow{background:#ffbd2e;border-color:#dea123}
+.dot-green{background:#27c93f;border-color:#1aab29}
+.titlebar-text{flex:1;text-align:center;color:#999;font-size:0.78rem;font-family:inherit;letter-spacing:0.5px}
+.container{padding:1.8rem 2rem 2rem;position:relative;z-index:1}
+nav{display:flex;flex-wrap:wrap;gap:0.3rem;margin-bottom:1rem;padding:0.5rem 0;border-bottom:1px solid #1a3a1a}
+nav::before{content:'[';color:#555}nav::after{content:']';color:#555}
+nav .brand{color:#00ff41;font-weight:700;font-size:1rem;text-decoration:none;text-shadow:0 0 8px rgba(0,255,65,0.4);padding:0.55rem 0.35rem 0.55rem 0;display:inline-block}
+nav a{color:#00cc33;text-decoration:none;font-size:1rem;padding:0.55rem 0.35rem;display:inline-block}
+nav a::before{content:' | ';color:#340}nav .brand::before{content:''}
+nav a:hover{color:#00ff41;text-shadow:0 0 6px rgba(0,255,65,0.5)}
+h1{color:#00ff41;font-size:1.3rem;margin-bottom:0.5rem;line-height:1.5;text-shadow:0 0 10px #00ff41,0 0 20px #00ff41,0 0 40px rgba(0,255,65,0.3)}
+h1::before{content:'> ';color:#00aa30}
+h2{color:#00ff41;font-size:1.05rem;margin:2rem 0 0.8rem;padding-left:1rem;border-left:2px solid #00aa30;text-shadow:0 0 6px rgba(0,255,65,0.2)}
+h2::before{content:'## ';color:#006620}
+h3{color:#33ff66;font-size:0.92rem;margin:1.1rem 0 0.5rem}
+p{margin-bottom:0.8rem;font-size:1rem;color:#a0d8a0}
+strong{color:#33ff66}
+.updated{color:#2a942a;font-size:0.82rem;margin-bottom:1.8rem}
+ul,ol{padding-left:1.5rem;margin-bottom:1rem}
+li{margin-bottom:0.4rem;font-size:1rem;color:#a0d8a0}
+li::marker{color:#00aa30}
+a{color:#00ccff;text-decoration:none}
+a:hover{color:#66ddff;text-shadow:0 0 6px rgba(0,204,255,0.4)}
+pre{background:#111;border:1px solid #1a3a1a;border-radius:6px;padding:0.9rem;overflow-x:auto;font-size:0.8rem;margin:0.6rem 0 1rem;color:#a0d8a0;line-height:1.5}
+code{background:#111;border:1px solid #1a3a1a;border-radius:3px;padding:0.05rem 0.35rem;color:#33ff66;font-size:0.85em}
+pre code{background:none;border:none;padding:0;color:inherit}
+table{width:100%;border-collapse:collapse;margin:0;font-size:0.85rem}
+.table-wrap{overflow-x:auto;margin:0.8rem 0 1.4rem}
+.table-wrap table{min-width:560px}
+th,td{text-align:left;padding:0.5rem 0.7rem;border-bottom:1px solid #1a3a1a;vertical-align:top}
+th{color:#00ff41;font-weight:700;border-bottom:1px solid #00aa30}
+td{color:#a0d8a0}
+.step{border:1px solid #1a3a1a;border-radius:8px;padding:1rem 1.2rem;margin:1rem 0 1.6rem;background:rgba(0,255,65,0.02)}
+.note{color:#5a9a5a;font-size:0.82rem;font-style:italic}
+.footer{margin-top:2rem;padding:0.6rem 0;border-top:1px solid #1a3a1a;color:#2a942a;font-size:0.72rem;display:flex;flex-direction:column;gap:0.2rem}
+.footer-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.5rem}
+.footer .online{color:#00aa30}
+*::-webkit-scrollbar{width:8px;height:8px}
+*::-webkit-scrollbar-track{background:#0c0c0c;border:1px solid #1a3a1a}
+*::-webkit-scrollbar-thumb{background:#1a5a1a;border-radius:4px;border:1px solid #0c0c0c}
+*::-webkit-scrollbar-thumb:hover{background:#00ff41}
+*{scrollbar-width:thin;scrollbar-color:#1a5a1a #0c0c0c}
+@media(max-width:600px){body{padding:0.5rem}.container{padding:1rem}h1{font-size:1.05rem}h1::before{content:''}nav::before,nav::after{display:none}.footer{font-size:0.65rem}table{font-size:0.78rem}th,td{padding:0.4rem 0.4rem}}
+</style>
+</head>
+<body>
+<div class="window">
+<div class="titlebar">
+<div class="dots"><div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div></div>
+<span class="titlebar-text">apibase@prod ~ /srv/apibase/why</span>
+</div>
+
+<div class="container" id="main-content">
+
+<nav>
+<a class="brand" href="/">APIbase.pro</a>
+<a href="/why">Why</a>
+<a href="/pricing">Pricing</a>
+<a href="/catalog">Catalog</a>
+<a href="/connect">Connect</a>
+<a href="/dashboard">Dashboard</a>
+<a href="/contact">Contact</a>
+<a href="/frameworks">Frameworks</a>
+<a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a>
+</nav>
+
+<h1>Why APIbase</h1>
+<p class="updated">One MCP + REST endpoint to APIbase's live tool catalog (counts: <a href="/llms.txt">apibase.pro/llms.txt</a>). No signup, no subscription, no API key to start &mdash; pay per call in USDC (x402 on Base or MPP on Tempo).</p>
+
+<p>An agent that needs an external capability goes through the same four steps regardless of which provider ends up serving the call: it has to <strong>discover</strong> that a tool exists, <strong>evaluate</strong> whether it fits (price, schema, availability), <strong>pay</strong> for it, and <strong>execute</strong> the call. APIbase is built around making all four steps happen against one endpoint instead of one per provider.</p>
+
+<h2>1. DISCOVER</h2>
+<div class="step">
+<p>Call the <code>apibase.discover</code> MCP tool, or <code>GET /api/v1/discover?intent=...</code> over plain REST &mdash; both free ($0), no authentication required.</p>
+<pre>GET https://apibase.pro/api/v1/discover?intent=search+flights&max_price_usd=0.01</pre>
+<p>Discovery ranks by relevance, then quality, then price, and returns each match's pricing, payment rails, availability, and quality signal in the same response. The full catalog is also fetchable directly at <a href="/api/v1/tools">/api/v1/tools</a> if an agent prefers to cache it and search client-side.</p>
+</div>
+
+<h2>2. EVALUATE</h2>
+<div class="step">
+<p>Every tool entry an agent gets back carries what it needs to decide whether to call it, before spending anything:</p>
+<ul>
+<li><code>pricing.price_usd</code> &mdash; the sticker price for that specific call</li>
+<li><code>tier</code> &mdash; micro / standard / premium, so an agent can filter by wallet size</li>
+<li><code>input_schema</code> &mdash; JSON Schema for the call body, so params can be validated before sending</li>
+<li><code>min_balance_usd</code> &mdash; the balance a wallet should hold before attempting the call</li>
+</ul>
+<p>Nothing here requires trusting a third-party listing &mdash; it's the same JSON the live server returns to any HTTP client, checkable at <a href="/api/v1/tools">/api/v1/tools</a> right now.</p>
+</div>
+
+<h2>3. PAY</h2>
+<div class="step">
+<p>A priced tool call without a payment header gets back an HTTP 402 challenge naming the exact price and rail options. Two independent rails are accepted on the same endpoints &mdash; an agent picks whichever matches its wallet:</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Rail</th><th>Network / asset</th><th>Header</th></tr></thead>
+<tbody>
+<tr><td>x402</td><td>USDC on Base mainnet</td><td><code>X-PAYMENT</code></td></tr>
+<tr><td>MPP</td><td>USDC on Tempo mainnet</td><td><code>Authorization: Payment</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>Neither rail requires a prior signup step: a correctly signed first payment is enough to create agent credentials, so there is no dashboard, no email, no approval queue between "I found the tool" and "I called it." Full mechanics: <a href="/connect">/connect</a>.</p>
+</div>
+
+<h2>4. EXECUTE</h2>
+<div class="step">
+<p><code>tools/call</code> (MCP) or the equivalent REST call runs the request against the upstream provider. Payment is escrow-first and the call is idempotent by design; a failed provider call is never billed &mdash; only a delivered response is charged. If the call fails outright, the error response is the signal an agent needs to decide whether to retry or fall back to reading a different tool's docs &mdash; APIbase does not silently substitute a different provider's response for the one that was requested.</p>
+</div>
+
+<h2>How this compares by class</h2>
+<p>Not every agent-facing surface that looks similar solves the same problem. Comparing by class, not by name, because that comparison is what's actually settled today:</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Class</th><th>What you connect to</th><th>Before the first paid call</th></tr></thead>
+<tbody>
+<tr><td>Single MCP server</td><td>One provider's own tools</td><td>Usually nothing, for that one provider's read-only tools &mdash; but it's still only that one provider</td></tr>
+<tr><td>MCP marketplace / registry</td><td>A directory listing of other people's MCP servers</td><td>You still connect to, and often authenticate against, each listed server separately</td></tr>
+<tr><td>API marketplace (REST)</td><td>A directory of individual REST APIs</td><td>Signup and an API key per provider, sometimes a signup for the marketplace itself too</td></tr>
+<tr><td>Unified gateway with signup</td><td>Multiple providers behind one endpoint</td><td>Signup and an API key for the gateway</td></tr>
+<tr><td>APIbase</td><td>Multiple providers behind one MCP + REST endpoint</td><td>Nothing &mdash; the first paid call creates agent credentials automatically</td></tr>
+</tbody>
+</table>
+</div>
+<p class="note">This table describes categories of tooling, not any specific named product.</p>
+
+<h2>Answers for specific needs</h2>
+<p>The DISCOVER/EVALUATE/PAY/EXECUTE loop above is generic. These pages answer specific capability needs directly, naming the tools that exist for them today:</p>
+<ul>
+<li><a href="/flight-search-intent">Flight search API without integrating individual providers</a></li>
+<li><a href="/image-generation-intent">Image generation API with pay-per-call access for AI agents</a></li>
+<li><a href="/company-research-intent">Tools for company research</a></li>
+</ul>
+
+<div class="footer">
+<div class="footer-row">
+<span><span class="online">STATUS: ONLINE</span>  |  PID: 1337  |  TTY: pts/0  |  USER: apibase</span>
+</div>
+<div class="footer-row">
+<span>Live tool/provider count: <a href="/llms.txt">apibase.pro/llms.txt</a>  |  x402 USDC on Base + MPP USDC on Tempo</span>
+<span>BUILD: v1.0.0</span>
+</div>
+</div>
+
+</div>
+</div>
+</body>
+</html>

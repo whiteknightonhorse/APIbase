@@ -156,6 +156,8 @@ else
 
   for f in static/index.html static/terms.html static/frameworks.html static/contact.html \
            static/privacy.html static/dashboard.html static/pricing.html static/connect.html \
+           static/why.html static/why.md static/flight-search-intent.html \
+           static/image-generation-intent.html static/company-research-intent.html \
            static/llms.txt static/ai.txt README.md; do
     [ -f "$f" ] || continue
     b=$(md5sum "$f" | cut -d" " -f1)

@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tools For Company Research — APIbase.pro</title>
+<meta name="description" content="Look up companies across US SEC filings, the Norwegian business registry, Brazilian CNPJ, and the Australian Business Register — one endpoint, pay per call.">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="shortcut icon" href="/favicon.png">
+<link rel="canonical" href="https://apibase.pro/company-research-intent">
+<meta property="og:title" content="Tools For Company Research">
+<meta property="og:description" content="SEC EDGAR, Norway's Brønnøysundregistrene, Brazil's CNPJ, Australia's ABR — one endpoint, pay per call.">
+<meta property="og:url" content="https://apibase.pro/company-research-intent">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'JetBrains Mono','Fira Code','Cascadia Code','Courier New',monospace;background:#1a1a2e;color:#b0ffb0;line-height:1.7;padding:1.5rem;min-height:100vh;display:flex;justify-content:center;align-items:flex-start}
+.window{max-width:880px;width:100%;background:#0c0c0c;border-radius:10px 10px 8px 8px;border:1px solid #444;box-shadow:0 20px 60px rgba(0,0,0,0.6),0 0 80px rgba(0,255,65,0.04),inset 0 0 80px rgba(0,255,65,0.01);overflow:hidden;position:relative}
+.window::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,0.06) 0px,rgba(0,0,0,0.06) 1px,transparent 1px,transparent 3px);pointer-events:none;z-index:2}
+.window::before{content:'';position:absolute;top:-100%;left:0;right:0;height:60px;background:linear-gradient(180deg,transparent 0%,rgba(0,255,65,0.03) 50%,transparent 100%);pointer-events:none;z-index:3;animation:scanline 8s linear infinite}
+@keyframes scanline{0%{top:-60px}100%{top:100%}}
+.titlebar{background:linear-gradient(180deg,#3d3d3d 0%,#2a2a2a 100%);padding:10px 14px;display:flex;align-items:center;border-bottom:1px solid #1a1a1a;position:relative;z-index:4}
+.dots{display:flex;gap:7px;flex-shrink:0}
+.dot{width:13px;height:13px;border-radius:50%;border:1px solid rgba(0,0,0,0.2)}
+.dot-red{background:#ff5f56;border-color:#e0443e}
+.dot-yellow{background:#ffbd2e;border-color:#dea123}
+.dot-green{background:#27c93f;border-color:#1aab29}
+.titlebar-text{flex:1;text-align:center;color:#999;font-size:0.78rem;font-family:inherit;letter-spacing:0.5px}
+.container{padding:1.8rem 2rem 2rem;position:relative;z-index:1}
+nav{display:flex;flex-wrap:wrap;gap:0.3rem;margin-bottom:1rem;padding:0.5rem 0;border-bottom:1px solid #1a3a1a}
+nav::before{content:'[';color:#555}nav::after{content:']';color:#555}
+nav .brand{color:#00ff41;font-weight:700;font-size:1rem;text-decoration:none;text-shadow:0 0 8px rgba(0,255,65,0.4);padding:0.55rem 0.35rem 0.55rem 0;display:inline-block}
+nav a{color:#00cc33;text-decoration:none;font-size:1rem;padding:0.55rem 0.35rem;display:inline-block}
+nav a::before{content:' | ';color:#340}nav .brand::before{content:''}
+nav a:hover{color:#00ff41;text-shadow:0 0 6px rgba(0,255,65,0.5)}
+h1{color:#00ff41;font-size:1.3rem;margin-bottom:0.5rem;line-height:1.5;text-shadow:0 0 10px #00ff41,0 0 20px #00ff41,0 0 40px rgba(0,255,65,0.3)}
+h1::before{content:'> ';color:#00aa30}
+h2{color:#00ff41;font-size:1.05rem;margin:2rem 0 0.8rem;padding-left:1rem;border-left:2px solid #00aa30;text-shadow:0 0 6px rgba(0,255,65,0.2)}
+h2::before{content:'## ';color:#006620}
+p{margin-bottom:0.8rem;font-size:1rem;color:#a0d8a0}
+strong{color:#33ff66}
+.updated{color:#2a942a;font-size:0.82rem;margin-bottom:1.8rem}
+ul{padding-left:1.5rem;margin-bottom:1rem}
+li{margin-bottom:0.4rem;font-size:1rem;color:#a0d8a0}
+li::marker{color:#00aa30}
+a{color:#00ccff;text-decoration:none}
+a:hover{color:#66ddff;text-shadow:0 0 6px rgba(0,204,255,0.4)}
+pre{background:#111;border:1px solid #1a3a1a;border-radius:6px;padding:0.9rem;overflow-x:auto;font-size:0.8rem;margin:0.6rem 0 1rem;color:#a0d8a0;line-height:1.5}
+code{background:#111;border:1px solid #1a3a1a;border-radius:3px;padding:0.05rem 0.35rem;color:#33ff66;font-size:0.85em}
+pre code{background:none;border:none;padding:0;color:inherit}
+table{width:100%;border-collapse:collapse;margin:0;font-size:0.85rem}
+.table-wrap{overflow-x:auto;margin:0.8rem 0 1.4rem}
+.table-wrap table{min-width:560px}
+th,td{text-align:left;padding:0.5rem 0.7rem;border-bottom:1px solid #1a3a1a;vertical-align:top}
+th{color:#00ff41;font-weight:700;border-bottom:1px solid #00aa30}
+td{color:#a0d8a0}
+td code,p code{background:#111;border:1px solid #1a3a1a;border-radius:3px;padding:0.05rem 0.35rem;color:#33ff66;font-size:0.85em}
+.note{color:#5a9a5a;font-size:0.82rem;font-style:italic}
+.footer{margin-top:2rem;padding:0.6rem 0;border-top:1px solid #1a3a1a;color:#2a942a;font-size:0.72rem;display:flex;flex-direction:column;gap:0.2rem}
+.footer-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.5rem}
+.footer .online{color:#00aa30}
+*::-webkit-scrollbar{width:8px;height:8px}
+*::-webkit-scrollbar-track{background:#0c0c0c;border:1px solid #1a3a1a}
+*::-webkit-scrollbar-thumb{background:#1a5a1a;border-radius:4px;border:1px solid #0c0c0c}
+*::-webkit-scrollbar-thumb:hover{background:#00ff41}
+*{scrollbar-width:thin;scrollbar-color:#1a5a1a #0c0c0c}
+@media(max-width:600px){body{padding:0.5rem}.container{padding:1rem}h1{font-size:1.05rem}h1::before{content:''}nav::before,nav::after{display:none}.footer{font-size:0.65rem}table{font-size:0.78rem}th,td{padding:0.4rem 0.4rem}}
+</style>
+</head>
+<body>
+<div class="window">
+<div class="titlebar">
+<div class="dots"><div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div></div>
+<span class="titlebar-text">apibase@prod ~ /srv/apibase/company-research-intent</span>
+</div>
+
+<div class="container" id="main-content">
+
+<nav>
+<a class="brand" href="/">APIbase.pro</a>
+<a href="/why">Why</a>
+<a href="/pricing">Pricing</a>
+<a href="/catalog">Catalog</a>
+<a href="/connect">Connect</a>
+<a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a>
+</nav>
+
+<h1>Tools for company research</h1>
+<p class="updated">Official-registry company lookups across four jurisdictions, behind one endpoint &mdash; no per-registry signup.</p>
+
+<h2>Live tools</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Tool</th><th>Jurisdiction</th><th>Price</th><th>What it returns</th></tr></thead>
+<tbody>
+<tr><td><code>edgar.company_search</code></td><td>United States (SEC EDGAR)</td><td>$0.001</td><td>Search public companies by name, ticker, or keyword &mdash; company name, CIK number, form type, filing date</td></tr>
+<tr><td><code>edgar.company_facts</code></td><td>United States (SEC EDGAR)</td><td>$0.001</td><td>XBRL financials by CIK &mdash; revenue, net income, assets, liabilities, equity, EPS, last 5 reporting periods per metric</td></tr>
+<tr><td><code>edgar.filings</code></td><td>United States (SEC EDGAR)</td><td>$0.001</td><td>Recent filings by CIK &mdash; 10-K, 10-Q, 8-K, proxy statements, with document URLs</td></tr>
+<tr><td><code>brreg.search</code></td><td>Norway (Brønnøysundregistrene)</td><td>$0.001</td><td>Search by company name, municipality, org form, or NACE code &mdash; org number, VAT status, employee count, address</td></tr>
+<tr><td><code>brasilapi.cnpj</code></td><td>Brazil</td><td>$0.002</td><td>Lookup by 14-digit CNPJ tax ID &mdash; name, address, CNAE codes, partners (QSA)</td></tr>
+<tr><td><code>abr.abn_lookup</code></td><td>Australia</td><td>$0.001</td><td>Resolve an Australian Business Number to full entity details</td></tr>
+</tbody>
+</table>
+</div>
+<p class="note">All six are no-auth on the upstream side (public registries) &mdash; the live, always-current entries are at <a href="/api/v1/tools">/api/v1/tools</a> (filter with <code>?category=finance</code> or <code>?category=business</code>) or via <code>GET /api/v1/discover?intent=company+research</code>.</p>
+
+<h2>How to call it</h2>
+<pre>curl -X POST https://apibase.pro/api/v1/tools/edgar.company_search/call \
+  -H "Authorization: Bearer ak_live_..." \
+  -H "Content-Type: application/json" \
+  -d '{"params": {"query": "Tesla"}}'</pre>
+<p>Not authenticated yet? <a href="/connect">/connect</a> covers getting a key, or paying directly from a wallet with no key at all.</p>
+
+<h2>What this covers today</h2>
+<p>Four jurisdictions, not a global company database &mdash; a company outside the US, Norway, Brazil, or Australia isn't reachable through these specific tools yet. Each tool queries its own country's official registry directly; there is no cross-jurisdiction merge or entity-resolution step, so results are exactly what that one registry returns.</p>
+
+<h2>Related</h2>
+<ul>
+<li><a href="/why">Why APIbase</a> &mdash; the general discover/evaluate/pay/execute loop</li>
+<li><a href="/catalog">Full catalog</a></li>
+<li><a href="/pricing">Pricing</a></li>
+</ul>
+
+<div class="footer">
+<div class="footer-row">
+<span><span class="online">STATUS: ONLINE</span>  |  PID: 1337  |  TTY: pts/0  |  USER: apibase</span>
+</div>
+<div class="footer-row">
+<span>Live tool/provider count: <a href="/llms.txt">apibase.pro/llms.txt</a>  |  x402 USDC on Base + MPP USDC on Tempo</span>
+<span>BUILD: v1.0.0</span>
+</div>
+</div>
+
+</div>
+</div>
+</body>
+</html>
