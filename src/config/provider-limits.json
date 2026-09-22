@@ -3568,7 +3568,7 @@
     "docs_url": "https://data.statistics.sk/api/help/REST_API_HELP_EN.pdf",
     "limit_proof": "Public Statistical Office of the Slovak Republic open-data API (data.statistics.sk); docs state 'Access to data is free and does not require registration', no authentication or API key required for any endpoint, no rate-limit headers returned in observed responses, no documented request quota found (only a stated 2000-char URL length limit and ~10000 values per request).",
     "probe": {
-      "method": "HEAD"
+      "timeout_ms": 18000
     }
   },
   "latvia-statistics": {
