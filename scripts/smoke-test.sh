@@ -193,15 +193,28 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 8. Auth rejection — POST /mcp initialize without Authorization → 401
+# 8. Auth rejection — POST /api/v1/tools/:id/call without Authorization → 401
+#
+# T-0211 (ZZ-03-11): this used to point at POST /mcp initialize, which made
+# anonymous MCP discovery (tools/list, prompts/list, apibase.discover — all
+# advertised as free in the server's own `instructions` field) impossible:
+# mcp-proxy (used by Glama's health check, among other MCP inspectors)
+# performs the initialize handshake against a spawned server before it opens
+# its own listening port, so a 401 there meant the health check couldn't even
+# connect, and the listing showed Unhealthy. Root cause + full repro:
+# /home/apibase/AUTOPILOT-PROGRESS.md#T-0211-zz03-11-glama-unhealthy. The
+# thing actually worth smoke-testing — that an unauthenticated request cannot
+# execute a paid tool — is exercised here against the REST execution endpoint
+# instead, which maps the pipeline AUTH stage's 401 to a real HTTP status
+# (src/routes/execute.router.ts), unlike MCP tool calls which return auth
+# failures as a JSON-RPC tool result (isError: true) inside an HTTP 200.
 # ---------------------------------------------------------------------------
 echo -n "8/10 Auth rejection..."
 AUTH_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
   -X POST \
   -H "Content-Type: application/json" \
-  -H "Accept: application/json, text/event-stream" \
-  -d '{"jsonrpc":"2.0","method":"initialize","id":1,"params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"test","version":"1.0.0"}}}' \
-  "$API_URL/mcp" 2>/dev/null || echo "000")
+  -d '{"location":"Berlin"}' \
+  "$API_URL/api/v1/tools/weather.get_current/call" 2>/dev/null || echo "000")
 if [ "$AUTH_CODE" = "401" ]; then
   pass
 else
