@@ -858,9 +858,12 @@ async function probeHead(
     if (provider === 'bis-stats' || isBisStatsHost(healthUrl)) {
       getHeaders['Accept'] = 'application/vnd.sdmx.data+json;version=1.0.0';
     }
-    const getResult = await fetchOutcome(healthUrl, 'GET', getHeaders, HEALTH_CHECK_GET_TIMEOUT_MS);
+    const getTimeoutMs = cfg.probe?.timeout_ms
+      ? probeTimeoutMs(cfg.probe)
+      : HEALTH_CHECK_GET_TIMEOUT_MS;
+    const getResult = await fetchOutcome(healthUrl, 'GET', getHeaders, getTimeoutMs);
     const result = classifyHeadResult(getResult.outcome);
-    const detail = probeDetail(getResult.outcome, HEALTH_CHECK_GET_TIMEOUT_MS);
+    const detail = probeDetail(getResult.outcome, getTimeoutMs);
     await recordProbeResult(db, redis, provider, 'get', result, {
       httpStatus: getResult.httpStatus,
       latencyMs: getResult.latencyMs,
