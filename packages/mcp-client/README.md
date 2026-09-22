@@ -1,6 +1,6 @@
 # APIbase MCP Client
 
-MCP client for [APIbase.pro](https://apibase.pro) — connect AI agents to **300+ tools** across **84 providers** via the Model Context Protocol. Dual-rail payments: x402 (USDC on Base) + MPP (USDC on Tempo/Stripe).
+MCP client for [APIbase.pro](https://apibase.pro) — connect AI agents to APIbase's live tool catalog (counts: https://apibase.pro/llms.txt) via the Model Context Protocol. Dual-rail payments: x402 (USDC on Base) + MPP (USDC on Tempo/Stripe).
 
 Available as two identical packages:
 
@@ -112,7 +112,7 @@ npx agentcash add https://apibase.pro
 
 ## Available Tools
 
-300+ tools across 30+ categories:
+Live catalog by category (counts: https://apibase.pro/llms.txt):
 
 - **Travel**: flights, hotels, airports (Amadeus, Sabre, Aviasales)
 - **Finance**: stocks, forex, economic data (Finnhub, ECB, FRED)

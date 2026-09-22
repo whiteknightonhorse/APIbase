@@ -114,21 +114,28 @@ extract_tool_count() {
 }
 
 # --- shared: emit the JSON line for a repo-sourced listing (Official Registry, npm) given
-# its listing key and the live description text fetched from the third party. See the
-# ZZ-03-10 header comment above for why these use "pending_republish" instead of "drift". ---
+# its listing key and the live description text fetched from the third party. Optional third
+# arg is a second free-text field (npm's "readme", which registry.npmjs.org serves on the
+# package page independently of "description" — a stale count there is just as much a lie as
+# one in the description, so it gets the same extractor, same verdict). See the ZZ-03-10
+# header comment above for why these use "pending_republish" instead of "drift". ---
 emit_repo_synced_listing() {
-  local key="$1" desc="$2"
+  local key="$1" desc="$2" extra="${3:-}"
   local n; n=$(extract_tool_count "$desc")
-  if [ -z "$n" ]; then
-    echo "{\"listing\":\"$key\",\"status\":\"ok_no_number\",\"live_tools\":$TOOLS,\"blocking\":false}"
-  elif [ "$n" = "$TOOLS" ]; then
-    echo "{\"listing\":\"$key\",\"status\":\"ok\",\"live_tools\":$TOOLS,\"blocking\":false}"
-  else
+  local n2=""; [ -n "$extra" ] && n2=$(extract_tool_count "$extra")
+  local mismatch=""
+  [ -n "$n" ] && [ "$n" != "$TOOLS" ] && mismatch="$n"
+  [ -z "$mismatch" ] && [ -n "$n2" ] && [ "$n2" != "$TOOLS" ] && mismatch="$n2"
+  if [ -n "$mismatch" ]; then
     local cls fs age blk
     IFS='|' read -r cls fs age blk < <(classify "$key")
     [ "$blk" = "1" ] && BLOCKING=1
     local blk_json; blk_json=$( [ "$blk" = "1" ] && echo true || echo false )
-    echo "{\"listing\":\"$key\",\"status\":\"pending_republish\",\"listing_value\":\"$n tools\",\"live_tools\":$TOOLS,\"classification\":\"$cls\",\"first_seen\":\"$fs\",\"age_days\":$age,\"blocking\":$blk_json}"
+    echo "{\"listing\":\"$key\",\"status\":\"pending_republish\",\"listing_value\":\"$mismatch tools\",\"live_tools\":$TOOLS,\"classification\":\"$cls\",\"first_seen\":\"$fs\",\"age_days\":$age,\"blocking\":$blk_json}"
+  elif [ -z "$n" ] && [ -z "$n2" ]; then
+    echo "{\"listing\":\"$key\",\"status\":\"ok_no_number\",\"live_tools\":$TOOLS,\"blocking\":false}"
+  else
+    echo "{\"listing\":\"$key\",\"status\":\"ok\",\"live_tools\":$TOOLS,\"blocking\":false}"
   fi
 }
 
@@ -157,20 +164,32 @@ fi
 
 # --- npm — registry.npmjs.org, apibase-mcp-client (unscoped; dual-published from the same
 # packages/mcp-client/package.json alongside @apibase11/mcp-client, always kept in lockstep
-# per .claude/skills/npmjs/SKILL.md, so checking one is checking both) ---
+# per .claude/skills/npmjs/SKILL.md, so checking one is checking both). Also pulls "readme" —
+# npm renders packages/mcp-client/README.md verbatim on the package page, a separate field
+# from "description" that the same registry response carries, so a stale count surviving
+# there would show a clean "ok_no_number" for description while the actual page still lies. ---
 NPM_JSON=$(curl -s --max-time 15 "https://registry.npmjs.org/apibase-mcp-client/latest" || true)
-NPM_DESC=""
-[ -n "$NPM_JSON" ] && NPM_DESC=$(echo "$NPM_JSON" | python3 -c '
+NPM_DESC=""; NPM_README=""
+if [ -n "$NPM_JSON" ]; then
+  NPM_DESC=$(echo "$NPM_JSON" | python3 -c '
 import json, sys
 try:
     print(json.load(sys.stdin).get("description", ""))
 except Exception:
     pass
 ' 2>/dev/null || true)
-if [ -z "$NPM_DESC" ]; then
+  NPM_README=$(echo "$NPM_JSON" | python3 -c '
+import json, sys
+try:
+    print(json.load(sys.stdin).get("readme", ""))
+except Exception:
+    pass
+' 2>/dev/null || true)
+fi
+if [ -z "$NPM_JSON" ]; then
   echo "{\"listing\":\"npm\",\"status\":\"unreachable\",\"blocking\":false}"
 else
-  emit_repo_synced_listing npm "$NPM_DESC"
+  emit_repo_synced_listing npm "$NPM_DESC" "$NPM_README"
 fi
 
 # --- Glama-health — connector page's own binary Status field (Healthy/Unhealthy). Not a
