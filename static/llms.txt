@@ -1,7 +1,7 @@
 # APIbase — Universal API Hub for AI Agents
 # https://apibase.pro
 
-> One MCP + REST endpoint to 1380 tools from 394 providers. No signup, no subscription, no API key to start — pay per call in USDC (x402 on Base or MPP on Tempo).
+> One MCP + REST endpoint to 1380 tools from 396 providers. No signup, no subscription, no API key to start — pay per call in USDC (x402 on Base or MPP on Tempo).
 
 Why this endpoint instead of individual providers, and how discover/evaluate/pay/execute
 actually work: https://apibase.pro/why (Markdown: https://apibase.pro/why.md). Answers for

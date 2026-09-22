@@ -43,6 +43,7 @@ anime.characters	jikan
 anime.details	jikan
 anime.search	jikan
 anime.top	jikan
+apibase.discover	apibase
 arbeitnow.jobs	arbeitnow
 archiveorg.metadata	archiveorg
 archiveorg.search	archiveorg
@@ -577,13 +578,6 @@ hdx.dataset_detail	hdx
 hdx.dataset_search	hdx
 hdx.location_list	hdx
 hdx.organization_list	hdx
-health.drug_events	health
-health.drug_labels	health
-health.food_details	health
-health.food_recalls	health
-health.food_search	health
-health.supplement_details	health
-health.supplement_search	health
 hf.datasets	hf
 hf.model_details	hf
 hf.models	hf
@@ -686,6 +680,9 @@ iss.tle	iss
 istat.data	istat
 istat.dataflows	istat
 istat.structure	istat
+itistaxonomy.get_full_record	itistaxonomy
+itistaxonomy.search_common_name	itistaxonomy
+itistaxonomy.search_scientific_name	itistaxonomy
 jma-bosai.areas	jma-bosai
 jma-bosai.earthquakes	jma-bosai
 jma-bosai.forecast	jma-bosai
@@ -950,6 +947,9 @@ opentopodata.batch	opentopodata
 opentopodata.high_res	opentopodata
 opentopodata.ocean	opentopodata
 opentopodata.point	opentopodata
+orcid.get_person	orcid
+orcid.get_works	orcid
+orcid.search_researcher	orcid
 orphadata.disease_epidemiology	orphadata
 orphadata.disease_lookup	orphadata
 orphadata.disease_natural_history	orphadata

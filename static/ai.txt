@@ -11,7 +11,7 @@ Payment: x402 (USDC on Base) + MPP (Machine Payments Protocol)
 Tools: 1380 across 25 categories
 
 ## What We Do
-APIbase aggregates 1380 tools from 394 providers into a single MCP endpoint.
+APIbase aggregates 1380 tools from 396 providers into a single MCP endpoint.
 Any AI agent can discover, call, and pay for tools through one entry point.
 
 ## For AI Agents — Quick Start

@@ -1,9 +1,9 @@
 {
   "platform": "APIbase",
   "version": "2.1.0",
-  "updated_at": "2026-09-21T00:00:00Z",
+  "updated_at": "2026-09-22T00:00:00Z",
   "tools_count": 1380,
-  "providers_count": 394,
+  "providers_count": 396,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
@@ -43,21 +43,21 @@
     },
     {
       "name": "health",
-      "tools": 151,
-      "providers": "Biomodels, Cactus, CDC, CDC Chronic, Chembl, Clinicaltrials, Cms, Delphi, Disease, Ebi Metagenomics, Ecdc Surveillance, Ensembl, Europepmc, Fatsecret, FDA OPENFDA, Global Health Covid, Health, Malaria Atlas, Materials Project, Medlineplus, Mychem, Mygene, Myvariant, Nihreporter, Nlm Icd11, Openbeautyfacts, OPENFDA Devices, Orphadata, Pharmgkb, Pubchem, Rcsb, Rxnorm, SDWIS, Spoonacular, Ukfsa, Ukhsa Dashboard, Uniprot, Wger, WHO, WHO GHO",
+      "tools": 147,
+      "providers": "Biomodels, Cactus, CDC, CDC Chronic, Chembl, Clinicaltrials, Cms, Delphi, Disease, Ebi Metagenomics, Ecdc Surveillance, Ensembl, Europepmc, Fatsecret, FDA OPENFDA, Global Health Covid, Itistaxonomy, Malaria Atlas, Materials Project, Medlineplus, Mychem, Mygene, Myvariant, Nihreporter, Nlm Icd11, Openbeautyfacts, OPENFDA Devices, Orphadata, Pharmgkb, Pubchem, Rcsb, Rxnorm, SDWIS, Spoonacular, Ukfsa, Ukhsa Dashboard, Uniprot, Wger, WHO, WHO GHO",
       "examples": "Call discover_tools with category=\"health\" for the current tool list and descriptions."
+    },
+    {
+      "name": "education",
+      "tools": 106,
+      "providers": "Bhl, Bible, Cordis, Crossref, Crossref Datacitations, Datacite, Dblp, Doaj, Education, Figshare, GBIF, Gutendex, Librivox, Nsf Awards, Obis, Openaire, Openalex, Opencontext, Openlibrary, Orcid, Plos Search, Ror, Semanticscholar, Standard Ebooks, Tatoeba, Unesco Data, Unpaywall, Wikidata, Wikipedia, Worms, Zenodo",
+      "examples": "Call discover_tools with category=\"education\" for the current tool list and descriptions."
     },
     {
       "name": "weather",
       "tools": 103,
       "providers": "Airnow, Aviationweather, Avwx, Awc, Brightsky, Checkwx, Climate, Coops, Currentuvindex, Datagovsg, Drought Monitor, Ea Hydrology, IQAIR, Jma Bosai, Marine, Met Norway, Meteostat, Msc Geomet, Ncei, NOAA, NWS, Openmeteoaq, Opensensemap, Openweathermap, Paleoclimate, Sepa Scotland, Smhi, Uk Ea Flood Monitoring, Wmo Weather",
       "examples": "Call discover_tools with category=\"weather\" for the current tool list and descriptions."
-    },
-    {
-      "name": "education",
-      "tools": 103,
-      "providers": "Bhl, Bible, Cordis, Crossref, Crossref Datacitations, Datacite, Dblp, Doaj, Education, Figshare, GBIF, Gutendex, Librivox, Nsf Awards, Obis, Openaire, Openalex, Opencontext, Openlibrary, Plos Search, Ror, Semanticscholar, Standard Ebooks, Tatoeba, Unesco Data, Unpaywall, Wikidata, Wikipedia, Worms, Zenodo",
-      "examples": "Call discover_tools with category=\"education\" for the current tool list and descriptions."
     },
     {
       "name": "entertainment",
@@ -67,8 +67,8 @@
     },
     {
       "name": "developer",
-      "tools": 81,
-      "providers": "Account, Autodev, Chart, Convertapi, Cve Mitre, Depsdev, Github Api, Hf, Hf Inference, Ipapi, Ipqs, Judge0, Langbly, Marketcheck, NHTSA, NHTSA Safety, Npm, NVD, Osv, Platform, Postcodes Io, Pypi, Qrserver, Shortio, Timeapi, Upcitemdb, Weatherapi, Whoisjson, Whoisxml, Zippopotamus",
+      "tools": 82,
+      "providers": "Account, Apibase, Autodev, Chart, Convertapi, Cve Mitre, Depsdev, Github Api, Hf, Hf Inference, Ipapi, Ipqs, Judge0, Langbly, Marketcheck, NHTSA, NHTSA Safety, Npm, NVD, Osv, Platform, Postcodes Io, Pypi, Qrserver, Shortio, Timeapi, Upcitemdb, Weatherapi, Whoisjson, Whoisxml, Zippopotamus",
       "examples": "Call discover_tools with category=\"developer\" for the current tool list and descriptions."
     },
     {
